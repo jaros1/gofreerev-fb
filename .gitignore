@@ -14,3 +14,9 @@
 # Ignore all logfiles and tempfiles.
 /log/*.log
 /tmp
+
+# Ignore capistrano setup
+Capfile
+Capfile.1
+config/deploy/*
+
