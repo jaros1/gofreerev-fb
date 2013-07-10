@@ -1,0 +1,9 @@
+<p>
+  Login in progress - please wait a moment
+</p>
+<script>
+  // user has already authorized <%= APP_NAME %> - auto redirect to https://www.facebook.com/dialog/oauth? to get code
+  var auth_url = '<%= @auth_url %>' ;
+  auth_url = auth_url.replace(/&amp;/g,'&');
+  top.location.href = auth_url;
+</script>

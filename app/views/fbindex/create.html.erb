@@ -1,12 +1,6 @@
-<html>
-<head>
-  <meta charset="utf-8" />
-</head>
-<body>
-
 <p>
-  Gofreerev plays with some of the concepts that <%= link_to "Charles Eisenstein", "http://charleseisenstein.net/", { :target => "_blank" } %>
-  presents in his book <%= link_to "Sacred Economics", "http://sacred-economics.com/", { :target => "_blank" } %>,
+  <%= APP_NAME %> plays with some of the concepts that <%= link_to_charles_eisenstein %>
+  presents in his book <%= link_to_sacred_economics %>,
   including community, free money, negative interest rates and social dividend.<br />
   I have in this game chosen facebook as community,
   national free money with negative interest rate of 7.6% per year of assets and liabilities.
@@ -27,16 +21,15 @@
   Keep the money alive, update the stories and keep in contact.
   <br />
   <br />
-  Gofreerev make postings on your wall with your offers and their story.
+  <%= APP_NAME %> make postings on your wall with your offers and their story.
   Set application rights for wall stories so your community (eg your friends) can see what you offer.
   It's FB rights that determine who can see what.<br />
-  Gofreerev stores information about your balance and links to Gofreerev's postings on your wall,
+  <%= APP_NAME %> stores information about your balance and links to <%= APP_NAME %>'s postings on your wall,
   but not the content of the messages.
   When or if you delete the offers from your wall the connection between your balance in free money
   and your offers is lost and your free money will be boring anonymous money without history.
 </p>
 
-<%= link_to 'Authenticate this Facebook app', "javascript: {top.location.href='" + @auth_url + "'}" %>
-
-</body>
-</html>
+<%= link_to 'Yes, authorize ' + APP_NAME + ' to my basic FB info!', "javascript: {top.location.href='" + @auth_url + "'}" %>
+<br />
+<br />

@@ -12,13 +12,33 @@ class ApplicationController < ActionController::Base
     ENV['GOFREEREV_FB_APP_SECRET']
   end
 
-  # language specific pages.
+  # render to language specific pages.
+  # viewname=create, session[:language] = da => call create-da.html.erb if the page exists
   private
-  def render_with_language(viewname, language)
-    viewname2 = "#{viewname}-#{language}"
+  def render_with_language(viewname)
+    language = session[:language]
+    puts "render_with_language: language = #{language}"
+    viewname2 = "#{viewname}_#{language}"
     filename = Rails.root.join('app', 'views', controller_name, "#{viewname2}.html.erb").to_s
     viewname2 = viewname unless File.exists?(filename)
     render :action => viewname2
   end # render_with_language
 
-end
+  # to prevent Cross-site Request Forgery
+  private
+  def generate_random_string (lng)
+    chars = ("a".."z").to_a + ("A".."Z").to_a + ("0".."9").to_a
+    newpass = ""
+    1.upto(lng) { |i| newpass << chars[rand(chars.size-1)] }
+    newpass
+  end # generate_random_string
+
+  private
+  def debug_session (msg)
+    [:oauth, :language, :country, :state, :access_token, :user_id, :name].each do |name|
+      puts "#{msg}: session[:#{name}] = #{session[name]}"
+    end
+  end
+
+
+end # ApplicationController
