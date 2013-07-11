@@ -29,12 +29,9 @@ class FbController < ApplicationController
         puts "code = #{params[:code]}"
         access_token = session[:access_token] = session[:oauth].get_access_token(params[:code])
         puts "access_token = #{access_token}"
-        # login completed. access token is saved. redirect to this page to prevent error if user refreshes page after login
+        # login completed. access token is saved.
         session.delete(:oauth)
         session.delete(:state)
-        redirect_to "/fb"
-        # debug_session(__method__.to_s + ' - end') # debug. dump session variables
-        return
       else
         # possible Cross-site Request Forgery
         puts "state missing or does not match - could be Cross-site Request Forgery"
@@ -54,7 +51,7 @@ class FbController < ApplicationController
       return
     end
 
-    # login completed
+    # FB login completed
     puts "index: login completed"
 
     if !(user_id = session[:user_id])
@@ -73,15 +70,14 @@ class FbController < ApplicationController
       u.user_name = user_name
       u.save!
       # login ok
+      puts "login ok: user_id = #{session[:user_id]}"
       session[:user_id] = user_id
-    end
+    end # if
 
-    u = User.find_by_user_id(user_id)
-    @name = u.user_name
-
+    # redirect to home page
+    redirect_to "/home"
     # debug_session(__method__.to_s + ' - end') # debug. dump session variables
-
-    render_with_language __method__
+    return
   end # index
 
   # post /fb = fb/create is called when FB starts the APP.

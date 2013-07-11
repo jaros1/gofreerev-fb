@@ -6,6 +6,10 @@ module ApplicationHelper
   def link_to_app_on_facebook
     link_to APP_NAME, "javascript: {top.location.href='" + FB_APP_URL + "'}"
   end
+  def link_to_google_plus
+    link_to "google+", "https://plus.google.com/"
+  end
+
   def link_to_cvs
     link_to CVS_NAME, CVS_URL, { :target => "_blank" }
   end
