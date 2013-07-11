@@ -35,7 +35,7 @@ class ApplicationController < ActionController::Base
 
   private
   def debug_session (msg)
-    [:oauth, :language, :country, :state, :access_token, :user_id, :name].each do |name|
+    [:oauth, :language, :country, :state, :access_token, :user_id].each do |name|
       puts "#{msg}: session[:#{name}] = #{session[name]}"
     end
   end

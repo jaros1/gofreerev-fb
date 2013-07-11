@@ -18,5 +18,5 @@
 # Ignore capistrano setup
 Capfile
 Capfile.1
-config/deploy/*
+config/deploy
 

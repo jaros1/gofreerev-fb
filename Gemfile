@@ -52,3 +52,6 @@ end
 # http://stackoverflow.com/questions/16288331/rails-3-uninitialized-constant-irbreadlineinputmethodreadline-nameerror-i
 # could by a problem from when ruby 2.0 was compiled
 gem 'rb-readline', '~> 0.4.2'
+
+# https://github.com/jmazzi/crypt_keeper
+gem 'crypt_keeper'
