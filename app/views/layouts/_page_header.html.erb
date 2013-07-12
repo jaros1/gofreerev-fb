@@ -1,0 +1,13 @@
+<table>
+  <tr style="white-space: nowrap">
+    <td>User: <%= @user.user_name_with_api %>, </td>
+    <td title="Ens saldo i frie penge er et slags mål for taknemmelighedsgæld. Hvem har givet/modtaget mest? Hvis tur er det til at modtage/give? Der er ingen sammenhæng imellem hvem der er rige/fattige i frie penge og hvem der er rige/fattige i den virkelige verden">
+      Balance: <%= @user.balance || '0.00' %>
+      free
+      <%= select_tag :user_currency, options_for_select(currencies, [@user.currency]), { :include_blank => true } %>,
+    </td>
+    <td>
+      todo: add logout link
+    </td>
+  </tr>
+</table>

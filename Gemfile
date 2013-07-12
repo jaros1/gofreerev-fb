@@ -55,3 +55,20 @@ gem 'rb-readline', '~> 0.4.2'
 
 # https://github.com/jmazzi/crypt_keeper
 gem 'crypt_keeper'
+
+# https://github.com/bcardarella/client_side_validations
+# client side validations is not ready for rails 4.0
+# gem 'client_side_validations', '4-0-beta'
+
+# https://github.com/hexorx/countries
+gem 'countries'
+
+# https://rubygems.org/gems/currencies
+gem 'currencies'
+
+# https://rubygems.org/gems/money
+gem 'money'
+
+# https://github.com/RubyMoney/google_currency
+# just in case if we need to exchange currencies
+gem 'google_currency'

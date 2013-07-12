@@ -74,8 +74,8 @@ class FbController < ApplicationController
       session[:user_id] = user_id
     end # if
 
-    # redirect to home page
-    redirect_to "/home"
+    # redirect to gifts page
+    redirect_to "/gifts"
     # debug_session(__method__.to_s + ' - end') # debug. dump session variables
     return
   end # index
@@ -157,27 +157,14 @@ class FbController < ApplicationController
     render_with_language viewname
   end # create
 
-  def callback
-    if params[:code]
-      # acknowledge code and get access token from FB
-      session[:access_token] = session[:oauth].get_access_token(params[:code])
-    end
-
-    # auth established, now do a graph call:
-
-    @api = Koala::Facebook::API.new(session[:access_token])
-    begin
-      @graph_data = @api.get_object("/me/statuses", "fields"=>"message")
-    rescue Exception=>ex
-      puts ex.message
-    end
-
-
-    respond_to do |format|
-      format.html {   }
-    end
-
-  end # callback
+  # logout
+  def destroy
+    # for language support in logout page
+    @user = User.find_by_user_id(session[:user_id]) if session[:user_id]
+    # no checks - just log out
+    session.delete(:user_id)
+    render_with_language __method__
+  end
 
 
   # fix blank canvas in facebook - https://coderwall.com/p/toddiq

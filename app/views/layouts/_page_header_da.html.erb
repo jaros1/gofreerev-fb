@@ -1,0 +1,24 @@
+
+<!-- Hidden form to update currency => post to /users/:id/ => return to this page -->
+<div id="update_currency_div" style="display:none">
+<%= form_for @user, :class => "update_currency_form" do |f| %>
+    <%= hidden_field_tag :return_to, @request_fullpath %>
+    <%= f.text_field :currency %>
+<% end %>
+</div>
+
+<table>
+  <tr style="white-space: nowrap">
+    <td title="Se dine bruger oplysninger">
+      Bruger: <%= link_to @user.user_name_with_api, @user %>,
+    </td>
+    <td title="Saldo. Brug valuta valg-liste hvis du ønsker din saldo vist i en anden valuta. Ens saldo i frie penge er et slags mål for taknemmelighedsgæld. Hvem har givet/modtaget mest? Hvis tur er det til at modtage/give? Der er ingen sammenhæng imellem hvem der er rige/fattige i frie penge her og hvem der er rige/fattige i den virkelige verden">
+      Saldo: <%= @user.balance || '0.00' %>
+      frie
+      <%= select_tag :user_currency_new, options_for_select(currencies, [@user.currency]), :onchange=>"update_currency(this)" %>,
+    </td>
+    <td title="Log ud af <%= APP_NAME %> app">
+      <%= link_to "Log ud", fb_path(@user.id), :method => 'delete' %>
+    </td>
+  </tr>
+</table>

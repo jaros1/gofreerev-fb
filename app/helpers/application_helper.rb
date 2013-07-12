@@ -19,16 +19,27 @@ module ApplicationHelper
   def link_to_sacred_economics
     link_to "Sacred Economics", "http://sacred-economics.com/", { :target => "_blank" }
   end
-  def render_page_footer
+
+  # application layout helpers
+  def currencies
+    Money::Currency.table.collect { |a| [  "#{a[1][:iso_code]} #{a[1][:name]}".first(25), a[1][:iso_code] ] }
+  end
+  def render_application_partial (partialname)
     language = session[:language]
-    puts "render_page_footer: language = #{language}"
+    puts "render_#{partialname}: language = #{language}"
     language = nil if language == 'en'
-    return render("layouts/page_footer") unless language # english
-    partialname = "page_footer_#{language}"
-    filename = Rails.root.join('app', 'views', 'layouts', "_#{partialname}.html.erb").to_s
-    puts "render_page_footer: filename = #{filename}"
-    partialname = 'page_footer' unless File.exists?(filename)
-    return render "layouts/#{partialname}"
+    return render("layouts/#{partialname}") unless language # english
+    partialname2 = "#{partialname}_#{language}"
+    filename = Rails.root.join('app', 'views', 'layouts', "_#{partialname2}.html.erb").to_s
+    puts "render_#{partialname}: filename = #{filename}"
+    partialname2 = partialname unless File.exists?(filename)
+    return render "layouts/#{partialname2}"
+  end # render_application_partial
+  def render_page_header
+    render_application_partial('page_header')
+  end # render_page_header
+  def render_page_footer
+    render_application_partial('page_footer')
   end # render_page_footer
 
 end # ApplicationHelper

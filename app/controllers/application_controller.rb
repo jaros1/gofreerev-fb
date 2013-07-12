@@ -18,8 +18,13 @@ class ApplicationController < ActionController::Base
   def render_with_language(viewname)
     language = session[:language]
     puts "render_with_language: language = #{language}"
+    if !language or language == 'en'
+      render :action => viewname
+      return
+    end
     viewname2 = "#{viewname}_#{language}"
     filename = Rails.root.join('app', 'views', controller_name, "#{viewname2}.html.erb").to_s
+    puts "render_with_language: filename = #{filename}"
     viewname2 = viewname unless File.exists?(filename)
     render :action => viewname2
   end # render_with_language
