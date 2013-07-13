@@ -47,11 +47,11 @@ end
 # Use debugger
 # gem 'debugger', group: [:development, :test]
 
-# readline
-# fix rails console error "/usr/local/lib/ruby/2.0.0/irb/completion.rb:9:in `require': cannot load such file -- readline (LoadError)"
-# http://stackoverflow.com/questions/16288331/rails-3-uninitialized-constant-irbreadlineinputmethodreadline-nameerror-i
-# could by a problem from when ruby 2.0 was compiled
-gem 'rb-readline', '~> 0.4.2'
+# rb-readline not needed. Problems with 0.4.2 and 0.5.0.pre.1 gems was fixed with:
+# http://askubuntu.com/questions/261914/install-ruby-2-0-with-openssl-and-readline-support
+# gem 'rb-readline', '~> 0.4.2'
+# gem 'rb-readline', '~> 0.5.0.pre.1'
+# Problems with both rb-readline gems.
 
 # https://github.com/jmazzi/crypt_keeper
 gem 'crypt_keeper'

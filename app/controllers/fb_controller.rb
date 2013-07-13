@@ -8,7 +8,7 @@ class FbController < ApplicationController
   # accepted: Parameters: {"code"=>"AQA6165EwuVn3EVKkzy2TOocej1wBb_tD0-9jEuhJQFFK7GH2PDkDbbSOOd9lhoqIYibusDfPpWOwaUg6XYiR2lcmP2tLgG0RPgRxL6qwFBZalg0j6wXSO8bZmjKn-yf9O_GOH9wm5ugMKLUihU7mjfLAbR58FrJ8wdgnej2aG9KLQvKNenb16Hf_ULI016u3DGHM-zGvmyb8xAgAAabOHkDQNT5C3lIO0eXTGMwo66zLrnn0jkENguAnAUuZrVym9OMiBV1f9ocg8WfgprflPq-BHOSHdhuHgYISHxO_nTs1dT7Ku5z551ZyBq1hG15aG4"}
   def index
     # uncomment the next line to check Cross-site Request Forgery response
-    # session[:state] = generate_random_string(30)
+    # session[:state] = String.generate_random_string(30)
 
     debug_session(__method__.to_s + ' - start') # debug. dump session variables
 
@@ -148,7 +148,7 @@ class FbController < ApplicationController
     # FB authorization with minimal permissions (information already public)
     # More permissions will be requested later when they are needed and the user can understand why
     # @auth_url =  oauth.url_for_oauth_code(:permissions=>"read_stream")
-    state = session[:state] = generate_random_string(30)
+    state = session[:state] = String.generate_random_string(30)
     @auth_url =  oauth.url_for_oauth_code :state => state
     puts session.to_s + "<<< session"
     puts "@auth_url = #{@auth_url}"
