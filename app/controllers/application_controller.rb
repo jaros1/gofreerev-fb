@@ -3,6 +3,7 @@ class ApplicationController < ActionController::Base
   # For APIs, you may want to use :null_session instead.
   protect_from_forgery with: :exception
   before_filter :request_url_for_header
+  before_filter :fetch_user
 
   # Facebook API information is defined as OS environment variable
   private
@@ -43,5 +44,10 @@ class ApplicationController < ActionController::Base
     @request_fullpath = request.fullpath
   end
 
+  private
+  def fetch_user
+    puts "user_id = #{session[:user_id]}"
+    @user = User.find_by_user_id(session[:user_id]) if session[:user_id]
+  end
 
 end # ApplicationController

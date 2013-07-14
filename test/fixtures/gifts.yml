@@ -1,0 +1,17 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+one:
+  gift_id: 1
+  description: MyText
+  currency: MyText
+  price: 9.99
+  user_id: MyString
+  closed: 2013-07-11 16:41:00
+
+two:
+  gift_id: 1
+  description: MyText
+  currency: MyText
+  price: 9.99
+  user_id: MyString
+  closed: 2013-07-11 16:41:00

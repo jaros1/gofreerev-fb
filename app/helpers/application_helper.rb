@@ -1,5 +1,7 @@
 module ApplicationHelper
 
+  # link_to helpers
+
   def link_to_facebook
     link_to "facebook", "javascript: {top.location.href='http://www.facebook.com/'}"
   end
@@ -20,26 +22,28 @@ module ApplicationHelper
     link_to "Sacred Economics", "http://sacred-economics.com/", { :target => "_blank" }
   end
 
+  # partial helpers
+  def render_partial_with_language (folder, partialname)
+    language = session[:language]
+    puts "render_#{partialname}: language = #{language}"
+    language = nil if language == 'en'
+    return render("#{folder}/#{partialname}") unless language # english
+    partialname2 = "#{partialname}_#{language}"
+    filename = Rails.root.join('app', 'views', folder, "_#{partialname2}.html.erb").to_s
+    puts "render_#{partialname}: filename = #{filename}"
+    partialname2 = partialname unless File.exists?(filename)
+    return render "#{folder}/#{partialname2}"
+  end # render_application_partial
+
   # application layout helpers
   def currencies
     Money::Currency.table.collect { |a| [  "#{a[1][:iso_code]} #{a[1][:name]}".first(25), a[1][:iso_code] ] }
   end
-  def render_application_partial (partialname)
-    language = session[:language]
-    puts "render_#{partialname}: language = #{language}"
-    language = nil if language == 'en'
-    return render("layouts/#{partialname}") unless language # english
-    partialname2 = "#{partialname}_#{language}"
-    filename = Rails.root.join('app', 'views', 'layouts', "_#{partialname2}.html.erb").to_s
-    puts "render_#{partialname}: filename = #{filename}"
-    partialname2 = partialname unless File.exists?(filename)
-    return render "layouts/#{partialname2}"
-  end # render_application_partial
   def render_page_header
-    render_application_partial('page_header')
+    render_partial_with_language('layouts', 'page_header')
   end # render_page_header
   def render_page_footer
-    render_application_partial('page_footer')
+    render_partial_with_language('layouts', 'page_footer')
   end # render_page_footer
 
 end # ApplicationHelper

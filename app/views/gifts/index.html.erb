@@ -1,26 +1,26 @@
 <br />
 <% if @user -%>
-    <%= form_for @gift, :multipart => true do |f| %>
+    <%= form_for @gift, :multipart => true, :html => { :enctype => 'multipart/form-data' } do |f| %>
         <table>
           <tr>
-            <td colspan="2">Hjælp hinanden og miljøet. Del jeres resourcer. Giv, lån/lej ud, sælg.</td>
-            <td rowspan="4" valign="middle"><%= f.submit 'Opret opslag' %></td>
+            <td colspan="3">Hjælp hinanden og miljøet. Del jeres resourcer. Giv, lån/lej ud, sælg etc.</td>
           </tr>
-          <tr title="Pris. Valgfri. Kan sættes nu eller senere. Kan sættes af giver/sælger eller modtager/køber. Det mest idealistiske er at modtager/køber sætter pris. Der anvendes frie virtuelle nationale penge herinde. Dvs. frie penge med en negativ rente. Formålet med den negative rente er at sikre at de frie penge cirkulerer og resourcer udveksles. Ingen grund til at holde på pengene når deres værdi forringes over tid. Og ingen bundløs gæld da gæld ligeledes bliver mindre over tid.">
+          <tr title="Pris i virtuelle frie penge. Valgfri. Kan sættes nu eller senere. Bedst hvis køber/modtager sætter pris der så bliver et mål for hvor meget pris vedkommende satte på den modtagne ting/hjælp. Der anvendes frie virtuelle nationale penge herinde med en negativ rente på 7.6 % om året. Et formål med den negative rente er at sikre at penge og resourcer cirkulerer. Den negative rente gør det muligt med et samfund uden vækst, overforbrug og med masser af fritid">
             <td>Pris:</td>
-            <td>
-               <%= f.text_field(:price, :size=>10, :maxlength=>10, :onblur=>"gifts_index_disabled_user_currency()") %>
+            <td colspan="2">
+               <%= f.text_field(:price, :size=>10, :maxlength=>10) %>
                frie
-               <%= @user.currency_with_text %>
+               <%= @user.currency %>
             </td>
           </tr>
           <tr title="Tekst. Skal udfyldes. Beskriv det du tilbyder hvad enten det er ting eller hjælp. Du bestemmer selv om du vil sælge, udleje, udlåne eller forære ting væk gratis. Da der handles i virtuelle frie penge forærer man i praksis altid ting væk, men ens saldo i frie penge vokser. Opslag laves på din væg og vises til dine venner eller hvem du har valgt skal se opslag fra denne app. Dine venner kan kommenterer dit opslag på din væg. Aftalen bør sluttes herinde så din saldo i frie penge opdateres">
             <td valign="top">Tekst:</td>
-            <td><%= f.text_area(:description, :size => '60x8', :onblur=>"gifts_index_disabled_user_currency()") %></td>
+            <td><%= f.text_area(:description, :size => '60x8') %></td>
+            <td><%= f.submit 'Opret opslag', :onclick => "return gifts_client_validations()" %></td>
           </tr>
           <tr title="Vedlæg gerne et foto af det som du deler. Billeder er en effektiv måde at blive set på af ens venner">
             <td>Vedlæg:</td>
-            <td><%= file_field_tag(:gift_file, :onblur=>"gifts_index_disabled_user_currency()") %></td>
+            <td colspan="2"><%= file_field_tag(:gift_file) %></td>
           </tr>
         </table>
     <% end %>
@@ -28,7 +28,14 @@
   Du er ikke logget ind og der kan ikke oprettes nye opslag.<br />
 <% end -%>
 
-<script type="text/javascript">
-  // freeze/unfreeze currency list box.
-  onload = function () { gifts_index_disabled_user_currency() }
+<script>
+    // add page specific version of pre_update_currency function. That is confirm popup before leaving page with unsaved data.
+    pending_gift_msg = 'Ret valuta? ' +
+                       'Svar "Cancel" for at vende tilbage og lave opslag færdig. ' +
+                       'Svar "OK" for at tabe det indtastede opslag og opdatere valuta.' ;
+    pre_update_currency = gifts_pre_update_currency ;
+
+    // Use Danish texts in client side validations.
+    csv_gifts_description_required = 'Tekst skal udfyldes.' ;
+    csv_gifts_price_invalid = 'Price is ugyldig. Brug kun cifre, højst et decimal komma/punktum og højst 2 decimaler. Tusindtalsseparator er ikke tilladt'  ;
 </script>

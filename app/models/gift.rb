@@ -32,7 +32,8 @@ class Gift < ActiveRecord::Base
   # social_dividend   abs(nnegative_interest / 4). Distributed to both users. 0.01 % per day = 3.8 % per year
 
   # https://github.com/jmazzi/crypt_keeper - text columns are encrypted in database
-  # ( same key for all attributes and all rows in database )
+  # encrypt_add_pre_and_postfix/encrypt_remove_pre_and_postfix added in setters/getters for better encryption
+  # this is different encrypt for each attribute and each db row
   crypt_keeper :description, :currency, :price, :received_at, :new_price, :negative_interest, :social_dividend, :encryptor => :aes, :key => ENCRYPT_KEYS[1]
 
 
@@ -40,7 +41,7 @@ class Gift < ActiveRecord::Base
   # attributes #
   ##############
 
-  # gift_id - required - readonly
+  # 1) gift_id - required - not encrypted - readonly
   validates_presence_of :gift_id
   validates_uniqueness_of :gift_id
   attr_readonly :gift_id
@@ -52,99 +53,123 @@ class Gift < ActiveRecord::Base
     self['gift_id'] = new_gift_id
   end
 
-  # description - required - encrypted i db by crypt_keeper
+  # 2) description - required - String in model - encrypted text in db - update not allowed
   validates_presence_of :description
+  attr_readonly :currency
+  def description
+    return nil unless (extended_description = self['description'])
+    encrypt_remove_pre_and_postfix(extended_description, 'description', 2)
+  end
+  def description=(new_description)
+    if new_description
+      check_type('description', new_description, 'String')
+      self['description'] = encrypt_add_pre_and_postfix(new_description, 'description', 2)
+    else
+      self['description'] = nil
+    end
+  end
 
-  # currency - encrypted in db by crypt_keeper - not null - can not be changed
-  validates_presence_of :description
+  # 3) currency - required - String in model - encrypted text in db - update mot allowed
+  validates_presence_of :currency
+  attr_readonly :currency
+  def currency
+    return nil unless (extended_currency = self['currency'])
+    encrypt_remove_pre_and_postfix(extended_currency, 'currency', 3)
+  end
+  def currency=(new_currency)
+    if new_currency
+      check_type('currency', new_currency, 'String')
+      self['currency'] = encrypt_add_pre_and_postfix(new_currency, 'currency', 3)
+    else
+      self['currency'] = nil
+    end
+  end # currency
 
-  # price - BigDecimal in model - encrypted text in db - change not allowed if received_at is not null / deal is closed
-  # different encryption for each attribute and row in database
+
+
+  # 4) price - BigDecimal in model - encrypted text in db
+  # change not allowed if received_at is not null / deal is closed
   def price
-    return nil unless self['price']
-    temp_extended_price = self['price']
-    temp_price = encrypt_remove_pre_and_postfix(temp_extended_price, 'price', 5)
-    BigDecimal.new temp_price
+    return nil unless (temp_extended_price = self['price'])
+    BigDecimal.new encrypt_remove_pre_and_postfix(temp_extended_price, 'price', 4)
   end # price
   def price=(new_price)
     if new_price
       check_type('price', new_price, 'BigDecimal')
-      temp_price =  new_price.to_s
-      temp_extended_price = encrypt_add_pre_and_postfix(temp_price, 'price', 5) # different key for each field and row in database
-      self['price'] = temp_extended_price
+      self['price'] = encrypt_add_pre_and_postfix(new_price.to_s, 'price', 4)
     else
       self['price'] = nil
     end
   end # price=
 
-  # user_id_giver - my user id - required - FK - not encrypted
+  # 5) user_id_giver - my user id - required - FK - not encrypted
   validates_presence_of :user_id_giver
 
-  # user_id_receiver - added when received_at is set - FK - not encrypted
+  # 6) user_id_receiver - added when received_at is set - FK - not encrypted
 
-  # received_at. Date in model - encrypted text in db - set once when the deal is closed together with user_id_receiver
+  # 7) received_at. Date in model - encrypted text in db - set once when the deal is closed together with user_id_receiver
   def received_at
-    return nil unless self['received_at']
-    YAML::load(self['received_at'])
+    return nil unless (temp_extended_received_at = self['received_at'])
+    temp_received_at = encrypt_remove_pre_and_postfix(temp_extended_received_at, 'received_at', 5)
+    YAML::load(temp_received_at)
   end
   def received_at=(new_received_at)
-    if  new_received_at
+    if new_received_at
       check_type('received_at', new_received_at, 'Date')
-      self['received_at'] = new_received_at.to_yaml
+      self['received_at'] = encrypt_add_pre_and_postfix(new_received_at.to_yaml, 'received_at', 5)
     else
       self['received_at'] = nil
     end
   end
 
+  # 8) new_price_at - date - not encrypted - almost always = today
 
-  # new_price_at - date - not encrypted - almost always = today
-
-  # new_price - BigDecimal in model - encrypted text in db - recalculated once every day for closed deals with a price
+  # 9) new_price - BigDecimal in model - encrypted text in db - recalculated once every day for closed deals with a price and a receiver
   def new_price
-    return nil unless self['new_price']
-    BigDecimal.new self['new_price']
+    return nil unless (temp_extended_new_price = self['new_price'])
+    BigDecimal.new encrypt_remove_pre_and_postfix(temp_extended_new_price, 'new_price', 6)
   end # new_price
   def new_price=(new_new_price)
     if new_new_price
       check_type('new_price', new_new_price, 'BigDecimal')
-      self['new_price'] = new_new_price.to_s
+      self['new_price'] = encrypt_add_pre_and_postfix(new_new_price.to_s, 'new_price', 6)
     else
       self['new_price'] = nil
     end
   end # new_price=
 
-  # negative_interest - BigDecimal in model - encrypted text in db - recalculated once every day for closed deals with a price
+  # 10) negative_interest - BigDecimal in model - encrypted text in db - recalculated once every day for closed deals with a price and a receiver
   def negative_interest
-    return nil unless self['new_price']
-    BigDecimal.new self['new_price']
+    return nil unless (temp_extended_negative_interest = self['negative_interest'])
+    BigDecimal.new encrypt_remove_pre_and_postfix(temp_extended_negative_interest, 'negative_interest', 7)
   end # negative_interest
   def negative_interest=(new_negative_interest)
     if new_negative_interest
       check_type('negative_interest', new_negative_interest, 'BigDecimal')
-      self['negative_interest'] = new_negative_interest.to_s
+      self['negative_interest'] = encrypt_add_pre_and_postfix(new_negative_interest.to_s, 'negative_interest', 7)
     else
       self['negative_interest'] = nil
     end
   end # negative_interest=
 
-  # social_dividend - BigDecimal in model - encrypted text in db - recalculated once every day for closed deals with a price
+  # 11) social_dividend - BigDecimal in model - encrypted text in db - recalculated once every day for closed deals with a price
   def social_dividend
-    return nil unless self['social_dividend']
-    BigDecimal.new self['social_dividend']
+    return nil unless (temp_extended_social_dividend = self['social_dividend'])
+    BigDecimal.new encrypt_remove_pre_and_postfix(temp_extended_social_dividend, 'social_dividend', 8)
   end # negative_interest
   def social_dividend=(new_social_dividend)
     if new_social_dividend
       check_type('social_dividend', new_social_dividend, 'BigDecimal')
-      self['social_dividend'] = new_social_dividend.to_s
+      self['social_dividend'] = encrypt_add_pre_and_postfix(new_social_dividend.to_s, 'social_dividend', 8)
     else
       self['social_dividend'] = nil
     end
 
   end # social_dividend=
 
-  # created_at - timestamp - not encrypted
+  # 12) created_at - timestamp - not encrypted
 
-  # updated_at - timestamp - not encrypted
+  # 13) updated_at - timestamp - not encrypted
 
 
   #
