@@ -176,17 +176,10 @@ class Gift < ActiveRecord::Base
   # helper methods
   #
 
-  # private
-  def check_type (attributename, attributevalue, classname)
-    return unless attributevalue
-    return if attributevalue.class.name == classname
-    raise TypeError, "Invalid type #{attributename.class.name} for attribute #{attributename}. " +
-                     "Allowed types are NilClass and #{classname}"
-  end # check_type
-
 
   # https://github.com/jmazzi/crypt_keeper gem encrypts all attributes and all rows in db with the same key
   # this extension to use different encryption for each attribute and each row
+  # overwrite non model specific methods defined in /config/initializers/active_record_extensions.rb
     protected
     def encrypt_pk
       self.gift_id

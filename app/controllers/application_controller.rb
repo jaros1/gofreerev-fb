@@ -19,6 +19,7 @@ class ApplicationController < ActionController::Base
   private
   def render_with_language(viewname)
     language = session[:language]
+    # language = 'en' # todo: remove this line
     puts "render_with_language: language = #{language}"
     if !language or language == 'en'
       render :action => viewname
@@ -44,9 +45,57 @@ class ApplicationController < ActionController::Base
     @request_fullpath = request.fullpath
   end
 
+  # check for code from FB - create/update user
+  # fetch user info. Used in page heading etc
   private
   def fetch_user
-    puts "user_id = #{session[:user_id]}"
+    if params[:state] != session[:state] and params[:code].to_s != ''
+      # Possible Cross-site Request Forgery - ignore code from FB
+      puts "fetch_user: Possible csrf: params[:state] = #{params[:state]}, session[:state] = #{session[:state]}, params[:code] = #{params[:code]}"
+      params[:code] = nil
+    end
+    if params[:code].to_s != '' and session[:oauth]
+      # exchange code for access_token
+      current_url = "#{request.protocol}#{request.host_with_port}#{request.fullpath}/"
+
+      oauth = session[:oauth]
+      access_token = oauth.get_access_token(params[:code])
+      if access_token
+        session[:access_token] = access_token
+        # authorization ok (first login, following logins or new privs)
+        # get name and current privs
+
+        # get user id and name
+        puts "get user id and name"
+        api = Koala::Facebook::API.new(session[:access_token])
+        api_request = "me?fields=name,permissions"
+        puts "api_request = #{api_request}"
+        api_response = api.get_object api_request
+        puts "api_response = #{api_response.to_s}"
+        user_id = "FB-#{api_response["id"]}"
+        user_name = api_response["name"]
+        u = User.find_by_user_id(user_id)
+        u = User.new unless u
+        u.user_id = user_id
+        u.user_name = user_name
+        if u.new_record?
+          # set currency and balance for new user.
+          puts "new user"
+          country = session[:country] || 'US' #  Default USD
+          u.currency = Country[country].currency.code
+          u.balance = BigDecimal.new '0.0'
+          u.balance_at = Date.today
+        end
+        u.permissions = api_response["permissions"]["data"][0]
+        u.save!
+        # login ok
+        puts "login ok: user_id = #{session[:user_id]}"
+        session[:user_id] = user_id
+      end
+      params[:code] = nil
+      session.delete(:oauth)
+    end
+    puts "fetch_user: user_id = #{session[:user_id]}"
     @user = User.find_by_user_id(session[:user_id]) if session[:user_id]
   end
 

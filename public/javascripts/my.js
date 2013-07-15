@@ -75,7 +75,7 @@ function gifts_pre_update_currency()
 
 // Client side validation for gifts
 var csv_gifts_description_required = 'Description is required.' ;
-var csv_gifts_price_invalid = 'Price is invalid. Only numbers, max one decimal comma/point and max 2 decimals.' ;
+var csv_gifts_price_invalid = 'Price is invalid. Only numbers, max 2 decimals, thousands separator not allowed.' ;
 function gifts_client_validations() {
     // check required description
     var gift_description = document.getElementById('gift_description')

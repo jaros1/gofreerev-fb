@@ -58,7 +58,7 @@ class FbController < ApplicationController
       # get user id and name
       puts "get user id and name"
       api = Koala::Facebook::API.new(session[:access_token])
-      api_request = "me?fields=name"
+      api_request = "me?fields=name,permissions"
       puts "api_request = #{api_request}"
       api_response = api.get_object api_request
       puts "api_response = #{api_response.to_s}"
@@ -68,6 +68,15 @@ class FbController < ApplicationController
       u = User.new unless u
       u.user_id = user_id
       u.user_name = user_name
+      if u.new_record?
+        # set currency and balance for new user.
+        puts "new user"
+        country = session[:country] || 'US' #  Default USD
+        u.currency = Country[country].currency.code
+        u.balance = BigDecimal.new '0.0'
+        u.balance_at = Date.today
+      end
+      u.permissions = api_response["permissions"]["data"][0]
       u.save!
       # login ok
       puts "login ok: user_id = #{session[:user_id]}"
@@ -106,17 +115,25 @@ class FbController < ApplicationController
 
     # FB requires that url must end with a /
     current_url = "#{request.protocol}#{request.host_with_port}#{request.fullpath}/"
+    current_url = 'http://localhost/fb/' if current_url == 'http://localhost//'
     puts "current_url = #{current_url}"
 
     remote_ip = request.remote_ip
     puts "remote_ip = #{remote_ip}"
 
     signed_request = params[:signed_request]
-    puts "signed_request = "  + signed_request
+    puts "signed_request = #{signed_request}"
     # signed_request = 9m_Xew0oojeuzMjIZFqwx9lI_UI4AqC-vMWXL9o45g4.eyJhbGdvcml0aG0iOiJITUFDLVNIQTI1NiIsImlzc3VlZF9hdCI6MTM3MzI4NDA4OCwidXNlciI6eyJjb3VudHJ5IjoiZGsiLCJsb2NhbGUiOiJkYV9ESyIsImFnZSI6eyJtaW4iOjIxfX19
+    if signed_request.to_s == ""
+      # fatal error - signed_request parameter was missing in request
+      puts "fatal error - signed_request parameter was missing in request "
+      render_with_language('cross_site_forgery')
+      return ;
+    end
 
     # unpack unsigned request
     # oauth = session[:oauth] = Koala::Facebook::OAuth.new(api_id, api_secret, SITE_URL + '/fb/callback')
+    puts "Koala::Facebook::OAuth.new: current_url = #{current_url}"
     oauth = session[:oauth] = Koala::Facebook::OAuth.new(api_id, api_secret, current_url) unless oauth =  session[:oauth]
     hash = oauth.parse_signed_request(signed_request)
     puts "hash = #{hash}"
@@ -159,10 +176,12 @@ class FbController < ApplicationController
 
   # logout
   def destroy
-    # for language support in logout page
+    # fetch user for language support in logout page
     @user = User.find_by_user_id(session[:user_id]) if session[:user_id]
-    # no checks - just log out
-    session.delete(:user_id)
+    # empty session - keep language for language support in pages
+    session.keys.each do |name|
+      session.delete(name) unless %w(_csrf_token).index(name.to_s)
+    end
     render_with_language __method__
   end
 

@@ -10,10 +10,24 @@
   </script>
 </head>
 <body>
-<%= render_page_header if session[:user_id] and @user %>
+<!-- show page header for logged in users -->
+<% if  session[:user_id] and @user -%>
+  <!-- Hidden form to update currency => post to /users/:id/ => return to this page after currency has been changed -->
+  <div id="update_currency_div" style="display:none">
+    <%= form_for @user, :class => "update_currency_form" do |f| %>
+        <%= hidden_field_tag :return_to, @request_fullpath %>
+        <%= f.text_field :currency %>
+    <% end %>
+  </div>
+  <!-- language specific page header -->
+  <%= render_page_header %>
+  <hr/>
+<% end -%>
 
 <%= yield %>
 
+<!-- language specific page footer -->
 <%= render_page_footer %>
+<%= dump_session_variables %>
 </body>
 </html>

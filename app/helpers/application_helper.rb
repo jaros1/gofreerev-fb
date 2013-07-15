@@ -1,5 +1,11 @@
 module ApplicationHelper
 
+  # debug
+  def dump_session_variables
+    puts "@user = #{@user}"
+    puts "session.to_hash = #{session.to_hash}"
+  end
+
   # link_to helpers
 
   def link_to_facebook
@@ -25,6 +31,7 @@ module ApplicationHelper
   # partial helpers
   def render_partial_with_language (folder, partialname)
     language = session[:language]
+    # language = 'en' # todo: remove this line
     puts "render_#{partialname}: language = #{language}"
     language = nil if language == 'en'
     return render("#{folder}/#{partialname}") unless language # english
@@ -45,5 +52,12 @@ module ApplicationHelper
   def render_page_footer
     render_partial_with_language('layouts', 'page_footer')
   end # render_page_footer
+
+  def api_id
+    ENV['GOFREEREV_FB_APP_ID']
+  end
+  def api_secret
+    ENV['GOFREEREV_FB_APP_SECRET']
+  end
 
 end # ApplicationHelper

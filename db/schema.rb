@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20130713114244) do
+ActiveRecord::Schema.define(version: 20130715090950) do
 
   create_table "gifts", force: true do |t|
     t.string   "gift_id",           limit: 20
@@ -34,13 +34,14 @@ ActiveRecord::Schema.define(version: 20130713114244) do
   add_index "gifts", ["user_id_receiver"], name: "index_gifts_on_receiver"
 
   create_table "users", force: true do |t|
-    t.string   "user_id",    limit: 20
+    t.string   "user_id",     limit: 20
     t.text     "user_name"
     t.datetime "created_at"
     t.datetime "updated_at"
     t.text     "currency"
     t.text     "balance"
     t.date     "balance_at"
+    t.text     "permissions"
   end
 
   add_index "users", ["user_id"], name: "index_users_on_user_id", unique: true

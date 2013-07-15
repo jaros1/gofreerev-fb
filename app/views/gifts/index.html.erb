@@ -1,41 +1,48 @@
 <br />
-<% if @user -%>
+<% if !@user -%>
+    You are not logged in and you can not create wall postings.<br />
+<% elsif !@user.post_gift_allowed? -%>
+    <%= APP_NAME %> lacks permission to make postings on your wall.
+    You can not be here to share your resources with your friends.
+    Click on following link to allow posting on your wall.
+    <%= APP_NAME %> will only create the postings you ask for.<br />
+    <%= link_to 'Authorize wall posting', "javascript: {top.location.href='#{auth_post_gift_url}'}" %>
+    <br />
+<% else -%>
     <%= form_for @gift, :multipart => true, :html => { :enctype => 'multipart/form-data' } do |f| %>
         <table>
           <tr>
-            <td colspan="3">Hjælp hinanden og miljøet. Del jeres resourcer. Giv, lån/lej ud, sælg etc.</td>
+            <td colspan="3">Help each other and the environment. Share your resources. Give loan / rent out, sell etc.</td>
           </tr>
-          <tr title="Pris i virtuelle frie penge. Valgfri. Kan sættes nu eller senere. Bedst hvis køber/modtager sætter pris der så bliver et mål for hvor meget pris vedkommende satte på den modtagne ting/hjælp. Der anvendes frie virtuelle nationale penge herinde med en negativ rente på 7.6 % om året. Et formål med den negative rente er at sikre at penge og resourcer cirkulerer. Den negative rente gør det muligt med et samfund uden vækst, overforbrug og med masser af fritid">
-            <td>Pris:</td>
+          <tr title="Price in virtual free money. Optional. Can be now or later. Best set be buyer / receiver so that the price becomes a measure of how much the thing / help was appreciated. There is used free virtual national money in here with a negative rate of 7.6% per year. One goal of the negative rate is to ensure that money and resources circulates. The negative interest rate makes it possible with a society without growth, overconsumption and with plenty of leisure to all.">
+            <td>Price:</td>
             <td colspan="2">
-               <%= f.text_field(:price, :size=>10, :maxlength=>10) %>
-               frie
-               <%= @user.currency %>
+              <%= f.text_field(:price, :size=>10, :maxlength=>10) %>
+              free
+              <%= @user.currency %>
             </td>
           </tr>
-          <tr title="Tekst. Skal udfyldes. Beskriv det du tilbyder hvad enten det er ting eller hjælp. Du bestemmer selv om du vil sælge, udleje, udlåne eller forære ting væk gratis. Da der handles i virtuelle frie penge forærer man i praksis altid ting væk, men ens saldo i frie penge vokser. Opslag laves på din væg og vises til dine venner eller hvem du har valgt skal se opslag fra denne app. Dine venner kan kommenterer dit opslag på din væg. Aftalen bør sluttes herinde så din saldo i frie penge opdateres">
-            <td valign="top">Tekst:</td>
+          <tr title="Text. Required. Describe what you offer whether it is things or help. You decide whether you want to sell, rent, lend or give things away for free. We are trading in virtuel free money. Since we are trading in virtuel money you are in practive always giving you give ting and help away for free. But your balance in free money grows. Posts are made ​​on your wall and displayed to your friends or whom you have selected to view posts by this app. Your friends can comment on your post on your wall. The agreement should be finalized in here so your balance in free cash being updated.">
+            <td valign="top">Text:</td>
             <td><%= f.text_area(:description, :size => '60x8') %></td>
-            <td><%= f.submit 'Opret opslag', :onclick => "return gifts_client_validations()" %></td>
+            <td><%= f.submit 'Create post', :onclick => "return gifts_client_validations()" %></td>
           </tr>
-          <tr title="Vedlæg gerne et foto af det som du deler. Billeder er en effektiv måde at blive set på af ens venner">
-            <td>Vedlæg:</td>
+          <tr title="Optional picture. Photos are an effective way to be seen by one's friends">
+            <td>Picture:</td>
             <td colspan="2"><%= file_field_tag(:gift_file) %></td>
           </tr>
         </table>
     <% end %>
-<% else -%>
-  Du er ikke logget ind og der kan ikke oprettes nye opslag.<br />
 <% end -%>
 
 <script>
     // add page specific version of pre_update_currency function. That is confirm popup before leaving page with unsaved data.
-    pending_gift_msg = 'Ret valuta? ' +
-                       'Svar "Cancel" for at vende tilbage og lave opslag færdig. ' +
-                       'Svar "OK" for at tabe det indtastede opslag og opdatere valuta.' ;
+    pending_gift_msg = 'Change currency? ' +
+                       'Select "Cancel" if you wish to complete your wall posting. ' +
+                       'Select "OK" to ship the not saved posting and change currency.' ;
     pre_update_currency = gifts_pre_update_currency ;
 
-    // Use Danish texts in client side validations.
-    csv_gifts_description_required = 'Tekst skal udfyldes.' ;
-    csv_gifts_price_invalid = 'Price is ugyldig. Brug kun cifre, højst et decimal komma/punktum og højst 2 decimaler. Tusindtalsseparator er ikke tilladt'  ;
+    // Use english texts in client side validations.
+    csv_gifts_description_required = 'Description is required.' ;
+    csv_gifts_price_invalid = 'Price is invalid. Only numbers, max 2 decimals, thousands separator not allowed.' ;
 </script>

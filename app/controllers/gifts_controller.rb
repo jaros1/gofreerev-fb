@@ -13,6 +13,9 @@ class GiftsController < ApplicationController
     g.description = params[:gift][:description]
     g.user_id_giver = session[:user_id]
     g.save!
+    # todo: post message on FB / gogole+ wall
+    api = Koala::Facebook::API.new(session[:access_token])
+    api.put_connections("me", "feed", :message => params[:gift][:description])
   end
 
   def update

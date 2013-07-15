@@ -18,11 +18,21 @@ module ActiveRecordExtensions
   end
 
   # general methods for attribute encryption
+
+  # check correct input type before assigning value to attribute (Ruby types in model / encrypted text in db)
+  protected
+  def check_type (attributename, attributevalue, classname)
+    return unless attributevalue
+    return if attributevalue.class.name == classname
+    raise TypeError, "Invalid type #{attributename.class.name} for attribute #{attributename}. " +
+        "Allowed types are NilClass and #{classname}"
+  end # check_type
+
   # encrypt_add_pre_and_postfix and encrypt_remote_pre_and_postfix to de used in get/set attribute methods
   protected
   def encrypt_rand_seed (attributename, secret_key_no)
     self.encrypt_pk = self.new_encrypt_pk unless self.encrypt_pk
-    hex = Digest::MD5.hexdigest(gift_id + ENCRYPT_KEYS[secret_key_no] + attributename)
+    hex = Digest::MD5.hexdigest(encrypt_pk + ENCRYPT_KEYS[secret_key_no] + attributename)
     hex.to_i(16)
   end # rand_seed
 

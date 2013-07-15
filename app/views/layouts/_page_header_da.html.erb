@@ -1,12 +1,3 @@
-
-<!-- Hidden form to update currency => post to /users/:id/ => return to this page after currency has been changed -->
-<div id="update_currency_div" style="display:none">
-<%= form_for @user, :class => "update_currency_form" do |f| %>
-    <%= hidden_field_tag :return_to, @request_fullpath %>
-    <%= f.text_field :currency %>
-<% end %>
-</div>
-
 <table>
   <tr style="white-space: nowrap">
     <td title="Se dine bruger oplysninger">
