@@ -45,67 +45,71 @@ class User < ActiveRecord::Base
   # 2) user_name. User name. String in model. Encrypted text in db. required. is updated when the user logs in.
   validates_presence_of :user_name
   def user_name
-    return nil unless (extended_user_name = self['user_name'])
+    return nil unless (extended_user_name = read_attribute(:user_name))
     encrypt_remove_pre_and_postfix(extended_user_name, 'user_name', 9)
   end
   def user_name=(new_user_name)
     if new_user_name
       check_type('user_name', new_user_name, 'String')
-      self['user_name'] = encrypt_add_pre_and_postfix(new_user_name, 'user_name', 9)
+      write_attribute :user_name, encrypt_add_pre_and_postfix(new_user_name, 'user_name', 9)
     else
-      self['user_name'] = nil
+      write_attribute :user_name, nil
     end
   end
+  alias_method :user_name_before_type_cast, :user_name
 
   # 3) currency. Required. String in model. Encrypted text in db.
   validates_presence_of :currency
   def currency
-    return nil unless (extended_currency = self['currency'])
+    return nil unless (extended_currency = read_attribute(:currency))
     encrypt_remove_pre_and_postfix(extended_currency, 'currency', 10)
   end
   def currency=(new_currency)
     if new_currency
       check_type('currency', new_currency, 'String')
-      self['currency'] = encrypt_add_pre_and_postfix(new_currency, 'currency', 10)
+      write_attribute :currency, encrypt_add_pre_and_postfix(new_currency, 'currency', 10)
     else
-      self['currency'] = nil
+      write_attribute :currency, nil
     end
   end # currency
+  alias_method :currency_before_type_cast, :currency
 
   # 4) balance. Balance. Required. BigDecimal in model. Encrypted text in db
   validates_presence_of :balance
   def balance
-    return nil unless (temp_extended_balance = self['balance'])
+    return nil unless (temp_extended_balance = read_attribute(:balance))
     puts "temp_extended_balance = #{temp_extended_balance}"
     BigDecimal.new encrypt_remove_pre_and_postfix(temp_extended_balance, 'balance', 11)
   end # balance
   def balance=(new_balance)
     if new_balance
       check_type('balance', new_balance, 'BigDecimal')
-      self['balance'] = encrypt_add_pre_and_postfix(new_balance.to_s, 'balance', 11)
+      write_attribute :balance, encrypt_add_pre_and_postfix(new_balance.to_s, 'balance', 11)
     else
-      self['balance'] = nil
+      write_attribute :balance, nil
     end
   end # balance=
+  alias_method :balance_before_type_cast, :balance
 
   # 5) balance_at. Date. Not encrypted. Date for last balance calculation. Normally today.
-  validates_presence_of :balance
+  validates_presence_of :balance_at
 
   # 6) permissions. Optional. Any Ruby type in model (hash with privs. for facebook users). Encrypted text in db
   # for FB users a hash with grants privs {"installed"=>1, "basic_info"=>1, "bookmarked"=>1}
   # for google+ todo:
   # permissions is fetched at login and checked before operations
   def permissions
-    return nil unless (extended_permissions = self['permissions'])
+    return nil unless (extended_permissions = read_attribute(:permissions))
     YAML::load(encrypt_remove_pre_and_postfix(extended_permissions, 'permissions', 12))
   end # permissions
   def permissions=(new_permissions)
     if new_permissions
-      self['permissions'] = encrypt_add_pre_and_postfix(new_permissions.to_yaml, 'permissions', 12)
+      write_attribute :permissions, encrypt_add_pre_and_postfix(new_permissions.to_yaml, 'permissions', 12)
     else
-      self['permissions'] = nil
+      write_attribute :permissions, nil
     end
   end # permissions
+  alias_method :permissions_before_type_cast, :permissions
 
 
   ##################
@@ -118,6 +122,11 @@ class User < ActiveRecord::Base
   def self.google_plus_user_prefix
     'GP-'
   end # google_plus_user_prefix
+
+  def usertype
+    return nil unless user_id
+    return user_id.first(2)
+  end
 
   def facebook?
     return false unless user_id

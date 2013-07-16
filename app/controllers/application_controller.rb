@@ -10,9 +10,11 @@ class ApplicationController < ActionController::Base
   def api_id
     ENV['GOFREEREV_FB_APP_ID']
   end
+  helper_method :api_id
   def api_secret
     ENV['GOFREEREV_FB_APP_SECRET']
   end
+  helper_method :api_secret
 
   # render to language specific pages.
   # viewname=create, session[:language] = da => call create-da.html.erb if the page exists
@@ -97,6 +99,7 @@ class ApplicationController < ActionController::Base
     end
     puts "fetch_user: user_id = #{session[:user_id]}"
     @user = User.find_by_user_id(session[:user_id]) if session[:user_id]
+    @usertype = @user ? @user.usertype : nil
   end
 
 end # ApplicationController

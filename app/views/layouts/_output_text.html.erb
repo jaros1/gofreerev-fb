@@ -1,0 +1,1 @@
+<% output_br = false ; text_object.find_usertype(@usertype).each do |text| -%><% if output_br -%><br /><%= text %><% else -%><%= text -%><% end ; output_br = true -%><% end -%>

@@ -53,11 +53,13 @@ module ApplicationHelper
     render_partial_with_language('layouts', 'page_footer')
   end # render_page_footer
 
-  def api_id
-    ENV['GOFREEREV_FB_APP_ID']
-  end
-  def api_secret
-    ENV['GOFREEREV_FB_APP_SECRET']
+  # output_text takes a String, an Array or an Hash as input
+  # String - outout text string
+  # Array - output text array with <br /> between each line
+  # Hash - find usertype in hash and outputs String or Array
+  # the last option can be used to implement different texts for FB users, GP users and other type of users
+  def output_text (text_object)
+    render :partial => 'layouts/output_text', :locals => { :text_object => text_object}
   end
 
 end # ApplicationHelper

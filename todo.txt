@@ -1,0 +1,20 @@
+1) DRY - only one version of all functions
+   Do not repeat the same function in controller and in view helper
+   Use helper_method :xxx in controllers
+
+2) Seperate language specific texts and html layouts.
+   Ok for simple html pages - not ok for complex html pages
+
+3) Use sub folders for language specific texts.
+   Ok without sub folders for 2 languages
+   Not ok without sub folders for 200 languages
+
+2+3) Implemented for /gifts/index page. Tested in english. Not tested in danish.
+
+4) Google rails 3/4 error handling with multi language support
+
+5) Get list of friends. Used in /gift/index to list my and my fiends gifts
+
+
+
+

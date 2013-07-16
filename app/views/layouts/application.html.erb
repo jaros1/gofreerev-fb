@@ -23,7 +23,11 @@
   <%= render_page_header %>
   <hr/>
 <% end -%>
-
+<% if flash[:notice] -%>
+    <br />
+    <div id="notification"><%= h flash[:notice] %></div>
+    <br />
+<% end -%>
 <%= yield %>
 
 <!-- language specific page footer -->
