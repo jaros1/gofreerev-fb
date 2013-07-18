@@ -1,0 +1,13 @@
+<%
+   # add language specific texts for header in application page - String or array of String
+   # you can enclose String/Array in a Hash if you wish to use different texts for different user types (FB, GP etc)
+   # you can not use html tags inside texts
+   # english:
+  @header_user_div_title = @user.user_name_with_api + '. Click here to see your user info at ' + APP_NAME
+  @header_currency_title =  "Balance. Use currency selection list if you want your balance shown in a different currency. One's balance of free money is a kind of measure of gratitude. Who has given / received most? Whose turn is it to receive / give? A positive balance means that you are good to help others and to one's help has been appreciated. A negative balance means that you are good to accept help and that you have appreciated the help. There is no correlation between who is rich / poor in free money here and who are rich / poor in the real world."
+  @header_balance_prompt = 'Balance:'
+  @header_balance_free = 'free'
+  @header_log_out_link_title = { :fb => 'Log out of ' + APP_NAME + ' but not of facebook. Remember to logout of both ' + APP_NAME + ' and facebook',
+                                 :gp => 'Log out of ' + APP_NAME + ' but not of google+. Remember to logout of both ' + APP_NAME + ' and google+' }
+  @header_log_out_link_text = 'Log out'
+-%>

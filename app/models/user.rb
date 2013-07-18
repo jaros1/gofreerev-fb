@@ -111,6 +111,22 @@ class User < ActiveRecord::Base
   end # permissions
   alias_method :permissions_before_type_cast, :permissions
 
+  # 7) no_api_friends. Fixnum in Model. Encrypted text in db.
+  # for example number of facebook friends for a facebook user
+  def no_api_friends
+    return nil unless (temp_extended_no_api_friends = read_attribute(:no_api_friends))
+    encrypt_remove_pre_and_postfix(temp_extended_no_api_friends, 'no_api_friends', 13).to_i
+  end # balance
+  def no_api_friends=(new_no_api_friends)
+    if new_no_api_friends
+      check_type('no_api_friends', new_no_api_friends, 'Fixnum')
+      write_attribute :no_api_friends, encrypt_add_pre_and_postfix(new_no_api_friends.to_s, 'no_api_friends', 13)
+    else
+      write_attribute :no_api_friends, nil
+    end
+  end # balance=
+  alias_method :no_api_friends_before_type_cast, :no_api_friends
+
 
   ##################
   # helper methods #
@@ -137,16 +153,22 @@ class User < ActiveRecord::Base
     user_id.first(3) == User.google_plus_user_prefix
   end # facebook
 
+  def short_user_name
+    a = user_name.split(' ')
+    "#{a.first} #{a.last.first(1)}"
+  end
+
+  def api_name
+    case
+      when facebook? then '(facebook)'
+      when google_plus? then '(google+)'
+      else nil
+    end
+  end
+
   # add login api to user name
   def user_name_with_api
-    api = case
-            when facebook?
-              ' (facebook)'
-            when google_plus?
-              ' (google+)'
-            else nil
-          end
-    "#{user_name}#{api}"
+    "#{user_name} #{api_name}"
   end # user_name_with_api
 
   def currency_with_text
@@ -167,6 +189,25 @@ class User < ActiveRecord::Base
         false
     end
   end # post_gift_allowed?
+
+  # profile picture helpers - a copy of profile picture is downloaded at login
+  def profile_picture_filename
+    "#{id}.#{profile_picture_type}"
+  end
+  def profile_picture_md5_path
+    md5 = Digest::MD5.hexdigest(user_id).downcase
+    folders = ["profiles"] + md5 = md5.scan(/.{2}/)
+    folders.join('/')
+  end
+  def profile_picture_os_folder
+    Rails.root.join('public', "images", profile_picture_md5_path).to_s
+  end
+  def profile_picture_os_filename
+    "#{profile_picture_os_folder}/#{profile_picture_filename}"
+  end
+  def profile_picture_url
+    "#{profile_picture_md5_path}/#{profile_picture_filename}"
+  end
 
 
   ##############

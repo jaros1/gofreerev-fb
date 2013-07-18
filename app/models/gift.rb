@@ -13,6 +13,7 @@ class Gift < ActiveRecord::Base
     t.text     "new_price"                                  - encrypted BigDecimal
     t.text     "negative_interest"                          - encrypted BigDecimal
     t.text     "social_dividend"                            - encrypted BigDecimal
+    t.text     "api_gift_id"                                - encrypted
     t.datetime "created_at"                                 - not encrypted
     t.datetime "updated_at"                                 - not encrypted
   end
@@ -30,12 +31,13 @@ class Gift < ActiveRecord::Base
   # new_price         price - negative_interest
   # negative_interest 0.02 % per day = 7.6 % per year
   # social_dividend   abs(nnegative_interest / 4). Distributed to both users. 0.01 % per day = 3.8 % per year
+  # api_gift_id       api id for the wall message
 
   # https://github.com/jmazzi/crypt_keeper - text columns are encrypted in database
   # encrypt_add_pre_and_postfix/encrypt_remove_pre_and_postfix added in setters/getters for better encryption
   # this is different encrypt for each attribute and each db row
   # _before_type_cast methods are used by form helpers and are redefined
-  crypt_keeper :description, :currency, :price, :received_at, :new_price, :negative_interest, :social_dividend, :encryptor => :aes, :key => ENCRYPT_KEYS[1]
+  crypt_keeper :description, :currency, :price, :received_at, :new_price, :negative_interest, :social_dividend, :api_gift_id, :encryptor => :aes, :key => ENCRYPT_KEYS[1]
 
 
   ##############
@@ -174,9 +176,26 @@ class Gift < ActiveRecord::Base
   end # social_dividend=
   alias_method :social_dividend_before_type_cast, :social_dividend
 
-  # 12) created_at - timestamp - not encrypted
+  # 12) api_gift_id - String in model - encrypted text in db - api id for the gift / status update on the wall
+  attr_readonly :api_gift_id
+  def api_gift_id
+    return nil unless (extended_api_gift_id = read_attribute(:api_gift_id))
+    encrypt_remove_pre_and_postfix(extended_api_gift_id, 'api_gift_id', 2)
+  end
+  def api_gift_id=(new_api_gift_id)
+    return api_gift_id if self.api_gift_id
+    if new_api_gift_id
+      check_type('api_gift_id', new_api_gift_id, 'String')
+      write_attribute :api_gift_id, encrypt_add_pre_and_postfix(new_api_gift_id, 'api_gift_id', 2)
+    else
+      write_attribute :api_gift_id, nil
+    end
+  end
+  alias_method :api_gift_id_before_type_cast, :api_gift_id
 
-  # 13) updated_at - timestamp - not encrypted
+  # 13) created_at - timestamp - not encrypted
+
+  # 14) updated_at - timestamp - not encrypted
 
 
   #

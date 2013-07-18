@@ -3,14 +3,13 @@
     <p>
       <%= output_text @not_logged_in_texts %>
     </p>
-    <br />
-<% elsif !@user.post_gift_allowed? -%>
-    <p>
-      <%= output_text @post_gift_not_allowed_texts %>
-    </p>
-    <%= link_to @request_post_gift_priv_link_text.find_usertype(@usertype), "javascript: {top.location.href='#{auth_post_gift_url}'}" %>
-    <br />
 <% else -%>
+    <% if !@user.post_gift_allowed? -%>
+        <p title="<%= output_text @post_gift_not_allowed_title %>">
+          <%= output_text @post_gift_not_allowed_text %><br />
+          <%= link_to @request_post_gift_priv_link_text.find_usertype(@usertype), "javascript: {top.location.href='#{auth_post_gift_url}'}" %>
+        </p>
+    <% end -%>
     <%= form_for @gift, :multipart => true, :html => { :enctype => 'multipart/form-data' } do |f| %>
         <table>
           <tr>
@@ -35,6 +34,27 @@
           </tr>
         </table>
     <% end %>
+<% end -%>
+
+<% if @gifts.size == 0 -%>
+    No gifts was found
+<% else -%>
+    <br />
+    <table>
+      <tr>
+        <th><%= output_text @price_prompt %></th>
+        <th>&nbsp;&nbsp;</th>
+        <th><%= output_text @description_prompt %></th>
+      </tr>
+        <% for gift in @gifts do loop -%>
+          <tr>
+            <td><%= h gift.price %> <%= gift.currency %></td>
+            <td></td>
+            <td><%= h gift.description %></td>
+          </tr>
+        <% end -%>
+    </table>
+    <%= will_paginate @gifts %>
 <% end -%>
 
 <script>

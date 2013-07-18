@@ -166,6 +166,7 @@ class FbController < ApplicationController
     # More permissions will be requested later when they are needed and the user can understand why
     # @auth_url =  oauth.url_for_oauth_code(:permissions=>"read_stream")
     state = session[:state] = String.generate_random_string(30)
+    puts "session[:state] = #{session[:state]}"
     @auth_url =  oauth.url_for_oauth_code :state => state
     puts session.to_s + "<<< session"
     puts "@auth_url = #{@auth_url}"

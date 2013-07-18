@@ -31,15 +31,18 @@ module ApplicationHelper
   # partial helpers
   def render_partial_with_language (folder, partialname)
     language = session[:language]
-    # language = 'en' # todo: remove this line
-    puts "render_#{partialname}: language = #{language}"
+    puts "render_partial_with_language: folder = #{folder}, partialname = #{partialname}, language = #{language}"
     language = nil if language == 'en'
-    return render("#{folder}/#{partialname}") unless language # english
+    if !language
+      # no language or english
+      return (render(:partial => "#{folder}/#{partialname}"))
+    end
+    # check for language specific partial
     partialname2 = "#{partialname}_#{language}"
     filename = Rails.root.join('app', 'views', folder, "_#{partialname2}.html.erb").to_s
-    puts "render_#{partialname}: filename = #{filename}"
+    puts "render_partial_with_language: filename = #{filename}"
     partialname2 = partialname unless File.exists?(filename)
-    return render "#{folder}/#{partialname2}"
+    render :partial => "#{folder}/#{partialname2}"
   end # render_application_partial
 
   # application layout helpers

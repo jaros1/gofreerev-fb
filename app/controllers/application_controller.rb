@@ -61,16 +61,22 @@ class ApplicationController < ActionController::Base
       current_url = "#{request.protocol}#{request.host_with_port}#{request.fullpath}/"
 
       oauth = session[:oauth]
+      # todo: catch
+      #       Koala::Facebook::OAuthTokenRequestError in FbController#index
+      #       type: OAuthException, code: 100, message: This authorization code has been used. [HTTP 400]
+      #       should redirect to /fb/cross_site_forgery page
+      # todo: rename cross_site_forgery to login_error
       access_token = oauth.get_access_token(params[:code])
       if access_token
         session[:access_token] = access_token
-        # authorization ok (first login, following logins or new privs)
-        # get name and current privs
 
-        # get user id and name
+        # authorization ok (first login, following login or return from new priv.dialog)
+        # get user id, name, permissions, profile picture and friends
+
+        # 1) create/update user info (name and permissions)
         puts "get user id and name"
         api = Koala::Facebook::API.new(session[:access_token])
-        api_request = "me?fields=name,permissions"
+        api_request = "me?fields=name,permissions,friends,picture"
         puts "api_request = #{api_request}"
         api_response = api.get_object api_request
         puts "api_response = #{api_response.to_s}"
@@ -80,6 +86,7 @@ class ApplicationController < ActionController::Base
         u = User.new unless u
         u.user_id = user_id
         u.user_name = user_name
+        u.no_api_friends = api_response["friends"]["data"].size
         if u.new_record?
           # set currency and balance for new user.
           puts "new user"
@@ -89,10 +96,47 @@ class ApplicationController < ActionController::Base
           u.balance_at = Date.today
         end
         u.permissions = api_response["permissions"]["data"][0]
+        u.permissions = {} if u.permissions == []
+        api_profile_picture_url = api_response["picture"]["data"]["url"]
+        u.profile_picture_type = api_profile_picture_url.split('.').last
         u.save!
-        # login ok
+
+        # login ok - user created/updated - set session[:user_id]
         puts "login ok: user_id = #{session[:user_id]}"
         session[:user_id] = user_id
+
+        # 2) update friends (insert/delete Friend)
+        # compare Friend model data with friends array from API
+        # only friends using Gofreerev are relevant
+        # friends not using Gofreerev are ignored
+        old_friend_list = Friend.where('user_id_giver = ?', u.user_id).collect { |u| u.user_id_receiver }
+        api_friends_list = api_response["friends"]["data"].collect { |h| 'FB-' + h["id"] }
+        new_friend_list = User.where('user_id in (?)', api_friends_list).collect { |u| u.user_id }
+        new_friends = new_friend_list - old_friend_list
+        removed_friends = old_friend_list - new_friend_list
+        removed_friends.each do |user_id2|
+          # remove friend
+          f = Friend.where('user_id_giver = ? and user_id_receiver = ?', user_id, user_id2).first
+          f.destroy if f
+          f = Friend.where('user_id_giver = ? and user_id_receiver = ?', user_id2, user_id).first
+          f.destroy if f
+        end
+        puts "#{removed_friends.size} friend(s) removed" if removed_friends.size > 0
+        new_friends.each do |user_id2|
+          f = Friend.new
+          f.user_id_giver = user_id
+          f.user_id_receiver= user_id2
+          f.save!
+          f = Friend.new
+          f.user_id_giver = user_id2
+          f.user_id_receiver= user_id
+          f.save!
+        end
+        puts "#{new_friends.size} friend(s) added" if new_friends.size > 0
+
+        # 3) download profile picture
+        FileUtils.mkdir_p u.profile_picture_os_folder
+        system("wget #{api_profile_picture_url} -O #{u.profile_picture_os_filename}")
       end
       params[:code] = nil
       session.delete(:oauth)

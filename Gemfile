@@ -72,3 +72,6 @@ gem 'money'
 # https://github.com/RubyMoney/google_currency
 # just in case if we need to exchange currencies
 gem 'google_currency'
+
+# https://github.com/mislav/will_paginate
+gem 'will_paginate', '~> 3.0'

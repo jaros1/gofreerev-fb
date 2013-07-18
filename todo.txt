@@ -15,6 +15,11 @@
 
 5) Get list of friends. Used in /gift/index to list my and my fiends gifts
 
+6) Maybe allow gift post without update_status priv.
+   That is, gifts is only posted in Gofreerev, not on FB wall
+   Only friends that also are using Gofreerev can see postings in Gofreerev
 
+7) Maybe allow comments to gifts in Gofreerev => Post af FB comments
 
+8) Invite friends to app function?
 

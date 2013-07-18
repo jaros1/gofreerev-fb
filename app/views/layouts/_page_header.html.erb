@@ -1,15 +1,30 @@
+<% render_partial_with_language('layouts/page_header', 'init_texts') -%>
 <table>
   <tr style="white-space: nowrap">
-    <td title="See your account">
-      User: <%= link_to @user.user_name_with_api, @user %>.
+    <td>
+      <div title="<%= output_text @header_user_div_title %>" onclick="top.location.href = '<%= url_for(@user) %>'">
+        <table>
+          <tr>
+            <td rowspan="2"><%= image_tag(@user.profile_picture_url) %></td>
+            <td><%= h @user.short_user_name %></td>
+          </tr>
+          <tr>
+            <td><%= @user.api_name %></td>
+          </tr>
+        </table>
+      </div>
     </td>
-    <td title="Balance. Use currency selection list if you want your balance shown in a different currency. One's balance of free money is a kind of measure of gratitude. Who has given / received most? Whose turn is it to receive / give? A positive balance means that you are good to help others and to one's help has been appreciated. A negative balance means that you are good to accept help and that you have appreciated the help. There is no correlation between who is rich / poor in free money here and who are rich / poor in the real world.">
-      Balance: <%= @user.balance || '0.00' %>
-      free
-      <%= select_tag :user_currency_new, options_for_select(currencies, [@user.currency]), :onchange=>"update_currency()" %>.
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td title="<%= output_text @header_currency_title %>">
+      <table higth="100%">
+        <tr><td><%= output_text @header_balance_prompt %> <%= @user.balance || '0.00' %> <%= output_text @header_balance_free %></td></tr>
+        <tr><td><%= select_tag :user_currency_new, options_for_select(currencies, [@user.currency]), :onchange=>"update_currency()" %></td></tr>
+      </table>
     </td>
-    <td title="Log out <%= APP_NAME %> app">
-      <%= link_to "Log ud", fb_path(@user.id), :method => 'delete' %>
+    <td>&nbsp;&nbsp;&nbsp;</td>
+    <td title="<%= output_text @header_log_out_link_title %>">
+      <%= link_to @header_log_out_link_text, fb_path(@user.id), :method => 'delete' %>
     </td>
   </tr>
 </table>
+

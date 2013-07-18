@@ -11,7 +11,14 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20130715090950) do
+ActiveRecord::Schema.define(version: 20130717140414) do
+
+  create_table "friends", force: true do |t|
+    t.string   "user_id_giver"
+    t.string   "user_id_receiver"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "gifts", force: true do |t|
     t.string   "gift_id",           limit: 20
@@ -27,6 +34,7 @@ ActiveRecord::Schema.define(version: 20130715090950) do
     t.text     "social_dividend"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.text     "api_gift_id"
   end
 
   add_index "gifts", ["gift_id"], name: "index_gifts_on_gift_id", unique: true
@@ -34,7 +42,7 @@ ActiveRecord::Schema.define(version: 20130715090950) do
   add_index "gifts", ["user_id_receiver"], name: "index_gifts_on_receiver"
 
   create_table "users", force: true do |t|
-    t.string   "user_id",     limit: 20
+    t.string   "user_id",              limit: 20
     t.text     "user_name"
     t.datetime "created_at"
     t.datetime "updated_at"
@@ -42,6 +50,8 @@ ActiveRecord::Schema.define(version: 20130715090950) do
     t.text     "balance"
     t.date     "balance_at"
     t.text     "permissions"
+    t.text     "no_api_friends"
+    t.string   "profile_picture_type", limit: 10
   end
 
   add_index "users", ["user_id"], name: "index_users_on_user_id", unique: true
