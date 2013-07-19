@@ -2,29 +2,8 @@
    Do not repeat the same function in controller and in view helper
    Use helper_method :xxx in controllers
 
-2) Seperate language specific texts and html layouts.
-   Ok for simple html pages - not ok for complex html pages
+2) Maybe allow comments to gifts in Gofreerev => Post af FB comments
 
-3) Use sub folders for language specific texts.
-   Ok without sub folders for 2 languages
-   Not ok without sub folders for 200 languages
+3) Invite friends to app function?
 
-2+3) Implemented for /gifts/index page. Tested in english. Not tested in danish.
-
-4) Google rails 3/4 error handling with multi language support
-
-5) Get list of friends. Used in /gift/index to list my and my fiends gifts
-
-6) Maybe allow gift post without update_status priv.
-   That is, gifts is only posted in Gofreerev, not on FB wall
-   Only friends that also are using Gofreerev can see postings in Gofreerev
-
-7) Maybe allow comments to gifts in Gofreerev => Post af FB comments
-
-8) Invite friends to app function?
-
-9) replace language functions with I18n functions
-
-12) get timezone from login api. Use timezone in views. timezone added to user. not yet any timestamps in views.
-
-13) remove application_helper.output_text. Is replaced my my_translate alias my_t
+4) get timezone from login api. Use timezone in views. timezone added to user. not yet any timestamps in views.

@@ -164,17 +164,23 @@ class User < ActiveRecord::Base
     "#{a.first} #{a.last.first(1)}"
   end
 
-  def api_name
+  def api_name_without_brackets
     case
-      when facebook? then '(facebook)'
-      when google_plus? then '(google+)'
+      when facebook? then 'facebook'
+      when google_plus? then 'google+'
       else nil
     end
   end
 
+  def api_name_with_brackets
+    api_name = api_name_without_brackets
+    return nil unless api_name
+    "(#{api_name})"
+  end
+
   # add login api to user name
   def user_name_with_api
-    "#{user_name} #{api_name}"
+    "#{user_name} #{api_name_with_brackets}"
   end # user_name_with_api
 
   def currency_with_text

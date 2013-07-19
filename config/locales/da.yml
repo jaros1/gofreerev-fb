@@ -20,6 +20,31 @@
 # available at http://guides.rubyonrails.org/i18n.html.
 
 da:
+  # gift controller - general texts
+  gifts:
+     index:
+        not_logged_in_text: "Du er ikke logget ind og der kan ikke oprettes opslag."
+        post_gift_not_allowed_title: "%{appname} mangler adgang til at skrive på din væg i %{apiname}. Du kan godt dele dine resourcer med dine venner herinde, men opslag vil kun blive vist her og ikke på din %{apiname} væg. Dvs. dine opslag vil sandsynligvis blive set af meget få venner. Du bør derfor give %{appname} tilladelse til at skrive på din væg. %{appname} laver kun de opslag du selv beder om."
+        post_gift_not_allowed_text: "%{appname} mangler adgang til at skrive på din %{apiname} væg."
+        request_post_gift_priv_link_text: "Giv %{appname} lov til at skrive på min væg!"
+        create_gift_header_line: "Hjælp hinanden og miljøet. Del jeres resourcer. Giv, lån/lej ud, sælg etc."
+        price_title: "Pris i virtuelle frie penge. Valgfri. Kan sættes nu eller senere. Bedst hvis køber/modtager sætter pris der så bliver et mål for hvor meget pris vedkommende satte på den modtagne ting/hjælp. Der anvendes frie virtuelle nationale penge herinde med en negativ rente på 7.6 % om året. Et formål med den negative rente er at sikre at penge og resourcer cirkulerer. Den negative rente gør det muligt med et samfund uden vækst, uden overforbrug og med mere fritid."
+        price_prompt: "Pris:"
+        price_free: "frie"
+        description_title: "Tilbud. Skal udfyldes. Beskriv det du tilbyder hvad enten det er ting eller hjælp. Du bestemmer selv om du vil sælge, udleje, udlåne eller forære ting væk gratis. Da der handles i virtuelle frie penge forærer man i praksis altid ting væk, men ens saldo i frie penge vokser. Opslag laves på din væg og vises til dine venner eller hvem du har valgt skal se opslag fra denne app. Dine venner kan kommenterer dit opslag på din væg. Aftalen bør sluttes herinde så din saldo i frie penge opdateres."
+        description_prompt: "Tilbud:"
+        file_title: "Vedlæg gerne et foto af det som du deler. Billeder er en effektiv måde at blive set på af ens venner."
+        file_prompt: "Vedlæg:"
+        gift_submit_button_text: "Opret opslag"
+        pending_gift_popup_msg: "Ret valuta? Svar Cancel for at vende tilbage og lave opslag færdig. Svar OK for at tabe det indtastede opslag og opdatere valuta."
+        description_required_text: "Tilbud skal udfyldes."
+        price_invalid_text: "Pris is ugyldig. Brug kun cifre, højst et decimal komma/punktum og højst 2 decimaler. Tusindtalsseparator er ikke tilladt."
+
+
+
+
+
+    # application layouts - general texts
   layouts:
      page_header:
         header_user_div_title: "%{username}. Klik her for at se de brugeroplysninger %{appname} har downloaded/gemt."
@@ -27,12 +52,12 @@ da:
         header_balance_prompt: "Saldo:"
         header_balance_free: 'frie'
         header_log_out_link_text: 'Log ud'
-
+  # facebook specific texts
   fb:
      layouts:
         page_header:
            header_log_out_link_title: "Log ud af %{appname} og returner til facebook."
-
+  # google+ specific texts
   gp:
      layouts:
         page_header:

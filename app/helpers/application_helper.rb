@@ -56,19 +56,10 @@ module ApplicationHelper
     render_partial_with_language('layouts', 'page_footer')
   end # render_page_footer
 
-
-  # output_text takes a String, an Array or an Hash as input
-  # String - outout text string
-  # Array - output text array with <br /> between each line
-  # Hash - find usertype in hash and outputs String or Array
-  # the last option can be used to implement different texts for FB users, GP users and other type of users
-
-  def output_text (text_object)
-    render :partial => 'layouts/output_text', :locals => { :text_object => text_object}
-  end
-
-
-  # my_t: add usertype (fb, gp etc) first in scope. First lookuo with usertype in scope. Second lookuo without username in scope
+  # text translation: http://guides.rubyonrails.org/i18n.html
+  # this extension adds usertype (fb, gp etc) first in scope.
+  # first lookup with usertype first in scope
+  # second lookup without usertype in scope only if text not found in first lookup with usertype in scope.
   def my_translate (key, options = {})
     # puts "my_tranlate"
     scope = options[:scope]

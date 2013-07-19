@@ -1,35 +1,34 @@
-<% render_partial_with_language('gifts/index', 'init_texts') -%>
 <% if !@user -%>
     <p>
-      <%= output_text @not_logged_in_texts %>
+      <%= my_t '.not_logged_in_text' %>
     </p>
 <% else -%>
     <% if !@user.post_gift_allowed? -%>
-        <p title="<%= output_text @post_gift_not_allowed_title %>">
-          <%= output_text @post_gift_not_allowed_text %><br />
-          <%= link_to @request_post_gift_priv_link_text.find_usertype(@usertype), "javascript: {top.location.href='#{auth_post_gift_url}'}" %>
+        <p title="<%= my_t '.post_gift_not_allowed_title', :appname => APP_NAME, :apiname => @user.api_name_without_brackets %>">
+          <%= my_t '.post_gift_not_allowed_text', :appname => APP_NAME, :apiname => @user.api_name_without_brackets %><br />
+          <%= link_to my_t('.request_post_gift_priv_link_text', :appname => APP_NAME), "javascript: {top.location.href='#{auth_post_gift_url}'}" %>
         </p>
     <% end -%>
     <%= form_for @gift, :multipart => true, :html => { :enctype => 'multipart/form-data' } do |f| %>
         <table>
           <tr>
-            <td colspan="3"><%= @create_gift_header_line %></td>
+            <td colspan="3"><%= my_t '.create_gift_header_line' %></td>
           </tr>
-          <tr title="<%= output_text @price_title %>">
-            <td><%= output_text @price_prompt %></td>
+          <tr title="<%= my_t '.price_title' %>">
+            <td><%= my_t '.price_prompt' %></td>
             <td colspan="2">
               <%= f.text_field(:price, :size=>10, :maxlength=>10) %>
-              free
+              <%= my_t '.price_free' %>
               <%= @user.currency %>
             </td>
           </tr>
-          <tr title="<%= output_text @description_title %>">
-            <td valign="top"><%= output_text @description_prompt %></td>
+          <tr title="<%= my_t '.description_title' %>">
+            <td valign="top"><%= my_t '.description_prompt' %></td>
             <td><%= f.text_area(:description, :size => '60x8') %></td>
-            <td><%= f.submit @gift_submit_button_text, :onclick => "return gifts_client_validations()" %></td>
+            <td><%= f.submit my_t('.gift_submit_button_text'), :onclick => '{return gifts_client_validations()}' %></td>
           </tr>
-          <tr title="<%= output_text @file_title %>">
-            <td><%= output_text @file_prompt %></td>
+          <tr title="<%= my_t '.file_title' %>">
+            <td><%= my_t '.file_prompt' %></td>
             <td colspan="2"><%= file_field_tag(:gift_file) %></td>
           </tr>
         </table>
@@ -42,9 +41,9 @@
     <br />
     <table>
       <tr>
-        <th><%= output_text @price_prompt %></th>
+        <th><%= my_t '.price_prompt' %></th>
         <th>&nbsp;&nbsp;</th>
-        <th><%= output_text @description_prompt %></th>
+        <th><%= my_t '.description_prompt' %></th>
       </tr>
         <% for gift in @gifts do loop -%>
           <tr>
@@ -59,10 +58,10 @@
 
 <script>
     // add page specific version of pre_update_currency function. That is confirm popup before leaving page with unsaved data.
-    pending_gift_msg = '<%= @pending_gift_popup_msg %>' ;
+    pending_gift_msg = '<%= my_t '.pending_gift_popup_msg' %>' ;
     pre_update_currency = gifts_pre_update_currency ;
 
     // Use english texts in client side validations.
-    csv_gifts_description_required = '<%= @description_required_text %>' ;
-    csv_gifts_price_invalid = '<%= @price_invalid_text %>' ;
+    csv_gifts_description_required = '<%= my_t '.description_required_text' %>' ;
+    csv_gifts_price_invalid = '<%= my_t '.price_invalid_text' %>' ;
 </script>

@@ -19,7 +19,7 @@
         <%= f.text_field :currency %>
     <% end %>
   </div>
-  <!-- language specific page header -->
+  <!-- page header -->
   <%= render :partial => 'layouts/page_header' %>
   <hr/>
 <% end -%>
@@ -31,8 +31,8 @@
 <% end -%>
 <!-- the page -->
 <%= yield %>
-<!-- language specific page footer -->
-<%= render_partial_with_language('layouts/page_footer', 'page_footer') -%>
+<!-- page footer -->
+<%= render :partial => 'layouts/page_footer/page_footer' -%>
 <%= dump_session_variables %>
 </body>
 </html>

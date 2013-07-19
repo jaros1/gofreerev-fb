@@ -84,7 +84,7 @@ class GiftsController < ApplicationController
   end
 
   def index
-    puts "user_name = #{@user.user_name}"
+    puts "user_name = #{@user.user_name}" if @user
     puts "access_token = #{session[:access_token]}"
     @gift = Gift.new
     if params[:gift]
@@ -92,6 +92,11 @@ class GiftsController < ApplicationController
       @gift.price = BigDecimal.new params[:gift][:price]
       @gift.description = params[:gift][:description]
       @gift.file = params[:gift][:file]
+    end
+    if !@user
+      @gifts = []
+      render_with_language __method__
+      return
     end
     if @user
       @gift.currency = @user.currency unless @gift.currency
