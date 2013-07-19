@@ -14,8 +14,8 @@ class User < ActiveRecord::Base
 
   # attributes
   #   user_id    - Unique user-id - not encrypted - PK
-  #                Format FB-<userid> = facebook user
-  #                Format GP-<xxxxxx> = google+ user
+  #                Format fb-<userid> = facebook user
+  #                Format gp-<xxxxxx> = google+ user
   #   user_name  - encrypted
   #   currency   - encrypted
   #   balance    - encrypted - BigDecimal
@@ -34,7 +34,7 @@ class User < ActiveRecord::Base
   # attributes #
   ##############
 
-  # 1) user_id. required unique USER id, fx. FB-1234567890. Not encrypted. PK and user in encryption
+  # 1) user_id. required unique USER id, fx. fb-1234567890. Not encrypted. PK and user in encryption
   validates_presence_of :user_id
   attr_readonly :user_id
   def user_id=(new_user_id)
@@ -50,6 +50,7 @@ class User < ActiveRecord::Base
   end
   def user_name=(new_user_name)
     if new_user_name
+      puts "new_user_name = #{new_user_name} (#{new_user_name.class.name})"
       check_type('user_name', new_user_name, 'String')
       write_attribute :user_name, encrypt_add_pre_and_postfix(new_user_name, 'user_name', 9)
     else
@@ -95,7 +96,7 @@ class User < ActiveRecord::Base
   validates_presence_of :balance_at
 
   # 6) permissions. Optional. Any Ruby type in model (hash with privs. for facebook users). Encrypted text in db
-  # for FB users a hash with grants privs {"installed"=>1, "basic_info"=>1, "bookmarked"=>1}
+  # for fb users a hash with grants privs {"installed"=>1, "basic_info"=>1, "bookmarked"=>1}
   # for google+ todo:
   # permissions is fetched at login and checked before operations
   def permissions
@@ -138,10 +139,10 @@ class User < ActiveRecord::Base
   ##################
 
   def self.facebook_user_prefix
-    'FB-'
+    'fb-'
   end # facebook_user_prefix
   def self.google_plus_user_prefix
-    'GP-'
+    'gp-'
   end # google_plus_user_prefix
 
   def usertype

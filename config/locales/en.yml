@@ -20,4 +20,20 @@
 # available at http://guides.rubyonrails.org/i18n.html.
 
 en:
-  hello: "Hello world"
+  layouts:
+     page_header:
+        header_user_div_title: "%{username}. Click here to see your user info at %{appname}."
+        header_currency_title: "Balance. Use currency selection list if you want your balance shown in a different currency. One's balance of free money is a kind of measure of gratitude. Who has given / received most? Whose turn is it to receive / give? A positive balance means that you are good to help others and to one's help has been appreciated. A negative balance means that you are good to accept help and that you have appreciated the help. There is no correlation between who is rich / poor in free money here and who are rich / poor in the real world."
+        header_balance_prompt: "Balance:"
+        header_balance_free: "free"
+        header_log_out_link_text: 'Log out'
+
+  fb:
+     layouts:
+        page_header:
+           header_log_out_link_title: "Log out of %{appname} and return to facebook."
+
+  gp:
+     layouts:
+        page_header:
+           header_log_out_link_title: "Log out of %{appname} and return to google+."

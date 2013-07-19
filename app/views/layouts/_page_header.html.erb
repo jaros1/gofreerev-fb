@@ -1,8 +1,7 @@
-<% render_partial_with_language('layouts/page_header', 'init_texts') -%>
 <table>
   <tr style="white-space: nowrap">
     <td>
-      <div title="<%= output_text @header_user_div_title %>" onclick="top.location.href = '<%= url_for(@user) %>'">
+      <div title="<%= my_t '.header_user_div_title', :username => @user.user_name, :appname => APP_NAME %>" onclick="top.location.href = '<%= url_for(@user) %>'">
         <table>
           <tr>
             <td rowspan="2"><%= image_tag(@user.profile_picture_url) %></td>
@@ -15,15 +14,15 @@
       </div>
     </td>
     <td>&nbsp;&nbsp;&nbsp;</td>
-    <td title="<%= output_text @header_currency_title %>">
+    <td title="<%= my_t '.header_currency_title' %>">
       <table higth="100%">
-        <tr><td><%= output_text @header_balance_prompt %> <%= @user.balance || '0.00' %> <%= output_text @header_balance_free %></td></tr>
+        <tr><td><%= my_t '.header_balance_prompt' %> <%= @user.balance || '0.00' %> <%= my_t '.header_balance_free' %></td></tr>
         <tr><td><%= select_tag :user_currency_new, options_for_select(currencies, [@user.currency]), :onchange=>"update_currency()" %></td></tr>
       </table>
     </td>
     <td>&nbsp;&nbsp;&nbsp;</td>
-    <td title="<%= output_text @header_log_out_link_title %>">
-      <%= link_to @header_log_out_link_text, @header_log_out_link_url, :method => 'delete' %>
+    <td title="<%= my_t '.header_log_out_link_title', :appname => APP_NAME %>">
+      <%= link_to my_t('.header_log_out_link_text'), header_log_out_link_url, :method => 'delete' %>
     </td>
   </tr>
 </table>

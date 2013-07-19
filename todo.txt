@@ -27,3 +27,4 @@
 
 12) get timezone from login api. Use timezone in views. timezone added to user. not yet any timestamps in views.
 
+13) remove application_helper.output_text. Is replaced my my_translate alias my_t
