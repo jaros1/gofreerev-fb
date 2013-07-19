@@ -113,14 +113,6 @@ class FbController < ApplicationController
     # new rails session every time FB starts the rails app
     reset_session
 
-    # FB requires that url must end with a /
-    current_url = "#{request.protocol}#{request.host_with_port}#{request.fullpath}/"
-    current_url = 'http://localhost/fb/' if current_url == 'http://localhost//'
-    puts "current_url = #{current_url}"
-
-    remote_ip = request.remote_ip
-    puts "remote_ip = #{remote_ip}"
-
     signed_request = params[:signed_request]
     puts "signed_request = #{signed_request}"
     # signed_request = 9m_Xew0oojeuzMjIZFqwx9lI_UI4AqC-vMWXL9o45g4.eyJhbGdvcml0aG0iOiJITUFDLVNIQTI1NiIsImlzc3VlZF9hdCI6MTM3MzI4NDA4OCwidXNlciI6eyJjb3VudHJ5IjoiZGsiLCJsb2NhbGUiOiJkYV9ESyIsImFnZSI6eyJtaW4iOjIxfX19
@@ -133,8 +125,9 @@ class FbController < ApplicationController
 
     # unpack unsigned request
     # oauth = session[:oauth] = Koala::Facebook::OAuth.new(api_id, api_secret, SITE_URL + '/fb/callback')
-    puts "Koala::Facebook::OAuth.new: current_url = #{current_url}"
-    oauth = session[:oauth] = Koala::Facebook::OAuth.new(api_id, api_secret, current_url) unless oauth =  session[:oauth]
+    api_callback_url = SITE_URL + 'fb/'
+    puts "Koala::Facebook::OAuth.new: api_callback_url = #{api_callback_url}"
+    oauth = session[:oauth] = Koala::Facebook::OAuth.new(api_id, api_secret, api_callback_url) unless oauth =  session[:oauth]
     hash = oauth.parse_signed_request(signed_request)
     puts "hash = #{hash}"
     # hash = {"algorithm"=>"HMAC-SHA256", "issued_at"=>1373284394, "user"=>{"country"=>"dk", "locale"=>"da_DK", "age"=>{"min"=>21}}}
@@ -183,7 +176,15 @@ class FbController < ApplicationController
     session.keys.each do |name|
       session.delete(name) unless %w(_csrf_token).index(name.to_s)
     end
-    render_with_language __method__
+    case
+      when @user.facebook? then
+        redirect_to "http://facebook.com/"
+      when @user.google_plus? then
+        redirect_to "https://plus.google.com/"
+      else
+        # unknown login API
+        render_with_language __method__
+    end
   end
 
 

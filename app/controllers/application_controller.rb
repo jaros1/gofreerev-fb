@@ -51,6 +51,7 @@ class ApplicationController < ActionController::Base
   # fetch user info. Used in page heading etc
   private
   def fetch_user
+    # Cross-site Request Forgery check
     if params[:state] != session[:state] and params[:code].to_s != ''
       # Possible Cross-site Request Forgery - ignore code from FB
       puts "fetch_user: Possible csrf: params[:state] = #{params[:state]}, session[:state] = #{session[:state]}, params[:code] = #{params[:code]}"
@@ -76,7 +77,7 @@ class ApplicationController < ActionController::Base
         # 1) create/update user info (name and permissions)
         puts "get user id and name"
         api = Koala::Facebook::API.new(session[:access_token])
-        api_request = "me?fields=name,permissions,friends,picture"
+        api_request = "me?fields=name,permissions,friends,picture,timezone"
         puts "api_request = #{api_request}"
         api_response = api.get_object api_request
         puts "api_response = #{api_response.to_s}"
@@ -87,6 +88,7 @@ class ApplicationController < ActionController::Base
         u.user_id = user_id
         u.user_name = user_name
         u.no_api_friends = api_response["friends"]["data"].size
+        u.timezone = api_response["timezone"]
         if u.new_record?
           # set currency and balance for new user.
           puts "new user"

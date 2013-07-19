@@ -22,7 +22,7 @@ class GiftsController < ApplicationController
 
     if @user.post_gift_allowed?
       # post gift on login api wall (facebook, google+ etc)
-      @gift_posted_on_wall_api_wall = false
+      gift_posted_on_wall_api_wall = false
       case
         when @user.facebook?
           puts "access_token = #{session[:access_token]}"
@@ -30,8 +30,8 @@ class GiftsController < ApplicationController
           begin
             api_response = api.put_connections("me", "feed", :message => params[:gift][:description])
             puts "api_response = #{api_response} (#{api_response.class.name})"
-            @gift.api_gift_id = api_response["id"].split("_")[1]
-            @gift_posted_on_wall_api_wall = true
+            @gift.api_gift_id = api_response["id"].split("_")[1] # id to post in facebook wall
+            gift_posted_on_wall_api_wall = true
           rescue Koala::Facebook::ClientError => e
             puts "Koala::Facebook::ClientError"
             puts "e.fb_error_type = #{e.fb_error_type}"
@@ -51,10 +51,10 @@ class GiftsController < ApplicationController
           end # rescue
         when @user.google_plus?
           # todo: post message on gogole+ wall
-          @gift_posted_on_wall_api_wall = nil
+          gift_posted_on_wall_api_wall = false
         else
           # not implemented login api
-          @gift_posted_on_wall_api_wall = nil
+          gift_posted_on_wall_api_wall = nil
       end # case
     end # if
 
@@ -62,8 +62,8 @@ class GiftsController < ApplicationController
       @gift.save!
       # todo: use api.get_object('me/statuses?__paging_token=3287865251224&limit=1') to read status
       # todo: language support missing
-      if @gift_posted_on_wall_api_wall
-        flash[:notice] = 'Gift posted on your wall'
+      if gift_posted_on_wall_api_wall
+        flash[:notice] = 'Gift posted in  and on your wall'
       else
         flash[:notice] = 'Gift not posted on your wall'
       end

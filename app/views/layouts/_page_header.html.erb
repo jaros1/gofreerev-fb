@@ -23,7 +23,7 @@
     </td>
     <td>&nbsp;&nbsp;&nbsp;</td>
     <td title="<%= output_text @header_log_out_link_title %>">
-      <%= link_to @header_log_out_link_text, fb_path(@user.id), :method => 'delete' %>
+      <%= link_to @header_log_out_link_text, @header_log_out_link_url, :method => 'delete' %>
     </td>
   </tr>
 </table>

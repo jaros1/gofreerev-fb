@@ -23,3 +23,7 @@
 
 8) Invite friends to app function?
 
+9) replace language functions with I18n functions
+
+12) get timezone from login api. Use timezone in views. timezone added to user. not yet any timestamps in views.
+

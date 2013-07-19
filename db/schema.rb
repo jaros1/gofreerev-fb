@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20130717140414) do
+ActiveRecord::Schema.define(version: 20130719084750) do
 
   create_table "friends", force: true do |t|
     t.string   "user_id_giver"
@@ -52,6 +52,7 @@ ActiveRecord::Schema.define(version: 20130717140414) do
     t.text     "permissions"
     t.text     "no_api_friends"
     t.string   "profile_picture_type", limit: 10
+    t.integer  "timezone"
   end
 
   add_index "users", ["user_id"], name: "index_users_on_user_id", unique: true

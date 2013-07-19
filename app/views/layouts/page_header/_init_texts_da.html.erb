@@ -7,7 +7,8 @@
    @header_currency_title = "Saldo. Brug valuta valg-liste hvis du ønsker din saldo vist i en anden valuta. Ens saldo i frie penge er et slags mål for taknemmelighedsgæld. Hvem har givet/modtaget mest? Hvis tur er det til at modtage/give? En positiv saldo betyder at man er god til at hjælpe andre og at ens hjælp er blevet værdsat. En negativ saldo betyder at man er god til at tage imod hjælp og at man har sat pris på hjælpen. Der er ingen sammenhæng imellem hvem der er rige/fattige i frie penge herinde og hvem der er rige/fattige i den virkelige verden."
    @header_balance_prompt = 'Saldo:'
    @header_balance_free = 'frie'
-   @header_log_out_link_title = { :fb => 'Log ud af ' + APP_NAME + '. Der logges ikke ud af facebook. Husk at logge ud af både ' + APP_NAME + ' og facebook',
-                                  :gp => 'Log ud af ' + APP_NAME + '. Der logges ikke ud af google+. Husk at logge ud af både ' + APP_NAME + ' og google+' }
+   @header_log_out_link_title = { :fb => 'Log ud af ' + APP_NAME + ' og returner til facebook.',
+                                  :gp => 'Log ud af ' + APP_NAME + ' og returner til google+.' }
    @header_log_out_link_text = 'Log ud'
+   @header_log_out_link_url = fb_path(@user.id)
 -%>

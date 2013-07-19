@@ -127,6 +127,11 @@ class User < ActiveRecord::Base
   end # balance=
   alias_method :no_api_friends_before_type_cast, :no_api_friends
 
+  # 8) profile_picture_type. String in Model and db. Not encrypted.
+  # profile picture is downloaded under /public/images/profiles. profile picture name is <user_id>.<profile_picture_type>
+
+  # 9) timezone. Fixnum in model. Integer in db. Not encrypted. Used for local timestamps in views
+
 
   ##################
   # helper methods #
