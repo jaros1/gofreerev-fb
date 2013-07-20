@@ -39,7 +39,9 @@ da:
         pending_gift_popup_msg: "Ret valuta? Svar Cancel for at vende tilbage og lave opslag færdig. Svar OK for at tabe det indtastede opslag og opdatere valuta."
         description_required_text: "Tilbud skal udfyldes."
         price_invalid_text: "Pris is ugyldig. Brug kun cifre, højst et decimal komma/punktum og højst 2 decimaler. Tusindtalsseparator er ikke tilladt."
-
+        no_gifts_was_found: "Der blev ikke fundet nogle tilbud."
+        giver_prompt: "Fra:"
+        gifts_giver_div_title: "%{username}. Saldo %{balance}. Klik her for at se brugeroplysninger."
 
 
 

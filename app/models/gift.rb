@@ -19,19 +19,9 @@ class Gift < ActiveRecord::Base
   end
 =end
 
-  # general: all text columns are encrypted in database
-  # gift_id           is an internal unique pk key / sequence
-  # description       is the encrypted post in fb/google+ wall
-  # currency          eg DKK is required if the gifts has as price. DKK => FREE-DKK. Default currency from country
-  # price             is optional. Can be set by giver or by receiver. Can be changed until closed
-  # user_id_giver     is user_id for giver / seller
-  # user_id_receiver  is user_id for receiver / buyer
-  # received_at       when was the present received / when was the deal closed
-  # new_price_at      when was the new price last calculated
-  # new_price         price - negative_interest
-  # negative_interest 0.02 % per day = 7.6 % per year
-  # social_dividend   abs(nnegative_interest / 4). Distributed to both users. 0.01 % per day = 3.8 % per year
-  # api_gift_id       api id for the wall message
+
+  belongs_to :giver, :class_name => 'User', :primary_key => :user_id, :foreign_key => :user_id_giver
+  belongs_to :receiver, :class_name => 'User', :primary_key => :user_id, :foreign_key => :user_id_receiver
 
   # https://github.com/jmazzi/crypt_keeper - text columns are encrypted in database
   # encrypt_add_pre_and_postfix/encrypt_remove_pre_and_postfix added in setters/getters for better encryption

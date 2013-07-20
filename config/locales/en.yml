@@ -39,9 +39,9 @@ en:
         pending_gift_popup_msg: "Change currency? Select Cancel if you wish to complete your wall posting. Select OK to ship the not saved posting and change currency."
         description_required_text: "Offer is required."
         price_invalid_text: "Price is invalid. Only numbers, max 2 decimals, thousands separator not allowed."
-
-
-
+        no_gifts_was_found: "No gifts was found."
+        giver_prompt: "From:"
+        gifts_giver_div_title: "%{username}. Balance %{balance}. Click here to see user info."
 
 
 

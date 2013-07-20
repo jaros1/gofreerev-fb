@@ -7,3 +7,5 @@
 3) Invite friends to app function?
 
 4) get timezone from login api. Use timezone in views. timezone added to user. not yet any timestamps in views.
+
+5) opera. client side validation not working in gifts/index page. Works in other browsers.

@@ -108,7 +108,7 @@ class GiftsController < ApplicationController
     # list of gifts with @user as giver or receiver + list of gifts med @user.friends as giver or receiver
     friends = Friend.where('user_id_giver = ?', @user.user_id).collect { |u| u.user_id_receiver }
     friends.push(@user.user_id)
-    @gifts = Gift.where("user_id_giver in (?) or user_id_receiver in (?)", friends, friends).paginate(:page => params[:page]).order("created_at desc") if @user
+    @gifts = Gift.where("user_id_giver in (?) or user_id_receiver in (?)", friends, friends).includes(:giver, :receiver).paginate(:page => params[:page]).order("created_at desc") if @user
     puts "@gifts.size = #{@gifts.size}"
     render_with_language __method__
   end # index

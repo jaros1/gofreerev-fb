@@ -1,3 +1,5 @@
+require 'money/bank/google_currency'
+
 class ApplicationController < ActionController::Base
   # Prevent CSRF attacks by raising an exception.
   # For APIs, you may want to use :null_session instead.
@@ -172,7 +174,13 @@ class ApplicationController < ActionController::Base
     end
     puts "fetch_user: user_id = #{session[:user_id]}"
     @user = User.find_by_user_id(session[:user_id]) if session[:user_id]
-    @usertype = session[:usertype] = @user ? @user.usertype : nil
+    if @user
+      @usertype = session[:usertype] = @user.usertype
+      Money.default_currency = Money::Currency.new(@user.currency)
+      Money.default_bank = Money::Bank::GoogleCurrency.new
+    else
+      @usertype = session[:usertype] = nil
+    end
   end # fetch_user
 
 

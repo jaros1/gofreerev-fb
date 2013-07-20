@@ -36,17 +36,27 @@
 <% end -%>
 
 <% if @gifts.size == 0 -%>
-    No gifts was found
+    <p>
+      <%= my_t '.no_gifts_was_found' %>
+    </p>
 <% else -%>
     <br />
     <table>
       <tr>
+        <th style="text-align: center"><%= my_t '.giver_prompt' %></th>
         <th><%= my_t '.price_prompt' %></th>
         <th>&nbsp;&nbsp;</th>
         <th><%= my_t '.description_prompt' %></th>
       </tr>
         <% for gift in @gifts do loop -%>
+          <% giver = gift.giver ; receiver = gift.receiver -%>
           <tr>
+            <td>
+              <div title="<%= my_t '.gifts_giver_div_title', :username => giver.user_name, :balance => "#{giver.balance} #{giver.currency}" %>'"
+                   onclick="top.location.href = '<%= url_for(giver) %>'">
+                <%= image_tag(giver.profile_picture_url) %>
+              </div>
+            </td>
             <td><%= h gift.price %> <%= gift.currency %></td>
             <td></td>
             <td><%= h gift.description %></td>

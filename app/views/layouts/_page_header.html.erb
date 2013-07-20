@@ -1,7 +1,8 @@
 <table>
   <tr style="white-space: nowrap">
     <td>
-      <div title="<%= my_t '.header_user_div_title', :username => @user.user_name, :appname => APP_NAME %>" onclick="top.location.href = '<%= url_for(@user) %>'">
+      <div title="<%= my_t '.header_user_div_title', :username => @user.user_name, :appname => APP_NAME %>"
+           onclick="top.location.href = '<%= url_for(@user) %>'">
         <table>
           <tr>
             <td rowspan="2"><%= image_tag(@user.profile_picture_url) %></td>
@@ -16,7 +17,7 @@
     <td>&nbsp;&nbsp;&nbsp;</td>
     <td title="<%= my_t '.header_currency_title' %>">
       <table higth="100%">
-        <tr><td><%= my_t '.header_balance_prompt' %> <%= @user.balance || '0.00' %> <%= my_t '.header_balance_free' %></td></tr>
+        <tr><td><%= my_t '.header_balance_prompt' %> <%= @user.balance || '0.00' %> <%= my_t '.header_balance_free' %> <%= @user.currency %></td></tr>
         <tr><td><%= select_tag :user_currency_new, options_for_select(currencies, [@user.currency]), :onchange=>"update_currency()" %></td></tr>
       </table>
     </td>

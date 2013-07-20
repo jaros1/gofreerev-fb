@@ -24,6 +24,11 @@ class User < ActiveRecord::Base
   #   updated_at - timestamp - not encrypted
 
 
+  has_many :offers, :class_name => 'Gift', :primary_key => :user_id, :foreign_key => :user_id_giver, :dependent => :destroy
+  has_many :gifts, :class_name => 'Gift', :primary_key => :user_id, :foreign_key => :user_id_receiver, :dependent => :destroy
+
+
+
   # https://github.com/jmazzi/crypt_keeper - text columns are encrypted in database
   # encrypt_add_pre_and_postfix/encrypt_remove_pre_and_postfix added in setters/getters for better encryption
   # this is different encrypt for each attribute and each db row
@@ -79,7 +84,7 @@ class User < ActiveRecord::Base
   validates_presence_of :balance
   def balance
     return nil unless (temp_extended_balance = read_attribute(:balance))
-    puts "temp_extended_balance = #{temp_extended_balance}"
+    # puts "temp_extended_balance = #{temp_extended_balance}"
     BigDecimal.new encrypt_remove_pre_and_postfix(temp_extended_balance, 'balance', 11)
   end # balance
   def balance=(new_balance)

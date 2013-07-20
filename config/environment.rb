@@ -55,4 +55,3 @@ end # find_usertype
 
 # Initialize the Rails application.
 GofreerevFb::Application.initialize!
-

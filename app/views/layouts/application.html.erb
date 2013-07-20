@@ -33,6 +33,6 @@
 <%= yield %>
 <!-- page footer -->
 <%= render :partial => 'layouts/page_footer/page_footer' -%>
-<%= dump_session_variables %>
 </body>
 </html>
+<% ExchangeRate.fetch_exchange_rates -%>
