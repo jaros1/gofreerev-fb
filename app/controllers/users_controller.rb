@@ -27,27 +27,18 @@ class UsersController < ApplicationController
 
       # recalculate balance in new currency
       # currency and balance is not recalculated if exchange rates are missing
-      new_balance = BigDecimal.new "0"
-      missing_exchange_rates = false
-      gs = @user.offers.find_all { |g| g.user_id_receiver } + @user.gifts
-      gs.each do |g|
-        g.price = -g.price if @user.user_id == g.user_id_receiver
-        new_price = ExchangeRate.exchange(g.price, g.currency, new_currency)
-        if new_price.currency.to_s == new_currency
-          new_balance = new_balance + new_price.to_f
-        else
-          missing_exchange_rates = true
-        end
-      end # each
-      if missing_exchange_rates
+      puts "gifts/update: new_currency = #{new_currency}"
+      if !@user.recalculate_balance(new_currency)
         # not all exchange rates was ready yet - keep old balance and currency
+        # puts "not all exchange rates was ready yet - keep old balance and currency"
+        flash[:notice] = t '.exchange_rates_not_ready'
         redirect_to params[:return_to]
         return
       end
 
-      # ok - update currency and balance
-      @user.currency = new_currency
-      @user.balance = new_balance
+      # ok - all needed exchange rates was available - currency and balance was updated
+      # puts "ok - all needed exchange rates was available - currency and balance was updated"
+      # puts "currency = #{@user.currency}, balance = #{@user.balance}"
       @user.save!
 
       redirect_to params[:return_to]

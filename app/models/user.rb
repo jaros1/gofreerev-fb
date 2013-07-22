@@ -25,8 +25,7 @@ class User < ActiveRecord::Base
 
 
   has_many :offers, :class_name => 'Gift', :primary_key => :user_id, :foreign_key => :user_id_giver, :dependent => :destroy
-  has_many :gifts, :class_name => 'Gift', :primary_key => :user_id, :foreign_key => :user_id_receiver, :dependent => :destroy
-
+  has_many :gifts_received, :class_name => 'Gift', :primary_key => :user_id, :foreign_key => :user_id_receiver, :dependent => :destroy
 
 
   # https://github.com/jmazzi/crypt_keeper - text columns are encrypted in database
@@ -224,6 +223,43 @@ class User < ActiveRecord::Base
   end
   def profile_picture_url
     "#{profile_picture_md5_path}/#{profile_picture_filename}"
+  end
+
+  def gifts_given
+    offers.find_all { |g| g.user_id_receiver }.collect { |g| g.recalculate ; g }
+  end
+  def gifts_received_with_sign
+    gs = gifts_received.collect { |g| g.recalculate ; g.new_price = -g.new_price ; g }
+  end
+  def gifts_given_and_received
+    gifts_given + gifts_received_with_sign
+  end
+
+  def recalculate_balance (new_currency=nil)
+    new_currency = currency unless new_currency
+    # recalculate balance in new currency
+    # currency and balance is not recalculated if exchange rates are missing
+    new_balance = BigDecimal.new "0"
+    missing_exchange_rates = false
+    gifts_given_and_received.each do |g|
+      new_price = ExchangeRate.exchange(g.new_price, g.currency, new_currency)
+      puts "recalculate_balance. "
+      if new_price.currency.to_s == new_currency
+        new_balance = new_balance + new_price.to_f
+      else
+        missing_exchange_rates = true
+      end
+      puts "recalculate_balance. g.new_price = #{g.new_price.to_s}, new_price = #{new_price.to_s}, new_balance = #{new_balance.to_s} "
+    end # each
+    return false if missing_exchange_rates # not all exchange rates was read at this time - they should be updated in a moment
+    # calculation ok - all needed exchange rates was found
+    self.currency = new_currency
+    self.balance = new_balance
+    return true
+  end # recalculate_balance
+
+  def balance_with_2_decimals
+    "%0.2f" % (balance || 0)
   end
 
 

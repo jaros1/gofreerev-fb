@@ -42,9 +42,13 @@
 <% else -%>
     <br />
     <table>
-      <tr>
-        <th style="text-align: center"><%= my_t '.giver_prompt' %></th>
-        <th><%= my_t '.price_prompt' %></th>
+      <tr style="vertical-align: bottom">
+        <th style="text-align: center"><%= my_t '.giver_column_heading_html' %></th>
+        <th style="text-align: center"><%= my_t '.receiver_column_heading_html' %></th>
+        <th><%= my_t '.received_at_column_heading_html' %></th>
+        <th><%= my_t '.price_column_heading_html' %></th>
+        <th><%= my_t '.new_price_column_heading_html' %></th>
+        <th><%= my_t '.balance_column_heading_html' %></th>
         <th>&nbsp;&nbsp;</th>
         <th><%= my_t '.description_prompt' %></th>
       </tr>
@@ -52,12 +56,21 @@
           <% giver = gift.giver ; receiver = gift.receiver -%>
           <tr>
             <td>
-              <div title="<%= my_t '.gifts_giver_div_title', :username => giver.user_name, :balance => "#{giver.balance} #{giver.currency}" %>'"
+              <div title="<%= my_t '.gifts_giver_div_title', :username => giver.user_name, :balance => "#{giver.balance_with_2_decimals} #{giver.currency}" %>'"
                    onclick="top.location.href = '<%= url_for(giver) %>'">
                 <%= image_tag(giver.profile_picture_url) %>
               </div>
             </td>
-            <td><%= h gift.price %> <%= gift.currency %></td>
+            <td>
+              <div title="<%= my_t '.gifts_receiver_div_title', :username => receiver.user_name, :balance => "#{receiver.balance_with_2_decimals} #{receiver.currency}" if receiver %>'"
+                   onclick="top.location.href = '<%= url_for(giver) %>'">
+                <%= image_tag(receiver.profile_picture_url) if receiver %>
+              </div>
+            </td>
+            <td><%= gift.received_at %></td>
+            <td><%= h gift.price_with_2_decimals %> <%= gift.currency %></td>
+            <td><%= h gift.new_price_with_2_decimals %></td>
+            <td><%= h gift.balance %></td>
             <td></td>
             <td><%= h gift.description %></td>
           </tr>

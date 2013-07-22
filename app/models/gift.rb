@@ -48,7 +48,7 @@ class Gift < ActiveRecord::Base
 
   # 2) description - required - String in model - encrypted text in db - update not allowed
   validates_presence_of :description
-  attr_readonly :description
+  # attr_readonly :description
   def description
     return nil unless (extended_description = read_attribute(:description))
     encrypt_remove_pre_and_postfix(extended_description, 'description', 2)
@@ -146,7 +146,7 @@ class Gift < ActiveRecord::Base
       check_type('negative_interest', new_negative_interest, 'BigDecimal')
       write_attribute :negative_interest, encrypt_add_pre_and_postfix(new_negative_interest.to_s, 'negative_interest', 7)
     else
-      write_attribute :negative_interest
+      write_attribute :negative_interest, nil
     end
   end # negative_interest=
   alias_method :negative_interest_before_type_cast, :negative_interest
@@ -183,9 +183,59 @@ class Gift < ActiveRecord::Base
   end
   alias_method :api_gift_id_before_type_cast, :api_gift_id
 
-  # 13) created_at - timestamp - not encrypted
+  # 13) gifttype - String in model and DB - G if gift - S if exchanged social dividend
+  # gifttype = G : social dividend = ( new_price - price) / 4
+  # gifttype = S : social divident = new_price when price = social dividend exchanged between the two users.
 
-  # 14) updated_at - timestamp - not encrypted
+  # 14) received_at. Date in model - encrypted text in db - set once when the deal is closed together with user_id_receiver
+  def social_dividend_from
+    return nil unless (temp_extended_social_dividend_from = read_attribute(:social_dividend_from))
+    temp_social_dividend_from = encrypt_remove_pre_and_postfix(temp_extended_social_dividend_from, 'social_dividend_from', 10)
+    YAML::load(temp_social_dividend_from)
+  end
+  def social_dividend_from=(new_social_dividend_from)
+    if new_social_dividend_from
+      check_type('social_dividend_from', new_social_dividend_from, 'Date')
+      write_attribute :social_dividend_from, encrypt_add_pre_and_postfix(new_social_dividend_from.to_yaml, 'social_dividend_from', 10)
+    else
+      write_attribute :social_dividend_from, nil
+    end
+  end
+  alias_method :social_dividend_from_before_type_cast, :social_dividend_from
+
+  # 15) new_price_giver - BigDecimal in model - encrypted text in db - equal new_price, but with givers actual currency and with sign - used for balance
+  def new_price_giver
+    return nil unless (temp_extended_new_price_giver = read_attribute(:new_price_giver))
+    BigDecimal.new encrypt_remove_pre_and_postfix(temp_extended_new_price_giver, 'new_price_giver', 11)
+  end # new_price_giver
+  def new_price_giver=(new_new_price_giver)
+    if new_new_price_giver
+      check_type('new_price_giver', new_new_price_giver, 'BigDecimal')
+      write_attribute :new_price_giver, encrypt_add_pre_and_postfix(new_new_price_giver.to_s, 'new_price_giver', 11)
+    else
+      write_attribute :new_price_giver, nil
+    end
+  end # new_price_giver=
+  alias_method :new_price_giver_before_type_cast, :new_price_giver
+
+  # 16) new_price_receiver - BigDecimal in model - encrypted text in db - equal new_price but with receivers actual currency and with sign - used for balance
+  def new_price_receiver
+    return nil unless (temp_extended_new_price_receiver = read_attribute(:new_price_receiver))
+    BigDecimal.new encrypt_remove_pre_and_postfix(temp_extended_new_price_receiver, 'new_price_receiver', 12)
+  end # new_price_receiver
+  def new_price_receiver=(new_new_price_receiver)
+    if new_new_price_receiver
+      check_type('new_price_receiver', new_new_price_receiver, 'BigDecimal')
+      write_attribute :new_price_receiver, encrypt_add_pre_and_postfix(new_new_price_receiver.to_s, 'new_price_receiver', 12)
+    else
+      write_attribute :new_price_receiver, nil
+    end
+  end # new_price=
+  alias_method :new_price_receiver_before_type_cast, :new_price_receiver
+
+  # 17) created_at - timestamp - not encrypted
+
+  # 18) updated_at - timestamp - not encrypted
 
 
   #
@@ -193,8 +243,218 @@ class Gift < ActiveRecord::Base
   #
 
 
-  # psydo attribute file - only used if create gift fails
-  attr_accessor :file
+  def price_with_2_decimals
+    return nil unless price
+    "%0.2f" % (price || 0)
+  end
+  def new_price_with_2_decimals
+    return nil unless new_price
+    "%0.2f" % (new_price || 0)
+  end
+  def new_price_user (user)
+    return nil unless price
+    return nil unless receiver
+    case user
+      when giver then new_price_giver
+      when receiver then -new_price_receiver
+      else nil
+    end
+  end # new_price_user
+
+  # calculate negative interest for a period
+  # it can be from received_at to today = self.negative_interest
+  # it can also be for a selected period. Used when calculating social dividend exchanged between two users for a period
+  def negative_interest_between_dates (date1, date2)
+    if !received_at or received_at >= date2 or date1 == date2
+      puts "gifts: negative_interest_between_dates: id = #{id}, date1 = #{date1}, date2 = #{date2}, negative_interest = 0"
+      return 0
+    end
+
+    date1 = received_at if date1 > received_at
+    if date1 == received_at
+      price1 = self.price.to_f
+    else
+      days = (date1 - received_at).to_i
+      price1 = self.price.to_f * PRICE_FACTOR_PER_DAY ** days
+    end
+    days = (date2 - received_at).to_i
+    price2 = self.price.to_f * PRICE_FACTOR_PER_DAY ** days
+    negative_interest = price1 - price2
+    puts "gifts: negative_interest_between_dates: id = #{id}, date1 = #{date1}, date2 = #{date2}, negative_interest = #{negative_interest} (#{negative_interest.class.name})"
+    negative_interest
+  end # negative_interest_between_dates
+
+  def social_dividend_between_dates (date1, date2)
+    negative_interest_between_dates(date1, date2) / 4
+  end
+
+  # recalculate negative interest, new_price and social dividend for gift today
+  # negative interest for gifts (gifttype = G) is used in social dividend calculation
+  # negative interest for social dividend (gifttype = S) in social dividend calculation
+  # that is - no social dividend of social dividend.
+  def recalculate
+    puts "gift: recalculate: id = #{id}"
+    if !received_at
+      puts "open offer - prices is not recalculated"
+      return self
+    end
+    today =  Date.today
+    if  new_price_at != today
+      # calculate new interest, price and social dividend
+      self.negative_interest = BigDecimal.new negative_interest_between_dates(received_at, today).to_s unless new_price_at == today
+      self.new_price = price - negative_interest
+      self.new_price_at = today
+      self.social_dividend = case gifttype
+                               when 'G' then negative_interest / 4 # gifttype G = Gift
+                               when 'S' then new_price             # gifttype S = Social dividend given or received
+                               else BigDecimal.new '0' # error
+                             end # case
+    end
+    # update currency_giver and new_price_giver if any changes
+    if self.new_price
+      if giver.currency == self.currency
+        self.new_price_giver = self.new_price
+      else
+        new_price = ExchangeRate.exchange(self.new_price, self.currency, giver.currency)
+        if new_price.currency.to_s == giver.currency
+          # found exchange rate
+          self.currency_giver =  new_price.currency.to_s
+          self.new_price_giver = BigDecimal.new new_price.to_s
+        else
+          self.new_price_giver = nil
+        end
+      end
+    end
+    # update currency_receiver and new_price_receiver if any changes
+    if receiver and self.new_price
+      if receiver.currency == self.currency
+        self.new_price_receiver = self.new_price
+      elsif receiver.currency == self.currency_giver
+        self.new_price_receiver = self.new_price_giver
+        self.currency_receiver = self.currency_giver
+      else
+        new_price = ExchangeRate.exchange(self.new_price, self.currency, receiver.currency)
+        if new_price.currency.to_s == receiver.currency
+          # found exchange rate
+          self.currency_receiver =  new_price.currency.to_s
+          self.new_price_receiver = BigDecimal.new new_price.to_s
+        else
+          self.new_price_receiver = nil
+        end
+      end
+    end
+
+    save!
+    self
+  end # recalculate
+
+
+  # called when a gift (gifttype = G) is created to exchange social dividend between the 2 users
+  def create_social_dividend
+    # find first gifts. New users do not get social dividend from old users.
+    # find all relevant gifts
+    puts "giver = #{giver.user_name}, receiver = #{receiver.user_name}, received_at = #{received_at}"
+    gifts = Gift.where("(? in (user_id_giver, user_id_receiver) or ? in (user_id_giver, user_id_receiver)) and received_at is not null", user_id_receiver, user_id_giver)
+    gifts.sort! { |a,b| a.received_at <=> b.received_at }
+    giver_gifts = gifts.find_all { |g| g.gifttype == 'G' and [g.user_id_giver, g.user_id_receiver].index(user_id_giver) }
+    receiver_gifts = gifts.find_all { |g| g.gifttype == 'G' and [g.user_id_giver, g.user_id_receiver].index(user_id_receiver) }
+    social_dividends = gifts.find_all do |g|
+      if g.gifttype != 'S'
+        false
+      elsif ![g.user_id_giver, g.user_id_receiver].index(self.user_id_giver)
+        false
+      elsif ![g.user_id_giver, g.user_id_receiver].index(self.user_id_receiver)
+        false
+      else
+        true
+      end
+    end
+    puts "gifts.size #{gifts.size}, giver_gifts.size = #{giver_gifts.size}, receiver_gifts.size = #{receiver_gifts.size}, social_dividends.size = #{social_dividends.size}"
+    puts "gifts: dates =" + gifts.collect { |g| g.received_at.to_s }.join(', ')
+    # find first gifts
+    giver_first_gift    = giver_gifts.first
+    receiver_first_gift    = receiver_gifts.first
+    last_social_dividend = social_dividends.reverse.find { |g| g.received_at < self.received_at }
+    return nil unless giver_first_gift and receiver_first_gift # error
+    if last_social_dividend
+      last_social_dividend_at = last_social_dividend.received_at
+    else
+      last_social_dividend_at = giver_first_gift.received_at
+    end
+    date1 = [ giver_first_gift.received_at, receiver_first_gift.received_at, last_social_dividend_at ].max
+    date2 = received_at
+    puts "giver first gift = #{giver_first_gift.received_at}, receiver first gift = #{receiver_first_gift.received_at}, date1 = #{date1}, date2 = #{date2}"
+    return nil if date1 == date2 # giver or receiver is a new user - no social dividend is exchanged
+    # remove gifts before date1 or after date2
+    # puts "giver_gifts (before) : dates =" + giver_gifts.collect { |g| g.received_at.to_s }.join(', ')
+    # puts "receiver_gifts (before) : dates =" + receiver_gifts.collect { |g| g.received_at.to_s }.join(', ')
+    giver_gifts.delete_if { |g| g.received_at >= date2 }
+    receiver_gifts.delete_if { |g| g.received_at >= date2 }
+    # puts "giver_gifts (after) : dates =" + giver_gifts.collect { |g| g.received_at.to_s }.join(', ')
+    # puts "receiver_gifts (after) : dates =" + receiver_gifts.collect { |g| g.received_at.to_s }.join(', ')
+    puts "giver_gifts.size = #{giver_gifts.size}, receiver_gifts.size = #{receiver_gifts.size}"
+    hash = {}
+    giver_gifts.each do |g|
+      next if g.gifttype != 'G' or g.price == 0
+      hash[g.currency] = { :giver => 0, :receiver => 0 } unless hash.has_key?(g.currency)
+      hash[g.currency][:giver] += g.negative_interest_between_dates(date1, date2) / 4
+    end
+    receiver_gifts.each do |g|
+      next if g.gifttype != 'G' or g.price == 0
+      hash[g.currency] = { :giver => 0, :receiver => 0 } unless hash.has_key?(g.currency)
+      hash[g.currency][:receiver] += g.negative_interest_between_dates(date1, date2) / 4
+    end
+    puts "hash = #{hash.to_s}"
+
+    # delete any social dividend calculation for this date
+    social_dividends.each { |g| g.destroy if g.received_at == self.received_at }
+
+    # insert social dividend calculation for this date
+    hash.each do |name, value|
+      currency = name
+      giver_social_dividend = value[:giver]
+      receiver_social_dividend = value[:receiver]
+      difference = ((giver_social_dividend - receiver_social_dividend)/2).abs.round(2)
+      puts "currency = #{currency}, diference = #{difference}"
+      next if difference == 0
+      gift = Gift.new
+      gift.currency = currency
+      gift.price = BigDecimal.new difference.to_s
+      gift.description = "Social dividend %0.2f #{currency}" % difference
+      if giver_social_dividend > receiver_social_dividend
+        gift.user_id_giver = self.user_id_giver
+        gift.user_id_receiver = self.user_id_receiver
+        gift.description += " from #{gift.giver.short_user_name} to #{gift.receiver.short_user_name}"
+      else
+        gift.user_id_giver = self.user_id_receiver
+        gift.user_id_receiver = self.user_id_giver
+        gift.description += " from #{gift.receiver.short_user_name} to #{gift.giver.short_user_name}"
+      end
+      if last_social_dividend
+        gift.description += " for period #{date1} to #{date2}"
+      else
+        gift.description += " for period up to #{date2}"
+      end
+      gift.received_at = self.received_at
+      gift.new_price = gift.price
+      gift.new_price_at = gift.received_at
+      gift.negative_interest = BigDecimal.new "0"
+      gift.social_dividend = BigDecimal.new "0"
+      gift.gifttype = 'S'
+      gift.social_dividend_from = date1
+      !gift.save!
+    end # each
+
+    # recalculate any social dividends after self.received_at
+    next_social_dividend = social_dividends.find { |g| g.received_at > self.received_at }
+    next_social_dividend.create_social_dividend if next_social_dividend #
+
+  end # create_social_dividend
+
+
+  # psydo attributea
+  attr_accessor :file, :balance
+
 
   # https://github.com/jmazzi/crypt_keeper gem encrypts all attributes and all rows in db with the same key
   # this extension to use different encryption for each attribute and each row

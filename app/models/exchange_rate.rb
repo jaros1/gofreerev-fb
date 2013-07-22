@@ -17,34 +17,46 @@ class ExchangeRate < ActiveRecord::Base
 
   def self.exchange (from_amount, from_currency, to_currency)
     # check for zero or identical currencies
-    return from_amount.to_money(to_currency) if from_amount.to_f == 0 or from_currency == to_currency
+    if from_amount.to_f == 0 or from_currency == to_currency
+      puts "exchange: zero amount or identical currencies"
+      to_amount = from_amount
+      puts "exchange: from_amount = #{from_amount}, from_currency = #{from_currency}, to_amount = #{to_amount}, to_currency = #{to_currency}"
+      return from_amount.to_money(to_currency)
+    end
     from_amount = from_amount.to_s.to_money(from_currency) if from_amount.class.name != 'Money'
     # find exchange rate - exchanges rates are fetch batch - refreshed once every day on request
     er = ExchangeRate.find_by_from_currency_and_to_currency(from_currency, to_currency)
     if !er
       # not converter. Request for exchange rate requested
+      puts "exchange: exchange rate not found - request has been sent to bank"
       er = ExchangeRate.new
       er.from_currency = from_currency
       er.to_currency = to_currency
       er.request_update = 'Y'
       er.save!
-      return from_amount
+      to_amount = from_amount
+      puts "exchange: from_amount = #{from_amount}, from_currency = #{from_currency}, to_amount = #{to_amount}, to_currency = #{to_currency}"
+      return to_amount
     end
     if !er.exchange_rate
       # no exchange rate yet
+      puts "exchange: exchange rate not ready yet"
+      to_amount = from_amount
+      puts "exchange: from_amount = #{from_amount}, from_currency = #{from_currency}, to_amount = #{to_amount}, to_currency = #{to_currency}"
       return from_amount
     end
     if er.request_update != 'Y' and 1.day.since(er.exchange_rate_at) < Time.new
       # old exchange rate - request new update
-      er.request.update = 'Y'
+      puts "exchange: using old exchange rate"
+      er.request_update = 'Y'
       er.save!
     end
     # convert
     Money.add_rate(from_currency, to_currency, er.exchange_rate)
-    from_amount.exchange_to(to_currency)
-  end
-
-  # self.exchange
+    to_amount = from_amount.exchange_to(to_currency)
+    puts "exchange: from_amount = #{from_amount}, from_currency = #{from_currency}, to_amount = #{to_amount}, to_currency = #{to_currency}"
+    to_amount
+  end # self.exchange
 
 
   # https://gist.github.com/danieldbower/842562

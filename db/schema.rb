@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20130720081125) do
+ActiveRecord::Schema.define(version: 20130722172838) do
 
   create_table "exchange_rates", force: true do |t|
     t.string   "from_currency",    limit: 3, null: false
@@ -34,12 +34,12 @@ ActiveRecord::Schema.define(version: 20130720081125) do
   end
 
   create_table "gifts", force: true do |t|
-    t.string   "gift_id",           limit: 20
-    t.text     "description",                  null: false
-    t.text     "currency",                     null: false
+    t.string   "gift_id",              limit: 20
+    t.text     "description",                     null: false
+    t.text     "currency",                        null: false
     t.text     "price"
-    t.string   "user_id_giver",     limit: 20, null: false
-    t.string   "user_id_receiver",  limit: 20
+    t.string   "user_id_giver",        limit: 20, null: false
+    t.string   "user_id_receiver",     limit: 20
     t.text     "received_at"
     t.date     "new_price_at"
     t.text     "new_price"
@@ -48,6 +48,12 @@ ActiveRecord::Schema.define(version: 20130720081125) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.text     "api_gift_id"
+    t.string   "gifttype",             limit: 1
+    t.text     "social_dividend_from"
+    t.text     "new_price_giver"
+    t.text     "new_price_receiver"
+    t.text     "currency_giver"
+    t.text     "currency_receiver"
   end
 
   add_index "gifts", ["gift_id"], name: "index_gifts_on_gift_id", unique: true

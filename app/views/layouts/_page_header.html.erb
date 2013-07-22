@@ -17,7 +17,7 @@
     <td>&nbsp;&nbsp;&nbsp;</td>
     <td title="<%= my_t '.header_currency_title' %>">
       <table higth="100%">
-        <tr><td><%= my_t '.header_balance_prompt' %> <%= @user.balance || '0.00' %> <%= my_t '.header_balance_free' %> <%= @user.currency %></td></tr>
+        <tr><td><%= my_t '.header_balance_prompt' %> <%= @user.balance_with_2_decimals %> <%= my_t '.header_balance_free' %> <%= @user.currency %></td></tr>
         <tr><td><%= select_tag :user_currency_new, options_for_select(currencies, [@user.currency]), :onchange=>"update_currency()" %></td></tr>
       </table>
     </td>

@@ -40,8 +40,14 @@ da:
         description_required_text: "Tilbud skal udfyldes."
         price_invalid_text: "Pris is ugyldig. Brug kun cifre, højst et decimal komma/punktum og højst 2 decimaler. Tusindtalsseparator er ikke tilladt."
         no_gifts_was_found: "Der blev ikke fundet nogle tilbud."
-        giver_prompt: "Fra:"
+        giver_column_heading_html: "Fra:"
+        receiver_column_heading_html: "Til:"
+        received_at_column_heading_html : "Dato:"
+        price_column_heading_html: "Pris:"
+        new_price_column_heading_html: "Værdi<nr>nu:"
+        balance_column_heading_html: "Saldo"
         gifts_giver_div_title: "%{username}. Saldo %{balance}. Klik her for at se brugeroplysninger."
+        gifts_receiver_div_title: "%{username}. Saldo %{balance}. Klik her for at se brugeroplysninger."
 
 
 

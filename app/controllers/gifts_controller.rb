@@ -7,11 +7,11 @@ class GiftsController < ApplicationController
 
   def create
     @gift = Gift.new
-    # todo: catch invalid price exception
     @gift.price = BigDecimal.new params[:gift][:price]
     @gift.currency = @user.currency
     @gift.description = params[:gift][:description]
     @gift.user_id_giver = session[:user_id]
+    @gift.gifttype = 'G'
     if !@gift.valid?
       # todo: check how to handle error messages in rails 4
       flash.now[:notice] = @gift.errors.full_messages.join(', ')
@@ -110,6 +110,17 @@ class GiftsController < ApplicationController
     friends.push(@user.user_id)
     @gifts = Gift.where("user_id_giver in (?) or user_id_receiver in (?)", friends, friends).includes(:giver, :receiver).paginate(:page => params[:page]).order("created_at desc") if @user
     puts "@gifts.size = #{@gifts.size}"
+
+    balance = 0
+    @gifts.each do |g|
+      next if !g.price or ![g.user_id_giver, g.user_id_receiver].index(@user.user_id)
+      new_price = g.new_price_user(@user)
+      if new_price
+        balance += new_price
+        g.balance = "%0.2f" % balance
+      end
+    end # each
+
     render_with_language __method__
   end # index
 

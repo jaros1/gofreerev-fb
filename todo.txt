@@ -9,3 +9,17 @@
 4) get timezone from login api. Use timezone in views. timezone added to user. not yet any timestamps in views.
 
 5) opera. client side validation not working in gifts/index page. Works in other browsers.
+
+6) gifts price calculation.
+   price = the agreed price
+   transferred_social_dividend
+
+7) Use ruby constants for interest in welcome page (fb/create)
+
+8) rename controller gifts to news.
+
+9) few price info on news wall.
+
+10) display all friends gifts in news/index page
+
+11) add balance accessor to gifts. Balance is always

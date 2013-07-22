@@ -40,9 +40,14 @@ en:
         description_required_text: "Offer is required."
         price_invalid_text: "Price is invalid. Only numbers, max 2 decimals, thousands separator not allowed."
         no_gifts_was_found: "No gifts was found."
-        giver_prompt: "From:"
+        giver_column_heading_html: "From:"
+        receiver_column_heading_html: "To:"
+        received_at_column_heading_html : "Date:"
+        price_column_heading_html: "price-<br />then:"
+        new_price_column_heading_html: "Value<br />today:"
+        balance_column_heading_html: "Balance"
         gifts_giver_div_title: "%{username}. Balance %{balance}. Click here to see user info."
-
+        gifts_receiver_div_title: "%{username}. Balance %{balance}. Click here to see user info."
 
 
   # application layouts - general texts
