@@ -1,4 +1,4 @@
-require 'money/bank/google_currency'
+# require 'money/bank/google_currency'
 
 class ExchangeRate < ActiveRecord::Base
 
@@ -108,7 +108,7 @@ class ExchangeRate < ActiveRecord::Base
       #necessary to manage activerecord connections since we are forking
       ActiveRecord::Base.connection.reconnect!
 
-      b = Money::Bank::GoogleCurrency.new
+      b = Money.default_bank
       ExchangeRate.where("request_update = 'Y'").each do |er|
         # check if exchange rate has been updated in an other process
         er.reload

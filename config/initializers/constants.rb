@@ -38,3 +38,6 @@ PRICE_FACTOR_PER_MONTH = PRICE_FACTOR_PER_DAY ** (365 / 12)
 PRICE_FACTOR_PER_YEAR = PRICE_FACTOR_PER_DAY ** 365
 NEGATIVE_INTEREST_PER_MONTH = (1 - PRICE_FACTOR_PER_MONTH) * 100
 NEGATIVE_INTEREST_PER_YEAR = (1 - PRICE_FACTOR_PER_YEAR) * 100
+
+# user.balance is an hash with user balance for each currency.. Key BALANCE_KEY is used for total balance in actual user.currency.
+BALANCE_KEY = "BALANCE"

@@ -89,4 +89,22 @@ module ApplicationHelper
   end
   alias :my_t :my_translate
 
+  # format prices - user currency is used for default seperators
+  def format_price (price)
+    return nil unless price
+    number_with_precision(price, :precision => 2, :separator => @user_currency_separator, :delimiter => @user_currency_delimiter)
+  end
+
+  def format_user_balance (balance)
+    return nil unless balance
+    return nil unless balance.size > 0
+    return format_price(balance[BALANCE_KEY]) if balance.size == 0
+    if balance.size == 2
+      other_value = balance.find { |name, value| name != BALANCE_KEY }
+      return format_price(balance[BALANCE_KEY]) if balance[BALANCE_KEY] == other_value
+    end
+    format_price(balance[BALANCE_KEY]) + ' (' + balance.find_all { |name, value| name != BALANCE_KEY }.collect { |name,value| format_price(value) + ' ' + name }.join(', ') + ')'
+  end
+
+
 end # ApplicationHelper

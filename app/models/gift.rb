@@ -48,7 +48,7 @@ class Gift < ActiveRecord::Base
 
   # 2) description - required - String in model - encrypted text in db - update not allowed
   validates_presence_of :description
-  # attr_readonly :description
+  attr_readonly :description
   def description
     return nil unless (extended_description = read_attribute(:description))
     encrypt_remove_pre_and_postfix(extended_description, 'description', 2)
@@ -233,9 +233,41 @@ class Gift < ActiveRecord::Base
   end # new_price=
   alias_method :new_price_receiver_before_type_cast, :new_price_receiver
 
-  # 17) created_at - timestamp - not encrypted
+  def balance_giver
+    return nil unless (extended_balance_giver = read_attribute(:balance_giver))
+    balance = encrypt_remove_pre_and_postfix(extended_balance_giver, 'balance_giver', 13)
+    return nil unless balance
+    balance.to_f
+  end
+  def balance_giver=(new_balance_giver)
+    if new_balance_giver
+      check_type('balance_giver', new_balance_giver, 'Float')
+      write_attribute :balance_giver, encrypt_add_pre_and_postfix(new_balance_giver.to_s, 'balance_giver', 13)
+    else
+      write_attribute :balance_giver, nil
+    end
+  end
+  alias_method :balance_giver_before_type_cast, :balance_giver
 
-  # 18) updated_at - timestamp - not encrypted
+  def balance_receiver
+    return nil unless (extended_balance_receiver = read_attribute(:balance_receiver))
+    balance = encrypt_remove_pre_and_postfix(extended_balance_receiver, 'balance_receiver', 14)
+    return nil unless balance
+    balance.to_f
+  end
+  def balance_receiver=(new_balance_receiver)
+    if new_balance_receiver
+      check_type('balance_receiver', new_balance_receiver, 'Float')
+      write_attribute :balance_receiver, encrypt_add_pre_and_postfix(new_balance_receiver.to_s, 'balance_receiver', 14)
+    else
+      write_attribute :balance_receiver, nil
+    end
+  end
+  alias_method :balance_receiver_before_type_cast, :balance_receiver
+
+  # 19) created_at - timestamp - not encrypted
+
+  # 20) updated_at - timestamp - not encrypted
 
 
   #
@@ -260,6 +292,26 @@ class Gift < ActiveRecord::Base
       else nil
     end
   end # new_price_user
+
+  # get/set balance for actual user. Used in user.recalculate_balance and in /gifts/index page
+  def balance (user_id)
+    return nil unless user_id_receiver
+    case user_id
+      when user_id_giver then balance_giver
+      when user_id_receiver then balance_receiver
+      else nil
+    end
+  end
+  def set_balance (user_id, new_balance)
+    puts "Gift.set_balance: id = #{id}, user_id = #{user_id}, new_balance = #{new_balance}, user_id_giver = #{user_id_giver}, user_id_receiver = #{user_id_receiver}"
+    return new_balance unless received_at
+    case user_id
+      when user_id_giver then self.balance_giver = new_balance
+      when user_id_receiver then self.balance_receiver = new_balance
+      else return new_balance ;
+    end
+    new_balance
+  end
 
   # calculate negative interest for a period
   # it can be from received_at to today = self.negative_interest
@@ -453,7 +505,7 @@ class Gift < ActiveRecord::Base
 
 
   # psydo attributea
-  attr_accessor :file, :balance
+  attr_accessor :file
 
 
   # https://github.com/jmazzi/crypt_keeper gem encrypts all attributes and all rows in db with the same key

@@ -57,6 +57,7 @@ class ApplicationController < ActionController::Base
   def fetch_user
     # language support
     I18n.locale = session[:language] if session[:language]
+    puts "I18n.locale = #{I18n.locale}"
     # Cross-site Request Forgery check
     if params[:state] != session[:state] and params[:code].to_s != ''
       # Possible Cross-site Request Forgery - ignore code from FB
@@ -177,7 +178,9 @@ class ApplicationController < ActionController::Base
     if @user
       @usertype = session[:usertype] = @user.usertype
       Money.default_currency = Money::Currency.new(@user.currency)
-      Money.default_bank = Money::Bank::GoogleCurrency.new
+      # Money.default_bank = Money::Bank::GoogleCurrency.new # todo: move to config
+      @user_currency_separator = Money::Currency.table[@user.currency.downcase.to_sym][:decimal_mark]
+      @user_currency_delimiter = Money::Currency.table[@user.currency.downcase.to_sym][:thousands_separator]
     else
       @usertype = session[:usertype] = nil
     end

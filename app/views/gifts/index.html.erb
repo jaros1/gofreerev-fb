@@ -48,7 +48,7 @@
         <th><%= my_t '.received_at_column_heading_html' %></th>
         <th><%= my_t '.price_column_heading_html' %></th>
         <th><%= my_t '.new_price_column_heading_html' %></th>
-        <th><%= my_t '.balance_column_heading_html' %></th>
+        <th style="text-align: right"><%= my_t '.balance_column_heading_html' %></th>
         <th>&nbsp;&nbsp;</th>
         <th><%= my_t '.description_prompt' %></th>
       </tr>
@@ -56,21 +56,21 @@
           <% giver = gift.giver ; receiver = gift.receiver -%>
           <tr>
             <td>
-              <div title="<%= my_t '.gifts_giver_div_title', :username => giver.user_name, :balance => "#{giver.balance_with_2_decimals} #{giver.currency}" %>'"
+              <div title="<%= my_t '.gifts_giver_div_title', :username => giver.user_name, :balance => format_user_balance(giver.balance) %>'"
                    onclick="top.location.href = '<%= url_for(giver) %>'">
                 <%= image_tag(giver.profile_picture_url) %>
               </div>
             </td>
             <td>
-              <div title="<%= my_t '.gifts_receiver_div_title', :username => receiver.user_name, :balance => "#{receiver.balance_with_2_decimals} #{receiver.currency}" if receiver %>'"
+              <div title="<%= my_t '.gifts_receiver_div_title', :username => receiver.user_name, :balance => format_user_balance(receiver.balance) if receiver %>'"
                    onclick="top.location.href = '<%= url_for(giver) %>'">
                 <%= image_tag(receiver.profile_picture_url) if receiver %>
               </div>
             </td>
             <td><%= gift.received_at %></td>
-            <td><%= h gift.price_with_2_decimals %> <%= gift.currency %></td>
-            <td><%= h gift.new_price_with_2_decimals %></td>
-            <td><%= h gift.balance %></td>
+            <td><%= format_price gift.price %> <%= gift.currency %></td>
+            <td><%= format_price gift.new_price %></td>
+            <td style="text-align: right"><%= format_price gift.balance(@user.user_id) %></td>
             <td></td>
             <td><%= h gift.description %></td>
           </tr>

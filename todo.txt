@@ -22,4 +22,18 @@
 
 10) display all friends gifts in news/index page
 
-11) add balance accessor to gifts. Balance is always
+11) add giver balance and receiver balance to gifts.
+    sort by received_at, id
+    currency = users actual currency
+    set/updated in user.recalculate_balance
+
+12) gifts.balance_giver and balance_receiver should be float og bigdecimal
+    Makes it easier to localize number formats
+
+13) gifts: drop columns:
+        t.text     "new_price_giver"
+        t.text     "new_price_receiver"
+        t.text     "currency_giver"
+        t.text     "currency_receiver"
+
+14)

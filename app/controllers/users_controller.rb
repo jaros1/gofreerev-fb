@@ -39,7 +39,7 @@ class UsersController < ApplicationController
       # ok - all needed exchange rates was available - currency and balance was updated
       # puts "ok - all needed exchange rates was available - currency and balance was updated"
       # puts "currency = #{@user.currency}, balance = #{@user.balance}"
-      @user.save!
+      # @user.save!
 
       redirect_to params[:return_to]
       return

@@ -108,18 +108,8 @@ class GiftsController < ApplicationController
     # list of gifts with @user as giver or receiver + list of gifts med @user.friends as giver or receiver
     friends = Friend.where('user_id_giver = ?', @user.user_id).collect { |u| u.user_id_receiver }
     friends.push(@user.user_id)
-    @gifts = Gift.where("user_id_giver in (?) or user_id_receiver in (?)", friends, friends).includes(:giver, :receiver).paginate(:page => params[:page]).order("created_at desc") if @user
+    @gifts = Gift.where("user_id_giver in (?) or user_id_receiver in (?)", friends, friends).includes(:giver, :receiver).order("created_at desc").paginate(:page => params[:page]) if @user
     puts "@gifts.size = #{@gifts.size}"
-
-    balance = 0
-    @gifts.each do |g|
-      next if !g.price or ![g.user_id_giver, g.user_id_receiver].index(@user.user_id)
-      new_price = g.new_price_user(@user)
-      if new_price
-        balance += new_price
-        g.balance = "%0.2f" % balance
-      end
-    end # each
 
     render_with_language __method__
   end # index

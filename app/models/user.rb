@@ -79,17 +79,21 @@ class User < ActiveRecord::Base
   end # currency
   alias_method :currency_before_type_cast, :currency
 
-  # 4) balance. Balance. Required. BigDecimal in model. Encrypted text in db
+  # 4) balance. Balance. Required. Multi-currency Hash in model. Encrypted text in db
+  # Keys is ISO code for currency USD, EUR, GBP etc.
+  # Key BALANCE is sum of all currencies exchanged to users actual currency
   validates_presence_of :balance
   def balance
     return nil unless (temp_extended_balance = read_attribute(:balance))
     # puts "temp_extended_balance = #{temp_extended_balance}"
-    BigDecimal.new encrypt_remove_pre_and_postfix(temp_extended_balance, 'balance', 11)
+    temp_balance = YAML::load encrypt_remove_pre_and_postfix(temp_extended_balance, 'balance', 11)
+    temp_balance[BALANCE_KEY] = nil unless temp_balance.has_key?(BALANCE_KEY)
+    temp_balance
   end # balance
   def balance=(new_balance)
     if new_balance
-      check_type('balance', new_balance, 'BigDecimal')
-      write_attribute :balance, encrypt_add_pre_and_postfix(new_balance.to_s, 'balance', 11)
+      check_type('balance', new_balance, 'Hash')
+      write_attribute :balance, encrypt_add_pre_and_postfix(new_balance.to_yaml, 'balance', 11)
     else
       write_attribute :balance, nil
     end
@@ -235,31 +239,48 @@ class User < ActiveRecord::Base
     gifts_given + gifts_received_with_sign
   end
 
+  # recalculate user balance
+  # currency and balance is not updated if one or more exchange rates are missing
+  # missing exchange rates is put in queue for bank and looked up batch
+  # batch job started at after returning actual page to user
   def recalculate_balance (new_currency=nil)
     new_currency = currency unless new_currency
-    # recalculate balance in new currency
-    # currency and balance is not recalculated if exchange rates are missing
-    new_balance = BigDecimal.new "0"
+    gifts = gifts_given_and_received.sort do |a,b|
+      if a.received_at == b.received_at
+        a.id <=> b.id
+      else
+        a.received_at <=> b.received_at
+      end
+    end # sort
+    balance_hash = { BALANCE_KEY => 0 }
     missing_exchange_rates = false
-    gifts_given_and_received.each do |g|
+    gifts.each do |g|
+      balance_hash[g.currency] = 0 unless balance_hash.has_key?(g.currency)
+      balance_hash[g.currency] += g.new_price
       new_price = ExchangeRate.exchange(g.new_price, g.currency, new_currency)
-      puts "recalculate_balance. "
       if new_price.currency.to_s == new_currency
-        new_balance = new_balance + new_price.to_f
+        new_price = new_price.to_f
+        balance_hash[BALANCE_KEY] += new_price
+        g.set_balance(user_id, balance_hash[BALANCE_KEY])
       else
         missing_exchange_rates = true
       end
-      puts "recalculate_balance. g.new_price = #{g.new_price.to_s}, new_price = #{new_price.to_s}, new_balance = #{new_balance.to_s} "
+      puts "recalculate_balance. g.new_price = #{g.new_price.to_s}, new_price = #{new_price.to_s}, balance_hash = #{balance_hash.to_s} "
     end # each
     return false if missing_exchange_rates # not all exchange rates was read at this time - they should be updated in a moment
     # calculation ok - all needed exchange rates was found
     self.currency = new_currency
-    self.balance = new_balance
+    self.balance = balance_hash
+    # todo: catch any exception and return false if transaction fails
+    transaction do
+      gifts.each { |g| g.save! }
+      self.save!
+    end
     return true
   end # recalculate_balance
 
   def balance_with_2_decimals
-    "%0.2f" % (balance || 0)
+    "%0.2f" % (balance[BALANCE_KEY] || 0)
   end
 
 
