@@ -31,7 +31,7 @@ class User < ActiveRecord::Base
   # https://github.com/jmazzi/crypt_keeper - text columns are encrypted in database
   # encrypt_add_pre_and_postfix/encrypt_remove_pre_and_postfix added in setters/getters for better encryption
   # this is different encrypt for each attribute and each db row
-  crypt_keeper :user_name, :currency, :balance, :permissions, :encryptor => :aes, :key => ENCRYPT_KEYS[0]
+  crypt_keeper :user_name, :currency, :balance, :permissions, :no_api_friends, :negative_interest, :encryptor => :aes, :key => ENCRYPT_KEYS[0]
 
 
   ##############
@@ -119,7 +119,7 @@ class User < ActiveRecord::Base
     end
   end # permissions
   alias_method :permissions_before_type_cast, :permissions
-
+  
   # 7) no_api_friends. Fixnum in Model. Encrypted text in db.
   # for example number of facebook friends for a facebook user
   def no_api_friends
@@ -140,6 +140,27 @@ class User < ActiveRecord::Base
   # profile picture is downloaded under /public/images/profiles. profile picture name is <user_id>.<profile_picture_type>
 
   # 9) timezone. Fixnum in model. Integer in db. Not encrypted. Used for local timestamps in views
+
+  # 10) negative_interest. Required. Multi-currency Hash in model. Encrypted text in db
+  # Keys is ISO code for currency USD, EUR, GBP etc.
+  # Key BALANCE is sum of all currencies exchanged to users actual currency
+  # validates_presence_of :negative_interest # todo: uncomment this
+  def negative_interest
+    return nil unless (temp_extended_negative_interest = read_attribute(:negative_interest))
+    # puts "temp_extended_negative_interest = #{temp_extended_negative_interest}"
+    temp_negative_interest = YAML::load encrypt_remove_pre_and_postfix(temp_extended_negative_interest, 'negative_interest', 14)
+    temp_negative_interest[BALANCE_KEY] = nil unless temp_negative_interest.has_key?(BALANCE_KEY)
+    temp_negative_interest
+  end # negative_interest
+  def negative_interest=(new_negative_interest)
+    if new_negative_interest
+      check_type('negative_interest', new_negative_interest, 'Hash')
+      write_attribute :negative_interest, encrypt_add_pre_and_postfix(new_negative_interest.to_yaml, 'negative_interest', 14)
+    else
+      write_attribute :negative_interest, nil
+    end
+  end # negative_interest=
+  alias_method :negative_interest_before_type_cast, :negative_interest
 
 
   ##################
@@ -253,8 +274,10 @@ class User < ActiveRecord::Base
       end
     end # sort
     balance_hash = { BALANCE_KEY => 0 }
+    negative_interest_hash = { BALANCE_KEY => 0 }
     missing_exchange_rates = false
     gifts.each do |g|
+      # update user.balance hash and gift.balance
       balance_hash[g.currency] = 0 unless balance_hash.has_key?(g.currency)
       balance_hash[g.currency] += g.new_price
       new_price = ExchangeRate.exchange(g.new_price, g.currency, new_currency)
@@ -265,12 +288,23 @@ class User < ActiveRecord::Base
       else
         missing_exchange_rates = true
       end
+      # update user.negative_interest hash
+      negative_interest_hash[g.currency] = 0 unless negative_interest_hash.has_key?(g.currency)
+      negative_interest_hash[g.currency] += g.negative_interest
+      new_negative_interest = ExchangeRate.exchange(g.negative_interest, g.currency, new_currency)
+      if new_negative_interest.currency.to_s == new_currency
+        negative_interest_hash[BALANCE_KEY] += new_negative_interest.to_f
+      else
+        missing_exchange_rates = true
+      end
       puts "recalculate_balance. g.new_price = #{g.new_price.to_s}, new_price = #{new_price.to_s}, balance_hash = #{balance_hash.to_s} "
     end # each
     return false if missing_exchange_rates # not all exchange rates was read at this time - they should be updated in a moment
     # calculation ok - all needed exchange rates was found
     self.currency = new_currency
     self.balance = balance_hash
+    self.balance_at = Date.today
+    self.negative_interest = negative_interest_hash
     # todo: catch any exception and return false if transaction fails
     transaction do
       gifts.each { |g| g.save! }

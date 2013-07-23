@@ -16,19 +16,10 @@
 
 7) Use ruby constants for interest in welcome page (fb/create)
 
-8) rename controller gifts to news.
-
-9) few price info on news wall.
+9) few price info on gifts/index page. More information in user/show balance view
+   More information available in titles
 
 10) display all friends gifts in news/index page
-
-11) add giver balance and receiver balance to gifts.
-    sort by received_at, id
-    currency = users actual currency
-    set/updated in user.recalculate_balance
-
-12) gifts.balance_giver and balance_receiver should be float og bigdecimal
-    Makes it easier to localize number formats
 
 13) gifts: drop columns:
         t.text     "new_price_giver"
@@ -36,4 +27,22 @@
         t.text     "currency_giver"
         t.text     "currency_receiver"
 
-14)
+14) BigDecimal and/or floats. Where to use BigDecimal and where to user Floats?
+    Speed is more important than accuracy
+    Change all BigDecimal to Float
+
+15) Change received_at from Date to Datetime
+
+16) add flash message if currency change failed.
+
+17) exchanged social dividend is displayed as gifts in gists/index view, but social dividend = negative_interest / 4 is missing in balance.
+    add social dividend (negative_interest / 4) to balance.
+    display social dividend in format_user_balance
+    add key with social dividend to balance hash
+    social dividend is splitted in currencies.
+    maybe add a negative interest / social dividend hash to user
+    maybe add a system user - negative currency could be gifts from users to system user and social dividend gifts from system user to users
+
+18) Check da texts in rails-i18n
+
+21) gift.description. change field name in model validation to offer.

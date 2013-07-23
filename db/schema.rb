@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20130723072136) do
+ActiveRecord::Schema.define(version: 20130723170649) do
 
   create_table "exchange_rates", force: true do |t|
     t.string   "from_currency",    limit: 3, null: false
@@ -52,8 +52,6 @@ ActiveRecord::Schema.define(version: 20130723072136) do
     t.text     "social_dividend_from"
     t.text     "new_price_giver"
     t.text     "new_price_receiver"
-    t.text     "currency_giver"
-    t.text     "currency_receiver"
     t.text     "balance_giver"
     t.text     "balance_receiver"
   end
@@ -71,9 +69,10 @@ ActiveRecord::Schema.define(version: 20130723072136) do
     t.text     "balance"
     t.date     "balance_at"
     t.text     "permissions"
-    t.text     "no_api_friends"
     t.string   "profile_picture_type", limit: 10
     t.integer  "timezone"
+    t.text     "no_api_friends"
+    t.text     "negative_interest"
   end
 
   add_index "users", ["user_id"], name: "index_users_on_user_id", unique: true

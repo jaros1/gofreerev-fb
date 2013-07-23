@@ -27,7 +27,7 @@ class Gift < ActiveRecord::Base
   # encrypt_add_pre_and_postfix/encrypt_remove_pre_and_postfix added in setters/getters for better encryption
   # this is different encrypt for each attribute and each db row
   # _before_type_cast methods are used by form helpers and are redefined
-  crypt_keeper :description, :currency, :price, :received_at, :new_price, :negative_interest, :social_dividend, :api_gift_id, :encryptor => :aes, :key => ENCRYPT_KEYS[1]
+  crypt_keeper :description, :currency, :price, :received_at, :new_price, :negative_interest, :social_dividend, :api_gift_id, :social_dividend_from, :new_price_giver, :new_price_receiver, :balance_giver, :balance_receiver, :encryptor => :aes, :key => ENCRYPT_KEYS[1]
 
 
   ##############
@@ -203,6 +203,22 @@ class Gift < ActiveRecord::Base
   end
   alias_method :social_dividend_from_before_type_cast, :social_dividend_from
 
+  # todo: remove
+  def social_dividend_from2
+    return nil unless (temp_extended_social_dividend_from2 = read_attribute(:social_dividend_from2))
+    temp_social_dividend_from2 = encrypt_remove_pre_and_postfix(temp_extended_social_dividend_from2, 'social_dividend_from2', 10)
+    YAML::load(temp_social_dividend_from2)
+  end
+  def social_dividend_from2=(new_social_dividend_from2)
+    if new_social_dividend_from2
+      check_type('social_dividend_from2', new_social_dividend_from2, 'Date')
+      write_attribute :social_dividend_from2, encrypt_add_pre_and_postfix(new_social_dividend_from2.to_yaml, 'social_dividend_from2', 10)
+    else
+      write_attribute :social_dividend_from2, nil
+    end
+  end
+  alias_method :social_dividend_from2_before_type_cast, :social_dividend_from2
+
   # 15) new_price_giver - BigDecimal in model - encrypted text in db - equal new_price, but with givers actual currency and with sign - used for balance
   def new_price_giver
     return nil unless (temp_extended_new_price_giver = read_attribute(:new_price_giver))
@@ -217,6 +233,7 @@ class Gift < ActiveRecord::Base
     end
   end # new_price_giver=
   alias_method :new_price_giver_before_type_cast, :new_price_giver
+
 
   # 16) new_price_receiver - BigDecimal in model - encrypted text in db - equal new_price but with receivers actual currency and with sign - used for balance
   def new_price_receiver
@@ -233,6 +250,7 @@ class Gift < ActiveRecord::Base
   end # new_price=
   alias_method :new_price_receiver_before_type_cast, :new_price_receiver
 
+  # 19) balance giver - Float in Model. Encrypted text in db.
   def balance_giver
     return nil unless (extended_balance_giver = read_attribute(:balance_giver))
     balance = encrypt_remove_pre_and_postfix(extended_balance_giver, 'balance_giver', 13)
@@ -249,6 +267,7 @@ class Gift < ActiveRecord::Base
   end
   alias_method :balance_giver_before_type_cast, :balance_giver
 
+  # 20) balance receiver - Float in model - encrypted text in db
   def balance_receiver
     return nil unless (extended_balance_receiver = read_attribute(:balance_receiver))
     balance = encrypt_remove_pre_and_postfix(extended_balance_receiver, 'balance_receiver', 14)
@@ -265,9 +284,9 @@ class Gift < ActiveRecord::Base
   end
   alias_method :balance_receiver_before_type_cast, :balance_receiver
 
-  # 19) created_at - timestamp - not encrypted
+  # 21) created_at - timestamp - not encrypted
 
-  # 20) updated_at - timestamp - not encrypted
+  # 22) updated_at - timestamp - not encrypted
 
 
   #
@@ -362,7 +381,7 @@ class Gift < ActiveRecord::Base
                                else BigDecimal.new '0' # error
                              end # case
     end
-    # update currency_giver and new_price_giver if any changes
+    # update new_price_giver if any changes
     if self.new_price
       if giver.currency == self.currency
         self.new_price_giver = self.new_price
@@ -370,25 +389,20 @@ class Gift < ActiveRecord::Base
         new_price = ExchangeRate.exchange(self.new_price, self.currency, giver.currency)
         if new_price.currency.to_s == giver.currency
           # found exchange rate
-          self.currency_giver =  new_price.currency.to_s
           self.new_price_giver = BigDecimal.new new_price.to_s
         else
           self.new_price_giver = nil
         end
       end
     end
-    # update currency_receiver and new_price_receiver if any changes
+    # update new_price_receiver if any changes
     if receiver and self.new_price
       if receiver.currency == self.currency
         self.new_price_receiver = self.new_price
-      elsif receiver.currency == self.currency_giver
-        self.new_price_receiver = self.new_price_giver
-        self.currency_receiver = self.currency_giver
       else
         new_price = ExchangeRate.exchange(self.new_price, self.currency, receiver.currency)
         if new_price.currency.to_s == receiver.currency
           # found exchange rate
-          self.currency_receiver =  new_price.currency.to_s
           self.new_price_receiver = BigDecimal.new new_price.to_s
         else
           self.new_price_receiver = nil
