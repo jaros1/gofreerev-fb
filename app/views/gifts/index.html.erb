@@ -20,6 +20,9 @@
               <%= f.text_field(:price, :size=>10, :maxlength=>10) %>
               <%= my_t '.price_free' %>
               <%= @user.currency %>
+              &nbsp;&nbsp;&nbsp;
+              Offers: <%= f.radio_button :direction, "giver" %>
+              Seeks: <%= f.radio_button :direction, "receiver" %>
             </td>
           </tr>
           <tr title="<%= my_t '.description_title' %>">
@@ -56,23 +59,27 @@
           <% giver = gift.giver ; receiver = gift.receiver -%>
           <tr>
             <td>
+<% if gift.giver -%>
               <div title="<%= my_t '.gifts_giver_div_title', :username => giver.user_name, :balance => format_user_balance(giver.balance) %>'"
                    onclick="top.location.href = '<%= url_for(giver) %>'">
-                <%= image_tag(giver.profile_picture_url) %>
+                <%= image_tag(giver.profile_picture_url)  %>
               </div>
+<% end -%>
             </td>
             <td>
+<% if gift.receiver -%>
               <div title="<%= my_t '.gifts_receiver_div_title', :username => receiver.user_name, :balance => format_user_balance(receiver.balance) if receiver %>'"
-                   onclick="top.location.href = '<%= url_for(giver) %>'">
-                <%= image_tag(receiver.profile_picture_url) if receiver %>
+                   onclick="top.location.href = '<%= url_for(receiver)  %>'">
+                <%= image_tag(receiver.profile_picture_url) %>
               </div>
+<% end -%>
             </td>
-            <td><%= gift.received_at %></td>
-            <td><%= format_price gift.price %> <%= gift.currency %></td>
+            <td><%= gift.received_at || gift.created_at.to_date %></td>
+            <td><%= "#{format_price(gift.price)} #{gift.currency}" if gift.price %></td>
             <td><%= format_price gift.new_price %></td>
             <td style="text-align: right"><%= format_price gift.balance(@user.user_id) %></td>
             <td></td>
-            <td><%= h gift.description %></td>
+            <td><%= format_gift_description gift %></td>
           </tr>
         <% end -%>
     </table>

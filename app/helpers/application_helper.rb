@@ -106,5 +106,33 @@ module ApplicationHelper
     format_price(balance[BALANCE_KEY]) + ' (' + balance.find_all { |name, value| name != BALANCE_KEY }.collect { |name,value| format_price(value) + ' ' + name }.join(', ') + ')'
   end
 
+  # todo: add date format
+  def format_date (date)
+    date
+  end
+
+  # todo: add time format. use timezone from user
+  def format_time (time)
+    time
+  end
+
+  # english description for social dividend in database for gifttype = S (social dividend)
+  # use this translate for description in other languages for social dividend
+  def format_gift_description (gift)
+    return gift.description.force_encoding("UTF-8") if gift.gifttype == 'G' ;
+    if gift.social_dividend_from
+      # format with start and end dates for period
+      my_t '.social_dividend_description_1', :giver => gift.giver.short_user_name, :receiver => gift.receiver.short_user_name,
+                                             :price => format_price(gift.price), :currency => gift.currency,
+                                             :from => format_date(gift.social_dividend_from), :to => format_date(gift.received_at)
+    else
+      # format with only end date for period.
+      # Used for first social dividend calculations for a new user
+      my_t '.social_dividend_description_2', :giver => gift.giver.short_user_name, :receiver => gift.receiver.short_user_name,
+                                             :price => format_price(gift.price), :currency => gift.currency,
+                                             :to => format_date(gift.received_at)
+    end
+  end # format_gift_description
+
 
 end # ApplicationHelper

@@ -20,6 +20,46 @@
 # available at http://guides.rubyonrails.org/i18n.html.
 
 da:
+
+  ##########
+  # models #
+  ##########
+
+  activerecord:
+    attributes:
+      gift:
+        description: "Tilbud"
+        price: "Pris"
+        user_id_giver: "Sælger/giver"
+        user_id_receiver: "Køber/modtager"
+    errors:
+      models:
+        gift:
+          attributes:
+            price:
+              readonly: "kan ikke ændres for et lukket tilbud"
+
+  #########
+  # views #
+  #########
+
+  # application layout with page header and footer
+  layouts:
+     page_header:
+        header_user_div_title: "%{username}. Saldo %{balance}. Klik her for at se brugeroplysninger."
+        header_currency_title: "Saldo. Brug valuta valg-liste hvis du ønsker din saldo vist i en anden valuta. Ens saldo i frie penge viser hvor meget man har investeret i venner og fællesskab og er et mål for taknemmelighedsgæld. Hvem har givet/modtaget mest? Hvis tur er det til at modtage/give? En positiv saldo betyder at man er god til at hjælpe andre og at ens hjælp er blevet værdsat. En negativ saldo betyder at man er god til at tage imod hjælp og at man har sat pris på hjælpen. Der er ingen sammenhæng imellem hvem der er rige/fattige i frie penge herinde og hvem der er rige/fattige i den virkelige verden."
+        header_balance_prompt: "Saldo:"
+        header_balance_free: 'frie'
+        header_log_out_link_text: 'Log ud'
+  fb: # facebook specific texts
+     layouts:
+        page_header:
+           header_log_out_link_title: "Log ud af %{appname} og returner til facebook."
+  gp: # google+ specific texts
+     layouts:
+        page_header:
+           header_log_out_link_title: "Log ud af %{appname} og returner til google+."
+
   # gift controller - general texts
   gifts:
      index:
@@ -48,25 +88,13 @@ da:
         balance_column_heading_html: "Saldo"
         gifts_giver_div_title: "%{username}. Saldo %{balance}. Klik her for at se brugeroplysninger."
         gifts_receiver_div_title: "%{username}. Saldo %{balance}. Klik her for at se brugeroplysninger."
+        social_dividend_description_1: "Social dividende %{price} %{currency} fra %{giver} til %{receiver} for perioden op til %{to}"
+        social_dividend_description_2: "Social dividende %{price} %{currency} fra %{giver} til %{receiver} for perioden fra %{from} til %{to}"
+
+  # user controller
+  users:
+    update:
+      invalid_request: "Ugyldigt kald. Bruger indstillinger blev ikke ændret."
+      exchange_rates_not_ready: "Valuta blev ikke ændret. Valutakurser var ikke klar. Prøv igen om et øjeblik."
 
 
-
-
-    # application layouts - general texts
-  layouts:
-     page_header:
-        header_user_div_title: "%{username}. Saldo %{balance}. Klik her for at se brugeroplysninger."
-        header_currency_title: "Saldo. Brug valuta valg-liste hvis du ønsker din saldo vist i en anden valuta. Ens saldo i frie penge er et slags mål for taknemmelighedsgæld. Hvem har givet/modtaget mest? Hvis tur er det til at modtage/give? En positiv saldo betyder at man er god til at hjælpe andre og at ens hjælp er blevet værdsat. En negativ saldo betyder at man er god til at tage imod hjælp og at man har sat pris på hjælpen. Der er ingen sammenhæng imellem hvem der er rige/fattige i frie penge herinde og hvem der er rige/fattige i den virkelige verden."
-        header_balance_prompt: "Saldo:"
-        header_balance_free: 'frie'
-        header_log_out_link_text: 'Log ud'
-  # facebook specific texts
-  fb:
-     layouts:
-        page_header:
-           header_log_out_link_title: "Log ud af %{appname} og returner til facebook."
-  # google+ specific texts
-  gp:
-     layouts:
-        page_header:
-           header_log_out_link_title: "Log ud af %{appname} og returner til google+."

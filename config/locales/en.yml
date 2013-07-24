@@ -19,8 +19,53 @@
 # To learn more, please read the Rails Internationalization guide
 # available at http://guides.rubyonrails.org/i18n.html.
 
+
+
+
+
 en:
-  # gift controller - general texts
+
+  ##########
+  # models #
+  ##########
+
+  activerecord:
+    attributes:
+      gift:
+        description: "Offer"
+        price: "Pris"
+        user_id_giver: "Seller/giver"
+        user_id_receiver: "Buyer/receiver"
+    errors:
+      models:
+        gift:
+          attributes:
+            price:
+              readonly: "can not be changed for a close offer"
+
+  #########
+  # views #
+  #########
+
+  # application layout with page header and footer
+  layouts:
+     page_header:
+        header_user_div_title: "%{username}. Balance %{balance}. Click here to see user info."
+        header_currency_title: "Balance. Use currency selection list if you want your balance shown in a different currency. Your balance of free money show how much you have invested in community and friends and is a measure of gratitude. Who has given / received most? Whose turn is it to receive / give? A positive balance means that you are good to help others and to one's help has been appreciated. A negative balance means that you are good to accept help and that you have appreciated the help. There is no correlation between who is rich / poor in free money here and who are rich / poor in the real world."
+        header_balance_prompt: "Balance:"
+        header_balance_free: "free"
+        header_log_out_link_text: 'Log out'
+  fb: # facebook versions
+     layouts:
+        page_header:
+           header_log_out_link_title: "Log out of %{appname} and return to facebook."
+  # google+ specific texts
+  gp: # google+ versions
+     layouts:
+        page_header:
+           header_log_out_link_title: "Log out of %{appname} and return to google+."
+
+  # gift controller
   gifts:
      index:
         not_logged_in_text: "You are not logged in and you can not create wall postings."
@@ -48,23 +93,11 @@ en:
         balance_column_heading_html: "Balance"
         gifts_giver_div_title: "%{username}. Balance %{balance}. Click here to see user info."
         gifts_receiver_div_title: "%{username}. Balance %{balance}. Click here to see user info."
+        social_dividend_description_1: "Social dividend %{price} %{currency} from %{giver} to %{receiver} for period up to %{to}"
+        social_dividend_description_2: "Social dividend %{price} %{currency} from %{giver} to %{receiver} for period from %{from} to %{to}"
 
-
-  # application layouts - general texts
-  layouts:
-     page_header:
-        header_user_div_title: "%{username}. Click here to see your user info at %{appname}."
-        header_currency_title: "Balance. Use currency selection list if you want your balance shown in a different currency. One's balance of free money is a kind of measure of gratitude. Who has given / received most? Whose turn is it to receive / give? A positive balance means that you are good to help others and to one's help has been appreciated. A negative balance means that you are good to accept help and that you have appreciated the help. There is no correlation between who is rich / poor in free money here and who are rich / poor in the real world."
-        header_balance_prompt: "Balance:"
-        header_balance_free: "free"
-        header_log_out_link_text: 'Log out'
-  # facebook specific texts
-  fb:
-     layouts:
-        page_header:
-           header_log_out_link_title: "Log out of %{appname} and return to facebook."
-  # google+ specific texts
-  gp:
-     layouts:
-        page_header:
-           header_log_out_link_title: "Log out of %{appname} and return to google+."
+  # user controller
+  users:
+    update:
+      invalid_request: "Invalid call. User settings was not changed."
+      exchange_rates_not_ready: "Currency was not changed. Exchange rates was not ready. Try again in a moment."

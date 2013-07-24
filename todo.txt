@@ -6,34 +6,18 @@
 
 3) Invite friends to app function?
 
-4) get timezone from login api. Use timezone in views. timezone added to user. not yet any timestamps in views.
-
 5) opera. client side validation not working in gifts/index page. Works in other browsers.
 
 6) gifts price calculation.
    price = the agreed price
    transferred_social_dividend
 
-7) Use ruby constants for interest in welcome page (fb/create)
+7) Use ruby constants for interest in welcome page (fb/create) and in titles tags
 
-9) few price info on gifts/index page. More information in user/show balance view
+9) few price info on gifts/index page. Full price information in user/show balance view
    More information available in titles
 
 10) display all friends gifts in news/index page
-
-13) gifts: drop columns:
-        t.text     "new_price_giver"
-        t.text     "new_price_receiver"
-        t.text     "currency_giver"
-        t.text     "currency_receiver"
-
-14) BigDecimal and/or floats. Where to use BigDecimal and where to user Floats?
-    Speed is more important than accuracy
-    Change all BigDecimal to Float
-
-15) Change received_at from Date to Datetime
-
-16) add flash message if currency change failed.
 
 17) exchanged social dividend is displayed as gifts in gists/index view, but social dividend = negative_interest / 4 is missing in balance.
     add social dividend (negative_interest / 4) to balance.
@@ -45,4 +29,54 @@
 
 18) Check da texts in rails-i18n
 
-21) gift.description. change field name in model validation to offer.
+19) allow negative price?
+    E.g. if user wish find some thing og get help. Solutions:
+    a) negative price - problem with from/to in gifts/index page
+    b) radio group or check box in create gift page (giver or receiver)
+    c) negative price. set user_id_receiver. Blank user_id_giver
+    Implementing b) with an radio group
+
+20) how much information to se about deals between friends and friends friends?
+    FB: Shows status from friends on wall - do not show status from friends friends on wall
+    Show balance for friends - do not show balance for friends friends
+    Show gifts started by friends as giver or receiver with all pictures and comments
+    Anonymous gifts started by friends friends as giver or receiver and with friends as receiver or giver
+    - display received at and balance.
+    - hide picture and name of friends friend
+    - hide text and pictures
+
+21) when closing at deal and paying with money.
+    select between anonymous money without a linked story or link the money to one or more stores / other gifts
+    anonymous money - no links between gifts - no story updates
+    linked money - story updates
+
+21) gifts/index: link to gift
+
+22) show gift
+
+23) delete gift
+
+24) balance sorted by received_at in user.recalculate_balance
+    gifts sorted by created_at desc in gifts/index
+    closed deals should be sorted by received_at descending to display balance in correct order
+    open deals should be sorted by newest comment in top
+    maybe sort by received_at || created_at <=>  order("ifnull(received_at,created_at)
+    sort by received_at not possible. received_at is encrypted text in db
+    maybe add field with timestamp for last comment. Newest created / closed / commented deals first
+    must be a not encrypted field
+    problem. what if different users wishes different sort criteria?  fx a) sort by received_at, b) sort by comment_at, c) etc
+
+4) get timezone from login api. Use timezone in views. timezone added to user. not yet any timestamps in views.
+
+25) add date format. see application_helper.format_date
+
+25) add time format. Use timezone in time format in viiws
+
+26) add a count to a gift. Normally only 1 gift, but can be any number or nil. Eg. nil for a offered service.
+    Clone a closed gift, keep the original gift and decrease counter. Close deal when counter reaches zero.
+    Maybe link all the stories if accepted by the receiver
+
+27) Always 2 decimals in user.balance[BALANCE_KEY] and user.negative_interest[BALANCE_KEY]
+    Problem with Money exchange function. Always 2 decimals.
+    Check Money.config or custom exhange function
+

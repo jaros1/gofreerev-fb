@@ -73,7 +73,7 @@ class FbController < ApplicationController
         puts "new user"
         country = session[:country] || 'US' #  Default USD
         u.currency = Country[country].currency.code
-        u.balance = BigDecimal.new '0.0'
+        u.balance = 0.0
         u.balance_at = Date.today
       end
       u.permissions = api_response["permissions"]["data"][0]

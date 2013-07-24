@@ -7,10 +7,16 @@ class GiftsController < ApplicationController
 
   def create
     @gift = Gift.new
-    @gift.price = BigDecimal.new params[:gift][:price]
+    # todo: should validate :price with an regular expressions. "x".to_f == 0.0
+    @gift.price = params[:gift][:price].to_f if params[:gift][:price].to_s != ''
+    @gift.direction = 'giver' if @gift.direction.to_s == ''
     @gift.currency = @user.currency
     @gift.description = params[:gift][:description]
-    @gift.user_id_giver = session[:user_id]
+    if params[:gift][:direction].to_s != 'receiver'
+      @gift.user_id_giver = session[:user_id]
+    else
+      @gift.user_id_receiver = session[:user_id]
+    end
     @gift.gifttype = 'G'
     if !@gift.valid?
       # todo: check how to handle error messages in rails 4
@@ -89,10 +95,11 @@ class GiftsController < ApplicationController
     @gift = Gift.new
     if params[:gift]
       # returned from create - error in save or error in api request - gift not saved
-      @gift.price = BigDecimal.new params[:gift][:price]
+      @gift.price = params[:gift][:price].to_f if params[:gift][:price].to_s != ''
+      @gift.direction = params[:gift][:direction]
       @gift.description = params[:gift][:description]
-      @gift.file = params[:gift][:file]
     end
+    @gift.direction = 'giver' if @gift.direction.to_s == ""
     if !@user
       @gifts = []
       render_with_language __method__
@@ -108,8 +115,15 @@ class GiftsController < ApplicationController
     # list of gifts with @user as giver or receiver + list of gifts med @user.friends as giver or receiver
     friends = Friend.where('user_id_giver = ?', @user.user_id).collect { |u| u.user_id_receiver }
     friends.push(@user.user_id)
-    @gifts = Gift.where("user_id_giver in (?) or user_id_receiver in (?)", friends, friends).includes(:giver, :receiver).order("created_at desc").paginate(:page => params[:page]) if @user
+    @gifts = Gift.where("user_id_giver in (?) or user_id_receiver in (?)", friends, friends).includes(:giver, :receiver).order("ifnull(received_at,created_at)").paginate(:page => params[:page]) if @user
     puts "@gifts.size = #{@gifts.size}"
+    @gifts.sort! do |b, a|
+      if (a.received_at || a.created_at.to_date) ==  (b.received_at || b.created_at.to_date)
+        a.id <=> b.id
+      else
+        (a.received_at || a.created_at.to_date) <=>  (b.received_at || b.created_at.to_date)
+      end
+    end
 
     render_with_language __method__
   end # index

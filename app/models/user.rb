@@ -12,20 +12,9 @@ class User < ActiveRecord::Base
   end
 =end
 
-  # attributes
-  #   user_id    - Unique user-id - not encrypted - PK
-  #                Format fb-<userid> = facebook user
-  #                Format gp-<xxxxxx> = google+ user
-  #   user_name  - encrypted
-  #   currency   - encrypted
-  #   balance    - encrypted - BigDecimal
-  #   balance_at - date for last balance calculation
-  #   created_at - timestamp - not encrypted
-  #   updated_at - timestamp - not encrypted
-
 
   has_many :offers, :class_name => 'Gift', :primary_key => :user_id, :foreign_key => :user_id_giver, :dependent => :destroy
-  has_many :gifts_received, :class_name => 'Gift', :primary_key => :user_id, :foreign_key => :user_id_receiver, :dependent => :destroy
+  has_many :wishes, :class_name => 'Gift', :primary_key => :user_id, :foreign_key => :user_id_receiver, :dependent => :destroy
 
 
   # https://github.com/jmazzi/crypt_keeper - text columns are encrypted in database
@@ -250,14 +239,26 @@ class User < ActiveRecord::Base
     "#{profile_picture_md5_path}/#{profile_picture_filename}"
   end
 
+  # relation helpers
   def gifts_given
     offers.find_all { |g| g.user_id_receiver }.collect { |g| g.recalculate ; g }
+  end # gifts_given
+  def gifts_received
+    wishes.find_all { |g| g.user_id_giver }.collect { |g| g.recalculate ; g }
   end
   def gifts_received_with_sign
-    gs = gifts_received.collect { |g| g.recalculate ; g.new_price = -g.new_price ; g }
-  end
+    gs = gifts_received.collect do |g|
+      g.new_price = -g.new_price
+      g
+    end # collect
+  end # gifts_received_with_sig
   def gifts_given_and_received
     gifts_given + gifts_received_with_sign
+  end
+
+  def social_dividend
+    hash = {}
+
   end
 
   # recalculate user balance
@@ -273,17 +274,16 @@ class User < ActiveRecord::Base
         a.received_at <=> b.received_at
       end
     end # sort
-    balance_hash = { BALANCE_KEY => 0 }
-    negative_interest_hash = { BALANCE_KEY => 0 }
+    balance_hash = { BALANCE_KEY => 0.0 }
+    negative_interest_hash = { BALANCE_KEY => 0.0 }
     missing_exchange_rates = false
     gifts.each do |g|
-      # update user.balance hash and gift.balance
-      balance_hash[g.currency] = 0 unless balance_hash.has_key?(g.currency)
+      # update user.balance hash and save balance in gift.balance for documentation
+      balance_hash[g.currency] = 0.0 unless balance_hash.has_key?(g.currency)
       balance_hash[g.currency] += g.new_price
       new_price = ExchangeRate.exchange(g.new_price, g.currency, new_currency)
       if new_price.currency.to_s == new_currency
-        new_price = new_price.to_f
-        balance_hash[BALANCE_KEY] += new_price
+        balance_hash[BALANCE_KEY] += new_price.to_f
         g.set_balance(user_id, balance_hash[BALANCE_KEY])
       else
         missing_exchange_rates = true

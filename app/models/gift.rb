@@ -27,7 +27,7 @@ class Gift < ActiveRecord::Base
   # encrypt_add_pre_and_postfix/encrypt_remove_pre_and_postfix added in setters/getters for better encryption
   # this is different encrypt for each attribute and each db row
   # _before_type_cast methods are used by form helpers and are redefined
-  crypt_keeper :description, :currency, :price, :received_at, :new_price, :negative_interest, :social_dividend, :api_gift_id, :social_dividend_from, :new_price_giver, :new_price_receiver, :balance_giver, :balance_receiver, :encryptor => :aes, :key => ENCRYPT_KEYS[1]
+  crypt_keeper :description, :currency, :price, :received_at, :new_price, :negative_interest, :social_dividend, :api_gift_id, :social_dividend_from, :balance_giver, :balance_receiver, :encryptor => :aes, :key => ENCRYPT_KEYS[1]
 
 
   ##############
@@ -49,11 +49,14 @@ class Gift < ActiveRecord::Base
   # 2) description - required - String in model - encrypted text in db - update not allowed
   validates_presence_of :description
   attr_readonly :description
+
   def description
+    # puts "gift.description: description = #{read_attribute(:description)} (#{read_attribute(:description).class.name})"
     return nil unless (extended_description = read_attribute(:description))
     encrypt_remove_pre_and_postfix(extended_description, 'description', 2)
   end
   def description=(new_description)
+    # puts "gift.description=: description = #{new_description} (#{new_description.class.name})"
     if new_description
       check_type('description', new_description, 'String')
       write_attribute :description, encrypt_add_pre_and_postfix(new_description, 'description', 2)
@@ -82,15 +85,17 @@ class Gift < ActiveRecord::Base
 
 
 
-  # 4) price - BigDecimal in model - encrypted text in db
-  # change not allowed if received_at is not null / deal is closed
+  # 4) price - Float in model - encrypted text in db
+  validates_each :price do |record, attr, value|
+    record.errors.add attr, :readonly if value.to_s != record.price_was.to_s and  record.received_at
+  end
   def price
     return nil unless (temp_extended_price = read_attribute(:price))
-    BigDecimal.new encrypt_remove_pre_and_postfix(temp_extended_price, 'price', 4)
+    str_to_float_or_nil encrypt_remove_pre_and_postfix(temp_extended_price, 'price', 4)
   end # price
   def price=(new_price)
-    if new_price
-      check_type('price', new_price, 'BigDecimal')
+    if new_price.to_s != ''
+      check_type('price', new_price, 'Float')
       write_attribute :price, encrypt_add_pre_and_postfix(new_price.to_s, 'price', 4)
     else
       write_attribute :price, nil
@@ -98,20 +103,23 @@ class Gift < ActiveRecord::Base
   end # price=
   alias_method :price_before_type_cast, :price
 
-  # 5) user_id_giver - my user id - required - FK - not encrypted
-  validates_presence_of :user_id_giver
+  # 5) user_id_giver - FK - not encrypted. Gift must have a giver or an receiver when created. Must have giver and receiver when closed
+  validates_presence_of :user_id_giver, :if => Proc.new {|g| (g.received_at or !g.user_id_receiver) }
 
-  # 6) user_id_receiver - added when received_at is set - FK - not encrypted
+  # 6) user_id_receiver - FK - not encrypted. Gift must have a giver or an receiver when created. Must have giver and receiver when closed
+  validates_presence_of :user_id_receiver, :if => Proc.new {|g| (g.received_at or !g.user_id_giver) }
 
   # 7) received_at. Date in model - encrypted text in db - set once when the deal is closed together with user_id_receiver
   def received_at
     return nil unless (temp_extended_received_at = read_attribute(:received_at))
-    temp_received_at = encrypt_remove_pre_and_postfix(temp_extended_received_at, 'received_at', 5)
-    YAML::load(temp_received_at)
+    temp_received_at1 = encrypt_remove_pre_and_postfix(temp_extended_received_at, 'received_at', 5)
+    temp_received_at2 = YAML::load(temp_received_at1)
+    temo_received_at2 = temp_received_at2.to_time if temp_received_at2.class.name == 'Date'
+    temo_received_at2
   end
   def received_at=(new_received_at)
     if new_received_at
-      check_type('received_at', new_received_at, 'Date')
+      check_type('received_at', new_received_at, 'Time')
       write_attribute :received_at, encrypt_add_pre_and_postfix(new_received_at.to_yaml, 'received_at', 5)
     else
       write_attribute :received_at, nil
@@ -121,14 +129,14 @@ class Gift < ActiveRecord::Base
 
   # 8) new_price_at - date - not encrypted - almost always = today
 
-  # 9) new_price - BigDecimal in model - encrypted text in db - recalculated once every day for closed deals with a price and a receiver
+  # 9) new_price - Float in model - encrypted text in db - recalculated once every day for closed deals with a price and a receiver
   def new_price
     return nil unless (temp_extended_new_price = read_attribute(:new_price))
-    BigDecimal.new encrypt_remove_pre_and_postfix(temp_extended_new_price, 'new_price', 6)
+    str_to_float_or_nil encrypt_remove_pre_and_postfix(temp_extended_new_price, 'new_price', 6)
   end # new_price
   def new_price=(new_new_price)
-    if new_new_price
-      check_type('new_price', new_new_price, 'BigDecimal')
+    if new_new_price.to_s != ''
+      check_type('new_price', new_new_price, 'Float')
       write_attribute :new_price, encrypt_add_pre_and_postfix(new_new_price.to_s, 'new_price', 6)
     else
       write_attribute :new_price, nil
@@ -136,14 +144,14 @@ class Gift < ActiveRecord::Base
   end # new_price=
   alias_method :new_price_before_type_cast, :new_price
 
-  # 10) negative_interest - BigDecimal in model - encrypted text in db - recalculated once every day for closed deals with a price and a receiver
+  # 10) negative_interest - Float in model - encrypted text in db - recalculated once every day for closed deals with a price and a receiver
   def negative_interest
     return nil unless (temp_extended_negative_interest = read_attribute(:negative_interest))
-    BigDecimal.new encrypt_remove_pre_and_postfix(temp_extended_negative_interest, 'negative_interest', 7)
+    str_to_float_or_nil encrypt_remove_pre_and_postfix(temp_extended_negative_interest, 'negative_interest', 7)
   end # negative_interest
   def negative_interest=(new_negative_interest)
-    if new_negative_interest
-      check_type('negative_interest', new_negative_interest, 'BigDecimal')
+    if new_negative_interest.to_s != ''
+      check_type('negative_interest', new_negative_interest, 'Float')
       write_attribute :negative_interest, encrypt_add_pre_and_postfix(new_negative_interest.to_s, 'negative_interest', 7)
     else
       write_attribute :negative_interest, nil
@@ -151,14 +159,14 @@ class Gift < ActiveRecord::Base
   end # negative_interest=
   alias_method :negative_interest_before_type_cast, :negative_interest
 
-  # 11) social_dividend - BigDecimal in model - encrypted text in db - recalculated once every day for closed deals with a price
+  # 11) social_dividend - Float in model - encrypted text in db - recalculated once every day for closed deals with a price
   def social_dividend
     return nil unless (temp_extended_social_dividend = read_attribute(:social_dividend))
-    BigDecimal.new encrypt_remove_pre_and_postfix(temp_extended_social_dividend, 'social_dividend', 8)
+    str_to_float_or_nil encrypt_remove_pre_and_postfix(temp_extended_social_dividend, 'social_dividend', 8)
   end # negative_interest
   def social_dividend=(new_social_dividend)
-    if new_social_dividend
-      check_type('social_dividend', new_social_dividend, 'BigDecimal')
+    if new_social_dividend.to_s != ''
+      check_type('social_dividend', new_social_dividend, 'Float')
       write_attribute :social_dividend, encrypt_add_pre_and_postfix(new_social_dividend.to_s, 'social_dividend', 8)
     else
       write_attribute :social_dividend, nil
@@ -203,62 +211,13 @@ class Gift < ActiveRecord::Base
   end
   alias_method :social_dividend_from_before_type_cast, :social_dividend_from
 
-  # todo: remove
-  def social_dividend_from2
-    return nil unless (temp_extended_social_dividend_from2 = read_attribute(:social_dividend_from2))
-    temp_social_dividend_from2 = encrypt_remove_pre_and_postfix(temp_extended_social_dividend_from2, 'social_dividend_from2', 10)
-    YAML::load(temp_social_dividend_from2)
-  end
-  def social_dividend_from2=(new_social_dividend_from2)
-    if new_social_dividend_from2
-      check_type('social_dividend_from2', new_social_dividend_from2, 'Date')
-      write_attribute :social_dividend_from2, encrypt_add_pre_and_postfix(new_social_dividend_from2.to_yaml, 'social_dividend_from2', 10)
-    else
-      write_attribute :social_dividend_from2, nil
-    end
-  end
-  alias_method :social_dividend_from2_before_type_cast, :social_dividend_from2
-
-  # 15) new_price_giver - BigDecimal in model - encrypted text in db - equal new_price, but with givers actual currency and with sign - used for balance
-  def new_price_giver
-    return nil unless (temp_extended_new_price_giver = read_attribute(:new_price_giver))
-    BigDecimal.new encrypt_remove_pre_and_postfix(temp_extended_new_price_giver, 'new_price_giver', 11)
-  end # new_price_giver
-  def new_price_giver=(new_new_price_giver)
-    if new_new_price_giver
-      check_type('new_price_giver', new_new_price_giver, 'BigDecimal')
-      write_attribute :new_price_giver, encrypt_add_pre_and_postfix(new_new_price_giver.to_s, 'new_price_giver', 11)
-    else
-      write_attribute :new_price_giver, nil
-    end
-  end # new_price_giver=
-  alias_method :new_price_giver_before_type_cast, :new_price_giver
-
-
-  # 16) new_price_receiver - BigDecimal in model - encrypted text in db - equal new_price but with receivers actual currency and with sign - used for balance
-  def new_price_receiver
-    return nil unless (temp_extended_new_price_receiver = read_attribute(:new_price_receiver))
-    BigDecimal.new encrypt_remove_pre_and_postfix(temp_extended_new_price_receiver, 'new_price_receiver', 12)
-  end # new_price_receiver
-  def new_price_receiver=(new_new_price_receiver)
-    if new_new_price_receiver
-      check_type('new_price_receiver', new_new_price_receiver, 'BigDecimal')
-      write_attribute :new_price_receiver, encrypt_add_pre_and_postfix(new_new_price_receiver.to_s, 'new_price_receiver', 12)
-    else
-      write_attribute :new_price_receiver, nil
-    end
-  end # new_price=
-  alias_method :new_price_receiver_before_type_cast, :new_price_receiver
-
-  # 19) balance giver - Float in Model. Encrypted text in db.
+  # 15) balance giver - Float in Model. Encrypted text in db.
   def balance_giver
     return nil unless (extended_balance_giver = read_attribute(:balance_giver))
-    balance = encrypt_remove_pre_and_postfix(extended_balance_giver, 'balance_giver', 13)
-    return nil unless balance
-    balance.to_f
+    str_to_float_or_nil encrypt_remove_pre_and_postfix(extended_balance_giver, 'balance_giver', 13)
   end
   def balance_giver=(new_balance_giver)
-    if new_balance_giver
+    if new_balance_giver.to_s != ''
       check_type('balance_giver', new_balance_giver, 'Float')
       write_attribute :balance_giver, encrypt_add_pre_and_postfix(new_balance_giver.to_s, 'balance_giver', 13)
     else
@@ -267,15 +226,13 @@ class Gift < ActiveRecord::Base
   end
   alias_method :balance_giver_before_type_cast, :balance_giver
 
-  # 20) balance receiver - Float in model - encrypted text in db
+  # 16) balance receiver - Float in model - encrypted text in db
   def balance_receiver
     return nil unless (extended_balance_receiver = read_attribute(:balance_receiver))
-    balance = encrypt_remove_pre_and_postfix(extended_balance_receiver, 'balance_receiver', 14)
-    return nil unless balance
-    balance.to_f
+    str_to_float_or_nil encrypt_remove_pre_and_postfix(extended_balance_receiver, 'balance_receiver', 14)
   end
   def balance_receiver=(new_balance_receiver)
-    if new_balance_receiver
+    if new_balance_receiver.to_s != ''
       check_type('balance_receiver', new_balance_receiver, 'Float')
       write_attribute :balance_receiver, encrypt_add_pre_and_postfix(new_balance_receiver.to_s, 'balance_receiver', 14)
     else
@@ -284,16 +241,16 @@ class Gift < ActiveRecord::Base
   end
   alias_method :balance_receiver_before_type_cast, :balance_receiver
 
-  # 21) created_at - timestamp - not encrypted
+  # 17) created_at - timestamp - not encrypted
 
-  # 22) updated_at - timestamp - not encrypted
+  # 18) updated_at - timestamp - not encrypted
 
 
   #
   # helper methods
   #
 
-
+  # todo: drop price with 2 decimals methods in models - use view helpers
   def price_with_2_decimals
     return nil unless price
     "%0.2f" % (price || 0)
@@ -302,15 +259,7 @@ class Gift < ActiveRecord::Base
     return nil unless new_price
     "%0.2f" % (new_price || 0)
   end
-  def new_price_user (user)
-    return nil unless price
-    return nil unless receiver
-    case user
-      when giver then new_price_giver
-      when receiver then -new_price_receiver
-      else nil
-    end
-  end # new_price_user
+
 
   # get/set balance for actual user. Used in user.recalculate_balance and in /gifts/index page
   def balance (user_id)
@@ -322,12 +271,12 @@ class Gift < ActiveRecord::Base
     end
   end
   def set_balance (user_id, new_balance)
-    puts "Gift.set_balance: id = #{id}, user_id = #{user_id}, new_balance = #{new_balance}, user_id_giver = #{user_id_giver}, user_id_receiver = #{user_id_receiver}"
+    # puts "Gift.set_balance: id = #{id}, user_id = #{user_id}, new_balance = #{new_balance}, user_id_giver = #{user_id_giver}, user_id_receiver = #{user_id_receiver}"
     return new_balance unless received_at
     case user_id
       when user_id_giver then self.balance_giver = new_balance
       when user_id_receiver then self.balance_receiver = new_balance
-      else return new_balance ;
+      else return new_balance # error
     end
     new_balance
   end
@@ -336,22 +285,24 @@ class Gift < ActiveRecord::Base
   # it can be from received_at to today = self.negative_interest
   # it can also be for a selected period. Used when calculating social dividend exchanged between two users for a period
   def negative_interest_between_dates (date1, date2)
-    if !received_at or received_at >= date2 or date1 == date2
+    received_at_date = received_at.to_date if received_at
+    if !received_at_date or received_at_date >= date2 or date1 == date2
       puts "gifts: negative_interest_between_dates: id = #{id}, date1 = #{date1}, date2 = #{date2}, negative_interest = 0"
-      return 0
+      return 0.0
     end
 
-    date1 = received_at if date1 > received_at
-    if date1 == received_at
-      price1 = self.price.to_f
+    date1 = received_at_date if date1 > received_at_date
+    if date1 == received_at_date
+      price1 = self.price
     else
-      days = (date1 - received_at).to_i
+      puts "date1 = #{date1} (#{date1.class.name}, received_at_date = #{received_at_date} (#{received_at_date.class.name})"
+      days = (date1 - received_at_date).to_i
       price1 = self.price.to_f * PRICE_FACTOR_PER_DAY ** days
     end
-    days = (date2 - received_at).to_i
-    price2 = self.price.to_f * PRICE_FACTOR_PER_DAY ** days
+    days = (date2 - received_at_date).to_i
+    price2 = self.price * PRICE_FACTOR_PER_DAY ** days
     negative_interest = price1 - price2
-    puts "gifts: negative_interest_between_dates: id = #{id}, date1 = #{date1}, date2 = #{date2}, negative_interest = #{negative_interest} (#{negative_interest.class.name})"
+    puts "gifts: negative_interest_between_dates: id = #{id}, date1 = #{date1}, date2 = #{date2}, price = #{self.price}, negative_interest = #{negative_interest} (#{negative_interest.class.name})"
     negative_interest
   end # negative_interest_between_dates
 
@@ -370,46 +321,16 @@ class Gift < ActiveRecord::Base
       return self
     end
     today =  Date.today
-    if  new_price_at != today
-      # calculate new interest, price and social dividend
-      self.negative_interest = BigDecimal.new negative_interest_between_dates(received_at, today).to_s unless new_price_at == today
-      self.new_price = price - negative_interest
-      self.new_price_at = today
-      self.social_dividend = case gifttype
-                               when 'G' then negative_interest / 4 # gifttype G = Gift
-                               when 'S' then new_price             # gifttype S = Social dividend given or received
-                               else BigDecimal.new '0' # error
-                             end # case
-    end
-    # update new_price_giver if any changes
-    if self.new_price
-      if giver.currency == self.currency
-        self.new_price_giver = self.new_price
-      else
-        new_price = ExchangeRate.exchange(self.new_price, self.currency, giver.currency)
-        if new_price.currency.to_s == giver.currency
-          # found exchange rate
-          self.new_price_giver = BigDecimal.new new_price.to_s
-        else
-          self.new_price_giver = nil
-        end
-      end
-    end
-    # update new_price_receiver if any changes
-    if receiver and self.new_price
-      if receiver.currency == self.currency
-        self.new_price_receiver = self.new_price
-      else
-        new_price = ExchangeRate.exchange(self.new_price, self.currency, receiver.currency)
-        if new_price.currency.to_s == receiver.currency
-          # found exchange rate
-          self.new_price_receiver = BigDecimal.new new_price.to_s
-        else
-          self.new_price_receiver = nil
-        end
-      end
-    end
-
+    return self if new_price_at == today
+    # calculate new interest, price and social dividend
+    self.negative_interest = negative_interest_between_dates(received_at.to_date, today) unless new_price_at == today
+    self.new_price = price - negative_interest
+    self.new_price_at = today
+    self.social_dividend = case gifttype
+                             when 'G' then negative_interest / 4 # gifttype G = Gift
+                             when 'S' then new_price             # gifttype S = Social dividend given or received
+                             else "0".to_f # error
+                           end # case
     save!
     self
   end # recalculate
@@ -472,10 +393,10 @@ class Gift < ActiveRecord::Base
     end
     puts "hash = #{hash.to_s}"
 
-    # delete any social dividend calculation for this date
+    # delete any social dividend calculation for this date (received_at)
     social_dividends.each { |g| g.destroy if g.received_at == self.received_at }
 
-    # insert social dividend calculation for this date
+    # insert social dividend calculation for this date (received_at)
     hash.each do |name, value|
       currency = name
       giver_social_dividend = value[:giver]
@@ -485,16 +406,18 @@ class Gift < ActiveRecord::Base
       next if difference == 0
       gift = Gift.new
       gift.currency = currency
-      gift.price = BigDecimal.new difference.to_s
+      gift.price = difference
+      # description in english.
+      # views should use a description translate helper
       gift.description = "Social dividend %0.2f #{currency}" % difference
       if giver_social_dividend > receiver_social_dividend
         gift.user_id_giver = self.user_id_giver
         gift.user_id_receiver = self.user_id_receiver
-        gift.description += " from #{gift.giver.short_user_name} to #{gift.receiver.short_user_name}"
+        gift.description += " from #{self.giver.short_user_name} to #{self.receiver.short_user_name}"
       else
         gift.user_id_giver = self.user_id_receiver
         gift.user_id_receiver = self.user_id_giver
-        gift.description += " from #{gift.receiver.short_user_name} to #{gift.giver.short_user_name}"
+        gift.description += " from #{self.receiver.short_user_name} to #{self.giver.short_user_name}"
       end
       if last_social_dividend
         gift.description += " for period #{date1} to #{date2}"
@@ -504,22 +427,22 @@ class Gift < ActiveRecord::Base
       gift.received_at = self.received_at
       gift.new_price = gift.price
       gift.new_price_at = gift.received_at
-      gift.negative_interest = BigDecimal.new "0"
-      gift.social_dividend = BigDecimal.new "0"
+      gift.negative_interest = 0.0
+      gift.social_dividend = 0.0
       gift.gifttype = 'S'
       gift.social_dividend_from = date1
       !gift.save!
     end # each
 
-    # recalculate any social dividends after self.received_at
+    # recalculate any social dividends after received_at
     next_social_dividend = social_dividends.find { |g| g.received_at > self.received_at }
-    next_social_dividend.create_social_dividend if next_social_dividend #
+    next_social_dividend.create_social_dividend if next_social_dividend # recursive call
 
   end # create_social_dividend
 
 
   # psydo attributea
-  attr_accessor :file
+  attr_accessor :file, :direction
 
 
   # https://github.com/jmazzi/crypt_keeper gem encrypts all attributes and all rows in db with the same key

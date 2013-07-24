@@ -10,9 +10,14 @@ class UsersController < ApplicationController
 
   def update
     if params[:id] != @user.id.to_s
-      puts "invalid id"
-      redirect_to '/users'
-      return ;
+      puts "invalid id. params[:id] = #{params[:id]}, @user.id = #{@user.id}"
+      flash[:notice] = t '.invalid_request'
+      if params[:return_to].to_s != ''
+        redirect_to params[:return_to]
+      else
+        redirect_to '/users'
+      end
+      return
     end
     if params[:return_to].to_s != ''
 

@@ -124,7 +124,7 @@ class ApplicationController < ActionController::Base
           puts "fetch_user: new user"
           country = session[:country] || 'US' #  Default USD
           u.currency = Country[country].currency.code
-          u.balance = BigDecimal.new '0.0'
+          u.balance = { BALANCE_KEY => 0.0 }
           u.balance_at = Date.today
         end
         u.permissions = api_response["permissions"]["data"][0]
