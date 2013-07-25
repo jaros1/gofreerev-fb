@@ -1,3 +1,4 @@
+# encoding: utf-8
 # Files in the config/locales directory are used for internationalization
 # and are automatically loaded by Rails. If you want to use locales other
 # than English, add the necessary files in this directory.
@@ -76,7 +77,7 @@ en:
         price_title: "Price in virtual free money. Optional. Can be set now or later. Best set be buyer / receiver so that the price becomes a measure of how much the thing / help was appreciated. There is used free virtual national money in here with a negative rate of 7.6% per year. One goal of the negative rate is to ensure that money and resources circulates. The negative interest rate makes it possible with a society without growth, overconsumption and with plenty of leisure to all."
         price_prompt: "Price:"
         price_free: "free"
-        description_title: "Offer. Required. Describe what you offer whether it is things or help. You decide whether you want to sell, rent, lend or give things away for free. We are trading in virtuel free money. Since we are trading in virtuel money you are in practive always giving you give ting and help away for free. But your balance in free money grows. Posts are made ​​on your wall and displayed to your friends or whom you have selected to view posts by this app. Your friends can comment on your post on your wall. The agreement should be finalized in here so your balance in free cash being updated."
+        description_title: "Offer. Required. Describe what you offer whether it is things or help. You decide whether you want to sell, rent, lend or give things away for free. We are trading in virtuel free money. Since we are trading in virtuel money you are in practive always giving you give ting and help away for free. But your balance in free money grows. Posts are make on your wall and displayed to your friends or whom you have selected to view posts by this app. Your friends can comment on your post on your wall. The agreement should be finalized in here so your balance in free cash being updated."
         description_prompt: "Offer:"
         file_title: "Optional picture. Photos are an effective way to be seen by your friends."
         file_prompt: "Picture:"
@@ -88,16 +89,20 @@ en:
         giver_column_heading_html: "From:"
         receiver_column_heading_html: "To:"
         received_at_column_heading_html : "Date:"
-        price_column_heading_html: "price-<br />then:"
+        price_column_heading_html: "Price:"
         new_price_column_heading_html: "Value<br />today:"
         balance_column_heading_html: "Balance"
         gifts_giver_div_title: "%{username}. Balance %{balance}. Click here to see user info."
         gifts_receiver_div_title: "%{username}. Balance %{balance}. Click here to see user info."
+        gift_link_title: "Click on link for more offer information"
         social_dividend_description_1: "Social dividend %{price} %{currency} from %{giver} to %{receiver} for period up to %{to}"
         social_dividend_description_2: "Social dividend %{price} %{currency} from %{giver} to %{receiver} for period from %{from} to %{to}"
 
   # user controller
   users:
-    update:
+     update:
       invalid_request: "Invalid call. User settings was not changed."
       exchange_rates_not_ready: "Currency was not changed. Exchange rates was not ready. Try again in a moment."
+     show:
+       invalid_request: "Invalid call."
+       not_a_friend: "You can only see user information for your friends."

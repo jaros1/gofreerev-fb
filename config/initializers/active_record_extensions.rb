@@ -10,7 +10,6 @@ module ActiveRecordExtensions
     self.gift_id = new_encrypt_pk_value
   end
   def new_encrypt_pk
-    temp_gift_id = nil
     loop do
       temp_gift_id = String.generate_random_string(20)
       return temp_gift_id unless Gift.find_by_gift_id(temp_gift_id)
@@ -40,15 +39,15 @@ module ActiveRecordExtensions
     prefix_lng = r.rand(20)+1
     chars = ENCRYPT_KEYS[secret_key_no].split('')
     temp_prefix = ""
-    1.upto(prefix_lng) { |i| temp_prefix << chars[r.rand(chars.size-1)] }
+    1.upto(prefix_lng) { temp_prefix << chars[r.rand(chars.size-1)] }
     temp_prefix
   end
 
   def encrypt_postfix (r, attributename, secret_key_no)
     postfix_lng = r.rand(20)+1
     chars = ENCRYPT_KEYS[secret_key_no].split('')
-    temp_postfix = ""
-    1.upto(postfix_lng) { |i| temp_postfix << chars[r.rand(chars.size-1)] }
+    temp_postfix = ''
+    1.upto(postfix_lng) { temp_postfix << chars[r.rand(chars.size-1)] }
     temp_postfix
   end
 

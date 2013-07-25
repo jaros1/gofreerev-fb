@@ -1,3 +1,4 @@
+# encoding: utf-8
 class GiftsController < ApplicationController
 
 
@@ -18,7 +19,7 @@ class GiftsController < ApplicationController
       @gift.user_id_receiver = session[:user_id]
     end
     @gift.gifttype = 'G'
-    if !@gift.valid?
+    unless @gift.valid?
       # todo: check how to handle error messages in rails 4
       flash.now[:notice] = @gift.errors.full_messages.join(', ')
       index
@@ -26,6 +27,7 @@ class GiftsController < ApplicationController
     end
     # puts "create: description = #{@gift.description}"
 
+    gift_posted_on_wall_api_wall = nil
     if @user.post_gift_allowed?
       # post gift on login api wall (facebook, google+ etc)
       gift_posted_on_wall_api_wall = false
@@ -34,12 +36,12 @@ class GiftsController < ApplicationController
           puts "access_token = #{session[:access_token]}"
           api = Koala::Facebook::API.new(session[:access_token])
           begin
-            api_response = api.put_connections("me", "feed", :message => params[:gift][:description])
+            api_response = api.put_connections('me', 'feed', :message => params[:gift][:description])
             puts "api_response = #{api_response} (#{api_response.class.name})"
-            @gift.api_gift_id = api_response["id"].split("_")[1] # id to post in facebook wall
+            @gift.api_gift_id = api_response['id'].split('_')[1] # id to post in facebook wall
             gift_posted_on_wall_api_wall = true
           rescue Koala::Facebook::ClientError => e
-            puts "Koala::Facebook::ClientError"
+            puts 'Koala::Facebook::ClientError'
             puts "e.fb_error_type = #{e.fb_error_type}"
             puts "e.fb_error_code = #{e.fb_error_code}"
             puts "e.fb_error_subcode = #{e.fb_error_subcode}"
@@ -64,7 +66,7 @@ class GiftsController < ApplicationController
       end # case
     end # if
 
-    if !flash.now[:notice]
+    unless flash.now[:notice]
       @gift.save!
       # todo: use api.get_object('me/statuses?__paging_token=3287865251224&limit=1') to read status
       # todo: language support missing
@@ -99,8 +101,8 @@ class GiftsController < ApplicationController
       @gift.direction = params[:gift][:direction]
       @gift.description = params[:gift][:description]
     end
-    @gift.direction = 'giver' if @gift.direction.to_s == ""
-    if !@user
+    @gift.direction = 'giver' if @gift.direction.to_s == ''
+    unless @user
       @gifts = []
       render_with_language __method__
       return
@@ -115,7 +117,13 @@ class GiftsController < ApplicationController
     # list of gifts with @user as giver or receiver + list of gifts med @user.friends as giver or receiver
     friends = Friend.where('user_id_giver = ?', @user.user_id).collect { |u| u.user_id_receiver }
     friends.push(@user.user_id)
-    @gifts = Gift.where("user_id_giver in (?) or user_id_receiver in (?)", friends, friends).includes(:giver, :receiver).order("ifnull(received_at,created_at)").paginate(:page => params[:page]) if @user
+    # todo: problem with sort. received_at is encrypted text in db and can not be used in sort
+    #       there should also be a possible for user to select sort conditions
+    #       for example last commented post first
+    #       sort columns can not be encrypted text
+    #       could be datetime columns in db
+    #       could be anonymous sequences or float for timestamps
+    @gifts = Gift.where('user_id_giver in (?) or user_id_receiver in (?)', friends, friends).includes(:giver, :receiver).order('ifnull(received_at,created_at)').paginate(:page => params[:page]) if @user
     puts "@gifts.size = #{@gifts.size}"
     @gifts.sort! do |b, a|
       if (a.received_at || a.created_at.to_date) ==  (b.received_at || b.created_at.to_date)

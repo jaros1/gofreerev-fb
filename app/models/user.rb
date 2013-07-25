@@ -135,16 +135,16 @@ class User < ActiveRecord::Base
   # Key BALANCE is sum of all currencies exchanged to users actual currency
   # validates_presence_of :negative_interest # todo: uncomment this
   def negative_interest
-    return nil unless (temp_extended_negative_interest = read_attribute(:negative_interest))
-    # puts "temp_extended_negative_interest = #{temp_extended_negative_interest}"
-    temp_negative_interest = YAML::load encrypt_remove_pre_and_postfix(temp_extended_negative_interest, 'negative_interest', 14)
+    return nil unless (temp_ext_neg_interest = read_attribute(:negative_interest))
+    # puts "temp_ext_neg_interest = #{temp_ext_neg_interest}"
+    temp_negative_interest = YAML::load encrypt_remove_pre_and_postfix(temp_ext_neg_interest, 'negative_interest', 14)
     temp_negative_interest[BALANCE_KEY] = nil unless temp_negative_interest.has_key?(BALANCE_KEY)
     temp_negative_interest
   end # negative_interest
-  def negative_interest=(new_negative_interest)
-    if new_negative_interest
-      check_type('negative_interest', new_negative_interest, 'Hash')
-      write_attribute :negative_interest, encrypt_add_pre_and_postfix(new_negative_interest.to_yaml, 'negative_interest', 14)
+  def negative_interest=(new_neg_int)
+    if new_neg_int
+      check_type('negative_interest', new_neg_int, 'Hash')
+      write_attribute :negative_interest, encrypt_add_pre_and_postfix(new_neg_int.to_yaml, 'negative_interest', 14)
     else
       write_attribute :negative_interest, nil
     end
@@ -165,7 +165,7 @@ class User < ActiveRecord::Base
 
   def usertype
     return nil unless user_id
-    return user_id.first(2)
+    user_id.first(2)
   end
 
   def facebook?
@@ -213,7 +213,7 @@ class User < ActiveRecord::Base
     permissions = self.permissions
     case
       when facebook?
-         permissions["status_update"] == 1
+         permissions['status_update'] == 1
       else
         puts "post_on_wall? not impleented for #{user_id.first(2)} users"
         false
@@ -226,11 +226,11 @@ class User < ActiveRecord::Base
   end
   def profile_picture_md5_path
     md5 = Digest::MD5.hexdigest(user_id).downcase
-    folders = ["profiles"] + md5 = md5.scan(/.{2}/)
+    folders = ['profiles'] + md5.scan(/.{2}/)
     folders.join('/')
   end
   def profile_picture_os_folder
-    Rails.root.join('public', "images", profile_picture_md5_path).to_s
+    Rails.root.join('public', 'images', profile_picture_md5_path).to_s
   end
   def profile_picture_os_filename
     "#{profile_picture_os_folder}/#{profile_picture_filename}"
@@ -247,7 +247,7 @@ class User < ActiveRecord::Base
     wishes.find_all { |g| g.user_id_giver }.collect { |g| g.recalculate ; g }
   end
   def gifts_received_with_sign
-    gs = gifts_received.collect do |g|
+    gifts_received.collect do |g|
       g.new_price = -g.new_price
       g
     end # collect
@@ -256,8 +256,9 @@ class User < ActiveRecord::Base
     gifts_given + gifts_received_with_sign
   end
 
+  # todo: initialize social dividend hash from negative_currency hash
   def social_dividend
-    hash = {}
+     {}
 
   end
 
@@ -291,9 +292,9 @@ class User < ActiveRecord::Base
       # update user.negative_interest hash
       negative_interest_hash[g.currency] = 0 unless negative_interest_hash.has_key?(g.currency)
       negative_interest_hash[g.currency] += g.negative_interest
-      new_negative_interest = ExchangeRate.exchange(g.negative_interest, g.currency, new_currency)
-      if new_negative_interest.currency.to_s == new_currency
-        negative_interest_hash[BALANCE_KEY] += new_negative_interest.to_f
+      new_neg_int = ExchangeRate.exchange(g.negative_interest, g.currency, new_currency)
+      if new_neg_int.currency.to_s == new_currency
+        negative_interest_hash[BALANCE_KEY] += new_neg_int.to_f
       else
         missing_exchange_rates = true
       end
@@ -310,11 +311,11 @@ class User < ActiveRecord::Base
       gifts.each { |g| g.save! }
       self.save!
     end
-    return true
+    true
   end # recalculate_balance
 
   def balance_with_2_decimals
-    "%0.2f" % (balance[BALANCE_KEY] || 0)
+    '%0.2f' % (balance[BALANCE_KEY] || 0)
   end
 
 

@@ -1,9 +1,10 @@
-<% if !@user -%>
+<% #noinspection RubyResolve
+   if !@user -%>
     <p>
       <%= my_t '.not_logged_in_text' %>
     </p>
 <% else -%>
-    <% if !@user.post_gift_allowed? -%>
+    <% unless @user.post_gift_allowed? -%>
         <p title="<%= my_t '.post_gift_not_allowed_title', :appname => APP_NAME, :apiname => @user.api_name_without_brackets %>">
           <%= my_t '.post_gift_not_allowed_text', :appname => APP_NAME, :apiname => @user.api_name_without_brackets %><br />
           <%= link_to my_t('.request_post_gift_priv_link_text', :appname => APP_NAME), "javascript: {top.location.href='#{auth_post_gift_url}'}" %>
@@ -21,12 +22,12 @@
               <%= my_t '.price_free' %>
               <%= @user.currency %>
               &nbsp;&nbsp;&nbsp;
-              Offers: <%= f.radio_button :direction, "giver" %>
-              Seeks: <%= f.radio_button :direction, "receiver" %>
+              Offers: <%= f.radio_button :direction, 'giver' %>
+              Seeks: <%= f.radio_button :direction, 'receiver' %>
             </td>
           </tr>
           <tr title="<%= my_t '.description_title' %>">
-            <td valign="top"><%= my_t '.description_prompt' %></td>
+            <td style="vertical-align: top"><%= my_t '.description_prompt' %></td>
             <td><%= f.text_area(:description, :size => '60x8') %></td>
             <td><%= f.submit my_t('.gift_submit_button_text'), :onclick => '{return gifts_client_validations()}' %></td>
           </tr>
@@ -49,18 +50,21 @@
         <th style="text-align: center"><%= my_t '.giver_column_heading_html' %></th>
         <th style="text-align: center"><%= my_t '.receiver_column_heading_html' %></th>
         <th><%= my_t '.received_at_column_heading_html' %></th>
-        <th><%= my_t '.price_column_heading_html' %></th>
+        <th>&nbsp;&nbsp;</th>
+        <th style="text-align: right"><%= my_t '.price_column_heading_html' %></th>
+<% if false -%>
         <th><%= my_t '.new_price_column_heading_html' %></th>
         <th style="text-align: right"><%= my_t '.balance_column_heading_html' %></th>
+<% end -%>
         <th>&nbsp;&nbsp;</th>
-        <th><%= my_t '.description_prompt' %></th>
+        <th style="text-align: left"><%= my_t '.description_prompt' %></th>
       </tr>
         <% for gift in @gifts do loop -%>
           <% giver = gift.giver ; receiver = gift.receiver -%>
           <tr>
             <td>
 <% if gift.giver -%>
-              <div title="<%= my_t '.gifts_giver_div_title', :username => giver.user_name, :balance => format_user_balance(giver.balance) %>'"
+              <div title="<%= my_t '.gifts_giver_div_title', :username => giver.user_name, :balance => format_user_balance(giver.balance) %>"
                    onclick="top.location.href = '<%= url_for(giver) %>'">
                 <%= image_tag(giver.profile_picture_url)  %>
               </div>
@@ -68,16 +72,19 @@
             </td>
             <td>
 <% if gift.receiver -%>
-              <div title="<%= my_t '.gifts_receiver_div_title', :username => receiver.user_name, :balance => format_user_balance(receiver.balance) if receiver %>'"
+              <div title="<%= my_t '.gifts_receiver_div_title', :username => receiver.user_name, :balance => format_user_balance(receiver.balance) if receiver %>"
                    onclick="top.location.href = '<%= url_for(receiver)  %>'">
                 <%= image_tag(receiver.profile_picture_url) %>
               </div>
 <% end -%>
             </td>
-            <td><%= gift.received_at || gift.created_at.to_date %></td>
-            <td><%= "#{format_price(gift.price)} #{gift.currency}" if gift.price %></td>
+            <td><%= link_to l((gift.received_at || gift.created_at), format: :short), url_for(gift), :title => (my_t '.gift_link_title') %></td>
+            <td></td>
+            <td style="text-align: right"><%= "#{format_price(gift.price)} #{gift.currency}" if gift.price %></td>
+<% if false -%>
             <td><%= format_price gift.new_price %></td>
             <td style="text-align: right"><%= format_price gift.balance(@user.user_id) %></td>
+<% end -%>
             <td></td>
             <td><%= format_gift_description gift %></td>
           </tr>

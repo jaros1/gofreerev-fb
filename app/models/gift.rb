@@ -114,8 +114,8 @@ class Gift < ActiveRecord::Base
     return nil unless (temp_extended_received_at = read_attribute(:received_at))
     temp_received_at1 = encrypt_remove_pre_and_postfix(temp_extended_received_at, 'received_at', 5)
     temp_received_at2 = YAML::load(temp_received_at1)
-    temo_received_at2 = temp_received_at2.to_time if temp_received_at2.class.name == 'Date'
-    temo_received_at2
+    temp_received_at2 = temp_received_at2.to_time if temp_received_at2.class.name == 'Date'
+    temp_received_at2
   end
   def received_at=(new_received_at)
     if new_received_at
@@ -146,13 +146,13 @@ class Gift < ActiveRecord::Base
 
   # 10) negative_interest - Float in model - encrypted text in db - recalculated once every day for closed deals with a price and a receiver
   def negative_interest
-    return nil unless (temp_extended_negative_interest = read_attribute(:negative_interest))
-    str_to_float_or_nil encrypt_remove_pre_and_postfix(temp_extended_negative_interest, 'negative_interest', 7)
+    return nil unless (tmp_extended_negative_interest = read_attribute(:negative_interest))
+    str_to_float_or_nil encrypt_remove_pre_and_postfix(tmp_extended_negative_interest, 'negative_interest', 7)
   end # negative_interest
-  def negative_interest=(new_negative_interest)
-    if new_negative_interest.to_s != ''
-      check_type('negative_interest', new_negative_interest, 'Float')
-      write_attribute :negative_interest, encrypt_add_pre_and_postfix(new_negative_interest.to_s, 'negative_interest', 7)
+  def negative_interest=(new_neg_int)
+    if new_neg_int.to_s != ''
+      check_type('negative_interest', new_neg_int, 'Float')
+      write_attribute :negative_interest, encrypt_add_pre_and_postfix(new_neg_int.to_s, 'negative_interest', 7)
     else
       write_attribute :negative_interest, nil
     end
@@ -197,14 +197,14 @@ class Gift < ActiveRecord::Base
 
   # 14) received_at. Date in model - encrypted text in db - set once when the deal is closed together with user_id_receiver
   def social_dividend_from
-    return nil unless (temp_extended_social_dividend_from = read_attribute(:social_dividend_from))
-    temp_social_dividend_from = encrypt_remove_pre_and_postfix(temp_extended_social_dividend_from, 'social_dividend_from', 10)
+    return nil unless (temp_ext_soc_div_from = read_attribute(:social_dividend_from))
+    temp_social_dividend_from = encrypt_remove_pre_and_postfix(temp_ext_soc_div_from, 'social_dividend_from', 10)
     YAML::load(temp_social_dividend_from)
   end
-  def social_dividend_from=(new_social_dividend_from)
-    if new_social_dividend_from
-      check_type('social_dividend_from', new_social_dividend_from, 'Date')
-      write_attribute :social_dividend_from, encrypt_add_pre_and_postfix(new_social_dividend_from.to_yaml, 'social_dividend_from', 10)
+  def social_dividend_from=(new_soc_div_from)
+    if new_soc_div_from
+      check_type('social_dividend_from', new_soc_div_from, 'Date')
+      write_attribute :social_dividend_from, encrypt_add_pre_and_postfix(new_soc_div_from.to_yaml, 'social_dividend_from', 10)
     else
       write_attribute :social_dividend_from, nil
     end
@@ -253,11 +253,11 @@ class Gift < ActiveRecord::Base
   # todo: drop price with 2 decimals methods in models - use view helpers
   def price_with_2_decimals
     return nil unless price
-    "%0.2f" % (price || 0)
+    '%0.2f' % (price || 0)
   end
   def new_price_with_2_decimals
     return nil unless new_price
-    "%0.2f" % (new_price || 0)
+    '%0.2f' % (new_price || 0)
   end
 
 
@@ -284,10 +284,10 @@ class Gift < ActiveRecord::Base
   # calculate negative interest for a period
   # it can be from received_at to today = self.negative_interest
   # it can also be for a selected period. Used when calculating social dividend exchanged between two users for a period
-  def negative_interest_between_dates (date1, date2)
+  def negative_interest_in_period (date1, date2)
     received_at_date = received_at.to_date if received_at
     if !received_at_date or received_at_date >= date2 or date1 == date2
-      puts "gifts: negative_interest_between_dates: id = #{id}, date1 = #{date1}, date2 = #{date2}, negative_interest = 0"
+      puts "gifts: negative_interest_in_period: id = #{id}, date1 = #{date1}, date2 = #{date2}, negative_interest = 0"
       return 0.0
     end
 
@@ -302,12 +302,12 @@ class Gift < ActiveRecord::Base
     days = (date2 - received_at_date).to_i
     price2 = self.price * PRICE_FACTOR_PER_DAY ** days
     negative_interest = price1 - price2
-    puts "gifts: negative_interest_between_dates: id = #{id}, date1 = #{date1}, date2 = #{date2}, price = #{self.price}, negative_interest = #{negative_interest} (#{negative_interest.class.name})"
+    puts "gifts: negative_interest_in_period: id = #{id}, date1 = #{date1}, date2 = #{date2}, price = #{self.price}, negative_interest = #{negative_interest} (#{negative_interest.class.name})"
     negative_interest
-  end # negative_interest_between_dates
+  end # negative_interest_in_period
 
   def social_dividend_between_dates (date1, date2)
-    negative_interest_between_dates(date1, date2) / 4
+    negative_interest_in_period(date1, date2) / 4
   end
 
   # recalculate negative interest, new_price and social dividend for gift today
@@ -316,20 +316,20 @@ class Gift < ActiveRecord::Base
   # that is - no social dividend of social dividend.
   def recalculate
     puts "gift: recalculate: id = #{id}"
-    if !received_at
-      puts "open offer - prices is not recalculated"
+    unless received_at
+      puts 'open offer - prices is not recalculated'
       return self
     end
     today =  Date.today
     return self if new_price_at == today
     # calculate new interest, price and social dividend
-    self.negative_interest = negative_interest_between_dates(received_at.to_date, today) unless new_price_at == today
+    self.negative_interest = negative_interest_in_period(received_at.to_date, today) unless new_price_at == today
     self.new_price = price - negative_interest
     self.new_price_at = today
     self.social_dividend = case gifttype
                              when 'G' then negative_interest / 4 # gifttype G = Gift
                              when 'S' then new_price             # gifttype S = Social dividend given or received
-                             else "0".to_f # error
+                             else 0.0 # error
                            end # case
     save!
     self
@@ -341,7 +341,7 @@ class Gift < ActiveRecord::Base
     # find first gifts. New users do not get social dividend from old users.
     # find all relevant gifts
     puts "giver = #{giver.user_name}, receiver = #{receiver.user_name}, received_at = #{received_at}"
-    gifts = Gift.where("(? in (user_id_giver, user_id_receiver) or ? in (user_id_giver, user_id_receiver)) and received_at is not null", user_id_receiver, user_id_giver)
+    gifts = Gift.where('(? in (user_id_giver, user_id_receiver) or ? in (user_id_giver, user_id_receiver)) and received_at is not null', user_id_receiver, user_id_giver)
     gifts.sort! { |a,b| a.received_at <=> b.received_at }
     giver_gifts = gifts.find_all { |g| g.gifttype == 'G' and [g.user_id_giver, g.user_id_receiver].index(user_id_giver) }
     receiver_gifts = gifts.find_all { |g| g.gifttype == 'G' and [g.user_id_giver, g.user_id_receiver].index(user_id_receiver) }
@@ -357,7 +357,7 @@ class Gift < ActiveRecord::Base
       end
     end
     puts "gifts.size #{gifts.size}, giver_gifts.size = #{giver_gifts.size}, receiver_gifts.size = #{receiver_gifts.size}, social_dividends.size = #{social_dividends.size}"
-    puts "gifts: dates =" + gifts.collect { |g| g.received_at.to_s }.join(', ')
+    puts 'gifts: dates =' + gifts.collect { |g| g.received_at.to_s }.join(', ')
     # find first gifts
     giver_first_gift    = giver_gifts.first
     receiver_first_gift    = receiver_gifts.first
@@ -384,12 +384,12 @@ class Gift < ActiveRecord::Base
     giver_gifts.each do |g|
       next if g.gifttype != 'G' or g.price == 0
       hash[g.currency] = { :giver => 0, :receiver => 0 } unless hash.has_key?(g.currency)
-      hash[g.currency][:giver] += g.negative_interest_between_dates(date1, date2) / 4
+      hash[g.currency][:giver] += g.negative_interest_in_period(date1, date2) / 4
     end
     receiver_gifts.each do |g|
       next if g.gifttype != 'G' or g.price == 0
       hash[g.currency] = { :giver => 0, :receiver => 0 } unless hash.has_key?(g.currency)
-      hash[g.currency][:receiver] += g.negative_interest_between_dates(date1, date2) / 4
+      hash[g.currency][:receiver] += g.negative_interest_in_period(date1, date2) / 4
     end
     puts "hash = #{hash.to_s}"
 
@@ -456,7 +456,6 @@ class Gift < ActiveRecord::Base
       self.gift_id = new_encrypt_pk_value
     end
     def new_encrypt_pk
-      temp_gift_id = nil
       loop do
         temp_gift_id = String.generate_random_string(20)
         return temp_gift_id unless Gift.find_by_gift_id(temp_gift_id)

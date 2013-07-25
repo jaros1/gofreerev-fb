@@ -12,8 +12,8 @@ class FbController < ApplicationController
 
     debug_session(__method__.to_s + ' - start') # debug. dump session variables
 
-    if params[:error_reason] == "user_denied"
-      puts "used denied access to basic information"
+    if params[:error_reason] == 'user_denied'
+      puts 'used denied access to basic information'
       session.delete(:oauth)
       session.delete(:state)
       render_with_language 'user_denied'
@@ -34,7 +34,7 @@ class FbController < ApplicationController
         session.delete(:state)
       else
         # possible Cross-site Request Forgery
-        puts "state missing or does not match - could be Cross-site Request Forgery"
+        puts 'state missing or does not match - could be Cross-site Request Forgery'
         puts "state: session[:state] = #{session[:state]}, params[:state] = #{params[:state]}"
         session.delete(:oauth)
         session.delete(:state)
@@ -45,38 +45,38 @@ class FbController < ApplicationController
       end
     end
 
-    if !session[:access_token]
+    unless session[:access_token]
       # access token was not found. Eg if FB app login page not was used
       render_with_language 'cross_site_forgery'
       return
     end
 
     # FB login completed
-    puts "index: login completed"
+    puts 'index: login completed'
 
-    if !(user_id = session[:user_id])
+    unless (user_id = session[:user_id])
       # get user id and name
-      puts "get user id and name"
+      puts 'get user id and name'
       api = Koala::Facebook::API.new(session[:access_token])
-      api_request = "me?fields=name,permissions"
+      api_request = 'me?fields=name,permissions'
       puts "api_request = #{api_request}"
       api_response = api.get_object api_request
       puts "api_response = #{api_response.to_s}"
-      user_id = "FB-#{api_response["id"]}"
-      user_name = api_response["name"]
+      user_id = "FB-#{api_response['id']}"
+      user_name = api_response['name']
       u = User.find_by_user_id(user_id)
       u = User.new unless u
       u.user_id = user_id
       u.user_name = user_name
       if u.new_record?
         # set currency and balance for new user.
-        puts "new user"
+        puts 'new user'
         country = session[:country] || 'US' #  Default USD
         u.currency = Country[country].currency.code
         u.balance = 0.0
         u.balance_at = Date.today
       end
-      u.permissions = api_response["permissions"]["data"][0]
+      u.permissions = api_response['permissions']['data'][0]
       u.save!
       # login ok
       puts "login ok: user_id = #{session[:user_id]}"
@@ -84,9 +84,8 @@ class FbController < ApplicationController
     end # if
 
     # redirect to gifts page
-    redirect_to "/gifts"
+    redirect_to '/gifts'
     # debug_session(__method__.to_s + ' - end') # debug. dump session variables
-    return
   end # index
 
   # post /fb = fb/create is called when FB starts the APP.
@@ -116,27 +115,27 @@ class FbController < ApplicationController
     signed_request = params[:signed_request]
     puts "signed_request = #{signed_request}"
     # signed_request = 9m_Xew0oojeuzMjIZFqwx9lI_UI4AqC-vMWXL9o45g4.eyJhbGdvcml0aG0iOiJITUFDLVNIQTI1NiIsImlzc3VlZF9hdCI6MTM3MzI4NDA4OCwidXNlciI6eyJjb3VudHJ5IjoiZGsiLCJsb2NhbGUiOiJkYV9ESyIsImFnZSI6eyJtaW4iOjIxfX19
-    if signed_request.to_s == ""
+    if signed_request.to_s == ''
       # fatal error - signed_request parameter was missing in request
-      puts "fatal error - signed_request parameter was missing in request "
+      puts 'fatal error - signed_request parameter was missing in request'
       render_with_language('cross_site_forgery')
-      return ;
+      return
     end
 
     # unpack unsigned request
     # oauth = session[:oauth] = Koala::Facebook::OAuth.new(api_id, api_secret, SITE_URL + '/fb/callback')
     api_callback_url = SITE_URL + 'fb/'
     puts "Koala::Facebook::OAuth.new: api_callback_url = #{api_callback_url}"
-    oauth = session[:oauth] = Koala::Facebook::OAuth.new(api_id, api_secret, api_callback_url) unless oauth =  session[:oauth]
+    oauth = session[:oauth] = Koala::Facebook::OAuth.new(api_id, api_secret, api_callback_url) unless oauth ==  session[:oauth]
     hash = oauth.parse_signed_request(signed_request)
     puts "hash = #{hash}"
     # hash = {"algorithm"=>"HMAC-SHA256", "issued_at"=>1373284394, "user"=>{"country"=>"dk", "locale"=>"da_DK", "age"=>{"min"=>21}}}
 
     # save language and country
     locale = hash['user']['locale']
-    language = session[:language] = locale.first(2)
-    country = session[:country] = locale.last(2)
-    puts "session[:language] = " + session[:language]
+    session[:language] = locale.first(2)
+    session[:country] = locale.last(2)
+    puts "session[:language] = #{session[:language]}"
 
     # todo: check if user already has authorized the required FB privileges
     # hash: hash = {"algorithm"=>"HMAC-SHA256", "expires"=>1373374800, "issued_at"=>1373370798,
@@ -144,8 +143,8 @@ class FbController < ApplicationController
     #               "user"=>{"country"=>"dk", "locale"=>"da_DK", "age"=>{"min"=>21}}, "user_id"=>"1705481075"}
     if hash.has_key?('oauth_token') && hash.has_key?('user_id')
       puts 'user has already authorized gofreerev'
-      puts "oauth_token = " + hash["oauth_token"]
-      puts "user_id  = " + hash["user_id"]
+      puts "oauth_token = #{hash['oauth_token']}"
+      puts "user_id #{hash['user_id']}"
       # oauth_token = CAAFjZBGzzOkcBAB0GGUE4i4O9ZAT6FJ1N3U3mhl7S1TELLRl514fdEZAMuyMY4iUmFt74bBUWRH9WM4LYafsxs6osDzJc0ARo1yhRZCbAeQo0A9RXh5yEEW9cC3SjKC4LqbeO8x2Qy6JINJGO1pSkTllmQp5jPMZD
       # user_id  = 1705481075
       # autologin redirect to https://www.facebook.com/dialog/oauth? to get code without showing create.html erb page
@@ -161,7 +160,6 @@ class FbController < ApplicationController
     state = session[:state] = String.generate_random_string(30)
     puts "session[:state] = #{session[:state]}"
     @auth_url =  oauth.url_for_oauth_code :state => state
-    puts session.to_s + "<<< session"
     puts "@auth_url = #{@auth_url}"
 
     # show page with an introduction and a authorize link - use create-<language>.html.erb if the view exists
@@ -178,9 +176,9 @@ class FbController < ApplicationController
     end
     case
       when @user.facebook? then
-        redirect_to "http://facebook.com/"
+        redirect_to 'http://facebook.com/'
       when @user.google_plus? then
-        redirect_to "https://plus.google.com/"
+        redirect_to 'https://plus.google.com/'
       else
         # unknown login API
         render_with_language __method__
@@ -191,7 +189,7 @@ class FbController < ApplicationController
   # fix blank canvas in facebook - https://coderwall.com/p/toddiq
   private
   def allow_iframe
-    response.headers["X-Frame-Options"] = "GOFORIT"
+    response.headers['X-Frame-Options'] = 'GOFORIT'
   end
 
 end

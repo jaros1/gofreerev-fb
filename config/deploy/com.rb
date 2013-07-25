@@ -1,17 +1,17 @@
-set :application, "gofreerev-fb"
+set :application, 'gofreerev-fb'
 set :scm, :git
-set :repository, "https://github.com/jaros1/gofreerev-fb.git"
+set :repository, 'https://github.com/jaros1/gofreerev-fb.git'
 
-set :deploy_to, "/mnt/plugdisk/railsapps/capistrano/fbdemo.gofreerev.com"
+set :deploy_to, '/mnt/plugdisk/railsapps/capistrano/fbdemo.gofreerev.com'
 
 default_run_options[:pty] = true # sudo prompt = yes
 
 # Or: `accurev`, `bzr`, `cvs`, `darcs`, `git`, `mercurial`, `perforce`, `subversion` or `none`
 
-role :web, "plugserver"                          # Your HTTP server, Apache/etc
-role :app, "plugserver"                          # This may be the same as your `Web` server
-role :db,  "plugserver", :primary => true # This is where Rails migrations will run
-# role :db,  "plugserver"
+role :web, 'plugserver'                          # Your HTTP server, Apache/etc
+role :app, 'plugserver'                          # This may be the same as your `Web` server
+role :db,  'plugserver', :primary => true # This is where Rails migrations will run
+# role :db,  'plugserver'
 
 set :use_sudo, false
 

@@ -19,9 +19,9 @@ RUBY_MAX_LINE_SIZE = 100 # For ruby array constant ENCRYPT_KEYS
 
 # change if you wish other character set og other random generator.
 def generate_random_string (lng)
-  chars = ("a".."z").to_a + ("A".."Z").to_a + ("0".."9").to_a
-  newpass = ""
-  1.upto(lng) { |i| newpass << chars[rand(chars.size-1)] }
+  chars = ('a'..'z').to_a + ('A'..'Z').to_a + ('0'..'9').to_a
+  newpass = ''
+  1.upto(lng) { newpass << chars[rand(chars.size-1)] }
   newpass
 end # generate_random_string
 
@@ -30,8 +30,8 @@ keys = []
 1.upto(NO_KEYS) { |i| keys[i] = generate_random_string(KEY_LNG) }
 
 # output bash script
-puts ""
-puts "# you could store your secret keys in linux/bash:"
+puts ''
+puts '# you could store your secret keys in linux/bash:''
 1.upto(NO_KEYS) do |i|
   puts "#{PREFIX}#{i}=#{keys[i]}"
   puts "export #{PREFIX}#{i}"

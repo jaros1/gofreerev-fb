@@ -1,5 +1,7 @@
+# encoding: utf-8
 require 'money/bank/google_currency'
 
+#noinspection RubyResolve
 class ApplicationController < ActionController::Base
   # Prevent CSRF attacks by raising an exception.
   # For APIs, you may want to use :null_session instead.
@@ -56,6 +58,7 @@ class ApplicationController < ActionController::Base
   private
   def fetch_user
     # language support
+    puts "fetch_user: start"
     I18n.locale = session[:language] if session[:language]
     puts "I18n.locale = #{I18n.locale}"
     # Cross-site Request Forgery check
@@ -78,7 +81,7 @@ class ApplicationController < ActionController::Base
       begin
         access_token = oauth.get_access_token(params[:code])
       rescue Koala::Facebook::ClientError => e
-        puts "fetch_user: Koala::Facebook::ClientError"
+        puts 'fetch_user: Koala::Facebook::ClientError'
         puts "e.fb_error_type = #{e.fb_error_type}"
         puts "e.fb_error_code = #{e.fb_error_code}"
         puts "e.fb_error_subcode = #{e.fb_error_subcode}"
@@ -103,33 +106,33 @@ class ApplicationController < ActionController::Base
         # get user id, name, permissions, profile picture and friends
 
         # 1) create/update user info (name and permissions)
-        puts "fetch_user: get user id and name"
+        puts 'fetch_user: get user id and name'
         api = Koala::Facebook::API.new(session[:access_token])
-        api_request = "me?fields=name,permissions,friends,picture,timezone"
+        api_request = 'me?fields=name,permissions,friends,picture,timezone'
         puts "fetch_user: api_request = #{api_request}"
         api_response = api.get_object api_request
         puts "fetch_user: api_response = #{api_response.to_s}"
-        user_id = "#{User.facebook_user_prefix}#{api_response["id"]}"
-        user_name = ERB::Util.html_escape(api_response["name"])
+        user_id = "#{User.facebook_user_prefix}#{api_response['id']}"
+        user_name = ERB::Util.html_escape(api_response['name'])
         user_name = "#{user_name}"
         puts "fetch_user: user_name = #{user_name} (#{user_name.class.name})"
         u = User.find_by_user_id(user_id)
         u = User.new unless u
         u.user_id = user_id
         u.user_name = user_name
-        u.no_api_friends = api_response["friends"]["data"].size
-        u.timezone = api_response["timezone"]
+        u.no_api_friends = api_response['friends']['data'].size
+        u.timezone = api_response['timezone']
         if u.new_record?
           # set currency and balance for new user.
-          puts "fetch_user: new user"
+          puts 'fetch_user: new user'
           country = session[:country] || 'US' #  Default USD
           u.currency = Country[country].currency.code
           u.balance = { BALANCE_KEY => 0.0 }
           u.balance_at = Date.today
         end
-        u.permissions = api_response["permissions"]["data"][0]
+        u.permissions = api_response['permissions']['data'][0]
         u.permissions = {} if u.permissions == []
-        api_profile_picture_url = api_response["picture"]["data"]["url"]
+        api_profile_picture_url = api_response['picture']['data']['url']
         u.profile_picture_type = api_profile_picture_url.split('.').last
         u.save!
 
@@ -141,9 +144,9 @@ class ApplicationController < ActionController::Base
         # compare Friend model data with friends array from API
         # only friends using Gofreerev are relevant
         # friends not using Gofreerev are ignored
-        old_friend_list = Friend.where('user_id_giver = ?', u.user_id).collect { |u| u.user_id_receiver }
-        api_friends_list = api_response["friends"]["data"].collect { |h| User.facebook_user_prefix + h["id"] }
-        new_friend_list = User.where('user_id in (?)', api_friends_list).collect { |u| u.user_id }
+        old_friend_list = Friend.where('user_id_giver = ?', u.user_id).collect { |u2| u2.user_id_receiver }
+        api_friends_list = api_response['friends']['data'].collect { |h| User.facebook_user_prefix + h['id'] }
+        new_friend_list = User.where('user_id in (?)', api_friends_list).collect { |u2| u2.user_id }
         new_friends = new_friend_list - old_friend_list
         removed_friends = old_friend_list - new_friend_list
         removed_friends.each do |user_id2|
@@ -184,6 +187,7 @@ class ApplicationController < ActionController::Base
     else
       @usertype = session[:usertype] = nil
     end
+    puts "fetch_user: @user_currency_separator = #{@user_currency_separator}, @user_currency_delimiter = #{@user_currency_delimiter}"
   end # fetch_user
 
 

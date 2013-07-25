@@ -5,9 +5,9 @@ require File.expand_path('../application', __FILE__)
 class String
   # random string - for keys, state etc
   def self.generate_random_string (lng)
-    chars = ("a".."z").to_a + ("A".."Z").to_a + ("0".."9").to_a
-    newpass = ""
-    1.upto(lng) { |i| newpass << chars[rand(chars.size-1)] }
+    chars = ('a'..'z').to_a + ('A'..'Z').to_a + ('0'..'9').to_a
+    newpass = ''
+    1.upto(lng) { newpass << chars[rand(chars.size-1)] }
     newpass
   end # generate_random_string
   # used in views with language texts that can be String or arrays of String
@@ -49,7 +49,7 @@ class Hash
     end unless usertype == nil
     key = self.keys.first
     return [] unless key
-    return self[key]
+    self[key]
   end # find_usertype (usertype)
 end # find_usertype
 

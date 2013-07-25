@@ -1,3 +1,4 @@
+# encoding: utf-8
 # Files in the config/locales directory are used for internationalization
 # and are automatically loaded by Rails. If you want to use locales other
 # than English, add the necessary files in this directory.
@@ -88,13 +89,16 @@ da:
         balance_column_heading_html: "Saldo"
         gifts_giver_div_title: "%{username}. Saldo %{balance}. Klik her for at se brugeroplysninger."
         gifts_receiver_div_title: "%{username}. Saldo %{balance}. Klik her for at se brugeroplysninger."
+        gift_link_title: "Klik på link for flere informationer om tilbud"
         social_dividend_description_1: "Social dividende %{price} %{currency} fra %{giver} til %{receiver} for perioden op til %{to}"
         social_dividend_description_2: "Social dividende %{price} %{currency} fra %{giver} til %{receiver} for perioden fra %{from} til %{to}"
 
   # user controller
   users:
-    update:
-      invalid_request: "Ugyldigt kald. Bruger indstillinger blev ikke ændret."
-      exchange_rates_not_ready: "Valuta blev ikke ændret. Valutakurser var ikke klar. Prøv igen om et øjeblik."
-
+     update:
+        invalid_request: "Ugyldigt kald. Bruger indstillinger blev ikke ændret."
+        exchange_rates_not_ready: "Valuta blev ikke ændret. Valutakurser var ikke klar. Prøv igen om et øjeblik."
+     show:
+      invalid_request: "Ugyldigt kald."
+      not_a_friend: "Der vises kun detaljerede brugeroplysninger om dine venner"
 

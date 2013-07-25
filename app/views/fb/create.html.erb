@@ -6,9 +6,9 @@
   presents in his book <%= link_to_sacred_economics %>,
   including community, free money, negative interest rates and social dividend.<br />
   I have in this game chosen facebook as community,
-  national free money with negative interest rate of 7.6% per year of assets and liabilities.
+  national free money with negative interest rate of <%= NEGATIVE_INTEREST_PER_YEAR.round(1) %>% per year of assets and liabilities.
   Ie both assets and liabilities diminish with time.
-  Half of the negative interest rates (3.8%) is distributed amount the participants as social dividend as you play.
+  Half of the negative interest rates (<%= (NEGATIVE_INTEREST_PER_YEAR/2).round(1) %>%) is distributed amount the participants as social dividend as you play.
   <br />
   <br />
   You share the things you have in surplus and your friends might enjoy.

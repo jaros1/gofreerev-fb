@@ -11,7 +11,7 @@ function gifts_index_disabled_user_currency() {
     field_id = document.getElementById('gift_description') ;
     if (field_id.value != '') { currency_id.disabled = true ; return }
     field_id = document.getElementById('gift_file') ;
-    if (field_id.value != '') { currency_id.disabled = true ; return }
+    if (field_id.value != '') { currency_id.disabled = true }
 } // gifts_index_disabled_user_currency
 
 
@@ -44,7 +44,7 @@ function update_currency()
 } // update_currency_submit
 
 // Version of pre_update_currency to be used in gifts controller pages
-var pending_gift_msg = 'Update currency?'
+var pending_gift_msg = 'Update currency?' ;
 function gifts_pre_update_currency()
 {
     // get selected currency
@@ -79,7 +79,7 @@ var csv_gifts_description_required = 'Description is required.' ;
 var csv_gifts_price_invalid = 'Price is invalid. Only numbers, max 2 decimals, thousands separator not allowed.' ;
 function gifts_client_validations() {
     // check required description
-    var gift_description = document.getElementById('gift_description')
+    var gift_description = document.getElementById('gift_description') ;
     if (String.trim(gift_description.value) == '') {
         alert(csv_gifts_description_required) ;
         return false ;

@@ -1,7 +1,3 @@
-1) DRY - only one version of all functions
-   Do not repeat the same function in controller and in view helper
-   Use helper_method :xxx in controllers
-
 2) Maybe allow comments to gifts in Gofreerev => Post af FB comments
 
 3) Invite friends to app function?
@@ -12,19 +8,15 @@
    price = the agreed price
    transferred_social_dividend
 
-7) Use ruby constants for interest in welcome page (fb/create) and in titles tags
-
 9) few price info on gifts/index page. Full price information in user/show balance view
    More information available in titles
 
-10) display all friends gifts in news/index page
-
-17) exchanged social dividend is displayed as gifts in gists/index view, but social dividend = negative_interest / 4 is missing in balance.
+17) exchanged social dividend is displayed as gifts/index view, but social dividend = negative_interest / 4 is missing.
     add social dividend (negative_interest / 4) to balance.
     display social dividend in format_user_balance
-    add key with social dividend to balance hash
+    done: add key with social dividend to balance hash
     social dividend is splitted in currencies.
-    maybe add a negative interest / social dividend hash to user
+    done:  maybe add a negative interest / social dividend hash to user
     maybe add a system user - negative currency could be gifts from users to system user and social dividend gifts from system user to users
 
 18) Check da texts in rails-i18n
@@ -79,4 +71,7 @@
 27) Always 2 decimals in user.balance[BALANCE_KEY] and user.negative_interest[BALANCE_KEY]
     Problem with Money exchange function. Always 2 decimals.
     Check Money.config or custom exhange function
+
+28) users/show
+    balance in page header is invalid
 
