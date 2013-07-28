@@ -69,6 +69,7 @@ en:
   # gift controller
   gifts:
      index:
+        not_logged_in_flash: "Invalid request. Not logged in."
         not_logged_in_text: "You are not logged in and you can not create wall postings."
         post_gift_not_allowed_title: "%{appname} lack access to write on your %{apiname} wall. You can share your resources with your friends in here, but postings will only appear here and not on your %{apiname} wall. This means your message is likely to be seen by very few friends. You should therefore allow %{appname} permission to write on your wall. %{appname} will only make the postings you ask for."
         post_gift_not_allowed_text: "%{appname} lack access to write on your %{apiname} wall."
@@ -92,8 +93,10 @@ en:
         price_column_heading_html: "Price:"
         new_price_column_heading_html: "Value<br />today:"
         balance_column_heading_html: "Balance"
-        gifts_giver_div_title: "%{username}. Balance %{balance}. Click here to see user info."
-        gifts_receiver_div_title: "%{username}. Balance %{balance}. Click here to see user info."
+        gifts_giver_div_title_friend: "%{username}. Balance %{balance}. Click here to see user info."
+        gifts_receiver_div_title_friend: "%{username}. Balance %{balance}. Click here to see user info."
+        gifts_giver_div_title_non_friend: "%{username}. Click here to see user info."
+        gifts_receiver_div_title_non_friend: "%{username}. Click here to see user info."
         gift_link_title: "Click on link for more offer information"
         social_dividend_description_1: "Social dividend %{price} %{currency} from %{giver} to %{receiver} for period up to %{to}"
         social_dividend_description_2: "Social dividend %{price} %{currency} from %{giver} to %{receiver} for period from %{from} to %{to}"
@@ -105,4 +108,11 @@ en:
       exchange_rates_not_ready: "Currency was not changed. Exchange rates was not ready. Try again in a moment."
      show:
        invalid_request: "Invalid call."
+       page_header_text_html: "<p>User information</p>"
+       user_name_prompt: "Name"
+       friend_status_prompt: "Status"
+       user_balance_prompt: "Balance"
        not_a_friend: "You can only see user information for your friends."
+       top_text_friend_html: "%{username} user information"
+       top_text_non_friend_html: "todo: en.users.show.top_text_non_friend_html"
+       api_profile_link_text: "profile"

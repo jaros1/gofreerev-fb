@@ -1,0 +1,28 @@
+<%
+   friend = @user2.friend?(@user)
+-%>
+<%= my_t '.page_header_text_html' %>
+
+<table>
+  <tr>
+    <td><%= image_tag @user2.profile_picture_url, :size => "100x100" %></td>
+    <td style="vertical-align: top">
+      <table>
+        <tr><td><%= my_t '.user_name_prompt' %></td><td>:</td><td><%= @user2.user_name %></td></tr>
+        <tr><td><%= my_t '.friend_status_prompt' %></td><td>:</td><td><%= friend ? 'Friend' : 'Not a friend' %></td></tr>
+        <tr><td><%= my_t '.user_balance_prompt' %></td><td>:</td><td><%= format_user_balance(@user2.balance) if friend %></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+
+<p>
+<% if friend -%>
+   <%= my_t '.top_text_friend_html', :username => @user2.short_user_name, :apiname => @user.api_name_without_brackets %>
+<% else -%>
+      <%= my_t '.top_text_non_friend_html', :username => @user2.user_name, :apiname => @user.api_name_without_brackets %>
+<% end -%>
+</p>
+<br />
+<%= friend ? @user2.short_user_name : @user2.user_name %> <%= @user2.api_name_without_brackets %> <%= link_to my_t('.api_profile_link_text'), @user2.api_profile_url %>.
+<br />

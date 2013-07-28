@@ -462,5 +462,4 @@ class Gift < ActiveRecord::Base
       end
     end
 
-
 end # Gift

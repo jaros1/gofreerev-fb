@@ -1,8 +1,12 @@
 # encoding: utf-8
 require 'money/bank/google_currency'
+require File.join(Rails.root, "lib/gofreerev_extensions.rb")
 
 #noinspection RubyResolve
 class ApplicationController < ActionController::Base
+
+  include GofreerevExtensions
+
   # Prevent CSRF attacks by raising an exception.
   # For APIs, you may want to use :null_session instead.
   protect_from_forgery with: :exception
@@ -77,10 +81,27 @@ class ApplicationController < ActionController::Base
       #       type: OAuthException, code: 100, message: This authorization code has been used. [HTTP 400]
       #       should redirect to /fb/cross_site_forgery page
       # todo: rename cross_site_forgery to login_error
-
+      # todo: not dry - how to catch 2 exceptions with one exception handler?
       begin
         access_token = oauth.get_access_token(params[:code])
       rescue Koala::Facebook::ClientError => e
+        puts 'fetch_user: Koala::Facebook::ClientError'
+        puts "e.fb_error_type = #{e.fb_error_type}"
+        puts "e.fb_error_code = #{e.fb_error_code}"
+        puts "e.fb_error_subcode = #{e.fb_error_subcode}"
+        puts "e.fb_error_message = #{e.fb_error_message}"
+        puts "e.http_status = #{e.http_status}"
+        puts "e.response_body = #{e.response_body}"
+        puts "e.fb_error_type.class.name = #{e.fb_error_type.class.name}"
+        puts "e.fb_error_code.class.name = #{e.fb_error_code.class.name}"
+        if e.fb_error_type == 'OAuthException' && e.fb_error_code == 100
+          reset_session
+          redirect_to FB_APP_URL
+          return
+        else
+          raise
+        end
+      rescue Koala::Facebook::OAuthTokenRequestError => e
         puts 'fetch_user: Koala::Facebook::ClientError'
         puts "e.fb_error_type = #{e.fb_error_type}"
         puts "e.fb_error_code = #{e.fb_error_code}"
@@ -133,13 +154,14 @@ class ApplicationController < ActionController::Base
         u.permissions = api_response['permissions']['data'][0]
         u.permissions = {} if u.permissions == []
         api_profile_picture_url = api_response['picture']['data']['url']
-        u.profile_picture_type = api_profile_picture_url.split('.').last
+        u.profile_picture_name = (String.generate_random_string(10) + '.' + api_profile_picture_url.split('.').last).last(10).downcase
         u.save!
 
         # login ok - user created/updated - set session[:user_id]
         puts "fetch_user: login ok: user_id = #{session[:user_id]}"
         session[:user_id] = user_id
 
+=begin
         # 2) update friends (insert/delete Friend)
         # compare Friend model data with friends array from API
         # only friends using Gofreerev are relevant
@@ -168,6 +190,85 @@ class ApplicationController < ActionController::Base
           f.save!
         end
         puts "fetch_user: #{new_friends.size} friend(s) added" if new_friends.size > 0
+=end
+
+        # 2) update friends (insert/delete Friend)
+        # compare Friend model data with friends array from API
+        # only friends using Gofreerev are relevant
+        # friends not using Gofreerev are ignored
+        old_friends_list = Friend.where('user_id_giver = ?', u.user_id).includes(:friend)
+        api_friends_list = api_response['friends']['data']
+        # merge friend info from db and fb before db update
+        friends_hash = {}
+        (0..(old_friends_list.size-1)).each do |i|
+          old_friend = old_friends_list[i]
+          user_id = old_friend.user_id_receiver
+          friends_hash[user_id] = { :user => old_friend.friend, :old_name => old_friend.friend.user_name, :new_name => old_friend.friend.user_name, :old_api_friend => old_friend.api_friend, :new_api_friend => 'N', :new_record => false }
+        end
+        api_friends_list.each do |friend|
+          user_id = User.facebook_user_prefix + friend["id"]
+          if friends_hash.has_key?(user_id)
+            # OK - user already in hash
+            friends_hash[user_id][:new_name] = friend["name"]
+          else
+            # new FB friend
+            if !(user = User.where("user_id = ?", user_id).first)
+              # create unknown user - create user with minimal user information (user id and name)
+              user = User.new
+              user.user_id = user_id
+              user.user_name = friend["name"]
+              user.save!
+            end
+            friends_hash[user_id] = { :user => user, :old_name => user.user_name, :old_api_friend => 'N', :new_record => true }
+          end
+          friends_hash[user_id][:new_name] = friend["name"]
+          friends_hash[user_id][:new_api_friend] = 'Y'
+        end # each
+        # update user names
+        friends_hash.each do |user_id, hash|
+          next if hash[:old_name] == hash[:new_name]
+          user = hash[:user]
+          user.user_name = hash[:new_name]
+          user.save!
+        end # each
+        # update api_fiend
+        friends_hash.each do |user_id, hash|
+          if hash[:new_record]
+            # new friend entries
+            Friend.add_friend(session[:user_id], user_id)
+          else
+            # old friend entry
+            next if hash[:old_api_friend] == hash[:new_api_friend] # no change in api friend status
+            # api friend status changed
+            f1 = Friend.where("user_id_giver = ? and user_id_receiver = ?", session[:user_id], user_id).first
+            f2 = Friend.where("user_id_giver = ? and user_id_receiver = ?", user_id, session[:user_id]).first
+            if (f1 == nil or f1.app_friend == nil) and (f2 == nil or f2.app_friend == nil)
+              # Default app_friend status - just delete
+              Friend.remove_friend(session[:user_id], user_id)
+              next
+            end
+            # non default app_friend status - update - do not delete
+            if !f1
+              # create missing friend (error)
+              f1 = Friend.new
+              f1.user_id_giver = session[:user_id]
+              f1.user_id_receiver = user_id
+              f1.app_friend = nil
+            end
+            if !f2
+              # create missing friend (error)
+              f2 = Friend.new
+              f2.user_id_giver = session[:user_id]
+              f2.api_friend = user_id
+              f2.app_friend = nil
+            end
+            f1.api_friend = f2.api_friend = hash[:new_api_friend]
+            transaction do
+              f1.save!
+              f2.save!
+            end # transaction
+          end # if
+        end # each
 
         # 3) download profile picture
         FileUtils.mkdir_p u.profile_picture_os_folder
@@ -177,7 +278,7 @@ class ApplicationController < ActionController::Base
       session.delete(:oauth)
     end
     puts "fetch_user: user_id = #{session[:user_id]}"
-    @user = User.find_by_user_id(session[:user_id]) if session[:user_id]
+    @user = User.where("user_id = ?", session[:user_id]).includes(:friends).first if session[:user_id]
     if @user
       @usertype = session[:usertype] = @user.usertype
       Money.default_currency = Money::Currency.new(@user.currency)
@@ -196,5 +297,14 @@ class ApplicationController < ActionController::Base
   def set_locale
     I18n.locale = session[:language] || I18n.default_locale
   end
+
+
+  private
+  def login_required
+    return true if session[:user_id]
+    flash[:notice] = my_t 'gifts.index.not_logged_in_flash'
+    redirect_to :controller => :gifts, :action => :index
+  end # login_required
+
 
 end # ApplicationController

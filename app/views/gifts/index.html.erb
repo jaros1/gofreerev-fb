@@ -64,18 +64,32 @@
           <tr>
             <td>
 <% if gift.giver -%>
-              <div title="<%= my_t '.gifts_giver_div_title', :username => giver.user_name, :balance => format_user_balance(giver.balance) %>"
-                   onclick="top.location.href = '<%= url_for(giver) %>'">
-                <%= image_tag(giver.profile_picture_url)  %>
-              </div>
+    <% if gift.giver.friend?(@user) -%>
+                      <div title="<%= my_t '.gifts_giver_div_title_friend', :username => giver.short_user_name, :balance => format_user_balance(giver.balance) %>"
+                           onclick="top.location.href = '<%= url_for(giver) %>'">
+                        <%= image_tag(giver.profile_picture_url)  %>
+                      </div>
+    <% else -%>
+                      <div title="<%= my_t '.gifts_giver_div_title_non_friend', :username => giver.user_name %>"
+                           onclick="top.location.href = '<%= url_for(giver) %>'">
+                        <%= image_tag(giver.profile_picture_url)  %>
+                      </div>
+    <% end -%>
 <% end -%>
             </td>
             <td>
 <% if gift.receiver -%>
-              <div title="<%= my_t '.gifts_receiver_div_title', :username => receiver.user_name, :balance => format_user_balance(receiver.balance) if receiver %>"
-                   onclick="top.location.href = '<%= url_for(receiver)  %>'">
-                <%= image_tag(receiver.profile_picture_url) %>
-              </div>
+                  <% if gift.receiver.friend?(@user) -%>
+                      <div title="<%= my_t '.gifts_receiver_div_title_friend', :username => receiver.short_user_name, :balance => format_user_balance(receiver.balance) if receiver %>"
+                           onclick="top.location.href = '<%= url_for(receiver) %>'">
+                        <%= image_tag(receiver.profile_picture_url) %>
+                      </div>
+                  <% else -%>
+                      <div title="<%= my_t '.gifts_receiver_div_title_non_friend', :username => receiver.user_name %>"
+                           onclick="top.location.href = '<%= url_for(receiver) %>'">
+                        <%= image_tag(receiver.profile_picture_url) %>
+                      </div>
+                  <% end -%>
 <% end -%>
             </td>
             <td><%= link_to l((gift.received_at || gift.created_at), format: :short), url_for(gift), :title => (my_t '.gift_link_title') %></td>

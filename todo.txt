@@ -4,12 +4,8 @@
 
 5) opera. client side validation not working in gifts/index page. Works in other browsers.
 
-6) gifts price calculation.
-   price = the agreed price
-   transferred_social_dividend
-
-9) few price info on gifts/index page. Full price information in user/show balance view
-   More information available in titles
+9) few price info on gifts/index page. More information available in titles
+   Full price information in user/show page
 
 17) exchanged social dividend is displayed as gifts/index view, but social dividend = negative_interest / 4 is missing.
     add social dividend (negative_interest / 4) to balance.
@@ -46,7 +42,9 @@
 
 22) show gift
 
-23) delete gift
+23) delete gift.
+    It should be possible to delete open gifts in gifts/index page
+    You should get a confirm dialog if you tries to delete on closed gift
 
 24) balance sorted by received_at in user.recalculate_balance
     gifts sorted by created_at desc in gifts/index
@@ -58,7 +56,8 @@
     must be a not encrypted field
     problem. what if different users wishes different sort criteria?  fx a) sort by received_at, b) sort by comment_at, c) etc
 
-4) get timezone from login api. Use timezone in views. timezone added to user. not yet any timestamps in views.
+4) get timezone from login api. ok. timezone added to user
+   Use timezone in views. . not yet any timestamps in views.
 
 25) add date format. see application_helper.format_date
 
@@ -68,10 +67,16 @@
     Clone a closed gift, keep the original gift and decrease counter. Close deal when counter reaches zero.
     Maybe link all the stories if accepted by the receiver
 
-27) Always 2 decimals in user.balance[BALANCE_KEY] and user.negative_interest[BALANCE_KEY]
-    Problem with Money exchange function. Always 2 decimals.
-    Check Money.config or custom exhange function
+27) users/show
+    friends - show detailed user information
+    non friends - link to FB page - link with friend request
 
-28) users/show
-    balance in page header is invalid
+28) Gofreerev friend:
+    FB: use FB friends as basis for friends in Gofreerev app (checked at login)
+    Google+: use intersection off people you follow and people that follows you as basis for friends in Gofreerev app (not implemented)
+    Allow different friend listes in login api and in gofreerev.
 
+29) notifications:
+    get a app access token
+    Many FB notification can be marked as spam
+    Implement internal app notifications so that FB notification only is used for not logged in users

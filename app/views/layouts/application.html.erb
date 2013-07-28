@@ -10,7 +10,7 @@
   </script>
 </head>
 <body>
-<!-- show page header for logged in users -->
+<!-- show_friend page header for logged in users -->
 <% if  session[:user_id] and @user -%>
   <!-- Hidden form to update currency => post to /users/:id/ => return to this page after currency has been changed -->
   <div id="update_currency_div" style="display:none">

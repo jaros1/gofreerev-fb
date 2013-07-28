@@ -31,8 +31,8 @@ class GiftsControllerTest < ActionController::TestCase
     assert_response :success
   end
 
-  test "should get show" do
-    get :show
+  test "should get show_friend" do
+    get :show_friend
     assert_response :success
   end
 

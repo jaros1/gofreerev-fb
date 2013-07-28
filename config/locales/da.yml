@@ -56,6 +56,10 @@ da:
      layouts:
         page_header:
            header_log_out_link_title: "Log ud af %{appname} og returner til facebook."
+
+
+
+
   gp: # google+ specific texts
      layouts:
         page_header:
@@ -64,6 +68,7 @@ da:
   # gift controller - general texts
   gifts:
      index:
+        not_logged_in_flash: "Ugyldigt kald. Du er ikke logget på."
         not_logged_in_text: "Du er ikke logget ind og der kan ikke oprettes opslag."
         post_gift_not_allowed_title: "%{appname} mangler adgang til at skrive på din væg i %{apiname}. Du kan godt dele dine resourcer med dine venner herinde, men opslag vil kun blive vist her og ikke på din %{apiname} væg. Dvs. dine opslag vil sandsynligvis blive set af meget få venner. Du bør derfor give %{appname} tilladelse til at skrive på din væg. %{appname} laver kun de opslag du selv beder om."
         post_gift_not_allowed_text: "%{appname} mangler adgang til at skrive på din %{apiname} væg."
@@ -87,8 +92,10 @@ da:
         price_column_heading_html: "Pris:"
         new_price_column_heading_html: "Værdi<nr>nu:"
         balance_column_heading_html: "Saldo"
-        gifts_giver_div_title: "%{username}. Saldo %{balance}. Klik her for at se brugeroplysninger."
-        gifts_receiver_div_title: "%{username}. Saldo %{balance}. Klik her for at se brugeroplysninger."
+        gifts_giver_div_title_friend: "%{username}. Saldo %{balance}. Klik her for at se brugeroplysninger."
+        gifts_receiver_div_title_friend: "%{username}. Saldo %{balance}. Klik her for at se brugeroplysninger."
+        gifts_giver_div_title_non_friend: "%{username}. Klik her for at se brugeroplysninger."
+        gifts_receiver_div_title_non_friend: "%{username}. Klik her for at se brugeroplysninger."
         gift_link_title: "Klik på link for flere informationer om tilbud"
         social_dividend_description_1: "Social dividende %{price} %{currency} fra %{giver} til %{receiver} for perioden op til %{to}"
         social_dividend_description_2: "Social dividende %{price} %{currency} fra %{giver} til %{receiver} for perioden fra %{from} til %{to}"
@@ -99,6 +106,12 @@ da:
         invalid_request: "Ugyldigt kald. Bruger indstillinger blev ikke ændret."
         exchange_rates_not_ready: "Valuta blev ikke ændret. Valutakurser var ikke klar. Prøv igen om et øjeblik."
      show:
-      invalid_request: "Ugyldigt kald."
-      not_a_friend: "Der vises kun detaljerede brugeroplysninger om dine venner"
-
+        invalid_request: "Ugyldigt kald."
+        page_header_text_html: "<p>Bruger oplysninger</p>"
+        user_name_prompt: "Navn"
+        friend_status_prompt: "Status"
+        user_balance_prompt: "Saldo"
+        not_a_friend: "Der vises kun detaljerede brugeroplysninger om dine venner"
+        top_text_friend_html: "%{username} bruger oplysninger."
+        top_text_non_friend_html: "Detaljerede brugeroplysninger vises kun for dine %{apiname} venner. Brugeroplysninger for %{username} kan ikke vises. Brug nedenstående links hvis du ønsker at tilføje %{username} som ven. Opret evt. en liste til dine %{apiname} venner hvis du ønsker at holde dine %{"
+        api_profile_link_text: "profile"

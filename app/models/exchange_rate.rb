@@ -15,15 +15,23 @@ class ExchangeRate < ActiveRecord::Base
   end
 =end
 
+
+  # returns nil is exchange rate was not found
+  # missing exchange rates is placed in a request queue and is processed batch
+  # should be available in next user request
   def self.exchange (from_amount, from_currency, to_currency)
+    # check params
+    raise "invalid from_amount #{from_amount.class.name}" unless %w(Float BigDecimal).index(from_amount.class.name)
+    raise "invalid from_currency" unless from_currency.class.name == 'String' and from_currency.size == 3 and from_currency == from_currency.upcase
+    raise "invalid to_currency" unless to_currency.class.name == 'String' and to_currency.size == 3 and to_currency == to_currency.upcase
     # check for zero or identical currencies
-    if from_amount.to_f == 0 or from_currency == to_currency
+    from_amount = from_amount.to_f
+    if from_amount == 0 or from_currency. == to_currency
       puts 'exchange: zero amount or identical currencies'
       to_amount = from_amount
       puts "exchange: from_amount = #{from_amount}, from_currency = #{from_currency}, to_amount = #{to_amount}, to_currency = #{to_currency}"
-      return from_amount.to_money(to_currency)
+      return to_amount
     end
-    from_amount = from_amount.to_s.to_money(from_currency) if from_amount.class.name != 'Money'
     # find exchange rate - exchanges rates are fetch batch - refreshed once every day on request
     er = ExchangeRate.find_by_from_currency_and_to_currency(from_currency, to_currency)
     unless er
@@ -34,14 +42,14 @@ class ExchangeRate < ActiveRecord::Base
       er.to_currency = to_currency
       er.request_update = 'Y'
       er.save!
-      to_amount = from_amount
+      to_amount = nil
       puts "exchange: from_amount = #{from_amount}, from_currency = #{from_currency}, to_amount = #{to_amount}, to_currency = #{to_currency}"
       return to_amount
     end
     unless er.exchange_rate
       # no exchange rate yet
       puts 'exchange: exchange rate not ready yet'
-      to_amount = from_amount
+      to_amount = nil
       puts "exchange: from_amount = #{from_amount}, from_currency = #{from_currency}, to_amount = #{to_amount}, to_currency = #{to_currency}"
       return from_amount
     end
@@ -52,10 +60,7 @@ class ExchangeRate < ActiveRecord::Base
       er.save!
     end
     # convert.
-    # todo: only 2 decimals. Maybe a problem. User.balance[BALANCE_KEY] and user.negative_interest[BALANCE_KEY] always has 2 decimals
-    Money.add_rate(from_currency, to_currency, er.exchange_rate)
-    to_amount = from_amount.exchange_to(to_currency)
-    # to_amount = (from_amount.to_f * er.exchange_rate).to_money(to_currency)
+    to_amount = from_amount * er.exchange_rate
     puts "exchange: from_amount = #{from_amount}, from_currency = #{from_currency}, to_amount = #{to_amount}, to_currency = #{to_currency}"
     to_amount
   end # self.exchange

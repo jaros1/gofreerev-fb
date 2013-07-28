@@ -1,6 +1,6 @@
 class UsersController < ApplicationController
 
-  before_filter :fetch_user
+  before_filter :login_required
 
   def new
   end
@@ -11,8 +11,7 @@ class UsersController < ApplicationController
   def update
     if params[:id] != @user.id.to_s
       puts "invalid id. params[:id] = #{params[:id]}, @user.id = #{@user.id}"
-      # flash[:notice] = t '.invalid_request'
-      flash[:notice] = t '.invalid_request'
+      flash[:notice] = my_t '.invalid_request'
       if params[:return_to].to_s != ''
         redirect_to params[:return_to]
       else
@@ -66,27 +65,19 @@ class UsersController < ApplicationController
 
   def show
     id = params[:id]
-    user2 = User.find(id)
-    if !user2
+    @user2 = User.find(id)
+    if !@user2
       puts "invalid request. User with id #{id} was not found"
       flash[:notice] = t '.invalid_request'
       redirect_to :action => :index
       return
     end
-    if user2.user_id != @user.user_id
-      friend = Friend.find_by_user_id_giver_and_user_id_receiver(@user.user_id, user2.user_id)
-      if !friend
-        flash[:notice] = t '.not_a_friend'
-        redirect_to :action => :index
-        return
-      end # if
-    end # if
-  end # show
+    @friend = @user2.friend?(@user)
+    if @friend
+      # todo: find user gifts (giver or receiver)
+    end
 
-  private
-  def fetch_user
-    puts "user_id = #{session[:user_id]}"
-    @user = User.find_by_user_id(session[:user_id]) if session[:user_id]
-  end
+
+  end # show_friend
 
 end

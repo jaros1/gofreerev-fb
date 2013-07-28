@@ -15,7 +15,7 @@ class User < ActiveRecord::Base
 
   has_many :offers, :class_name => 'Gift', :primary_key => :user_id, :foreign_key => :user_id_giver, :dependent => :destroy
   has_many :wishes, :class_name => 'Gift', :primary_key => :user_id, :foreign_key => :user_id_receiver, :dependent => :destroy
-
+  has_many :friends, :class_name => 'Friend', :primary_key => :user_id, :foreign_key => :user_id_giver, :dependent => :destroy
 
   # https://github.com/jmazzi/crypt_keeper - text columns are encrypted in database
   # encrypt_add_pre_and_postfix/encrypt_remove_pre_and_postfix added in setters/getters for better encryption
@@ -196,6 +196,7 @@ class User < ActiveRecord::Base
     "(#{api_name})"
   end
 
+
   # add login api to user name
   def user_name_with_api
     "#{user_name} #{api_name_with_brackets}"
@@ -222,7 +223,7 @@ class User < ActiveRecord::Base
 
   # profile picture helpers - a copy of profile picture is downloaded at login
   def profile_picture_filename
-    "#{id}.#{profile_picture_type}"
+    profile_picture_name
   end
   def profile_picture_md5_path
     md5 = Digest::MD5.hexdigest(user_id).downcase
@@ -258,8 +259,11 @@ class User < ActiveRecord::Base
 
   # todo: initialize social dividend hash from negative_currency hash
   def social_dividend
-     {}
-
+    hash = {}
+    negative_interest.each do |name, value|
+      hash[name] = value / 4
+    end
+    hash
   end
 
   # recalculate user balance
@@ -283,8 +287,8 @@ class User < ActiveRecord::Base
       balance_hash[g.currency] = 0.0 unless balance_hash.has_key?(g.currency)
       balance_hash[g.currency] += g.new_price
       new_price = ExchangeRate.exchange(g.new_price, g.currency, new_currency)
-      if new_price.currency.to_s == new_currency
-        balance_hash[BALANCE_KEY] += new_price.to_f
+      if new_price
+        balance_hash[BALANCE_KEY] += new_price
         g.set_balance(user_id, balance_hash[BALANCE_KEY])
       else
         missing_exchange_rates = true
@@ -293,8 +297,8 @@ class User < ActiveRecord::Base
       negative_interest_hash[g.currency] = 0 unless negative_interest_hash.has_key?(g.currency)
       negative_interest_hash[g.currency] += g.negative_interest
       new_neg_int = ExchangeRate.exchange(g.negative_interest, g.currency, new_currency)
-      if new_neg_int.currency.to_s == new_currency
-        negative_interest_hash[BALANCE_KEY] += new_neg_int.to_f
+      if new_neg_int
+        negative_interest_hash[BALANCE_KEY] += new_neg_int
       else
         missing_exchange_rates = true
       end
@@ -318,6 +322,20 @@ class User < ActiveRecord::Base
     '%0.2f' % (balance[BALANCE_KEY] || 0)
   end
 
+  def friend? (login_user)
+    return (@friend != nil) if defined?(@friend)
+    return true if login_user.user_id == self.user_id
+    @friend = login_user.friends.find_all { |f2| f2.user_id_receiver == self.user_id }.first
+    (@friend != nil)
+  end
+
+  def api_profile_url
+    case
+      when facebook? then "http://facebook.com/#{user_id[3..-1]}"
+      when google_plus? then "todo:"
+      else nil #error
+    end
+  end
 
   ##############
   # encryption #

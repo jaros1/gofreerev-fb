@@ -126,7 +126,7 @@ class FbController < ApplicationController
     # oauth = session[:oauth] = Koala::Facebook::OAuth.new(api_id, api_secret, SITE_URL + '/fb/callback')
     api_callback_url = SITE_URL + 'fb/'
     puts "Koala::Facebook::OAuth.new: api_callback_url = #{api_callback_url}"
-    oauth = session[:oauth] = Koala::Facebook::OAuth.new(api_id, api_secret, api_callback_url) unless oauth ==  session[:oauth]
+    oauth = session[:oauth] = Koala::Facebook::OAuth.new(api_id, api_secret, api_callback_url) unless oauth =  session[:oauth]
     hash = oauth.parse_signed_request(signed_request)
     puts "hash = #{hash}"
     # hash = {"algorithm"=>"HMAC-SHA256", "issued_at"=>1373284394, "user"=>{"country"=>"dk", "locale"=>"da_DK", "age"=>{"min"=>21}}}
@@ -162,7 +162,7 @@ class FbController < ApplicationController
     @auth_url =  oauth.url_for_oauth_code :state => state
     puts "@auth_url = #{@auth_url}"
 
-    # show page with an introduction and a authorize link - use create-<language>.html.erb if the view exists
+    # show_friend page with an introduction and a authorize link - use create-<language>.html.erb if the view exists
     render_with_language viewname
   end # create
 

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20130724093733) do
+ActiveRecord::Schema.define(version: 20130727140430) do
 
   create_table "exchange_rates", force: true do |t|
     t.string   "from_currency",    limit: 3, null: false
@@ -31,7 +31,14 @@ ActiveRecord::Schema.define(version: 20130724093733) do
     t.string   "user_id_receiver"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.text     "api_friend"
+    t.text     "app_friend"
+    t.string   "friend_id",        limit: 20
   end
+
+  add_index "friends", ["friend_id"], name: "index_friends_on_friend_id", unique: true
+  add_index "friends", ["user_id_giver"], name: "index_friends_on_giver"
+  add_index "friends", ["user_id_receiver"], name: "index_friends_on_receiver"
 
   create_table "gifts", force: true do |t|
     t.string   "gift_id",              limit: 20
@@ -67,7 +74,7 @@ ActiveRecord::Schema.define(version: 20130724093733) do
     t.text     "balance"
     t.date     "balance_at"
     t.text     "permissions"
-    t.string   "profile_picture_type", limit: 10
+    t.string   "profile_picture_name", limit: 10
     t.integer  "timezone"
     t.text     "no_api_friends"
     t.text     "negative_interest"
