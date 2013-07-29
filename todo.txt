@@ -71,12 +71,18 @@
     friends - show detailed user information
     non friends - link to FB page - link with friend request
 
-28) Gofreerev friend:
-    FB: use FB friends as basis for friends in Gofreerev app (checked at login)
-    Google+: use intersection off people you follow and people that follows you as basis for friends in Gofreerev app (not implemented)
-    Allow different friend listes in login api and in gofreerev.
-
 29) notifications:
     get a app access token
     Many FB notification can be marked as spam
     Implement internal app notifications so that FB notification only is used for not logged in users
+
+30) friend requests:
+    send api friend request
+    send app friend request
+    cancel api friend request not implemented - maybe just link to fb
+    cancel app friend request
+    accept app friend request
+    ignore app friend request
+    declined and block app friend request
+    remove api friend
+    remove app friend

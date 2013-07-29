@@ -69,16 +69,36 @@ module ApplicationHelper
     number_with_precision(price, :precision => 2, :separator => @user_currency_separator, :delimiter => @user_currency_delimiter)
   end
 
-  def format_user_balance (balance)
-    return nil unless balance
-    return nil unless balance.size > 0
-    return format_price(balance[BALANCE_KEY]) if balance.size == 0
+  def format_user_balance (user, login_user)
+    return nil unless user and login_user
+    balance = user.balance
+    return nil unless user.balance
+    return nil unless balance.size > 1
+    from_amount = balance[BALANCE_KEY]
+    from_currency = user.currency
+    to_currency = login_user.currency
     if balance.size == 2
-      other_value = balance.find { |name, value| name != BALANCE_KEY }
-      return format_price(balance[BALANCE_KEY]) if balance[BALANCE_KEY] == other_value
+      # short format. only one currency in balance hash. Return this without any conversion if login user currency
+      return format_price(balance[to_currency]) if balance.has_key?(to_currency)
+      return format_price(from_amount) if user.currency == login_user.currency
     end
-    format_price(balance[BALANCE_KEY]) + ' (' + balance.find_all { |name, value| name != BALANCE_KEY }.collect { |name,value| format_price(value) + ' ' + name }.join(', ') + ')'
-  end
+    # exchange from_amount
+    if from_currency == to_currency
+      # puts "format_user_balance: no exchange: to_amount = from_amount = #{from_amount}"
+      to_amount = from_amount
+      to_currency = ''
+    elsif (to_amount = ExchangeRate.exchange(from_amount, from_currency, to_currency))
+      # puts "format_user_balance: exchange ok: from_amount = #{from_amount}, from_currency = #{from_currency}, to_amount = #{to_amount}, to_currency = #{to_currency}"
+      to_currency = ''
+    else
+      # exchange rate was not ready - show original user balance with currency - exchange rate should be ready in next request
+      # puts "format_user_balance: exchange rate not ready: from_amount = #{from_amount}, from_currency = #{from_currency}"
+      to_amount = from_amount
+      to_currency = ' ' + from_currency
+    end
+    # format: -0,90 (-47,77 DKK, 49,76 SEK, -0,08 USD) - to_currency will normally be blank
+    format_price(to_amount) + to_currency + ' (' + balance.find_all { |name, value| name != BALANCE_KEY }.collect { |name,value| format_price(value) + ' ' + name }.join(', ') + ')'
+  end # format_user_balance
 
   # todo: add date format
   def format_date (date)
@@ -114,5 +134,13 @@ module ApplicationHelper
     end
   end # format_gift_description
 
+  # todo: move to partial friend_action_buttons
+  def friend_action_buttons(user, login_user)
+    return nil unless user and login_user
+    return nil if user.user_id == login_user.user_id
+    user.friend_status_actions(login_user).collect do |friendship_action|
+      button_to my_t(".#{friendship_action}"), {:controller => :users, :action => :update, :id => user.id, :friendship_action => friendship_action, :return_to => @request_fullpath } , :method=>:post
+    end.join
+  end # friend_status_change_buttons
 
 end # ApplicationHelper

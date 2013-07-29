@@ -81,27 +81,9 @@ class ApplicationController < ActionController::Base
       #       type: OAuthException, code: 100, message: This authorization code has been used. [HTTP 400]
       #       should redirect to /fb/cross_site_forgery page
       # todo: rename cross_site_forgery to login_error
-      # todo: not dry - how to catch 2 exceptions with one exception handler?
       begin
         access_token = oauth.get_access_token(params[:code])
-      rescue Koala::Facebook::ClientError => e
-        puts 'fetch_user: Koala::Facebook::ClientError'
-        puts "e.fb_error_type = #{e.fb_error_type}"
-        puts "e.fb_error_code = #{e.fb_error_code}"
-        puts "e.fb_error_subcode = #{e.fb_error_subcode}"
-        puts "e.fb_error_message = #{e.fb_error_message}"
-        puts "e.http_status = #{e.http_status}"
-        puts "e.response_body = #{e.response_body}"
-        puts "e.fb_error_type.class.name = #{e.fb_error_type.class.name}"
-        puts "e.fb_error_code.class.name = #{e.fb_error_code.class.name}"
-        if e.fb_error_type == 'OAuthException' && e.fb_error_code == 100
-          reset_session
-          redirect_to FB_APP_URL
-          return
-        else
-          raise
-        end
-      rescue Koala::Facebook::OAuthTokenRequestError => e
+      rescue Koala::Facebook::ClientError, Koala::Facebook::OAuthTokenRequestError => e
         puts 'fetch_user: Koala::Facebook::ClientError'
         puts "e.fb_error_type = #{e.fb_error_type}"
         puts "e.fb_error_code = #{e.fb_error_code}"

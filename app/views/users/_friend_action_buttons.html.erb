@@ -1,0 +1,5 @@
+<% for friendship_action in @user2.friend_status_actions(@user) do-%>
+<td>
+  <%= button_to my_t(".#{friendship_action}", :apiname => @user.api_name_without_brackets, :appname => APP_NAME), {:controller => :users, :action => :update, :id => @user.id, :friend => @user2.id, :friendship_action => friendship_action, :return_to => @request_fullpath } , :method=>:put %>
+</td>
+<% end -%>

@@ -9,8 +9,12 @@
     <td style="vertical-align: top">
       <table>
         <tr><td><%= my_t '.user_name_prompt' %></td><td>:</td><td><%= @user2.user_name %></td></tr>
-        <tr><td><%= my_t '.friend_status_prompt' %></td><td>:</td><td><%= friend ? 'Friend' : 'Not a friend' %></td></tr>
-        <tr><td><%= my_t '.user_balance_prompt' %></td><td>:</td><td><%= format_user_balance(@user2.balance) if friend %></td></tr>
+        <tr>
+          <td><%= my_t '.friend_status_prompt' %></td>
+          <td>:</td>
+          <td><%= my_t @user2.friend_status_translate_code(@user), :appname => APP_NAME, :apiname => @user.api_name_without_brackets %></td></tr>
+        <tr><td><%= my_t '.user_balance_prompt' %></td><td>:</td><td><%= format_user_balance(@user2, @user) if friend %></td></tr>
+        <tr><td colspan="3"><table><tr><%= render "friend_action_buttons", :locals => { :user2 => @user2 } %></tr></table></td></tr>
       </table>
     </td>
   </tr>
@@ -24,5 +28,5 @@
 <% end -%>
 </p>
 <br />
-<%= friend ? @user2.short_user_name : @user2.user_name %> <%= @user2.api_name_without_brackets %> <%= link_to my_t('.api_profile_link_text'), @user2.api_profile_url %>.
+<%= friend ? @user2.short_user_name : @user2.user_name %> <%= @user2.api_name_without_brackets %> <%= link_to my_t('.api_profile_link_text'), @user2.api_profile_url, { :target => '_blank' }  %>.
 <br />

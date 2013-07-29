@@ -26,6 +26,7 @@ class Friend < ActiveRecord::Base
   end
 
   # 2) api_friend. String Y/N in model. Encrypted text in db. Required
+  # Y or N. Friends in FB or mutual connection in google+
   validates_presence_of :api_friend
   def api_friend
     # puts "gift.api_friend: api_friend = #{read_attribute(:api_friend)} (#{read_attribute(:api_friend).class.name})"
@@ -44,7 +45,13 @@ class Friend < ActiveRecord::Base
   end
   alias_method :api_friend_before_type_cast, :api_friend
 
-  # 3) app_friend. String Y/N in model. Encrypted text in db. Default nil = use api_friend status
+  # 3) app_friend. String Y/N in model. Encrypted text in db.
+  # values: nil, Y, N or R.
+  #   nil (default) means that friend lists are identical in login api and in app - also used if app friendship request is ignored
+  #   R - request for app friendship - used for non api friends to create connection within app
+  #   Y - app friends
+  #   N - not app friends
+  #   B - not app friends and blocked
   def app_friend
     # puts "gift.app_friend: app_friend = #{read_attribute(:app_friend)} (#{read_attribute(:app_friend).class.name})"
     return nil unless (extended_app_friend = read_attribute(:app_friend))
@@ -54,7 +61,7 @@ class Friend < ActiveRecord::Base
     # puts "gift.app_friend=: app_friend = #{new_app_friend} (#{new_app_friend.class.name})"
     if new_app_friend
       check_type('app_friend', new_app_friend, 'String')
-      raise TypeError, "Allowed values for app_friend is Y and N" unless %w(Y N).index(new_app_friend)
+      raise TypeError, "Allowed values for app_friend is Y, N, R, P and B" unless %w(Y N R P B).index(new_app_friend)
       write_attribute :app_friend, encrypt_add_pre_and_postfix(new_app_friend, 'app_friend', 17)
     else
       write_attribute :app_friend, nil
@@ -90,6 +97,7 @@ class Friend < ActiveRecord::Base
   def app_friend?
     app_friend == 'Y'
   end
+
 
 
   ##############

@@ -65,7 +65,7 @@
             <td>
 <% if gift.giver -%>
     <% if gift.giver.friend?(@user) -%>
-                      <div title="<%= my_t '.gifts_giver_div_title_friend', :username => giver.short_user_name, :balance => format_user_balance(giver.balance) %>"
+                      <div title="<%= my_t '.gifts_giver_div_title_friend', :username => giver.short_user_name, :balance => format_user_balance(giver, @user) %>"
                            onclick="top.location.href = '<%= url_for(giver) %>'">
                         <%= image_tag(giver.profile_picture_url)  %>
                       </div>
@@ -80,7 +80,7 @@
             <td>
 <% if gift.receiver -%>
                   <% if gift.receiver.friend?(@user) -%>
-                      <div title="<%= my_t '.gifts_receiver_div_title_friend', :username => receiver.short_user_name, :balance => format_user_balance(receiver.balance) if receiver %>"
+                      <div title="<%= my_t '.gifts_receiver_div_title_friend', :username => receiver.short_user_name, :balance => format_user_balance(receiver, @user) if receiver %>"
                            onclick="top.location.href = '<%= url_for(receiver) %>'">
                         <%= image_tag(receiver.profile_picture_url) %>
                       </div>

@@ -322,12 +322,88 @@ class User < ActiveRecord::Base
     '%0.2f' % (balance[BALANCE_KEY] || 0)
   end
 
-  def friend? (login_user)
-    return (@friend != nil) if defined?(@friend)
-    return true if login_user.user_id == self.user_id
-    @friend = login_user.friends.find_all { |f2| f2.user_id_receiver == self.user_id }.first
-    (@friend != nil)
+  def get_friend (login_user)
+    return nil unless login_user
+    return @friend if defined?(@friend)
+    @friend = login_user.friends.find_all { |f| f.user_id_receiver == self.user_id }.first
   end
+
+  # simple friend check - true or false without any details
+  def friend? (login_user)
+    return false unless login_user # not logged in
+    return true if login_user.user_id == self.user_id
+    f = get_friend(login_user)
+    return false unless f
+    app_friend = f.app_friend || f.api_friend
+    (app_friend == 'Y')
+  end
+
+  # friend status code. "this" is friend. login_user is login user.
+  #   Y - friends
+  #   N - not friends
+  #   A - login api friends and not app friends
+  #   G - gofreerev app friends and not login api friends
+  #   R - app friendship request from login user to friend
+  #   P - pending app friendship request to login user from friend (todo)
+  def friend_status_code (login_user)
+    return 'N' unless login_user # not logged in user
+    return 'Y' if login_user.user_id == self.user_id
+    f = get_friend(login_user)
+    return 'N' unless f
+    if f.api_friend == 'Y'
+      # api friend
+      case f.app_friend
+        when nil then return 'Y' # default - api friends are also app friends
+        when 'Y' then return 'Y' #
+        when 'N' then return 'N' # user has been deselected as app friend by login user or friendship request has been blocked login user
+        when 'R' then return 'R' # pending friendship request from login user
+        when 'P' then return 'P'
+      end # case
+    else
+      # non api friend
+      case f.app_friend
+        when nil then return 'N'
+        when 'Y' then return 'G' # not login api friends - only friends within gofreerev app
+        when 'N' then return 'N' # user has been deselected as app friend by login user or friendship request has been blocked login user
+        when 'R' then return 'R' # pending friendship request from login user
+        when 'P' then return 'P'
+      end # case
+    end
+  end
+
+  def friend_status_translate_code (login_user)
+    ".friend_status_text_#{friend_status_code(login_user).downcase}"
+  end
+
+  # returns list with allowed friendship actions
+  def friend_status_actions (login_user)
+    case friend_status_code(login_user)
+      when 'Y' then return %w(remove_api_friend remove_app_friend)
+      when 'N' then return %w(add_api_friend add_app_friend)
+      when 'A' then return %w(remove_api_friend add_app_friend)
+      when 'G' then return %w(add_api_friend remove_app_friend)
+      when 'R' then return %w(add_api_friend add_app_friend)
+      when 'P' then return %w(add_api_friend accept_app_friend ignore_app_friend block_app_friend)
+      when 'B' then return %w(unblock_app_friend)
+    end
+  end # friend_status_actions
+  def add_api_friend
+  end
+  def remove_api_friend
+  end
+  def add_app_friend
+  end
+  def accept_app_friend
+  end
+  def ignore_app_friend
+  end
+  def remove_app_friend
+  end
+  def block_app_friend
+  end
+  def unblock_app_friend
+  end
+
 
   def api_profile_url
     case
