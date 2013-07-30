@@ -38,7 +38,7 @@ function update_currency()
    // copy selected currency to hidden form and submit
    update_currency_div_id = document.getElementById('update_currency_div') ;
    update_currency_form_id = update_currency_div_id.getElementsByTagName('Form')[0] ;
-   user_currency_id = document.getElementById('user_currency') ;
+   user_currency_id = document.getElementById('user_new_currency') ;
    user_currency_id.value = user_currency_new ;
    update_currency_form_id.submit() ;
 } // update_currency_submit

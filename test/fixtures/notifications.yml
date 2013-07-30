@@ -1,0 +1,17 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+one:
+  noti_id: MyString
+  from_user_id: MyString
+  to_user_id: MyString
+  noti_key: MyText
+  noti_options: MyText
+  noti_read: MyText
+
+two:
+  noti_id: MyString
+  from_user_id: MyString
+  to_user_id: MyString
+  noti_key: MyText
+  noti_options: MyText
+  noti_read: MyText

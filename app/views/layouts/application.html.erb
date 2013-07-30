@@ -16,7 +16,7 @@
   <div id="update_currency_div" style="display:none">
     <%= form_for @user, :class => 'update_currency_form' do |f| %>
         <%= hidden_field_tag :return_to, @request_fullpath %>
-        <%= f.text_field :currency %>
+        <%= f.text_field :new_currency %>
     <% end %>
   </div>
   <!-- page header -->

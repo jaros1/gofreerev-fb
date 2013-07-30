@@ -152,6 +152,9 @@ class User < ActiveRecord::Base
   alias_method :negative_interest_before_type_cast, :negative_interest
 
 
+  # change currency in page header.
+  attr_accessor :new_currency
+
   ##################
   # helper methods #
   ##################
@@ -322,10 +325,17 @@ class User < ActiveRecord::Base
     '%0.2f' % (balance[BALANCE_KEY] || 0)
   end
 
+  # get friend record from login users cached list of friends
   def get_friend (login_user)
     return nil unless login_user
     return @friend if defined?(@friend)
     @friend = login_user.friends.find_all { |f| f.user_id_receiver == self.user_id }.first
+  end
+
+  # reverse friend record is identical with friend record except for app_friend = R, P and B
+  def get_reverse_friend (login_user)
+    return @reverse_friend if defined?(@reverse_friend)
+    @reverse_friend = Friend.where("user_id_giver = ? and user_id_receiver = ?", self.user_id, login_user.user_id).first
   end
 
   # simple friend check - true or false without any details
@@ -375,33 +385,104 @@ class User < ActiveRecord::Base
     ".friend_status_text_#{friend_status_code(login_user).downcase}"
   end
 
-  # returns list with allowed friendship actions
+  # returns list with allowed friendship actions: add_api_friend, remove_api_friend, add_app_friend, accept_app_friend, ignore_app_friend, remove_app_friend, block_app_friend, unblock_app_friend
+  # used in users/show page / users/friend_action_buttons partial
+  # The action names is also used as keys in translate. See <language>.users.friend_action_buttons.<method>
+  # first letter uppercase - confirm box before submit
+  # second letter uppercase - new window (target=_blank)
   def friend_status_actions (login_user)
     case friend_status_code(login_user)
-      when 'Y' then return %w(remove_api_friend remove_app_friend)
-      when 'N' then return %w(add_api_friend add_app_friend)
-      when 'A' then return %w(remove_api_friend add_app_friend)
-      when 'G' then return %w(add_api_friend remove_app_friend)
-      when 'R' then return %w(add_api_friend add_app_friend)
-      when 'P' then return %w(add_api_friend accept_app_friend ignore_app_friend block_app_friend)
+      when 'Y' then return %w(rEmove_api_friend Remove_app_friend)
+      when 'N' then return %w(aDd_api_friend add_app_friend)
+      when 'A' then return %w(rEmove_api_friend add_app_friend)
+      when 'G' then return %w(aDd_api_friend Remove_app_friend)
+      when 'R' then return %w(aDd_api_friend add_app_friend)
+      when 'P' then return %w(aDd_api_friend accept_app_friend ignore_app_friend Block_app_friend)
       when 'B' then return %w(unblock_app_friend)
     end
   end # friend_status_actions
-  def add_api_friend
+  def allowed_friend_status_action (login_user, action)
+    allowed_friend_actions = friend_status_actions(login_user).collect { |fa| fa.downcase }
+    allowed_friend_actions(action)
   end
-  def remove_api_friend
+  def add_api_friend (login_user)
+    return unless allowed_friend_status_action(login_user, __method__)
+    raise "not used. no facebook api dialog to add friend"
   end
-  def add_app_friend
+  def remove_api_friend (login_user)
+    return unless allowed_friend_status_action(login_user, __method__)
+    raise "not used. no facebook api dialog to remove friend"
   end
-  def accept_app_friend
+  def add_app_friend (login_user)
+    # set api_friend = R for login user, set api_friend = P for friend
+    return unless allowed_friend_status_action(login_user, __method__)
+    f = get_friend (login_user)
+    if !f
+      f = Friend.new
+      f.user_id_giver = login_user.user_id
+      f.user_id_receiver = self.user_id
+      f.api_friend = 'N'
+    end
+    r = get_reverse_friend(login_user)
+    if !r
+      r = Friend.new
+      r.user_id_giver = f.user_id_receiver
+      r.user_id_receiver = f.user_id_giver
+      r.api_friend = f.api_friend
+    end
+    f.app_friend = 'R'
+    if r.app_friend != 'B' # friend request from blocked users is ignored silently
+      r.app_friend = 'P'
+      n = Notification.new
+      n.to_user_id = self.user_id
+      n.from_user_id = login_user.user_id
+      n.internal = 'Y'
+      n.noti_t_key = 'request_for_app_friendship'
+      n.noti_t_options = {}
+      n.noti_read = 'N'
+    end
+    transaction do
+      f.save!
+      r.save!
+      n.save! if n
+    end
+  end # add_app_friend
+  def accept_app_friend (login_user)
+    # set api_friend = Y for login user and friend
+    return unless allowed_friend_status_action(login_user, __method__)
+    f = get_friend (login_user)
+    r = get_reverse_friend(login_user)
+    raise "invalid request" if !f or !r or f.app_friend != 'P' or r.app_friend != 'R'
+    f.app_friend = 'Y'
+    r.app_friend = 'Y'
+    n = Notification.new
+    n.to_user_id = self.user_id
+    n.from_user_id = login_user.user_id
+    n.internal = 'Y'
+    n.noti_t_key = 'app_friendship_accepted'
+    n.noti_t_options = {}
+    n.noti_read = 'N'
+    transaction do
+      f.save!
+      r.save!
+      n.save!
+    end
+  end # accept_app_friend
+  def ignore_app_friend (login_user)
+    return unless allowed_friend_status_action(login_user, __method__)
+    raise "not implemented"
   end
-  def ignore_app_friend
+  def remove_app_friend (login_user)
+    return unless allowed_friend_status_action(login_user, __method__)
+    raise "not implemented"
   end
-  def remove_app_friend
+  def block_app_friend (login_user)
+    return unless allowed_friend_status_action(login_user, __method__)
+    raise "not implemented"
   end
-  def block_app_friend
-  end
-  def unblock_app_friend
+  def unblock_app_friend (login_user)
+    return unless allowed_friend_status_action(login_user, __method__)
+    raise "not implemented"
   end
 
 

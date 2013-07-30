@@ -134,13 +134,4 @@ module ApplicationHelper
     end
   end # format_gift_description
 
-  # todo: move to partial friend_action_buttons
-  def friend_action_buttons(user, login_user)
-    return nil unless user and login_user
-    return nil if user.user_id == login_user.user_id
-    user.friend_status_actions(login_user).collect do |friendship_action|
-      button_to my_t(".#{friendship_action}"), {:controller => :users, :action => :update, :id => user.id, :friendship_action => friendship_action, :return_to => @request_fullpath } , :method=>:post
-    end.join
-  end # friend_status_change_buttons
-
 end # ApplicationHelper

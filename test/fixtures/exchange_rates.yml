@@ -1,0 +1,11 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+one:
+  from_currency: MyString
+  to_currency: MyString
+  exchange_rate: 
+
+two:
+  from_currency: MyString
+  to_currency: MyString
+  exchange_rate: 

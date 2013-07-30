@@ -1,5 +1,23 @@
-<% for friendship_action in @user2.friend_status_actions(@user) do-%>
-<td>
-  <%= button_to my_t(".#{friendship_action}", :apiname => @user.api_name_without_brackets, :appname => APP_NAME), {:controller => :users, :action => :update, :id => @user.id, :friend => @user2.id, :friendship_action => friendship_action, :return_to => @request_fullpath } , :method=>:put %>
-</td>
+<% if @user.user_id == @user2.user_id -%>
+    <%= link_to my_t('.edit_user'), edit_user_path(@user) %>
+<% else -%>
+    <% for friendship_action in @user2.friend_status_actions(@user) do-%>
+    <td>
+      <%= friendship_action_downcase = friendship_action.downcase
+          button_text = my_t ".#{friendship_action_downcase}", :apiname => @user.api_name_without_brackets, :appname => APP_NAME
+          # first letter uppercase => confirm box
+          if friendship_action[0] == friendship_action_downcase[0]
+            confirm = nil
+          else
+            confirm = "#{button_text}?"
+          end
+          # second letter uppercase => new window
+          if friendship_action[1] == friendship_action_downcase[1]
+            target = nil
+          else
+            target = '_blank'
+          end
+          button_to button_text, {:controller => :users, :action => :update, :id => @user.id, :friend_id => @user2.id, :friend_action => friendship_action_downcase, :return_to => @request_fullpath } , { :form => { :target => target }, :method=>:put, :data => { :confirm => confirm } } %>
+    </td>
+    <% end -%>
 <% end -%>

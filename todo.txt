@@ -76,13 +76,12 @@
     Many FB notification can be marked as spam
     Implement internal app notifications so that FB notification only is used for not logged in users
 
-30) friend requests:
-    send api friend request
-    send app friend request
-    cancel api friend request not implemented - maybe just link to fb
-    cancel app friend request
-    accept app friend request
-    ignore app friend request
-    declined and block app friend request
-    remove api friend
-    remove app friend
+30) user balance not shown correct
+    for example charlie balance in usd and in dkk
+    Looks like a sign problem
+    List balance in users/show page and debug the problem from here.
+
+31) Internal gofreerev app notifications
+    a) pending friend requests. app_friend = 'P'
+    b) new friends
+    add notification table

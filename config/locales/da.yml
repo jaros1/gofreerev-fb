@@ -105,6 +105,8 @@ da:
      update:
         invalid_request: "Ugyldigt kald. Bruger indstillinger blev ikke ændret."
         exchange_rates_not_ready: "Valuta blev ikke ændret. Valutakurser var ikke klar. Prøv igen om et øjeblik."
+        app_friend_request_was_send: "%{appname} venneanmodning er blevet sendt"
+        app_friend_was_accepted: "%{appname} ven blev accepteret"
      show:
         invalid_request: "Ugyldigt kald."
         page_header_text_html: "<p>Bruger oplysninger</p>"
@@ -115,7 +117,9 @@ da:
         friend_status_text_n: "Ikke venner"
         friend_status_text_a: "%{apiname} venner, men ikke %{appname} venner"
         friend_status_text_g: "%{appname} venner, men ikke %{apiname} venner"
-        friend_status_text_r: "Afventer svar på %{appname} -venneanmodning"
+        friend_status_text_r: "Afventer svar på %{appname} venneanmodning"
+        friend_status_text_p: "Afventer godkendelse af %{appname} venneanmodning"
+        friend_status_text_b: "Blokkeret. %{appname} venneanmodninger ignoreres"
         not_a_friend: "Der vises kun detaljerede brugeroplysninger om dine venner"
         top_text_friend_html: "%{username} bruger oplysninger."
         top_text_non_friend_html: "Detaljerede brugeroplysninger vises kun for dine %{apiname} venner. Brugeroplysninger for %{username} kan ikke vises. Brug nedenstående links hvis du ønsker at tilføje %{username} som ven. Opret evt. en liste til dine %{apiname} venner hvis du ønsker at holde dine %{"
@@ -129,3 +133,4 @@ da:
         remove_app_friend: "Fjern %{appname} ven"
         block_app_friend: "Blokker %{appname} ven"
         unblock_app_friend: "Ophæv blokkering"
+        edit_user: "Rediger"
