@@ -56,7 +56,7 @@ class User < ActiveRecord::Base
   alias_method :user_name_before_type_cast, :user_name
 
   # 3) currency. Required. String in model. Encrypted text in db.
-  validates_presence_of :currency
+  # validates_presence_of :currency # todo: only required for gofreerev users / not required for friends not using gofreerev
   def currency
     return nil unless (extended_currency = read_attribute(:currency))
     encrypt_remove_pre_and_postfix(extended_currency, 'currency', 10)
@@ -74,7 +74,7 @@ class User < ActiveRecord::Base
   # 4) balance. Balance. Required. Multi-currency Hash in model. Encrypted text in db
   # Keys is ISO code for currency USD, EUR, GBP etc.
   # Key BALANCE is sum of all currencies exchanged to users actual currency
-  validates_presence_of :balance
+  # validates_presence_of :balance # todo: only required for gofreerev users / not required for friends not using gofreerev
   def balance
     return nil unless (temp_extended_balance = read_attribute(:balance))
     # puts "temp_extended_balance = #{temp_extended_balance}"
@@ -93,7 +93,7 @@ class User < ActiveRecord::Base
   alias_method :balance_before_type_cast, :balance
 
   # 5) balance_at. Date. Not encrypted. Date for last balance calculation. Normally today.
-  validates_presence_of :balance_at
+  # validates_presence_of :balance_at # todo: only required for gofreerev users / not required for friends not using gofreerev
 
   # 6) permissions. Optional. Any Ruby type in model (hash with privs. for facebook users). Encrypted text in db
   # for fb users a hash with grants privs {"installed"=>1, "basic_info"=>1, "bookmarked"=>1}

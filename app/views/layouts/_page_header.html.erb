@@ -28,15 +28,13 @@
     <td>&nbsp;&nbsp;</td>
     <td title="<%= my_t '.header_inbox_link_title', :appname => APP_NAME %>">
       <%= link_to my_t('.header_inbox_link_text'), inbox_index_path %>
-      <% if @user and @user.inbox_new_notifications > 0 %>
-        <b>
-          <sup>
-            <span style="background-color:red; color:white; font-size:x-small">
-              <%= @user.inbox_new_notifications %>
-            </span>
-          </sup>
-        </b>
-      <% end -%>
+      <b>
+        <sup>
+          <span id="new_mesaages_count" style="background-color:red; color:white; font-size:x-small">
+            <%= @user.inbox_new_notifications if @user and @user.inbox_new_notifications > 0 %>
+          </span>
+        </sup>
+      </b>
     </td>
     <td>&nbsp;&nbsp;</td>
     <td title="<%= my_t '.header_log_out_link_title', :appname => APP_NAME %>">

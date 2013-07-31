@@ -98,3 +98,12 @@ function gifts_client_validations() {
     // gift is ok. ready for submit
     return true ;
 } // gifts_client_validations
+
+
+// update new message count in menu line once every minute
+$(document).ready(
+    function(){
+        setInterval(function(){
+            $('#new_mesaages_count').load('/util/new_messages_count');
+        }, 60000);
+    });

@@ -71,17 +71,15 @@
     friends - show detailed user information
     non friends - link to FB page - link with friend request
 
-29) notifications:
+29) app to api notifications:
     get a app access token
     Many FB notification can be marked as spam
-    Implement internal app notifications so that FB notification only is used for not logged in users
+    Implement internal app notifications so that FB notification is only used to activate not logged in users
 
 30) user balance not shown correct
     for example charlie balance in usd and in dkk
     Looks like a sign problem
     List balance in users/show page and debug the problem from here.
 
-31) Notifications
-    show notification count in header line
-    add notifications controller to show notifications
+31) Shold set noti_read to Y in /inbox/index page
 
