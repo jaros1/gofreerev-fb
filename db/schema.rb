@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20130730155157) do
+ActiveRecord::Schema.define(version: 20130731092322) do
 
   create_table "exchange_rates", force: true do |t|
     t.string   "from_currency",    limit: 3, null: false
@@ -75,6 +75,7 @@ ActiveRecord::Schema.define(version: 20130730155157) do
     t.string   "noti_read",      limit: 1,  null: false
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.text     "noti_fullpath"
   end
 
   add_index "notifications", ["noti_id"], name: "index_noti_on_noti_id", unique: true

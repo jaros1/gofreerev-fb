@@ -1,10 +1,16 @@
 class Notification < ActiveRecord::Base
 
+
+  # relations
+  belongs_to :from_user, :class_name => 'User', :primary_key => :user_id, :foreign_key => :from_user_id
+  belongs_to :to_user, :class_name => 'User', :primary_key => :user_id, :foreign_key => :to_user_id
+
+
   # https://github.com/jmazzi/crypt_keeper - text columns are encrypted in database
   # encrypt_add_pre_and_postfix/encrypt_remove_pre_and_postfix added in setters/getters for better encryption
   # this is different encrypt for each attribute and each db row
   # _before_type_cast methods are used by form helpers and are redefined
-  crypt_keeper :noti_t_key, :noti_t_options, :encryptor => :aes, :key => ENCRYPT_KEYS[18]
+  crypt_keeper :noti_t_key, :noti_t_options, :noti_fullpath, :encryptor => :aes, :key => ENCRYPT_KEYS[18]
 
   
   ##############
@@ -83,6 +89,25 @@ class Notification < ActiveRecord::Base
   # 7) noti_read - required - Y/N String in model - not encrypted
   validates_presence_of :noti_read
   validates_inclusion_of :noti_read, :in => %w(Y N)
+  
+  
+  # 8) noti_fullpath - required - string in model - encrypted text in db
+  validates_presence_of :noti_fullpath, :on => :update
+  def noti_fullpath
+    return nil unless (extended_noti_fullpath = read_attribute(:noti_fullpath))
+    encrypt_remove_pre_and_postfix(extended_noti_fullpath, 'noti_fullpath', 21)
+  end
+  def noti_fullpath=(new_noti_fullpath)
+    return noti_fullpath if noti_fullpath
+    if new_noti_fullpath
+      check_type('noti_fullpath', new_noti_fullpath, 'String')
+      write_attribute :noti_fullpath, encrypt_add_pre_and_postfix(new_noti_fullpath, 'noti_fullpath', 21)
+    else
+      write_attribute :noti_fullpath, nil
+    end
+  end
+  alias_method :noti_fullpath_before_type_cast, :noti_fullpath
+
 
 
   ##################

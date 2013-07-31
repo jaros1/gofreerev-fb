@@ -13,10 +13,12 @@ class User < ActiveRecord::Base
   end
 =end
 
-
+  # relations
   has_many :offers, :class_name => 'Gift', :primary_key => :user_id, :foreign_key => :user_id_giver, :dependent => :destroy
   has_many :wishes, :class_name => 'Gift', :primary_key => :user_id, :foreign_key => :user_id_receiver, :dependent => :destroy
   has_many :friends, :class_name => 'Friend', :primary_key => :user_id, :foreign_key => :user_id_giver, :dependent => :destroy
+  has_many :sent_notifications, :class_name => 'Notification', :primary_key => :user_id, :foreign_key => :from_user_id, :dependent => :destroy
+  has_many :received_notifications, :class_name => 'Notification', :primary_key => :user_id, :foreign_key => :to_user_id, :dependent => :destroy
 
   # https://github.com/jmazzi/crypt_keeper - text columns are encrypted in database
   # encrypt_add_pre_and_postfix/encrypt_remove_pre_and_postfix added in setters/getters for better encryption
@@ -389,7 +391,9 @@ class User < ActiveRecord::Base
   end
 
   def find_friend_request_noti (login_user)
-    Notification.where("from_user_id = ? and to_user_id = ? and noti_t_key = ? and noti_read = 'N'", login_user.user_id, self.user_id, FRIEND_REQUEST_NOTI_KEY).last
+    ns = Notification.where("from_user_id = ? and to_user_id = ? and noti_read = 'N'", login_user.user_id, self.user_id)
+    return nil unless ns.size > 0
+    n = ns.find { |n| n.noti_t_key == FRIEND_REQUEST_NOTI_KEY }
   end
 
   # returns list with allowed friendship actions: add_api_friend, remove_api_friend, send_app_friend_request, cancel_app_friend_request, accept_app_friend_request, ignore_app_friend_request, remove_app_friend, block_app_user, unblock_app_user
@@ -450,14 +454,18 @@ class User < ActiveRecord::Base
         n.from_user_id = login_user.user_id
         n.internal = 'Y'
         n.noti_t_key = FRIEND_REQUEST_NOTI_KEY
-        n.noti_t_options = {}
+        n.noti_t_options = { :username => login_user.user_name, :appname => APP_NAME }
         n.noti_read = 'N'
       end
     end
     transaction do
       f.save!
       r.save!
-      n.save! if n
+      if n
+        n.save!
+        n.noti_fullpath = "/users/#{login_user.id}?noti_id=#{n.id}"
+        n.save!
+      end
     end
     true
   end # send_app_friend_request
@@ -505,11 +513,13 @@ class User < ActiveRecord::Base
     n.from_user_id = login_user.user_id
     n.internal = 'Y'
     n.noti_t_key = 'app_friendship_accepted'
-    n.noti_t_options = {}
+    n.noti_t_options = { :username => login_user.short_user_name, :appname => APP_NAME }
     n.noti_read = 'N'
     transaction do
       f.save!
       r.save!
+      n.save!
+      n.noti_fullpath = "/users/#{login_user.id}?noti_id=#{n.id}"
       n.save!
     end
     true
@@ -574,6 +584,12 @@ class User < ActiveRecord::Base
       when google_plus? then "todo:"
       else nil #error
     end
+  end
+
+
+  def inbox_new_notifications
+    return @new_notifications if defined?(@new_notifications)
+    @new_notifications = Notification.where("to_user_id = ? and noti_read = 'N'", self.user_id).size
   end
 
   ##############

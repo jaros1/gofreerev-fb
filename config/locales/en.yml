@@ -55,6 +55,10 @@ en:
         header_currency_title: "Balance. Use currency selection list if you want your balance shown in a different currency. Your balance of free money show how much you have invested in community and friends and is a measure of gratitude. Who has given / received most? Whose turn is it to receive / give? A positive balance means that you are good to help others and to one's help has been appreciated. A negative balance means that you are good to accept help and that you have appreciated the help. There is no correlation between who is rich / poor in free money here and who are rich / poor in the real world."
         header_balance_prompt: "Balance:"
         header_balance_free: "free"
+        header_home_link_title: ''
+        header_home_link_text: 'Home'
+        header_inbox_link_title: ''
+        header_inbox_link_text: 'Inbox'
         header_log_out_link_text: 'Log out'
   fb: # facebook versions
      layouts:
@@ -100,6 +104,16 @@ en:
         gift_link_title: "Click on link for more offer information"
         social_dividend_description_1: "Social dividend %{price} %{currency} from %{giver} to %{receiver} for period up to %{to}"
         social_dividend_description_2: "Social dividend %{price} %{currency} from %{giver} to %{receiver} for period from %{from} to %{to}"
+
+  # index controller
+  inbox:
+     index:
+        from_column_heading_html: "From"
+        created_at_column_heading_html: "Date"
+        message_column_heading_html: "Message"
+        from_div_title_friend: "%{username}. Balance %{balance}. Click here to see user info."
+        from_div_title_non_friend: "%{username}. Click here to see user info."
+
 
   # user controller
   users:

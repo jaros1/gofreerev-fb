@@ -259,8 +259,12 @@ class ApplicationController < ActionController::Base
       params[:code] = nil
       session.delete(:oauth)
     end
+
+    # fetch user after create/update
     puts "fetch_user: user_id = #{session[:user_id]}"
     @user = User.where("user_id = ?", session[:user_id]).includes(:friends).first if session[:user_id]
+
+    # add some instance variables
     if @user
       @usertype = session[:usertype] = @user.usertype
       Money.default_currency = Money::Currency.new(@user.currency)
@@ -271,6 +275,15 @@ class ApplicationController < ActionController::Base
       @usertype = session[:usertype] = nil
     end
     puts "fetch_user: @user_currency_separator = #{@user_currency_separator}, @user_currency_delimiter = #{@user_currency_delimiter}"
+
+    # check for url with unread messages
+    if @user and params[:noti_id]
+      n = Notification.where("id = ? and to_user_id = ? and noti_read = 'N'", params[:noti_id], @user.user_id).first
+      if n
+        n.noti_read = 'Y'
+        n.save!
+      end
+    end
   end # fetch_user
 
 
