@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20130730135408) do
+ActiveRecord::Schema.define(version: 20130730155157) do
 
   create_table "exchange_rates", force: true do |t|
     t.string   "from_currency",    limit: 3, null: false
@@ -68,11 +68,11 @@ ActiveRecord::Schema.define(version: 20130730135408) do
   create_table "notifications", force: true do |t|
     t.string   "noti_id",        limit: 20, null: false
     t.string   "to_user_id",     limit: 20, null: false
-    t.text     "from_user_id"
+    t.string   "from_user_id",   limit: 20
     t.string   "internal",       limit: 1,  null: false
     t.text     "noti_t_key",                null: false
     t.text     "noti_t_options"
-    t.text     "noti_read",                 null: false
+    t.string   "noti_read",      limit: 1,  null: false
     t.datetime "created_at"
     t.datetime "updated_at"
   end

@@ -54,7 +54,7 @@ module ActiveRecordExtensions
   def encrypt_add_pre_and_postfix(value, attributename, secret_key_no)
     r = Random.new encrypt_rand_seed(attributename, secret_key_no)
     o = "#{encrypt_prefix(r, attributename, secret_key_no)}#{value}#{encrypt_postfix(r, attributename, secret_key_no)}"
-    #if attributename == 'description'
+    #if attributename == 'noti_t_options'
     #  puts "encrypt_add_pre_and_postfix: input = \"#{value}\" (#{value.class.name}), output = \"#{o}\" (#{o.class.name})"
     #end
     o
@@ -72,8 +72,8 @@ module ActiveRecordExtensions
     from = prefix_lng
     to = value_lng - postfix_lng - 1
     o = value[from..to]
-    #if attributename == 'description'
-    #  # puts "encrypt_remove_pre_and_postfix: attribute = #{attributename}, input = \"#{value}\" (#{value.class.name}), output = \"#{o}\" (#{o.class.name})"
+    #if attributename == 'noti_t_options'
+    #  puts "encrypt_remove_pre_and_postfix: attribute = #{attributename}, input = \"#{value}\" (#{value.class.name}), output = \"#{o}\" (#{o.class.name})"
     #end
     o
   end

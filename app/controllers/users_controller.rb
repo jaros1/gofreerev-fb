@@ -119,29 +119,21 @@ class UsersController < ApplicationController
       return
     end
 
-    # add_api_friend, remove_api_friend, add_app_friend, accept_app_friend, ignore_app_friend, remove_app_friend, block_app_friend, unblock_app_friend
-    case friend_action
-      when 'add_api_friend'
-        # no facebook api dialog to add friend - redirect to facebook profile page
-        redirect_to user2.api_profile_url
-        return
-      when 'remove_api_friend'
-        # no facebook api dialog to remove friend - redirect to facebook profile page
-        redirect_to user2.api_profile_url
-        return
-      when 'add_app_friend'
-        user2.add_app_friend(@user)
-        flash[:notice] = my_t '.app_friend_request_was_send'
-        redirect_to params[:return_to]
-        return
-      when 'accept_app_friend'
-        user2.accept_app_friend(@user)
-        flash[:notice] = my_t '.app_friend_was_accepted', :appname => APP_NAME
-        redirect_to params[:return_to]
-        return
-      else
-        raise "friend action #{friend_action} not implemented"
-    end # case
-  end # end
+    # friend actions: add_api_friend, remove_api_friend, send_app_friend_request, accept_app_friend_request, ignore_app_friend_request, remove_app_friend, block_app_user, unblock_app_user
+
+    if %w(add_api_friend remove_api_friend).index(friend_action)
+      # api friend actions
+      # no facebook api dialogs to add and remove facebook friends - just redirect to users profile page at facebook
+      redirect_to user2.api_profile_url
+      return
+    end
+
+    # do app friend action
+    # for example send_app_friend_request with ok response send_app_friend_request_ok and error response send_app_friend_request_error
+    postfix = user2.send(friend_action, @user) ? "_ok" : "_error"
+    flash[:notice] = my_t ".#{friend_action}#{postfix}", :appname => APP_NAME, :username => user2.short_user_name
+    redirect_to params[:return_to]
+
+  end # friend_actions
 
 end
