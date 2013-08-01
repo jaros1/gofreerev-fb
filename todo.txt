@@ -83,9 +83,6 @@
 
 31) DRY partial with user picture for header, gifts/index and index/index pages
 
-
-33) add friends batch for login for new users with many friends
-
 34) close account and delete all data in app
 
 

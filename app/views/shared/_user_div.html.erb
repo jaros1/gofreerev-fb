@@ -1,0 +1,23 @@
+<% friend = @user2.friend?(@user)
+   div_title = '.title' + (friend ? '' : '_non') + '_friend'
+   username = friend ? @user2.short_user_name : @user2.user_name
+   balance = friend ? format_user_balance(@user2, @user) : nil
+-%>
+<div title="<%= my_t div_title, :username => username, :balance => balance %>"
+     onclick="top.location.href = '<%= url_for(@user2) %>'">
+<% if @page_header -%>
+      <table>
+        <tr>
+          <td rowspan="2">
+<% end -%>
+  <%= image_tag(@user2.profile_picture_url, :size => @size)  %>
+<% if @page_header -%>
+          </td>
+          <td><%= h @user.short_user_name %></td>
+        </tr>
+        <tr>
+          <td><%= @user.api_name_with_brackets %></td>
+        </tr>
+      </table>
+<% end -%>
+</div>

@@ -69,17 +69,17 @@ class Notification < ActiveRecord::Base
   attr_readonly :noti_t_options
   def noti_t_options
     return nil unless (temp_extended_noti_t_options = read_attribute(:noti_t_options))
-    puts "get temp_extended_noti_t_options = #{temp_extended_noti_t_options} (#{temp_extended_noti_t_options.class.name})"
+    # puts "get temp_extended_noti_t_options = #{temp_extended_noti_t_options} (#{temp_extended_noti_t_options.class.name})"
     YAML::load encrypt_remove_pre_and_postfix(temp_extended_noti_t_options, 'noti_t_options', 20)
   end # noti_t_options
   def noti_t_options=(new_noti_t_options)
     if new_noti_t_options
       check_type('noti_t_options', new_noti_t_options, 'Hash')
       temp_extended_noti_t_options = encrypt_add_pre_and_postfix(new_noti_t_options.to_yaml , 'noti_t_options', 20)
-      puts "set temp_extended_noti_t_options = #{temp_extended_noti_t_options} (#{temp_extended_noti_t_options.class.name})"
+      # puts "set temp_extended_noti_t_options = #{temp_extended_noti_t_options} (#{temp_extended_noti_t_options.class.name})"
       write_attribute :noti_t_options, temp_extended_noti_t_options
     else
-      puts "set temp_extended_noti_t_options = nil"
+      # puts "set temp_extended_noti_t_options = nil"
       write_attribute :noti_t_options, nil
     end
   end # noti_t_options=

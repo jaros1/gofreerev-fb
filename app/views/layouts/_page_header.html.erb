@@ -1,18 +1,7 @@
 <table>
   <tr style="white-space: nowrap">
     <td>
-      <div title="<%= my_t '.header_user_div_title', :username => @user.user_name, :appname => APP_NAME, :balance => format_user_balance(@user, @user) %>"
-           onclick="top.location.href = '<%= url_for(@user) %>'">
-        <table>
-          <tr>
-            <td rowspan="2"><%= image_tag(@user.profile_picture_url) %></td>
-            <td><%= h @user.short_user_name %></td>
-          </tr>
-          <tr>
-            <td><%= @user.api_name_with_brackets %></td>
-          </tr>
-        </table>
-      </div>
+      <%= @page_header = true ; @size = nil ; @user2 = @user ; render '/shared/user_div' %>
     </td>
     <td>&nbsp;&nbsp;&nbsp;</td>
     <td title="<%= my_t '.header_currency_title' %>">

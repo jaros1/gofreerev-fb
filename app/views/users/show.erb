@@ -5,7 +5,7 @@
 
 <table>
   <tr>
-    <td><%= image_tag @user2.profile_picture_url, :size => "100x100" %></td>
+    <td><%= @size = '100x100' ; render '/shared/user_div' %></td>
     <td style="vertical-align: top">
       <table>
         <tr><td><%= my_t '.user_name_prompt' %></td><td>:</td><td><%= @user2.user_name %></td></tr>

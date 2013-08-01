@@ -51,7 +51,6 @@ en:
   # application layout with page header and footer
   layouts:
      page_header:
-        header_user_div_title: "%{username}. Balance %{balance}. Click here to see user info."
         header_currency_title: "Balance. Use currency selection list if you want your balance shown in a different currency. Your balance of free money show how much you have invested in community and friends and is a measure of gratitude. Who has given / received most? Whose turn is it to receive / give? A positive balance means that you are good to help others and to one's help has been appreciated. A negative balance means that you are good to accept help and that you have appreciated the help. There is no correlation between who is rich / poor in free money here and who are rich / poor in the real world."
         header_balance_prompt: "Balance:"
         header_balance_free: "free"
@@ -69,6 +68,12 @@ en:
      layouts:
         page_header:
            header_log_out_link_title: "Log out of %{appname} and return to google+."
+
+  # shared partials
+  shared:
+     user_div:
+        title_non_friend: "%{username}. Click here to see user info."
+        title_friend: "%{username}. Balance %{balance}. Click here to see user info."
 
   # gift controller
   gifts:
@@ -97,10 +102,6 @@ en:
         price_column_heading_html: "Price:"
         new_price_column_heading_html: "Value<br />today:"
         balance_column_heading_html: "Balance"
-        gifts_giver_div_title_friend: "%{username}. Balance %{balance}. Click here to see user info."
-        gifts_receiver_div_title_friend: "%{username}. Balance %{balance}. Click here to see user info."
-        gifts_giver_div_title_non_friend: "%{username}. Click here to see user info."
-        gifts_receiver_div_title_non_friend: "%{username}. Click here to see user info."
         gift_link_title: "Click on link for more offer information"
         social_dividend_description_1: "Social dividend %{price} %{currency} from %{giver} to %{receiver} for period up to %{to}"
         social_dividend_description_2: "Social dividend %{price} %{currency} from %{giver} to %{receiver} for period from %{from} to %{to}"
@@ -112,8 +113,6 @@ en:
         to_column_heading_html: "To"
         created_at_column_heading_html: "Date"
         message_column_heading_html: "Message"
-        from_div_title_friend: "%{username}. Balance %{balance}. Click here to see user info."
-        from_div_title_non_friend: "%{username}. Click here to see user info."
 
 
   # user controller
