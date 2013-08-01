@@ -1,6 +1,9 @@
 # https://github.com/jmazzi/crypt_keeper gem encrypts all attributes and all rows in db with the same key
 # this extension to use different encryption for each attribute and each row
 module ActiveRecordExtensions
+
+  extend ActiveSupport::Concern
+
   # these 3 methods must be replaces by model specific implementations
   protected
   def encrypt_pk
@@ -82,5 +85,46 @@ module ActiveRecordExtensions
     return nil if str.to_s == ''
     str.to_f
   end
+
+  module ClassMethods
+
+    # https://gist.github.com/danieldbower/842562
+    # Logic for forking connections
+    # The forked process does not have access to static vars as far as I can discern, so I've done some stuff to check if the op threw an exception.
+    def fork_with_new_connection
+      # Store the ActiveRecord connection information
+      config = ActiveRecord::Base.remove_connection
+
+      pid = fork do
+        # tracking if the op failed for the Process exit
+        success = true
+
+        begin
+          ActiveRecord::Base.establish_connection(config)
+          # This is needed to re-initialize the random number generator after forking (if you want diff random numbers generated in the forks)
+          srand
+
+          # Run the closure passed to the fork_with_new_connection method
+          yield
+
+        rescue Exception => exception
+          puts ('Forked operation failed with exception: ' + exception)
+          # the op failed, so note it for the Process exit
+          success = false
+
+        ensure
+          ActiveRecord::Base.remove_connection
+          Process.exit! success
+        end
+      end
+
+      # Restore the ActiveRecord connection information
+      ActiveRecord::Base.establish_connection(config)
+
+      #return the process id
+      pid
+    end  # fork_with_new_connection
+
+  end # ClassMethods
 
 end

@@ -46,7 +46,7 @@ class User < ActiveRecord::Base
   end
   def user_name=(new_user_name)
     if new_user_name
-      puts "new_user_name = #{new_user_name} (#{new_user_name.class.name})"
+      # puts "new_user_name = #{new_user_name} (#{new_user_name.class.name})"
       check_type('user_name', new_user_name, 'String')
       write_attribute :user_name, encrypt_add_pre_and_postfix(new_user_name, 'user_name', 9)
     else

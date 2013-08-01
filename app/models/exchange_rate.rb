@@ -66,6 +66,7 @@ class ExchangeRate < ActiveRecord::Base
   end # self.exchange
 
 
+=begin
   # https://gist.github.com/danieldbower/842562
   # Logic for forking connections
   # The forked process does not have access to static vars as far as I can discern, so I've done some stuff to check if the op threw an exception.
@@ -102,6 +103,7 @@ class ExchangeRate < ActiveRecord::Base
     #return the process id
     pid
   end  # fork_with_new_connection
+=end
 
 
   # called from last line in application.html.erb - any new exchange rates should be ready in next request.

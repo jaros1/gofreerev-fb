@@ -121,6 +121,6 @@ $(document).ready(
         setInterval(function(){
             $('#new_mesaages_count').load('/util/new_messages_count');
             update_title();
-        }, 10000);
+        }, 60000);
     });
 
