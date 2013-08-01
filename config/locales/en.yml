@@ -87,6 +87,8 @@ en:
         price_title: "Price in virtual free money. Optional. Can be set now or later. Best set be buyer / receiver so that the price becomes a measure of how much the thing / help was appreciated. There is used free virtual national money in here with a negative rate of 7.6% per year. One goal of the negative rate is to ensure that money and resources circulates. The negative interest rate makes it possible with a society without growth, overconsumption and with plenty of leisure to all."
         price_prompt: "Price:"
         price_free: "free"
+        direction_giver_prompt: "Offers:"
+        direction_receiver_prompt: "Seeks:"
         description_title: "Offer. Required. Describe what you offer whether it is things or help. You decide whether you want to sell, rent, lend or give things away for free. We are trading in virtuel free money. Since we are trading in virtuel money you are in practive always giving you give ting and help away for free. But your balance in free money grows. Posts are make on your wall and displayed to your friends or whom you have selected to view posts by this app. Your friends can comment on your post on your wall. The agreement should be finalized in here so your balance in free cash being updated."
         description_prompt: "Offer:"
         file_title: "Optional picture. Photos are an effective way to be seen by your friends."
@@ -109,11 +111,20 @@ en:
   # index controller
   inbox:
      index:
+        page_header_html: "Messages"
         from_column_heading_html: "From"
         to_column_heading_html: "To"
         created_at_column_heading_html: "Date"
         message_column_heading_html: "Message"
-
+        # there must be 4 keys for each notification.noti_key (*_from_msg, *_from_url, *_to_msg and *_to_url)
+        request_for_app_friendship_v1_from_msg: "%{appname} friend request was sent to %{to_user}"
+        request_for_app_friendship_v1_from_url: "/users/%{to_id}"
+        request_for_app_friendship_v1_to_msg: "%{from_user} would like to be your %{appname} friend"
+        request_for_app_friendship_v1_to_url: "/users/%{from_id}"
+        app_friendship_accepted_v1_from_msg: "You accepted friend request from %{to_user}. You and %{to_user} are now %{appname} friends"
+        app_friendship_accepted_v1_from_url: "/users/%{to_id}"
+        app_friendship_accepted_v1_to_msg: "%{from_user} accepted your friend request. You and %{from_user} are now %{appname} friends"
+        app_friendship_accepted_v1_to_url: "/users/%{from_id}"
 
   # user controller
   users:
@@ -125,13 +136,13 @@ en:
         cancel_app_friend_request_error: "Could not cancel %{appname} friend request to %{username}"
         accept_app_friend_request_ok: "%{appname} friend request from %{username} was accepted"
         accept_app_friend_request_error: "Accept of %{appname} friend request from %{username} failed"
-        remove_app_friend_ok: "%{appname} friend #{username} was removed"
-        remove_app_friend_error: "Could not remove %{appname} friend #{username}"
+        remove_app_friend_ok: "%{appname} friend %{username} was removed"
+        remove_app_friend_error: "Could not remove %{appname} friend %{username}"
         ignore_app_friend_request_ok: "%{appname} friend request from %{username} was ignored"
         ignore_app_friend_request_error: "Could not ignore %{appname} friend request from %{username}"
         block_app_user_ok: "User was blocked. You will not get any more %{appname} friend requests from %{username}"
         block_app_user_error: "Could not block for %{appname} friend requests from %{username}"
-        unblock_app_user_ok: "%{username} has been unblocked and can send new #{appname} friend requests"
+        unblock_app_user_ok: "%{username} has been unblocked and can send new %{appname} friend requests"
         unblock_app_user_error: "Could not unblock for %{appname} friend requests from %{username}"
      show:
         invalid_request: "Invalid call."
@@ -148,7 +159,7 @@ en:
         friend_status_text_b: "Blocked. %{appname} friend requests are ignored"
         not_a_friend: "You can only see user information for your friends."
         top_text_friend_html: "%{username} user information"
-        top_text_non_friend_html: "todo: en.users.show.top_text_non_friend_html"
+        top_text_non_friend_html: "Detailed user information is only displayed to your friends. User info for %{username} can not be displayed. Use the above buttons if you want to add %{username} as a friend."
         api_profile_link_text: "profile"
      friend_action_buttons:
         add_api_friend: "Add %{apiname} friend"

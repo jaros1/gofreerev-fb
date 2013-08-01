@@ -11,21 +11,25 @@
       </table>
     </td>
     <td>&nbsp;&nbsp;&nbsp;</td>
-    <td title="<%= my_t '.header_home_link_title', :appname => APP_NAME %>">
-      <%= link_to my_t('.header_home_link_text'), gifts_path %>
-    </td>
-    <td>&nbsp;&nbsp;</td>
-    <td title="<%= my_t '.header_inbox_link_title', :appname => APP_NAME %>">
-      <%= link_to my_t('.header_inbox_link_text'), inbox_index_path %>
-      <b>
-        <sup>
-          <span id="new_mesaages_count" style="background-color:red; color:white; font-size:x-small"><%= @user.inbox_new_notifications if @user and @user.inbox_new_notifications > 0 %></span>
-        </sup>
-      </b>
-    </td>
-    <td>&nbsp;&nbsp;</td>
-    <td title="<%= my_t '.header_log_out_link_title', :appname => APP_NAME %>">
-      <%= link_to my_t('.header_log_out_link_text'), header_log_out_link_url, :method => 'delete' %>
+    <td>
+      <table>
+        <td style="vertical-align: baseline" title="<%= my_t '.header_home_link_title', :appname => APP_NAME %>">
+          <%= link_to my_t('.header_home_link_text'), gifts_path %>
+        </td>
+        <td>&nbsp;&nbsp;</td>
+        <td style="vertical-align: baseline" title="<%= my_t '.header_inbox_link_title', :appname => APP_NAME %>">
+          <%= link_to my_t('.header_inbox_link_text'), inbox_index_path %>
+          <b>
+            <sup>
+              <span id="new_mesaages_count" style="background-color:red; color:white; font-size:x-small"><%= @user.inbox_new_notifications if @user and @user.inbox_new_notifications > 0 %></span>
+            </sup>
+          </b>
+        </td>
+        <td>&nbsp;&nbsp;</td>
+        <td style="vertical-align: baseline" title="<%= my_t '.header_log_out_link_title', :appname => APP_NAME %>">
+          <%= link_to my_t('.header_log_out_link_text'), header_log_out_link_url, :method => 'delete' %>
+        </td>
+      </table>
     </td>
   </tr>
 </table>

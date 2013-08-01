@@ -10,7 +10,7 @@ class Notification < ActiveRecord::Base
   # encrypt_add_pre_and_postfix/encrypt_remove_pre_and_postfix added in setters/getters for better encryption
   # this is different encrypt for each attribute and each db row
   # _before_type_cast methods are used by form helpers and are redefined
-  crypt_keeper :noti_t_key, :noti_t_options, :noti_fullpath, :encryptor => :aes, :key => ENCRYPT_KEYS[18]
+  crypt_keeper :noti_key, :noti_options, :encryptor => :aes, :key => ENCRYPT_KEYS[18]
 
   
   ##############
@@ -46,68 +46,51 @@ class Notification < ActiveRecord::Base
   attr_readonly
 
 
-  # 5) noti_t_key - key for translate - required - String in model - encrypted text in db
-  validates_presence_of :noti_t_key
-  attr_readonly :noti_t_key
-  def noti_t_key
-    return nil unless (extended_noti_t_key = read_attribute(:noti_t_key))
-    encrypt_remove_pre_and_postfix(extended_noti_t_key, 'noti_t_key', 19)
+  # 5) noti_key - key for translate - required - String in model - encrypted text in db
+  # there most be 4 keys in yml file for each noti_key with postfix _from_msg, _from_url, _to_msg and _to_url
+  validates_presence_of :noti_key
+  attr_readonly :noti_key
+  def noti_key
+    return nil unless (extended_noti_key = read_attribute(:noti_key))
+    encrypt_remove_pre_and_postfix(extended_noti_key, 'noti_key', 19)
   end
-  def noti_t_key=(new_noti_t_key)
-    if new_noti_t_key
-      check_type('noti_t_key', new_noti_t_key, 'String')
-      write_attribute :noti_t_key, encrypt_add_pre_and_postfix(new_noti_t_key, 'noti_t_key', 19)
+  def noti_key=(new_noti_key)
+    if new_noti_key
+      check_type('noti_key', new_noti_key, 'String')
+      write_attribute :noti_key, encrypt_add_pre_and_postfix(new_noti_key, 'noti_key', 19)
     else
-      write_attribute :noti_t_key, nil
+      write_attribute :noti_key, nil
     end
   end
-  alias_method :noti_t_key_before_type_cast, :noti_t_key
+  alias_method :noti_key_before_type_cast, :noti_key
  
   
-  # 6) noti_t_options - required - Hash in Model - encrypted text in db
-  # validates_presence_of :noti_t_options # does not work for some reason!
-  attr_readonly :noti_t_options
-  def noti_t_options
-    return nil unless (temp_extended_noti_t_options = read_attribute(:noti_t_options))
-    # puts "get temp_extended_noti_t_options = #{temp_extended_noti_t_options} (#{temp_extended_noti_t_options.class.name})"
-    YAML::load encrypt_remove_pre_and_postfix(temp_extended_noti_t_options, 'noti_t_options', 20)
-  end # noti_t_options
-  def noti_t_options=(new_noti_t_options)
-    if new_noti_t_options
-      check_type('noti_t_options', new_noti_t_options, 'Hash')
-      temp_extended_noti_t_options = encrypt_add_pre_and_postfix(new_noti_t_options.to_yaml , 'noti_t_options', 20)
-      # puts "set temp_extended_noti_t_options = #{temp_extended_noti_t_options} (#{temp_extended_noti_t_options.class.name})"
-      write_attribute :noti_t_options, temp_extended_noti_t_options
+  # 6) noti_options - required - Hash in Model - encrypted text in db
+  # validates_presence_of :noti_options # does not work for some reason!
+  attr_readonly :noti_options
+  def noti_options
+    return nil unless (temp_extended_noti_options = read_attribute(:noti_options))
+    # puts "get temp_extended_noti_options = #{temp_extended_noti_options} (#{temp_extended_noti_options.class.name})"
+    YAML::load encrypt_remove_pre_and_postfix(temp_extended_noti_options, 'noti_options', 20)
+  end # noti_options
+  def noti_options=(new_noti_options)
+    if new_noti_options
+      check_type('noti_options', new_noti_options, 'Hash')
+      temp_extended_noti_options = encrypt_add_pre_and_postfix(new_noti_options.to_yaml , 'noti_options', 20)
+      # puts "set temp_extended_noti_options = #{temp_extended_noti_options} (#{temp_extended_noti_options.class.name})"
+      write_attribute :noti_options, temp_extended_noti_options
     else
-      # puts "set temp_extended_noti_t_options = nil"
-      write_attribute :noti_t_options, nil
+      # puts "set temp_extended_noti_options = nil"
+      write_attribute :noti_options, nil
     end
-  end # noti_t_options=
-  alias_method :noti_t_options_before_type_cast, :noti_t_options
+  end # noti_options=
+  alias_method :noti_options_before_type_cast, :noti_options
   
 
   # 7) noti_read - required - Y/N String in model - not encrypted
   validates_presence_of :noti_read
   validates_inclusion_of :noti_read, :in => %w(Y N)
   
-  
-  # 8) noti_fullpath - required - string in model - encrypted text in db
-  validates_presence_of :noti_fullpath, :on => :update
-  def noti_fullpath
-    return nil unless (extended_noti_fullpath = read_attribute(:noti_fullpath))
-    encrypt_remove_pre_and_postfix(extended_noti_fullpath, 'noti_fullpath', 21)
-  end
-  def noti_fullpath=(new_noti_fullpath)
-    return noti_fullpath if noti_fullpath
-    if new_noti_fullpath
-      check_type('noti_fullpath', new_noti_fullpath, 'String')
-      write_attribute :noti_fullpath, encrypt_add_pre_and_postfix(new_noti_fullpath, 'noti_fullpath', 21)
-    else
-      write_attribute :noti_fullpath, nil
-    end
-  end
-  alias_method :noti_fullpath_before_type_cast, :noti_fullpath
-
 
 
   ##################

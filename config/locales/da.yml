@@ -86,6 +86,8 @@ da:
         price_title: "Pris i virtuelle frie penge. Valgfri. Kan sættes nu eller senere. Bedst hvis køber/modtager sætter pris der så bliver et mål for hvor meget pris vedkommende satte på den modtagne ting/hjælp. Der anvendes frie virtuelle nationale penge herinde med en negativ rente på 7.6 % om året. Et formål med den negative rente er at sikre at penge og resourcer cirkulerer. Den negative rente gør det muligt med et samfund uden vækst, uden overforbrug og med mere fritid."
         price_prompt: "Pris:"
         price_free: "frie"
+        direction_giver_prompt: "Tilbyder:"
+        direction_receiver_prompt: "Søger:"
         description_title: "Tilbud. Skal udfyldes. Beskriv det du tilbyder hvad enten det er ting eller hjælp. Du bestemmer selv om du vil sælge, udleje, udlåne eller forære ting væk gratis. Da der handles i virtuelle frie penge forærer man i praksis altid ting væk, men ens saldo i frie penge vokser. Opslag laves på din væg og vises til dine venner eller hvem du har valgt skal se opslag fra denne app. Dine venner kan kommenterer dit opslag på din væg. Aftalen bør sluttes herinde så din saldo i frie penge opdateres."
         description_prompt: "Tilbud:"
         file_title: "Vedlæg gerne et foto af det som du deler. Billeder er en effektiv måde at blive set på af ens venner."
@@ -108,13 +110,20 @@ da:
   # index controller
   inbox:
      index:
+        page_header_html: "Meddelelser"
         from_column_heading_html: "Fra"
         to_column_heading_html: "Til"
         created_at_column_heading_html: "Dato"
         message_column_heading_html: "Meddelelse"
-        request_for_app_friendship: "%{username} vil gerne være din %{appname} ven"
-        app_friendship_accepted: "Venneanmodning accepteret. Du og %{username} er nu %{appname} venner"
-
+        # there must be 4 keys for each notification.noti_key (*_from_msg, *_from_url, *_to_msg and *_to_url)
+        request_for_app_friendship_v1_from_msg: "%{appname} venneanmodning blev sendt til %{to_user}"
+        request_for_app_friendship_v1_from_url: "/users/%{to_id}"
+        request_for_app_friendship_v1_to_msg: "%{from_user} vil gerne være din %{appname} ven"
+        request_for_app_friendship_v1_to_url: "/users/%{from_id}"
+        app_friendship_accepted_v1_from_msg: "Du accepterede venneanmodning fra %{to_user}. Du og %{to_user} er nu %{appname} venner"
+        app_friendship_accepted_v1_from_url: "/users/%{to_id}"
+        app_friendship_accepted_v1_to_msg: "%{from_user} accepterede din venneanmodning. Du og %{from_user} er nu %{appname} venner"
+        app_friendship_accepted_v1_to_url: "/users/%{from_id}"
 
   # user controller
   users:
@@ -150,7 +159,7 @@ da:
         friend_status_text_b: "%{appname} venneanmodninger fra %{username} ignoreres"
         not_a_friend: "Der vises kun detaljerede brugeroplysninger om dine venner"
         top_text_friend_html: "%{username} bruger oplysninger."
-        top_text_non_friend_html: "Detaljerede brugeroplysninger vises kun for dine %{apiname} venner. Brugeroplysninger for %{username} kan ikke vises. Brug nedenstående links hvis du ønsker at tilføje %{username} som ven. Opret evt. en liste til dine %{apiname} venner hvis du ønsker at holde dine %{"
+        top_text_non_friend_html: "Detaljerede brugeroplysninger vises kun for dine venner. Brugeroplysninger for %{username} kan ikke vises. Brug ovenstående knapper hvis du ønsker at tilføje %{username} som ven."
         api_profile_link_text: "profile"
      friend_action_buttons:
         add_api_friend: "Tilføj %{apiname} ven"

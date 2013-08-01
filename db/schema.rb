@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20130731092322) do
+ActiveRecord::Schema.define(version: 20130801162402) do
 
   create_table "exchange_rates", force: true do |t|
     t.string   "from_currency",    limit: 3, null: false
@@ -66,16 +66,15 @@ ActiveRecord::Schema.define(version: 20130731092322) do
   add_index "gifts", ["user_id_receiver"], name: "index_gifts_on_receiver"
 
   create_table "notifications", force: true do |t|
-    t.string   "noti_id",        limit: 20, null: false
-    t.string   "to_user_id",     limit: 20, null: false
-    t.string   "from_user_id",   limit: 20
-    t.string   "internal",       limit: 1,  null: false
-    t.text     "noti_t_key",                null: false
-    t.text     "noti_t_options"
-    t.string   "noti_read",      limit: 1,  null: false
+    t.string   "noti_id",      limit: 20, null: false
+    t.string   "to_user_id",   limit: 20, null: false
+    t.string   "from_user_id", limit: 20
+    t.string   "internal",     limit: 1,  null: false
+    t.text     "noti_key",                null: false
+    t.text     "noti_options"
+    t.string   "noti_read",    limit: 1,  null: false
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.text     "noti_fullpath"
   end
 
   add_index "notifications", ["noti_id"], name: "index_noti_on_noti_id", unique: true

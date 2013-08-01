@@ -24,6 +24,7 @@
     c) negative price. set user_id_receiver. Blank user_id_giver
     Implementing b) with an radio group
 
+
 20) how much information to se about deals between friends and friends friends?
     FB: Shows status from friends on wall - do not show status from friends friends on wall
     Show balance for friends - do not show balance for friends friends
@@ -37,8 +38,6 @@
     select between anonymous money without a linked story or link the money to one or more stores / other gifts
     anonymous money - no links between gifts - no story updates
     linked money - story updates
-
-21) gifts/index: link to gift
 
 22) show gift
 
@@ -81,9 +80,22 @@
     Looks like a sign problem
     List balance in users/show page and debug the problem from here.
 
-31) DRY partial with user picture for header, gifts/index and index/index pages
-
 34) close account and delete all data in app
 
+35) Problem with partial parameters. Uses instance variables instead of :locals => {} until solved.
 
+36) add labels for Offers and Seeks in gifts/index page (ok)
 
+37) change description prompt when radio group changes.
+    Offer if radio group is offers
+    Seek if radio group is seeks
+    Use dynamic description in js/activerecord error messages.
+    Use dynamic description in title? Or generalize title text.
+
+38) gifts/index: upload with file
+
+39) gifts/index: post in wall checkbox. Only if user has granted post-on-wall prio.
+
+40) gifts/index: comment with final description before the deal is closed? Or keep original text with comments?
+
+41) meddelelser

@@ -134,6 +134,15 @@ module ApplicationHelper
     end
   end # format_gift_description
 
+  def format_direction (gift)
+    return if gift.user_id_giver and gift.user_id_receiver ;
+    if gift.user_id_giver
+      my_t ".direction_giver_prompt"
+    else
+      my_t ".direction_receiver_prompt"
+    end
+  end # format_direction
+
   def title
     return APP_NAME unless @user
     n = @user.inbox_new_notifications

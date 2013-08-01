@@ -1,6 +1,6 @@
 class User < ActiveRecord::Base
 
-  FRIEND_REQUEST_NOTI_KEY = 'request_for_app_friendship'
+  FRIEND_REQUEST_NOTI_KEY = 'request_for_app_friendship_v1'
 =begin
   create_table "users", force: true do |t|
     t.string   "user_id",    limit: 20
@@ -393,7 +393,7 @@ class User < ActiveRecord::Base
   def find_friend_request_noti (login_user)
     ns = Notification.where("from_user_id = ? and to_user_id = ? and noti_read = 'N'", login_user.user_id, self.user_id)
     return nil unless ns.size > 0
-    n = ns.find { |n| n.noti_t_key == FRIEND_REQUEST_NOTI_KEY }
+    n = ns.find { |n| n.noti_key == FRIEND_REQUEST_NOTI_KEY }
   end
 
   # returns list with allowed friendship actions: add_api_friend, remove_api_friend, send_app_friend_request, cancel_app_friend_request, accept_app_friend_request, ignore_app_friend_request, remove_app_friend, block_app_user, unblock_app_user
@@ -453,20 +453,19 @@ class User < ActiveRecord::Base
         n.to_user_id = self.user_id
         n.from_user_id = login_user.user_id
         n.internal = 'Y'
-        n.noti_t_key = FRIEND_REQUEST_NOTI_KEY
-        n.noti_t_options = { :username => login_user.user_name, :appname => APP_NAME }
+        # Be careful when renaming or deleting altering keys in noti_options hash.
+        # you may run into problems displaying old and new notification format
+        # Consider creating a new version of request_for_app_friendship key if you renames or deletes noti_options hash keys
+        n.noti_key = FRIEND_REQUEST_NOTI_KEY
+        n.noti_options = { :from_user => login_user.user_name, :from_id => login_user.id,
+                             :to_user => self.user_name, :to_id => self.id,
+                             :appname => APP_NAME }
         n.noti_read = 'N'
       end
     end
-    transaction do
-      f.save!
-      r.save!
-      if n
-        n.save!
-        n.noti_fullpath = "/users/#{login_user.id}?noti_id=#{n.id}"
-        n.save!
-      end
-    end
+    f.save!
+    r.save!
+    n.save! if n
     true
   end # send_app_friend_request
   def cancel_app_friend_request (login_user)
@@ -493,11 +492,9 @@ class User < ActiveRecord::Base
       end
     end
     n = find_friend_request_noti(login_user)
-    transaction do
-      f.save!
-      r.save!
-      n.destroy if n
-    end
+    f.save!
+    r.save!
+    n.destroy if n
     true
   end # cancel_app_friend_request
   def accept_app_friend_request (login_user)
@@ -512,16 +509,17 @@ class User < ActiveRecord::Base
     n.to_user_id = self.user_id
     n.from_user_id = login_user.user_id
     n.internal = 'Y'
-    n.noti_t_key = 'app_friendship_accepted'
-    n.noti_t_options = { :username => login_user.short_user_name, :appname => APP_NAME }
+    # Be careful when renaming or deleting altering keys in noti_options hash.
+    # you may run into problems displaying old and new notification format
+    # Consider creating a new version of app_friendship_accepted key if you renames or deletes noti_options hash keys
+    n.noti_key = 'app_friendship_accepted_v1'
+    n.noti_options = { :from_user => login_user.short_user_name, :from_id => login_user.id,
+                         :to_user => self.short_user_name, :to_id => self.id,
+                         :appname => APP_NAME }
     n.noti_read = 'N'
-    transaction do
-      f.save!
-      r.save!
-      n.save!
-      n.noti_fullpath = "/users/#{login_user.id}?noti_id=#{n.id}"
-      n.save!
-    end
+    f.save!
+    r.save!
+    n.save!
     true
   end # accept_app_friend_request
   def ignore_app_friend_request (login_user)
@@ -553,10 +551,8 @@ class User < ActiveRecord::Base
     end
     f.app_friend = 'N'
     r.app_friend = 'N' unless r.app_friend == 'B'
-    transaction do
-      f.save!
-      r.save!
-    end
+    f.save!
+    r.save!
     true
   end # remove_app_friend
   def block_app_user (login_user)

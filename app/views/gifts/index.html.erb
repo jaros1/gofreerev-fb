@@ -22,8 +22,8 @@
               <%= my_t '.price_free' %>
               <%= @user.currency %>
               &nbsp;&nbsp;&nbsp;
-              Offers: <%= f.radio_button :direction, 'giver' %>
-              Seeks: <%= f.radio_button :direction, 'receiver' %>
+              <%= my_t '.direction_giver_prompt' %> <%= f.radio_button :direction, 'giver' %>
+              <%= my_t '.direction_receiver_prompt' %> <%= f.radio_button :direction, 'receiver' %>
             </td>
           </tr>
           <tr title="<%= my_t '.description_title' %>">
@@ -80,7 +80,7 @@
             <td style="text-align: right"><%= format_price gift.balance(@user.user_id) %></td>
 <% end -%>
             <td></td>
-            <td><%= format_gift_description gift %></td>
+            <td><%= format_direction gift %> <%= format_gift_description gift %></td>
           </tr>
         <% end -%>
     </table>

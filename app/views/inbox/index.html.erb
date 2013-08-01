@@ -1,5 +1,5 @@
 <p>
-  Meddelelser
+  <%= my_t '.page_header_html' %>
 </p>
 
 <table>
@@ -9,7 +9,8 @@
     <th><%= my_t '.created_at_column_heading_html' %></th>
     <th><%= my_t '.message_column_heading_html' %></th>
   </tr>
-  <% for noti in @notifications do loop -%>
+  <% for noti in @notifications do loop
+        postfix = noti.to_user_id == @user.user_id ? 'to' : 'from' -%>
     <tr>
       <td>
 <% if noti.from_user -%>
@@ -21,8 +22,8 @@
     <%= @user2 = noti.to_user ; render '/shared/user_div' %>
 <% end -%>
       </td>
-      <td><%= link_to l(noti.created_at, format: :short), noti.noti_fullpath %></td>
-      <td><%= my_t ".#{noti.noti_t_key}", noti.noti_t_options %></td>
+      <td><%= link_to l(noti.created_at, format: :short), my_t(".#{noti.noti_key}_#{postfix}_url", noti.noti_options) %></td>
+      <td><%= my_t(".#{noti.noti_key}_#{postfix}_msg", noti.noti_options) %></td>
     </tr>
   <% end -%>
 </table>
