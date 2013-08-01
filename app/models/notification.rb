@@ -114,6 +114,18 @@ class Notification < ActiveRecord::Base
   # helper methods #
   ##################
 
+  def other_user (login_user)
+    return nil unless login_user
+    if login_user.user_id == from_user_id
+      to_user
+    elsif login_user.user_id == to_user_id
+      from_user
+    else
+      nil
+    end
+  end # other_user
+
+
 
   # https://github.com/jmazzi/crypt_keeper gem encrypts all attributes and all rows in db with the same key
   # this extension to use different encryption for each attribute and each row

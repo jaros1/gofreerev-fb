@@ -30,9 +30,7 @@
       <%= link_to my_t('.header_inbox_link_text'), inbox_index_path %>
       <b>
         <sup>
-          <span id="new_mesaages_count" style="background-color:red; color:white; font-size:x-small">
-            <%= @user.inbox_new_notifications if @user and @user.inbox_new_notifications > 0 %>
-          </span>
+          <span id="new_mesaages_count" style="background-color:red; color:white; font-size:x-small"><%= @user.inbox_new_notifications if @user and @user.inbox_new_notifications > 0 %></span>
         </sup>
       </b>
     </td>

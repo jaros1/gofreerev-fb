@@ -101,9 +101,26 @@ function gifts_client_validations() {
 
 
 // update new message count in menu line once every minute
+// ok: firefox, chrome and opera
+// not ok:
+// not tested: Midori, IE (broken on my laptop)
+function update_title()
+{
+  var new_mesaages_count = document.getElementById('new_mesaages_count');
+  var no_new_messages = new_mesaages_count.innerHTML ;
+  // alert(no_new_messages) ;
+  if (no_new_messages == '')
+    var new_title = 'Gofreerev' ;
+  else
+    var new_title = '(' + no_new_messages + ') Gofreerev' ;
+  document.title = new_title ;
+} // update_title
+// update new message count in menu line once every minute
 $(document).ready(
     function(){
         setInterval(function(){
             $('#new_mesaages_count').load('/util/new_messages_count');
-        }, 60000);
+            update_title();
+        }, 10000);
     });
+

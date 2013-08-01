@@ -109,6 +109,7 @@ en:
   inbox:
      index:
         from_column_heading_html: "From"
+        to_column_heading_html: "To"
         created_at_column_heading_html: "Date"
         message_column_heading_html: "Message"
         from_div_title_friend: "%{username}. Balance %{balance}. Click here to see user info."

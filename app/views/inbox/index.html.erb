@@ -2,9 +2,12 @@
   Meddelelser
 </p>
 
+<%= link_to "update title", "javascript:update_title()" %><br /><br />
+
 <table>
   <tr>
     <th><%= my_t '.from_column_heading_html' %></th>
+    <th><%= my_t '.to_column_heading_html' %></th>
     <th><%= my_t '.created_at_column_heading_html' %></th>
     <th><%= my_t '.message_column_heading_html' %></th>
   </tr>
@@ -26,9 +29,26 @@
     <% end -%>
 <% end -%>
       </td>
+      <td>
+        <% if noti.to_user -%>
+            <% user2 = noti.to_user
+               if user2.friend?(@user) -%>
+                <div title="<%= my_t '.from_div_title_friend', :username => user2.short_user_name, :balance => format_user_balance(user2, @user) %>"
+                     onclick="top.location.href = '<%= url_for(user2) %>'">
+                  <%= image_tag(user2.profile_picture_url)  %>
+                </div>
+            <% else -%>
+                <div title="<%= my_t '.from_div_title_non_friend', :username => user2.user_name %>"
+                     onclick="top.location.href = '<%= url_for(user2) %>'">
+                  <%= image_tag(user2.profile_picture_url)  %>
+                </div>
+            <% end -%>
+        <% end -%>
+      </td>
       <td><%= link_to l(noti.created_at, format: :short), noti.noti_fullpath %></td>
       <td><%= my_t ".#{noti.noti_t_key}", noti.noti_t_options %></td>
     </tr>
   <% end -%>
 </table>
 <%= will_paginate @notifications %>
+

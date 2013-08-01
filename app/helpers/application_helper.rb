@@ -134,4 +134,11 @@ module ApplicationHelper
     end
   end # format_gift_description
 
+  def title
+    return APP_NAME unless @user
+    n = @user.inbox_new_notifications
+    return APP_NAME unless n > 0
+    "(#{n}) #{APP_NAME}"
+  end
+
 end # ApplicationHelper

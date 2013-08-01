@@ -81,5 +81,9 @@
     Looks like a sign problem
     List balance in users/show page and debug the problem from here.
 
-31) Shold set noti_read to Y in /inbox/index page
+31) DRY partial with user picture for header, gifts/index and index/index pages
+
+32) update title in jquery new_messages_count js script
+
+33) add friends batch for login for new users with many friends
 

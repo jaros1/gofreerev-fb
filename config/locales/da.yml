@@ -108,6 +108,7 @@ da:
   inbox:
      index:
         from_column_heading_html: "Fra"
+        to_column_heading_html: "Til"
         created_at_column_heading_html: "Dato"
         message_column_heading_html: "Meddelelse"
         from_div_title_friend: "%{username}. Saldo %{balance}. Klik her for at se brugeroplysninger."
