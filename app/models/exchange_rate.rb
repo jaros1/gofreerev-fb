@@ -27,41 +27,41 @@ class ExchangeRate < ActiveRecord::Base
     # check for zero or identical currencies
     from_amount = from_amount.to_f
     if from_amount == 0 or from_currency. == to_currency
-      puts 'exchange: zero amount or identical currencies'
+      # puts 'exchange: zero amount or identical currencies'
       to_amount = from_amount
-      puts "exchange: from_amount = #{from_amount}, from_currency = #{from_currency}, to_amount = #{to_amount}, to_currency = #{to_currency}"
+      # puts "exchange: from_amount = #{from_amount}, from_currency = #{from_currency}, to_amount = #{to_amount}, to_currency = #{to_currency}"
       return to_amount
     end
     # find exchange rate - exchanges rates are fetch batch - refreshed once every day on request
     er = ExchangeRate.find_by_from_currency_and_to_currency(from_currency, to_currency)
     unless er
       # not converter. Request for exchange rate requested
-      puts 'exchange: exchange rate not found - request has been sent to bank'
+      # puts 'exchange: exchange rate not found - request has been sent to bank'
       er = ExchangeRate.new
       er.from_currency = from_currency
       er.to_currency = to_currency
       er.request_update = 'Y'
       er.save!
       to_amount = nil
-      puts "exchange: from_amount = #{from_amount}, from_currency = #{from_currency}, to_amount = #{to_amount}, to_currency = #{to_currency}"
+      # puts "exchange: from_amount = #{from_amount}, from_currency = #{from_currency}, to_amount = #{to_amount}, to_currency = #{to_currency}"
       return to_amount
     end
     unless er.exchange_rate
       # no exchange rate yet
-      puts 'exchange: exchange rate not ready yet'
+      # puts 'exchange: exchange rate not ready yet'
       to_amount = nil
-      puts "exchange: from_amount = #{from_amount}, from_currency = #{from_currency}, to_amount = #{to_amount}, to_currency = #{to_currency}"
+      # puts "exchange: from_amount = #{from_amount}, from_currency = #{from_currency}, to_amount = #{to_amount}, to_currency = #{to_currency}"
       return from_amount
     end
     if er.request_update != 'Y' and 1.day.since(er.exchange_rate_at) < Time.new
       # old exchange rate - request new update
-      puts 'exchange: using old exchange rate'
+      # puts 'exchange: using old exchange rate'
       er.request_update = 'Y'
       er.save!
     end
     # convert.
     to_amount = from_amount * er.exchange_rate
-    puts "exchange: from_amount = #{from_amount}, from_currency = #{from_currency}, to_amount = #{to_amount}, to_currency = #{to_currency}"
+    # puts "exchange: from_amount = #{from_amount}, from_currency = #{from_currency}, to_amount = #{to_amount}, to_currency = #{to_currency}"
     to_amount
   end # self.exchange
 

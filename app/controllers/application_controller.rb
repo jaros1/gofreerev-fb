@@ -63,7 +63,7 @@ class ApplicationController < ActionController::Base
   private
   def fetch_user
     # language support
-    puts "fetch_user: start"
+    # puts "fetch_user: start. sessionid = #{request.session_options[:id]}"
     I18n.locale = session[:language] if session[:language]
     puts "I18n.locale = #{I18n.locale}"
     # Cross-site Request Forgery check
@@ -145,6 +145,7 @@ class ApplicationController < ActionController::Base
         # login ok - user created/updated - set session[:user_id]
         puts "fetch_user: login ok: user_id = #{session[:user_id]}"
         session[:user_id] = user_id
+        flash[:notice] = my_t 'gifts.index.welcome_msg_after_login', :appname => APP_NAME, :username => u.short_user_name
 
         # do not cache friends info - friends info. are sync. after login has finished
         includes_friends = false

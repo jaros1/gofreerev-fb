@@ -19,16 +19,16 @@ module GofreerevExtensions
     end
     # first lookup with usertype in scope
     options[:raise] = I18n::MissingTranslationData
-    # puts "my_translate: first lookup: key = #{key}, scope = " + scope.join(',')
+    # puts("my_translate: first lookup: key = #{key}, scope = " + scope.join(',')) if key == '.welcome_msg_after_login'
     begin
       translate(key, options)
-    rescue I18n::MissingTranslationData
-      # puts "I18n::MissingTranslationData. e = #{e.to_s}"
+    rescue I18n::MissingTranslationData => e
+      # puts("I18n::MissingTranslationData. e = #{e.to_s}") if key == '.welcome_msg_after_login'
       # second lookup without usertype in scope
       options.delete(:raise)
       options[:scope] = scope.delete_if { |s| s.to_s.downcase == session[:usertype] }
       # repeat translate without usertype in scope
-      # puts "my_translate: second lookup: key = #{key}, scope = " + scope.join(',')
+      # puts("my_translate: second lookup: key = #{key}, scope = " + scope.join(',')) if key == '.welcome_msg_after_login'
       return translate(key, options)
     end
   end

@@ -25,18 +25,44 @@ class GiftsController < ApplicationController
       index
       return
     end
+
+    # check for file upload
+    gift_file = params[:gift_file]
+    if gift_file.class.name == 'ActionDispatch::Http::UploadedFile' and @user.post_gift_allowed?
+      puts "gift_file = #{gift_file} (#{gift_file.class.name})"
+      puts "gift_file.methods = " + gift_file.methods.sort.join(', ')
+      if !@user.post_gift_allowed?
+        flash.now[:notice] = my_t '.file_upload_not_allowed'
+        index
+        return
+      end
+      original_filename = gift_file.original_filename
+      puts "gift_file.original_filename = #{gift_file.original_filename}"
+      filetype = gift_file.original_filename.split('.').last
+      if !%w(jpg gif png bmp).index(filetype)
+        flash.now[:notice] = my_t '.unsupported_filetype', :filetype => filetype
+        index
+        return
+      end
+    end # if
+
     # puts "create: description = #{@gift.description}"
 
     gift_posted_on_wall_api_wall = nil
     if @user.post_gift_allowed?
       # post gift on login api wall (facebook, google+ etc)
+
       gift_posted_on_wall_api_wall = false
       case
         when @user.facebook?
           puts "access_token = #{session[:access_token]}"
           api = Koala::Facebook::API.new(session[:access_token])
           begin
-            api_response = api.put_connections('me', 'feed', :message => params[:gift][:description])
+            if gift_file
+              api_response = api.put_picture(gift_file, {:message => params[:gift][:description]})
+            else
+              api_response = api.put_connections('me', 'feed', :message => params[:gift][:description])
+            end
             puts "api_response = #{api_response} (#{api_response.class.name})"
             @gift.api_gift_id = api_response['id'].split('_')[1] # id to post in facebook wall
             gift_posted_on_wall_api_wall = true
@@ -115,7 +141,8 @@ class GiftsController < ApplicationController
 
     # initialize list of gifts
     # list of gifts with @user as giver or receiver + list of gifts med @user.friends as giver or receiver
-    friends = Friend.where('user_id_giver = ?', @user.user_id).collect { |u| u.user_id_receiver }
+    # where clause is used for non encrypted fields. find_all is used for encrypted fields
+    friends = Friend.where("user_id_giver = ?", @user.user_id).find_all { |f| f.app_friend == 'Y' or !f.app_friend and f.api_friend == 'Y' }.collect { |u| u.user_id_receiver }
     friends.push(@user.user_id)
     # todo: problem with sort. received_at is encrypted text in db and can not be used in sort
     #       there should also be a possible for user to select sort conditions

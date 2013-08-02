@@ -33,8 +33,8 @@ en:
   activerecord:
     attributes:
       gift:
-        description: "Offer"
-        price: "Pris"
+        description: "Text"
+        price: "Price"
         user_id_giver: "Seller/giver"
         user_id_receiver: "Buyer/receiver"
     errors:
@@ -42,7 +42,7 @@ en:
         gift:
           attributes:
             price:
-              readonly: "can not be changed for a close offer"
+              readonly: "can not be changed for a closed post"
 
   #########
   # views #
@@ -77,10 +77,13 @@ en:
 
   # gift controller
   gifts:
+     create:
+        unsupported_filetype: "Unsupported filetype %{filetype} ii file upload. Supported filetypes are jpg, gif, png and bmp"
      index:
         not_logged_in_flash: "Invalid request. Not logged in."
         not_logged_in_text: "You are not logged in and you can not create wall postings."
-        post_gift_not_allowed_title: "%{appname} lack access to write on your %{apiname} wall. You can share your resources with your friends in here, but postings will only appear here and not on your %{apiname} wall. This means your message is likely to be seen by very few friends. You should therefore allow %{appname} permission to write on your wall. %{appname} will only make the postings you ask for."
+        welcome_msg_after_login: "Welcome %{username} to %{appname}"
+        post_gift_not_allowed_title: "%{appname} lack access to write on your %{apiname} wall. You can share your resources with your friends in here, but postings will only appear here and not on your %{apiname} wall. This means your message is likely to be seen by very few friends. You should therefore allow %{appname} permission to write on your wall. %{appname} will only make the postings you ask for. Pictures are uploaded to %{apiname}. Pictures can not be uploaded without permission to write on your %{apiname} wall."
         post_gift_not_allowed_text: "%{appname} lack access to write on your %{apiname} wall."
         request_post_gift_priv_link_text: "Allow %{appname} to post on my behalf!"
         create_gift_header_line: "Help each other and the environment. Share your resources. Give loan / rent out, sell etc."
@@ -89,13 +92,14 @@ en:
         price_free: "free"
         direction_giver_prompt: "Offers:"
         direction_receiver_prompt: "Seeks:"
-        description_title: "Offer. Required. Describe what you offer whether it is things or help. You decide whether you want to sell, rent, lend or give things away for free. We are trading in virtuel free money. Since we are trading in virtuel money you are in practive always giving you give ting and help away for free. But your balance in free money grows. Posts are make on your wall and displayed to your friends or whom you have selected to view posts by this app. Your friends can comment on your post on your wall. The agreement should be finalized in here so your balance in free cash being updated."
-        description_prompt: "Offer:"
-        file_title: "Optional picture. Photos are an effective way to be seen by your friends."
+        description_title: "Text. Required. Describe what you offer or what you are looking for whether it is things or help. You decide whether you want to sell, buy, rent, lend or give things away for free. We are trading in virtuel free money. Since we are trading in virtuel money you are in practive always giving you give ting or receiving help for free. But your balance in free money changes. Posts are make on your wall and displayed to your friends or whom you have selected to view posts by this app. Your friends can comment on your post on your wall. The agreement should be finalized in here so your balance in free cash being updated."
+        description_prompt: "Text:"
+        file_title_true: "Optional picture. Photos are an effective way to be seen by your friends. Picture upload takes some time as the picture is uploaded in 2 steps. First upload to %{appname} and than upload to %{apiname}. Please wait."
+        file_title_false: "Sorry. Picture upload is not possible. Pictures are uploaded to your %{apiname} wall and %{appname} lack permission to write on your wall. Photos are an effective way to be seen by your friends. Your can use link in top of this page if you wish to give %{appname} access to write on your %{apiname} wall."
         file_prompt: "Picture:"
         gift_submit_button_text: "Create post"
         pending_gift_popup_msg: "Change currency? Select Cancel if you wish to complete your wall posting. Select OK to ship the not saved posting and change currency."
-        description_required_text: "Offer is required."
+        description_required_text: "Text is required."
         price_invalid_text: "Price is invalid. Only numbers, max 2 decimals, thousands separator not allowed."
         no_gifts_was_found: "No gifts was found."
         giver_column_heading_html: "From:"
@@ -104,7 +108,7 @@ en:
         price_column_heading_html: "Price:"
         new_price_column_heading_html: "Value<br />today:"
         balance_column_heading_html: "Balance"
-        gift_link_title: "Click on link for more offer information"
+        gift_link_title: "Click on link for more information"
         social_dividend_description_1: "Social dividend %{price} %{currency} from %{giver} to %{receiver} for period up to %{to}"
         social_dividend_description_2: "Social dividend %{price} %{currency} from %{giver} to %{receiver} for period from %{from} to %{to}"
 

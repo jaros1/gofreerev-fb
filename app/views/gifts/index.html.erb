@@ -31,9 +31,9 @@
             <td><%= f.text_area(:description, :size => '60x8') %></td>
             <td><%= f.submit my_t('.gift_submit_button_text'), :onclick => '{return gifts_client_validations()}' %></td>
           </tr>
-          <tr title="<%= my_t '.file_title' %>">
+          <tr title="<%= my_t ".file_title_#{@user.post_gift_allowed?}", :appname => APP_NAME, :apiname => @user.api_name_without_brackets %>">
             <td><%= my_t '.file_prompt' %></td>
-            <td colspan="2"><%= file_field_tag(:gift_file) %></td>
+            <td colspan="2"><%= file_field_tag(:gift_file, :disabled => !@user.post_gift_allowed?) %></td>
           </tr>
         </table>
     <% end %>

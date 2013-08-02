@@ -29,7 +29,7 @@ da:
   activerecord:
     attributes:
       gift:
-        description: "Tilbud"
+        description: "Tekst"
         price: "Pris"
         user_id_giver: "Sælger/giver"
         user_id_receiver: "Køber/modtager"
@@ -38,7 +38,7 @@ da:
         gift:
           attributes:
             price:
-              readonly: "kan ikke ændres for et lukket tilbud"
+              readonly: "kan ikke ændres for et lukket opslag"
 
   #########
   # views #
@@ -76,10 +76,13 @@ da:
 
   # gift controller - general texts
   gifts:
+     create:
+        unsupported_filetype: "Usupporteret filtype %{filetype} i fil upload. Supporterede filtyper er jpg, gif, png og bmp"
      index:
         not_logged_in_flash: "Ugyldigt kald. Du er ikke logget på."
         not_logged_in_text: "Du er ikke logget ind og der kan ikke oprettes opslag."
-        post_gift_not_allowed_title: "%{appname} mangler adgang til at skrive på din væg i %{apiname}. Du kan godt dele dine resourcer med dine venner herinde, men opslag vil kun blive vist her og ikke på din %{apiname} væg. Dvs. dine opslag vil sandsynligvis blive set af meget få venner. Du bør derfor give %{appname} tilladelse til at skrive på din væg. %{appname} laver kun de opslag du selv beder om."
+        welcome_msg_after_login: "Velkommen %{username} til %{appname}"
+        post_gift_not_allowed_title: "%{appname} mangler adgang til at skrive på din væg i %{apiname}. Du kan godt dele dine resourcer med dine venner herinde, men opslag vil kun blive vist her og ikke på din %{apiname} væg. Dvs. dine opslag vil sandsynligvis blive set af meget få venner. Du bør derfor give %{appname} tilladelse til at skrive på din væg. %{appname} laver kun de opslag du selv beder om. Billeder gemmes kun i %{apiname}. Uden adgang til at skrive på din %{apiname} væg kan der derfor ikke uploades billeder i forbindelse med opslag herinde."
         post_gift_not_allowed_text: "%{appname} mangler adgang til at skrive på din %{apiname} væg."
         request_post_gift_priv_link_text: "Giv %{appname} lov til at skrive på min væg!"
         create_gift_header_line: "Hjælp hinanden og miljøet. Del jeres resourcer. Giv, lån/lej ud, sælg etc."
@@ -88,22 +91,23 @@ da:
         price_free: "frie"
         direction_giver_prompt: "Tilbyder:"
         direction_receiver_prompt: "Søger:"
-        description_title: "Tilbud. Skal udfyldes. Beskriv det du tilbyder hvad enten det er ting eller hjælp. Du bestemmer selv om du vil sælge, udleje, udlåne eller forære ting væk gratis. Da der handles i virtuelle frie penge forærer man i praksis altid ting væk, men ens saldo i frie penge vokser. Opslag laves på din væg og vises til dine venner eller hvem du har valgt skal se opslag fra denne app. Dine venner kan kommenterer dit opslag på din væg. Aftalen bør sluttes herinde så din saldo i frie penge opdateres."
-        description_prompt: "Tilbud:"
-        file_title: "Vedlæg gerne et foto af det som du deler. Billeder er en effektiv måde at blive set på af ens venner."
+        description_title: "Tekst. Skal udfyldes. Beskriv det du tilbyder eller søger hvad enten det er ting eller hjælp. Du bestemmer selv om du vil sælge, udleje, udlåne eller forære ting væk gratis. Da der handles i virtuelle frie penge forærer man i praksis altid ting væk, men ens saldo i frie penge vokser. Opslag laves på din væg og vises til dine venner eller hvem du har valgt skal se opslag fra denne app. Dine venner kan kommenterer dit opslag på din væg. Aftalen bør sluttes herinde så din saldo i frie penge opdateres."
+        description_prompt: "Tekst:"
+        file_title_true: "Vedlæg gerne et foto af det som du deler eller leder efter. Billeder er en effektiv måde at blive set på af ens venner. Upload kan godt tage lidt tid da billedet uploades i 2 trin. Først til %{appname} og dernæst videre til %{apiname}. Vent venligst."
+        file_title_false: "Der kan ikke vedlægges foto af det som du deler eller leder efter. Billeder uploades til din %{apiname} væg og %{appname} mangler adgang til at skrive på din væg. Billeder er en effektiv måde at blive set på af ens venner. Benyt link øverst i denne side hvis du ønsker at give %{appname} mangler adgang til at skrive på din %{apiname} væg."
         file_prompt: "Vedlæg:"
         gift_submit_button_text: "Opret opslag"
         pending_gift_popup_msg: "Ret valuta? Svar Cancel for at vende tilbage og lave opslag færdig. Svar OK for at tabe det indtastede opslag og opdatere valuta."
-        description_required_text: "Tilbud skal udfyldes."
+        description_required_text: "Tekst skal udfyldes."
         price_invalid_text: "Pris is ugyldig. Brug kun cifre, højst et decimal komma/punktum og højst 2 decimaler. Tusindtalsseparator er ikke tilladt."
-        no_gifts_was_found: "Der blev ikke fundet nogle tilbud."
+        no_gifts_was_found: "Der blev ikke fundet nogle opslag."
         giver_column_heading_html: "Fra:"
         receiver_column_heading_html: "Til:"
         received_at_column_heading_html : "Dato:"
         price_column_heading_html: "Pris:"
         new_price_column_heading_html: "Værdi<nr>nu:"
         balance_column_heading_html: "Saldo"
-        gift_link_title: "Klik på link for flere informationer om tilbud"
+        gift_link_title: "Klik på link for flere informationer om opslag"
         social_dividend_description_1: "Social dividende %{price} %{currency} fra %{giver} til %{receiver} for perioden op til %{to}"
         social_dividend_description_2: "Social dividende %{price} %{currency} fra %{giver} til %{receiver} for perioden fra %{from} til %{to}"
 

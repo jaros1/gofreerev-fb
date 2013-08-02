@@ -60,7 +60,7 @@
 
 25) add date format. see application_helper.format_date
 
-25) add time format. Use timezone in time format in viiws
+25) add time format. Use timezone in time format in views
 
 26) add a count to a gift. Normally only 1 gift, but can be any number or nil. Eg. nil for a offered service.
     Clone a closed gift, keep the original gift and decrease counter. Close deal when counter reaches zero.
@@ -70,10 +70,11 @@
     friends - show detailed user information
     non friends - link to FB page - link with friend request
 
-29) app to api notifications:
-    get a app access token
-    Many FB notification can be marked as spam
-    Implement internal app notifications so that FB notification is only used to activate not logged in users
+29) api notifications:
+    get a app access token.
+    send only notifications to api if internal notifications in app is not read.
+    Short summary of unread app notifications in api notification
+    Only few api notifications and stop sending messages if user do not start app
 
 30) user balance not shown correct
     for example charlie balance in usd and in dkk
@@ -81,21 +82,17 @@
     List balance in users/show page and debug the problem from here.
 
 34) close account and delete all data in app
+    auto cleanup and close of inactive accounts?!
+    there is no reason to keep data for users that does not use the app ( other than delete of user and gifts changes other users balance )
+    maybe
 
-35) Problem with partial parameters. Uses instance variables instead of :locals => {} until solved.
-
-36) add labels for Offers and Seeks in gifts/index page (ok)
-
-37) change description prompt when radio group changes.
-    Offer if radio group is offers
-    Seek if radio group is seeks
-    Use dynamic description in js/activerecord error messages.
-    Use dynamic description in title? Or generalize title text.
+35) Problem with partial parameters. Are using instance variables instead of :locals => {} until the problem is solved.
+    See render '/shared/user_div' used in many views
 
 38) gifts/index: upload with file
+    pictures only uploded to login api, not saved local
+    Disable file upload button if post-on-wall prio. is missing
 
 39) gifts/index: post in wall checkbox. Only if user has granted post-on-wall prio.
 
 40) gifts/index: comment with final description before the deal is closed? Or keep original text with comments?
-
-41) meddelelser
