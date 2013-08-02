@@ -78,7 +78,9 @@ en:
   # gift controller
   gifts:
      create:
-        unsupported_filetype: "Unsupported filetype %{filetype} ii file upload. Supported filetypes are jpg, gif, png and bmp"
+        file_upload_not_allowed: "File upload not allowed. %{appname} lack access to write on your %{apiname} wall."
+        unsupported_filetype: "Unsupported filetype %{filetype} ii file upload. Supported filetypes are jpg, gif, png and bmp."
+        file_is_too_big: "File is too big. Max allowed picture size is %{maxsize}."
      index:
         not_logged_in_flash: "Invalid request. Not logged in."
         not_logged_in_text: "You are not logged in and you can not create wall postings."

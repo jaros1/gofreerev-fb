@@ -27,7 +27,7 @@ class Gift < ActiveRecord::Base
   # encrypt_add_pre_and_postfix/encrypt_remove_pre_and_postfix added in setters/getters for better encryption
   # this is different encrypt for each attribute and each db row
   # _before_type_cast methods are used by form helpers and are redefined
-  crypt_keeper :description, :currency, :price, :received_at, :new_price, :negative_interest, :social_dividend, :api_gift_id, :social_dividend_from, :balance_giver, :balance_receiver, :encryptor => :aes, :key => ENCRYPT_KEYS[1]
+  crypt_keeper :description, :currency, :price, :received_at, :new_price, :negative_interest, :social_dividend, :api_gift_id, :social_dividend_from, :balance_giver, :balance_receiver, :api_picture_url, :encryptor => :aes, :key => ENCRYPT_KEYS[1]
 
 
   ##############
@@ -241,9 +241,28 @@ class Gift < ActiveRecord::Base
   end
   alias_method :balance_receiver_before_type_cast, :balance_receiver
 
-  # 17) created_at - timestamp - not encrypted
+  # 17) picture Y/N - String - not encrypted
+  
+  # 18) api_picture_url - String in Model - encrypted text in db
+  def api_picture_url
+    # puts "gift.api_picture_url: api_picture_url = #{read_attribute(:api_picture_url)} (#{read_attribute(:api_picture_url).class.name})"
+    return nil unless (extended_api_picture_url = read_attribute(:api_picture_url))
+    encrypt_remove_pre_and_postfix(extended_api_picture_url, 'api_picture_url', 2)
+  end
+  def api_picture_url=(new_api_picture_url)
+    # puts "gift.api_picture_url=: api_picture_url = #{new_api_picture_url} (#{new_api_picture_url.class.name})"
+    if new_api_picture_url
+      check_type('api_picture_url', new_api_picture_url, 'String')
+      write_attribute :api_picture_url, encrypt_add_pre_and_postfix(new_api_picture_url, 'api_picture_url', 2)
+    else
+      write_attribute :api_picture_url, nil
+    end
+  end
+  alias_method :api_picture_url_before_type_cast, :api_picture_url
 
-  # 18) updated_at - timestamp - not encrypted
+  # 19) created_at - timestamp - not encrypted
+
+  # 20) updated_at - timestamp - not encrypted
 
 
   #

@@ -77,12 +77,14 @@ da:
   # gift controller - general texts
   gifts:
      create:
-        unsupported_filetype: "Usupporteret filtype %{filetype} i fil upload. Supporterede filtyper er jpg, gif, png og bmp"
+        file_upload_not_allowed: "Fil upload ej tilladt. %{appname} mangler adgang til at skrive på din %{apiname} væg."
+        unsupported_filetype: "Usupporteret filtype %{filetype} i fil upload. Supporterede filtyper er jpg, gif, png og bmp."
+        file_is_too_big: "Fil er for stor. Højst tilladte størrelse på billede er %{maxsize}."
      index:
         not_logged_in_flash: "Ugyldigt kald. Du er ikke logget på."
         not_logged_in_text: "Du er ikke logget ind og der kan ikke oprettes opslag."
         welcome_msg_after_login: "Velkommen %{username} til %{appname}"
-        post_gift_not_allowed_title: "%{appname} mangler adgang til at skrive på din væg i %{apiname}. Du kan godt dele dine resourcer med dine venner herinde, men opslag vil kun blive vist her og ikke på din %{apiname} væg. Dvs. dine opslag vil sandsynligvis blive set af meget få venner. Du bør derfor give %{appname} tilladelse til at skrive på din væg. %{appname} laver kun de opslag du selv beder om. Billeder gemmes kun i %{apiname}. Uden adgang til at skrive på din %{apiname} væg kan der derfor ikke uploades billeder i forbindelse med opslag herinde."
+        post_gift_not_allowed_title: "%{appname} mangler adgang til at skrive på din %{apiname} væg. Du kan godt dele dine resourcer med dine venner herinde, men opslag vil kun blive vist her og ikke på din %{apiname} væg. Dvs. dine opslag vil sandsynligvis blive set af meget få venner. Du bør derfor give %{appname} tilladelse til at skrive på din væg. %{appname} laver kun de opslag du selv beder om. Billeder gemmes kun i %{apiname}. Uden adgang til at skrive på din %{apiname} væg kan der derfor ikke uploades billeder i forbindelse med opslag herinde."
         post_gift_not_allowed_text: "%{appname} mangler adgang til at skrive på din %{apiname} væg."
         request_post_gift_priv_link_text: "Giv %{appname} lov til at skrive på min væg!"
         create_gift_header_line: "Hjælp hinanden og miljøet. Del jeres resourcer. Giv, lån/lej ud, sælg etc."

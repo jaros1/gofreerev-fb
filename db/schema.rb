@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20130801162402) do
+ActiveRecord::Schema.define(version: 20130802122601) do
 
   create_table "exchange_rates", force: true do |t|
     t.string   "from_currency",    limit: 3, null: false
@@ -59,6 +59,8 @@ ActiveRecord::Schema.define(version: 20130801162402) do
     t.text     "social_dividend_from"
     t.text     "balance_giver"
     t.text     "balance_receiver"
+    t.string   "picture",              limit: 1
+    t.text     "api_picture_url"
   end
 
   add_index "gifts", ["gift_id"], name: "index_gifts_on_gift_id", unique: true
