@@ -119,16 +119,22 @@ class GiftsController < ApplicationController
         flash[:notice] = 'Gift not posted on your wall'
       end
 
-      # todo: test - get picture url maybe?
       if @gift.picture == 'Y'
+        # todo: gets only small picture url from fb - is should be possible to get url for a larger picture from fb
+        # get temporary picture url - may change - url change is catched in onerror in img in html page
         api_request = "#{@gift.api_gift_id}?fields=full_picture"
+        # api_request = @gift.api_gift_id.split('_').join('/picture/') + '?type=normal' # still small picture
+        # api_request = @gift.api_gift_id.split('_').join('/picture/')  + '?fields=full_picture' # empty response (302 redirect) with profile picture
+        # todo: add exception handler
         api_response = api.get_object(api_request)
         # puts "access_token = #{session[:access_token]}"
-        puts "api_request = #{api_request}"
-        puts "api_response = #{api_response}"
+        # puts "api_request = #{api_request}"
+        # puts "api_response = #{api_response}"
         # api_request = 100006397022113_1396195803936974?fields=full_picture,
         # api_response = {"full_picture"=>"https://fbexternal-a.akamaihd.net/safe_image.php?d=AQCxjY2WxJW1STSP&url=https%3A%2F%2Ffbcdn-photos-a-a.akamaihd.net%2Fhphotos-ak-ash4%2F1006016_1396195797270308_1576848979_s.jpg", "id"=>"100006397022113_1396195803936974", "created_time"=>"2013-08-02T10:50:54+0000"}
-        @gift.api_picture_url = response["full_picture"]
+        @gift.api_picture_url = api_response["full_picture"]
+        @gift.api_picture_url_updated_at = Time.now
+        @gift.api_picture_url_on_error_at = nil
         @gift.save!
       end
       # api_response = api.get_object("me/statuses?__paging_token=#{@gift.api_gift_id}&limit=1")

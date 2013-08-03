@@ -124,3 +124,30 @@ $(document).ready(
         }, 60000);
     });
 
+// catch onerror for api pictures. Gift could be deleted. url could have changed
+var missing_api_picture_urls = [] ;
+function check_api_picture_url (giftid, img)
+{
+  if ((img.width <= 1) && (img.height <= 1)) {
+      // image not found - url expired or api picture deleted
+      // alert('changed picture url: gift_id = ' + giftid + ', img = ' + img + ', width = ' + img.width + ', height = ' + img.height) ;
+      missing_api_picture_urls.push(giftid) ;
+  }
+  else {
+      // image found. rescale
+      img.width = 200 ;
+  }
+} // changed_api_picture_url
+function report_missing_api_picture_urls()
+{
+  if (missing_api_picture_urls.size == 0) return ;
+  // Report ids with invalid picture url
+  missing_api_picture_urls = missing_api_picture_urls.join() ;
+  $.ajax({
+            url: "/util/missing_api_picture_urls",
+            type: "POST",
+            data: { gifts: {
+                ids: missing_api_picture_urls}}
+  });
+  missing_api_picture_urls = [] ;
+} // report_missing_picture_urls

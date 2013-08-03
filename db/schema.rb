@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20130802122601) do
+ActiveRecord::Schema.define(version: 20130803072027) do
 
   create_table "exchange_rates", force: true do |t|
     t.string   "from_currency",    limit: 3, null: false
@@ -41,12 +41,12 @@ ActiveRecord::Schema.define(version: 20130802122601) do
   add_index "friends", ["user_id_receiver"], name: "index_friends_on_receiver"
 
   create_table "gifts", force: true do |t|
-    t.string   "gift_id",              limit: 20
-    t.text     "description",                     null: false
-    t.text     "currency",                        null: false
+    t.string   "gift_id",                     limit: 20
+    t.text     "description",                            null: false
+    t.text     "currency",                               null: false
     t.text     "price"
-    t.string   "user_id_giver",        limit: 20
-    t.string   "user_id_receiver",     limit: 20
+    t.string   "user_id_giver",               limit: 20
+    t.string   "user_id_receiver",            limit: 20
     t.text     "received_at"
     t.date     "new_price_at"
     t.text     "new_price"
@@ -55,12 +55,14 @@ ActiveRecord::Schema.define(version: 20130802122601) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.text     "api_gift_id"
-    t.string   "gifttype",             limit: 1
+    t.string   "gifttype",                    limit: 1
     t.text     "social_dividend_from"
     t.text     "balance_giver"
     t.text     "balance_receiver"
-    t.string   "picture",              limit: 1
+    t.string   "picture",                     limit: 1
     t.text     "api_picture_url"
+    t.text     "api_picture_url_updated_at"
+    t.text     "api_picture_url_on_error_at"
   end
 
   add_index "gifts", ["gift_id"], name: "index_gifts_on_gift_id", unique: true

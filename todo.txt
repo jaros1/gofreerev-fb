@@ -99,3 +99,12 @@
 39) gifts/index: post in wall checkbox. Only if user has granted post-on-wall prio.
 
 40) gifts/index: comment with final description before the deal is closed? Or keep original text with comments?
+
+41) implement other logins. Google+ and linkedin login is almost identical wish facebook login
+
+42) connect login user across different login apis. Only one balance even if you uses more than one login api.
+    can not show gifts from other login apis, but can include balance from other login apis in user's balance.
+
+43) gets only small picture api url from fb. See gifts#create method
+    It should be possible to get url for large picture from facebook api
+

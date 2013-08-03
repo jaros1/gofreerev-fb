@@ -80,7 +80,13 @@
             <td style="text-align: right"><%= format_price gift.balance(@user.user_id) %></td>
 <% end -%>
             <td></td>
-            <td><%= format_direction gift %> <%= format_gift_description gift %></td>
+            <td>
+              <%= format_direction gift %> <%= format_gift_description gift %>
+<% if gift.picture == 'Y' and !gift.api_picture_url_on_error_at -%>
+              <br />
+              <%= image_tag gift.api_picture_url, :onload => "check_api_picture_url(#{gift.id}, this)" %>
+<% end -%>
+            </td>
           </tr>
         <% end -%>
     </table>
@@ -95,4 +101,7 @@
     // Use english texts in client side validations.
     csv_gifts_description_required = '<%= my_t '.description_required_text' %>' ;
     csv_gifts_price_invalid = '<%= my_t '.price_invalid_text' %>' ;
+
+    // report any invalid api picture urls - temp url has changed or picture has been deleted
+    setTimeout(report_missing_api_picture_urls, 2000) ;
 </script>
