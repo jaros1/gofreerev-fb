@@ -1,13 +1,23 @@
+<script>
+<%= # recheck invalid picture urls with owner permissions
+    @missing_api_picture_urls %>
+</script>
+
 <% #noinspection RubyResolve
    if !@user -%>
     <p>
       <%= my_t '.not_logged_in_text' %>
     </p>
 <% else -%>
-    <% unless @user.post_gift_allowed? -%>
+    <% if !@user.post_gift_allowed? -%>
         <p title="<%= my_t '.post_gift_not_allowed_title', :appname => APP_NAME, :apiname => @user.api_name_without_brackets %>">
           <%= my_t '.post_gift_not_allowed_text', :appname => APP_NAME, :apiname => @user.api_name_without_brackets %><br />
           <%= link_to my_t('.request_post_gift_priv_link_text', :appname => APP_NAME), "javascript: {top.location.href='#{auth_post_gift_url}'}" %>
+        </p>
+    <% elsif flash[:read_stream] -%>
+        <p title="<%= my_t '.read_stream_not_allowed_title', :appname => APP_NAME, :apiname => @user.api_name_without_brackets %>">
+          <%= my_t '.read_stream_not_allowed_text', :appname => APP_NAME, :apiname => @user.api_name_without_brackets %><br />
+          <%= link_to my_t('.request_read_stream_priv_link_text', :appname => APP_NAME), "javascript: {top.location.href='#{auth_read_stream_url}'}" %>
         </p>
     <% end -%>
     <%= form_for @gift, :multipart => true, :html => { :enctype => 'multipart/form-data' } do |f| %>
@@ -102,6 +112,8 @@
     csv_gifts_description_required = '<%= my_t '.description_required_text' %>' ;
     csv_gifts_price_invalid = '<%= my_t '.price_invalid_text' %>' ;
 
-    // report any invalid api picture urls - temp url has changed or picture has been deleted
+    // report any invalid api picture urls - url has changed or picture has been deleted
+    // array with gift ids is initialized in img onload="check_api_picture_url ..."
+    // submitted in 2 seconds to allow pictures to load
     setTimeout(report_missing_api_picture_urls, 2000) ;
 </script>

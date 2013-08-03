@@ -124,8 +124,12 @@ $(document).ready(
         }, 60000);
     });
 
-// catch onerror for api pictures. Gift could be deleted. url could have changed
+// catch load errors  for api pictures. Gift could have been deleted. url could have been changed
+// gift ids with invalid picture urls are collected in a global javascript array and submitted to server in 2 seconds
+// on error gift.api_picture_url_on_error_at is setted and a new picture url is looked up if possible
+// JS array with gift ids
 var missing_api_picture_urls = [] ;
+// function used in onload for img tags
 function check_api_picture_url (giftid, img)
 {
   if ((img.width <= 1) && (img.height <= 1)) {
@@ -137,17 +141,18 @@ function check_api_picture_url (giftid, img)
       // image found. rescale
       img.width = 200 ;
   }
-} // changed_api_picture_url
+} // check_api_picture_url
+// function to report gift ids with invalid urls. Submitted in end of gifts/index page
 function report_missing_api_picture_urls()
 {
   if (missing_api_picture_urls.size == 0) return ;
   // Report ids with invalid picture url
-  missing_api_picture_urls = missing_api_picture_urls.join() ;
+  var missing_api_picture_urls_local = missing_api_picture_urls.join() ;
   $.ajax({
             url: "/util/missing_api_picture_urls",
             type: "POST",
             data: { gifts: {
-                ids: missing_api_picture_urls}}
+                ids: missing_api_picture_urls_local}}
   });
   missing_api_picture_urls = [] ;
 } // report_missing_picture_urls

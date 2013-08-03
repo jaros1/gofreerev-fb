@@ -27,7 +27,7 @@ class Gift < ActiveRecord::Base
   # encrypt_add_pre_and_postfix/encrypt_remove_pre_and_postfix added in setters/getters for better encryption
   # this is different encrypt for each attribute and each db row
   # _before_type_cast methods are used by form helpers and are redefined
-  crypt_keeper :description, :currency, :price, :received_at, :new_price, :negative_interest, :social_dividend, :api_gift_id, :social_dividend_from, :balance_giver, :balance_receiver, :api_picture_url, :encryptor => :aes, :key => ENCRYPT_KEYS[1]
+  crypt_keeper :description, :currency, :price, :received_at, :new_price, :negative_interest, :social_dividend, :api_gift_id, :social_dividend_from, :balance_giver, :balance_receiver, :api_picture_url, :api_picture_url_updated_at, :api_picture_url_on_error_at, :encryptor => :aes, :key => ENCRYPT_KEYS[1]
 
 
   ##############
@@ -260,9 +260,41 @@ class Gift < ActiveRecord::Base
   end
   alias_method :api_picture_url_before_type_cast, :api_picture_url
 
-  # 19) created_at - timestamp - not encrypted
+  # 19) api_picture_url_updated_at - timestamp in model - encrypted text 
+  def api_picture_url_updated_at
+    return nil unless (temp_extended_api_picture_url_updated_at = read_attribute(:api_picture_url_updated_at))
+    YAML::load(temp_extended_api_picture_url_updated_at)
+  end
+  def api_picture_url_updated_at=(new_api_picture_url_updated_at)
+    if new_api_picture_url_updated_at
+      check_type('api_picture_url_updated_at', new_api_picture_url_updated_at, 'Time')
+      write_attribute :api_picture_url_updated_at, encrypt_add_pre_and_postfix(new_api_picture_url_updated_at.to_yaml, 'api_picture_url_updated_at', 5)
+    else
+      write_attribute :api_picture_url_updated_at, nil
+    end
+  end
+  alias_method :api_picture_url_updated_at_before_type_cast, :api_picture_url_updated_at
 
-  # 20) updated_at - timestamp - not encrypted
+  # 20) api_picture_url_on_error_at - timestamp in model - encrypted text (todo) in db
+  def api_picture_url_on_error_at
+    return nil unless (temp_extended_api_picture_url_on_error_at = read_attribute(:api_picture_url_on_error_at))
+    YAML::load(temp_extended_api_picture_url_on_error_at)
+  end
+  def api_picture_url_on_error_at=(new_api_picture_url_on_error_at)
+    if new_api_picture_url_on_error_at
+      check_type('api_picture_url_on_error_at', new_api_picture_url_on_error_at, 'Time')
+      write_attribute :api_picture_url_on_error_at, encrypt_add_pre_and_postfix(new_api_picture_url_on_error_at.to_yaml, 'api_picture_url_on_error_at', 5)
+    else
+      write_attribute :api_picture_url_on_error_at, nil
+    end
+  end
+  alias_method :api_picture_url_on_error_at_before_type_cast, :api_picture_url_on_error_at
+
+  # 21) deleted_at_api. String Y/N.
+
+  # 22) created_at - timestamp - not encrypted
+
+  # 23) updated_at - timestamp - not encrypted
 
 
   #

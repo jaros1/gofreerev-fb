@@ -108,3 +108,11 @@
 43) gets only small picture api url from fb. See gifts#create method
     It should be possible to get url for large picture from facebook api
 
+44) gift post. Keep current page number?
+
+45) problem with empty /util/missing_api_picture_urls requests
+    Client should only call /util/missing_api_picture_urls if there was found pictures with invalid urls
+    Array size test does not work
+    Maybe longer delay than 2 seconds
+
+48) g.api_picture_url_on_error_at is not Time
