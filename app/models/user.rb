@@ -227,6 +227,18 @@ class User < ActiveRecord::Base
     end
   end # post_gift_allowed?
 
+  # "permissions"=>{"data"=>[{"installed"=>1, "basic_info"=>1, "read_stream"=>1, "status_update"=>1, "photo_upload"=>1, "video_upload"=>1, "create_note"=>1, "share_item"=>1, "publish_stream"=>1, "publish_actions"=>1, "bookmarked"=>1}
+  def read_gifts_allowed?
+    permissions = self.permissions
+    case
+      when facebook?
+        permissions['read_stream'] == 1
+      else
+        puts "read_wall_allowed? not implemented for #{user_id.first(2)} users"
+        false
+    end
+  end  # read_gifts_allowed?
+
   # profile picture helpers - a copy of profile picture is downloaded at login
   def profile_picture_filename
     profile_picture_name
@@ -587,6 +599,35 @@ class User < ActiveRecord::Base
     return @new_notifications if defined?(@new_notifications)
     @new_notifications = Notification.where("to_user_id = ? and noti_read = 'N'", self.user_id).size
   end
+
+  # refresh user permisssion
+  # called in error handling after picture upload with ApiPostNotFoundException error
+  # see gifts/create
+  def get_api_permissions(access_token)
+    raise NoApiAccessTokenException unless access_token
+    api = Koala::Facebook::API.new(access_token)
+    api_request = 'me?fields=permissions'
+    puts "api_request = #{api_request}"
+    begin
+      api_response = api.get_object(api_request)
+    rescue Koala::Facebook::ClientError => e
+      puts 'Koala::Facebook::ClientError'
+      puts "e.fb_error_type = #{e.fb_error_type}"
+      puts "e.fb_error_code = #{e.fb_error_code}"
+      puts "e.fb_error_subcode = #{e.fb_error_subcode}"
+      puts "e.fb_error_message = #{e.fb_error_message}"
+      puts "e.http_status = #{e.http_status}"
+      puts "e.response_body = #{e.response_body}"
+      puts "e.fb_error_type.class.name = #{e.fb_error_type.class.name}"
+      puts "e.fb_error_code.class.name = #{e.fb_error_code.class.name}"
+      raise
+    end # rescue
+    puts "api_response = #{api_response}"
+    self.permissions = api_response['permissions']['data'][0]
+    self.permissions = {} if self.permissions == []
+    save!
+    self
+  end # get_api_permissions
 
   ##############
   # encryption #

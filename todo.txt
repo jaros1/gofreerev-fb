@@ -105,8 +105,8 @@
 42) connect login user across different login apis. Only one balance even if you uses more than one login api.
     can not show gifts from other login apis, but can include balance from other login apis in user's balance.
 
-43) gets only small picture api url from fb. See gifts#create method
-    It should be possible to get url for large picture from facebook api
+43) gets only small picture api url from fb. See gift.get_api_picture_url method
+    It should be possible to get url for a larger picture from facebook api
 
 44) gift post. Keep current page number?
 
@@ -115,4 +115,15 @@
     Array size test does not work
     Maybe longer delay than 2 seconds
 
-48) g.api_picture_url_on_error_at is not Time
+50) wrap fb api into an generic exception handler
+
+52) replace paginate with a more dynamic page expansion. Query new post when user scrolls to end of page
+
+53) Welcome msg. Some welcome xxx if no gifts. Some welcome back if gifts.
+    Maybe use some timestamps to check if welcome message should be displayed
+
+54) add accept conditions for new users
+
+55) add disclaimer
+
+56) add cookie policy note

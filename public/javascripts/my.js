@@ -116,12 +116,13 @@ function update_title()
   document.title = new_title ;
 } // update_title
 // update new message count in menu line once every minute
+// todo: change from once every 10 minutes (600000) to once every minute (60000)
 $(document).ready(
     function(){
         setInterval(function(){
             $('#new_mesaages_count').load('/util/new_messages_count');
             update_title();
-        }, 60000);
+        }, 600000);
     });
 
 // catch load errors  for api pictures. Gift could have been deleted. url could have been changed

@@ -80,6 +80,11 @@ da:
         file_upload_not_allowed: "Fil upload ej tilladt. %{appname} mangler adgang til at skrive på din %{apiname} væg."
         unsupported_filetype: "Usupporteret filtype %{filetype} i fil upload. Supporterede filtyper er jpg, gif, png og bmp."
         file_is_too_big: "Fil er for stor. Højst tilladte størrelse på billede er %{maxsize}."
+        # todo: translate to danish
+        posted_api_and_app_ok: "Opslag opretter herinde og på din %{apiname} væg"
+        posted_app_ok: "Opslag opretter herinde, men ikke på din %{apiname} væg"
+        picture_upload_unknown_problem: "Opslag opretter herinde og på din %{apiname} væg. Foto blev uploaded til din #{apiname} væg, men #{APP_NAME} mangler rettigheder til at se billedet på din %{apiname} væg og kan derfor ikke vise foto herinde. Måske du har ændret rettighedsindstillinger for %{appname}."
+        picture_upload_missing_permission: "Opslag opretter herinde og på din %{apiname} væg. Foto blev uploaded til din %{apiname} væg, men %{appname} mangler rettigheder til at se billedet på din %{apiname} og kan derfor ikke vise foto herinde. Du kan løse dette problem ved enten at ændre synlighed for %{appname} opslag til offentlig eller ved at give %{appname} lov til at læse opslag på din %{apiname} væg."
      index:
         not_logged_in_flash: "Ugyldigt kald. Du er ikke logget på."
         not_logged_in_text: "Du er ikke logget ind og der kan ikke oprettes opslag."
@@ -88,9 +93,9 @@ da:
         post_gift_not_allowed_text: "%{appname} mangler adgang til at skrive på din %{apiname} væg."
         request_post_gift_priv_link_text: "Giv %{appname} lov til at skrive på min væg!"
         # todo: translate to danish
-        read_stream_not_allowed_title: "%{appname} lack access to read posts on your %{apiname} wall. You can upload gift with pictures to %{apiname} but pictures can not be displayed in %{appname}. You can change visibility for %{appname} posts to public or you could grant %{appname} permissiong to read posts on your wall. %{appname} will only use read posts permission to display pictures witin %{appname}."
-        read_stream_not_allowed_text: "%{appname} lack access to read posts on your %{apiname} wall."
-        request_read_stream_priv_link_text: "Allow %{appname} to read posts on my wall!"
+        read_stream_not_allowed_title: "%{appname} mangler adgang til at læse opslag på din %{apiname} væg. Du kan herinde fra lave opslag med foto på din %{apiname} væg, men billeder kan ikke blive vist i %{appname}. Du kan løse problemet ved at ændre synlighed for %{appname}'s opslag til offentligt eller du kan give %{appname} lov til at læse opslag på din %{apiname} væg. %{appname} vil udelukkende bruge adgangen til at vise de uploadede billeder her."
+        read_stream_not_allowed_text: "%{appname} mangler adgang til at læse opslag på din %{apiname} væg."
+        request_read_stream_priv_link_text: "Giv %{appname} lov til at læse opslag på min væg!"
         # end todo
         create_gift_header_line: "Hjælp hinanden og miljøet. Del jeres resourcer. Giv, lån/lej ud, sælg etc."
         price_title: "Pris i virtuelle frie penge. Valgfri. Kan sættes nu eller senere. Bedst hvis køber/modtager sætter pris der så bliver et mål for hvor meget pris vedkommende satte på den modtagne ting/hjælp. Der anvendes frie virtuelle nationale penge herinde med en negativ rente på 7.6 % om året. Et formål med den negative rente er at sikre at penge og resourcer cirkulerer. Den negative rente gør det muligt med et samfund uden vækst, uden overforbrug og med mere fritid."

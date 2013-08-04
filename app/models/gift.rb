@@ -178,13 +178,13 @@ class Gift < ActiveRecord::Base
   attr_readonly :api_gift_id
   def api_gift_id
     return nil unless (extended_api_gift_id = read_attribute(:api_gift_id))
-    encrypt_remove_pre_and_postfix(extended_api_gift_id, 'api_gift_id', 2)
+    encrypt_remove_pre_and_postfix(extended_api_gift_id, 'api_gift_id', 24)
   end
   def api_gift_id=(new_api_gift_id)
     return api_gift_id if self.api_gift_id
     if new_api_gift_id
       check_type('api_gift_id', new_api_gift_id, 'String')
-      write_attribute :api_gift_id, encrypt_add_pre_and_postfix(new_api_gift_id, 'api_gift_id', 2)
+      write_attribute :api_gift_id, encrypt_add_pre_and_postfix(new_api_gift_id, 'api_gift_id', 24)
     else
       write_attribute :api_gift_id, nil
     end
@@ -198,13 +198,13 @@ class Gift < ActiveRecord::Base
   # 14) received_at. Date in model - encrypted text in db - set once when the deal is closed together with user_id_receiver
   def social_dividend_from
     return nil unless (temp_ext_soc_div_from = read_attribute(:social_dividend_from))
-    temp_social_dividend_from = encrypt_remove_pre_and_postfix(temp_ext_soc_div_from, 'social_dividend_from', 10)
+    temp_social_dividend_from = encrypt_remove_pre_and_postfix(temp_ext_soc_div_from, 'social_dividend_from', 27)
     YAML::load(temp_social_dividend_from)
   end
   def social_dividend_from=(new_soc_div_from)
     if new_soc_div_from
       check_type('social_dividend_from', new_soc_div_from, 'Date')
-      write_attribute :social_dividend_from, encrypt_add_pre_and_postfix(new_soc_div_from.to_yaml, 'social_dividend_from', 10)
+      write_attribute :social_dividend_from, encrypt_add_pre_and_postfix(new_soc_div_from.to_yaml, 'social_dividend_from', 27)
     else
       write_attribute :social_dividend_from, nil
     end
@@ -214,12 +214,12 @@ class Gift < ActiveRecord::Base
   # 15) balance giver - Float in Model. Encrypted text in db.
   def balance_giver
     return nil unless (extended_balance_giver = read_attribute(:balance_giver))
-    str_to_float_or_nil encrypt_remove_pre_and_postfix(extended_balance_giver, 'balance_giver', 13)
+    str_to_float_or_nil encrypt_remove_pre_and_postfix(extended_balance_giver, 'balance_giver', 25)
   end
   def balance_giver=(new_balance_giver)
     if new_balance_giver.to_s != ''
       check_type('balance_giver', new_balance_giver, 'Float')
-      write_attribute :balance_giver, encrypt_add_pre_and_postfix(new_balance_giver.to_s, 'balance_giver', 13)
+      write_attribute :balance_giver, encrypt_add_pre_and_postfix(new_balance_giver.to_s, 'balance_giver', 25)
     else
       write_attribute :balance_giver, nil
     end
@@ -229,12 +229,12 @@ class Gift < ActiveRecord::Base
   # 16) balance receiver - Float in model - encrypted text in db
   def balance_receiver
     return nil unless (extended_balance_receiver = read_attribute(:balance_receiver))
-    str_to_float_or_nil encrypt_remove_pre_and_postfix(extended_balance_receiver, 'balance_receiver', 14)
+    str_to_float_or_nil encrypt_remove_pre_and_postfix(extended_balance_receiver, 'balance_receiver', 26)
   end
   def balance_receiver=(new_balance_receiver)
     if new_balance_receiver.to_s != ''
       check_type('balance_receiver', new_balance_receiver, 'Float')
-      write_attribute :balance_receiver, encrypt_add_pre_and_postfix(new_balance_receiver.to_s, 'balance_receiver', 14)
+      write_attribute :balance_receiver, encrypt_add_pre_and_postfix(new_balance_receiver.to_s, 'balance_receiver', 26)
     else
       write_attribute :balance_receiver, nil
     end
@@ -247,13 +247,13 @@ class Gift < ActiveRecord::Base
   def api_picture_url
     # puts "gift.api_picture_url: api_picture_url = #{read_attribute(:api_picture_url)} (#{read_attribute(:api_picture_url).class.name})"
     return nil unless (extended_api_picture_url = read_attribute(:api_picture_url))
-    encrypt_remove_pre_and_postfix(extended_api_picture_url, 'api_picture_url', 2)
+    encrypt_remove_pre_and_postfix(extended_api_picture_url, 'api_picture_url', 23)
   end
   def api_picture_url=(new_api_picture_url)
     # puts "gift.api_picture_url=: api_picture_url = #{new_api_picture_url} (#{new_api_picture_url.class.name})"
     if new_api_picture_url
       check_type('api_picture_url', new_api_picture_url, 'String')
-      write_attribute :api_picture_url, encrypt_add_pre_and_postfix(new_api_picture_url, 'api_picture_url', 2)
+      write_attribute :api_picture_url, encrypt_add_pre_and_postfix(new_api_picture_url, 'api_picture_url', 23)
     else
       write_attribute :api_picture_url, nil
     end
@@ -263,12 +263,13 @@ class Gift < ActiveRecord::Base
   # 19) api_picture_url_updated_at - timestamp in model - encrypted text 
   def api_picture_url_updated_at
     return nil unless (temp_extended_api_picture_url_updated_at = read_attribute(:api_picture_url_updated_at))
-    YAML::load(temp_extended_api_picture_url_updated_at)
+    temp_api_picture_url_updated_at = encrypt_remove_pre_and_postfix(temp_extended_api_picture_url_updated_at, 'api_picture_url_updated_at', 21)
+    YAML::load(temp_api_picture_url_updated_at)
   end
   def api_picture_url_updated_at=(new_api_picture_url_updated_at)
     if new_api_picture_url_updated_at
       check_type('api_picture_url_updated_at', new_api_picture_url_updated_at, 'Time')
-      write_attribute :api_picture_url_updated_at, encrypt_add_pre_and_postfix(new_api_picture_url_updated_at.to_yaml, 'api_picture_url_updated_at', 5)
+      write_attribute :api_picture_url_updated_at, encrypt_add_pre_and_postfix(new_api_picture_url_updated_at.to_yaml, 'api_picture_url_updated_at', 21)
     else
       write_attribute :api_picture_url_updated_at, nil
     end
@@ -278,12 +279,13 @@ class Gift < ActiveRecord::Base
   # 20) api_picture_url_on_error_at - timestamp in model - encrypted text (todo) in db
   def api_picture_url_on_error_at
     return nil unless (temp_extended_api_picture_url_on_error_at = read_attribute(:api_picture_url_on_error_at))
-    YAML::load(temp_extended_api_picture_url_on_error_at)
+    temp_api_picture_url_on_error_at = encrypt_remove_pre_and_postfix(temp_extended_api_picture_url_on_error_at, 'api_picture_url_on_error_at', 22)
+    YAML::load(temp_api_picture_url_on_error_at)
   end
   def api_picture_url_on_error_at=(new_api_picture_url_on_error_at)
     if new_api_picture_url_on_error_at
       check_type('api_picture_url_on_error_at', new_api_picture_url_on_error_at, 'Time')
-      write_attribute :api_picture_url_on_error_at, encrypt_add_pre_and_postfix(new_api_picture_url_on_error_at.to_yaml, 'api_picture_url_on_error_at', 5)
+      write_attribute :api_picture_url_on_error_at, encrypt_add_pre_and_postfix(new_api_picture_url_on_error_at.to_yaml, 'api_picture_url_on_error_at', 22)
     else
       write_attribute :api_picture_url_on_error_at, nil
     end
@@ -491,6 +493,45 @@ class Gift < ActiveRecord::Base
 
   end # create_social_dividend
 
+  # todo: this request url only return url for small picture. it would be nice to get url with a larger picture
+  def get_api_picture_url (access_token)
+    return nil unless picture == 'Y'
+    return nil if deleted_at_api == 'Y'
+    raise NoApiAccessTokenException unless access_token
+    api = Koala::Facebook::API.new(access_token)
+    api_request = "#{api_gift_id}?fields=full_picture"
+    begin
+      api_response = api.get_object(api_request)
+    rescue Koala::Facebook::ClientError => e
+      puts 'Koala::Facebook::ClientError'
+      puts "e.fb_error_type = #{e.fb_error_type}"
+      puts "e.fb_error_code = #{e.fb_error_code}"
+      puts "e.fb_error_subcode = #{e.fb_error_subcode}"
+      puts "e.fb_error_message = #{e.fb_error_message}"
+      puts "e.http_status = #{e.http_status}"
+      puts "e.response_body = #{e.response_body}"
+      puts "e.fb_error_type.class.name = #{e.fb_error_type.class.name}"
+      puts "e.fb_error_code.class.name = #{e.fb_error_code.class.name}"
+      # Koala::Facebook::ClientError
+      # e.fb_error_type = GraphMethodException
+      # e.fb_error_code = 100
+      # e.fb_error_subcode =
+      # e.fb_error_message = Unsupported get request.
+      # e.http_status = 400
+      # e.response_body = {"error":{"message":"Unsupported get request.","type":"GraphMethodException","code":100}}
+      # e.fb_error_type.class.name = String
+      # e.fb_error_code.class.name = Fixnum
+      # todo: identical error response if picture is deleted or if user is not allowed to see picture
+      if e.fb_error_type == 'GraphMethodException' and e.fb_error_code == 100
+        # picture not found - maybe picture has been deleted - maybe a permission problem
+        raise ApiPostNotFoundException
+      else
+        raise
+      end
+    end
+    puts "api_response = #{api_response}"
+    return api_response["full_picture"]
+  end # get_api_picture_url
 
   # psydo attributea
   attr_accessor :file, :direction

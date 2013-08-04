@@ -7,6 +7,7 @@ class GiftsController < ApplicationController
   end
 
   def create
+    flash.now[:notice] = nil
     @gift = Gift.new
     # todo: should validate :price with an regular expressions. "x".to_f == 0.0
     @gift.price = params[:gift][:price].to_f if params[:gift][:price].to_s != ''
@@ -31,16 +32,16 @@ class GiftsController < ApplicationController
     # check for file upload
 
     if gift_file.class.name == 'ActionDispatch::Http::UploadedFile' and @user.post_gift_allowed?
-      puts "gift_file = #{gift_file} (#{gift_file.class.name})"
-      puts "gift_file.methods = " + gift_file.methods.sort.join(', ')
+      # puts "gift_file = #{gift_file} (#{gift_file.class.name})"
+      # puts "gift_file.methods = " + gift_file.methods.sort.join(', ')
       if !@user.post_gift_allowed?
         flash.now[:notice] = my_t '.file_upload_not_allowed', :appname => APP_NAME, :apiname => @user.api_name_without_brackets
         index
         return
       end
       original_filename = gift_file.original_filename
-      puts "gift_file.original_filename = #{gift_file.original_filename}"
-      puts "size = #{gift_file.size}"
+      # puts "gift_file.original_filename = #{gift_file.original_filename}"
+      # puts "size = #{gift_file.size}"
       filetype = gift_file.original_filename.split('.').last
       if !%w(jpg gif png bmp).index(filetype)
         flash.now[:notice] = my_t '.unsupported_filetype', :filetype => filetype
@@ -106,17 +107,17 @@ class GiftsController < ApplicationController
       end # case
     end # if
 
+    puts "flash.now[:notice] = #{flash.now[:notice]}"
     unless flash.now[:notice]
       @gift.save!
       # todo: use api.get_object('me/statuses?__paging_token=3287865251224&limit=1') to read status
       # todo: fol query 100006397022113_1396195803936974?fields=full_picture returns picture url
       # todo: fol query me/picture/1396195803936974 returns picture url
       #                 <userid>/picture/<picture_id>
-      # todo: language support missing
       if gift_posted_on_wall_api_wall
-        flash[:notice] = "Gift posted in here and on your #{@user.api_name_without_brackets} wall"
+        flash[:notice] = my_t '.posted_api_and_app_ok', :apiname => @user.api_name_without_brackets
       else
-        flash[:notice] = 'Gift not posted on your wall'
+        flash[:notice] = my_t '.posted_app_ok', :apiname => @user.api_name_without_brackets
       end
 
       if @gift.picture == 'Y'
@@ -128,52 +129,43 @@ class GiftsController < ApplicationController
         # todo: add exception handler
         puts "access_token = #{session[:access_token]}"
         puts "api_request = #{api_request}"
+
         begin
-          api_response = api.get_object(api_request)
-        rescue Koala::Facebook::ClientError => e
-          puts 'Koala::Facebook::ClientError'
-          puts "e.fb_error_type = #{e.fb_error_type}"
-          puts "e.fb_error_code = #{e.fb_error_code}"
-          puts "e.fb_error_subcode = #{e.fb_error_subcode}"
-          puts "e.fb_error_message = #{e.fb_error_message}"
-          puts "e.http_status = #{e.http_status}"
-          puts "e.response_body = #{e.response_body}"
-          puts "e.fb_error_type.class.name = #{e.fb_error_type.class.name}"
-          puts "e.fb_error_code.class.name = #{e.fb_error_code.class.name}"
-          puts "api_response = #{api_response}"
-
-          if e.fb_error_type == 'GraphMethodException' and e.fb_error_code == 100
-            # problem with picture uploads and permissions
-            # could not get full_picture url for an uploaded picture with visibility friends
-            # the problem appeared after changing app visibility from public to friends
-            # that is - app is not allowed to get info about the uploaded picture!!
-            # there must be more to it - changed visibility to only me and did get picture url
-            # changed visibility to friends and did get the picture url
-            # just display a warning and continue
-            # todo: translate
-            flash[:notice] = "Gift posted in here and on your #{@user.api_name_without_brackets} wall. " +
-                             "Picture was uploaded to your #{@user.api_name_without_brackets} wall but #{APP_NAME} did not have permission to read the picture on your wall and can not display the picture in here. " +
-                              "You can solve this problem either by changing visibility of app and posts for #{APP_NAME} to public " +
-                              "or by granting #{APP_NAME} permission to read posts in your wall."
-            flash[:read_stream] = 'Missing read_stream permission' # display link to grant read_stream permission
-            @gift.picture = 'N'
-            @gift.save!
-            redirect_to :action => 'index'
-            return
+          @gift.api_picture_url = @gift.get_api_picture_url(session[:access_token])
+        rescue ApiPostNotFoundException => e
+          # problem with picture uploads and permissions
+          # could not get full_picture url for an uploaded picture with visibility friends
+          # the problem appeared after changing app visibility from public to friends
+          # that is - app is not allowed to get info about the uploaded picture!!
+          # there must be more to it - changed visibility to only me and did get picture url
+          # changed visibility to friends and did get the picture url
+          # just display a warning and continue. Request read_stream permission from user if read_stream priv. is missing
+          if @user.read_gifts_allowed?
+            # check if user has removed read stream priv.
+            @user.get_api_permissions(session[:access_token])
           end
-
-          raise
-
+          if @user.read_gifts_allowed?
+            # error - this should not happen.
+            flash[:notice] = my_t '.picture_upload_unknown_problem', :appname => APP_NAME, :apiname => @user.api_name_without_brackets
+          else
+            # flash with request for read stream privs
+            flash[:notice] = my_t '.picture_upload_missing_permission', :appname => APP_NAME, :apiname => @user.api_name_without_brackets
+            flash[:read_stream] = 'Missing read_stream permission' # display link to grant read_stream permission
+          end
+          @gift.picture = 'N'
+          @gift.save!
+          redirect_to :action => 'index'
+          return
+        end # rescue
+        if @gift.api_picture_url
+          # save picture url from api
+          @gift.api_picture_url_updated_at = Time.now
+          @gift.api_picture_url_on_error_at = nil
+          @gift.save!
+        else
+          puts "Did not get a picture url from api. Must be problem with missing access token, picture != Y or deleted_at_api == Y"
         end
-        # api_request = 100006397022113_1396195803936974?fields=full_picture,
-        # api_response = {"full_picture"=>"https://fbexternal-a.akamaihd.net/safe_image.php?d=AQCxjY2WxJW1STSP&url=https%3A%2F%2Ffbcdn-photos-a-a.akamaihd.net%2Fhphotos-ak-ash4%2F1006016_1396195797270308_1576848979_s.jpg", "id"=>"100006397022113_1396195803936974", "created_time"=>"2013-08-02T10:50:54+0000"}
-        @gift.api_picture_url = api_response["full_picture"]
-        @gift.api_picture_url_updated_at = Time.now
-        @gift.api_picture_url_on_error_at = nil
-        @gift.save!
       end
-      # api_response = api.get_object("me/statuses?__paging_token=#{@gift.api_gift_id}&limit=1")
-      # api_response = api.get_object("me/statuses?__paging_token=#{picture_id}&limit=1")
 
       redirect_to :action => 'index'
       return
