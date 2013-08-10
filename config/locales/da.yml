@@ -74,6 +74,14 @@ da:
         title_non_friend: "%{username}. Klik her for at se brugeroplysninger."
         title_friend: "%{username}. Saldo %{balance}. Klik her for at se brugeroplysninger."
 
+
+  # will paginate gem
+  will_paginate:
+    next_label: "Næste side"
+    previous_label: "Forrige side"
+
+
+
   # gift controller - general texts
   gifts:
      create:
@@ -117,11 +125,22 @@ da:
         receiver_column_heading_html: "Til:"
         received_at_column_heading_html : "Dato:"
         price_column_heading_html: "Pris:"
+        received_at_and_pice_heading_html: "Dato og pris:"
         new_price_column_heading_html: "Værdi<nr>nu:"
-        balance_column_heading_html: "Saldo"
-        gift_link_title: "Klik på link for flere informationer om opslag"
+        balance_column_heading_html: "Saldo:"
+        link_and_text_column_heading_html: "Tekst:"
         social_dividend_description_1: "Social dividende %{price} %{currency} fra %{giver} til %{receiver} for perioden op til %{to}"
         social_dividend_description_2: "Social dividende %{price} %{currency} fra %{giver} til %{receiver} for perioden fra %{from} til %{to}"
+     gifts:
+        gift_link_title: "Klik på link for flere informationer om opslag"
+        gift_picture_title: "Klik på billede for flere informationer om opslag"
+        # 4 translate keys to format gift text with link and text.
+        direction_giver: "%{username} tilbyder"
+        direction_receiver: "%{username} søger"
+        optional_price: "/ %{price}"
+        gift_link_text: "%{date} %{optional_price} / %{direction}"  # nested translate
+        gift_text_html: " : %{text}" # text is sanitized. Only todo tags is allowed
+        enter_comment: "Skriv en kommentar..."
 
   # index controller
   inbox:

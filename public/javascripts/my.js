@@ -80,7 +80,7 @@ var csv_gifts_price_invalid = 'Price is invalid. Only numbers, max 2 decimals, t
 function gifts_client_validations() {
     // check required description
     var gift_description = document.getElementById('gift_description') ;
-    if (String.trim(gift_description.value) == '') {
+    if (!gift_description.value || String.trim(gift_description.value) == '') {
         alert(csv_gifts_description_required) ;
         return false ;
     }
@@ -146,7 +146,7 @@ function check_api_picture_url (giftid, img)
 // function to report gift ids with invalid urls. Submitted in end of gifts/index page
 function report_missing_api_picture_urls()
 {
-  if (missing_api_picture_urls.size == 0) return ;
+  if (missing_api_picture_urls.length == 0) return ;
   // Report ids with invalid picture url
   var missing_api_picture_urls_local = missing_api_picture_urls.join() ;
   $.ajax({
@@ -157,3 +157,36 @@ function report_missing_api_picture_urls()
   });
   missing_api_picture_urls = [] ;
 } // report_missing_picture_urls
+
+// auto resize text fields
+// found at http://stackoverflow.com/questions/454202/creating-a-textarea-with-auto-resize
+var observe;
+if (window.attachEvent) {
+    observe = function (element, event, handler) {
+        element.attachEvent('on'+event, handler);
+    };
+}
+else {
+    observe = function (element, event, handler) {
+        element.addEventListener(event, handler, false);
+    };
+}
+function autoresize_text_field (text) {
+    function resize () {
+        text.style.height = 'auto';
+        text.style.height = text.scrollHeight+'px';
+    }
+    /* 0-timeout to get the already changed text */
+    function delayedResize () {
+        window.setTimeout(resize, 0);
+    }
+    observe(text, 'change',  resize);
+    observe(text, 'cut',     delayedResize);
+    observe(text, 'paste',   delayedResize);
+    observe(text, 'drop',    delayedResize);
+    observe(text, 'keydown', delayedResize);
+
+    text.focus();
+    text.select();
+    resize();
+}

@@ -6,7 +6,7 @@ module GofreerevExtensions
   # second lookup without usertype in scope only if text not found in first lookup with usertype in scope.
   private
   def my_translate (key, options = {})
-    # puts "my_tranlate"
+    # puts "my_tranlate, key = #{key}, options = #{options} (#{options.class.name})"
     scope = options[:scope]
     if scope
       scope = scope.to_s if scope.class.name == 'Symbol'

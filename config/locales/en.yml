@@ -75,6 +75,11 @@ en:
         title_non_friend: "%{username}. Click here to see user info."
         title_friend: "%{username}. Balance %{balance}. Click here to see user info."
 
+  # will paginate gem
+  will_paginate:
+    next_label: "Next page"
+    previous_label: "Previous page"
+
   # gift controller
   gifts:
      create:
@@ -118,11 +123,14 @@ en:
         receiver_column_heading_html: "To:"
         received_at_column_heading_html : "Date:"
         price_column_heading_html: "Price:"
+        received_at_and_pice_heading_html: "Date and price:"
         new_price_column_heading_html: "Value<br />today:"
         balance_column_heading_html: "Balance"
-        gift_link_title: "Click on link for more information"
         social_dividend_description_1: "Social dividend %{price} %{currency} from %{giver} to %{receiver} for period up to %{to}"
         social_dividend_description_2: "Social dividend %{price} %{currency} from %{giver} to %{receiver} for period from %{from} to %{to}"
+     gifts:
+        gift_link_title: "Click on link for more information"
+        gift_picture_title: "Click on picture for more information"
 
   # index controller
   inbox:

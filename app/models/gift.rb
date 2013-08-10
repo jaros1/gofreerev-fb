@@ -493,6 +493,7 @@ class Gift < ActiveRecord::Base
 
   end # create_social_dividend
 
+=begin
   # todo: this request url only return url for small picture. it would be nice to get url with a larger picture
   def get_api_picture_url (access_token)
     return nil unless picture == 'Y'
@@ -532,6 +533,38 @@ class Gift < ActiveRecord::Base
     puts "api_response = #{api_response}"
     return api_response["full_picture"]
   end # get_api_picture_url
+=end
+
+  def get_api_picture_url (access_token)
+    return nil unless picture == 'Y'
+    return nil if deleted_at_api == 'Y'
+    raise NoApiAccessTokenException unless access_token
+    api = Koala::Facebook::API.new(access_token)
+    api_request = "#{api_gift_id}?fields=full_picture"
+    begin
+      api_response = api.get_object(api_request)
+    rescue Koala::Facebook::ClientError => e
+      puts 'Koala::Facebook::ClientError'
+      puts "e.fb_error_type = #{e.fb_error_type}"
+      puts "e.fb_error_code = #{e.fb_error_code}"
+      puts "e.fb_error_subcode = #{e.fb_error_subcode}"
+      puts "e.fb_error_message = #{e.fb_error_message}"
+      puts "e.http_status = #{e.http_status}"
+      puts "e.response_body = #{e.response_body}"
+      puts "e.fb_error_type.class.name = #{e.fb_error_type.class.name}"
+      puts "e.fb_error_code.class.name = #{e.fb_error_code.class.name}"
+      if e.fb_error_type == 'GraphMethodException' and e.fb_error_code == 100
+        # identical error response if picture is deleted or if user is not allowed to see picture
+        # picture not found - maybe picture has been deleted - maybe a permission problem
+        raise ApiPostNotFoundException
+      else
+        raise
+      end
+    end
+    puts "api_response = #{api_response}"
+    return api_response["full_picture"]
+  end # get_api_picture_url
+
 
   # psydo attributea
   attr_accessor :file, :direction

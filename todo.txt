@@ -86,17 +86,12 @@
     there is no reason to keep data for users that does not use the app ( other than delete of user and gifts changes other users balance )
     maybe
 
+34b) add more detailed description of what information what i saved in app
+
 35) Problem with partial parameters. Are using instance variables instead of :locals => {} until the problem is solved.
     See render '/shared/user_div' used in many views
 
-38) gifts/index: upload with file
-    pictures only uploded to login api, not saved local
-    Disable file upload button if post-on-wall prio. is missing
-    Add picture Y/N to gifts
-    add api_picture_url to gifts
-    use img onerror to catch and refresh old picture url's
-
-39) gifts/index: post in wall checkbox. Only if user has granted post-on-wall prio.
+39) gifts/index: post on api wall checkbox. Only if user has granted post-on-wall prio.
 
 40) gifts/index: comment with final description before the deal is closed? Or keep original text with comments?
 
@@ -110,14 +105,7 @@
 
 44) gift post. Keep current page number?
 
-45) problem with empty /util/missing_api_picture_urls requests
-    Client should only call /util/missing_api_picture_urls if there was found pictures with invalid urls
-    Array size test does not work
-    Maybe longer delay than 2 seconds
-
-50) wrap fb api into an generic exception handler
-
-52) replace paginate with a more dynamic page expansion. Query new post when user scrolls to end of page
+50) wrap fb api into an generic exception handler with dump of request and exception after error
 
 53) Welcome msg. Some welcome xxx if no gifts. Some welcome back if gifts.
     Maybe use some timestamps to check if welcome message should be displayed
@@ -127,3 +115,13 @@
 55) add disclaimer
 
 56) add cookie policy note
+
+57) problem with client validation of price in firefox. Number without decimal is not accepted
+    Price is invalid. Only numbers, max 2 decimals, thousands separator not allowed.
+
+58) gifts/index. Only fetch first <n> gifts and implement auto expanding page with ajax as user scrolls down with ajax and coffeescript
+
+59) check out coffeescript
+
+
+

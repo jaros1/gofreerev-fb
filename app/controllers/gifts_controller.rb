@@ -198,18 +198,20 @@ class GiftsController < ApplicationController
     # see last lines in /gifts/index page
     # see onload tag on img
     # see js functions check_api_picture_url and report_missing_api_picture_urls
-    gifts = Gift.where("(user_id_giver = ? or user_id_receiver = ?) and api_picture_url_on_error_at is not null and (deleted_at_api is null or deleted_at_api = 'N')",
-                        @user.user_id, @user.user_id)
-    gifts.delete_if do |gift|
-      user_id_created_by = User.facebook_user_prefix + gift.api_gift_id.split('_')[0]
-      (user_id_created_by != @user.user_id)
-    end # delete_if
+    gifts = []
+    if @user
+      gifts = Gift.where("(user_id_giver = ? or user_id_receiver = ?) and api_picture_url_on_error_at is not null and (deleted_at_api is null or deleted_at_api = 'N')",
+                          @user.user_id, @user.user_id)
+      gifts.delete_if do |gift|
+        user_id_created_by = User.facebook_user_prefix + gift.api_gift_id.split('_')[0]
+        (user_id_created_by != @user.user_id)
+      end # delete_if
+    end # if
     if gifts.size == 0
       @missing_api_picture_urls = nil
     else
       @missing_api_picture_urls = 'missing_api_picture_urls = [' + gifts.collect { |g| g.id }.join(', ') + '] ;'
     end
-    ids = gifts.collect { |g| g.id }.join(',')
 
 
     puts "user_name = #{@user.user_name}" if @user
@@ -247,19 +249,26 @@ class GiftsController < ApplicationController
       end
     end.collect { |u| u.user_id_receiver }
     friends.push(@user.user_id)
-    # todo: problem with sort. received_at is encrypted text in db and can not be used in sort
-    #       there should also be a possible for user to select sort conditions
-    #       for example last commented post first
-    #       sort columns can not be encrypted text
-    #       could be datetime columns in db
-    #       could be anonymous sequences or float for timestamps
-    @gifts = Gift.where('user_id_giver in (?) or user_id_receiver in (?)', friends, friends).includes(:giver, :receiver).order('ifnull(received_at,created_at)').paginate(:page => params[:page]) if @user
-    puts "@gifts.size = #{@gifts.size}"
-    @gifts.sort! do |b, a|
-      if (a.received_at || a.created_at.to_date) ==  (b.received_at || b.created_at.to_date)
-        a.id <=> b.id
-      else
-        (a.received_at || a.created_at.to_date) <=>  (b.received_at || b.created_at.to_date)
+
+    if @user
+      # paginate - custom sort - fields are encrypted in db and sql sort can not be used.
+      # todo: Only fetch first <n> items and implement auto expanding page as user scrolls down with ajax and coffeescript
+      @gifts = Gift.where('user_id_giver in (?) or user_id_receiver in (?)', friends, friends).includes(:giver, :receiver).sort do |a,b|
+        if (a.received_at || a.created_at.to_date) ==  (b.received_at || b.created_at.to_date)
+          b.id <=> a.id
+        else
+          (b.received_at || b.created_at.to_date) <=>  (a.received_at || a.created_at.to_date)
+        end
+      end
+      # convert array to WillPaginate
+      page = [1, (params[:page] || 1).to_i].max
+      lines_per_page = 10
+      @gifts = WillPaginate::Collection.create(page,lines_per_page, @gifts.length) do |pager|
+        from =  (page-1)*lines_per_page
+        to =  page*lines_per_page-1
+        from = 0 if from < 0
+        to = @gifts.length-1 if to >=  @gifts.length
+        pager.replace @gifts[from..to]
       end
     end
 

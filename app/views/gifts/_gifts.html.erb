@@ -1,0 +1,37 @@
+<% for gift in @gifts do loop -%>
+    <% giver = gift.giver ; receiver = gift.receiver -%>
+    <tr style="vertical-align: top">
+      <td>
+        <% if gift.giver -%>
+            <%= @user2 = gift.giver ; render '/shared/user_div' %>
+        <% end -%>
+      </td>
+      <td>
+        <% if gift.receiver -%>
+            <%= @user2 = gift.receiver ; render '/shared/user_div' %>
+        <% end -%>
+      </td>
+      <td colspan="2">
+        <%= link_to my_t('.gift_link_text', format_gift_param(gift)), url_for(gift), :title => (my_t '.gift_link_title') %>
+        <%= my_t('.gift_text_html', format_gift_param(gift)) %>
+      </td>
+    </tr>
+    <tr style="vertical-align: top">
+      <td colspan="2"></td>
+      <td><%= @user2 = @user ; render '/shared/user_div' %></td>
+      <td style="align: left"><%= text_area_tag "gift_#{gift.id}_comment", "", :size => '60x1', :placeholder => my_t('.enter_comment'), :onfocus => 'autoresize_text_field(this)' %></td>
+    </tr>
+    <tr><td colspan="4">&nbsp;</td></tr>
+    <tr><td colspan="4">&nbsp;</td></tr>
+<% end -%>
+
+
+<%#
+direction_giver: "tilbyder"
+direction_receiver: "søger"
+gift_price: "/ %{price}"
+gift_link_text: "%{date} / %{direction} %{optional_price} : "  # nested translate
+gift_text_html: "%{text}" # text is sanitized. Only todo tags is allowed
+%>
+
+

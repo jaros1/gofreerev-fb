@@ -38,7 +38,7 @@
           </tr>
           <tr title="<%= my_t '.description_title' %>">
             <td style="vertical-align: top"><%= my_t '.description_prompt' %></td>
-            <td><%= f.text_area(:description, :size => '60x8') %></td>
+            <td><%= f.text_area :description, :size => '60x2', :placeholder => 'Enter Comments', :onfocus => 'autoresize_text_field(this)' %></td>
             <td><%= f.submit my_t('.gift_submit_button_text'), :onclick => '{return gifts_client_validations()}' %></td>
           </tr>
           <tr title="<%= my_t ".file_title_#{@user.post_gift_allowed?}", :appname => APP_NAME, :apiname => @user.api_name_without_brackets %>">
@@ -57,48 +57,12 @@
     <br />
     <table>
       <tr style="vertical-align: bottom">
-        <th style="text-align: center"><%= my_t '.giver_column_heading_html' %></th>
-        <th style="text-align: center"><%= my_t '.receiver_column_heading_html' %></th>
-        <th><%= my_t '.received_at_column_heading_html' %></th>
-        <th>&nbsp;&nbsp;</th>
-        <th style="text-align: right"><%= my_t '.price_column_heading_html' %></th>
-<% if false -%>
-        <th><%= my_t '.new_price_column_heading_html' %></th>
-        <th style="text-align: right"><%= my_t '.balance_column_heading_html' %></th>
-<% end -%>
-        <th>&nbsp;&nbsp;</th>
-        <th style="text-align: left"><%= my_t '.description_prompt' %></th>
+        <th style="width: 52px; text-align: center"><%= my_t '.giver_column_heading_html' %></th>
+        <th style="width: 52px; text-align: center"><%= my_t '.receiver_column_heading_html' %></th>
+        <th style="width: 52px;"></th>
+        <th><%= my_t '.link_and_text_column_heading_html' %></th>
       </tr>
-        <% for gift in @gifts do loop -%>
-          <% giver = gift.giver ; receiver = gift.receiver -%>
-          <tr>
-            <td>
-<% if gift.giver -%>
-    <%= @user2 = gift.giver ; render '/shared/user_div' %>
-<% end -%>
-            </td>
-            <td>
-<% if gift.receiver -%>
-    <%= @user2 = gift.receiver ; render '/shared/user_div' %>
-<% end -%>
-            </td>
-            <td><%= link_to l((gift.received_at || gift.created_at), format: :short), url_for(gift), :title => (my_t '.gift_link_title') %></td>
-            <td></td>
-            <td style="text-align: right"><%= "#{format_price(gift.price)} #{gift.currency}" if gift.price %></td>
-<% if false -%>
-            <td><%= format_price gift.new_price %></td>
-            <td style="text-align: right"><%= format_price gift.balance(@user.user_id) %></td>
-<% end -%>
-            <td></td>
-            <td>
-              <%= format_direction gift %> <%= format_gift_description gift %>
-<% if gift.picture == 'Y' and !gift.api_picture_url_on_error_at -%>
-              <br />
-              <%= image_tag gift.api_picture_url, :onload => "check_api_picture_url(#{gift.id}, this)" %>
-<% end -%>
-            </td>
-          </tr>
-        <% end -%>
+        <%= render :partial => 'gifts' %>
     </table>
     <%= will_paginate @gifts %>
 <% end -%>

@@ -102,12 +102,12 @@ module ApplicationHelper
 
   # todo: add date format
   def format_date (date)
-    date
+    l date, :format => :short
   end
 
   # todo: add time format. use timezone from user
   def format_time (time)
-    time
+    l time, :format => :short
   end
 
   # english description for social dividend in database for gifttype = S (social dividend)
@@ -117,29 +117,29 @@ module ApplicationHelper
     # problem with incompatible character encodings: UTF-8 and ASCII-8BIT
     # temporary workaround with .force_encoding('UTF-8')
     # do not known were the problem is
-    return gift.description.force_encoding('UTF-8') if gift.gifttype == 'G'
+    return sanitize(gift.description.force_encoding('UTF-8')).gsub(/\n/, '<br/>').html_safe if gift.gifttype == 'G'
 
     # format description with social dividend with translate
     if gift.social_dividend_from
       # format with start and end dates for period
       my_t '.social_dividend_description_1', :giver => gift.giver.short_user_name, :receiver => gift.receiver.short_user_name,
                                              :price => format_price(gift.price), :currency => gift.currency,
-                                             :from => format_date(gift.social_dividend_from), :to => format_date(gift.received_at)
+                                             :from => format_date(gift.social_dividend_from), :to => format_date(gift.received_at).html_safe
     else
       # format with only end date for period.
       # Used for first social dividend calculations for a new user
       my_t '.social_dividend_description_2', :giver => gift.giver.short_user_name, :receiver => gift.receiver.short_user_name,
                                              :price => format_price(gift.price), :currency => gift.currency,
-                                             :to => format_date(gift.received_at)
+                                             :to => format_date(gift.received_at).html_safe
     end
   end # format_gift_description
 
   def format_direction (gift)
-    return if gift.user_id_giver and gift.user_id_receiver ;
+    return nil if gift.user_id_giver and gift.user_id_receiver ;
     if gift.user_id_giver
-      my_t ".direction_giver_prompt"
+      my_t '.direction_giver', :username => gift.giver.friend?(@user) ? gift.giver.short_user_name : giver.user_name
     else
-      my_t ".direction_receiver_prompt"
+      my_t '.direction_receiver', :username => gift.receiver.friend?(@user) ? gift.receiver.short_user_name : receiver.user_name
     end
   end # format_direction
 
@@ -148,6 +148,15 @@ module ApplicationHelper
     n = @user.inbox_new_notifications
     return APP_NAME unless n > 0
     "(#{n}) #{APP_NAME}"
-  end
+  end # title
+
+  def format_gift_param (gift)
+    optional_price = gift.price ? "#{my_t('.optional_price', :price => format_price(gift.price))} #{gift.currency}" : nil
+    { :date           => format_date(gift.received_at || gift.created_at),
+      :direction      => format_direction(gift),
+      :optional_price => optional_price,
+      :text           => format_gift_description(gift)
+    }
+  end # format_gift_param
 
 end # ApplicationHelper
