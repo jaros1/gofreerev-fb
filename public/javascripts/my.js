@@ -124,7 +124,7 @@ function update_title()
 // see /Disk-0/OLAP-hosting/Ruby/railsapps/ajaxified_scaffold-master
 $(document).ready(function(){
 
-    $('#create_comment_form')
+    $('#gift-211-new-comment-form')
         .bind("ajax:beforeSend", function(evt, xhr, settings){
             var $submitButton = $(this).find('input[name="commit"]');
 

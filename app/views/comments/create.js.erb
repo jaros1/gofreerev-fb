@@ -1,6 +1,9 @@
 <% if @comment.errors.count == 0 %>
-<% puts  ".gift-#{@comment.gift.id}-comments" -%>
-$('.gift-<%= @comment.gift.id %>-comments').append('<%= j render("comment", :comment => @comment) %>');
+<% puts  "id = .gift-#{@comment.gift.id}-comments" -%>
+<% puts  "html = " + render("comment", :comment => @comment) -%>
+<% puts  "js = " + j(render("comment", :comment => @comment)) -%>
+debugger;
+$('#gift-<%= @comment.gift.id %>-comments').append('<%= j render("comment", :comment => @comment) %>');
 
 <% else %>
 

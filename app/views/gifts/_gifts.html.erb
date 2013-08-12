@@ -13,7 +13,7 @@
       </td>
       <td>
         <% comment = Comment.new ; comment.gift_id = gift.gift_id ; comment.user_id = @user.user_id -%>
-        <%= form_for comment, :remote => true do |f| %>
+        <%= form_for comment, :remote => true, :html => { :id => "gift-#{gift.id}-new-comment-form" } do |f| %>
             <%= f.hidden_field :gift_id %>
             <table>
               <tbody id='<%= "gift-#{gift.id}-comments" %>'>
