@@ -1,0 +1,10 @@
+<% if @comment.errors.count == 0 %>
+<% puts  ".gift-#{@comment.gift.id}-comments" -%>
+$('.gift-<%= @comment.gift.id %>-comments').append('<%= j render("comment", :comment => @comment) %>');
+
+<% else %>
+
+$('.new_comment').remove();
+$('#new_comment_link').after('<%= j render("form") %>');
+
+<% end %>

@@ -56,10 +56,9 @@
 <% else -%>
     <br />
     <table>
-      <tr style="vertical-align: bottom">
+      <tr style="vertical-align: bottom;">
         <th style="width: 52px; text-align: center"><%= my_t '.giver_column_heading_html' %></th>
         <th style="width: 52px; text-align: center"><%= my_t '.receiver_column_heading_html' %></th>
-        <th style="width: 52px;"></th>
         <th><%= my_t '.link_and_text_column_heading_html' %></th>
       </tr>
         <%= render :partial => 'gifts' %>
@@ -80,4 +79,9 @@
     // array with gift ids is initialized in img onload="check_api_picture_url ..."
     // submitted in 2 seconds to allow pictures to load
     setTimeout(report_missing_api_picture_urls, 2000) ;
+</script>
+
+
+<script>
+    $('#gift-202-comments').append('<tr>\n  <td style=\"vertical-align: top;\"><div title=\"Charlie S. Saldo 100,06 (9,28 USD, 47,92 DKK). Klik her for at se brugeroplysninger.\"\n     onclick=\"top.location.href = \'/users/10\'\">\n  <img alt=\"Ztd0wh\" src=\"/images/profiles/87/c3/db/bc/37/b3/15/89/ac/77/a9/78/8d/95/e1/da/ztd0wh.jpg\" />\n<\/div><\/td>\n  <td>xxx<\/td>\n<\/tr>')
 </script>

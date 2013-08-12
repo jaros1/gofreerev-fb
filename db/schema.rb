@@ -11,7 +11,20 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20130803135821) do
+ActiveRecord::Schema.define(version: 20130811065931) do
+
+  create_table "comments", force: true do |t|
+    t.string   "comment_id", limit: 20, null: false
+    t.string   "user_id",    limit: 20, null: false
+    t.text     "comment",               null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.string   "gift_id",    limit: 20
+  end
+
+  add_index "comments", ["comment_id"], name: "index_comments_on_comment_id", unique: true
+  add_index "comments", ["gift_id"], name: "index_comments_on_gift_id"
+  add_index "comments", ["user_id"], name: "index_comments_on_user_id"
 
   create_table "exchange_rates", force: true do |t|
     t.string   "from_currency",    limit: 3, null: false

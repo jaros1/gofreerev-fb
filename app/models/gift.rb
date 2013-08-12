@@ -22,6 +22,8 @@ class Gift < ActiveRecord::Base
 
   belongs_to :giver, :class_name => 'User', :primary_key => :user_id, :foreign_key => :user_id_giver
   belongs_to :receiver, :class_name => 'User', :primary_key => :user_id, :foreign_key => :user_id_receiver
+  has_many :comments, :class_name => 'Comment', :primary_key => :user_id, :foreign_key => :user_id, :dependent => :destroy
+
 
   # https://github.com/jmazzi/crypt_keeper - text columns are encrypted in database
   # encrypt_add_pre_and_postfix/encrypt_remove_pre_and_postfix added in setters/getters for better encryption
@@ -49,7 +51,6 @@ class Gift < ActiveRecord::Base
   # 2) description - required - String in model - encrypted text in db - update not allowed
   validates_presence_of :description
   attr_readonly :description
-
   def description
     # puts "gift.description: description = #{read_attribute(:description)} (#{read_attribute(:description).class.name})"
     return nil unless (extended_description = read_attribute(:description))

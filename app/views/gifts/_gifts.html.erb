@@ -11,27 +11,39 @@
             <%= @user2 = gift.receiver ; render '/shared/user_div' %>
         <% end -%>
       </td>
-      <td colspan="2">
-        <%= link_to my_t('.gift_link_text', format_gift_param(gift)), url_for(gift), :title => (my_t '.gift_link_title') %>
-        <%= my_t('.gift_text_html', format_gift_param(gift)) %>
+      <td>
+        <% comment = Comment.new ; comment.gift_id = gift.gift_id ; comment.user_id = @user.user_id -%>
+        <%= form_for comment, :remote => true do |f| %>
+            <%= f.hidden_field :gift_id %>
+            <table>
+              <tbody id='<%= "gift-#{gift.id}-comments" %>'>
+                <tr>
+                  <td style="width: 52px;"></td>
+                  <td></td>
+                </tr>
+                <tr>
+                  <td colspan="2" style="height: 52px">
+                    <%= link_to my_t('.gift_link_text', format_gift_param(gift)), url_for(gift), :title => (my_t '.gift_link_title') %>
+                    <%= my_t('.gift_text_html', format_gift_param(gift)) %>
+                  </td>
+                </tr>
+                <%= @gift = gift ; render :partial => 'comments' %>
+                <tr>
+                  <td style="vertical-align: top;"><%= @user2 = @user ; render '/shared/user_div' %></td>
+                  <td>
+                    <table>
+                      <tr>
+                        <td><%= f.text_area :comment, :size => '60x1', :placeholder => my_t('.enter_comment'), :onfocus => 'autoresize_text_field(this)' %></td>
+                        <td><div class="actions"><%= f.submit 'Gem' %></div></td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+        <% end -%>
       </td>
-    </tr>
-    <tr style="vertical-align: top">
-      <td colspan="2"></td>
-      <td><%= @user2 = @user ; render '/shared/user_div' %></td>
-      <td style="align: left"><%= text_area_tag "gift_#{gift.id}_comment", "", :size => '60x1', :placeholder => my_t('.enter_comment'), :onfocus => 'autoresize_text_field(this)' %></td>
     </tr>
     <tr><td colspan="4">&nbsp;</td></tr>
     <tr><td colspan="4">&nbsp;</td></tr>
 <% end -%>
-
-
-<%#
-direction_giver: "tilbyder"
-direction_receiver: "søger"
-gift_price: "/ %{price}"
-gift_link_text: "%{date} / %{direction} %{optional_price} : "  # nested translate
-gift_text_html: "%{text}" # text is sanitized. Only todo tags is allowed
-%>
-
-

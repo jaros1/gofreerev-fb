@@ -123,5 +123,16 @@
 
 59) check out coffeescript
 
+60) add comments table. save comments. add notification for comments.
+
+61) How much sync. of comments in api and comments in app?
+    write comment to fb - don't download comments from fb
+
+62) edit gift. Can not edit post on api. Allow to edit post in app?
+
+63) ajax for add comment nor working in gifts/ndex page
+    see /Disk-0/OLAP-hosting/Ruby/railsapps/ajaxified_scaffold-master
+    see my.js
+    see http://www.alfajango.com/blog/rails-3-remote-links-and-forms/
 
 
