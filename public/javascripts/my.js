@@ -122,7 +122,8 @@ function update_title()
 // from http://www.alfajango.com/blog/rails-3-remote-links-and-forms/
 // for index/gifts page - not working
 // see /Disk-0/OLAP-hosting/Ruby/railsapps/ajaxified_scaffold-master
-$(document).ready(function(){
+
+/*$(document).ready(function(){
 
     $('#gift-211-new-comment-form')
         .bind("ajax:beforeSend", function(evt, xhr, settings){
@@ -177,7 +178,7 @@ $(document).ready(function(){
             $form.find('div.validation-error').html(errorText);
         });
 
-});
+});*/
 
 
 /*
@@ -255,3 +256,30 @@ function autoresize_text_field (text) {
     text.select();
     resize();
 }
+
+// post processing after adding a comment.
+// comments/create.js.rb inserts new comment last i table
+// swap the two last rows after ajax processing
+function add_post_ajax_comment_handler(giftid)
+{
+    $(document).ready(function(){
+
+        $('#gift-' + giftid + '-new-comment-form')
+            .bind("ajax:success", function(evt, data, status, xhr){
+                // swap the two last rows in comments table for gift
+                var tbodyname = "gift-" + giftid + "-comments" ;
+                var tbody = document.getElementById(tbodyname) ;
+                var lasttr = tbody.lastChild ;
+                var prevtr = lasttr.previousElementSibling ;
+                tbody.removeChild(lasttr) ;
+                tbody.insertBefore(lasttr, prevtr) ;
+                // empty comment field
+                var commentname = 'gift-' + giftid + '-new-comment-textarea'  ;
+                var comment = document.getElementById(commentname) ;
+                comment.value = "" ;
+
+            });
+
+    });
+
+} // add_post_ajax_comment_handler

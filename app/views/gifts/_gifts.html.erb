@@ -33,8 +33,8 @@
                   <td>
                     <table>
                       <tr>
-                        <td><%= f.text_area :comment, :size => '60x1', :placeholder => my_t('.enter_comment'), :onfocus => 'autoresize_text_field(this)' %></td>
-                        <td><div class="actions"><%= f.submit 'Gem' %></div></td>
+                        <td><%= f.text_area :comment, :size => '60x1', :placeholder => my_t('.enter_comment'), :onfocus => 'autoresize_text_field(this)', :id => "gift-#{gift.id}-new-comment-textarea" %></td>
+                        <td><div class="actions"><%= f.submit 'Gem', :onclick => "add_post_ajax_comment_handler(#{gift.id})" %></div></td>
                       </tr>
                     </table>
                   </td>

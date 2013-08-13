@@ -1,8 +1,6 @@
 <% if @comment.errors.count == 0 %>
-<% puts  "id = .gift-#{@comment.gift.id}-comments" -%>
-<% puts  "html = " + render("comment", :comment => @comment) -%>
-<% puts  "js = " + j(render("comment", :comment => @comment)) -%>
-debugger;
+
+<%# post processing in my.js / add_post_ajax_comment_handler - swap the two last rows in comment table %>
 $('#gift-<%= @comment.gift.id %>-comments').append('<%= j render("comment", :comment => @comment) %>');
 
 <% else %>
