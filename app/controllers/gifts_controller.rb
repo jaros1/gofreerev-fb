@@ -260,19 +260,40 @@ class GiftsController < ApplicationController
           (b.received_at || b.created_at.to_date) <=>  (a.received_at || a.created_at.to_date)
         end
       end
-      # convert array to WillPaginate
-      page = [1, (params[:page] || 1).to_i].max
-      lines_per_page = 10
-      @gifts = WillPaginate::Collection.create(page,lines_per_page, @gifts.length) do |pager|
-        from =  (page-1)*lines_per_page
-        to =  page*lines_per_page-1
-        from = 0 if from < 0
-        to = @gifts.length-1 if to >=  @gifts.length
-        pager.replace @gifts[from..to]
-      end
+      ## convert array to WillPaginate
+      #page = [1, (params[:page] || 1).to_i].max
+      #lines_per_page = 10
+      #@gifts = WillPaginate::Collection.create(page,lines_per_page, @gifts.length) do |pager|
+      #  from =  (page-1)*lines_per_page
+      #  to =  page*lines_per_page-1
+      #  from = 0 if from < 0
+      #  to = @gifts.length-1 if to >=  @gifts.length
+      #  pager.replace @gifts[from..to]
+      #end
     end
 
-    render_with_language __method__
+    # last_gift_id != nil. ajax request from end of gifts/index page - return next 10 rows to gifts/index page
+    puts "last_gift_id = #{params[:last_gift_id]}, gifts.length = #{@gifts.length}"
+    if params[:last_gift_id].to_s != ""
+      from = @gifts.find_index { |g| g.id == params[:last_gift_id].to_i }
+      puts "from = #{from}"
+      @gifts = @gifts[from+1..-1]
+    end
+    puts "gifts.length = #{@gifts.length}"
+    if  @gifts.length > 10
+      @gifts = @gifts[0..9]
+      @last_gift_id = @gifts.last.id
+    else
+      @last_gift_id = nil
+    end
+    puts "last_gift_id = #{@last_gift_id}, gifts.length = #{@gifts.length}"
+
+    respond_to do |format|
+      format.html {}
+      format.json { render json: @comment, status: :created, location: @comment }
+      format.js {}
+    end
+
   end # index
 
   def show

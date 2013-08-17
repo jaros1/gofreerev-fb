@@ -45,5 +45,9 @@
       </td>
     </tr>
     <tr><td colspan="4">&nbsp;</td></tr>
+<% if @last_gift_id and gift.id == @gifts.last.id -%>
+    <tr id='<%= "last_gift_id_#{gift.id}" %>'><td colspan="4">&nbsp;</td></tr>
+<% else -%>
     <tr><td colspan="4">&nbsp;</td></tr>
+<% end -%>
 <% end -%>

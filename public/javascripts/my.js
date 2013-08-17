@@ -262,9 +262,9 @@ function autoresize_text_field (text) {
 // swap the two last rows after ajax processing
 function add_post_ajax_comment_handler(giftid)
 {
+    var id = '#gift-' + giftid + '-new-comment-form' ;
     $(document).ready(function(){
-
-        $('#gift-' + giftid + '-new-comment-form')
+        $(id)
             .bind("ajax:success", function(evt, data, status, xhr){
                 // swap the two last rows in comments table for gift
                 var tbodyname = "gift-" + giftid + "-comments" ;
@@ -281,5 +281,4 @@ function add_post_ajax_comment_handler(giftid)
             });
 
     });
-
 } // add_post_ajax_comment_handler

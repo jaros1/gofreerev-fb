@@ -55,7 +55,7 @@
     </p>
 <% else -%>
     <br />
-    <table>
+    <table id="gifts">
       <tr style="vertical-align: bottom;">
         <th style="width: 52px; text-align: center"><%= my_t '.giver_column_heading_html' %></th>
         <th style="width: 52px; text-align: center"><%= my_t '.receiver_column_heading_html' %></th>
@@ -63,8 +63,12 @@
       </tr>
         <%= render :partial => 'gifts' %>
     </table>
-    <%= will_paginate @gifts %>
+    <%# will_paginate @gifts %>
 <% end -%>
+
+<br />
+<br />
+<%= link_to "add-more-lines", "/gifts?last_gift_id=#{@last_gift_id}", :remote => true, :id => "show-more-gifts-link" %>
 
 <script>
     // add page specific version of pre_update_currency function. That is confirm popup before leaving page with unsaved data.
@@ -79,69 +83,34 @@
     // array with gift ids is initialized in img onload="check_api_picture_url ..."
     // submitted in 2 seconds to allow pictures to load
     setTimeout(report_missing_api_picture_urls, 2000) ;
-</script>
 
-<!--
-<script>
+    // add post ajax event handler for show-more-gifts-link link
+    // change url with new last_gift_id or hide url if all gifts has been fetched
     $(document).ready(function(){
-
-        $('#gift-211-new-comment-form')
-                .bind("ajax:beforeSend", function(evt, xhr, settings){
-                    alert('ajax:beforeSend')
-                    var $submitButton = $(this).find('input[name="commit"]');
-
-                    // Update the text of the submit button to let the user know stuff is happening.
-                    // But first, store the original text of the submit button, so it can be restored when the request is finished.
-                    $submitButton.data( 'origText', $(this).text() );
-                    $submitButton.text( "Submitting..." );
-
-                })
+        $('#show-more-gifts-link')
                 .bind("ajax:success", function(evt, data, status, xhr){
-                    alert('ajax:scccess. evt=' + ', data=' + data + ', status =' + status + ', xhr=' + xhr);
-                    var $form = $(this);
-
-                    // Reset fields and any validation errors, so form can be used again, but leave hidden_field values intact.
-                    $form.find('textarea,input[type="text"],input[type="file"]').val("");
-                    $form.find('div.validation-error').empty();
-
-                    // Insert response partial into page below the form.
-                    $('#comments').append(xhr.responseText);
-
-                })
-                .bind('ajax:complete', function(evt, xhr, status){
-                    alert('ajax:complete')
-                    var $submitButton = $(this).find('input[name="commit"]');
-
-                    // Restore the original submit button text
-                    $submitButton.text( $(this).data('origText') );
-                })
-                .bind("ajax:error", function(evt, xhr, status, error){
-                    alert('ajax:error')
-                    var $form = $(this),
-                            errors,
-                            errorText;
-
-                    try {
-                        // Populate errorText with the comment errors
-                        errors = $.parseJSON(xhr.responseText);
-                    } catch(err) {
-                        // If the responseText is not valid JSON (like if a 500 exception was thrown), populate errors with a generic error message.
-                        errors = {message: "Please reload the page and try again"};
+                    // find id for last gift (nil or gift_id for last gift in table)
+                    var link = document.getElementById("show-more-gifts-link") ;
+                    var table = document.getElementById("gifts") ;
+                    var trs = table.getElementsByTagName('tr') ;
+                    var tr = trs[trs.length-1] ;
+                    var tr_id = tr.id ;
+                    // alert('tr_id = ' + tr_id) ;
+                    if (tr_id == "") {
+                      // alert('no more gifts - hide link') ;
+                      link.style="display:none" ;
+                    }
+                    else {
+                      // change last_gift_id in link
+                      var tr_id_a = tr_id.split("_") ;
+                      var last_gift_id = tr_id_a[tr_id_a.length-1] ;
+                      // alert('last_gift_id = ' + last_gift_id) ;
+                      link.href = "/gifts?last_gift_id=" + last_gift_id ;
                     }
 
-                    // Build an unordered list from the list of errors
-                    errorText = "There were errors with the submission: \n<ul>";
-
-                    for ( error in errors ) {
-                        errorText += "<li>" + error + ': ' + errors[error] + "</li> ";
-                    }
-
-                    errorText += "</ul>";
-
-                    // Insert error list into form
-                    $form.find('div.validation-error').html(errorText);
                 });
-
     });
+
+
 </script>
--->
+
