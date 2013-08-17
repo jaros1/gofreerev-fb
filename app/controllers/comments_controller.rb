@@ -1,8 +1,12 @@
 class CommentsController < ApplicationController
 
-  # POST /products
-  # POST /products.json
+  before_filter :login_required
+
+  # POST /comments
+  # POST /comments.json
   def create
+    # todo: add security - can user see gift?
+    # todo: error handling - return row with error message - same format as after success
     @comment = Comment.new
     @comment.gift_id = params[:comment][:gift_id]
     @comment.user_id = @user.user_id
@@ -21,6 +25,44 @@ class CommentsController < ApplicationController
         format.js
       end
     end
+  end
+
+  # Get /comments
+  # params:
+  #   gift_id: required
+  #   first_comment_id: optional. Used in ajax request from gifts/index page to get more comments for a gift
+  def index
+    # find gift
+    @error = my_t '.gift_id_is_missing' unless params[:gift_id].to_s != ""
+    if !@error
+      @gift = Gift.find_by_id(params[:gift_id])
+      @error = my_t '.gift_was_not_found' unless @gift
+    end
+    # check if user may see gift. Must be giver, receiver, friend with giver or friend with receiver
+    if !@error and !@gift.giver.friend?(@user) and !@gift.receiver.friend?(@user)
+      @gift = nil
+      @error = my_t '.gift_not_friends'
+    end
+    if !@error and params[:first_comment_id].to_s != ""
+      first_comment = Comment.find_by_id(params[:first_comment_id])
+      @error = my_t '.comment_not_found' if !first_comment
+    end
+    @error = my_t '.gift_comment_mismatch' if !@error and first_comment and first_comment.gift_id != @gift.gift_id
+
+    respond_to do |format|
+      if !@error
+        @@first_comment_id = params[:first_comment_id]
+        format.html { render }
+        format.json { render json: @comment, status: :ok, location: @comment }
+        format.js
+      else
+        @gift = @first_comment_id = nil
+        format.html { render  }
+        format.json { render json: @error, status: :unprocessable_entity }
+        format.js
+      end
+    end
+
   end
 
   def update

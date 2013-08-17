@@ -142,7 +142,19 @@ da:
         gift_text_html: " : %{text}" # text is sanitized. Only todo tags is allowed
         enter_comment: "Skriv en kommentar..."
 
-  # index controller
+  # comments controller
+  comments:
+     index:
+        gift_id_is_missing: "Ugyldigt kald. Opslagsnr. mangler"
+        gift_was_not_found: "Ugyldigt kald. Opslag blev ikke fundet"
+        gift_not_friends: "Ugyldigt kald. Du må ikke se dette opslag"
+        comment_not_found: "Ugyldigt kald. Kommentar blev ikke fundet"
+        gift_comment_mismatch: "Ugyldigt kald. Opslag og kommentar passer ikke sammen"
+     comments:
+        show_older_comment: "Vis ældre kommentar"
+        show_older_comments: "Vis %{no_older_comments} ældre kommentarer"
+
+  # inbox controller
   inbox:
      index:
         page_header_html: "Meddelelser"

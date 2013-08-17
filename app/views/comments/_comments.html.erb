@@ -1,0 +1,25 @@
+<% comments = @gift.comments_with_filter(@first_comment_id)
+   first_comment = comments.first
+   no_older_comments = first_comment ? first_comment.no_older_comments : 0
+-%>
+<tr>
+  <td colspan="2" id="<%= "gift-#{@gift.id}-more-comments-block-start" %>"></td>
+</tr>
+<% if no_older_comments > 0 -%>
+    <tr>
+      <td style="vertical-align: top;" colspan="2">
+        <%= link_to (no_older_comments == 1 ? my_t('.show_older_comment') : my_t('.show_older_comments', :no_older_comments => no_older_comments)),
+                    "comments?gift_id=#{@gift.id}&first_comment_id=#{first_comment.id}",
+                    :remote => true, :id => "gift-#{@gift.id}-show-more-comments-link" %>
+      </td>
+    </tr>
+<% end -%>
+<% for comment in comments do loop -%>
+    <tr>
+      <td style="vertical-align: top;"><%= @user2 = comment.user ; render '/shared/user_div' %></td>
+      <td><%= h comment.comment %></td>
+    </tr>
+<% end -%>
+<tr>
+  <td colspan="2" id="<%= "gift-#{@gift.id}-more-comments-block-end" %>"></td>
+</tr>

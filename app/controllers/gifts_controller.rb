@@ -288,6 +288,9 @@ class GiftsController < ApplicationController
     end
     puts "last_gift_id = #{@last_gift_id}, gifts.length = #{@gifts.length}"
 
+    # show 4 last comments for each gift
+    @first_comment_id = nil
+
     respond_to do |format|
       format.html {}
       format.json { render json: @comment, status: :created, location: @comment }

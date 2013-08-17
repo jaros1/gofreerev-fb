@@ -119,8 +119,6 @@
 57) problem with client validation of price in firefox. Number without decimal is not accepted
     Price is invalid. Only numbers, max 2 decimals, thousands separator not allowed.
 
-58) gifts/index. Only fetch first <n> gifts and implement auto expanding page with ajax as user scrolls down with ajax and coffeescript
-
 59) check out coffeescript
 
 60) add comments table. save comments. add notification for comments.
@@ -130,9 +128,13 @@
 
 62) edit gift. Can not edit post on api. Allow to edit post in app?
 
-63) ajax for add comment nor working in gifts/ndex page
-    see /Disk-0/OLAP-hosting/Ruby/railsapps/ajaxified_scaffold-master
-    see my.js
-    see http://www.alfajango.com/blog/rails-3-remote-links-and-forms/
+63) create gift as ajax in gifts/index page?
 
+64) focus cursor after create comment
 
+65) gifts/index - show only last 4 comments. add url to get more comments if more than 4 comments
+    check user priv. when adding comment
+
+66) ajax get new comments. That is comments added by others users after the page was loaded
+
+67) comment notification.

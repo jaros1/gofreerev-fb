@@ -45,7 +45,12 @@ class Comment < ActiveRecord::Base
       write_attribute :comment, nil
     end
   end
-  alias_method :comment_before_type_cast, :comment  
+  alias_method :comment_before_type_cast, :comment
+
+
+  # number of older comments for gift
+  # used in gifts/index page to display "show <n> more comments"
+  attr_accessor :no_older_comments
   
 
   ##############

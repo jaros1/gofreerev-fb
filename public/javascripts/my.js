@@ -212,6 +212,7 @@ function add_post_ajax_comment_handler(giftid)
                 var commentname = 'gift-' + giftid + '-new-comment-textarea'  ;
                 var comment = document.getElementById(commentname) ;
                 comment.value = "" ;
+                comment.focus() ;
 
             });
 

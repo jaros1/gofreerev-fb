@@ -22,7 +22,7 @@ class Gift < ActiveRecord::Base
 
   belongs_to :giver, :class_name => 'User', :primary_key => :user_id, :foreign_key => :user_id_giver
   belongs_to :receiver, :class_name => 'User', :primary_key => :user_id, :foreign_key => :user_id_receiver
-  has_many :comments, :class_name => 'Comment', :primary_key => :user_id, :foreign_key => :user_id, :dependent => :destroy
+  has_many :comments, :class_name => 'Comment', :primary_key => :gift_id, :foreign_key => :gift_id, :dependent => :destroy
 
 
   # https://github.com/jmazzi/crypt_keeper - text columns are encrypted in database
@@ -565,6 +565,19 @@ class Gift < ActiveRecord::Base
     puts "api_response = #{api_response}"
     return api_response["full_picture"]
   end # get_api_picture_url
+
+
+  # return last 4 comments for gifts/index page if first_comment_id is nil
+  # return 10 older comments in ajax request ii first_comment_id is not nil
+  # used in gifts/index (first_comment_id == nil) and in comments/comments (ajax/first_comment_id != nil)
+  def comments_with_filter (first_comment_id = nil)
+    cs = comments.sort { |a,b| a.created_at <=> b.created_at }
+    (0..(cs.length-1)).each { |i| cs[i].no_older_comments = i }
+    return cs.last(4) if first_comment_id == nil
+    index = cs.find_index { |c| c.id.to_s == first_comment_id.to_s }
+    return [] if index == nil or index == 0
+    cs[0..(index-1)]
+  end # comments_with_filter
 
 
   # psydo attributea

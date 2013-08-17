@@ -1,0 +1,5 @@
+<% if @error -%>
+<p><%= @error %></p>
+<% else -%>
+<%= @first_comment_id = nil ; render :partial => 'comments' %>
+<% end -%>

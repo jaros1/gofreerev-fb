@@ -116,9 +116,9 @@
                       bottom = false ;
                     }
                 });
-    });
+    }); // $(document).ready
 
-    // check if user scrolls to end of page and get more gifts from server
+    // check if user scrolls to end of page and get more gifts from server before user reaches end of page
     $(window).scroll(function(){
         if (bottom) return ;
         if (($(document).height() - $(window).height()) - $(window).scrollTop() < 600){
@@ -128,8 +128,14 @@
             if (!link) return ; // no more gifts - unregister this function
             // get more gifts from server
             link.click() ;
+            // report any invalid api picture urls - url has changed or picture has been deleted
+            // array with gift ids is initialized in img onload="check_api_picture_url ..."
+            // submitted in 2 seconds to allow pictures in page to load
+            // api_picture_url_on_error_at is set for pictures with invalid urls
+            // picture urls are checked with api calls by current user and if necessary by picture owner at a later time
+            setTimeout(report_missing_api_picture_urls, 2000) ;
         }
-    });
+    }); // $(window).scroll
 
 </script>
 
