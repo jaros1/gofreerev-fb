@@ -68,7 +68,7 @@
 
 <br />
 <br />
-<%= link_to "add-more-lines", "/gifts?last_gift_id=#{@last_gift_id}", :remote => true, :id => "show-more-gifts-link" %>
+<%= link_to "add-more-lines", "/gifts?last_gift_id=#{@last_gift_id}", :remote => true, :id => "show-more-gifts-link", :style => "display: none" %>
 
 <script>
     // add page specific version of pre_update_currency function.
@@ -85,6 +85,9 @@
     // submitted in 2 seconds to allow pictures in page to load
     // api_picture_url_on_error_at is setted for pictures with invalid urls
     setTimeout(report_missing_api_picture_urls, 2000) ;
+
+    // true when user is near end of page (get more gifts)
+    var bottom = false ;
 
     // add post ajax event handler for "show-more-gifts-link" link
     // change url with new last_gift_id or hide url when all gifts has been returned to page
@@ -110,11 +113,23 @@
                       var last_gift_id = tr_id_a[tr_id_a.length-1] ;
                       // alert('last_gift_id = ' + last_gift_id) ;
                       link.href = "/gifts?last_gift_id=" + last_gift_id ;
+                      bottom = false ;
                     }
-
                 });
     });
 
+    // check if user scrolls to end of page and get more gifts from server
+    $(window).scroll(function(){
+        if (bottom) return ;
+        if (($(document).height() - $(window).height()) - $(window).scrollTop() < 600){
+            bottom = true ;
+            // alert("We're at the bottom of the page!!");
+            var link = document.getElementById("show-more-gifts-link") ;
+            if (!link) return ; // no more gifts - unregister this function
+            // get more gifts from server
+            link.click() ;
+        }
+    });
 
 </script>
 
