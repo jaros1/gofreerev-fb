@@ -189,10 +189,10 @@ class GiftsController < ApplicationController
 
 
     # get any pictures with invalid picture urls
-    # that is gifts where picture url is marked as invalid and where url lookup in missing_api_picture_urls failed
-    # most possible the pictures has been deleted in api
-    # but problem could also be a fb permission problem
-    # check picture url again now with owner permission
+    # that is gifts where picture url are marked as invalid and where url lookup in /util/missing_api_picture_urls failed
+    # most possible explanation is that the pictures has been deleted in api
+    # but is could also be a fb permission problem (gofreerev user was not allowed to see picture in api)
+    # check picture url again with owner permission
     # the existing /util/missing_api_picture_urls is used to check ivalid picture urls
     # done in a client js call after the page has been rendered to the user
     # see last lines in /gifts/index page

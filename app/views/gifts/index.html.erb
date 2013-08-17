@@ -71,34 +71,38 @@
 <%= link_to "add-more-lines", "/gifts?last_gift_id=#{@last_gift_id}", :remote => true, :id => "show-more-gifts-link" %>
 
 <script>
-    // add page specific version of pre_update_currency function. That is confirm popup before leaving page with unsaved data.
+    // add page specific version of pre_update_currency function.
+    // That is confirm popup before leaving page with unsaved data.
     pending_gift_msg = '<%= my_t '.pending_gift_popup_msg' %>' ;
     pre_update_currency = gifts_pre_update_currency ;
 
-    // Use english texts in client side validations.
+    // Translate texts used in client side validations.
     csv_gifts_description_required = '<%= my_t '.description_required_text' %>' ;
     csv_gifts_price_invalid = '<%= my_t '.price_invalid_text' %>' ;
 
     // report any invalid api picture urls - url has changed or picture has been deleted
     // array with gift ids is initialized in img onload="check_api_picture_url ..."
-    // submitted in 2 seconds to allow pictures to load
+    // submitted in 2 seconds to allow pictures in page to load
+    // api_picture_url_on_error_at is setted for pictures with invalid urls
     setTimeout(report_missing_api_picture_urls, 2000) ;
 
-    // add post ajax event handler for show-more-gifts-link link
-    // change url with new last_gift_id or hide url if all gifts has been fetched
+    // add post ajax event handler for "show-more-gifts-link" link
+    // change url with new last_gift_id or hide url when all gifts has been returned to page
     $(document).ready(function(){
         $('#show-more-gifts-link')
                 .bind("ajax:success", function(evt, data, status, xhr){
                     // find id for last gift (nil or gift_id for last gift in table)
                     var link = document.getElementById("show-more-gifts-link") ;
+                    if (!link) return ; // link has already been removed
                     var table = document.getElementById("gifts") ;
                     var trs = table.getElementsByTagName('tr') ;
                     var tr = trs[trs.length-1] ;
                     var tr_id = tr.id ;
                     // alert('tr_id = ' + tr_id) ;
                     if (tr_id == "") {
-                      // alert('no more gifts - hide link') ;
-                      link.style="display:none" ;
+                      // alert('no more gifts - remove link') ;
+                      link.parentNode.removeChild(link);
+                      // todo: remove this event handler
                     }
                     else {
                       // change last_gift_id in link

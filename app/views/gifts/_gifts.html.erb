@@ -25,6 +25,10 @@
                   <td colspan="2" style="height: 52px">
                     <%= link_to my_t('.gift_link_text', format_gift_param(gift)), url_for(gift), :title => (my_t '.gift_link_title') %>
                     <%= my_t('.gift_text_html', format_gift_param(gift)) %>
+<% if gift.picture == 'Y' and !gift.api_picture_url_on_error_at -%>
+                    <br /><br />
+                    <%= image_tag gift.api_picture_url, :onload => "check_api_picture_url(#{gift.id}, this)" %>
+<% end -%>
                   </td>
                 </tr>
                 <%= @gift = gift ; render :partial => 'comments' %>
