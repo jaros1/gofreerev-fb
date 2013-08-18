@@ -36,7 +36,6 @@ class Notification < ActiveRecord::Base
 
   
   # 3) from_user_id - required - FK - not encrypted - readonly
-  validates_presence_of :from_user_id
   attr_readonly
 
 
@@ -49,7 +48,6 @@ class Notification < ActiveRecord::Base
   # 5) noti_key - key for translate - required - String in model - encrypted text in db
   # there most be 4 keys in yml file for each noti_key with postfix _from_msg, _from_url, _to_msg and _to_url
   validates_presence_of :noti_key
-  attr_readonly :noti_key
   def noti_key
     return nil unless (extended_noti_key = read_attribute(:noti_key))
     encrypt_remove_pre_and_postfix(extended_noti_key, 'noti_key', 19)

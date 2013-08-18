@@ -25,7 +25,7 @@ class CommentsController < ApplicationController
         format.js
       end
     end
-  end
+  end # create
 
   # Get /comments
   # params:

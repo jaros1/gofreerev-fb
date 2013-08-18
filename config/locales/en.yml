@@ -161,6 +161,8 @@ en:
         app_friendship_accepted_v1_from_url: "/users/%{to_id}"
         app_friendship_accepted_v1_to_msg: "%{from_user} accepted your friend request. You and %{from_user} are now %{appname} friends"
         app_friendship_accepted_v1_to_url: "/users/%{from_id}"
+        gift_comment_giver_1_v1_to_url: "/gifts/%{giftid}"
+        gift_comment_giver_1_v1_to_msg: "%{username1} commented your offer"
 
   # user controller
   users:
@@ -168,6 +170,7 @@ en:
         invalid_request: "Invalid call. User settings was not changed."
         exchange_rates_not_ready: "Currency was not changed. Exchange rates was not ready. Try again in a moment."
         send_app_friend_request_ok: "%{appname} friend request was sent to %{username}"
+        send_app_friend_request_error: "Could not send %{appname} friend request to %{username}"
         cancel_app_friend_request_ok: "%{appname} friend request to %{username} was cancelled"
         cancel_app_friend_request_error: "Could not cancel %{appname} friend request to %{username}"
         accept_app_friend_request_ok: "%{appname} friend request from %{username} was accepted"

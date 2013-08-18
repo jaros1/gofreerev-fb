@@ -220,9 +220,9 @@ function post_ajax_add_new_comment_handler(giftid)
 } // post_ajax_add_new_comment_handler
 
 
-// post ajax processing after adding a comment.
+// post ajax processing after inserting older comments for a gift.
 // comments/index.js.rb inserts older comments last i comments table
-// surrounded by "gift-<giftid>-older-comments-block-start-<commentid>" and "gift-<giftid>-older-comments-block-end-<commentid>" lines'
+// new lines are surrounded by "gift-<giftid>-older-comments-block-start-<commentid>" and "gift-<giftid>-older-comments-block-end-<commentid>".
 // move lines up before "show-older-comments" link and delete link
 function post_ajax_add_older_comments_handler(giftid, commentid)
 {
@@ -231,58 +231,43 @@ function post_ajax_add_older_comments_handler(giftid, commentid)
     $(document).ready(function(){
         $('#' + link_id)
             .bind("ajax:success", function(evt, data, status, xhr){
-                // swap the two last rows in comments table for gift
+                // find tr for old link, first added row and last added row
                 var first_row_id = "gift-" + giftid + "-older-comments-block-start-" + commentid ;
                 var last_row_id = "gift-" + giftid + "-older-comments-block-end-" + commentid ;
-                // alert('post_ajax_add_older_comments_handler(' + giftid + ',' + commentid + '), link_id = ' + link_id + ', first_row_id = ' + first_row_id + ', last_row_id = ' + last_row_id) ;
+                // find link
                 var link = document.getElementById(link_id) ;
                 if (!link) return ; // link not found
-                // alert('link = ' + link) ;
+                // find tr for link
                 link_tr = link ;
                 while (link_tr.tagName != 'TR') link_tr = link_tr.parentNode ;
-                // alert('link_tr = ' + link_tr) ;
+                // find first and last added table row
                 first_row = document.getElementById(first_row_id) ;
                 last_row = document.getElementById(last_row_id) ;
-                // alert('link_tr = ' + link_tr + ', first_row = ' + first_row + ', last-row = ' + last_row) ;
-                if (!link_tr || !first_row || !last_row) return ;
-                // save rows in array
+                if (!first_row || !last_row) return ;
+                // copy table rows to JS array
                 var trs = [] ;
-                // alert('trs.length = ' + trs.length + ', trs = ' + trs) ;
                 var tr = first_row.nextElementSibling ;
                 while (tr.id != last_row_id) {
-                  // alert('tr.id = ' + tr.id || ', tr.tagName = ' + tr.tagName + ', tr = ' + tr) ;
-                  // alert('tr.tagName = ' + tr.tagName + ', tr.id = ' + tr.id) ;
                   if (tr.tagName == 'TR') trs.push(tr) ;
                   tr = tr.nextElementSibling ;
                 } // while
-                // alert('trs.length = ' + trs.length + ', trs = ' + trs) ;
-                // delete rows
+                // delete table rows from html table
                 tr = first_row ;
                 var next_tr = tr.nextElementSibling ;
-                var no_deleted = 0 ;
                 do {
                   tr.parentNode.removeChild(tr) ;
-                  no_deleted++ ;
                   tr = next_tr ;
                   next_tr = tr.nextElementSibling ;
                 } while (tr.id != last_row_id) ;
-                // alert(no_deleted + ' rows deleted') ;
-                // alert('trs.length = ' + trs.length + ', trs = ' + trs) ;
-                // insert rows before link
+                // insert table rows before old show-older-comments link
                 var tbody = link_tr.parentNode ;
-                // alert('tbody = ' + tbody + ', link_tr = ' + link_tr) ;
-                var no_inserted = 0 ;
                 while (trs.length > 0) {
                     tr = trs.shift() ;
                     tbody.insertBefore(tr, link_tr) ;
-                    no_inserted++ ;
                 }
-                // alert(no_inserted + ' rows inserted') ;
-                // delete link
+                // delete link  (and this event handler)
                 link_tr.parentNode.removeChild(link_tr) ;
-                return ;
-            });
-
-    });
+            }); // bind ajax:success
+    }); // $(document).ready(function(){
 } // add_post_ajax_new_comment_handler
 

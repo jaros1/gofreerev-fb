@@ -121,7 +121,7 @@
 
 59) check out coffeescript
 
-60) add comments table. save comments. add notification for comments.
+60) add comments table (ok). save comments (ok). add notification for comments (todo).
 
 61) How much sync. of comments in api and comments in app?
     write comment to fb - don't download comments from fb
@@ -129,8 +129,6 @@
 62) edit gift. Can not edit post on api. Allow to edit post in app?
 
 63) create gift as ajax in gifts/index page?
-
-64) focus cursor after create comment
 
 65) gifts/index - show only last 4 comments. add url to get more comments if more than 4 comments
     check user priv. when adding comment
