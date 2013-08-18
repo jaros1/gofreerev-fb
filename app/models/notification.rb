@@ -65,7 +65,6 @@ class Notification < ActiveRecord::Base
   
   # 6) noti_options - required - Hash in Model - encrypted text in db
   # validates_presence_of :noti_options # does not work for some reason!
-  attr_readonly :noti_options
   def noti_options
     return nil unless (temp_extended_noti_options = read_attribute(:noti_options))
     # puts "get temp_extended_noti_options = #{temp_extended_noti_options} (#{temp_extended_noti_options.class.name})"

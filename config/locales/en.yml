@@ -162,7 +162,29 @@ en:
         app_friendship_accepted_v1_to_msg: "%{from_user} accepted your friend request. You and %{from_user} are now %{appname} friends"
         app_friendship_accepted_v1_to_url: "/users/%{from_id}"
         gift_comment_giver_1_v1_to_url: "/gifts/%{giftid}"
-        gift_comment_giver_1_v1_to_msg: "%{username1} commented your offer"
+        gift_comment_giver_1_v1_to_msg: '%{username1} commented your offer "%{gifttext} ..."'
+        gift_comment_giver_2_v1_to_url: "/gifts/%{giftid}"
+        gift_comment_giver_2_v1_to_msg: '%{username1} and %{username2} commented your offer "%{gifttext} ..."'
+        gift_comment_giver_3_v1_to_url: "/gifts/%{giftid}"
+        gift_comment_giver_3_v1_to_msg: '%{username1}, %{username2} and %{username3} commented your offer "%{gifttext} ..."'
+        gift_comment_giver_n_v1_to_url: "/gifts/%{giftid}"
+        gift_comment_giver_n_v1_to_msg: '%{username1}, %{username2} and %{no_other_users} other persons commented your offer "%{gifttext} ..."'
+        gift_comment_receiver_1_v1_to_url: "/gifts/%{giftid}"
+        gift_comment_receiver_1_v1_to_msg: '%{username1} commented your wish "%{gifttext} ..."'
+        gift_comment_receiver_2_v1_to_url: "/gifts/%{giftid}"
+        gift_comment_receiver_2_v1_to_msg: '%{username1} and %{username2} commented your wish "%{gifttext} ..."'
+        gift_comment_receiver_3_v1_to_url: "/gifts/%{giftid}"
+        gift_comment_receiver_3_v1_to_msg: '%{username1}, %{username2} and %{username3} commented your wish "%{gifttext} ..."'
+        gift_comment_receiver_n_v1_to_url: "/gifts/%{giftid}"
+        gift_comment_receiver_n_v1_to_msg: '%{username1}, %{username2} and %{no_other_users} other persons commented your wish "%{gifttext} ..."'
+        gift_comment_giver_and_receiver_1_v1_to_url: "/gifts/%{giftid}"
+        gift_comment_giver_and_receiver_1_v1_to_msg: '%{username1} commented todo "%{gifttext} ..."'
+        gift_comment_giver_and_receiver_2_v1_to_url: "/gifts/%{giftid}"
+        gift_comment_giver_and_receiver_2_v1_to_msg: '%{username1} and %{username2} commented todo "%{gifttext} ..."'
+        gift_comment_giver_and_receiver_3_v1_to_url: "/gifts/%{giftid}"
+        gift_comment_giver_and_receiver_3_v1_to_msg: '%{username1}, %{username2} and %{username3} commented todo "%{gifttext} ..."'
+        gift_comment_giver_and_receiver_n_v1_to_url: "/gifts/%{giftid}"
+        gift_comment_giver_and_receiver_n_v1_to_msg: '%{username1}, %{username2} and %{no_other_users} other persons commented todo "%{gifttext} ..."'
 
   # user controller
   users:

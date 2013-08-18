@@ -136,3 +136,7 @@
 66) ajax get new comments. That is comments added by others users after the page was loaded
 
 67) comment notification.
+
+68) chrome bug - tags in enter comment text
+
+69) comment notifications from two users not displayed correct in inbox

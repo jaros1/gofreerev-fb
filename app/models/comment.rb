@@ -60,42 +60,46 @@ class Comment < ActiveRecord::Base
     noti_key_prefix_lng = noti_key_prefix.length
     noti_key_version = 1
     regexp = Regexp.new "^#{noti_key_prefix}_(1|2|3|n)_v#{noti_key_version}$"
-    puts "regexp = #{regexp}"
+    # puts "regexp = #{regexp}"
     match = nil
     n = Notification.where("to_user_id = ? and noti_read = 'N'", to_user.user_id)
                      .find { |n| n.noti_options[:giftid] == gift.id and match = regexp.match(n.noti_key) }
     if !n
       # first unread comment for this gift
-      puts "first unread comment for this gift"
+      # puts "first unread comment for this gift"
       n = Notification.new
       n.to_user_id = to_user.user_id
       n.from_user_id = nil
       n.internal = 'Y'
       n.noti_key = "#{noti_key_prefix}_1_v#{noti_key_version}"
-      n.noti_options = { :giftid => gift.id, :no_users => 1, :no_other_users => -1,
+      n.noti_options = { :giftid => gift.id, :gifttext => gift.description.first(30),
+                         :no_users => 1, :no_other_users => -1,
                          :userid1 => from_user.id, :username1 => from_user.short_user_name,
                          :userid2 => nil, :username2 => nil,
                          :userid3 => nil, :username3 => nil }
       n.noti_read = 'N'
     elsif [n.noti_options[:userid1], n.noti_options[:userid2], n.noti_options[:userid3]].index(from_user.id)
       # user already in unread notification message
-      puts "user already in unread notification message"
+      # puts "user already in unread notification message"
       nil
     else
       # change noti_key / add user to unread notification message
-      puts "change noti_key / add user to unread notification message"
-      n.noti_options[:no_users] += 1
-      n.noti_options[:no_other_users] += 1
-      if n.noti_options[:no_users] > 3 then
+      # puts "change noti_key / add user to unread notification message"
+      noti_options = n.noti_options # copy to/from local variable for encryption to work
+      noti_options[:no_users] += 1
+      noti_options[:no_other_users] += 1
+      if noti_options[:no_users] > 3 then
         xno_users = 'n'
       else
-        xno_users = n.noti_options[:no_users].to_s
-        n.noti_options["userid#{xno_users}".to_sym] = from_user.id
-        n.noti_options["username#{xno_users}".to_sym] = from_user.short_user_name
+        xno_users = noti_options[:no_users].to_s
+        noti_options["userid#{xno_users}".to_sym] = from_user.id
+        noti_options["username#{xno_users}".to_sym] = from_user.short_user_name
       end
       n.noti_key = "#{noti_key_prefix}_#{xno_users}_v#{noti_key_version}"
+      n.noti_options = noti_options
     end
     n.valid?
+    # todo: error response from comment/create does not work
     puts "n.errors = " + n.errors.full_messages.join('. ') if not n.valid?
     n.save!
   end # create_or_update_noti
@@ -108,7 +112,8 @@ class Comment < ActiveRecord::Base
     # noti_key_format: <noti_key_prefix>_<n>_v1
     # noti_key_prefix: gift_comment_giver (offer), gift_comment_receiver (seek) or gift_comment_giver_and_receiver (closed)
     # n: 1, 2, 3 or n : number of users that has commented the gift
-    # v1: version of noti_option hash format - change if you adds or removes hash keys from noti_key message
+    # v1: version of noti_option hash format - change to next version if changing hast keys for translations
+    # remember to setup translation keys (gift_comment_giver_1_v1_to_url, gift_comment_giver_1_v1_to_msg etc)
     noti_key_prefix = 'gift_comment_'
     noti_key_prefix += case
                           when gift.giver && gift.receiver then 'giver_and_receiver'
