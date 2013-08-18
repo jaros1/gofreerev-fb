@@ -1,6 +1,7 @@
-<% # show newest 4 comments for each gift in gifts/index page (@first_comment_id == nil)
+<% # show newest 4 comments for each gift when gifts/index page is loaded (@first_comment_id == nil)
    # ajax get next 10 older comments where user clicks on "get-older-comments" link in gifts/index page
    # ajax rows are surrounded be a start and a end line, appended to end of gifts table and moved up in post ajax processing
+   # ajax post processing is done by my.js / post_ajax_add_older_comments_handler (event handler added onclick for show-older-comments link)
    comments = @gift.comments_with_filter(@first_comment_id)
    first_comment = comments.first
    no_older_comments = first_comment ? first_comment.no_older_comments : 0

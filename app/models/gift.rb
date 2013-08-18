@@ -568,14 +568,14 @@ class Gift < ActiveRecord::Base
 
 
   # return last 4 comments for gifts/index page if first_comment_id is nil
-  # return 10 older comments in ajax request ii first_comment_id is not nil
-  # used in gifts/index (first_comment_id == nil) and in comments/comments (ajax/first_comment_id != nil)
+  # return next 10 old comments in ajax request ii first_comment_id is not null
+  # used in gifts/index (html/first_comment_id == nil) and in comments/comments (ajax/first_comment_id != nil)
   def comments_with_filter (first_comment_id = nil)
     cs = comments.sort { |a,b| a.created_at <=> b.created_at }
     (0..(cs.length-1)).each { |i| cs[i].no_older_comments = i }
     return cs.last(4) if first_comment_id == nil
     index = cs.find_index { |c| c.id.to_s == first_comment_id.to_s }
-    puts "index = #{index}"
+    # puts "index = #{index}"
     return [] if index == nil or index == 0
     cs[0..(index-1)].last(10)
   end # comments_with_filter

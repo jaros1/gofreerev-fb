@@ -233,13 +233,13 @@ class GiftsController < ApplicationController
       @gift.currency = @user.currency unless @gift.currency
       @gift.user_id_giver = session[:user_id]
     end
-    puts "index: description = #{@gift.description}"
+    # puts "index: description = #{@gift.description}"
 
     # initialize list of gifts
     # list of gifts with @user as giver or receiver + list of gifts med @user.friends as giver or receiver
     # where clause is used for non encrypted fields. find_all is used for encrypted fields
     friends = Friend.where("user_id_giver = ?", @user.user_id).find_all do |f|
-      puts "user_id_receiver = #{f.user_id_receiver}, api_friend = #{f.api_friend}, app_friend = #{f.app_friend}"
+      # puts "user_id_receiver = #{f.user_id_receiver}, api_friend = #{f.api_friend}, app_friend = #{f.app_friend}"
       if f.app_friend == 'Y'
         true
       elsif f.app_friend == nil and f.api_friend == 'Y'
@@ -273,20 +273,20 @@ class GiftsController < ApplicationController
     end
 
     # last_gift_id != nil. ajax request from end of gifts/index page - return next 10 rows to gifts/index page
-    puts "last_gift_id = #{params[:last_gift_id]}, gifts.length = #{@gifts.length}"
+    # puts "last_gift_id = #{params[:last_gift_id]}, gifts.length = #{@gifts.length}"
     if params[:last_gift_id].to_s != ""
       from = @gifts.find_index { |g| g.id == params[:last_gift_id].to_i }
-      puts "from = #{from}"
+      # puts "from = #{from}"
       @gifts = @gifts[from+1..-1]
     end
-    puts "gifts.length = #{@gifts.length}"
+    # puts "gifts.length = #{@gifts.length}"
     if  @gifts.length > 10
       @gifts = @gifts[0..9]
       @last_gift_id = @gifts.last.id
     else
       @last_gift_id = nil
     end
-    puts "last_gift_id = #{@last_gift_id}, gifts.length = #{@gifts.length}"
+    # puts "last_gift_id = #{@last_gift_id}, gifts.length = #{@gifts.length}"
 
     # show 4 last comments for each gift
     @first_comment_id = nil
