@@ -110,6 +110,11 @@ module ApplicationHelper
     l time, :format => :short
   end
 
+  # todo: config sanitize
+  def my_sanitize (text)
+    sanitize(text.to_s.force_encoding('UTF-8')).gsub(/\n/, '<br/>').html_safe
+  end # my_sanitize
+
   # english description for social dividend in database for gifttype = S (social dividend)
   # use this translate for description in other languages for social dividend
   def format_gift_description (gift)
@@ -117,7 +122,7 @@ module ApplicationHelper
     # problem with incompatible character encodings: UTF-8 and ASCII-8BIT
     # temporary workaround with .force_encoding('UTF-8')
     # do not known were the problem is
-    return sanitize(gift.description.force_encoding('UTF-8')).gsub(/\n/, '<br/>').html_safe if gift.gifttype == 'G'
+    return my_sanitize gift.description if gift.gifttype == 'G'
 
     # format description with social dividend with translate
     if gift.social_dividend_from

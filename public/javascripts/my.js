@@ -192,10 +192,10 @@ function autoresize_text_field (text) {
     resize();
 }
 
-// post processing after adding a comment.
-// comments/create.js.rb inserts new comment last i table
+// post ajax processing after adding a comment.
+// comments/create.js.rb inserts new comment last i comments table
 // swap the two last rows after ajax processing
-function add_post_ajax_comment_handler(giftid)
+function post_ajax_add_new_comment_handler(giftid)
 {
     var id = '#gift-' + giftid + '-new-comment-form' ;
     $(document).ready(function(){
@@ -217,4 +217,83 @@ function add_post_ajax_comment_handler(giftid)
             });
 
     });
-} // add_post_ajax_comment_handler
+} // post_ajax_add_new_comment_handler
+
+
+// post ajax processing after adding a comment.
+// comments/index.js.rb inserts older comments last i comments table
+// surrounded by "gift-<giftid>-older-comments-block-start-<commentid>" and "gift-<giftid>-older-comments-block-end-<commentid>" lines'
+// move lines up before "show-older-comments" link and delete link
+function post_ajax_add_older_comments_handler(giftid, commentid)
+{
+    // var id = '#gift-' + giftid + '-new-comment-form' ;
+    var link_id = 'gift-' + giftid + '-show-older-comments-link-' + commentid ;
+    $(document).ready(function(){
+        $('#' + link_id)
+            .bind("ajax:success", function(evt, data, status, xhr){
+                // swap the two last rows in comments table for gift
+                var first_row_id = "gift-" + giftid + "-older-comments-block-start-" + commentid ;
+                var last_row_id = "gift-" + giftid + "-older-comments-block-end-" + commentid ;
+                // alert('post_ajax_add_older_comments_handler(' + giftid + ',' + commentid + '), link_id = ' + link_id + ', first_row_id = ' + first_row_id + ', last_row_id = ' + last_row_id) ;
+                var link = document.getElementById(link_id) ;
+                if (!link) return ; // link not found
+                // alert('link = ' + link) ;
+                link_tr = link ;
+                while (link_tr.tagName != 'TR') link_tr = link_tr.parentNode ;
+                alert('link_tr = ' + link_tr) ;
+                first_row = document.getElementById(first_row_id) ;
+                last_row = document.getElementById(last_row_id) ;
+                // alert('link_tr = ' + link_tr + ', first_row = ' + first_row + ', last-row = ' + last_row) ;
+                if (!link_tr || !first_row || !last_row) return ;
+                // save rows in array
+                var trs = [] ;
+                alert('trs.length = ' + trs.length + ', trs = ' + trs) ;
+                tr = first_row.nextElementSibling ;
+                while (tr.id != last_row_id) {
+                  // alert('tr.id = ' + tr.id || ', tr.tagName = ' + tr.tagName + ', tr = ' + tr) ;
+                  // alert('tr.tagName = ' + tr.tagName + ', tr.id = ' + tr.id) ;
+                  if (tr.tagName == 'TR') trs.push(tr) ;
+                  tr = tr.nextElementSibling ;
+                } // while
+                alert('trs.length = ' + trs.length + ', trs = ' + trs) ;
+                // delete rows
+                tr = first_row ;
+                next_tr = tr.nextElementSibling ;
+                var no_deleted = 0 ;
+                do {
+                  tr.parentNode.removeChild(tr) ;
+                  no_deleted++ ;
+                  tr = next_tr ;
+                  next_tr = tr.nextElementSibling ;
+                } while (tr.id != last_row_id) ;
+                alert(no_deleted + ' rows deleted') ;
+                alert('trs.length = ' + trs.length + ', trs = ' + trs) ;
+                // insert rows before link
+                var tbody = link_tr.parentNode ;
+                alert('tbody = ' + tbody + ', link_tr = ' + link_tr) ;
+                var no_inserted = 0 ;
+                while (trs.length > 0) {
+                    tr = trs.shift() ;
+                    tbody.insertBefore(tr, link_tr) ;
+                    no_inserted++ ;
+                }
+                // delete link
+                alert(no_inserted + ' rows inserted') ;
+                return ;
+                var tbodyname = "gift-" + giftid + "-comments" ;
+                var tbody = document.getElementById(tbodyname) ;
+                var lasttr = tbody.lastChild ;
+                var prevtr = lasttr.previousElementSibling ;
+                tbody.removeChild(lasttr) ;
+                tbody.insertBefore(lasttr, prevtr) ;
+                // empty comment field
+                var commentname = 'gift-' + giftid + '-new-comment-textarea'  ;
+                var comment = document.getElementById(commentname) ;
+                comment.value = "" ;
+                comment.focus() ;
+
+            });
+
+    });
+} // add_post_ajax_new_comment_handler
+

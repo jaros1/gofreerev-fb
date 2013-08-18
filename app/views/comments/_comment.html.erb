@@ -1,4 +1,4 @@
 <tr>
   <td style="vertical-align: top;"><%= @user2 = @user ; render '/shared/user_div' %></td>
-  <td><%= h @comment.comment %></td>
+  <td><%= my_sanitize @comment.comment %></td>
 </tr>

@@ -10,7 +10,7 @@ class CommentsController < ApplicationController
     @comment = Comment.new
     @comment.gift_id = params[:comment][:gift_id]
     @comment.user_id = @user.user_id
-    @comment.comment = params[:comment][:comment]
+    @comment.comment = params[:comment][:comment].to_s.force_encoding('UTF-8')
 
     respond_to do |format|
       if @comment.save
@@ -51,7 +51,7 @@ class CommentsController < ApplicationController
 
     respond_to do |format|
       if !@error
-        @@first_comment_id = params[:first_comment_id]
+        @first_comment_id = params[:first_comment_id]
         format.html { render }
         format.json { render json: @comment, status: :ok, location: @comment }
         format.js
@@ -61,9 +61,9 @@ class CommentsController < ApplicationController
         format.json { render json: @error, status: :unprocessable_entity }
         format.js
       end
-    end
+    end # respond_to
 
-  end
+  end # index
 
   def update
   end

@@ -1,5 +1,1 @@
-<%
-  puts j render("comments", :gift => @gift, :first_comment_id => @first_comment_id)
-
--%>
 $('#gift-<%= @gift.id %>-comments').append('<%= j render("comments", :gift => @gift, :first_comment_id => @first_comment_id) %>');

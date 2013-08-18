@@ -575,8 +575,9 @@ class Gift < ActiveRecord::Base
     (0..(cs.length-1)).each { |i| cs[i].no_older_comments = i }
     return cs.last(4) if first_comment_id == nil
     index = cs.find_index { |c| c.id.to_s == first_comment_id.to_s }
+    puts "index = #{index}"
     return [] if index == nil or index == 0
-    cs[0..(index-1)]
+    cs[0..(index-1)].last(10)
   end # comments_with_filter
 
 
