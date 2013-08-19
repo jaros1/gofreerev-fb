@@ -76,7 +76,9 @@ class Comment < ActiveRecord::Base
                          :no_users => 1, :no_other_users => -1,
                          :userid1 => from_user.id, :username1 => from_user.short_user_name,
                          :userid2 => nil, :username2 => nil,
-                         :userid3 => nil, :username3 => nil }
+                         :userid3 => nil, :username3 => nil,
+                         :givername => (gift.user_id_giver ? gift.giver.short_user_name : ""),
+                         :receivername => (gift.user_id_receiver ? gift.receiver.short_user_name : "") }
       n.noti_read = 'N'
     elsif [n.noti_options[:userid1], n.noti_options[:userid2], n.noti_options[:userid3]].index(from_user.id)
       # user already in unread notification message
@@ -106,9 +108,6 @@ class Comment < ActiveRecord::Base
 
 
   def after_create
-    puts "user_id = #{user_id}, user_id_giver = #{gift.user_id_giver}, user_id_receiver = #{gift.user_id_receiver}"
-    return if user_id == gift.user_id_receiver and !gift.user_id_giver
-    return if user_id == gift.user_id_giver and !gift.user_id_receiver
     # noti_key_format: <noti_key_prefix>_<n>_v1
     # noti_key_prefix: gift_comment_giver (offer), gift_comment_receiver (seek) or gift_comment_giver_and_receiver (closed)
     # n: 1, 2, 3 or n : number of users that has commented the gift
@@ -121,14 +120,14 @@ class Comment < ActiveRecord::Base
                           when gift.receiver then 'receiver'
                        end
     puts "noti_key_prefix = #{noti_key_prefix}"
-    if gift.user_id_giver and user_id != gift.user_id_giver
-      # notification to giver.
-      create_or_update_noti(noti_key_prefix, user, gift.giver)
-    end
-    if gift.user_id_receiver and user_id != gift.user_id_receiver
-      # notification to receiver
-      create_or_update_noti(noti_key_prefix, user, gift.receiver)
-    end
+    # send notifications
+    # 1) send notification to giver and/or receiver
+    users.push(gift.giver) if gift.user_id_giver and user_id != gift.user_id_giver
+    users.push(gift.receiver) if gift.user_id_receiver and user_id != gift.user_id_receiver
+    users.each { |user2| create_or_update_noti(noti_key_prefix, user, user2) }
+    # send notification to other that has commented the gift - note that "_other" is added to notification key!
+    users = gift.comments.collect { | c| c.user }.find_all { |user2| ![user.user_id, gift.user_id_giver, gift.user_id_receiver].index(user2.user_id)
+    users.each { |user2| create_or_update_noti(noti_key_prefix + '_other', user, user2) } }
   end # after_create
   
 

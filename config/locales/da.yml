@@ -188,13 +188,37 @@ da:
         gift_comment_receiver_n_v1_to_url: "/gifts/%{giftid}"
         gift_comment_receiver_n_v1_to_msg: '%{username1}, %{username2} og %{no_other_users} andre har kommenteret dit ønske "%{gifttext} ..."'
         gift_comment_giver_and_receiver_1_v1_to_url: "/gifts/%{giftid}"
-        gift_comment_giver_and_receiver_1_v1_to_msg: '%{username1} har kommenteret todo "%{gifttext} ..."'
+        gift_comment_giver_and_receiver_1_v1_to_msg: '%{username1} har kommenteret aftale "%{gifttext} ..."'
         gift_comment_giver_and_receiver_2_v1_to_url: "/gifts/%{giftid}"
-        gift_comment_giver_and_receiver_2_v1_to_msg: '%{username1} og %{username2} har kommenteret todo "%{gifttext} ..."'
+        gift_comment_giver_and_receiver_2_v1_to_msg: '%{username1} og %{username2} har kommenteret aftale "%{gifttext} ..."'
         gift_comment_giver_and_receiver_3_v1_to_url: "/gifts/%{giftid}"
-        gift_comment_giver_and_receiver_3_v1_to_msg: '%{username1}, %{username2} og %{username3} har kommenteret todo "%{gifttext} ..."'
+        gift_comment_giver_and_receiver_3_v1_to_msg: '%{username1}, %{username2} og %{username3} har kommenteret aftale "%{gifttext} ..."'
         gift_comment_giver_and_receiver_n_v1_to_url: "/gifts/%{giftid}"
-        gift_comment_giver_and_receiver_n_v1_to_msg: '%{username1}, %{username2} or %{no_other_users} andre har kommenteret todo "%{gifttext} ..."'
+        gift_comment_giver_and_receiver_n_v1_to_msg: '%{username1}, %{username2} or %{no_other_users} andre har kommenteret aftale "%{gifttext} ..."'
+        gift_comment_giver_other_1_v1_to_url: "/gifts/%{giftid}"
+        gift_comment_giver_other_1_v1_to_msg: '%{username1} har kommenteret dit tilbud "%{gifttext} ..."'
+        gift_comment_giver_other_2_v1_to_url: "/gifts/%{giftid}"
+        gift_comment_giver_other_2_v1_to_msg: '%{username1} og %{username2} har kommenteret dit tilbud "%{gifttext} ..."'
+        gift_comment_giver_other_3_v1_to_url: "/gifts/%{giftid}"
+        gift_comment_giver_other_3_v1_to_msg: '%{username1}, %{username2} og %{username3} har kommenteret dit tilbud "%{gifttext} ..."'
+        gift_comment_giver_other_n_v1_to_url: "/gifts/%{giftid}"
+        gift_comment_giver_other_n_v1_to_msg: '%{username1}, %{username2} or %{no_other_users} andre har kommenteret dit tilbud "%{gifttext} ..."'
+        gift_comment_receiver_other_1_v1_to_url: "/gifts/%{giftid}"
+        gift_comment_receiver_other_1_v1_to_msg: '%{username1} har kommenteret dit ønske "%{gifttext} ..."'
+        gift_comment_receiver_other_2_v1_to_url: "/gifts/%{giftid}"
+        gift_comment_receiver_other_2_v1_to_msg: '%{username1} og %{username2} har kommenteret dit ønske "%{gifttext} ..."'
+        gift_comment_receiver_other_3_v1_to_url: "/gifts/%{giftid}"
+        gift_comment_receiver_other_3_v1_to_msg: '%{username1}, %{username2} og %{username3} har kommenteret dit ønske "%{gifttext} ..."'
+        gift_comment_receiver_other_n_v1_to_url: "/gifts/%{giftid}"
+        gift_comment_receiver_other_n_v1_to_msg: '%{username1}, %{username2} og %{no_other_users} andre har kommenteret dit ønske "%{gifttext} ..."'
+        gift_comment_giver_and_receiver_other_1_v1_to_url: "/gifts/%{giftid}"
+        gift_comment_giver_and_receiver_other_1_v1_to_msg: '%{username1} har kommenteret aftale "%{gifttext} ..."'
+        gift_comment_giver_and_receiver_other_2_v1_to_url: "/gifts/%{giftid}"
+        gift_comment_giver_and_receiver_other_2_v1_to_msg: '%{username1} og %{username2} har kommenteret aftale "%{gifttext} ..."'
+        gift_comment_giver_and_receiver_other_3_v1_to_url: "/gifts/%{giftid}"
+        gift_comment_giver_and_receiver_other_3_v1_to_msg: '%{username1}, %{username2} og %{username3} har kommenteret aftale "%{gifttext} ..."'
+        gift_comment_giver_and_receiver_other_n_v1_to_url: "/gifts/%{giftid}"
+        gift_comment_giver_and_receiver_other_n_v1_to_msg: '%{username1}, %{username2} or %{no_other_users} andre har kommenteret aftale "%{gifttext} ..."'
 
   # user controller
   users:
