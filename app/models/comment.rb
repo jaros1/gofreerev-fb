@@ -55,7 +55,10 @@ class Comment < ActiveRecord::Base
   # used in gifts/index page to display "show <n> more comments"
   attr_accessor :no_older_comments
 
-  # user2 is giver or receiver - receiver of notification
+  # Note: 48 different translations. See inbox/index/gift_comment*
+  # noti_key_prefix is 1) gift_comment_giver, 2) gift_comment_receiver, 3) gift_comment_giver_and_receiver, 4) gift_comment_giver_other, 5) gift_comment_receiver_other or 6) gift_comment_giver_and_receiver_other
+  # from_user is user that has commented the gift - added to noti_options hash
+  # to_user is giver, receiver or an other user that also has commented the gift - receiver of notification
   def create_or_update_noti (noti_key_prefix, from_user, to_user)
     noti_key_prefix_lng = noti_key_prefix.length
     noti_key_version = 1
@@ -107,6 +110,7 @@ class Comment < ActiveRecord::Base
   end # create_or_update_noti
 
 
+  # Note: 48 different translations. See inbox/index/gift_comment*
   def after_create
     # noti_key_format: <noti_key_prefix>_<n>_v1
     # noti_key_prefix: gift_comment_giver (offer), gift_comment_receiver (seek) or gift_comment_giver_and_receiver (closed)
@@ -122,11 +126,13 @@ class Comment < ActiveRecord::Base
     puts "noti_key_prefix = #{noti_key_prefix}"
     # send notifications
     # 1) send notification to giver and/or receiver
+    # xx and yy has commented etc etc
     users = []
     users.push(gift.giver) if gift.user_id_giver and user_id != gift.user_id_giver
     users.push(gift.receiver) if gift.user_id_receiver and user_id != gift.user_id_receiver
     users.each { |user2| create_or_update_noti(noti_key_prefix, user, user2) }
     # send notification to other that has commented the gift - note that "_other" is added to notification key!
+    # xx and yy has also commented etc etc
     users = gift.comments.collect { | c| c.user }.find_all { |user2| ![user.user_id, gift.user_id_giver, gift.user_id_receiver].index(user2.user_id) }
     # puts "send #{noti_key_prefix}_other notification to: " + users.collect { |user2| user2.short_user_name }.join(', ')
     users.each { |user2| create_or_update_noti(noti_key_prefix + '_other', user, user2) }

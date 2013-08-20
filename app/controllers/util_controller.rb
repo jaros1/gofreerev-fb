@@ -7,7 +7,7 @@ class UtilController < ApplicationController
       @new_messages_count = count if count > 0
     end
     render :layout => false
-  end
+  end # new_messages_count
 
   # get array of gift ids with invalid picture url
   # temp api url can have changed / picture may have been deleted

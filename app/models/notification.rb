@@ -5,6 +5,9 @@ class Notification < ActiveRecord::Base
   belongs_to :from_user, :class_name => 'User', :primary_key => :user_id, :foreign_key => :from_user_id
   belongs_to :to_user, :class_name => 'User', :primary_key => :user_id, :foreign_key => :to_user_id
 
+  before_create :before_create
+
+
 
   # https://github.com/jmazzi/crypt_keeper - text columns are encrypted in database
   # encrypt_add_pre_and_postfix/encrypt_remove_pre_and_postfix added in setters/getters for better encryption
@@ -87,6 +90,20 @@ class Notification < ActiveRecord::Base
   # 7) noti_read - required - Y/N String in model - not encrypted
   validates_presence_of :noti_read
   validates_inclusion_of :noti_read, :in => %w(Y N)
+
+
+  # keep max 20 notifications for each user
+  def before_create
+    limit = 19
+    # puts "notification.before_create: to_user_id = #{to_user_id}"
+    count = Notification.where("to_user_id = ?", to_user_id).length
+    return if count <= limit
+    # keep newest 19 notifications (0..18).
+    ns = Notification.where("to_user_id = ?", to_user_id).order("updated_at desc")
+    ns = ns[limit..-1]
+    ns.each { |n| n.destroy }
+    # one new notification will be created just in a moment
+  end # before_create
   
 
 

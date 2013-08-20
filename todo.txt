@@ -135,9 +135,12 @@
 
 66) ajax get new comments. That is comments added by others users after the page was loaded
     FB is quick to add comments automatically. Only relevant to add comments in visable part of page
-
-67) notification if other users comments a gift you have comment (done)
-    Edit *_other_ translations (da and en)
+    implement together with new_messages_count
 
 68) watch/no not watch gift.
     default is that you watch a if you are giver, receiver or has make a comment
+
+69) mark new comments with color in inbox
+
+70) only keep last <n> notifications for each user
+    max keep a notification for n days.
