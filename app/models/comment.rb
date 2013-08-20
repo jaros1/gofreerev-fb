@@ -122,12 +122,14 @@ class Comment < ActiveRecord::Base
     puts "noti_key_prefix = #{noti_key_prefix}"
     # send notifications
     # 1) send notification to giver and/or receiver
+    users = []
     users.push(gift.giver) if gift.user_id_giver and user_id != gift.user_id_giver
     users.push(gift.receiver) if gift.user_id_receiver and user_id != gift.user_id_receiver
     users.each { |user2| create_or_update_noti(noti_key_prefix, user, user2) }
     # send notification to other that has commented the gift - note that "_other" is added to notification key!
-    users = gift.comments.collect { | c| c.user }.find_all { |user2| ![user.user_id, gift.user_id_giver, gift.user_id_receiver].index(user2.user_id)
-    users.each { |user2| create_or_update_noti(noti_key_prefix + '_other', user, user2) } }
+    users = gift.comments.collect { | c| c.user }.find_all { |user2| ![user.user_id, gift.user_id_giver, gift.user_id_receiver].index(user2.user_id) }
+    # puts "send #{noti_key_prefix}_other notification to: " + users.collect { |user2| user2.short_user_name }.join(', ')
+    users.each { |user2| create_or_update_noti(noti_key_prefix + '_other', user, user2) }
   end # after_create
   
 

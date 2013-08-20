@@ -193,29 +193,29 @@ en:
         gift_comment_giver_and_receiver_n_v1_to_url: "/gifts/%{giftid}"
         gift_comment_giver_and_receiver_n_v1_to_msg: '%{username1}, %{username2} and %{no_other_users} other persons commented deal "%{gifttext} ..."'
         gift_comment_giver_other_1_v1_to_url: "/gifts/%{giftid}"
-        gift_comment_giver_other_1_v1_to_msg: '%{username1} commented your offer "%{gifttext} ..."'
+        gift_comment_giver_other_1_v1_to_msg: '%{username1} also commented %{givername}-s offer "%{gifttext} ..."'
         gift_comment_giver_other_2_v1_to_url: "/gifts/%{giftid}"
-        gift_comment_giver_other_2_v1_to_msg: '%{username1} and %{username2} commented your offer "%{gifttext} ..."'
+        gift_comment_giver_other_2_v1_to_msg: '%{username1} and %{username2} also commented %{givername}-s offer "%{gifttext} ..."'
         gift_comment_giver_other_3_v1_to_url: "/gifts/%{giftid}"
-        gift_comment_giver_other_3_v1_to_msg: '%{username1}, %{username2} and %{username3} commented your offer "%{gifttext} ..."'
+        gift_comment_giver_other_3_v1_to_msg: '%{username1}, %{username2} and %{username3} also commented %{givername}-s offer "%{gifttext} ..."'
         gift_comment_giver_other_n_v1_to_url: "/gifts/%{giftid}"
-        gift_comment_giver_other_n_v1_to_msg: '%{username1}, %{username2} and %{no_other_users} other persons commented your offer "%{gifttext} ..."'
+        gift_comment_giver_other_n_v1_to_msg: '%{username1}, %{username2} and %{no_other_users} other persons also commented %{givername}-s offer "%{gifttext} ..."'
         gift_comment_receiver_other_1_v1_to_url: "/gifts/%{giftid}"
-        gift_comment_receiver_other_1_v1_to_msg: '%{username1} commented your wish "%{gifttext} ..."'
+        gift_comment_receiver_other_1_v1_to_msg: '%{username1} also commented %{receivername}-s wish "%{gifttext} ..."'
         gift_comment_receiver_other_2_v1_to_url: "/gifts/%{giftid}"
-        gift_comment_receiver_other_2_v1_to_msg: '%{username1} and %{username2} commented your wish "%{gifttext} ..."'
+        gift_comment_receiver_other_2_v1_to_msg: '%{username1} and %{username2} also commented %{receivername}-s wish "%{gifttext} ..."'
         gift_comment_receiver_other_3_v1_to_url: "/gifts/%{giftid}"
-        gift_comment_receiver_other_3_v1_to_msg: '%{username1}, %{username2} and %{username3} commented your wish "%{gifttext} ..."'
+        gift_comment_receiver_other_3_v1_to_msg: '%{username1}, %{username2} and %{username3} also commented %{receivername}-s wish "%{gifttext} ..."'
         gift_comment_receiver_other_n_v1_to_url: "/gifts/%{giftid}"
-        gift_comment_receiver_other_n_v1_to_msg: '%{username1}, %{username2} and %{no_other_users} other persons commented your wish "%{gifttext} ..."'
+        gift_comment_receiver_other_n_v1_to_msg: '%{username1}, %{username2} and %{no_other_users} other persons also commented %{receivername}-s wish "%{gifttext} ..."'
         gift_comment_giver_and_receiver_other_1_v1_to_url: "/gifts/%{giftid}"
-        gift_comment_giver_and_receiver_other_1_v1_to_msg: '%{username1} commented deal "%{gifttext} ..."'
+        gift_comment_giver_and_receiver_other_1_v1_to_msg: '%{username1} also commented deal "%{gifttext} ..." between %{givername} and %{receivername}'
         gift_comment_giver_and_receiver_other_2_v1_to_url: "/gifts/%{giftid}"
-        gift_comment_giver_and_receiver_other_2_v1_to_msg: '%{username1} and %{username2} commented deal "%{gifttext} ..."'
+        gift_comment_giver_and_receiver_other_2_v1_to_msg: '%{username1} and %{username2} also commented deal "%{gifttext} ..." between %{givername} and %{receivername}'
         gift_comment_giver_and_receiver_other_3_v1_to_url: "/gifts/%{giftid}"
-        gift_comment_giver_and_receiver_other_3_v1_to_msg: '%{username1}, %{username2} and %{username3} commented deal "%{gifttext} ..."'
+        gift_comment_giver_and_receiver_other_3_v1_to_msg: '%{username1}, %{username2} and %{username3} also commented deal "%{gifttext} ..." between %{givername} and %{receivername}'
         gift_comment_giver_and_receiver_other_n_v1_to_url: "/gifts/%{giftid}"
-        gift_comment_giver_and_receiver_other_n_v1_to_msg: '%{username1}, %{username2} and %{no_other_users} other persons commented deal "%{gifttext} ..."'
+        gift_comment_giver_and_receiver_other_n_v1_to_msg: '%{username1}, %{username2} and %{no_other_users} other persons also commented deal "%{gifttext} ..." between %{givername} and %{receivername}'
 
   # user controller
   users:
