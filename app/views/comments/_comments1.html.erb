@@ -1,0 +1,7 @@
+<%# just comments without any extra functionality -%>
+<% for comment in @comments do loop -%>
+    <tr id="<%= "comment-gift-#{comment.gift.id}-comment-#{comment.id}" %>">
+      <td style="vertical-align: top;"><%= @user2 = comment.user ; render '/shared/user_div' %></td>
+      <td><%= my_sanitize comment.comment %></td>
+    </tr>
+<% end -%>

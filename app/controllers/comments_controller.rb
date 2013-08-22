@@ -49,6 +49,10 @@ class CommentsController < ApplicationController
     end
     @error = my_t '.gift_comment_mismatch' if !@error and first_comment and first_comment.gift_id != @gift.gift_id
 
+    if !@error
+      @comments = @gift.comments_with_filter(params[:first_comment_id])
+    end
+
     respond_to do |format|
       if !@error
         @first_comment_id = params[:first_comment_id]
