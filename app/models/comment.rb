@@ -81,7 +81,8 @@ class Comment < ActiveRecord::Base
                          :userid2 => nil, :username2 => nil,
                          :userid3 => nil, :username3 => nil,
                          :givername => (gift.user_id_giver ? gift.giver.short_user_name : ""),
-                         :receivername => (gift.user_id_receiver ? gift.receiver.short_user_name : "") }
+                         :receivername => (gift.user_id_receiver ? gift.receiver.short_user_name : ""),
+                         :commentids => [id] }
       n.noti_read = 'N'
     elsif [n.noti_options[:userid1], n.noti_options[:userid2], n.noti_options[:userid3]].index(from_user.id)
       # user already in unread notification message
@@ -100,6 +101,7 @@ class Comment < ActiveRecord::Base
         noti_options["userid#{xno_users}".to_sym] = from_user.id
         noti_options["username#{xno_users}".to_sym] = from_user.short_user_name
       end
+      noti_options[:commentids].push(id)
       n.noti_key = "#{noti_key_prefix}_#{xno_users}_v#{noti_key_version}"
       n.noti_options = noti_options
     end

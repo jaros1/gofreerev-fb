@@ -6,6 +6,17 @@ class UtilController < ApplicationController
       count = @user.inbox_new_notifications
       @new_messages_count = count if count > 0
     end
+    if count and count > 0
+      ns = Notification.where("to_user_id = ? and noti_read = ?", @user.user_id, 'N')
+      puts "ns.length = #{ns.length}"
+      ns = ns.find_all { |n| n.noti_key =~ /^gift_comment_/ }
+      puts "ns.length = #{ns.length}"
+      com_ids = []
+      ns.each { |n| com_ids += n.noti_options[:commentids] if n.noti_options.has_key?(:commentids) }
+      com_ids.uniq!
+      puts "com_ids = " + com_ids.join(', ')
+      @comments = Comment.where("id in (?)", com_ids) if com_ids.length > 0
+    end
     render :layout => false
   end # new_messages_count
 

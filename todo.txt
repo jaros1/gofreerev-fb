@@ -136,11 +136,22 @@
 66) ajax get new comments. That is comments added by others users after the page was loaded
     FB is quick to add comments automatically. Only relevant to add comments in visable part of page
     implement together with new_messages_count
+    get new_message_count from table
+    get new comments from table (only if index/gifts table)
 
 68) watch/no not watch gift.
     default is that you watch a if you are giver, receiver or has make a comment
 
 69) mark new comments with color in inbox
 
-70) only keep last <n> notifications for each user
-    max keep a notification for n days.
+70) only keep last <n> notifications for each user (ok)
+    max keep a notification for n days. (not implemented)
+
+71) refactor _comments partial.
+    Used in gifts/index (html) and in gift/index (ajax).
+    util/new_messages_count also returns comments to by inserted in gifts/index page
+    must mark rows with gift id and comment id
+    must sort comment inserted by util/new_messages_count after comment id
+    one simple loop with comments to by used in all 3 versions - used direct be util/new_messages_count
+    one without older-comments-block-start and older-comments-block-end
+    one with older-comments-block-start and older-comments-block-end

@@ -101,13 +101,22 @@ function gifts_client_validations() {
 } // gifts_client_validations
 
 
-// update new message count in menu line once every minute
-// ok: firefox, chrome and opera
-// not ok:
-// not tested: Midori, IE (broken on my laptop)
+// update hidden new message buffer page header once every minute
+// + update new message count in page header
+// + insert new comments in page
+function update_new_messages_count()
+{
+  var new_messages_count_div = document.getElementById("new_messages_count_div") ;
+  if (!new_messages_count_div) return ; // table not found
+  if (new_messages_count_div.innerHTML == "") return ;
+  var new_messages_count = document.getElementById("new_messages_count") ;
+  if (!new_messages_count) return ;
+  new_messages_count.innerHTML = new_messages_count_div.innerHTML
+}
+ // update_new_messages_count
 function update_title()
 {
-  var new_mesaages_count = document.getElementById('new_mesaages_count');
+  var new_mesaages_count = document.getElementById('new_messages_count');
   var no_new_messages = new_mesaages_count.innerHTML ;
   // alert(no_new_messages) ;
   if (no_new_messages == '')
@@ -121,9 +130,11 @@ function update_title()
 $(document).ready(
     function(){
         setInterval(function(){
-            $('#new_mesaages_count').load('/util/new_messages_count');
+            $('#new_messages_buffer_div').load('/util/new_messages_count');
+            // copy new_message_count from new_messages_buffer to new_messages_new and to title
+            update_new_messages_count() ;
             update_title();
-        }, 600000);
+        }, 60000);
     });
 
 // catch load errors  for api pictures. Gift could have been deleted. url could have been changed
