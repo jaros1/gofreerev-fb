@@ -125,6 +125,40 @@ function update_title()
     var new_title = '(' + no_new_messages + ') Gofreerev' ;
   document.title = new_title ;
 } // update_title
+function insert_new_comments()
+{
+  var tbody_new_comments = document.getElementById("new_comments_tbody") ;
+  if (!tbody_new_comments) return ; // ignore error silently
+  var trs_new_comments = tbody_new_comments.rows ;
+  if (trs_new_comments.length == 0) return ; // no new comments
+  // insert new comments in gifts/index page
+  var tr_new_comment, id_new_comment, id_split_new_comment, giftid_new_comment, commentid_new_comment ;
+  var tbody_gift_id, tbody_gift, trs_gift ;
+  for (i=0 ; i<trs_new_comments.length ; i++) {
+    tr_new_comment = trs_new_comments[i] ;
+    id_new_comment = tr_new_comment.id ; // format: comment-gift-218-comment-174
+    id_split_new_comment = id_new_comment.split("-") ;
+    giftid_new_comment = id_split_new_comment[2] ;
+    commentid_new_comment = id_split_new_comment[4] ;
+    // alert("giftid = " + giftid + ", commentid = " + commentid) ;
+    // todo: find relevant gift-comment table, insert row after commentid pos
+    tbody_gift_id = "gift-" + giftid_new_comment + "-comments" ;
+    tbody_gift = document.getElementById(tbody_gift_id) ;
+    if (!tbody_gift) continue ; // table with gift comments not found - ok - could be a not loaded gift
+    trs_gift = tbody_gift.rows ;
+    if (trs_gift.length == 0) continue ; // error - empty table with gift comments
+    if (trs_gift.length == 1) {
+      // simple case. first comment - insert first in table
+      tbody_new_comment.removeChild(tr_new_comment) ;
+      tbody_gift.insertBefore(tr_new_comment, trs_gift[0]) ;
+      continue ;
+    }
+    // first row could be a "show older comments" limk  - last row is a enter new comment row
+    trs_gift.length-- ;
+    i = trs_gift.length-2 ;
+
+  } // for
+} // insert_new_comments
 // update new message count in menu line once every minute
 // todo: change from once every 10 minutes (600000) to once every minute (60000)
 $(document).ready(
@@ -134,6 +168,7 @@ $(document).ready(
             // copy new_message_count from new_messages_buffer to new_messages_new and to title
             update_new_messages_count() ;
             update_title();
+            insert_new_comments() ;
         }, 60000);
     });
 

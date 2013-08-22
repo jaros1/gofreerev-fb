@@ -1,6 +1,7 @@
 <%# comments with an "show older comments link (ajax) -%>
 <% first_comment = @comments.first
    no_older_comments = first_comment ? first_comment.no_older_comments : 0
+   puts "comments2: no_older_comments = #{no_older_comments}"
 -%>
 <% if no_older_comments > 0 -%>
     <tr id="<%= "gift-#{@gift.id}-show-older-comments-row-#{first_comment.id}" %>">

@@ -1,5 +1,3 @@
 <%# check for new messages. html code to be inserted in current html page %>
 <div id="new_messages_count_div"><%= @new_messages_count %></td></div>
-<div id="new_comments_div">
-
-</div>
+<div id="new_comments_div"><table><tbody id="new_comments_tbody"><%= render :partial => 'comments/comments1' %></tbody></table></div>

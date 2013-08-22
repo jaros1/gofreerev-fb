@@ -147,7 +147,7 @@ en:
         gift_not_friends: "Invalid request. You are not allowed to see this gift"
         comment_not_found: "Invalid request. Comment was not found"
         gift_comment_mismatch: "Invalid request. Gift and comment does not match"
-     comments:
+     comments2:
         show_older_comment: "Show older comment"
         show_older_comments: "Show %{no_older_comments} older comments"
 

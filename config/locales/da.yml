@@ -150,7 +150,7 @@ da:
         gift_not_friends: "Ugyldigt kald. Du må ikke se dette opslag"
         comment_not_found: "Ugyldigt kald. Kommentar blev ikke fundet"
         gift_comment_mismatch: "Ugyldigt kald. Opslag og kommentar passer ikke sammen"
-     comments:
+     comments2:
         show_older_comment: "Vis ældre kommentar"
         show_older_comments: "Vis %{no_older_comments} ældre kommentarer"
 

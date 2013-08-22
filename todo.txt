@@ -155,3 +155,10 @@
     one simple loop with comments to by used in all 3 versions - used direct be util/new_messages_count
     one without older-comments-block-start and older-comments-block-end
     one with older-comments-block-start and older-comments-block-end
+
+72) period for new messages check
+    often after commenting a gift, fx 9, 18, 36, 72, 144, 288, 576 sek. between new messages check
+    active: check once every 9 sek. Inactive: check once every 576 sek.
+
+73) new messages count - insert new unread messages in page
+    mark notification as inserted in index page so that new messages count does not send the same message to gift/index page more than once
