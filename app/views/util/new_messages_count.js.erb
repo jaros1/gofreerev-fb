@@ -1,7 +1,5 @@
-<%
-   puts "html = #{render("new_messages_count")}"
-   puts ""
-   puts "js = #{j(render("new_messages_count"))}"
-   puts ""
+<%# insert response from new_message_count in div buffer in page header
+    post ajax processing is done by JS functions update_new_messages_count, update_title and insert_new_comments (my.js)
+    called todo: describe algoritme for how often new_messsges_count is called
 -%>
 document.getElementById('new_messages_buffer_div').innerHTML = '<%= j render("new_messages_count") %>' ;

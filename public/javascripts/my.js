@@ -129,10 +129,10 @@ function update_title() {
     document.title = new_title;
 } // update_title
 function insert_new_comments() {
-    var new_comments_tbody, new_comments_trs, new_comment_tr, new_comment_id, new_comment_id_split, new_comment_giftid, new_comment_commentid;
+    var new_comments_tbody, new_comments_trs, new_comment_tr, new_comment_id, new_comment_id_split, new_comment_gift_id, new_comment_comment_id;
     var old_comments_tbody_id, old_comments_tbody, old_comments1_trs, old_comments1_tr, old_comments1_tr_id;
     var i, j, old_comments2_trs, old_comments2_tr, re, old_length, new_length, old_comments2_tr_id;
-    var old_comments2_commentid, inserted, old_comments2_tr_id_split, new_comments_length ;
+    var old_comments2_comment_id, inserted, old_comments2_tr_id_split, new_comments_length ;
     // todo: this is only relevant if current page is gifts/index page
     new_comments_tbody = document.getElementById("new_comments_tbody");
     if (!new_comments_tbody) {
@@ -142,17 +142,18 @@ function insert_new_comments() {
     new_comments_trs = new_comments_tbody.rows;
     if (new_comments_trs.length == 0) return; // no new comments
 
-    // insert new comments in gifts/index page
+    // insert new comments in gifts/index page. Loop for each new comment.
     new_comments_length = new_comments_trs.length ;
     for (i = 0; i < new_comments_length; i++) {
+        // find gift id and comment id. id format format: comment-gift-218-comment-174
         new_comment_tr = new_comments_trs[i];
-        new_comment_id = new_comment_tr.id; // format: comment-gift-218-comment-174
+        new_comment_id = new_comment_tr.id;
         new_comment_id_split = new_comment_id.split("-");
-        new_comment_giftid = new_comment_id_split[2];
-        new_comment_commentid = parseInt(new_comment_id_split[4]);
-        // alert('i = ' + i + ', giftid = ' + new_comment_giftid + ', commentid = ' + new_comment_commentid);
-        // todo: find relevant gift-comment table, insert row after commentid pos
-        old_comments_tbody_id = "gift-" + new_comment_giftid + "-comments";
+        new_comment_gift_id = new_comment_id_split[2];
+        new_comment_comment_id = parseInt(new_comment_id_split[4]);
+        // alert('i = ' + i + ', gift id = ' + new_comment_gift_id + ', comment id = ' + new_comment_comment_id);
+        // find table in gifts/index page with comments for gift
+        old_comments_tbody_id = "gift-" + new_comment_gift_id + "-comments";
         old_comments_tbody = document.getElementById(old_comments_tbody_id);
         if (!old_comments_tbody) continue; // table with gift comments not found - ok - could be a not loaded gift
         old_comments1_trs = old_comments_tbody.rows;
@@ -163,81 +164,66 @@ function insert_new_comments() {
             old_comments_tbody.insertBefore(new_comment_tr, old_comments1_trs[0]);
             continue;
         }
-        // find rows with id format "comment-gift-<giftid>-comment-%" in array
+        // find rows with id format "comment-gift-<gift_id>-comment-%"
         old_comments2_trs = [];
-        re = new RegExp("^comment-gift-" + new_comment_giftid + "-comment-");
+        re = new RegExp("^comment-gift-" + new_comment_gift_id + "-comment-");
         old_length = old_comments1_trs.length;
         for (j = 1; j < old_comments1_trs.length; j++) {
             old_comments1_tr = old_comments1_trs[j];
             old_comments1_tr_id = old_comments1_tr.id;
             if (old_comments1_tr_id.match(re)) old_comments2_trs.push(old_comments1_tr);
-        } // for
+        } // end old comments loop
         new_length = old_comments2_trs.length;
         // alert('old length = ' + old_length + ', new length = ' + new_length);
         if (new_length == 0) return; // error - no comments with format "comment-gift-<giftid>-comment-%" was found - ignore error silently
-        // insert new comment
+        // insert new comment in comment table (sorted by ascending comment id)
         inserted = false;
-        for (j = 0; ((!inserted) && (j < new_length)); j++) {
+        for (j = new_length-1; ((!inserted) && (j >= 0)); j--) {
+            // find comment id for current row
             old_comments2_tr = old_comments2_trs[j];
             old_comments2_tr_id = old_comments2_tr.id;
             old_comments2_tr_id_split = old_comments2_tr_id.split('-') ;
-            old_comments2_commentid = parseInt(old_comments2_tr_id_split[4]);
-            // alert('j = ' + j + ', new comment id = ' + new_comment_commentid + ', old id = ' + old_comments2_tr_id + ', old comment id = ' + old_comments2_commentid);
-            if (new_comment_commentid > old_comments2_commentid) continue;
-            if (new_comment_commentid = old_comments2_commentid) {
-                // new comment already in old comments table
-                // alert('comment ' + new_comment_commentid + ' is already in page');
-                inserted = true;
-                continue;
+            old_comments2_comment_id = parseInt(old_comments2_tr_id_split[4]);
+            // alert('j = ' + j + ', new comment id = ' + new_comment_comment_id + ', old id = ' + old_comments2_tr_id + ', old comment id = ' + old_comments2_comment_id);
+            if (new_comment_comment_id > old_comments2_comment_id) {
+              // insert after current row
+              new_comment_tr.parentNode.removeChild(new_comment_tr) ;
+              old_comments2_tr.parentNode.insertBefore(new_comment_tr, old_comments2_tr.nextSibling);
+              inserted = true ;
+              continue;
             }
-            // new_comment_commentid < old_comments2_commentid - insert before current row
-            // alert('insert new comment ' + new_comment_id + ' before old comment ' + old_comments2_commentid);
-            new_comment_tr.parentNode.removeChild(new_comment_tr) ;
-            old_comments2_tr.parentNode.insertBefore(new_comment_tr, old_comments2_tr);
-            inserted = true;
-        } // for
+            if (new_comment_comment_id = old_comments2_comment_id) {
+              // new comment already in old comments table
+              // alert('comment ' + new_comment_comment_id + ' is already in page');
+              inserted = true;
+              continue;
+            }
+            // insert before current row - continue loop
+        } // end old comments loop
         if (!inserted) {
-            // insert new commment after last comment
-            // alert('insert new comment ' + new_comment_id + ' last in old comments table');
-            old_comments2_tr = old_comments2_trs[new_length - 1];
-            // TypeError: old_comments2_tr.parentNode.insertAfter is not a function @ http://localhost/javascripts/my.js:202
+            // insert before first row
+            // alert('insert new comment ' + new_comment_id + ' first in old comments table');
+            old_comments2_tr = old_comments2_trs[0];
             // alert('old_comments2_tr = ' + old_comments2_tr) ;
             new_comment_tr.parentNode.removeChild(new_comment_tr) ;
-            old_comments2_tr.parentNode.insertBefore(new_comment_tr, old_comments2_tr.nextSibling);
+            old_comments2_tr.parentNode.insertBefore(new_comment_tr, old_comments2_tr);
         } // if
-    } // end trs_new_comments loop
+    } // end new comments loop
 } // insert_new_comments
 // update new message count in menu line once every minute
+
 // todo: change from once every 10 minutes (600000) to once every minute (60000)
 $(document).ready(
     function () {
         setInterval(function () {
-            // call util/new_messages_count and insert response in new_messages_buffer_div
+            // call util/new_messages_count and insert response in new_messages_buffer_div in page header
             // information about number off unread messages
             // and new comments to be inserted in gifts/index page
+            // is post ajax processed in JS functions update_new_messages_count, update_title and insert_new_comments
             var check_new_messages_link = document.getElementById("check-new-messages-link");
             check_new_messages_link.click();
-            // var new_messages_buffer_div = document.getElementById("new_messages_buffer_div") ;
-            // alert(new_messages_buffer_div) ;
-            // alert(new_messages_buffer_div.innerHTML) ;
-            // alert(new_messages_buffer_div.innerText) ;
-            // return ;
-            // $('#new_messages_buffer_div').load('/util/new_messages_count');
-            // copy new_message_count from new_messages_buffer to new_messages_new and to title
-            // process information in new_messages_buffer_div
-            // update_new_messages_count() ;
-            // update_title();
-            // insert_new_comments() ;
         }, 60000);
     });
-function test_new_messages_count() {
-    document.getElementById('new_messages_buffer_div').innerHTML = '<div id=\"new_messages_count_div\">1<\/td><\/div>\n<div id=\"new_comments_div\"><table><tbody id=\"new_comments_tbody\">    <tr id=\"comment-gift-214-comment-184\">\n      <td style=\"vertical-align: top;\"><div title=\"Sandra Q. Saldo -5,02 (-47,77 DKK, 49,76 SEK, -0,08 USD). Klik her for at se brugeroplysninger.\"\n     onclick=\"top.location.href = \'/users/13\'\">\n  <img alt=\"Pmn4sp\" src=\"/images/profiles/bb/69/4b/ce/ad/b1/1c/46/0a/c9/34/97/b8/82/b2/fc/pmn4sp.jpg\" />\n<\/div><\/td>\n      <td>hello charlie - it is me again :-)<\/td>\n    <\/tr>\n<\/tbody><\/table><\/div>';
-    var new_messages_buffer_div = document.getElementById("new_messages_buffer_div");
-    // new_messages_buffer_div.innerHTML = res ;
-    // alert(new_messages_buffer_div.innerHTML) ;
-    insert_new_comments();
-    // $('#new_messages_buffer_div').load(res);
-} // test_new_messages_count
 
 // catch load errors  for api pictures. Gift could have been deleted. url could have been changed
 // gift ids with invalid picture urls are collected in a global javascript array and submitted to server in 2 seconds

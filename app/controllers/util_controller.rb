@@ -1,8 +1,8 @@
 class UtilController < ApplicationController
 
-  # jquery update new message count in menu line once every minute
+  # update new message count in menu line in page header once every minute
+  # called from hidden check-new-messages-link link in page header once every todo: describe frequence
   def new_messages_count
-    # raise "debug"
     if @user
       count = @user.inbox_new_notifications
       @new_messages_count = count if count > 0
