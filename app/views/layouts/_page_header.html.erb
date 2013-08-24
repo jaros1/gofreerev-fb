@@ -1,7 +1,7 @@
 <%#
   ajax check new messages. Div buffer for new_message_count and used in post ajax processing.
-  number new messages are inserted in menu line and in page title.
-  new comments are inserted in gifts/index page (if current page)
+  number new messages are inserted in menu line and in page title. See update_new_messages_count and update_title in my.js.
+  new comments are inserted in gifts/index page. See insert_new_comments in my.js.
   todo: insert_new_comments only relevant for gifts/index page
 -%>
 <div id="new_messages_buffer_div" style="display: none">
@@ -9,17 +9,7 @@
   <div id="new_comments_div"></div>
 </div>
 <%= link_to "check-new-messages", '/util/new_messages_count', :remote => true, :id => "check-new-messages-link", :style => "display: none" %>
-<script>
-    $(document).ready(function(){
-        $("#check-new-messages-link")
-                .bind("ajax:success", function(evt, data, status, xhr){
-                    update_new_messages_count() ;
-                    update_title();
-                    insert_new_comments() ;
-                });
 
-    });
-</script>
 
 <table>
   <tr style="white-space: nowrap">

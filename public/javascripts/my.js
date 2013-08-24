@@ -106,10 +106,61 @@ function gifts_client_validations() {
 } // gifts_client_validations
 
 
-// update hidden new message buffer page header once every minute
-// + update new message count in page header
-// + insert new comments in page
+// check for new messages once every 15, 60 or 300 seconds
+// once every 15 seconds for active users - once every 5 minutes for inactive users
+var check_new_messages_interval ; // interval in seconds between each new messages check
+var check_new_messages_interval_id ; // interval id for setInterval function
+var last_user_ajax_comment_at ; // timestamp (JS Date) for last new comment created by user
+
+function calculate_new_messages_interval()
+{
+    var difference ;
+    // how often should client check for new messages?
+    if (!last_user_ajax_comment_at)
+        check_new_messages_interval = 300 ;
+    else {
+        difference = ((new Date).getTime() - last_user_ajax_comment_at.getTime()) / 1000 ;
+        if (difference < 120) check_new_messages_interval = 15 ;
+        else if (difference > 600) check_new_messages_interval = 300 ;
+        else check_new_messages_interval = 60  ;
+    }
+    return check_new_messages_interval ;
+} // calculate_new_messages_interval
+
+function start_check_new_messages()
+{
+    $(document).ready(
+        function () {
+            var interval = calculate_new_messages_interval() ;
+            check_new_messages_interval_id = setInterval(function () {
+                // call util/new_messages_count and insert response in new_messages_buffer_div in page header
+                // information about number off unread messages
+                // and new comments to be inserted in gifts/index page
+                // is post ajax processed in JS functions update_new_messages_count, update_title and insert_new_comments
+                var check_new_messages_link = document.getElementById("check-new-messages-link");
+                check_new_messages_link.click();
+            }, interval * 1000);
+        });
+} // start_check_new_messages
+
+function restart_check_new_messages()
+{
+    var old_check_new_messages_interval = check_new_messages_interval ;
+    var new_check_new_messages_interval = calculate_new_messages_interval() ;
+    if (check_new_messages_interval_id && (old_check_new_messages_interval == new_check_new_messages_interval)) return ; // no change
+    if (check_new_messages_interval_id) clearInterval(check_new_messages_interval_id);
+    check_new_messages_interval_id = null ;
+    start_check_new_messages() ;
+} // restart_check_new_messages
+// do it
+start_check_new_messages() ;
+
+
+// 3. functions used in util/new_messages_count ajax call.
+// update new message count in page header +  insert new comments in page
 function update_new_messages_count() {
+    // restart setInterval function if refresh period has changed
+    restart_check_new_messages() ;
     var new_messages_count_div = document.getElementById("new_messages_count_div");
     if (!new_messages_count_div) return; // table not found
     if (new_messages_count_div.innerHTML == "") return;
@@ -129,6 +180,7 @@ function update_title() {
     document.title = new_title;
 } // update_title
 function insert_new_comments() {
+    if (!document.getElementById("gifts")) return ; // no gifts table - not gifts/index page
     var new_comments_tbody, new_comments_trs, new_comment_tr, new_comment_id, new_comment_id_split, new_comment_gift_id, new_comment_comment_id;
     var old_comments_tbody_id, old_comments_tbody, old_comments1_trs, old_comments1_tr, old_comments1_tr_id;
     var i, j, old_comments2_trs, old_comments2_tr, re, old_length, new_length, old_comments2_tr_id;
@@ -212,18 +264,6 @@ function insert_new_comments() {
 } // insert_new_comments
 // update new message count in menu line once every minute
 
-// todo: change from once every 10 minutes (600000) to once every minute (60000)
-$(document).ready(
-    function () {
-        setInterval(function () {
-            // call util/new_messages_count and insert response in new_messages_buffer_div in page header
-            // information about number off unread messages
-            // and new comments to be inserted in gifts/index page
-            // is post ajax processed in JS functions update_new_messages_count, update_title and insert_new_comments
-            var check_new_messages_link = document.getElementById("check-new-messages-link");
-            check_new_messages_link.click();
-        }, 60000);
-    });
 
 // catch load errors  for api pictures. Gift could have been deleted. url could have been changed
 // gift ids with invalid picture urls are collected in a global javascript array and submitted to server in 2 seconds
@@ -311,7 +351,9 @@ function post_ajax_add_new_comment_handler(giftid) {
                 var comment = document.getElementById(commentname);
                 comment.value = "";
                 comment.focus();
-
+                // save timestamp for last new ajax comment
+                last_user_ajax_comment_at = new Date() ;
+                restart_check_new_messages() ;
             });
 
     });
