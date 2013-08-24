@@ -1,0 +1,7 @@
+<%
+   puts "html = #{render("new_messages_count")}"
+   puts ""
+   puts "js = #{j(render("new_messages_count"))}"
+   puts ""
+-%>
+document.getElementById('new_messages_buffer_div').innerHTML = '<%= j render("new_messages_count") %>' ;

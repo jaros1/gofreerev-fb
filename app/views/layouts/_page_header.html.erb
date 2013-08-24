@@ -1,3 +1,24 @@
+<div id="new_messages_buffer_div" style="display: none">
+  <div id="new_messages_count_div"><%= @new_messages_count %></div>
+  <div id="new_comments_div"></div>
+</div>
+<%= link_to "check-new-messages", '/util/new_messages_count', :remote => true, :id => "check-new-messages-link", :style => "display: none" %>
+<script>
+  // post ajax processing for check-new-messages-lin
+    $(document).ready(function(){
+        $("#check-new-messages-link")
+                .bind("ajax:success", function(evt, data, status, xhr){
+                    // copy new_message_count from new_messages_buffer to new_messages_new and to title
+                    // process information in new_messages_buffer_div
+                    update_new_messages_count() ;
+                    update_title();
+                    // todo: insert_new_comments only relevant for gifts/index page
+                    insert_new_comments() ;
+                });
+
+    });
+</script>
+
 <table>
   <tr style="white-space: nowrap">
     <td>
@@ -21,10 +42,6 @@
             <td style="vertical-align: baseline" title="<%= my_t '.header_inbox_link_title', :appname => APP_NAME %>">
               <%= link_to my_t('.header_inbox_link_text'), inbox_index_path %>
               <b>
-                <div id="new_messages_buffer_div" style="display: none">
-                  <div id="new_messages_count_div"><%= @new_messages_count %></div>
-                  <div id="new_comments_div"></div>
-                </div>
                 <sup>
                   <span id="new_messages_count" style="background-color:red; color:white; font-size:x-small"><%= @user.inbox_new_notifications if @user and @user.inbox_new_notifications > 0 %></span>
                 </sup>

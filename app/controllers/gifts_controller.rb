@@ -293,7 +293,7 @@ class GiftsController < ApplicationController
 
     respond_to do |format|
       format.html {}
-      format.json { render json: @comment, status: :created, location: @comment }
+      # format.json { render json: @comment, status: :created, location: @comment }
       format.js {}
     end
 

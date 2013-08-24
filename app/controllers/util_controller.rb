@@ -2,6 +2,7 @@ class UtilController < ApplicationController
 
   # jquery update new message count in menu line once every minute
   def new_messages_count
+    # raise "debug"
     if @user
       count = @user.inbox_new_notifications
       @new_messages_count = count if count > 0
@@ -17,7 +18,11 @@ class UtilController < ApplicationController
       puts "com_ids = " + com_ids.join(', ')
       @comments = Comment.where("id in (?)", com_ids) if com_ids.length > 0
     end
-    render :layout => false
+    respond_to do |format|
+      format.html {}
+      format.json { render json: @comment, status: :created, location: @comment }
+      format.js {}
+    end
   end # new_messages_count
 
   # get array of gift ids with invalid picture url

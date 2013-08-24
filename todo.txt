@@ -162,3 +162,5 @@
 
 73) new messages count - insert new unread messages in page
     mark notification as inserted in index page so that new messages count does not send the same message to gift/index page more than once
+    that is after refresh gifts/index page or after receiving response from new messages count
+    both actions can be detected server side
