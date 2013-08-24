@@ -87,7 +87,10 @@ class Comment < ActiveRecord::Base
     elsif [n.noti_options[:userid1], n.noti_options[:userid2], n.noti_options[:userid3]].index(from_user.id)
       # user already in unread notification message
       # puts "user already in unread notification message"
-      nil
+      # add comment id to noti_options hash. Used in new messages count where new comments is ajax inserted in gifts/index page
+      noti_options = n.noti_options # copy to/from local variable for encryption to work
+      noti_options[:commentids].push(id)
+      n.noti_options = noti_options
     else
       # change noti_key / add user to unread notification message
       # puts "change noti_key / add user to unread notification message"

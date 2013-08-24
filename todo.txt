@@ -133,12 +133,6 @@
 65) gifts/index - show only last 4 comments. add url to get more comments if more than 4 comments
     check user priv. when adding comment
 
-66) ajax get new comments. That is comments added by others users after the page was loaded
-    FB is quick to add comments automatically. Only relevant to add comments in visable part of page
-    implement together with new_messages_count
-    get new_message_count from table
-    get new comments from table (only if index/gifts table)
-
 68) watch/no not watch gift.
     default is that you watch a if you are giver, receiver or has make a comment
 
@@ -156,11 +150,12 @@
     one without older-comments-block-start and older-comments-block-end
     one with older-comments-block-start and older-comments-block-end
 
-72) period for new messages check
-    often after commenting a gift, fx 9, 18, 36, 72, 144, 288, 576 sek. between new messages check
-    active: check once every 9 sek. Inactive: check once every 576 sek.
-
 73) new messages count - insert new unread messages in page
     mark notification as inserted in index page so that new messages count does not send the same message to gift/index page more than once
     that is after refresh gifts/index page or after receiving response from new messages count
     both actions can be detected server side
+
+74) fading flash after adding new comments to gifts/index page
+
+75) prevent 2 currently ajax from updatering same comments table at the same time
+    For example show-older-comments og add-new-unread
