@@ -380,6 +380,7 @@ function post_ajax_add_new_comment_handler(giftid) {
 } // post_ajax_add_new_comment_handler
 
 
+
 // post ajax processing after inserting older comments for a gift.
 // comments/index.js.rb inserts older comments last i comments table
 // new lines are surrounded by "gift-<giftid>-older-comments-block-start-<commentid>" and "gift-<giftid>-older-comments-block-end-<commentid>".
@@ -397,11 +398,11 @@ function post_ajax_add_older_comments_handler(giftid, commentid) {
                 var link = document.getElementById(link_id);
                 if (!link) return; // link not found
                 // find tr for link
-                link_tr = link;
+                var link_tr = link;
                 while (link_tr.tagName != 'TR') link_tr = link_tr.parentNode;
                 // find first and last added table row
-                first_row = document.getElementById(first_row_id);
-                last_row = document.getElementById(last_row_id);
+                var first_row = document.getElementById(first_row_id);
+                var last_row = document.getElementById(last_row_id);
                 if (!first_row || !last_row) return;
                 // copy table rows to JS array
                 var trs = [];
@@ -419,6 +420,7 @@ function post_ajax_add_older_comments_handler(giftid, commentid) {
                     next_tr = tr.nextElementSibling;
                 } while (tr.id != last_row_id) ;
                 // insert table rows before old show-older-comments link
+
                 var tbody = link_tr.parentNode;
                 while (trs.length > 0) {
                     tr = trs.shift();
