@@ -274,7 +274,13 @@ class GiftsController < ApplicationController
 
     # last_gift_id != nil. ajax request from end of gifts/index page - return next 10 rows to gifts/index page
     # puts "last_gift_id = #{params[:last_gift_id]}, gifts.length = #{@gifts.length}"
-    if params[:last_gift_id].to_s != ""
+    if params[:last_gift_id].to_s == ""
+      # not ajax - show first 10 gifts - mark all unread notifications as ajax inserted
+      # util/new_messages:count will not ajax send old unread comments to gifts/index page
+      ns = Notification.where("to_user_id = ? and noti_read = ? and (ajax_inserted is null or ajax_inserted = ?)", @user.user_id, 'N', 'N')
+      ns.each { |n| n.ajax_inserted = 'Y' ; n.save! }
+    else
+      # ajax - show next 10 gifts after last_gift_id
       from = @gifts.find_index { |g| g.id == params[:last_gift_id].to_i }
       # puts "from = #{from}"
       @gifts = @gifts[from+1..-1]
@@ -292,7 +298,7 @@ class GiftsController < ApplicationController
     @first_comment_id = nil
 
     respond_to do |format|
-      format.html {}
+      format.html { }
       # format.json { render json: @comment, status: :created, location: @comment }
       format.js {}
     end

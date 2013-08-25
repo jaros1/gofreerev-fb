@@ -8,7 +8,7 @@
   <div id="new_messages_count_div"><%= @new_messages_count %></div>
   <div id="new_comments_div"></div>
 </div>
-<%= link_to "check-new-messages", '/util/new_messages_count', :remote => true, :id => "check-new-messages-link", :style => "display: none" %>
+<%= link_to "check-new-messages", '/util/new_messages_count?request_fullpath=' + CGI::escape(@request_fullpath), :remote => true, :id => "check-new-messages-link", :style => "display: none" %>
 
 
 <table>

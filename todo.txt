@@ -158,14 +158,7 @@
 74) fading flash after adding new comments to gifts/index page
 
 75) prevent 2 currently ajax from updatering same comments table at the same time
-    For example show-older-comments og add-new-unread
+    For example show-older-comments og add-new-unread comments
+    maybe not a problem
 
-76) add other comments. Post ajax. focus should be link - not enter new comment.
-    Only a problem after add comment and following show older comments click
-    link.focus() does not work.
-    document.activeElement.blur() does not work.
-    get/set windows scroll does not work.
-    todo: keep link row and just update link
-
-77) comments is not always inserted above "enter comment" box.
-
+76  ajax insert new comments from other users does not work

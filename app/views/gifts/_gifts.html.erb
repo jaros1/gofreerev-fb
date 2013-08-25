@@ -34,7 +34,7 @@
                   </td>
                 </tr>
                 <%= @gift = gift ; @comments = @gift.comments_with_filter(nil) ; render :partial => 'comments/comments3' %>
-                <tr>
+                <tr id='<%= "gift-#{gift.id}-add-new-comment-row" %>'>
                   <td style="vertical-align: top;"><%= @user2 = @user ; render '/shared/user_div' %></td>
                   <td>
                     <table>

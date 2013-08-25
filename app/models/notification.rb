@@ -88,8 +88,14 @@ class Notification < ActiveRecord::Base
   
 
   # 7) noti_read - required - Y/N String in model - not encrypted
+  # N until message is shown in inbox/index page
   validates_presence_of :noti_read
   validates_inclusion_of :noti_read, :in => %w(Y N)
+
+  # 8) ajax_inserted - required - Y/N string in model - not encrypted
+  # N until comments is ajax inserted in gifts/index page or until gifts/index page is reloaded
+  validates_presence_of :ajax_inserted
+  validates_inclusion_of :ajax_inserted, :in => %w(Y N)
 
 
   # keep max 20 notifications for each user

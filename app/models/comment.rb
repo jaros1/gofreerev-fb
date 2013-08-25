@@ -84,6 +84,7 @@ class Comment < ActiveRecord::Base
                          :receivername => (gift.user_id_receiver ? gift.receiver.short_user_name : ""),
                          :commentids => [id] }
       n.noti_read = 'N'
+      n.ajax_inserted = 'N'
     elsif [n.noti_options[:userid1], n.noti_options[:userid2], n.noti_options[:userid3]].index(from_user.id)
       # user already in unread notification message
       # puts "user already in unread notification message"
@@ -132,14 +133,16 @@ class Comment < ActiveRecord::Base
     # send notifications
     # 1) send notification to giver and/or receiver
     # xx and yy has commented etc etc
+    logger.info "send notifications to gifts giver and/or receiver"
     users = []
     users.push(gift.giver) if gift.user_id_giver and user_id != gift.user_id_giver
     users.push(gift.receiver) if gift.user_id_receiver and user_id != gift.user_id_receiver
     users.each { |user2| create_or_update_noti(noti_key_prefix, user, user2) }
     # send notification to other that has commented the gift - note that "_other" is added to notification key!
     # xx and yy has also commented etc etc
-    users = gift.comments.collect { | c| c.user }.find_all { |user2| ![user.user_id, gift.user_id_giver, gift.user_id_receiver].index(user2.user_id) }
+    users = gift.comments.includes(:user).collect { | c| c.user }.find_all { |user2| ![user.user_id, gift.user_id_giver, gift.user_id_receiver].index(user2.user_id) }.uniq
     # puts "send #{noti_key_prefix}_other notification to: " + users.collect { |user2| user2.short_user_name }.join(', ')
+    logger.info "send notifications to other users that also have commented the gift"
     users.each { |user2| create_or_update_noti(noti_key_prefix + '_other', user, user2) }
   end # after_create
   

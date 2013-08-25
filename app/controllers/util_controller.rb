@@ -2,21 +2,28 @@ class UtilController < ApplicationController
 
   # update new message count in menu line in page header once every minute
   # called from hidden check-new-messages-link link in page header once every todo: describe frequence
-  def new_messages_count
+  #   Parameters: {"request_fullpath"=>"/gifts"}
+def new_messages_count
     if @user
       count = @user.inbox_new_notifications
       @new_messages_count = count if count > 0
     end
-    if count and count > 0
-      ns = Notification.where("to_user_id = ? and noti_read = ?", @user.user_id, 'N')
+    if count and count > 0 and params[:request_fullpath] == '/gifts'
+      # find comments to ajax insert in gifts/index page
+      # find unread and not already ajax inserted notifications
+      ns = Notification.where("to_user_id = ? and ajax_inserted = ?", @user.user_id, 'N')
       puts "ns.length = #{ns.length}"
       ns = ns.find_all { |n| n.noti_key =~ /^gift_comment_/ }
       puts "ns.length = #{ns.length}"
+      # find comment ids for unread notifications
       com_ids = []
       ns.each { |n| com_ids += n.noti_options[:commentids] if n.noti_options.has_key?(:commentids) }
       com_ids.uniq!
       puts "com_ids = " + com_ids.join(', ')
       @comments = Comment.where("id in (?)", com_ids) if com_ids.length > 0
+      # mark notifications as ajax inserted in gifts/index page
+      # that is - s only send new ajax comments once
+      ns.each { |n| n.ajax_inserted = 'Y' ; n.save! }
     end
     respond_to do |format|
       format.html {}
