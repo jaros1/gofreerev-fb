@@ -11,7 +11,16 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20130825111523) do
+ActiveRecord::Schema.define(version: 20130826170451) do
+
+  create_table "ajax_comments", force: true do |t|
+    t.string   "user_id",    limit: 20, null: false
+    t.string   "comment_id", limit: 20, null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "ajax_comments", ["user_id"], name: "index_ajax_comments_on_user_id"
 
   create_table "comments", force: true do |t|
     t.string   "comment_id", limit: 20, null: false
@@ -84,16 +93,15 @@ ActiveRecord::Schema.define(version: 20130825111523) do
   add_index "gifts", ["user_id_receiver"], name: "index_gifts_on_receiver"
 
   create_table "notifications", force: true do |t|
-    t.string   "noti_id",       limit: 20,               null: false
-    t.string   "to_user_id",    limit: 20,               null: false
-    t.string   "from_user_id",  limit: 20
-    t.string   "internal",      limit: 1,                null: false
-    t.text     "noti_key",                               null: false
+    t.string   "noti_id",      limit: 20, null: false
+    t.string   "to_user_id",   limit: 20, null: false
+    t.string   "from_user_id", limit: 20
+    t.string   "internal",     limit: 1,  null: false
+    t.text     "noti_key",                null: false
     t.text     "noti_options"
-    t.string   "noti_read",     limit: 1,                null: false
+    t.string   "noti_read",    limit: 1,  null: false
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.string   "ajax_inserted", limit: 1,  default: "N"
   end
 
   add_index "notifications", ["noti_id"], name: "index_noti_on_noti_id", unique: true
