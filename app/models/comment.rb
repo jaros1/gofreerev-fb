@@ -108,6 +108,9 @@ class Comment < ActiveRecord::Base
     puts "n.errors = " + n.errors.full_messages.join('. ') if not n.valid?
     n.save!
     # add comment id to ajax comments - used in new messages count where new comments is ajax inserted in gifts/index page
+    # buffer is returned to gifts/index page and cleared in util_controller.new_messages_count
+    # buffer is cleared in gifts_controller.index when user starts or reloads index page
+    # buffer is emptied for messages older whan 6 minutes in AjaxComment.after_insert call back
     ac = AjaxComment.new
     ac.user_id = to_user.user_id
     ac.comment_id = comment_id ;

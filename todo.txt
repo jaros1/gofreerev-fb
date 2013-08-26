@@ -130,7 +130,8 @@
 
 63) create gift as ajax in gifts/index page?
 
-65) gifts/index - show only last 4 comments. add url to get more comments if more than 4 comments
+65) gifts/index
+    show only last 4 comments. add url to get more comments if more than 4 comments (ok)
     check user priv. when adding comment
 
 68) watch/no not watch gift.
@@ -141,24 +142,8 @@
 70) only keep last <n> notifications for each user (ok)
     max keep a notification for n days. (not implemented)
 
-71) refactor _comments partial.
-    Used in gifts/index (html) and in gift/index (ajax).
-    util/new_messages_count also returns comments to by inserted in gifts/index page
-    must mark rows with gift id and comment id
-    must sort comment inserted by util/new_messages_count after comment id
-    one simple loop with comments to by used in all 3 versions - used direct be util/new_messages_count
-    one without older-comments-block-start and older-comments-block-end
-    one with older-comments-block-start and older-comments-block-end
-
-73) new messages count - insert new unread messages in page
-    mark notification as inserted in index page so that new messages count does not send the same message to gift/index page more than once
-    that is after refresh gifts/index page or after receiving response from new messages count
-    both actions can be detected server side
-
 74) fading flash after adding new comments to gifts/index page
 
 75) prevent 2 currently ajax from updatering same comments table at the same time
     For example show-older-comments og add-new-unread comments
-    maybe not a problem
-
-76  ajax insert new comments from other users does not work
+    maybe not a problem as javascript is single threaded
