@@ -235,41 +235,15 @@ class GiftsController < ApplicationController
     end
     # puts "index: description = #{@gift.description}"
 
+
+    # todo: move to private method in application controller. Also to be used by util/new_messages_count with an ekstra condition
+    # todo: or move to User model.
     # initialize list of gifts
     # list of gifts with @user as giver or receiver + list of gifts med @user.friends as giver or receiver
-    # where clause is used for non encrypted fields. find_all is used for encrypted fields
-    friends = Friend.where("user_id_giver = ?", @user.user_id).find_all do |f|
-      # puts "user_id_receiver = #{f.user_id_receiver}, api_friend = #{f.api_friend}, app_friend = #{f.app_friend}"
-      if f.app_friend == 'Y'
-        true
-      elsif f.app_friend == nil and f.api_friend == 'Y'
-        true
-      else
-        false
-      end
-    end.collect { |u| u.user_id_receiver }
-    friends.push(@user.user_id)
-
-    if @user
-      # paginate - custom sort - fields are encrypted in db and sql sort can not be used.
-      # todo: Only fetch first <n> items and implement auto expanding page as user scrolls down with ajax and coffeescript
-      @gifts = Gift.where('user_id_giver in (?) or user_id_receiver in (?)', friends, friends).includes(:giver, :receiver).sort do |a,b|
-        if (a.received_at || a.created_at.to_date) ==  (b.received_at || b.created_at.to_date)
-          b.id <=> a.id
-        else
-          (b.received_at || b.created_at.to_date) <=>  (a.received_at || a.created_at.to_date)
-        end
-      end
-      ## convert array to WillPaginate
-      #page = [1, (params[:page] || 1).to_i].max
-      #lines_per_page = 10
-      #@gifts = WillPaginate::Collection.create(page,lines_per_page, @gifts.length) do |pager|
-      #  from =  (page-1)*lines_per_page
-      #  to =  page*lines_per_page-1
-      #  from = 0 if from < 0
-      #  to = @gifts.length-1 if to >=  @gifts.length
-      #  pager.replace @gifts[from..to]
-      #end
+    if @user then
+      last_gift = Gift.last
+      @last_gift_id = last_gift.id if last_gift
+      @gifts = @user.gifts(0) # last_gift_id param is only to be used in util/new_messages_count
     end
 
     # last_gift_id != nil. ajax request from end of gifts/index page - return next 10 rows to gifts/index page

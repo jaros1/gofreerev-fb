@@ -138,6 +138,15 @@ function start_check_new_messages()
                 // and new comments to be inserted in gifts/index page
                 // is post ajax processed in JS functions update_new_messages_count, update_title and insert_new_comments
                 var check_new_messages_link = document.getElementById("check-new-messages-link");
+                // update last_gift_id before ajax request. last_gift_id in gifts/index page. 0 in other pages
+                // only newer gifts are ajax inserted in gifts/index page
+                var last_gift_id = document.getElementById("last-gift-id");
+                var last_gift_id_new_value ;
+                if (last_gift_id && (last_gift_id.value != '')) last_gift_id_new_value = last_gift_id.value ;
+                else last_gift_id_new_value = '0' ;
+                var href = check_new_messages_link.href ;
+                href = href.replace(/last_gift_id=[0-9]+/, 'last_gift_id=' + last_gift_id_new_value) ;
+                check_new_messages_link.href = href ;
                 check_new_messages_link.click();
             }, interval * 1000);
         });

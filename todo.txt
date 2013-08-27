@@ -147,3 +147,7 @@
 75) prevent 2 currently ajax from updatering same comments table at the same time
     For example show-older-comments og add-new-unread comments
     maybe not a problem as javascript is single threaded
+
+76) ajax insert new gifts?
+    that is gift created by current user + gifts created by users friends after gifts/index page was loaded
+    added last_gift_id to gifts/index page and new_messages_count request

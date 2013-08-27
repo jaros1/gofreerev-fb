@@ -4,16 +4,27 @@ class UtilController < ApplicationController
   # called from hidden check-new-messages-link link in page header once every todo: describe frequence
   #   Parameters: {"request_fullpath"=>"/gifts"}
 def new_messages_count
+    # return new messages count
     if @user
       count = @user.inbox_new_notifications
       @new_messages_count = count if count > 0
     end
+    # return new comments
     if count and count > 0 and params[:request_fullpath] == '/gifts'
       # find comments to ajax insert in gifts/index page
       com_ids = AjaxComment.where("user_id = ?", @user.user_id).collect { |ac| ac.comment_id }
       @comments = Comment.where("comment_id in (?)", com_ids) if com_ids.length > 0
       # empty AjaxComment buffer
       AjaxComment.destroy_all(:user_id => @user.user_id)
+    end
+    # return new gifts
+    old_last_gift_id = params[:last_gift_id].to_i
+    new_last_gift_id = Gift.last.id if old_last_gift_id > 0
+    if new_last_gift_id > old_last_gift_id
+      # return new last_gift_id value and gifts to user
+      @last_gift_id = new_last_gift_id
+
+      # called from gifts/index page
     end
     respond_to do |format|
       format.html {}

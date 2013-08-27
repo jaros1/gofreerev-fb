@@ -1,6 +1,6 @@
 <% for gift in @gifts do loop -%>
     <% giver = gift.giver ; receiver = gift.receiver -%>
-    <tr style="vertical-align: top">
+    <tr style="vertical-align: top" id="<%= "gift-#{gift.id}" %>">
       <td>
         <% if gift.giver -%>
             <%= @user2 = gift.giver ; render '/shared/user_div' %>
@@ -17,7 +17,7 @@
         <% comment = Comment.new ; comment.gift_id = gift.gift_id ; comment.user_id = @user.user_id -%>
         <%= form_for comment, :remote => true, :html => { :id => "gift-#{gift.id}-new-comment-form" } do |f| %>
             <%= f.hidden_field :gift_id %>
-            <table>
+            <table style="width: 100%">
               <tbody id='<%= "gift-#{gift.id}-comments" %>'>
                 <tr>
                   <td style="width: 52px;"></td>
@@ -50,10 +50,10 @@
         <% end -%>
       </td>
     </tr>
-    <tr><td colspan="4">&nbsp;</td></tr>
+    <tr><td colspan="3">&nbsp;</td></tr>
 <% if @last_gift_id and gift.id == @gifts.last.id -%>
-    <tr id='<%= "last_gift_id_#{gift.id}" %>'><td colspan="4">&nbsp;</td></tr>
+    <tr id='<%= "last_gift_id_#{gift.id}" %>'><td colspan="3">&nbsp;</td></tr>
 <% else -%>
-    <tr><td colspan="4">&nbsp;</td></tr>
+    <tr><td colspan="3">&nbsp;</td></tr>
 <% end -%>
 <% end -%>
