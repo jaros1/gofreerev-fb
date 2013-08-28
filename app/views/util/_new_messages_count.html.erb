@@ -7,10 +7,12 @@
     </tbody>
   </table>
 </div>
+<% if @gifts -%>
 <div id="new_gifts_div">
   <table>
     <tbody id="new_gifts_tbody">
-    <%= render :partial => 'gifts/gifts' if @gifts %>
+    <%= render :partial => 'gifts/gifts' %>
     </tbody>
   </table>
 </div>
+<% end -%>

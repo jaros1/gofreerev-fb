@@ -1,6 +1,6 @@
 <% for gift in @gifts do loop -%>
     <% giver = gift.giver ; receiver = gift.receiver -%>
-    <tr style="vertical-align: top" id="<%= "gift-#{gift.id}" %>">
+    <tr style="vertical-align: top" id="<%= "gift-#{gift.id}" %>-row-1">
       <td>
         <% if gift.giver -%>
             <%= @user2 = gift.giver ; render '/shared/user_div' %>
@@ -50,10 +50,10 @@
         <% end -%>
       </td>
     </tr>
-    <tr><td colspan="3">&nbsp;</td></tr>
+    <tr id="<%= "gift-#{gift.id}" %>-row-2"><td colspan="3">&nbsp;</td></tr>
 <% if @last_gift_id and gift.id == @gifts.last.id -%>
     <tr id='<%= "last_gift_id_#{gift.id}" %>'><td colspan="3">&nbsp;</td></tr>
 <% else -%>
-    <tr><td colspan="3">&nbsp;</td></tr>
+    <tr id="<%= "gift-#{gift.id}" %>-row-3"><td colspan="3">&nbsp;</td></tr>
 <% end -%>
 <% end -%>

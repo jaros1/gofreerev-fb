@@ -3,9 +3,10 @@
     called once every 15 seconds, once every minute or once every 5 minutes depending on user activity
 -%>
 <%
-  puts render("new_messages_count")
+  puts j(render("new_messages_count"))
 -%>
 document.getElementById('new_messages_buffer_div').innerHTML = '<%= j render("new_messages_count") %>' ;
 update_new_messages_count() ;
 update_title();
 insert_new_comments() ;
+insert_new_gifts() ;

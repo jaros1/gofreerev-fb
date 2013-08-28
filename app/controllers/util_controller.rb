@@ -17,14 +17,15 @@ def new_messages_count
       # empty AjaxComment buffer
       AjaxComment.destroy_all(:user_id => @user.user_id)
     end
-    # return new gifts
-    old_last_gift_id = params[:last_gift_id].to_i
-    new_last_gift_id = Gift.last.id if old_last_gift_id > 0
-    if new_last_gift_id > old_last_gift_id
-      # return new last_gift_id value and gifts to user
-      @last_gift_id = new_last_gift_id
-
-      # called from gifts/index page
+    # return newly created gifts
+    old_newest_gift_id = params[:newest_gift_id].to_i
+    new_newest_gift_id = Gift.last.id if old_newest_gift_id > 0
+    if old_newest_gift_id > 0 and new_newest_gift_id > old_newest_gift_id
+      # called from gifts/index page and new gifts created since page load or last new_messages_count request
+      # return new newest_gift_id value and gifts visible to user
+      @newest_gift_id = new_newest_gift_id
+      @gifts = @user.gifts(old_newest_gift_id)
+      @last_gift_id = nil
     end
     respond_to do |format|
       format.html {}

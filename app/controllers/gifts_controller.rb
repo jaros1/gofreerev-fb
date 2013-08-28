@@ -235,30 +235,29 @@ class GiftsController < ApplicationController
     end
     # puts "index: description = #{@gift.description}"
 
-
-    # todo: move to private method in application controller. Also to be used by util/new_messages_count with an ekstra condition
-    # todo: or move to User model.
     # initialize list of gifts
     # list of gifts with @user as giver or receiver + list of gifts med @user.friends as giver or receiver
     if @user then
-      last_gift = Gift.last
-      @last_gift_id = last_gift.id if last_gift
-      @gifts = @user.gifts(0) # last_gift_id param is only to be used in util/new_messages_count
+      newest_gift = Gift.last
+      @gifts = @user.gifts
     end
 
     # last_gift_id != nil. ajax request from end of gifts/index page - return next 10 rows to gifts/index page
     # puts "last_gift_id = #{params[:last_gift_id]}, gifts.length = #{@gifts.length}"
     if params[:last_gift_id].to_s == ""
-      # not ajax - show first 10 gifts - mark all unread notifications as ajax inserted
-      # util/new_messages:count will not ajax send old unread comments to gifts/index page
-      # empty AjaxComment buffer
+      # not ajax - show first 10 gifts
+      # remember newest gift id (global). Gifts created by friends after page load will be ajax inserted in gifts/index page
+      @newest_gift_id = newest_gift.id if newest_gift
+      # empty AjaxComment buffer for current user - comments created after page load will be ajax inserted in gifts/index page
       AjaxComment.destroy_all(:user_id => @user.user_id)
     else
       # ajax - show next 10 gifts after last_gift_id
+      @last_gift_id = nil
       from = @gifts.find_index { |g| g.id == params[:last_gift_id].to_i }
       # puts "from = #{from}"
       @gifts = @gifts[from+1..-1]
     end
+
     # puts "gifts.length = #{@gifts.length}"
     if  @gifts.length > 10
       @gifts = @gifts[0..9]
