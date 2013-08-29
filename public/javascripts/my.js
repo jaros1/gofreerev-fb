@@ -297,9 +297,16 @@ function insert_new_comments() {
 function insert_new_gifts ()
 {
     // ajax response from new_messages_count
-    // var ajax =  '<div id=\"new_messages_count_div\"><\/td><\/div>\n<div id=\"new_comments_div\">\n  <table>\n    <tbody id=\"new_comments_tbody\">\n      \n    <\/tbody>\n  <\/table>\n<\/div>\n<div id=\"new_gifts_div\">\n  <table>\n    <tbody id=\"new_gifts_tbody\">\n        <tr style=\"vertical-align: top\" id=\"gift-220-row-1\">\n      <td>\n            <div title=\"Sandra Q. Saldo -5,03 (-47,77 DKK, 49,76 SEK, -0,08 USD). Klik her for at se brugeroplysninger.\"\n     onclick=\"top.location.href = \'/users/13\'\">\n  <img alt=\"Llbaxa\" src=\"/images/profiles/bb/69/4b/ce/ad/b1/1c/46/0a/c9/34/97/b8/82/b2/fc/llbaxa.jpg\" />\n<\/div>\n      <\/td>\n      <td>\n      <\/td>\n      <td>\n        <form accept-charset=\"UTF-8\" action=\"/comments\" class=\"new_comment\" data-remote=\"true\" id=\"gift-220-new-comment-form\" method=\"post\"><div style=\"margin:0;padding:0;display:inline\"><input name=\"utf8\" type=\"hidden\" value=\"&#x2713;\" /><\/div>\n            <input id=\"comment_gift_id\" name=\"comment[gift_id]\" type=\"hidden\" value=\"DqLAgTsOS36p6jFEd14C\" />\n            <table style=\"width: 100%\">\n              <tbody id=\'gift-220-comments\'>\n                <tr>\n                  <td style=\"width: 52px;\"><\/td>\n                  <td><\/td>\n                <\/tr>\n                <tr>\n                  <td colspan=\"2\" style=\"height: 52px\">\n                    <a href=\"/gifts/220\" title=\"Klik på link for flere informationer om opslag\">28. aug 2013, 16.44  / Sandra Q tilbyder<\/a>\n                     : 18:44 new gift to be ajax inserted in charlies page\n                  <\/td>\n                <\/tr>\n                \n\n                <tr id=\'gift-220-add-new-comment-row\'>\n                  <td style=\"vertical-align: top;\"><div title=\"Charlie S. Saldo 100,06 (9,28 USD, 47,92 DKK). Klik her for at se brugeroplysninger.\"\n     onclick=\"top.location.href = \'/users/10\'\">\n  <img alt=\"7t0wqy\" src=\"/images/profiles/87/c3/db/bc/37/b3/15/89/ac/77/a9/78/8d/95/e1/da/7t0wqy.jpg\" />\n<\/div><\/td>\n                  <td>\n                    <table>\n                      <tr>\n                        <td><textarea cols=\"60\" id=\"gift-220-new-comment-textarea\" name=\"comment[comment]\" onfocus=\"autoresize_text_field(this)\" placeholder=\"Skriv en kommentar...\" rows=\"1\">\n<\/textarea><\/td>\n                        <td><input name=\"commit\" onclick=\"post_ajax_add_new_comment_handler(220)\" type=\"submit\" value=\"Gem\" /><\/td>\n                      <\/tr>\n                    <\/table>\n                  <\/td>\n                <\/tr>\n              <\/tbody>\n            <\/table>\n<\/form>      <\/td>\n    <\/tr>\n    <tr id=\"gift-220-row-2\"><td colspan=\"3\">&nbsp;<\/td><\/tr>\n    <tr id=\"gift-220-row-3\"><td colspan=\"3\">&nbsp;<\/td><\/tr>\n\n    <\/tbody>\n  <\/table>\n<\/div>' ;
-    // document.getElementById('new_messages_buffer_div').innerHTML = ajax ;
-    // alert(document.getElementById('new_messages_buffer_div').innerHTML) ;
+    // check/update newest_gift_id
+    var new_newest_gift_id = document.getElementById("new-newest-gift-id") ;
+    if (!new_newest_gift_id) return ; // ok - not gifts/index page or not new gifts
+    if  (new_newest_gift_id.value == "") return // error - new_messages_count should return id for newest gift id
+    var newest_gift_id = document.getElementById("newest-gift-id") ;
+    if (!newest_gift_id) return // error - hidden field was not found i gifts/index page - ignore error silently
+    newest_gift_id.value = new_newest_gift_id.value ;
+    // check if new_messages_count response has a table with new gifts
+    var new_gifts_tbody = document.getElementById("new_gifts_tbody") ;
+    if (!new_gifts_tbody) return ; // ok - not gifts/index page or no new gifts to error tbody with new gifts was not found
     // old page: find first gift row in gifts table. id format gift-220-row-1. new gifts from ajax response are to be inserted before this row
     var old_gifts_table = document.getElementById("gifts") ;
     if (!old_gifts_table) return ; // not gifts/index page - ok
@@ -315,9 +322,6 @@ function insert_new_gifts ()
     var first_old_gift_tr = old_gifts_trs[old_gifts_index] ;
     var old_gifts_tbody = first_old_gift_tr.parentNode ;
     // new gifts from ajax response are to be inserted before first_old_gift_tr
-    // find table with new gifts
-    var new_gifts_tbody = document.getElementById("new_gifts_tbody") ;
-    if (!new_gifts_tbody) return ; // error tboty with new gifts was not found
     var new_gifts_trs = new_gifts_tbody.rows ;
     var new_gifts_tr ;
     for (i=new_gifts_trs.length-1 ; i>= 0 ; i--) {
