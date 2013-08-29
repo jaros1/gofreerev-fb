@@ -141,15 +141,3 @@
 
 70) only keep last <n> notifications for each user (ok)
     max keep a notification for n days. (not implemented)
-
-74) fading flash after adding ajax elements to gifts/index page
-    1) new gifts
-    2) new comments
-
-75) prevent 2 currently ajax from updatering same comments table at the same time
-    For example show-older-comments og add-new-unread comments
-    maybe not a problem as javascript is single threaded
-
-76) ajax insert new gifts
-    1) gift created by current user (todo)
-    2) gifts created by users friends after gifts/index page was loaded (ok)

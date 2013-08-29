@@ -106,6 +106,12 @@ function gifts_client_validations() {
 } // gifts_client_validations
 
 
+function ajax_flash (id)
+{
+    $('#' + id).css({'background-color':'green'}).animate({'background-color':'white'}, 2000) ;
+}
+
+
 // check for new messages once every 15, 60 or 300 seconds
 // once every 15 seconds for active users - once every 5 minutes for inactive users
 var check_new_messages_interval ; // interval in seconds between each new messages check
@@ -238,6 +244,7 @@ function insert_new_comments() {
             // simple case. first comment - insert first in comment table for gift
             new_comment_tr.parentNode.removeChild(new_comment_tr);
             old_comments_tbody.insertBefore(new_comment_tr, old_comments1_trs[0]);
+            ajax_flash(new_comment_tr.id) ;
             summary = summary + '. ' + i + ': comment ' + new_comment_comment_id + ' inserted (a) for gift id ' + new_comment_gift_id  ;
             continue;
         }
@@ -266,6 +273,7 @@ function insert_new_comments() {
               // insert after current row
               new_comment_tr.parentNode.removeChild(new_comment_tr) ;
               old_comments2_tr.parentNode.insertBefore(new_comment_tr, old_comments2_tr.nextSibling);
+              ajax_flash(new_comment_tr.id) ;
               inserted = true ;
               summary = summary + '. ' + i + ': comment ' + new_comment_comment_id + ' inserted (b) for gift id ' + new_comment_gift_id  ;
               continue;
@@ -286,6 +294,7 @@ function insert_new_comments() {
             // alert('old_comments2_tr = ' + old_comments2_tr) ;
             new_comment_tr.parentNode.removeChild(new_comment_tr) ;
             old_comments2_tr.parentNode.insertBefore(new_comment_tr, old_comments2_tr);
+            ajax_flash(new_comment_tr.id) ;
             summary = summary + '. ' + i + ': comment ' + new_comment_comment_id + ' inserted (d) for gift id ' + new_comment_gift_id  ;
         } // if
     } // end new comments loop
@@ -331,6 +340,7 @@ function insert_new_gifts ()
             new_gifts_tr.parentNode.removeChild(new_gifts_tr) ;
             old_gifts_tbody.insertBefore(new_gifts_tr, first_old_gift_tr) ;
             first_old_gift_tr = new_gifts_tr ;
+            ajax_flash(first_old_gift_tr.id) ;
         } // if
     } // for
     // that's it

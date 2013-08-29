@@ -6,6 +6,7 @@ class GiftsController < ApplicationController
   def new
   end
 
+  # todo: ajax create new gift? How to handle picture upload, missing api privs. show/hide link i gifts/index page?
   def create
     flash.now[:notice] = nil
     @gift = Gift.new
@@ -281,4 +282,4 @@ class GiftsController < ApplicationController
   def show
   end
 
-end
+end # GiftsController
