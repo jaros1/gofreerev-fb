@@ -275,6 +275,18 @@ class User < ActiveRecord::Base
   def gifts_given_and_received
     gifts_given + gifts_received_with_sign
   end
+  def app_friends
+    friends.find_all do |f|
+      # puts "user_id_receiver = #{f.user_id_receiver}, api_friend = #{f.api_friend}, app_friend = #{f.app_friend}"
+      if f.app_friend == 'Y'
+        true
+      elsif f.app_friend == nil and f.api_friend == 'Y'
+        true
+      else
+        false
+      end
+    end # find all
+  end # app_friends
 
   # todo: initialize social dividend hash from negative_currency hash
   def social_dividend
@@ -636,16 +648,7 @@ class User < ActiveRecord::Base
     # initialize list of gifts
     # list of gifts with @user as giver or receiver + list of gifts med @user.friends as giver or receiver
     # where clause is used for non encrypted fields. find_all is used for encrypted fields
-    friends = Friend.where("user_id_giver = ?", user_id).find_all do |f|
-      # puts "user_id_receiver = #{f.user_id_receiver}, api_friend = #{f.api_friend}, app_friend = #{f.app_friend}"
-      if f.app_friend == 'Y'
-        true
-      elsif f.app_friend == nil and f.api_friend == 'Y'
-        true
-      else
-        false
-      end
-    end.collect { |u| u.user_id_receiver }
+    friends = app_friends.collect { |u| u.user_id_receiver }
     friends.push(user_id)
 
     # find gifts

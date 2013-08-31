@@ -61,12 +61,8 @@
 <% else -%>
     <br />
     <table id="gifts">
-      <tr style="vertical-align: bottom;">
-        <th style="width: 52px; text-align: center"><%= my_t '.giver_column_heading_html' %></th>
-        <th style="width: 52px; text-align: center"><%= my_t '.receiver_column_heading_html' %></th>
-        <th><%= my_t '.link_and_text_column_heading_html' %></th>
-      </tr>
-        <%= render :partial => 'gifts' %>
+      <%= render :partial => 'table_header_row' %>
+      <%= render :partial => 'gifts' %>
     </table>
     <%# will_paginate @gifts %>
 <% end -%>

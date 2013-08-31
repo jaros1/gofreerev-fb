@@ -119,6 +119,9 @@ en:
         description_required_text: "Text is required."
         price_invalid_text: "Price is invalid. Only numbers, max 2 decimals, thousands separator not allowed."
         no_gifts_was_found: "No gifts was found."
+        social_dividend_description_1: "Social dividend %{price} %{currency} from %{giver} to %{receiver} for period up to %{to}"
+        social_dividend_description_2: "Social dividend %{price} %{currency} from %{giver} to %{receiver} for period from %{from} to %{to}"
+     table_header_row:
         giver_column_heading_html: "From:"
         receiver_column_heading_html: "To:"
         received_at_column_heading_html : "Date:"
@@ -126,18 +129,18 @@ en:
         received_at_and_pice_heading_html: "Date and price:"
         new_price_column_heading_html: "Value<br />today:"
         balance_column_heading_html: "Balance"
-        social_dividend_description_1: "Social dividend %{price} %{currency} from %{giver} to %{receiver} for period up to %{to}"
-        social_dividend_description_2: "Social dividend %{price} %{currency} from %{giver} to %{receiver} for period from %{from} to %{to}"
      gifts:
+     gift:
+        # 4 translate keys to format gift text with link and text.
         gift_link_title: "Click on link for more information"
         gift_picture_title: "Click on picture for more information"
-        # 4 translate keys to format gift text with link and text.
         direction_giver: "%{username} offers"
         direction_receiver: "%{username} seeks"
-        optional_price: "/ %{price}"
         gift_link_text: "%{date} %{optional_price} / %{direction}"  # nested translate
         gift_text_html: " : %{text}" # text is sanitized. Only todo tags is allowed
+        optional_price: "/ %{price}"
         enter_comment: "Enter a comment ..."
+
 
   # comments controller
   comments:

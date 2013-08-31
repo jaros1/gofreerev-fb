@@ -109,7 +109,7 @@ function gifts_client_validations() {
 function ajax_flash (id)
 {
     $('#' + id).css({'background-color':'green'}).animate({'background-color':'white'}, 2000) ;
-}
+} // ajax_flash
 
 
 // check for new messages once every 15, 60 or 300 seconds

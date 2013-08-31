@@ -280,6 +280,26 @@ class GiftsController < ApplicationController
   end # index
 
   def show
-  end
+    # check gift id
+    gift = Gift.find_by_id(params[:id])
+    if !gift
+      flash[:notice] = my_t '.invalid_gift_id'
+      redirect_to :action => :index
+      return
+    end
+    # check access. giver and/or receiver must be a app friend
+    if [gift.user_id_receiver, gift.user_id_giver].index(@user.user_id)
+      access = true
+    else
+      access = @user.app_friends.find { |f| [gift.user_id_receiver, gift.user_id_giver].index(f.user_id_receiver) }
+    end
+    if !access
+       flash[:notice] = my_t ('.no_access')
+       redirect_to :action => :index
+       return
+    end
+    # ok - show gift
+    @gift = gift
+  end # show
 
 end # GiftsController

@@ -103,8 +103,6 @@
 43) gets only small picture api url from fb. See gift.get_api_picture_url method
     It should be possible to get url for a larger picture from facebook api
 
-44) gift post. Keep current page number?
-
 50) wrap fb api into an generic exception handler with dump of request and exception after error
 
 53) Welcome msg. Some welcome xxx if no gifts. Some welcome back if gifts.
@@ -121,8 +119,6 @@
 
 59) check out coffeescript
 
-60) add comments table (ok). save comments (ok). add notification for comments (todo).
-
 61) How much sync. of comments in api and comments in app?
     write comment to fb - don't download comments from fb
 
@@ -137,7 +133,7 @@
 68) watch/no not watch gift.
     default is that you watch a if you are giver, receiver or has make a comment
 
-69) mark new comments with color in inbox
+69) mark new comments with color in inbox.
 
 70) only keep last <n> notifications for each user (ok)
     max keep a notification for n days. (not implemented)

@@ -10,11 +10,21 @@ def new_messages_count
       @new_messages_count = count if count > 0
     end
     # return new comments
-    if count and count > 0 and params[:request_fullpath] == '/gifts'
-      # find comments to ajax insert in gifts/index page
+    if @new_messages_count and ( params[:request_fullpath] == '/gifts' or params[:request_fullpath] =~ /^\/gifts\/([0-9]+)$/ )
+      # find comments to ajax insert in gifts/index or gifts/show pages
+      # puts "find comments to ajax insert in gifts/index or gifts/show pages"
+      # puts "new_messages_count = #{@new_messages_count}"
       com_ids = AjaxComment.where("user_id = ?", @user.user_id).collect { |ac| ac.comment_id }
+      # puts "com_ids.length = #{com_ids.length}"
       @comments = Comment.where("comment_id in (?)", com_ids) if com_ids.length > 0
-      # empty AjaxComment buffer
+      if @comments and params[:request_fullpath] =~ /^\/gifts\/([0-9]+)$/
+        # gifts/show/<nnn> page - return only ajax comments for actual gift (id=<nnn>)
+        # puts "new comments before gift_id filter = #{@comments.length}"
+        @comments = @comments.find_all { |c| c.gift.id.to_s == $1 }
+        # puts "new comments after gift_id filter = #{@comments.length}"
+        @comments = nil if @comments.length == 0
+      end
+        # empty AjaxComment buffer - only return ajax comments once
       AjaxComment.destroy_all(:user_id => @user.user_id)
     end
     # return newly created gifts. Input newest_gift_id when user page was loaded or newest gift_id in last new_messages_count
