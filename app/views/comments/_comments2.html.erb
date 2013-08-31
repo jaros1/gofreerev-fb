@@ -1,13 +1,12 @@
 <%# comments with an "show older comments link (ajax) -%>
 <% first_comment = @comments.first
    no_older_comments = first_comment ? first_comment.no_older_comments : 0
-   puts "comments2: no_older_comments = #{no_older_comments}"
 -%>
 <% if no_older_comments > 0 -%>
     <tr id="<%= "gift-#{@gift.id}-show-older-comments-row-#{first_comment.id}" %>">
       <td style="vertical-align: top;" colspan="2">
         <%= link_to (no_older_comments == 1 ? my_t('.show_older_comment') : my_t('.show_older_comments', :no_older_comments => no_older_comments)),
-                    "comments?gift_id=#{@gift.id}&first_comment_id=#{first_comment.id}",
+                    comments_path(:gift_id => @gift.id, :first_comment_id => first_comment.id),
                     :remote => true,
                     :id => "gift-#{@gift.id}-show-older-comments-link-#{first_comment.id}" ,
                     :onclick => "post_ajax_add_older_comments_handler(#{@gift.id},#{first_comment.id})"  %>

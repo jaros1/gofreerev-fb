@@ -283,6 +283,7 @@ class GiftsController < ApplicationController
     # check gift id
     gift = Gift.find_by_id(params[:id])
     if !gift
+      puts "invalid gift id"
       flash[:notice] = my_t '.invalid_gift_id'
       redirect_to :action => :index
       return
@@ -294,12 +295,19 @@ class GiftsController < ApplicationController
       access = @user.app_friends.find { |f| [gift.user_id_receiver, gift.user_id_giver].index(f.user_id_receiver) }
     end
     if !access
+      puts "no access"
        flash[:notice] = my_t ('.no_access')
        redirect_to :action => :index
        return
     end
     # ok - show gift
     @gift = gift
+
+    respond_to do |format|
+      format.html { }
+      # format.json { render json: @comment, status: :created, location: @comment }
+      format.js {}
+    end
   end # show
 
 end # GiftsController
