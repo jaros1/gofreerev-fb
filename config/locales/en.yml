@@ -140,6 +140,11 @@ en:
         gift_text_html: " : %{text}" # text is sanitized. Only todo tags is allowed
         optional_price: "/ %{price}"
         enter_comment: "Enter a comment ..."
+        like_gift: "Like"
+        unlike_gift: "Unlike"
+     show:
+        invalid_gift_id: "Invalid request. Unknown post id"
+        no_access: "Invalid request. You are not allowed to see this post"
 
 
   # comments controller

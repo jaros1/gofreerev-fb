@@ -23,6 +23,7 @@ class Gift < ActiveRecord::Base
   belongs_to :giver, :class_name => 'User', :primary_key => :user_id, :foreign_key => :user_id_giver
   belongs_to :receiver, :class_name => 'User', :primary_key => :user_id, :foreign_key => :user_id_receiver
   has_many :comments, :class_name => 'Comment', :primary_key => :gift_id, :foreign_key => :gift_id, :dependent => :destroy
+  has_many :likes, :class_name => 'GiftLike', :primary_key => :gift_id, :foreign_key => :gift_id, :dependent => :destroy
 
 
   # https://github.com/jmazzi/crypt_keeper - text columns are encrypted in database
@@ -565,6 +566,16 @@ class Gift < ActiveRecord::Base
     puts "api_response = #{api_response}"
     return api_response["full_picture"]
   end # get_api_picture_url
+
+
+  def visible_for (user)
+    if [user_id_receiver, user_id_giver].index(user.user_id)
+      access = 'Y'
+    else
+      access = user.app_friends.find { |f| [user_id_receiver, user_id_giver].index(f.user_id_receiver) }
+    end
+    (access != nil)
+  end # visible_for
 
 
   # return last 4 comments for gifts/index page if first_comment_id is nil

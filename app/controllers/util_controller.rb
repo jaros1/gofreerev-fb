@@ -110,4 +110,57 @@ def new_messages_count
 
   end # missing_api_picture_urls
 
-end
+  def like_gift
+    gift_id = params[:gift_id]
+    gift = Gift.find_by_id(gift_id)
+    if !gift
+      puts "Gift with id #{gift_id} was not found - silently ignore ajax request"
+      return
+    end
+    if !gift.visible_for(@user)
+      puts "#{@user.short_user_name} is not allowed to see gift id #{gift_id} - silently ignore ajax request"
+      return
+    end
+    gl = GiftLike.where("user_id = ? and gift_id = ?", @user.user_id, gift.gift_id).first
+    if gl
+      gl.like = 'Y'
+    else
+      gl = GiftLike.new
+      gl.user_id = @user.user_id
+      gl.gift_id = gift.gift_id
+      gl.like = 'Y'
+      gl.show = 'Y'
+      gl.follow = nil
+    end
+    gl.save!
+    # change link
+    @gift_link_id = "gift-#{gift.id}like-unlike-link"
+    @gift_link_href = util_unlike_gift_path(:gift_id => gift.id)
+    @gift_link_text = my_t('gifts.gift.unlike_gift')
+  end # like_gift
+
+  def unlike_gift
+    gift_id = params[:gift_id]
+    gift = Gift.find_by_id(gift_id)
+    if !gift
+      puts "Gift with id #{gift_id} was not found - silently ignore ajax request"
+      return
+    end
+    if !gift.visible_for(@user)
+      puts "#{@user.short_user_name} is not allowed to see gift id #{gift_id} - silently ignore ajax request"
+      return
+    end
+    gl = GiftLike.where("user_id = ? and gift_id = ?", @user.user_id, gift.gift_id).first
+    if !gl or gl.like != 'Y'
+      puts "Non previous like was found for user #{@user.short_user_name} and gift id #{gift_id}"
+      return
+    end
+    gl.like = 'N' ;
+    gl.save!
+    # change link
+    @gift_link_id = "gift-#{gift.id}like-unlike-link"
+    @gift_link_href = util_like_gift_path(:gift_id => gift.id)
+    @gift_link_text = my_t('gifts.gift.like_gift')
+  end # unlike_gift
+
+end # UtilController

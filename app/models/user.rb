@@ -20,6 +20,8 @@ class User < ActiveRecord::Base
   has_many :sent_notifications, :class_name => 'Notification', :primary_key => :user_id, :foreign_key => :from_user_id, :dependent => :destroy
   has_many :received_notifications, :class_name => 'Notification', :primary_key => :user_id, :foreign_key => :to_user_id, :dependent => :destroy
   has_many :comments, :class_name => 'Comment', :primary_key => :user_id, :foreign_key => :user_id, :dependent => :destroy
+  has_many :gift_likes, :class_name => 'GiftLike', :primary_key => :user_id, :foreign_key => :user_id, :dependent => :destroy
+
 
   # https://github.com/jmazzi/crypt_keeper - text columns are encrypted in database
   # encrypt_add_pre_and_postfix/encrypt_remove_pre_and_postfix added in setters/getters for better encryption

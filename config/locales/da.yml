@@ -143,6 +143,11 @@ da:
         gift_text_html: " : %{text}" # text is sanitized. Only todo tags is allowed
         optional_price: "/ %{price}"
         enter_comment: "Skriv en kommentar..."
+        like_gift: "Synes om"
+        unlike_gift: "Synes ikke længere om"
+     show:
+        invalid_gift_id: "Ugyldigt kald. Ukendt opslag id"
+        no_access: "Ugyldigt kald. Du har ikke adgang til at se dette opslag"
 
   # comments controller
   comments:

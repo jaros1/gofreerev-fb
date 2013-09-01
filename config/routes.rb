@@ -2,6 +2,8 @@ GofreerevFb::Application.routes.draw do
 
   get "util/new_messages_count"
   post "util/missing_api_picture_urls"
+  post "util/like_gift"
+  post "util/unlike_gift"
 
   # get "fb/index"
   # The priority is based upon order of creation: first created -> highest priority.

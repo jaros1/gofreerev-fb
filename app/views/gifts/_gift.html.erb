@@ -22,14 +22,19 @@
             <td style="width: 52px;"></td>
             <td></td>
           </tr>
-          <tr>
-            <td colspan="2" style="height: 52px">
+          <tr id='<%= "gift-#{gift.id}-text-and-picture" %>'>
+            <td colspan="2" style="height: 52px; vertical-align: top">
               <%= link_to my_t('.gift_link_text', format_gift_param(gift)), url_for(gift), :title => (my_t '.gift_link_title') %>
               <%= my_t('.gift_text_html', format_gift_param(gift)) %>
               <% if gift.picture == 'Y' and !gift.api_picture_url_on_error_at -%>
                   <br/><br/>
                   <%= image_tag gift.api_picture_url, :onload => "check_api_picture_url(#{gift.id}, this)" %>
               <% end -%>
+            </td>
+          </tr>
+          <tr id='<%= "gift-#{gift.id}-links" %>'>
+            <td colspan="2">
+               <%= link_to_gift_like_unlike(gift) %>
             </td>
           </tr>
           <%= @gift = gift ; @comments = @gift.comments_with_filter(nil) ; render :partial => 'comments/comments3' %>

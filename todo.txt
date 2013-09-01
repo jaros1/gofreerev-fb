@@ -137,3 +137,30 @@
 
 70) only keep last <n> notifications for each user (ok)
     max keep a notification for n days. (not implemented)
+
+71) Offers - I am interested - price + text
+    Seeks - I can help - price + text
+    Follow/don't follow.
+    Default - follow gift you have commented - don't follow other gifts
+
+72) gifts/index - add-more-lines / show-more-gifts-link
+    add delay in ajax gifts/index requests. Max one request every <n> seconds.
+    add delay in ajax gifts/index responses. Max one response every <n> seconds.
+    Problem if user scrolls to bottom of page of big gifts/index and presses reload - many server requests are fired
+    Send user to top of page after reload?
+
+ 73) Model changes - user/user options - Friend - friends.
+     Show/hide gifts - default is show - use hide to hide friend gifts
+     Show/hide comments - default is show - use hide to hide friend comments
+
+ 74) Model changes - user/gift - new model/table -
+     like/unlike gift
+     show/hide gift
+     follow/don't follow gift
+
+ 75) Model changes - user/comment - new model/table -
+     like/unlike comment
+
+ 76) Comment. Add
+     bid - nil/Y/N - nil (default) - Y if comment/other user wish to make a deal - N if comment/other user do not wish to make a deal
+     price - suggest a (new) price for gift if other user - change price if gift owner

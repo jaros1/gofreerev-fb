@@ -2,7 +2,6 @@
 class GiftsController < ApplicationController
 
 
-
   def new
   end
 
@@ -202,7 +201,7 @@ class GiftsController < ApplicationController
     gifts = []
     if @user
       gifts = Gift.where("(user_id_giver = ? or user_id_receiver = ?) and api_picture_url_on_error_at is not null and (deleted_at_api is null or deleted_at_api = 'N')",
-                          @user.user_id, @user.user_id)
+                         @user.user_id, @user.user_id)
       gifts.delete_if do |gift|
         user_id_created_by = User.facebook_user_prefix + gift.api_gift_id.split('_')[0]
         (user_id_created_by != @user.user_id)
@@ -272,7 +271,7 @@ class GiftsController < ApplicationController
     @first_comment_id = nil
 
     respond_to do |format|
-      format.html { }
+      format.html {}
       # format.json { render json: @comment, status: :created, location: @comment }
       format.js {}
     end
@@ -288,23 +287,18 @@ class GiftsController < ApplicationController
       redirect_to :action => :index
       return
     end
-    # check access. giver and/or receiver must be a app friend
-    if [gift.user_id_receiver, gift.user_id_giver].index(@user.user_id)
-      access = true
-    else
-      access = @user.app_friends.find { |f| [gift.user_id_receiver, gift.user_id_giver].index(f.user_id_receiver) }
-    end
-    if !access
+    # check access. giver and/or receiver of gift must be a app friend
+    if !gift.visible_for(@user)
       puts "no access"
-       flash[:notice] = my_t ('.no_access')
-       redirect_to :action => :index
-       return
+      flash[:notice] = my_t ('.no_access')
+      redirect_to :action => :index
+      return
     end
     # ok - show gift
     @gift = gift
 
     respond_to do |format|
-      format.html { }
+      format.html {}
       # format.json { render json: @comment, status: :created, location: @comment }
       format.js {}
     end
