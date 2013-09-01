@@ -3,7 +3,7 @@ class UtilController < ApplicationController
   # update new message count in menu line in page header once every minute
   # called from hidden check-new-messages-link link in page header once every todo: describe frequence
   #   Parameters: {"request_fullpath"=>"/gifts"}
-def new_messages_count
+  def new_messages_count
     # return new messages count
     if @user
       count = @user.inbox_new_notifications
@@ -24,7 +24,7 @@ def new_messages_count
         # puts "new comments after gift_id filter = #{@comments.length}"
         @comments = nil if @comments.length == 0
       end
-        # empty AjaxComment buffer - only return ajax comments once
+      # empty AjaxComment buffer - only return ajax comments once
       AjaxComment.destroy_all(:user_id => @user.user_id)
     end
     # return newly created gifts. Input newest_gift_id when user page was loaded or newest gift_id in last new_messages_count
@@ -89,11 +89,11 @@ def new_messages_count
           puts "Could not get new picture url. Could be deleted picture. Could be api permission problem. Keep error and let owner check picture url at a later time"
           next
         end # if
-        # picture was not found with picture owner login
-        # it could be a fb permission problem (app priv has been removed) but most likely the picture has been deleted
-        # keep api_picture_url_on_error_at so that we known about when the picture was been deleted
-        # gifts in app is not deleted automatically. Could affect the balance. Could be connected with other gifts.
-        # this allow users to cleanup their FB profile without destroying data in app
+            # picture was not found with picture owner login
+            # it could be a fb permission problem (app priv has been removed) but most likely the picture has been deleted
+            # keep api_picture_url_on_error_at so that we known about when the picture was been deleted
+            # gifts in app is not deleted automatically. Could affect the balance. Could be connected with other gifts.
+            # this allow users to cleanup their FB profile without destroying data in app
         puts "Gift has been deleted on #{@user.api_name_without_brackets}. Keep in #{APP_NAME} as the gift could have been used in balance and in connected gifts (todo)"
         gift.picture = 'N'
         gift.api_picture_url = nil
@@ -110,7 +110,7 @@ def new_messages_count
 
   end # missing_api_picture_urls
 
-  def like_gift #
+  def like_gift
     gift_id = params[:gift_id]
     gift = Gift.find_by_id(gift_id)
     if !gift
@@ -134,7 +134,7 @@ def new_messages_count
     end
     gl.save!
     # change link
-    @gift_link_id = "gift-#{gift.id}like-unlike-link"
+    @gift_link_id = "gift-#{gift.id}-like-unlike-link"
     @gift_link_href = util_unlike_gift_path(:gift_id => gift.id)
     @gift_link_text = my_t('gifts.gift.unlike_gift')
   end # like_gift
@@ -158,9 +158,65 @@ def new_messages_count
     gl.like = 'N' ;
     gl.save!
     # change link
-    @gift_link_id = "gift-#{gift.id}like-unlike-link"
+    @gift_link_id = "gift-#{gift.id}-like-unlike-link"
     @gift_link_href = util_like_gift_path(:gift_id => gift.id)
     @gift_link_text = my_t('gifts.gift.like_gift')
   end # unlike_gift
+
+  def follow_gift
+    gift_id = params[:gift_id]
+    gift = Gift.find_by_id(gift_id)
+    if !gift
+      puts "Gift with id #{gift_id} was not found - silently ignore ajax request"
+      return
+    end
+    if !gift.visible_for(@user)
+      puts "#{@user.short_user_name} is not allowed to see gift id #{gift_id} - silently ignore ajax request"
+      return
+    end
+    gl = GiftLike.where("user_id = ? and gift_id = ?", @user.user_id, gift.gift_id).first
+    if gl
+      gl.follow = 'Y'
+    else
+      gl = GiftLike.new
+      gl.user_id = @user.user_id
+      gl.gift_id = gift.gift_id
+      gl.like = 'N'
+      gl.follow = 'Y'
+      gl.show = 'Y'
+    end
+    gl.save!
+    # change link
+    @gift_link_id = "gift-#{gift.id}-follow-unfollow-link"
+    @gift_link_href = util_unfollow_gift_path(:gift_id => gift.id)
+    @gift_link_text = my_t('gifts.gift.unfollow_gift')
+  end # follow_gift
+
+  def unfollow_gift
+    gift_id = params[:gift_id]
+    gift = Gift.find_by_id(gift_id)
+    if !gift
+      puts "Gift with id #{gift_id} was not found - silently ignore ajax request"
+      return
+    end
+    if !gift.visible_for(@user)
+      puts "#{@user.short_user_name} is not allowed to see gift id #{gift_id} - silently ignore ajax request"
+      return
+    end
+    gl = GiftLike.where("user_id = ? and gift_id = ?", @user.user_id, gift.gift_id).first
+    if !gl
+      gl = GiftLike.new
+      gl.user_id = @user.user_id
+      gl.gift_id = gift.gift_id
+      gl.like = 'N'
+      gl.show = 'Y'
+    end
+    gl.follow = 'N'
+    gl.save!
+    # change link
+    @gift_link_id = "gift-#{gift.id}-follow-unfollow-link"
+    @gift_link_href = util_follow_gift_path(:gift_id => gift.id)
+    @gift_link_text = my_t('gifts.gift.follow_gift')
+  end # unfollow_gift
 
 end # UtilController

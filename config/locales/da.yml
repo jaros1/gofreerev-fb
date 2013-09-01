@@ -145,6 +145,8 @@ da:
         enter_comment: "Skriv en kommentar..."
         like_gift: "Synes om"
         unlike_gift: "Synes ikke længere om"
+        follow_gift: "Følg opslag"
+        unfollow_gift: "Følg ikke længere"
      show:
         invalid_gift_id: "Ugyldigt kald. Ukendt opslag id"
         no_access: "Ugyldigt kald. Du har ikke adgang til at se dette opslag"

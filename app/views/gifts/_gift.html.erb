@@ -34,7 +34,8 @@
           </tr>
           <tr id='<%= "gift-#{gift.id}-links" %>'>
             <td colspan="2">
-               <%= link_to_gift_like_unlike(gift) %>
+              <%= link_to_gift_like_unlike(gift) %>
+              <%= link_to_gift_follow_unfollow(gift) %>
             </td>
           </tr>
           <%= @gift = gift ; @comments = @gift.comments_with_filter(nil) ; render :partial => 'comments/comments3' %>

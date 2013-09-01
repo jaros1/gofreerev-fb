@@ -45,11 +45,32 @@ module GiftHelper
     gl = GiftLike.where("user_id = ? and gift_id = ?", @user.user_id, gift.gift_id).first
     like = gl.like if gl and %w(Y N).index(gl.like)
     like = 'N' unless like
-    if like = 'N'
-      link_to my_t('.like_gift'), util_like_gift_path(:gift_id => gift.id), :id => "gift-#{gift.id}like-unlike-link", :remote => true, :method => :post
+    if like == 'N'
+      link_to my_t('.like_gift'), util_like_gift_path(:gift_id => gift.id), :id => "gift-#{gift.id}-like-unlike-link", :remote => true, :method => :post
     else
-      link_to my_t('.unlike_gift'), util_unlike_gift_path(:gift_id => gift.id), :id => "gift-#{gift.id}like-unlike-link", :remote => true, :method => :post
+      link_to my_t('.unlike_gift'), util_unlike_gift_path(:gift_id => gift.id), :id => "gift-#{gift.id}-like-unlike-link", :remote => true, :method => :post
     end
   end # link_to_gift_like_unlike
+
+  # show follow/do not follow link for gift under gift text and picture
+  # default is to follow gift as giver, receiver or commenter
+  def link_to_gift_follow_unfollow (gift)
+    # check like status
+    gl = GiftLike.where("user_id = ? and gift_id = ?", @user.user_id, gift.gift_id).first
+    follow = gl.follow if gl
+    if !follow
+      if [gift.user_id_giver, gift.user_id_receiver].index(@user.user_id)
+        follow = 'Y'
+      else
+        c = Comment.where("user_id = ? and gift_id = ?", @user.user_id, gift.gift_id).first
+        follow = c ? 'Y' : 'N'
+      end
+    end
+    if follow == 'N'
+      link_to my_t('.follow_gift'), util_follow_gift_path(:gift_id => gift.id), :id => "gift-#{gift.id}-follow-unfollow-link", :remote => true, :method => :post
+    else
+      link_to my_t('.unfollow_gift'), util_unfollow_gift_path(:gift_id => gift.id), :id => "gift-#{gift.id}-follow-unfollow-link", :remote => true, :method => :post
+    end
+  end # link_to_gift_follow_unfollow
 
 end
