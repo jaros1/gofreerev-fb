@@ -110,7 +110,7 @@ def new_messages_count
 
   end # missing_api_picture_urls
 
-  def like_gift
+  def like_gift #
     gift_id = params[:gift_id]
     gift = Gift.find_by_id(gift_id)
     if !gift
