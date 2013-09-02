@@ -219,4 +219,31 @@ class UtilController < ApplicationController
     @gift_link_text = my_t('gifts.gift.follow_gift')
   end # unfollow_gift
 
+  def hide_gift
+    gift_id = params[:gift_id]
+    gift = Gift.find_by_id(gift_id)
+    if !gift
+      puts "Gift with id #{gift_id} was not found - silently ignore ajax request"
+      return
+    end
+    if !gift.visible_for(@user)
+      puts "#{@user.short_user_name} is not allowed to see gift id #{gift_id} - silently ignore ajax request"
+      return
+    end
+    gl = GiftLike.where("user_id = ? and gift_id = ?", @user.user_id, gift.gift_id).first
+    if gl
+      gl.show = 'N'
+    else
+      gl = GiftLike.new
+      gl.user_id = @user.user_id
+      gl.gift_id = gift.gift_id
+      gl.like = 'N'
+      gl.follow = 'N'
+      gl.show = 'N'
+    end
+    gl.save!
+    # hide gift
+    @gift_id = gift.id
+  end # hide_gift
+
 end # UtilController

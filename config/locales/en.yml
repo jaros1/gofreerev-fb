@@ -144,6 +144,8 @@ en:
         unlike_gift: "Unlike"
         follow_gift: "Follow"
         unfollow_gift: "Don't follow"
+        hide_gift: "Hide post"
+        confirm_hide_gift: "Hide post?"
      show:
         invalid_gift_id: "Invalid request. Unknown post id"
         no_access: "Invalid request. You are not allowed to see this post"

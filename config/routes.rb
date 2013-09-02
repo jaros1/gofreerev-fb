@@ -6,6 +6,7 @@ GofreerevFb::Application.routes.draw do
   post "util/unlike_gift"
   post "util/follow_gift"
   post "util/unfollow_gift"
+  post "util/hide_gift"
 
   # get "fb/index"
   # The priority is based upon order of creation: first created -> highest priority.

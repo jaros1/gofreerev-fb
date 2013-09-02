@@ -147,6 +147,8 @@ da:
         unlike_gift: "Synes ikke længere om"
         follow_gift: "Følg opslag"
         unfollow_gift: "Følg ikke længere"
+        hide_gift: "Skjul opslag"
+        confirm_hide_gift: "Skjul opslag?"
      show:
         invalid_gift_id: "Ugyldigt kald. Ukendt opslag id"
         no_access: "Ugyldigt kald. Du har ikke adgang til at se dette opslag"

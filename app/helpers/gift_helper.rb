@@ -73,4 +73,8 @@ module GiftHelper
     end
   end # link_to_gift_follow_unfollow
 
+  def link_to_gift_hide (gift)
+    link_to my_t('.hide_gift'), util_hide_gift_path(:gift_id => gift.id), :id => "gift-#{gift.id}-hide-link", :remote => true, :method => :post, :data => { :confirm => my_t('.confirm_hide_gift') }
+  end
+
 end
