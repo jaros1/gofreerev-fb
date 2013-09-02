@@ -164,3 +164,6 @@
  76) Comment. Add
      bid - nil/Y/N - nil (default) - Y if comment/other user wish to make a deal - N if comment/other user do not wish to make a deal
      price - suggest a (new) price for gift if other user - change price if gift owner
+
+ 77) show all gift links in one line
+     that is : like, follow, hide and show older comments links
