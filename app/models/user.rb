@@ -654,13 +654,24 @@ class User < ActiveRecord::Base
     friends.push(user_id)
 
     # find gifts
-    Gift.where('id > ? and (user_id_giver in (?) or user_id_receiver in (?))', newest_gift_id, friends, friends).includes(:giver, :receiver).sort do |a,b|
+    gs = Gift.where('id > ? and (user_id_giver in (?) or user_id_receiver in (?))', newest_gift_id, friends, friends).includes(:giver, :receiver).sort do |a,b|
       if (a.received_at || a.created_at.to_date) ==  (b.received_at || b.created_at.to_date)
         b.id <=> a.id
       else
         (b.received_at || b.created_at.to_date) <=>  (a.received_at || a.created_at.to_date)
       end
     end
+    return gs if gs.length == 0
+
+    # remove any hidden gifts (show=N) from gifts list
+    giftids = gs.collect { |g| g.gift_id }
+    hide_giftids = GiftLike.where("user_id = ? and gift_id in (?)", user_id, giftids).collect { |gl| gl.gift_id }
+    return gs if hide_giftids.length == 0
+
+    # remove hidden gifts
+    gs = gs.find_all { |g| !hide_giftids.index(g.gift_id) }
+
+    gs
 
   end # gifts
 

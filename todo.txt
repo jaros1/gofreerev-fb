@@ -153,10 +153,10 @@
      Show/hide gifts - default is show - use hide to hide friend gifts
      Show/hide comments - default is show - use hide to hide friend comments
 
- 74) Model changes - user/gift - new model/table - GiftLike
-     like/unlike gift
-     show/hide gift
-     follow/don't follow gift
+ 74) Model changes - user/gift - new model/table - GiftLike (ok)
+     like/unlike gift (ok)
+     show/hide gift (ok)
+     follow/don't follow gift (ok)
 
  75) Model changes - user/comment - new model/table -
      like/unlike comment
