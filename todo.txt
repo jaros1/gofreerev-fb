@@ -167,3 +167,5 @@
 
  77) show all gift links in one line
      that is : like, follow, hide and show older comments links
+
+ 78) comment notifications - add follow/not follow (ok)

@@ -133,19 +133,32 @@ class Comment < ActiveRecord::Base
                        end
     puts "noti_key_prefix = #{noti_key_prefix}"
     # send notifications
-    # 1) send notification to giver and/or receiver
-    # xx and yy has commented etc etc
+    # 1) notifications to giver and/or receiver
     logger.info "send notifications to gifts giver and/or receiver"
-    users = []
-    users.push(gift.giver) if gift.user_id_giver and user_id != gift.user_id_giver
-    users.push(gift.receiver) if gift.user_id_receiver and user_id != gift.user_id_receiver
-    users.each { |user2| create_or_update_noti(noti_key_prefix, user, user2) }
-    # send notification to other that has commented the gift - note that "_other" is added to notification key!
-    # xx and yy has also commented etc etc
-    users = gift.comments.includes(:user).collect { | c| c.user }.find_all { |user2| ![user.user_id, gift.user_id_giver, gift.user_id_receiver].index(user2.user_id) }.uniq
-    # puts "send #{noti_key_prefix}_other notification to: " + users.collect { |user2| user2.short_user_name }.join(', ')
-    logger.info "send notifications to other users that also have commented the gift"
-    users.each { |user2| create_or_update_noti(noti_key_prefix + '_other', user, user2) }
+    users1 = []
+    users1.push(gift.giver) if gift.user_id_giver and user_id != gift.user_id_giver
+    users1.push(gift.receiver) if gift.user_id_receiver and user_id != gift.user_id_receiver
+    users1_ids = users1.collect { |u| u.user_id }
+    # 2) notifications to users that has commented the gift - note that "_other" is added to notification key!
+    users2 = gift.comments.includes(:user).collect { | c| c.user }.find_all { |user2| ![user.user_id, gift.user_id_giver, gift.user_id_receiver].index(user2.user_id) }.uniq
+    users2_ids = users2.collect { |u| u.user_id }
+    users_ids = (users1_ids + users2_ids).uniq
+    # check followers - users that have selected to follow gift comments - users that have selected NOT to follow gift comments
+    GiftLike.where("gift_id = ? and follow is not null", gift.gift_id).each do |gl|
+      if gl.follow == 'Y'
+        # user has selected to follow gift
+        users1 << gl.user if !users_ids.index(gl.user_id)
+      else
+        # user has deselected to follow gift
+        users1 = users1.delete_if { |u| u.user_id == gl.user_id }
+        users2 = users2.delete_if { |u| u.user_id == gl.user_id }
+      end
+    end # each
+    # send notifications
+    logger.info "send notifications to gifts giver, receiver and followers: " + users1.collect { |u| u.short_user_name }.join(', ')
+    users1.each { |user2| create_or_update_noti(noti_key_prefix, user, user2) }
+    logger.info "send notifications to other users that also have commented the gift: " + users2.collect { |u| u.short_user_name }.join(', ')
+    users2.each { |user2| create_or_update_noti(noti_key_prefix + '_other', user, user2) }
   end # after_create
   
 

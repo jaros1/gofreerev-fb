@@ -665,7 +665,7 @@ class User < ActiveRecord::Base
 
     # remove any hidden gifts (show=N) from gifts list
     giftids = gs.collect { |g| g.gift_id }
-    hide_giftids = GiftLike.where("user_id = ? and gift_id in (?)", user_id, giftids).collect { |gl| gl.gift_id }
+    hide_giftids = GiftLike.where("user_id = ? and gift_id in (?)", user_id, giftids).find_all { |gl| gl.show == 'N'}.collect { |gl| gl.gift_id }
     return gs if hide_giftids.length == 0
 
     # remove hidden gifts
@@ -674,6 +674,9 @@ class User < ActiveRecord::Base
     gs
 
   end # gifts
+
+
+
 
 
   ##############
