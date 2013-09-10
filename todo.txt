@@ -130,9 +130,6 @@
     show only last 4 comments. add url to get more comments if more than 4 comments (ok)
     check user priv. when adding comment
 
-68) watch/no not watch gift.
-    default is that you watch a if you are giver, receiver or has make a comment
-
 69) mark new comments with color in inbox.
 
 70) only keep last <n> notifications for each user (ok)
@@ -142,12 +139,6 @@
     Seeks - I can help - price + text
     Follow/don't follow.
     Default - follow gift you have commented - don't follow other gifts
-
-72) gifts/index - add-more-lines / show-more-gifts-link
-    add delay in ajax gifts/index requests. Max one request every <n> seconds.
-    add delay in ajax gifts/index responses. Max one response every <n> seconds.
-    Problem if user scrolls to bottom of page of big gifts/index and presses reload - many server requests are fired
-    Send user to top of page after reload?
 
  73) Model changes - user/user options - Friend - friends.
      Show/hide gifts - default is show - use hide to hide friend gifts
@@ -167,5 +158,3 @@
 
  77) show all gift links in one line
      that is : like, follow, hide and show older comments links
-
- 78) comment notifications - add follow/not follow (ok)
