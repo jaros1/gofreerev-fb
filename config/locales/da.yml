@@ -142,13 +142,11 @@ da:
         gift_link_text: "%{date} %{optional_price} / %{direction}"  # nested translate
         gift_text_html: " : %{text}" # text is sanitized. Only todo tags is allowed
         optional_price: "/ %{price}"
-        enter_comment: "Skriv en kommentar..."
         like_gift: "Synes om"
         unlike_gift: "Synes ikke længere om"
         follow_gift: "Følg opslag"
         unfollow_gift: "Følg ikke længere"
-        hide_gift: "Skjul opslag"
-        confirm_hide_gift: "Skjul opslag?"
+        enter_comment: "Skriv en kommentar..."
      show:
         invalid_gift_id: "Ugyldigt kald. Ukendt opslag id"
         no_access: "Ugyldigt kald. Du har ikke adgang til at se dette opslag"
@@ -162,6 +160,12 @@ da:
         comment_not_found: "Ugyldigt kald. Kommentar blev ikke fundet"
         gift_comment_mismatch: "Ugyldigt kald. Opslag og kommentar passer ikke sammen"
      comments2:
+        like_gift: "Synes om"
+        unlike_gift: "Synes ikke længere om"
+        follow_gift: "Følg opslag"
+        unfollow_gift: "Følg ikke længere"
+        hide_gift: "Skjul opslag"
+        confirm_hide_gift: "Skjul opslag?"
         show_older_comment: "Vis ældre kommentar"
         show_older_comments: "Vis %{no_older_comments} ældre kommentarer"
 

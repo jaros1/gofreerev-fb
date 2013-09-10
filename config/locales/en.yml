@@ -139,13 +139,11 @@ en:
         gift_link_text: "%{date} %{optional_price} / %{direction}"  # nested translate
         gift_text_html: " : %{text}" # text is sanitized. Only todo tags is allowed
         optional_price: "/ %{price}"
-        enter_comment: "Enter a comment ..."
         like_gift: "Like"
         unlike_gift: "Unlike"
         follow_gift: "Follow"
         unfollow_gift: "Don't follow"
-        hide_gift: "Hide post"
-        confirm_hide_gift: "Hide post?"
+        enter_comment: "Enter a comment ..."
      show:
         invalid_gift_id: "Invalid request. Unknown post id"
         no_access: "Invalid request. You are not allowed to see this post"
@@ -160,6 +158,12 @@ en:
         comment_not_found: "Invalid request. Comment was not found"
         gift_comment_mismatch: "Invalid request. Gift and comment does not match"
      comments2:
+        like_gift: "Like"
+        unlike_gift: "Unlike"
+        follow_gift: "Follow"
+        unfollow_gift: "Don't follow"
+        hide_gift: "Hide post"
+        confirm_hide_gift: "Hide post?"
         show_older_comment: "Show older comment"
         show_older_comments: "Show %{no_older_comments} older comments"
 

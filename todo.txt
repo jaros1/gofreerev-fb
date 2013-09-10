@@ -158,3 +158,35 @@
 
  77) show all gift links in one line
      that is : like, follow, hide and show older comments links
+     # old gift layout - 2 different rows with links
+     <tr id='gift-230-links'>
+       <td colspan="2">
+         <a data-method="post" data-remote="true" href="/util/like_gift?gift_id=230" id="gift-230-like-unlike-link" rel="nofollow">Synes om</a>
+       - <a data-method="post" data-remote="true" href="/util/follow_gift?gift_id=230" id="gift-230-follow-unfollow-link" rel="nofollow">Følg opslag</a>
+       - <a data-confirm="Skjul opslag?" data-method="post" data-remote="true" href="/util/hide_gift?gift_id=230" id="gift-230-hide-link" rel="nofollow">Skjul opslag</a>
+       </td>
+     </tr>
+     <tr id="gift-230-show-older-comments-row-399">
+       <td style="vertical-align: top;" colspan="2">
+         <a data-remote="true" href="/comments?first_comment_id=399&amp;gift_id=230" id="gift-230-show-older-comments-link-399" onclick="post_ajax_add_older_comments_handler(230,399)">Vis 3 ældre kommentarer</a>
+       </td>
+     </tr>
+
+     # new gift layout - 1 row - version 1 with show older comments link
+     <tr id='gift-230-links'>
+       <td colspan="2">
+         <a data-method="post" data-remote="true" href="/util/like_gift?gift_id=230" id="gift-230-like-unlike-link" rel="nofollow">Synes om</a>
+       - <a data-method="post" data-remote="true" href="/util/follow_gift?gift_id=230" id="gift-230-follow-unfollow-link" rel="nofollow">Følg opslag</a>
+       - <a data-confirm="Skjul opslag?" data-method="post" data-remote="true" href="/util/hide_gift?gift_id=230" id="gift-230-hide-link" rel="nofollow">Skjul opslag</a>
+       - <a data-remote="true" href="/comments?first_comment_id=399&amp;gift_id=230" id="gift-230-show-older-comments-link-399" onclick="post_ajax_add_older_comments_handler(230,399)">Vis 3 ældre kommentarer</a>
+       </td>
+     </tr>
+
+     # new gift layout - 1 row - version 2 without show older comments link
+     <tr id='gift-230-links'>
+       <td colspan="2">
+         <a data-method="post" data-remote="true" href="/util/like_gift?gift_id=230" id="gift-230-like-unlike-link" rel="nofollow">Synes om</a>
+       - <a data-method="post" data-remote="true" href="/util/follow_gift?gift_id=230" id="gift-230-follow-unfollow-link" rel="nofollow">Følg opslag</a>
+       - <a data-confirm="Skjul opslag?" data-method="post" data-remote="true" href="/util/hide_gift?gift_id=230" id="gift-230-hide-link" rel="nofollow">Skjul opslag</a>
+       </td>
+     </tr>
