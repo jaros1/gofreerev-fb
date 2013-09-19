@@ -415,36 +415,12 @@ function autoresize_text_field(text) {
 
 // post ajax processing after adding a comment.
 // comments/create.js.rb inserts new comment last i comments table
-// swap the two last rows after ajax processing
+// clear comment text area and reset frequency for new message check
 function post_ajax_add_new_comment_handler(giftid) {
     var id = '#gift-' + giftid + '-new-comment-form';
     $(document).ready(function () {
         $(id)
             .bind("ajax:success", function (evt, data, status, xhr) {
-                // swap the two last rows in comments table for gift
-                // that is swap rows with id "gift-<giftid>-add-new-comment-row" and "comment-gift-<giftid>-comment-<commentid>"
-                var row1 = document.getElementById('gift-' + giftid + '-add-new-comment-row') ;
-                if (!row1) {
-                    // error - row with enter new comment was not found - ignore silently
-                    // alert("error - row with enter new comment was not found - ignore silently") ;
-                    return ;
-                }
-                var row2 = row1 ;
-                re = new RegExp("^comment-gift-" + giftid + "-comment-");
-                while (row2 && (!row2.id || !row2.id.match(re))) {
-                    // alert('row2.id = ' + row2.id) ;
-                    row2 = row2.nextSibling ;
-                }
-                if (!row2) {
-                    // error - row with ajax new comment last in table was not found
-                    // alert("error - row with ajax new comment last in table was not found") ;
-                    return ;
-                }
-                // swap
-                var tbody = row1.parentNode ;
-                tbody.removeChild(row2) ;
-                tbody.insertBefore(row2, row1) ;
-                // empty comment field
                 var commentname = 'gift-' + giftid + '-new-comment-textarea';
                 var comment = document.getElementById(commentname);
                 comment.value = "";
@@ -456,7 +432,6 @@ function post_ajax_add_new_comment_handler(giftid) {
 
     });
 } // post_ajax_add_new_comment_handler
-
 
 
 // post ajax processing after inserting older comments for a gift.
