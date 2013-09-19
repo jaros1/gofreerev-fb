@@ -36,7 +36,10 @@
 </tr>
 
 <tr id="<%= "gift-#{gift.id}" %>-row-2">
-  <td colspan="2" style="text-align: right">radio<br />group</td>
+  <td colspan="2" style="text-align: right">
+    Comment <%= radio_button_tag "gift-#{gift.id}-new_comment-radio", "c" %><br />
+    Deal <%= radio_button_tag "gift-#{gift.id}-new_comment-radio", "d" %>
+  </td>
   <td>
     <%# remote form for new comment. Sent to comments/create. Inserted in gift-<gift.id>-comments table.
             Post ajax processing done in my.js / add_post_ajax_comment_handler -%>
