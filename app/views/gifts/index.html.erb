@@ -44,7 +44,7 @@
           <tr title="<%= my_t '.description_title' %>">
             <td style="vertical-align: top"><%= my_t '.description_prompt' %></td>
             <td><%= f.text_area :description, :size => '60x2', :placeholder => 'Enter Comments', :onfocus => 'autoresize_text_field(this)' %></td>
-            <td><%= f.submit my_t('.gift_submit_button_text'), :onclick => '{return gift_client_validations()}' %></td>
+            <td><%= f.submit my_t('.gift_submit_button_text'), :onclick => '{return csv_gift()}' %></td>
           </tr>
           <tr title="<%= my_t ".file_title_#{@user.post_gift_allowed?}", :appname => APP_NAME, :apiname => @user.api_name_without_brackets %>">
             <td><%= my_t '.file_prompt' %></td>
@@ -80,6 +80,9 @@
     // Translate texts used in client side validations.
     csv_gift_description_required = '<%= my_t '.description_required_text' %>' ;
     csv_gift_price_invalid = '<%= my_t '.price_invalid_text' %>' ;
+    csv_comment_comment_required = '<%= my_t '.comment_comment_required_text' %>' ;
+    csv_comment_price_invalid = '<%= my_t '.comment_price_invalid_text' %>' ;
+
 
     // report any invalid api picture urls - url has changed or picture has been deleted
     // array with gift ids is initialized in img onload="check_api_picture_url ..."

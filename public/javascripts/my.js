@@ -79,31 +79,66 @@ function gifts_pre_update_currency() {
 // https://github.com/bcardarella/client_side_validations gem was not ready for rails 4 when this app was developed
 
 
-// Client side validation for gifts
+function csv_empty_field (id)
+{
+    var value = document.getElementById(id).value ;
+    if (!value) return true ;
+    if (String.trim(value) == '') return true ;
+    return false ;
+} // csv_required_field
+
+// Check price - allow decimal comma/point, max 2 decimals. Thousands separators not allowed
+function csv_invalid_price (id)
+{
+    if (csv_empty_field(id)) return false ; // empty field - ok
+    var price = document.getElementById(id).value ;
+    price = String.trim(price);
+    var r = new RegExp('^[0-9]*(\.|,)[0-9]{1,2}$');
+    if (!r.test(price) || (price == '.') || (price == ',')) return true ;
+    return false ;
+} // csv_invalid_price
+
+// Client side validation for new gift
 // These error texts are replaced with language-specific texts in gifts/index page
 var csv_gift_description_required = 'Description is required.';
 var csv_gift_price_invalid = 'Price is invalid. Only numbers, max 2 decimals, thousands separator not allowed.';
-function gift_client_validations() {
+function csv_gift() {
     // check required description
-    var gift_description = document.getElementById('gift_description');
-    if (!gift_description.value || String.trim(gift_description.value) == '') {
+    if (csv_empty_field('gift_description')) {
         alert(csv_gift_description_required);
         return false;
     }
     // check optional price. Allow decimal comma/point, max 2 decimals. Thousands separators not allowed
-    var gift_price_id = document.getElementById('gift_price');
-    var gift_price = String.trim(gift_price_id.value);
-    var gift_price_valid = true;
-    if (gift_price != '') {
-        r = new RegExp('^[0-9]*(\.|,)[0-9]{1,2}$');
-        if (!r.test(gift_price) || (gift_price == '.') || (gift_price == ',')) {
-            alert(csv_gift_price_invalid);
-            return false;
-        }
+    if (csv_invalid_price('gift_price')) {
+        alert(csv_gift_price_invalid);
+        return false;
     }
     // gift is ok. ready for submit
     return true;
-} // gift_client_validations
+} // csv_gift
+
+
+// Client side validation for new comment
+// These error texts are replaced with language-specific texts in gifts/index page
+var csv_comment_comment_required = 'Comment is required.' ;
+var csv_comment_price_invalid = 'Price is invalid. Only numbers, max 2 decimals, thousands separator not allowed.' ;
+// todo: to be implemented
+function csv_comment(giftid)
+{
+    // check required comment
+    if (csv_empty_field("gift-" + giftid + "-new-comment-textarea")) {
+        alert(csv_comment_comment_required);
+        return false;
+    }
+    // check optional price. Allow decimal comma/point, max 2 decimals. Thousands separators not allowed
+    if (csv_invalid_price('gift-' + giftid + '-comment-price')) {
+        alert(csv_comment_price_invalid);
+        return false;
+    }
+    // comment is ok - add post ajax handler and submit
+    post_ajax_add_new_comment_handler(giftid) ;
+    return true ;
+} // csv_comment
 
 
 function ajax_flash (id)

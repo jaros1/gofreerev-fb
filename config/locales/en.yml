@@ -121,6 +121,8 @@ en:
         no_gifts_was_found: "No gifts was found."
         social_dividend_description_1: "Social dividend %{price} %{currency} from %{giver} to %{receiver} for period up to %{to}"
         social_dividend_description_2: "Social dividend %{price} %{currency} from %{giver} to %{receiver} for period from %{from} to %{to}"
+        comment_comment_required_text: "Comment is required"
+        comment_price_invalid_text: "Price is invalid. Only numbers, max 2 decimals, thousands separator not allowed."
      table_header_row:
         giver_column_heading_html: "From:"
         receiver_column_heading_html: "To:"

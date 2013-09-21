@@ -123,6 +123,8 @@ da:
         no_gifts_was_found: "Der blev ikke fundet nogle opslag."
         social_dividend_description_1: "Social dividende %{price} %{currency} fra %{giver} til %{receiver} for perioden op til %{to}"
         social_dividend_description_2: "Social dividende %{price} %{currency} fra %{giver} til %{receiver} for perioden fra %{from} til %{to}"
+        comment_comment_required_text: "Kommentar felt skal udfyldes"
+        comment_price_invalid_text: "Pris is ugyldig. Brug kun cifre, højst et decimal komma/punktum og højst 2 decimaler. Tusindtalsseparator er ikke tilladt."
      table_header_row:
         giver_column_heading_html: "Fra:"
         receiver_column_heading_html: "Til:"
