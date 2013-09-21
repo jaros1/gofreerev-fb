@@ -485,3 +485,12 @@ function post_ajax_add_older_comments_handler(giftid, commentid) {
     }); // $(document).ready(function(){
 } // add_post_ajax_new_comment_handler
 
+// show/hide price and currency in new comment table call
+function check_uncheck_new_deal_checkbox(checkbox, giftid)
+{
+    var tr = document.getElementById("gift-" + giftid + "-new-comment-price-tr") ;
+    if (checkbox.checked) tr.style.display='block' ;
+    else tr.style.display = 'none' ;
+    // alert(checkbox);
+} // check_uncheck_new_deal_checkbox
+

@@ -147,6 +147,9 @@ da:
         follow_gift: "Følg opslag"
         unfollow_gift: "Følg ikke længere"
         enter_comment: "Skriv en kommentar..."
+        new_deal_check_box_prompt: "Foreslå aftale"
+        price_prompt: "Pris"
+        price_free: "frie"
      show:
         invalid_gift_id: "Ugyldigt kald. Ukendt opslag id"
         no_access: "Ugyldigt kald. Du har ikke adgang til at se dette opslag"

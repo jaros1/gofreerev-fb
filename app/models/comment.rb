@@ -10,7 +10,7 @@ class Comment < ActiveRecord::Base
   # encrypt_add_pre_and_postfix/encrypt_remove_pre_and_postfix added in setters/getters for better encryption
   # this is different encrypt for each attribute and each db row
   # _before_type_cast methods are used by form helpers and are redefined
-  crypt_keeper :comment, :encryptor => :aes, :key => ENCRYPT_KEYS[28]
+  crypt_keeper :comment, :currency, :price, :encryptor => :aes, :key => ENCRYPT_KEYS[28]
 
 
   ##############
@@ -37,18 +37,55 @@ class Comment < ActiveRecord::Base
   def comment
     # puts "comment.comment: comment = #{read_attribute(:comment)} (#{read_attribute(:comment).class.name})"
     return nil unless (extended_comment = read_attribute(:comment))
-    encrypt_remove_pre_and_postfix(extended_comment, 'comment', 2)
+    encrypt_remove_pre_and_postfix(extended_comment, 'comment', 31)
   end
   def comment=(new_comment)
     # puts "comment.comment=: comment = #{new_comment} (#{new_comment.class.name})"
     if new_comment
       check_type('comment', new_comment, 'String')
-      write_attribute :comment, encrypt_add_pre_and_postfix(new_comment, 'comment', 2)
+      write_attribute :comment, encrypt_add_pre_and_postfix(new_comment, 'comment', 31)
     else
       write_attribute :comment, nil
     end
   end
   alias_method :comment_before_type_cast, :comment
+
+  # 4) Gift id - required - unencrypted string
+
+  # 5) currency - only for agreement proposal - String in model - encrypted text in db - update not allowed
+  attr_readonly :currency
+  def currency
+    return nil unless (extended_currency = read_attribute(:currency))
+    encrypt_remove_pre_and_postfix(extended_currency, 'currency', 32)
+  end
+  def currency=(new_currency)
+    if !new_record?
+      nil
+    elsif new_currency
+      check_type('currency', new_currency, 'String')
+      write_attribute :currency, encrypt_add_pre_and_postfix(new_currency, 'currency', 32)
+    else
+      write_attribute :currency, nil
+    end
+  end # currency
+  alias_method :currency_before_type_cast, :currency
+
+  # 6) price - only for agreement proposal - Float in model - encrypted text in db
+  def price
+    return nil unless (temp_extended_price = read_attribute(:price))
+    str_to_float_or_nil encrypt_remove_pre_and_postfix(temp_extended_price, 'price', 33)
+  end # price
+  def price=(new_price)
+    if !new_record?
+      nil
+    elsif new_price.to_s != ''
+      check_type('price', new_price, 'Float')
+      write_attribute :price, encrypt_add_pre_and_postfix(new_price.to_s, 'price', 33)
+    else
+      write_attribute :price, nil
+    end
+  end # price=
+  alias_method :price_before_type_cast, :price
 
 
   # number of older comments for gift

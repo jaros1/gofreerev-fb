@@ -144,6 +144,9 @@ en:
         follow_gift: "Follow"
         unfollow_gift: "Don't follow"
         enter_comment: "Enter a comment ..."
+        new_deal_check_box_prompt: "Suggest agreement"
+        price_prompt: "Price"
+        price_free: "free"
      show:
         invalid_gift_id: "Invalid request. Unknown post id"
         no_access: "Invalid request. You are not allowed to see this post"

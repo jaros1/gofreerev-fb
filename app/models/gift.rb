@@ -68,7 +68,7 @@ class Gift < ActiveRecord::Base
   end
   alias_method :description_before_type_cast, :description
 
-  # 3) currency - required - String in model - encrypted text in db - update mot allowed
+  # 3) currency - required - String in model - encrypted text in db - update not allowed
   validates_presence_of :currency
   attr_readonly :currency
   def currency
