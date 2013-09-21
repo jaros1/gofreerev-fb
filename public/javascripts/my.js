@@ -81,13 +81,13 @@ function gifts_pre_update_currency() {
 
 // Client side validation for gifts
 // These error texts are replaced with language-specific texts in gifts/index page
-var csv_gifts_description_required = 'Description is required.';
-var csv_gifts_price_invalid = 'Price is invalid. Only numbers, max 2 decimals, thousands separator not allowed.';
-function gifts_client_validations() {
+var csv_gift_description_required = 'Description is required.';
+var csv_gift_price_invalid = 'Price is invalid. Only numbers, max 2 decimals, thousands separator not allowed.';
+function gift_client_validations() {
     // check required description
     var gift_description = document.getElementById('gift_description');
     if (!gift_description.value || String.trim(gift_description.value) == '') {
-        alert(csv_gifts_description_required);
+        alert(csv_gift_description_required);
         return false;
     }
     // check optional price. Allow decimal comma/point, max 2 decimals. Thousands separators not allowed
@@ -97,13 +97,13 @@ function gifts_client_validations() {
     if (gift_price != '') {
         r = new RegExp('^[0-9]*(\.|,)[0-9]{1,2}$');
         if (!r.test(gift_price) || (gift_price == '.') || (gift_price == ',')) {
-            alert(csv_gifts_price_invalid);
+            alert(csv_gift_price_invalid);
             return false;
         }
     }
     // gift is ok. ready for submit
     return true;
-} // gifts_client_validations
+} // gift_client_validations
 
 
 function ajax_flash (id)
@@ -421,9 +421,11 @@ function post_ajax_add_new_comment_handler(giftid) {
     $(document).ready(function () {
         $(id)
             .bind("ajax:success", function (evt, data, status, xhr) {
-                var commentname = 'gift-' + giftid + '-new-comment-textarea';
-                var comment = document.getElementById(commentname);
-                comment.value = "";
+                // reset new comment line
+                document.getElementById('gift-' + giftid + '-comment-price').value = '' ;
+                document.getElementById('gift-' + giftid + '-new-comment-textarea').value = '';
+                document.getElementById('gift-' + giftid + '-new-comment-price-tr').style.display = 'none' ;
+                document.getElementById('gift-' + giftid + '-new-deal-check-box').checked = false ;
                 // comment.focus();
                 // save timestamp for last new ajax comment
                 last_user_ajax_comment_at = new Date() ;
@@ -489,8 +491,17 @@ function post_ajax_add_older_comments_handler(giftid, commentid) {
 function check_uncheck_new_deal_checkbox(checkbox, giftid)
 {
     var tr = document.getElementById("gift-" + giftid + "-new-comment-price-tr") ;
-    if (checkbox.checked) tr.style.display='block' ;
-    else tr.style.display = 'none' ;
+    var new_deal_yn = document.getElementById("gift-" + giftid + "-comment-new-deal-yn") ;
+    var price = document.getElementById("gift-" + giftid + "-comment-price") ;
+    if (checkbox.checked) {
+        tr.style.display='block' ;
+        new_deal_yn.value = 'Y' ;
+    }
+    else {
+        tr.style.display = 'none' ;
+        new_deal_yn.value = '' ;
+        price.value = '' ;
+    }
     // alert(checkbox);
 } // check_uncheck_new_deal_checkbox
 

@@ -50,7 +50,8 @@
     -%>
     <% comment = Comment.new ; comment.gift_id = gift.gift_id ; comment.user_id = @user.user_id -%>
     <%= form_for comment, :remote => true, :html => {:id => "gift-#{gift.id}-new-comment-form"} do |f| %>
-        <%= f.hidden_field :gift_id %>
+        <%= f.hidden_field :gift_id, :id => "gift-#{gift.id}-comment-gift-id" %>
+        <%= f.hidden_field :new_deal_yn, :id => "gift-#{gift.id}-comment-new-deal-yn"  %>
         <table style="width: 100%" >
           <tbody id='<%= "gift-#{gift.id}-comments" %>'>
           <tr>
@@ -63,7 +64,8 @@
               <table style="border-spacing: 0;">
                 <tr id="<%= "gift-#{gift.id}-new-comment-price-tr" %>" style="display: none">
                   <td colspan="2">
-                    <%= f.text_field :price, :size=>10, :placeholder => my_t('.price_prompt') %> <%= my_t '.price_free' %> <%= @user.currency %>
+                    <%= f.text_field :price, :size=>10, :id => "gift-#{gift.id}-comment-price", :placeholder => my_t('.price_prompt') %>
+                    <%= my_t '.price_free' %> <%= @user.currency %>
                   </td>
                 </tr>
                 <tr>

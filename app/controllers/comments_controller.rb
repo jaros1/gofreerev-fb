@@ -7,10 +7,17 @@ class CommentsController < ApplicationController
   def create
     # todo: add security - can user see gift?
     # todo: error handling - return row with error message - same format as after success
+    # Parameters: {"utf8"=>"✓", "comment"=>{"gift_id"=>"j0N0uppxbj1nmDfsWBbk", "new_deal_yn"=>"Y", "price"=>"1", "comment"=>"25"}, "commit"=>"Gem"}
     @comment = Comment.new
     @comment.gift_id = params[:comment][:gift_id]
     @comment.user_id = @user.user_id
     @comment.comment = params[:comment][:comment].to_s.force_encoding('UTF-8')
+    if params[:comment][:new_deal_yn] == 'Y'
+      @comment.new_deal_yn = params[:comment][:new_deal_yn]
+      # todo: validate price
+      @comment.price = params[:comment][:price].to_f
+      @comment.currency = @user.currency
+    end
 
     respond_to do |format|
       if @comment.save

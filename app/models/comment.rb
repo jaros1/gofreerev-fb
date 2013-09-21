@@ -87,6 +87,10 @@ class Comment < ActiveRecord::Base
   end # price=
   alias_method :price_before_type_cast, :price
 
+  # 7) new_deal_yn - y for agreement proposal - n for cancelled agreement - not encrypted string
+
+  # 8) accepted_yn - y for accepted agreement - n for rejected agreement - not encrypted string
+
 
   # number of older comments for gift
   # used in gifts/index page to display "show <n> more comments"

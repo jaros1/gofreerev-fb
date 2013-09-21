@@ -10,7 +10,7 @@
         <tr>
           <td rowspan="2">
 <% end -%>
-  <%= image_tag(@user2.profile_picture_url, :size => @size)  %>
+  <%= image_tag(@user2.profile_picture_url, :size => @size, :alt => nil)  %>
 <% if @page_header -%>
           </td>
           <td><%= h @user.short_user_name %></td>

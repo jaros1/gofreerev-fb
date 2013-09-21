@@ -156,3 +156,5 @@
      bid - nil/Y/N - nil (default) - Y if comment/other user wish to make a deal - N if comment/other user do not wish to make a deal
      price - suggest a (new) price for gift if other user - change price if gift owner
      Expressions: Make bid, Opret bud, Foreslå en pris.
+
+ 77) Validate comment.price price in JS and on server. Same validation as gift.price.
