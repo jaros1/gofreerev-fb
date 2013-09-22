@@ -78,7 +78,6 @@ function gifts_pre_update_currency() {
 // Client side validations
 // https://github.com/bcardarella/client_side_validations gem was not ready for rails 4 when this app was developed
 
-
 function csv_empty_field (id)
 {
     var value = document.getElementById(id).value ;
@@ -117,12 +116,10 @@ function csv_gift() {
     return true;
 } // csv_gift
 
-
 // Client side validation for new comment
 // These error texts are replaced with language-specific texts in gifts/index page
 var csv_comment_comment_required = 'Comment is required.' ;
 var csv_comment_price_invalid = 'Price is invalid. Only numbers, max 2 decimals, thousands separator not allowed.' ;
-// todo: to be implemented
 function csv_comment(giftid)
 {
     // check required comment

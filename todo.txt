@@ -158,3 +158,17 @@
      Expressions: Make bid, Opret bud, Foreslå en pris.
 
  77) Validate comment.price price in JS and on server. Same validation as gift.price.
+     JS validation ok. Check server validation.
+
+ 78) Notification when creating a agreement proposal
+     change existing notitification.
+
+79) change comment format for agreement proposals.
+
+80) add accept/reject check boxes or radio group for agreement proposals
+
+81) delete or uncheck agreement proposals
+
+82) delete comments
+
+83) delete gifts
