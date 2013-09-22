@@ -77,4 +77,8 @@ module GiftHelper
     link_to my_t('.hide_gift'), util_hide_gift_path(:gift_id => gift.id), :id => "gift-#{gift.id}-hide-link", :remote => true, :method => :post, :data => { :confirm => my_t('.confirm_hide_gift') }
   end
 
+  def link_to_comment_new_deal_cancel (comment)
+    link_to my_t('.cancel_new_deal'), util_cancel_new_deal_path(:comment_id => comment.id), :id => "comment-#{comment.id}-cancel-new-deal-link", :remote => true, :method => :post, :data => { :confirm => my_t('.confirm_cancel_new_deal') }
+  end
+
 end

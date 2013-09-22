@@ -110,6 +110,10 @@ class UtilController < ApplicationController
 
   end # missing_api_picture_urls
 
+  #
+  # gift link ajax methods
+  #
+
   def like_gift
     gift_id = params[:gift_id]
     gift = Gift.find_by_id(gift_id)
@@ -245,5 +249,18 @@ class UtilController < ApplicationController
     # hide gift
     @gift_id = gift.id
   end # hide_gift
+
+  #
+  # comment link ajax methods
+  #
+
+  def cancel_new_deal
+  end
+
+  def accept_new_deal
+  end
+
+  def reject_new_deal
+  end
 
 end # UtilController

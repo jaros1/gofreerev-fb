@@ -96,6 +96,28 @@ class Comment < ActiveRecord::Base
   # used in gifts/index page to display "show <n> more comments"
   attr_accessor :no_older_comments
 
+  # display cancel new deal check box?
+  # only for new not accepted/rejected agreement proposals
+  def show_cancel_new_deal_link? (user)
+    return false unless new_deal_yn == 'Y'
+    return false if accepted_yn
+    return false unless user_id == user.user_id
+    return true
+  end # show_cancel_new_deal_link?
+
+  def show_accept_new_deal_link? (user)
+    return false unless new_deal_yn == 'Y'
+    return false if accepted_yn
+    return false if user_id == user.user_id
+    return false unless gift.user_id == user.user_id
+    return true
+  end # show_accept_new_deal_link?
+
+  def show_reject_new_deal_link? (user)
+    show_accept_new_deal_link?(user)
+  end # show_reject_new_deal_link?
+
+
   # Note: 48 different translations. See inbox/index/gift_comment*
   # noti_key_prefix is 1) gift_comment_giver, 2) gift_comment_receiver, 3) gift_comment_giver_and_receiver, 4) gift_comment_giver_other, 5) gift_comment_receiver_other or 6) gift_comment_giver_and_receiver_other
   # from_user is user that has commented the gift - added to noti_options hash

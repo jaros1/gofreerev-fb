@@ -24,7 +24,7 @@
 
 <tr id='<%= "gift-#{gift.id}-add-new-comment-row" %>'>
   <td colspan="2" style="text-align: right; vertical-align: top">
-    <% if gift.new_deal_checkbox?(@user) -%>
+    <% if gift.show_new_deal_checkbox?(@user) -%>
         <table>
           <tr>
             <td><%= my_t '.new_deal_check_box_prompt' %></td>

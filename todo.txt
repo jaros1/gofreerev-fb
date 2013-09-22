@@ -165,9 +165,9 @@
 
 79) change comment format for agreement proposals.
 
-80) add accept/reject check boxes or radio group for agreement proposals
+80) add cancel/accept/reject new deal check boxes, links or radio group for agreement proposals
 
-81) delete or uncheck agreement proposals
+81) add ajax for cancel/accept/reject new deal proposals
 
 82) delete comments
 

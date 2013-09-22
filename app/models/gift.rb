@@ -592,14 +592,15 @@ class Gift < ActiveRecord::Base
   end # comments_with_filter
 
 
-  # display new deal check box.
+  # display new deal check box?
   # only for open deals - and not for users deals
-  def new_deal_checkbox? (user)
+  def show_new_deal_checkbox? (user)
     return false if user_id_giver and user_id_receiver # close deal
     return false if user_id_giver == user.user_id
     return false if user_id_receiver == user.user_id
     true
-  end
+  end # show_new_deal_checkbox?
+
 
 
   # psydo attributea
