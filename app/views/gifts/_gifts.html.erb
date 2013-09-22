@@ -1,3 +1,4 @@
 <% for gift in @gifts do loop -%>
-    <%= render :partial => 'gift', :locals => { :gift => gift } %>
+
+    <%= render :partial => 'gifts/gift', :locals => { :gift => gift } %>
 <% end -%>

@@ -348,13 +348,14 @@ function insert_new_gifts ()
     // check if new_messages_count response has a table with new gifts
     var new_gifts_tbody = document.getElementById("new_gifts_tbody") ;
     if (!new_gifts_tbody) return ; // ok - not gifts/index page or no new gifts to error tbody with new gifts was not found
-    // old page: find first gift row in gifts table. id format gift-220-row-1. new gifts from ajax response are to be inserted before this row
+    // old page: find first gift row in gifts table. id format gift-220-header.
+    // new gifts from ajax response are to be inserted before this row
     var old_gifts_table = document.getElementById("gifts") ;
     if (!old_gifts_table) return ; // not gifts/index page - ok
     var old_gifts_trs = old_gifts_table.rows ;
     // alert(old_gifts_trs.length + ' gifts lines in old page') ;
     var old_gifts_index ;
-    var re = new RegExp('^gift-[0-9]+-row-[0-9]$') ;
+    var re = new RegExp('^gift-[0-9]+-') ;
     for (var i=0 ; (!old_gifts_index && (i<old_gifts_trs.length)) ; i++) {
         if (old_gifts_trs[i].id.match(re)) old_gifts_index = i ;
     } // for
@@ -377,7 +378,6 @@ function insert_new_gifts ()
     } // for
     // that's it
 } //  insert_new_gifts
-
 
 // catch load errors  for api pictures. Gift could have been deleted. url could have been changed
 // gift ids with invalid picture urls are collected in a global javascript array and submitted to server in 2 seconds
@@ -464,7 +464,7 @@ function post_ajax_add_new_comment_handler(giftid) {
                 // find new comment table row last in gifts table
                 gifts = document.getElementById("gifts") ;
                 trs = gifts.rows ;
-                re = new RegExp("^comment-gift-" + giftid + "-comment-") ;
+                re = new RegExp("^gift-" + giftid + "-comment-") ;
                 i = trs.length-1 ;
                 for (i=trs.length-1 ; ((i>= 0) && !new_comment_tr) ; i--) {
                     id2 = trs[i].id ;
