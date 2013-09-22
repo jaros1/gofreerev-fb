@@ -59,7 +59,7 @@
   </td>
 </tr>
 
-<tr id="<%= "gift-#{gift.id}" %>-row-3">
+<tr id="<%= "gift-#{gift.id}" %>-footer-1">
   <td colspan="4">&nbsp;</td>
 </tr>
 <% if @last_gift_id and gift.id == @gifts.last.id -%>
@@ -67,7 +67,7 @@
       <td colspan="4">&nbsp;</td>
     </tr>
 <% else -%>
-    <tr id="<%= "gift-#{gift.id}" %>-row-4">
+    <tr id="<%= "gift-#{gift.id}" %>-footer-2">
       <td colspan="4">&nbsp;</td>
     </tr>
 <% end -%>

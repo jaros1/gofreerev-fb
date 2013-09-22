@@ -2,6 +2,9 @@
     post ajax processing is done by JS functions update_new_messages_count, update_title and insert_new_comments (my.js)
     called once every 15 seconds, once every minute or once every 5 minutes depending on user activity
 -%>
+<%
+  puts j(render("new_messages_count"))
+-%>
 document.getElementById('new_messages_buffer_div').innerHTML = '<%= j render("new_messages_count") %>' ;
 update_new_messages_count() ;
 update_title();

@@ -82,7 +82,7 @@ function csv_empty_field (id)
 {
     var value = document.getElementById(id).value ;
     if (!value) return true ;
-    if (String.trim(value) == '') return true ;
+    if ($.trim(value) == '') return true ;
     return false ;
 } // csv_required_field
 
@@ -91,7 +91,7 @@ function csv_invalid_price (id)
 {
     if (csv_empty_field(id)) return false ; // empty field - ok
     var price = document.getElementById(id).value ;
-    price = String.trim(price);
+    price = $.trim(price);
     var r = new RegExp('^[0-9]*(\.|,)[0-9]{1,2}$');
     if (!r.test(price) || (price == '.') || (price == ',')) return true ;
     return false ;
@@ -229,111 +229,123 @@ function update_title() {
 } // update_title
 
 function insert_new_comments() {
-    if (!document.getElementById("gifts")) return ; // no gifts table - not gifts/index page
+    var debug = false ;
     var new_comments_tbody, new_comments_trs, new_comment_tr, new_comment_id, new_comment_id_split, new_comment_gift_id, new_comment_comment_id;
-    var old_comments_tbody_id, old_comments_tbody, old_comments1_trs, old_comments1_tr, old_comments1_tr_id;
-    var i, j, old_comments2_trs, old_comments2_tr, re, old_length, new_length, old_comments2_tr_id;
-    var old_comments2_comment_id, inserted, old_comments2_tr_id_split, new_comments_length ;
+    var old_comments_tbody_id, old_comments1_tbody, old_comments1_trs, old_comments1_tr, old_comments1_tr_id;
+    var i, j, old_comments2_trs, old_comments2_tr, re1, re2, old_length, old_comments2_length, old_comments2_tr_id;
+    var old_comments2_comment_id, inserted, old_comments2_tr_id_split, new_comments_length;
     var summary ; // for debug info.
-    // todo: this is only relevant if current page is gifts/index page
+    var gifts, old_comments2_add_new_comment_tr ;
+    if (debug) alert('insert_new_comments') ;
+    gifts = document.getElementById("gifts") ;
+    if (!gifts) {
+        // no gifts table - not gifts/index page
+        alert('no gifts table - not gifts/index page') ;
+        return ;
+    }
     new_comments_tbody = document.getElementById("new_comments_tbody");
     if (!new_comments_tbody) {
-        // alert('new_comments_tbody was not found');
+        if (debug) alert('new_comments_tbody was not found');
         return; // ignore error silently
     }
     new_comments_trs = new_comments_tbody.rows;
-    if (new_comments_trs.length == 0) return; // no new comments
-
-    // insert new comments in gifts/index page. Loop for each new comment.
     new_comments_length = new_comments_trs.length ;
+    if (new_comments_length == 0) {
+        // no new comments
+        if (debug) alert('no new comments') ;
+        return;
+    }
+    // find old gift rows (header, links, comments, footers)
+    old_comments1_trs = gifts.rows ;
+    if (old_comments1_trs.length == 0) {
+        // no old gifts
+        if (debug) alert('no old gifts') ;
+        return
+    }
+    old_comments1_tbody = old_comments1_trs[0].parentNode ;
+    // insert new comments in gifts/index page. Loop for each new comment.
     summary = 'Summary. ' +  new_comments_length + ' messages received' ;
+    re1 = new RegExp("^gift-[0-9]+-comment-[0-9]+$") ;
     for (i=new_comments_length-1; i >= 0 ; i--) {
-        // find gift id and comment id. id format format: comment-gift-218-comment-174
+        // find gift id and comment id. id format format: gift-218-comment-174
         new_comment_tr = new_comments_trs[i];
         new_comment_id = new_comment_tr.id;
+        if (!new_comment_id || !new_comment_id.match(re1)) {
+            if (debug) alert('invalid id format ' + new_comment_id) ;
+            continue ;
+        }
         new_comment_id_split = new_comment_id.split("-");
-        new_comment_gift_id = new_comment_id_split[2];
-        new_comment_comment_id = parseInt(new_comment_id_split[4]);
+        new_comment_gift_id = new_comment_id_split[1];
+        new_comment_comment_id = parseInt(new_comment_id_split[3]);
         summary = summary + '. ' + i + ', id = ' + new_comment_id ;
-        summary = summary + '. ' + i + ', split[4] = ' + new_comment_id_split[4] ;
-        // alert('i = ' + i + ', gift id = ' + new_comment_gift_id + ', comment id = ' + new_comment_comment_id);
-        // find table in gifts/index page with comments for gift
-        old_comments_tbody_id = "gift-" + new_comment_gift_id + "-comments";
-        old_comments_tbody = document.getElementById(old_comments_tbody_id);
-        if (!old_comments_tbody) {
-          // table with gift comments not found - ok - could be a not loaded gift
-          summary = summary + '. ' + i + ': comment table for gift id ' + new_comment_gift_id + ' was not found.' ;
-          continue;
-        }
-        old_comments1_trs = old_comments_tbody.rows;
-        if (old_comments1_trs.length == 0) {
-          // error - empty table with gift comments
-            summary = summary + '. ' + i + ': comment table for gift id ' + new_comment_gift_id + ' is empty.' ;
-          continue;
-
-        }
-        if (old_comments1_trs.length == 1) {
-            // simple case. first comment - insert first in comment table for gift
-            new_comment_tr.parentNode.removeChild(new_comment_tr);
-            old_comments_tbody.insertBefore(new_comment_tr, old_comments1_trs[0]);
-            ajax_flash(new_comment_tr.id) ;
-            summary = summary + '. ' + i + ': comment ' + new_comment_comment_id + ' inserted (a) for gift id ' + new_comment_gift_id  ;
-            continue;
-        }
-        // find rows with id format "comment-gift-<gift_id>-comment-%"
+        summary = summary + '. ' + i + ', split[3] = ' + new_comment_id_split[3] ;
+        if (debug) alert('i = ' + i + ', gift id = ' + new_comment_gift_id + ', comment id = ' + new_comment_comment_id);
+        // find any old comments with format gift-218-comment-174
+        re2 = new RegExp("^gift-" + new_comment_gift_id + "-comment-[0-9]+$") ;
         old_comments2_trs = [];
-        re = new RegExp("^comment-gift-" + new_comment_gift_id + "-comment-");
+        old_comments2_add_new_comment_tr = null ;
         old_length = old_comments1_trs.length;
-        for (j = 1; j < old_comments1_trs.length; j++) {
+        for (j = 0; j < old_length; j++) {
             old_comments1_tr = old_comments1_trs[j];
             old_comments1_tr_id = old_comments1_tr.id;
-            if (old_comments1_tr_id.match(re)) old_comments2_trs.push(old_comments1_tr);
+            if (old_comments1_tr_id.match(re2)) old_comments2_trs.push(old_comments1_tr);
+            if (old_comments1_tr_id == "gift-" + new_comment_gift_id + "-add-new-comment-row") old_comments2_add_new_comment_tr = old_comments1_tr ;
         } // end old comments loop
-        new_length = old_comments2_trs.length;
+        if (!old_comments2_add_new_comment_tr) {
+            // gift was not found - that is ok
+            if (debug) alert('Gift ' + new_comment_gift_id + ' was not found') ;
+            continue ;
+        }
+        old_comments2_length = old_comments2_trs.length;
         // alert('old length = ' + old_length + ', new length = ' + new_length);
-        if (new_length == 0) return; // error - no comments with format "comment-gift-<giftid>-comment-%" was found - ignore error silently
-        // insert new comment in comment table (sorted by ascending comment id)
+        if (old_comments2_length == 0) {
+            // insert first comment for gift before add new comment row
+            new_comments_tbody.removeChild(new_comment_tr) ;
+            old_comments1_tbody.insertBefore(new_comment_tr, old_comments2_add_new_comment_tr);
+            ajax_flash(new_comment_tr.id) ;
+            if (debug) alert('First comment ' + new_comment_comment_id + ' for gift ' + new_comment_gift_id);
+            continue;
+        }
+        // insert new comment in old comment table (sorted by ascending comment id)
         inserted = false;
-        for (j = new_length-1; ((!inserted) && (j >= 0)); j--) {
+        for (j = old_comments2_length-1; ((!inserted) && (j >= 0)); j--) {
             // find comment id for current row
             old_comments2_tr = old_comments2_trs[j];
             old_comments2_tr_id = old_comments2_tr.id;
             old_comments2_tr_id_split = old_comments2_tr_id.split('-') ;
-            old_comments2_comment_id = parseInt(old_comments2_tr_id_split[4]);
-            // alert('j = ' + j + ', new comment id = ' + new_comment_comment_id + ', old id = ' + old_comments2_tr_id + ', old comment id = ' + old_comments2_comment_id);
+            old_comments2_comment_id = parseInt(old_comments2_tr_id_split[3]);
+            if (debug) alert('j = ' + j + ', new comment id = ' + new_comment_comment_id + ', old id = ' + old_comments2_tr_id + ', old comment id = ' + old_comments2_comment_id);
             if (new_comment_comment_id > old_comments2_comment_id) {
-              // insert after current row
-              new_comment_tr.parentNode.removeChild(new_comment_tr) ;
-              old_comments2_tr.parentNode.insertBefore(new_comment_tr, old_comments2_tr.nextSibling);
-              ajax_flash(new_comment_tr.id) ;
-              inserted = true ;
-              summary = summary + '. ' + i + ': comment ' + new_comment_comment_id + ' inserted (b) for gift id ' + new_comment_gift_id  ;
-              continue;
+                // insert after current row
+                new_comments_tbody.removeChild(new_comment_tr) ;
+                old_comments2_tr.parentNode.insertBefore(new_comment_tr, old_comments2_tr.nextSibling);
+                ajax_flash(new_comment_tr.id) ;
+                inserted = true ;
+                summary = summary + '. ' + i + ': comment ' + new_comment_comment_id + ' inserted (b) for gift id ' + new_comment_gift_id  ;
+                continue;
             }
             if (new_comment_comment_id == old_comments2_comment_id) {
-              // new comment already in old comments table
-              // alert('comment ' + new_comment_comment_id + ' is already in page');
-              inserted = true;
-              summary = summary + '. ' + i + ': comment ' + new_comment_comment_id + ' inserted (c) for gift id ' + new_comment_gift_id  ;
-              continue;
+                // new comment already in old comments table
+                alert('comment ' + new_comment_comment_id + ' is already in page');
+                inserted = true;
+                summary = summary + '. ' + i + ': comment ' + new_comment_comment_id + ' inserted (c) for gift id ' + new_comment_gift_id  ;
+                continue;
             }
             // insert before current row - continue loop
         } // end old comments loop
         if (!inserted) {
-            // insert before first row
+            // insert before first old comment
             // alert('insert new comment ' + new_comment_id + ' first in old comments table');
             old_comments2_tr = old_comments2_trs[0];
-            // alert('old_comments2_tr = ' + old_comments2_tr) ;
-            new_comment_tr.parentNode.removeChild(new_comment_tr) ;
+            if (debug) alert('old_comments2_tr = ' + old_comments2_tr) ;
+            new_comments_tbody.removeChild(new_comment_tr) ;
             old_comments2_tr.parentNode.insertBefore(new_comment_tr, old_comments2_tr);
             ajax_flash(new_comment_tr.id) ;
             summary = summary + '. ' + i + ': comment ' + new_comment_comment_id + ' inserted (d) for gift id ' + new_comment_gift_id  ;
         } // if
     } // end new comments loop
-    // alert(summary) ;
+    if (debug) alert(summary) ;
 } // insert_new_comments
-// update new message count in menu line once every minute
-
 
 function insert_new_gifts ()
 {
