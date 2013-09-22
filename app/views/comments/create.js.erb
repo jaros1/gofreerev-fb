@@ -1,11 +1,7 @@
 <% if @comment.errors.count == 0 %>
 
-<%# post processing in my.js / add_post_ajax_comment_handler - swap the two last rows in table %>
-$('#gift-<%= @comment.gift.id %>-comments').append('<%= j render("comment", :comment => @comment) %>');
+<%# post processing in my.js / add_post_ajax_comment_handler - move new comment up before add new comment table row %>
 
-<% else %>
-
-$('.new_comment').remove();
-$('#new_comment_link').after('<%= j render("form") %>');
+$('#gifts').append('<%= j render("comment", :comment => @comment) %>');
 
 <% end %>

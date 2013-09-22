@@ -1,4 +1,5 @@
 <tr id="<%= "comment-gift-#{comment.gift.id}-comment-#{comment.id}" %>">
+  <td colspan="2"></td>
   <td style="vertical-align: top;"><%= @user2 = comment.user ; render '/shared/user_div' %></td>
   <td><%= my_sanitize comment.comment %></td>
 </tr>

@@ -1,5 +1,5 @@
 <% giver = gift.giver ; receiver = gift.receiver -%>
-<tr style="vertical-align: top" id="<%= "gift-#{gift.id}" %>-row-1">
+<tr style="vertical-align: top" id="<%= "gift-#{gift.id}" %>-header">
   <td>
     <% if gift.giver -%>
         <%= @user2 = gift.giver ; render '/shared/user_div' %>
@@ -10,42 +10,30 @@
         <%= @user2 = gift.receiver ; render '/shared/user_div' %>
     <% end -%>
   </td>
-  <td style="margin: 0; padding: 0">
-    <%# remote form for new comment. Sent to comments/create. Inserted in gift-<gift.id>-comments table.
-            Post ajax processing done in my.js / add_post_ajax_comment_handler -%>
-    <table style="width: 100%; border-spacing: 0;">
-      <tbody id='<%= "gift-#{gift.id}-comments" %>'>
-      <tr>
-        <td style="width: 52px;"></td>
-        <td></td>
-      </tr>
-      <tr id='<%= "gift-#{gift.id}-text-and-picture" %>'>
-        <td colspan="2" style="height: 52px; vertical-align: top">
-          <%= link_to my_t('.gift_link_text', format_gift_param(gift)), url_for(gift), :title => (my_t '.gift_link_title') %>
-          <%= my_t('.gift_text_html', format_gift_param(gift)) %>
-          <% if gift.picture == 'Y' and !gift.api_picture_url_on_error_at -%>
-              <br/><br/>
-              <%= image_tag gift.api_picture_url, :onload => "check_api_picture_url(#{gift.id}, this)" %>
-          <% end -%>
-        </td>
-      </tr>
-      <%= @gift = gift ; @comments = @gift.comments_with_filter(nil) ; render :partial => 'comments/comments3' %>
-      </tbody>
-    </table>
+  <td colspan="2" style="height: 52px; vertical-align: top">
+    <%= link_to my_t('.gift_link_text', format_gift_param(gift)), url_for(gift), :title => (my_t '.gift_link_title') %>
+    <%= my_t('.gift_text_html', format_gift_param(gift)) %>
+    <% if gift.picture == 'Y' and !gift.api_picture_url_on_error_at -%>
+        <br/><br/>
+        <%= image_tag gift.api_picture_url, :onload => "check_api_picture_url(#{gift.id}, this)" %>
+    <% end -%>
   </td>
 </tr>
 
-<tr id="<%= "gift-#{gift.id}" %>-row-2">
+<%= @gift = gift ; @comments = @gift.comments_with_filter(nil) ; render :partial => 'comments/comments3' %>
+
+<tr id='<%= "gift-#{gift.id}-add-new-comment-row" %>'>
   <td colspan="2" style="text-align: right; vertical-align: top">
-<% if gift.new_deal_checkbox?(@user) -%>
-    <table>
-      <tr>
-        <td><%= my_t '.new_deal_check_box_prompt' %></td>
-        <td><%= check_box_tag "gift-#{gift.id}-new-deal-check-box", 'x', false, :onclick => "check_uncheck_new_deal_checkbox(this,#{gift.id})" %></td>
-      </tr>
-    </table>
-<% end -%>
+    <% if gift.new_deal_checkbox?(@user) -%>
+        <table>
+          <tr>
+            <td><%= my_t '.new_deal_check_box_prompt' %></td>
+            <td><%= check_box_tag "gift-#{gift.id}-new-deal-check-box", 'x', false, :onclick => "check_uncheck_new_deal_checkbox(this,#{gift.id})" %></td>
+          </tr>
+        </table>
+    <% end -%>
   </td>
+  <td style="vertical-align: top;"><%= @user2 = @user ; render '/shared/user_div' %></td>
   <td>
     <%# remote form for new comment. Sent to comments/create. Inserted in gift-<gift.id>-comments table.
         Post ajax processing done in my.js / add_post_ajax_comment_handler
@@ -53,46 +41,33 @@
     <% comment = Comment.new ; comment.gift_id = gift.gift_id ; comment.user_id = @user.user_id -%>
     <%= form_for comment, :remote => true, :html => {:id => "gift-#{gift.id}-new-comment-form"} do |f| %>
         <%= f.hidden_field :gift_id, :id => "gift-#{gift.id}-comment-gift-id" %>
-        <%= f.hidden_field :new_deal_yn, :id => "gift-#{gift.id}-comment-new-deal-yn"  %>
-        <table style="width: 100%" >
-          <tbody id='<%= "gift-#{gift.id}-comments" %>'>
-          <tr>
-            <td style="width: 52px;"></td>
-            <td></td>
-          </tr>
-          <tr id='<%= "gift-#{gift.id}-add-new-comment-row" %>'>
-            <td style="vertical-align: top;"><%= @user2 = @user ; render '/shared/user_div' %></td>
-            <td>
-              <table style="border-spacing: 0;">
-                <tr id="<%= "gift-#{gift.id}-new-comment-price-tr" %>" style="display: none">
-                  <td colspan="2">
-                    <%= f.text_field :price, :size=>10, :id => "gift-#{gift.id}-comment-price", :placeholder => my_t('.price_prompt') %>
-                    <%= my_t '.price_free' %> <%= @user.currency %>
-                  </td>
-                </tr>
-                <tr>
-                  <td><%= f.text_area :comment, :size => '60x1', :placeholder => my_t('.enter_comment'), :onfocus => 'autoresize_text_field(this)', :id => "gift-#{gift.id}-new-comment-textarea" %></td>
-                  <td><%= f.submit 'Gem', :onclick => "return csv_comment(#{gift.id})" %></td>
-                </tr>
-              </table>
+        <%= f.hidden_field :new_deal_yn, :id => "gift-#{gift.id}-comment-new-deal-yn" %>
+
+        <table style="border-spacing: 0;">
+          <tr id="<%= "gift-#{gift.id}-new-comment-price-tr" %>" style="display: none">
+            <td colspan="2">
+              <%= f.text_field :price, :size => 10, :id => "gift-#{gift.id}-comment-price", :placeholder => my_t('.price_prompt') %>
+              <%= my_t '.price_free' %> <%= @user.currency %>
             </td>
           </tr>
-          </tbody>
+          <tr>
+            <td><%= f.text_area :comment, :size => '60x1', :placeholder => my_t('.enter_comment'), :onfocus => 'autoresize_text_field(this)', :id => "gift-#{gift.id}-new-comment-textarea" %></td>
+            <td><%= f.submit 'Gem', :onclick => "return csv_comment(#{gift.id})" %></td>
+          </tr>
         </table>
     <% end -%>
   </td>
 </tr>
 
-
 <tr id="<%= "gift-#{gift.id}" %>-row-3">
-  <td colspan="3">&nbsp;</td>
+  <td colspan="4">&nbsp;</td>
 </tr>
 <% if @last_gift_id and gift.id == @gifts.last.id -%>
     <tr id='<%= "last_gift_id_#{gift.id}" %>'>
-      <td colspan="3">&nbsp;</td>
+      <td colspan="4">&nbsp;</td>
     </tr>
 <% else -%>
     <tr id="<%= "gift-#{gift.id}" %>-row-4">
-      <td colspan="3">&nbsp;</td>
+      <td colspan="4">&nbsp;</td>
     </tr>
 <% end -%>

@@ -446,19 +446,35 @@ function autoresize_text_field(text) {
 }
 
 // post ajax processing after adding a comment.
-// comments/create.js.rb inserts new comment last i comments table
+// comments/create.js.rb inserts new comment last i gifts table
+// move new comment from last row to row before new comment row
 // clear comment text area and reset frequency for new message check
 function post_ajax_add_new_comment_handler(giftid) {
     var id = '#gift-' + giftid + '-new-comment-form';
     $(document).ready(function () {
         $(id)
             .bind("ajax:success", function (evt, data, status, xhr) {
+                var checkbox, gifts, trs, re, i, new_comment_tr, id2, add_new_comment_tr, tbody ;
                 // reset new comment line
                 document.getElementById('gift-' + giftid + '-comment-price').value = '' ;
                 document.getElementById('gift-' + giftid + '-new-comment-textarea').value = '';
                 document.getElementById('gift-' + giftid + '-new-comment-price-tr').style.display = 'none' ;
-                document.getElementById('gift-' + giftid + '-new-deal-check-box').checked = false ;
-                // comment.focus();
+                checkbox = document.getElementById('gift-' + giftid + '-new-deal-check-box') ;
+                if (checkbox) checkbox.checked = false ;
+                // find new comment table row last in gifts table
+                gifts = document.getElementById("gifts") ;
+                trs = gifts.rows ;
+                re = new RegExp("^comment-gift-" + giftid + "-comment-") ;
+                i = trs.length-1 ;
+                for (i=trs.length-1 ; ((i>= 0) && !new_comment_tr) ; i--) {
+                    id2 = trs[i].id ;
+                    if (id2 && id2.match(re)) new_comment_tr = trs[i] ;
+                } // for
+                // move table row up before add new comment table row
+                add_new_comment_tr = document.getElementById("gift-" + giftid + "-add-new-comment-row") ;
+                tbody = new_comment_tr.parentNode ;
+                tbody.removeChild(new_comment_tr) ;
+                tbody.insertBefore(new_comment_tr, add_new_comment_tr) ;
                 // save timestamp for last new ajax comment
                 last_user_ajax_comment_at = new Date() ;
                 restart_check_new_messages() ;

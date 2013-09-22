@@ -1,1 +1,5 @@
-$('#gift-<%= @gift.id %>-comments').append('<%= j render("comments3", :gift => @gift, :first_comment_id => @first_comment_id) %>');
+<%# post processing in my.js / post_ajax_add_older_comments_handler - move older comments up before first comment %>
+
+<%= puts j(render("comments3", :gift => @gift, :first_comment_id => @first_comment_id)) %>
+
+$('#gifts').append('<%= j render("comments3", :gift => @gift, :first_comment_id => @first_comment_id) %>');
