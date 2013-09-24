@@ -173,9 +173,13 @@ da:
         confirm_hide_gift: "Skjul opslag?"
         show_older_comment: "Vis ældre kommentar"
         show_older_comments: "Vis %{no_older_comments} ældre kommentarer"
-     comment:
+     comment_status:
         cancel_new_deal: "Fortryd"
         confirm_cancel_new_deal: "Fortryd forslag?"
+        accept_new_deal: "Godkend"
+        confirm_accept_new_deal: "Godkend forslag?"
+        reject_new_deal: "Afvis"
+        confirm_reject_new_deal: "Afvis forslag?"
 
   # inbox controller
   inbox:

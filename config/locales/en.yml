@@ -171,9 +171,13 @@ en:
         confirm_hide_gift: "Hide post?"
         show_older_comment: "Show older comment"
         show_older_comments: "Show %{no_older_comments} older comments"
-     comment:
+     comment_status:
         cancel_new_deal: "Cancel"
         confirm_cancel_new_deal: "Cancel proposal?"
+        accept_new_deal: "Accept"
+        confirm_accept_new_deal: "Accept proposal?"
+        reject_new_deal: "Reject"
+        confirm_reject_new_deal: "Reject proposal?"
 
   # inbox controller
   inbox:

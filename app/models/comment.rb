@@ -109,7 +109,7 @@ class Comment < ActiveRecord::Base
     return false unless new_deal_yn == 'Y'
     return false if accepted_yn
     return false if user_id == user.user_id
-    return false unless gift.user_id == user.user_id
+    return false unless [gift.user_id_receiver, gift.user_id_giver].index(user.user_id)
     return true
   end # show_accept_new_deal_link?
 

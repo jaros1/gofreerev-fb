@@ -164,6 +164,8 @@
      change existing notitification.
 
 79) change comment format for agreement proposals.
+    after cancel/accept/reject - change format for agreement proposals
+    after cancel/accept/reject - change format for agreement proposals in other pages (new messages count)
 
 80) add cancel/accept/reject new deal check boxes, links or radio group for agreement proposals
 
@@ -172,3 +174,5 @@
 82) delete comments
 
 83) delete gifts
+
+84) ajax hide gift does not work. should hide all rows with id gift-<giftid>- format
