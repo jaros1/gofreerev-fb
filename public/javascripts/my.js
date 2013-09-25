@@ -123,12 +123,12 @@ var csv_comment_price_invalid = 'Price is invalid. Only numbers, max 2 decimals,
 function csv_comment(giftid)
 {
     // check required comment
-    if (csv_empty_field("gift-" + giftid + "-new-comment-textarea")) {
+    if (csv_empty_field("gift-" + giftid + "-comment-new-textarea")) {
         alert(csv_comment_comment_required);
         return false;
     }
     // check optional price. Allow decimal comma/point, max 2 decimals. Thousands separators not allowed
-    if (csv_invalid_price('gift-' + giftid + '-comment-price')) {
+    if (csv_invalid_price('gift-' + giftid + '-comment-new-price')) {
         alert(csv_comment_price_invalid);
         return false;
     }
@@ -289,7 +289,7 @@ function insert_new_comments() {
             old_comments1_tr = old_comments1_trs[j];
             old_comments1_tr_id = old_comments1_tr.id;
             if (old_comments1_tr_id.match(re2)) old_comments2_trs.push(old_comments1_tr);
-            if (old_comments1_tr_id == "gift-" + new_comment_gift_id + "-add-new-comment-row") old_comments2_add_new_comment_tr = old_comments1_tr ;
+            if (old_comments1_tr_id == "gift-" + new_comment_gift_id + "-comment-new") old_comments2_add_new_comment_tr = old_comments1_tr ;
         } // end old comments loop
         if (!old_comments2_add_new_comment_tr) {
             // gift was not found - that is ok
@@ -468,22 +468,22 @@ function post_ajax_add_new_comment_handler(giftid) {
             .bind("ajax:success", function (evt, data, status, xhr) {
                 var checkbox, gifts, trs, re, i, new_comment_tr, id2, add_new_comment_tr, tbody ;
                 // reset new comment line
-                document.getElementById('gift-' + giftid + '-comment-price').value = '' ;
-                document.getElementById('gift-' + giftid + '-new-comment-textarea').value = '';
-                document.getElementById('gift-' + giftid + '-new-comment-price-tr').style.display = 'none' ;
+                document.getElementById('gift-' + giftid + '-comment-new-price').value = '' ;
+                document.getElementById('gift-' + giftid + '-comment-new-textarea').value = '';
+                document.getElementById('gift-' + giftid + '-comment-new-price-tr').style.display = 'none' ;
                 checkbox = document.getElementById('gift-' + giftid + '-new-deal-check-box') ;
                 if (checkbox) checkbox.checked = false ;
                 // find new comment table row last in gifts table
                 gifts = document.getElementById("gifts") ;
                 trs = gifts.rows ;
-                re = new RegExp("^gift-" + giftid + "-comment-") ;
+                re = new RegExp("^gift-" + giftid + "-comment-[0-9]+$") ;
                 i = trs.length-1 ;
                 for (i=trs.length-1 ; ((i>= 0) && !new_comment_tr) ; i--) {
                     id2 = trs[i].id ;
                     if (id2 && id2.match(re)) new_comment_tr = trs[i] ;
                 } // for
                 // move table row up before add new comment table row
-                add_new_comment_tr = document.getElementById("gift-" + giftid + "-add-new-comment-row") ;
+                add_new_comment_tr = document.getElementById("gift-" + giftid + "-comment-new") ;
                 tbody = new_comment_tr.parentNode ;
                 tbody.removeChild(new_comment_tr) ;
                 tbody.insertBefore(new_comment_tr, add_new_comment_tr) ;
@@ -550,9 +550,9 @@ function post_ajax_add_older_comments_handler(giftid, commentid) {
 // show/hide price and currency in new comment table call
 function check_uncheck_new_deal_checkbox(checkbox, giftid)
 {
-    var tr = document.getElementById("gift-" + giftid + "-new-comment-price-tr") ;
+    var tr = document.getElementById("gift-" + giftid + "-comment-new-price-tr") ;
     var new_deal_yn = document.getElementById("gift-" + giftid + "-comment-new-deal-yn") ;
-    var price = document.getElementById("gift-" + giftid + "-comment-price") ;
+    var price = document.getElementById("gift-" + giftid + "-comment-new-price") ;
     if (checkbox.checked) {
         tr.style.display='block' ;
         new_deal_yn.value = 'Y' ;

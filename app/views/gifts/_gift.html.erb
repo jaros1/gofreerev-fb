@@ -22,7 +22,7 @@
 
 <%= @gift = gift ; @comments = @gift.comments_with_filter(nil) ; render :partial => 'comments/comments3' %>
 
-<tr id='<%= "gift-#{gift.id}-add-new-comment-row" %>'>
+<tr id='<%= "gift-#{gift.id}-comment-new" %>'>
   <td colspan="2" style="text-align: right; vertical-align: top">
     <% if gift.show_new_deal_checkbox?(@user) -%>
         <table>
@@ -44,14 +44,14 @@
         <%= f.hidden_field :new_deal_yn, :id => "gift-#{gift.id}-comment-new-deal-yn" %>
 
         <table style="border-spacing: 0;">
-          <tr id="<%= "gift-#{gift.id}-new-comment-price-tr" %>" style="display: none">
+          <tr id="<%= "gift-#{gift.id}-comment-new-price-tr" %>" style="display: none">
             <td colspan="2">
-              <%= f.text_field :price, :size => 10, :id => "gift-#{gift.id}-comment-price", :placeholder => my_t('.price_prompt') %>
+              <%= f.text_field :price, :size => 10, :id => "gift-#{gift.id}-comment-new-price", :placeholder => my_t('.price_prompt') %>
               <%= my_t '.price_free' %> <%= @user.currency %>
             </td>
           </tr>
           <tr>
-            <td><%= f.text_area :comment, :size => '60x1', :placeholder => my_t('.enter_comment'), :onfocus => 'autoresize_text_field(this)', :id => "gift-#{gift.id}-new-comment-textarea" %></td>
+            <td><%= f.text_area :comment, :size => '60x1', :placeholder => my_t('.enter_comment'), :onfocus => 'autoresize_text_field(this)', :id => "gift-#{gift.id}-comment-new-textarea" %></td>
             <td><%= f.submit 'Gem', :onclick => "return csv_comment(#{gift.id})" %></td>
           </tr>
         </table>
