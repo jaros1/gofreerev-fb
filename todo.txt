@@ -176,3 +176,27 @@
 83) delete gifts
 
 84) ajax hide gift does not work. should hide all rows with id gift-<giftid>- format
+
+85) new deal / cancel / accept / reject
+    new deal can fail if gift user has accepted an other offer
+    cancel can fail if gift user has accepted a deal or has rejected new deal from user
+    accept can fail if other user has cancelled the offer
+    reject can fail if other user has cancelled the offer
+    write short error msg in gift-xxx-comment-yyy-status div after errors
+    after accept - add sender/receiver and remove links
+
+86) new messages count - replace gift
+    could be used after accept new deal to change gift in other sessions
+    change new_comments_div to include comments with changed "status"
+
+87) new messages count - replace comment
+    count be used after cancel or reject to change comment in other sessions
+    change new_gifts_div to inlcude gifts with changed "status"
+
+88) add a last status update timestamp to gift/comment
+    last status update timestamp is inserted in web page and send to new messages count
+    new gifts, new comments and changes gifts and comments are returned in new messages count
+    could also just be a sequence
+
+
+

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20130921132510) do
+ActiveRecord::Schema.define(version: 20130926063404) do
 
   create_table "ajax_comments", force: true do |t|
     t.string   "user_id",    limit: 20, null: false
@@ -23,16 +23,17 @@ ActiveRecord::Schema.define(version: 20130921132510) do
   add_index "ajax_comments", ["user_id"], name: "index_ajax_comments_on_user_id"
 
   create_table "comments", force: true do |t|
-    t.string   "comment_id",  limit: 20, null: false
-    t.string   "user_id",     limit: 20, null: false
-    t.text     "comment",                null: false
+    t.string   "comment_id",       limit: 20, null: false
+    t.string   "user_id",          limit: 20, null: false
+    t.text     "comment",                     null: false
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.string   "gift_id",     limit: 20
+    t.string   "gift_id",          limit: 20
     t.text     "currency"
     t.text     "price"
-    t.string   "new_deal_yn", limit: 1
-    t.string   "accepted_yn", limit: 1
+    t.string   "new_deal_yn",      limit: 1
+    t.string   "accepted_yn",      limit: 1
+    t.integer  "status_update_at"
   end
 
   add_index "comments", ["comment_id"], name: "index_comments_on_comment_id", unique: true
@@ -104,6 +105,7 @@ ActiveRecord::Schema.define(version: 20130921132510) do
     t.text     "api_picture_url_updated_at"
     t.text     "api_picture_url_on_error_at"
     t.string   "deleted_at_api",              limit: 1
+    t.integer  "status_update_at"
   end
 
   add_index "gifts", ["gift_id"], name: "index_gifts_on_gift_id", unique: true
@@ -124,6 +126,15 @@ ActiveRecord::Schema.define(version: 20130921132510) do
 
   add_index "notifications", ["noti_id"], name: "index_noti_on_noti_id", unique: true
   add_index "notifications", ["to_user_id"], name: "index_noti_on_to_user_id"
+
+  create_table "sequences", force: true do |t|
+    t.string   "name",       null: false
+    t.integer  "value",      null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "sequences", ["name"], name: "index_sequences_on_name", unique: true
 
   create_table "users", force: true do |t|
     t.string   "user_id",              limit: 20

@@ -10,6 +10,8 @@ class UtilController < ApplicationController
       @new_messages_count = count if count > 0
     end
     # return new comments
+    # todo: return new comments and comments with changed status (new deal proposal cancelled or rejected)
+    # todo: send new comments to all relevant users? today new comments is only sent to giver, receiver and other users that have commented the gift
     if @new_messages_count and ( params[:request_fullpath] == '/gifts' or params[:request_fullpath] =~ /^\/gifts\/([0-9]+)$/ )
       # find comments to ajax insert in gifts/index or gifts/show pages
       # puts "find comments to ajax insert in gifts/index or gifts/show pages"
