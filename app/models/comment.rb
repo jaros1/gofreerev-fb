@@ -3,6 +3,7 @@ class Comment < ActiveRecord::Base
   belongs_to :user, :class_name => 'User', :primary_key => :user_id, :foreign_key => :user_id
   belongs_to :gift, :class_name => 'Gift', :primary_key => :gift_id, :foreign_key => :gift_id
 
+  before_create :before_create
   after_create :after_create
 
 
@@ -90,6 +91,8 @@ class Comment < ActiveRecord::Base
   # 7) new_deal_yn - y for agreement proposal - n for cancelled agreement - not encrypted string
 
   # 8) accepted_yn - y for accepted agreement - n for rejected agreement - not encrypted string
+
+  # 9) status_update_at - integer - keep track of comments changed after user has loaded gifts/index page
 
 
   # number of older comments for gift
@@ -180,6 +183,10 @@ class Comment < ActiveRecord::Base
     ac.save!
   end # create_or_update_noti
 
+
+  def before_create
+    self.status_update_at = Sequence.next_status_update_at
+  end
 
   # Note: 48 different translations. See inbox/index/gift_comment*
   def after_create

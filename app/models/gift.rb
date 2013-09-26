@@ -25,6 +25,7 @@ class Gift < ActiveRecord::Base
   has_many :comments, :class_name => 'Comment', :primary_key => :gift_id, :foreign_key => :gift_id, :dependent => :destroy
   has_many :likes, :class_name => 'GiftLike', :primary_key => :gift_id, :foreign_key => :gift_id, :dependent => :destroy
 
+  before_create :before_create
 
   # https://github.com/jmazzi/crypt_keeper - text columns are encrypted in database
   # encrypt_add_pre_and_postfix/encrypt_remove_pre_and_postfix added in setters/getters for better encryption
@@ -296,9 +297,11 @@ class Gift < ActiveRecord::Base
 
   # 21) deleted_at_api. String Y/N.
 
-  # 22) created_at - timestamp - not encrypted
+  # 22) status_change_at - integer - not encrypted - keep track of gifts changed after user has loaded gifts/index page
 
-  # 23) updated_at - timestamp - not encrypted
+  # 23) created_at - timestamp - not encrypted
+
+  # 24) updated_at - timestamp - not encrypted
 
 
   #
@@ -605,6 +608,11 @@ class Gift < ActiveRecord::Base
 
   # psydo attributea
   attr_accessor :file, :direction
+
+
+  def before_create
+    self.status_update_at = Sequence.next_status_update_at
+  end
 
 
   # https://github.com/jmazzi/crypt_keeper gem encrypts all attributes and all rows in db with the same key
