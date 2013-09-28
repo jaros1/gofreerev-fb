@@ -180,6 +180,8 @@ da:
         confirm_accept_new_deal: "Godkend forslag?"
         reject_new_deal: "Afvis"
         confirm_reject_new_deal: "Afvis forslag?"
+        delete_comment: "Slet"
+        confirm_delete_comment: "Slet kommentar?"
 
   # inbox controller
   inbox:
@@ -198,6 +200,7 @@ da:
         app_friendship_accepted_v1_from_url: "/users/%{to_id}"
         app_friendship_accepted_v1_to_msg: "%{from_user} accepterede din venneanmodning. Du og %{from_user} er nu %{appname} venner"
         app_friendship_accepted_v1_to_url: "/users/%{from_id}"
+        # there must be 8 keys for each comment notification - no users (1, 2, 3, n) * (url, msg)
         new_comment_giver_1_v1_to_url: "/gifts/%{giftid}"
         new_comment_giver_1_v1_to_msg: '%{username1} har kommenteret dit tilbud "%{gifttext} ..."'
         new_comment_giver_2_v1_to_url: "/gifts/%{giftid}"

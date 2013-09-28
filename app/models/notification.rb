@@ -4,6 +4,7 @@ class Notification < ActiveRecord::Base
   # relations
   belongs_to :from_user, :class_name => 'User', :primary_key => :user_id, :foreign_key => :from_user_id
   belongs_to :to_user, :class_name => 'User', :primary_key => :user_id, :foreign_key => :to_user_id
+  has_and_belongs_to_many :comments
 
   before_create :before_create
 

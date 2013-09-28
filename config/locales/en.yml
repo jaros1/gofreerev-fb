@@ -178,6 +178,8 @@ en:
         confirm_accept_new_deal: "Accept proposal?"
         reject_new_deal: "Reject"
         confirm_reject_new_deal: "Reject proposal?"
+        delete_comment: "Delete"
+        confirm_delete_comment: "Delete comment?"
 
   # inbox controller
   inbox:

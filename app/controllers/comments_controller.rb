@@ -79,6 +79,23 @@ class CommentsController < ApplicationController
   def update
   end
 
+  # ajax request from gifts/index page
   def destroy
-  end
+    id = params[:id]
+    comment = Comment.find_by_id(id)
+    if !comment
+      puts "Comment with id #{id} was not found - silently ignore ajax request"
+      render :nothing => true
+      return
+    end
+    if !comment.show_delete_comment_link?(@user)
+      puts "User can not delete comment with #{id} - silently ignore ajax request"
+      render :nothing => true
+      return
+    end
+    # delete comment
+    comment.destroy!
+    @link_id = comment.table_row_id
+  end # destroy
+
 end

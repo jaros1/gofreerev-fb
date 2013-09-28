@@ -198,5 +198,16 @@
     new gifts, new comments and changes gifts and comments are returned in new messages count
     could also just be a sequence
 
+89) comment notifications
+    create comment and deal proposal - ok
+    delete comment - not implemented - cleanup unread notifications for deleted comments and deal proposals
+    cancel deal proposal - ok - cleanup unread notifications for cancelled deal proposals
+    reject deal proposal - add notification
+    accept deal proposal - not finished - add notifications
+
+90) problem with userid array with 3 userids in notifications
+    no_users and no_other_users are not correct for more when 3 users
+    And there a no way to know if no_users and no_other_users have to descent when deleting comment for an unread notification
+
 
 

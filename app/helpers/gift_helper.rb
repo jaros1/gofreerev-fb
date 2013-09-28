@@ -89,4 +89,8 @@ module GiftHelper
     link_to my_t('.reject_new_deal'), util_reject_new_deal_path(:comment_id => comment.id), :id => "gift-#{comment.gift.id}-comment-#{comment.id}-reject-link", :remote => true, :method => :post, :data => { :confirm => my_t('.confirm_reject_new_deal') }
   end
 
+  def link_to_delete_comment (comment)
+    link_to my_t('.delete_comment'), comment_path(comment.id), :id => "gift-#{comment.gift.id}-comment-#{comment.id}-delete-link", :remote => true, :method => :delete, :data => { :confirm => my_t('.confirm_delete_comment') }
+  end
+
 end

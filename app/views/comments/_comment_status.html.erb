@@ -15,5 +15,10 @@
           <td><%= link_to_reject_new_deal(@comment) %></td>
         </tr>
     <% end -%>
+    <% if @comment.show_delete_comment_link?(@user) -%>
+        <tr>
+          <td><%= link_to_delete_comment(@comment) %></td>
+        </tr>
+    <% end -%>
   </table>
 </div>

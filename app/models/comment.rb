@@ -2,9 +2,11 @@ class Comment < ActiveRecord::Base
 
   belongs_to :user, :class_name => 'User', :primary_key => :user_id, :foreign_key => :user_id
   belongs_to :gift, :class_name => 'Gift', :primary_key => :gift_id, :foreign_key => :gift_id
+  has_and_belongs_to_many :notifications
 
   before_create :before_create
   after_create :after_create
+  before_destroy :before_destroy
 
 
   # https://github.com/jmazzi/crypt_keeper - text columns are encrypted in database
@@ -99,6 +101,10 @@ class Comment < ActiveRecord::Base
   # used in gifts/index page to display "show <n> more comments"
   attr_accessor :no_older_comments
 
+  def table_row_id
+    "gift-#{gift.id}-comment-#{id}"
+  end # table_row_id
+
   # display cancel new deal check box?
   # only for new not accepted/rejected agreement proposals
   def show_cancel_new_deal_link? (user)
@@ -106,7 +112,7 @@ class Comment < ActiveRecord::Base
     return false if accepted_yn
     return false unless user_id == user.user_id
     return false if gift.user_id_receiver and gift.user_id_giver
-    return true
+    true
   end # show_cancel_new_deal_link?
 
   def show_accept_new_deal_link? (user)
@@ -115,12 +121,18 @@ class Comment < ActiveRecord::Base
     return false if user_id == user.user_id
     return false if gift.user_id_receiver and gift.user_id_giver
     return false unless [gift.user_id_receiver, gift.user_id_giver].index(user.user_id)
-    return true
+    true
   end # show_accept_new_deal_link?
 
   def show_reject_new_deal_link? (user)
     show_accept_new_deal_link?(user)
   end # show_reject_new_deal_link?
+
+  def show_delete_comment_link?(user)
+    return false unless user_id == user.user_id
+    return false if new_deal_yn == 'Y' and accepted_yn == 'Y'
+    true
+  end # show_delete_comment_link?
 
 
   # Note: 48 different translations. See inbox/index/gift_comment*
@@ -142,7 +154,7 @@ class Comment < ActiveRecord::Base
       n.to_user_id = to_user.user_id
       n.from_user_id = nil
       n.internal = 'Y'
-      n.noti_key = "#{noti_key_prefix}_1_v#{noti_key_version}"
+      n.noti_key = "#{noti_key_prefix}_1_v#{noti_key_version}" # no_users = 1
       n.noti_options = { :giftid => gift.id, :gifttext => gift.description.first(30),
                          :no_users => 1, :no_other_users => -1,
                          :userid1 => from_user.id, :username1 => from_user.short_user_name,
@@ -151,11 +163,12 @@ class Comment < ActiveRecord::Base
                          :givername => (gift.user_id_giver ? gift.giver.short_user_name : ""),
                          :receivername => (gift.user_id_receiver ? gift.receiver.short_user_name : "") }
       n.noti_read = 'N'
-    elsif [n.noti_options[:userid1], n.noti_options[:userid2], n.noti_options[:userid3]].index(from_user.id)
-      # user already in unread notification message
+    elsif n.comments.find { |c| c.user_id == from_user.user_id }
+      # user already in unread notification messages "user array"
       # puts "user already in unread notification message"
       nil
     else
+      # user not in unread notification messages "user array"
       # change noti_key / add user to unread notification message
       # puts "change noti_key / add user to unread notification message"
       noti_options = n.noti_options # copy to/from local variable for encryption to work
@@ -165,7 +178,6 @@ class Comment < ActiveRecord::Base
         xno_users = 'n'
       else
         xno_users = noti_options[:no_users].to_s
-        noti_options["userid#{xno_users}".to_sym] = from_user.id
         noti_options["username#{xno_users}".to_sym] = from_user.short_user_name
       end
       n.noti_key = "#{noti_key_prefix}_#{xno_users}_v#{noti_key_version}"
@@ -183,6 +195,14 @@ class Comment < ActiveRecord::Base
     ac.user_id = to_user.user_id
     ac.comment_id = comment_id ;
     ac.save!
+    # add row to CommentNotification / keep track of number of users in notification message
+    cn = CommentNotification.where("comment_id = ? and notification_id = ?", id, n.id).first
+    if !cn
+      cn = CommentNotification.new
+      cn.comment_id = id
+      cn.notification_id = n.id
+      cn.save
+    end
   end # create_or_update_noti
 
 
@@ -238,6 +258,49 @@ class Comment < ActiveRecord::Base
     logger.info "send notifications to other users that also have commented the gift: " + users2.collect { |u| u.short_user_name }.join(', ')
     users2.each { |user2| create_or_update_noti(noti_key_prefix + '_other', user, user2) }
   end # after_create
+
+  def before_destroy
+    puts "cleanup any unread notifications"
+    # 1) loop for each unread notifications for this comment
+    # 2) tjek for number of users before and after deleting this comment
+    # not so easy to cleanup any unread notifications after destroy comment
+    # no_users and no_other_users are not correct for more than 3 users
+    # not so easy to decent no_users and no_other_users
+    notifications.find_all { |n| n.noti_read == 'N' }.each do |n|
+      # todo: find no users before and after deleting this comment
+      old_no_users = n.comments.collect { |c| c.user_id }.uniq.size
+      new_users = n.comments.find_all { |c| c.id != id }.collect { |c| c.user }.uniq
+      new_no_users = new_users.size
+      if new_no_users == 0
+        # last user for this notification has been removed
+        n.destroy
+        next
+      end
+      next if old_no_users == new_no_users # unchanged number of users => unchanged notification
+      if new_no_users > 3
+        # unchanged noti_key and username array. Just change number of users
+        noti_options = n.noti_options
+        noti_options[:no_users] = new_no_users
+        noti_options[:no_other_users] = new_no_users - 2
+        n.noti_options = noti_options
+        n.save!
+        next
+      end
+      # change noti_key, username array and number of users
+      next unless noti_key =~ /^([a-z_]+)_(\d)_v(\d+)$/
+      noti_key_prefix, noti_key_no_users, noti_key_version = $1
+      noti_options = n.noti_options
+      (1..3).each { |i| noti_options["username#{i}".to_sym] = nil }
+      usernames = new_users.collect { |u| u.short_user_name }
+      0.upto(usernames.size-1).each do |i|
+        noti_options["username#{i+1}".to_sym] = usernames[i]
+      end
+      noti_options[:no_users] = new_no_users
+      noti_options[:no_other_users] = new_no_users - 2
+      n.noti_key = "#{noti_key_prefix}_#{new_no_users}_v#{noti_key_version}"
+      n.noti_options = noti_options
+    end # each n
+  end # before_destroy
   
 
   ##############
