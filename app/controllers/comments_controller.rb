@@ -14,7 +14,7 @@ class CommentsController < ApplicationController
     @comment.comment = params[:comment][:comment].to_s.force_encoding('UTF-8')
     if params[:comment][:new_deal_yn] == 'Y'
       @comment.new_deal_yn = params[:comment][:new_deal_yn]
-      # todo: validate price
+      # todo: validate price - use same server validation as for gift.price
       @comment.price = params[:comment][:price].to_f
       @comment.currency = @user.currency
     end

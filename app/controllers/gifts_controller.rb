@@ -238,6 +238,7 @@ class GiftsController < ApplicationController
     # initialize list of gifts
     # list of gifts with @user as giver or receiver + list of gifts med @user.friends as giver or receiver
     if @user then
+      newest_status_update_at = Sequence.status_update_at
       newest_gift = Gift.last
       @gifts = @user.gifts
     end
@@ -248,6 +249,8 @@ class GiftsController < ApplicationController
       # not ajax - show first 10 gifts
       # remember newest gift id (global). Gifts created by friends after page load will be ajax inserted in gifts/index page
       @newest_gift_id = newest_gift.id if newest_gift
+      # remember newest status update (gifts and comments). Gifts and comments with status changes after page load will be ajax replaced in gifts/index page
+      @newest_status_update_at = newest_status_update_at if newest_gift
       # empty AjaxComment buffer for current user - comments created after page load will be ajax inserted in gifts/index page
       AjaxComment.destroy_all(:user_id => @user.user_id)
     else

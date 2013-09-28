@@ -270,16 +270,15 @@ class UtilController < ApplicationController
       return
     end
     if !comment.show_cancel_new_deal_link?(@user)
-      puts "cancel link not active for comment with id #{comment_id} - silently ingore ajax request"
+      puts "cancel link not active for comment with id #{comment_id} - silently ignore ajax request"
       return
     end
     # cancel agreement proposal
     # todo: send notification / delete unread notification?
     comment.new_deal_yn = nil
+    comment.status_update_at = Sequence.next_status_update_at
     comment.save!
     # hide link
-    # todo: other comment changes? agreement proposals should have a price. Maybe an other layout, style, color
-    # todo: change agreement proposal for other users after cancel (new messages count ajax)?
     @link_id = "gift-#{gift.id}-comment-#{comment.id}-status"
   end # cancel_new_deal
 
@@ -296,7 +295,7 @@ class UtilController < ApplicationController
       return
     end
     if !comment.show_accept_new_deal_link?(@user)
-      puts "cancel link not active for comment with id #{comment_id} - silently ingore ajax request"
+      puts "accept link not active for comment with id #{comment_id} - silently ignore ajax request"
       return
     end
     # accept agreement proposal
@@ -311,6 +310,31 @@ class UtilController < ApplicationController
   end
 
   def reject_new_deal
+    comment_id = params[:comment_id]
+    comment = Comment.find_by_id(comment_id)
+    if !comment
+      puts "Comment with id #{comment_id} was not found - silently ignore ajax request"
+      return
+    end
+    gift = comment.gift
+    if !gift.visible_for(@user)
+      puts "#{@user.short_user_name} is not allowed to see gift id #{gift_id} - silently ignore ajax request"
+      return
+    end
+    if !comment.show_reject_new_deal_link?(@user)
+      puts "reject link not active for comment with id #{comment_id} - silently ignore ajax request"
+      return
+    end
+    # reject agreement proposal
+    # todo: send notification?
+    comment.accepted_yn = 'N'
+    comment.status_update_at = Sequence.next_status_update_at
+    comment.save!
+    # hide link
+    # todo: other comment changes? Maybe an other layout, style, color for accepted gift/comments
+    # todo: change gift. add giver/receiver.
+    # todo: change gift and comment for other users after cancel (new messages count ajax)?
+    @link_id = "gift-#{gift.id}-comment-#{comment.id}-status"
   end
 
 end # UtilController

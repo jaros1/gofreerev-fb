@@ -105,6 +105,7 @@ class Comment < ActiveRecord::Base
     return false unless new_deal_yn == 'Y'
     return false if accepted_yn
     return false unless user_id == user.user_id
+    return false if gift.user_id_receiver and gift.user_id_giver
     return true
   end # show_cancel_new_deal_link?
 
@@ -112,6 +113,7 @@ class Comment < ActiveRecord::Base
     return false unless new_deal_yn == 'Y'
     return false if accepted_yn
     return false if user_id == user.user_id
+    return false if gift.user_id_receiver and gift.user_id_giver
     return false unless [gift.user_id_receiver, gift.user_id_giver].index(user.user_id)
     return true
   end # show_accept_new_deal_link?
@@ -188,14 +190,20 @@ class Comment < ActiveRecord::Base
     self.status_update_at = Sequence.next_status_update_at
   end
 
-  # Note: 48 different translations. See inbox/index/gift_comment*
+  # Note: 80 different translations.
+  # See config/locales/language.yml/inbox/index/new_comment_* (48 translations)
+  # See config/locales/language.yml/inbox/index/new_proposal_* (32 translations)
   def after_create
     # noti_key_format: <noti_key_prefix>_<n>_v1
     # noti_key_prefix: gift_comment_giver (offer), gift_comment_receiver (seek) or gift_comment_giver_and_receiver (closed)
     # n: 1, 2, 3 or n : number of users that has commented the gift
     # v1: version of noti_option hash format - change to next version if changing hast keys for translations
     # remember to setup translation keys (gift_comment_giver_1_v1_to_url, gift_comment_giver_1_v1_to_msg etc)
-    noti_key_prefix = 'gift_comment_'
+    if new_deal_yn == 'Y'
+      noti_key_prefix = 'new_proposal_'
+    else
+      noti_key_prefix = 'new_comment_'
+    end
     noti_key_prefix += case
                           when gift.giver && gift.receiver then 'giver_and_receiver'
                           when gift.giver then 'giver'

@@ -1,4 +1,5 @@
 <%= hidden_field_tag :newest_gift_id, @newest_gift_id, :id => "newest-gift-id" %>
+<%= hidden_field_tag :newest_status_update_at, @newest_status_update_at, :id => "newest-status-update-at" %>
 
 <script>
   last_user_ajax_comment_at = null ;
@@ -42,7 +43,7 @@
             </td>
           </tr>
           <tr title="<%= my_t '.description_title' %>">
-java script            <td style="vertical-align: top"><%= my_t '.description_prompt' %></td>
+            <td style="vertical-align: top"><%= my_t '.description_prompt' %></td>
             <td><%= f.text_area :description, :size => '60x2', :placeholder => 'Enter Comments', :onfocus => 'autoresize_text_field(this)' %></td>
             <td><%= f.submit my_t('.gift_submit_button_text'), :onclick => '{return csv_gift()}' %></td>
           </tr>

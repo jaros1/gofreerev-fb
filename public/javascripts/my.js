@@ -146,6 +146,7 @@ function ajax_flash (id)
 
 // check for new messages once every 15, 60 or 300 seconds
 // once every 15 seconds for active users - once every 5 minutes for inactive users
+// onclick event on remote link check-new-messages-link"
 var check_new_messages_interval ; // interval in seconds between each new messages check
 var check_new_messages_interval_id ; // interval id for setInterval function
 var last_user_ajax_comment_at ; // timestamp (JS Date) for last new comment created by user
@@ -173,17 +174,28 @@ function start_check_new_messages()
             check_new_messages_interval_id = setInterval(function () {
                 // call util/new_messages_count and insert response in new_messages_buffer_div in page header
                 // information about number off unread messages
-                // and new comments to be inserted in gifts/index page
+                // + new gifts to be inserted in top of page gifts/index page
+                // + new comments to be inserted in gifts/index page
+                // + todo: changed gifts and comments to be replaced in gifts/index page
                 // is post ajax processed in JS functions update_new_messages_count, update_title and insert_new_comments
                 var check_new_messages_link = document.getElementById("check-new-messages-link");
-                // update newest_gift_id before ajax request. newest_gift_id in gifts/index page. 0 in other pages
+                // update newest_gift_id and newest_status_update_at before ajax request.
                 // only newer gifts (>newest_gift_id) are ajax inserted in gifts/index page
+                // only gifts and comments with > newest_status_update_at are ajax replaced into gifts/index page
+                // update newest_gift_id
                 var newest_gift_id = document.getElementById("newest-gift-id");
                 var newest_gift_id_new_value ;
                 if (newest_gift_id && (newest_gift_id.value != '')) newest_gift_id_new_value = newest_gift_id.value ;
                 else newest_gift_id_new_value = '0' ;
                 var href = check_new_messages_link.href ;
                 href = href.replace(/newest_gift_id=[0-9]+/, 'newest_gift_id=' + newest_gift_id_new_value) ;
+                // update newest_status_update_at
+                var newest_status_update_at = document.getElementById("newest-status-update-at");
+                var newest_status_update_at_new_value ;
+                if (newest_status_update_at && (newest_status_update_at.value != '')) newest_status_update_at_new_value = newest_status_update_at.value ;
+                else newest_status_update_at_new_value = '0' ;
+                // replace and click => ajax request to util/new_messages_count => update page
+                href = href.replace(/newest_status_update_at=[0-9]+/, 'newest_status_update_at=' + newest_status_update_at_new_value) ;
                 check_new_messages_link.href = href ;
                 check_new_messages_link.click();
             }, interval * 1000);
