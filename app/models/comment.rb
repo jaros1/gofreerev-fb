@@ -206,9 +206,9 @@ class Comment < ActiveRecord::Base
     end
   end # create_or_update_noti
 
-  # comment no longer relevant for unread notification
+  # comment no longer relevant for unread notification n
   # used when comment is deleted or if deal proposal is cancelled
-  def remove_comment_from_noti (n)
+  def remove_from_notification (n)
     # only modify unread notifications
     return unless n.noti_read == 'N'
     # find no users before and after removing this comment
@@ -247,23 +247,26 @@ class Comment < ActiveRecord::Base
     n.noti_key = "#{noti_key_prefix}_#{new_no_users}_v#{noti_key_version}"
     n.noti_options = noti_options
     n.save!
-  end # remove_comment_from_noti
+  end # remove_from_notification
 
 
   def before_create
     self.status_update_at = Sequence.next_status_update_at
   end
 
-  # Note: 80 different translations.
-  # See config/locales/language.yml/inbox/index/new_comment_* (48 translations)
-  # See config/locales/language.yml/inbox/index/new_proposal_* (32 translations)
+  # Note: 112 different translations.                                   8
+  # config/locales/language.yml/inbox/index/new_comment_* (48 translations)
+  # config/locales/language.yml/inbox/index/new_proposal_* (32 translations)
+  # config/locales/language.yml/inbox/index/cancelled_proposal_* (32 translations)
   def after_create
     # noti_key_format: <noti_key_prefix>_<n>_v1
     # noti_key_prefix: gift_comment_giver (offer), gift_comment_receiver (seek) or gift_comment_giver_and_receiver (closed)
     # n: 1, 2, 3 or n : number of users that has commented the gift
     # v1: version of noti_option hash format - change to next version if changing hast keys for translations
     # remember to setup translation keys (gift_comment_giver_1_v1_to_url, gift_comment_giver_1_v1_to_msg etc)
-    if new_deal_yn == 'Y'
+    if new_deal_yn_was == 'Y' and !new_deal_yn and !accepted_yn
+      noti_key_prefix = 'cancelled_proposal_'
+    elsif new_deal_yn == 'Y'
       noti_key_prefix = 'new_proposal_'
     else
       noti_key_prefix = 'new_comment_'
@@ -307,23 +310,24 @@ class Comment < ActiveRecord::Base
     puts "comment: after update: new deal: #{new_deal_yn_was} => #{new_deal_yn}, accepted: #{accepted_yn_was} => #{accepted_yn}"
     # check for canceled deal proposal
     if new_deal_yn_was == 'Y' and !new_deal_yn and !accepted_yn
-      # deal proposal has been cancelled - change unread notifications
+      # cancelled deal proposal
       # 1) unread: remove comment from old noti key (new_proposal_...)
       # 2) unread: add comment to new noti key (new_comments_ ...)
       # 3) read: send cancel notification to gift giver/receiver
       notifications.each do |n|
         if n.noti_read == 'N'
           # unread notification. must be a new_proposal_... notification. Remove comment from notification
-          remove_comment_from_noti(n)
+          remove_from_notification(n)
           # add comment to a new_comment_... notification.
-          # looks like after_create code can be used as it is
           after_create
         else
-          # read notification. todo: Send a cancelled_proposal notification?
+          # read notification.
+          # Send a cancelled proposal notification
+          after_create
         end
       end # each n
-    end
-  end
+    end # cancelled deal proposal
+  end # after_update
 
   def before_destroy
     puts "cleanup any unread notifications"
@@ -333,7 +337,7 @@ class Comment < ActiveRecord::Base
     # no_users and no_other_users are not correct for more than 3 users
     # not so easy to decent no_users and no_other_users
     notifications.find_all { |n| n.noti_read == 'N' }.each do |n|
-      remove_comment_from_noti(n)
+      remove_from_notification(n)
     end # each n
   end # before_destroy
   

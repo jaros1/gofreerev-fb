@@ -278,6 +278,38 @@ en:
         new_proposal_receiver_other_3_v1_to_msg: '%{username1}, %{username2} and %{username3} also have bids on %{receivername}-s wish "%{gifttext} ..."'
         new_proposal_receiver_other_n_v1_to_url: "/gifts/%{giftid}"
         new_proposal_receiver_other_n_v1_to_msg: '%{username1}, %{username2} and %{no_other_users} other persons also have bids on %{receivername}-s wish "%{gifttext} ..."'
+        cancelled_proposal_giver_1_v1_to_url: "/gifts/%{giftid}"
+        cancelled_proposal_giver_1_v1_to_msg: '%{username1} no longer wants to use your offer "%{gifttext} ..."'
+        cancelled_proposal_giver_2_v1_to_url: "/gifts/%{giftid}"
+        cancelled_proposal_giver_2_v1_to_msg: '%{username1} and %{username2} no longer want to use your offer "%{gifttext} ..."'
+        cancelled_proposal_giver_3_v1_to_url: "/gifts/%{giftid}"
+        cancelled_proposal_giver_3_v1_to_msg: '%{username1}, %{username2} and %{username3} no longer want to use your offer "%{gifttext} ..."'
+        cancelled_proposal_giver_n_v1_to_url: "/gifts/%{giftid}"
+        cancelled_proposal_giver_n_v1_to_msg: '%{username1}, %{username2} and %{no_other_users} other persons no longer want to use your offer "%{gifttext} ..."'
+        cancelled_proposal_receiver_1_v1_to_url: "/gifts/%{giftid}"
+        cancelled_proposal_receiver_1_v1_to_msg: '%{username1} no longer has a bid on your wish "%{gifttext} ..."'
+        cancelled_proposal_receiver_2_v1_to_url: "/gifts/%{giftid}"
+        cancelled_proposal_receiver_2_v1_to_msg: '%{username1} and %{username2} no longer have bids on your wish "%{gifttext} ..."'
+        cancelled_proposal_receiver_3_v1_to_url: "/gifts/%{giftid}"
+        cancelled_proposal_receiver_3_v1_to_msg: '%{username1}, %{username2} and %{username3} no longer have bids on your wish "%{gifttext} ..."'
+        cancelled_proposal_receiver_n_v1_to_url: "/gifts/%{giftid}"
+        cancelled_proposal_receiver_n_v1_to_msg: '%{username1}, %{username2} and %{no_other_users} other persons no longer have bids on your wish "%{gifttext} ..."'
+        cancelled_proposal_giver_other_1_v1_to_url: "/gifts/%{giftid}"
+        cancelled_proposal_giver_other_1_v1_to_msg: '%{username1} also no longer wants to use %{givername}-s offer "%{gifttext} ..."'
+        cancelled_proposal_giver_other_2_v1_to_url: "/gifts/%{giftid}"
+        cancelled_proposal_giver_other_2_v1_to_msg: '%{username1} and %{username2} also no longer want to use %{givername}-s offer "%{gifttext} ..."'
+        cancelled_proposal_giver_other_3_v1_to_url: "/gifts/%{giftid}"
+        cancelled_proposal_giver_other_3_v1_to_msg: '%{username1}, %{username2} and %{username3} also no longer want to use %{givername}-s offer "%{gifttext} ..."'
+        cancelled_proposal_giver_other_n_v1_to_url: "/gifts/%{giftid}"
+        cancelled_proposal_giver_other_n_v1_to_msg: '%{username1}, %{username2} and %{no_other_users} other persons also no longer want to use %{givername}-s offer "%{gifttext} ..."'
+        cancelled_proposal_receiver_other_1_v1_to_url: "/gifts/%{giftid}"
+        cancelled_proposal_receiver_other_1_v1_to_msg: '%{username1} also no longer has a bid on %{receivername}-s wish "%{gifttext} ..."'
+        cancelled_proposal_receiver_other_2_v1_to_url: "/gifts/%{giftid}"
+        cancelled_proposal_receiver_other_2_v1_to_msg: '%{username1} and %{username2} also no longer have bids on %{receivername}-s wish "%{gifttext} ..."'
+        cancelled_proposal_receiver_other_3_v1_to_url: "/gifts/%{giftid}"
+        cancelled_proposal_receiver_other_3_v1_to_msg: '%{username1}, %{username2} and %{username3} also no longer have bids on %{receivername}-s wish "%{gifttext} ..."'
+        cancelled_proposal_receiver_other_n_v1_to_url: "/gifts/%{giftid}"
+        cancelled_proposal_receiver_other_n_v1_to_msg: '%{username1}, %{username2} and %{no_other_users} other persons also have bids on %{receivername}-s wish "%{gifttext} ..."'
 
   # user controller
   users:
