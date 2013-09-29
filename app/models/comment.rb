@@ -6,6 +6,7 @@ class Comment < ActiveRecord::Base
 
   before_create :before_create
   after_create :after_create
+  after_update :after_update
   before_destroy :before_destroy
 
 
@@ -205,6 +206,49 @@ class Comment < ActiveRecord::Base
     end
   end # create_or_update_noti
 
+  # comment no longer relevant for unread notification
+  # used when comment is deleted or if deal proposal is cancelled
+  def remove_comment_from_noti (n)
+    # only modify unread notifications
+    return unless n.noti_read == 'N'
+    # find no users before and after removing this comment
+    old_no_users = n.comments.collect { |c| c.user_id }.uniq.size
+    new_users = n.comments.find_all { |c| c.id != id }.collect { |c| c.user }.uniq
+    new_no_users = new_users.size
+    if new_no_users == 0
+      # last user for this unread notification has been removed
+      n.destroy!
+      return
+    end
+    return if old_no_users == new_no_users # unchanged number of users => unchanged notification
+    if new_no_users > 3
+      # unchanged noti_key and username array. Just change number of users
+      noti_options = n.noti_options
+      noti_options[:no_users] = new_no_users
+      noti_options[:no_other_users] = new_no_users - 2
+      n.noti_options = noti_options
+      n.save!
+      return
+    end
+    # change noti_key, username array and number of users
+    if n.noti_key !~ /^([a-z_]+)_(\d)_v(\d+)$/
+      puts "invalid noti key format. noti key = #{noti_key}"
+      return
+    end
+    noti_key_prefix, noti_key_no_users, noti_key_version = $1
+    noti_options = n.noti_options
+    (1..3).each { |i| noti_options["username#{i}".to_sym] = nil }
+    usernames = new_users.collect { |u| u.short_user_name }
+    0.upto(usernames.size-1).each do |i|
+      noti_options["username#{i+1}".to_sym] = usernames[i]
+    end
+    noti_options[:no_users] = new_no_users
+    noti_options[:no_other_users] = new_no_users - 2
+    n.noti_key = "#{noti_key_prefix}_#{new_no_users}_v#{noti_key_version}"
+    n.noti_options = noti_options
+    n.save!
+  end # remove_comment_from_noti
+
 
   def before_create
     self.status_update_at = Sequence.next_status_update_at
@@ -259,6 +303,28 @@ class Comment < ActiveRecord::Base
     users2.each { |user2| create_or_update_noti(noti_key_prefix + '_other', user, user2) }
   end # after_create
 
+  def after_update
+    puts "comment: after update: new deal: #{new_deal_yn_was} => #{new_deal_yn}, accepted: #{accepted_yn_was} => #{accepted_yn}"
+    # check for canceled deal proposal
+    if new_deal_yn_was == 'Y' and !new_deal_yn and !accepted_yn
+      # deal proposal has been cancelled - change unread notifications
+      # 1) unread: remove comment from old noti key (new_proposal_...)
+      # 2) unread: add comment to new noti key (new_comments_ ...)
+      # 3) read: send cancel notification to gift giver/receiver
+      notifications.each do |n|
+        if n.noti_read == 'N'
+          # unread notification. must be a new_proposal_... notification. Remove comment from notification
+          remove_comment_from_noti(n)
+          # add comment to a new_comment_... notification.
+          # looks like after_create code can be used as it is
+          after_create
+        else
+          # read notification. todo: Send a cancelled_proposal notification?
+        end
+      end # each n
+    end
+  end
+
   def before_destroy
     puts "cleanup any unread notifications"
     # 1) loop for each unread notifications for this comment
@@ -267,38 +333,7 @@ class Comment < ActiveRecord::Base
     # no_users and no_other_users are not correct for more than 3 users
     # not so easy to decent no_users and no_other_users
     notifications.find_all { |n| n.noti_read == 'N' }.each do |n|
-      # todo: find no users before and after deleting this comment
-      old_no_users = n.comments.collect { |c| c.user_id }.uniq.size
-      new_users = n.comments.find_all { |c| c.id != id }.collect { |c| c.user }.uniq
-      new_no_users = new_users.size
-      if new_no_users == 0
-        # last user for this notification has been removed
-        n.destroy
-        next
-      end
-      next if old_no_users == new_no_users # unchanged number of users => unchanged notification
-      if new_no_users > 3
-        # unchanged noti_key and username array. Just change number of users
-        noti_options = n.noti_options
-        noti_options[:no_users] = new_no_users
-        noti_options[:no_other_users] = new_no_users - 2
-        n.noti_options = noti_options
-        n.save!
-        next
-      end
-      # change noti_key, username array and number of users
-      next unless noti_key =~ /^([a-z_]+)_(\d)_v(\d+)$/
-      noti_key_prefix, noti_key_no_users, noti_key_version = $1
-      noti_options = n.noti_options
-      (1..3).each { |i| noti_options["username#{i}".to_sym] = nil }
-      usernames = new_users.collect { |u| u.short_user_name }
-      0.upto(usernames.size-1).each do |i|
-        noti_options["username#{i+1}".to_sym] = usernames[i]
-      end
-      noti_options[:no_users] = new_no_users
-      noti_options[:no_other_users] = new_no_users - 2
-      n.noti_key = "#{noti_key_prefix}_#{new_no_users}_v#{noti_key_version}"
-      n.noti_options = noti_options
+      remove_comment_from_noti(n)
     end # each n
   end # before_destroy
   
