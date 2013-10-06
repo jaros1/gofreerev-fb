@@ -572,7 +572,9 @@ class Gift < ActiveRecord::Base
 
 
   def visible_for (user)
-    if [user_id_receiver, user_id_giver].index(user.user_id)
+    if !user
+      access = nil
+    elsif [user_id_receiver, user_id_giver].index(user.user_id)
       access = 'Y'
     else
       access = user.app_friends.find { |f| [user_id_receiver, user_id_giver].index(f.user_id_receiver) }

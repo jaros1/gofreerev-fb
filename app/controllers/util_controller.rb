@@ -112,6 +112,7 @@ class UtilController < ApplicationController
 
   end # missing_api_picture_urls
 
+
   #
   # gift link ajax methods
   #
@@ -252,6 +253,7 @@ class UtilController < ApplicationController
     @gift_id = gift.id
   end # hide_gift
 
+
   #
   # comment link ajax methods
   #
@@ -270,16 +272,15 @@ class UtilController < ApplicationController
       return
     end
     if !comment.show_cancel_new_deal_link?(@user)
-      puts "cancel link not active for comment with id #{comment_id} - silently ignore ajax request"
-      return
+      puts "cancel link no longer active for comment with id #{comment_id} - silently ignore ajax request"
+    else
+      # cancel agreement proposal
+      comment.new_deal_yn = nil
+      comment.status_update_at = Sequence.next_status_update_at
+      comment.save!
     end
-    # cancel agreement proposal
-    # todo: send notification / delete unread notification?
-    comment.new_deal_yn = nil
-    comment.status_update_at = Sequence.next_status_update_at
-    comment.save!
     # hide link
-    @link_id = "gift-#{gift.id}-comment-#{comment.id}-status"
+    @link_id = "gift-#{gift.id}-comment-#{comment.id}-cancel-link"
   end # cancel_new_deal
 
   def accept_new_deal
@@ -307,7 +308,7 @@ class UtilController < ApplicationController
     # todo: change gift. add giver/receiver.
     # todo: change gift and comment for other users after cancel (new messages count ajax)?
     @link_id = "gift-#{gift.id}-comment-#{comment.id}-status"
-  end
+  end # accept_new_deal
 
   def reject_new_deal
     comment_id = params[:comment_id]
@@ -332,9 +333,8 @@ class UtilController < ApplicationController
     comment.save!
     # hide link
     # todo: other comment changes? Maybe an other layout, style, color for accepted gift/comments
-    # todo: change gift. add giver/receiver.
-    # todo: change gift and comment for other users after cancel (new messages count ajax)?
-    @link_id = "gift-#{gift.id}-comment-#{comment.id}-status"
-  end
+    # todo: change gift and comment for other users after reject (new messages count ajax)?
+    @link_id = "gift-#{gift.id}-comment-#{comment.id}-reject-link"
+  end # reject_new_deal
 
 end # UtilController

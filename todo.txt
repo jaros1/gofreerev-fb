@@ -167,17 +167,13 @@
     after cancel/accept/reject - change format for agreement proposals
     after cancel/accept/reject - change format for agreement proposals in other pages (new messages count)
 
-80) add cancel/accept/reject new deal check boxes, links or radio group for agreement proposals
-
 81) add ajax for cancel/accept/reject new deal proposals
-
-82) delete comments
 
 83) delete gifts
 
 84) ajax hide gift does not work. should hide all rows with id gift-<giftid>- format
 
-85) new deal / cancel / accept / reject
+85) new deal / cancel / accept / reject error handling:
     new deal can fail if gift user has accepted an other offer
     cancel can fail if gift user has accepted a deal or has rejected new deal from user
     accept can fail if other user has cancelled the offer
@@ -201,14 +197,22 @@
 89) comment notifications
     create comment and deal proposal - ok
     delete comment - ok
-    cancel deal proposal - ok - cleanup unread notifications for cancelled deal proposals
-       move from new_proposal to new_comment noti_key
-       complex - easier to implement as remove from old noti_key and add to new noti key
+    cancel deal proposal - ok
     reject deal proposal - add notification
     accept deal proposal - not finished - add notifications
 
 90) comment status. cancel deal proposal should insert a delete link
     maybe ajax render partial comments/comment_status and ajax replace div content
+
+91) comments: timestamps for cancel, reject and accept deal
+
+92) what notification types to send?
+    1: new comment - notification to giver, receiver and other users that also has commented the gift - include/exclude followers
+    2: new proposal - same as new comment
+    3: cancelled proposal - same as new comment - remove unread new proposal and insert new comment notification instead
+    4: reject proposal - send reject notification to user with proposal - remove unread new proposal and insert new comment notification instead
+    5: accept proposal - same as new comment
+
 
 
 

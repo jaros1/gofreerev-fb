@@ -1,3 +1,19 @@
+# translation key used in notifications. 4 elements.
+# noti_type:
+NOTI_KEY_1 = {1 => 'new_comment',
+              2 => 'new_proposal',
+              3 => 'cancelled_proposal',
+              4 => 'rejected_proposal',
+              5 => 'accepted_proposal'}
+# gift type:
+NOTI_KEY_2 = {1 => 'giver',
+              2 => 'receiver',
+              3 => 'giver_and_receiver'}
+# used for other user that have commented the gift
+NOTI_KEY_3 = "other"
+NOTI_KEY_4 = "1" # version
+
+
 class Comment < ActiveRecord::Base
 
   belongs_to :user, :class_name => 'User', :primary_key => :user_id, :foreign_key => :user_id
@@ -28,6 +44,7 @@ class Comment < ActiveRecord::Base
   before_validation(on: :create) do
     self.comment_id = self.new_encrypt_pk unless self.comment_id
   end
+
   def comment_id=(new_comment_id)
     return self['comment_id'] if self['comment_id']
     self['comment_id'] = new_comment_id
@@ -35,14 +52,15 @@ class Comment < ActiveRecord::Base
 
   # 2) user_id - required - not encrypted - readonly
   validates_presence_of :user_id
-  attr_readonly :user_id  
-  
+  attr_readonly :user_id
+
   # 3) comment - required - String in model - encrypted text in db
   def comment
     # puts "comment.comment: comment = #{read_attribute(:comment)} (#{read_attribute(:comment).class.name})"
     return nil unless (extended_comment = read_attribute(:comment))
     encrypt_remove_pre_and_postfix(extended_comment, 'comment', 31)
   end
+
   def comment=(new_comment)
     # puts "comment.comment=: comment = #{new_comment} (#{new_comment.class.name})"
     if new_comment
@@ -52,16 +70,19 @@ class Comment < ActiveRecord::Base
       write_attribute :comment, nil
     end
   end
+
   alias_method :comment_before_type_cast, :comment
 
   # 4) Gift id - required - unencrypted string
 
   # 5) currency - only for agreement proposal - String in model - encrypted text in db - update not allowed
   attr_readonly :currency
+
   def currency
     return nil unless (extended_currency = read_attribute(:currency))
     encrypt_remove_pre_and_postfix(extended_currency, 'currency', 32)
   end
+
   def currency=(new_currency)
     if !new_record?
       nil
@@ -71,14 +92,18 @@ class Comment < ActiveRecord::Base
     else
       write_attribute :currency, nil
     end
-  end # currency
+  end
+
+  # currency
   alias_method :currency_before_type_cast, :currency
 
   # 6) price - only for agreement proposal - Float in model - encrypted text in db
   def price
     return nil unless (temp_extended_price = read_attribute(:price))
     str_to_float_or_nil encrypt_remove_pre_and_postfix(temp_extended_price, 'price', 33)
-  end # price
+  end
+
+  # price
   def price=(new_price)
     if !new_record?
       nil
@@ -88,7 +113,9 @@ class Comment < ActiveRecord::Base
     else
       write_attribute :price, nil
     end
-  end # price=
+  end
+
+  # price=
   alias_method :price_before_type_cast, :price
 
   # 7) new_deal_yn - y for agreement proposal - n for cancelled agreement - not encrypted string
@@ -104,7 +131,9 @@ class Comment < ActiveRecord::Base
 
   def table_row_id
     "gift-#{gift.id}-comment-#{id}"
-  end # table_row_id
+  end
+
+  # table_row_id
 
   # display cancel new deal check box?
   # only for new not accepted/rejected agreement proposals
@@ -114,7 +143,9 @@ class Comment < ActiveRecord::Base
     return false unless user_id == user.user_id
     return false if gift.user_id_receiver and gift.user_id_giver
     true
-  end # show_cancel_new_deal_link?
+  end
+
+  # show_cancel_new_deal_link?
 
   def show_accept_new_deal_link? (user)
     return false unless new_deal_yn == 'Y'
@@ -123,11 +154,15 @@ class Comment < ActiveRecord::Base
     return false if gift.user_id_receiver and gift.user_id_giver
     return false unless [gift.user_id_receiver, gift.user_id_giver].index(user.user_id)
     true
-  end # show_accept_new_deal_link?
+  end
+
+  # show_accept_new_deal_link?
 
   def show_reject_new_deal_link? (user)
     show_accept_new_deal_link?(user)
-  end # show_reject_new_deal_link?
+  end
+
+  # show_reject_new_deal_link?
 
   def show_delete_comment_link?(user)
     return false unless user_id == user.user_id
@@ -136,18 +171,71 @@ class Comment < ActiveRecord::Base
   end # show_delete_comment_link?
 
 
-  # Note: 48 different translations. See inbox/index/gift_comment*
-  # noti_key_prefix is 1) gift_comment_giver, 2) gift_comment_receiver, 3) gift_comment_giver_and_receiver, 4) gift_comment_giver_other, 5) gift_comment_receiver_other or 6) gift_comment_giver_and_receiver_other
+  def get_noti_key_prefix (noti_key_1, noti_key_2, noti_key_3)
+    NOTI_KEY_1[noti_key_1] + '_' + NOTI_KEY_2[noti_key_2] + (noti_key_3 ? '_' + NOTI_KEY_3 : '')
+  end # get_noti_key_prefix
+
+  def init_noti_key_regexp (noti_key_1, noti_key_2, noti_key_3)
+    noti_key_prefix = get_noti_key_prefix(noti_key_1, noti_key_2, noti_key_3)
+    Regexp.new "^#{noti_key_prefix}_(1|2|3|n)_v#{NOTI_KEY_4}$"
+  end # init_noti_key_regexp
+
+
+
+  # Note: nnn different translations. See inbox/index/gift_comment*
+  # noti_key_1: 1:new comment, 2:new proposal, 3:cancelled proposal, 4:rejected proposal, 5:accepted proposal
+  # noti_key_2: 1:giver, 2:receiver, 3: giver and receiver
+  # noti_key_3: false: notification to owner of gift and followers of gift, true: notification to other users that has commented the gift
   # from_user is user that has commented the gift - added to noti_options hash
   # to_user is giver, receiver or an other user that also has commented the gift - receiver of notification
-  def create_or_update_noti (noti_key_prefix, from_user, to_user)
-    noti_key_prefix_lng = noti_key_prefix.length
-    noti_key_version = 1
-    regexp = Regexp.new "^#{noti_key_prefix}_(1|2|3|n)_v#{noti_key_version}$"
+  # noti_key is concatenation of noti_key_1, noti_type_2, noti_key_3 and NOTI_KEY_4 (version)
+  # total of 176 different translation keys                                   8
+  # config/locales/language.yml/inbox/index/new_comment_* (48 translations)
+  # config/locales/language.yml/inbox/index/new_proposal_* (32 translations)
+  # config/locales/language.yml/inbox/index/cancelled_proposal_* (32 translations)
+  # config/locales/language.yml/inbox/index/rejected_proposal_* (32 translations)
+  # config/locales/language.yml/inbox/index/accepted_proposal_* (32 translations)
+  def send_notification (noti_key_1, noti_key_2, noti_key_3, from_user, to_user)
+    if [3,4,5].index(noti_key_1)
+      # special handling of noti_type_1 = 3..5. noti_key_1 (noti_type):
+      #   3 - cancelled proposal notification
+      #       a) change unread new proposal notification to new_comment notification
+      #       b) read new proposal - send cancelled proposal notification to owner of gift
+      #       c) read new proposal - don't send any other notifications
+      #   4 - rejected proposal
+      #       a) change any unread new proposal notification to new comment notification
+      #       b) send rejected proposal notification to owner of new proposal / comment
+      #       c) don't send any other notifications
+      #   5 - accepted proposal
+      #       a) unread - change unread new proposal notification to accepted proposal notification
+      #       b) read - send accepted proposal notification
+      regexp = init_noti_key_regexp(2, noti_key_2, noti_key_3)
+      puts "regexp = #{regexp}, comment.id = #{id}, to_userid = #{to_user.user_id}"
+      new_proposal_notification = notifications.where("to_user_id = ? and noti_read = 'N'", to_user.user_id).find_all { |n| regexp.match(n.noti_key)}.first
+      puts new_proposal_notification
+      if new_proposal_notification
+        # 3a, 4a or 5a
+        remove_from_notification(new_proposal_notification)
+        if [3,4].index(noti_key_1)
+          # 3a or 4a
+          send_notification(1, noti_key_2, noti_key_3, from_user, to_user) # new comment notification
+          return
+        end
+        # 5a => 5b
+      else
+        # 3b, 3c, 4b, 4c, 5b
+        return if noti_key_1 == 3 and ![gift.user_id_giver, gift.user_id_receiver].index(to_user.user_id) # 3c
+        return if noti_key_1 == 4 and user_id != to_user.user_id # 4c
+        # 3b, 4b, 5b
+      end
+    end
+
+    noti_key_prefix = get_noti_key_prefix(noti_key_1, noti_key_2, noti_key_3)
+    regexp = init_noti_key_regexp(noti_key_1, noti_key_2, noti_key_3)
     # puts "regexp = #{regexp}"
     match = nil
     n = Notification.where("to_user_id = ? and noti_read = 'N'", to_user.user_id)
-                     .find { |n| n.noti_options[:giftid] == gift.id and match = regexp.match(n.noti_key) }
+    .find { |n| n.noti_options[:giftid] == gift.id and match = regexp.match(n.noti_key) }
     if !n
       # first unread comment for this gift
       # puts "first unread comment for this gift"
@@ -155,14 +243,14 @@ class Comment < ActiveRecord::Base
       n.to_user_id = to_user.user_id
       n.from_user_id = nil
       n.internal = 'Y'
-      n.noti_key = "#{noti_key_prefix}_1_v#{noti_key_version}" # no_users = 1
-      n.noti_options = { :giftid => gift.id, :gifttext => gift.description.first(30),
-                         :no_users => 1, :no_other_users => -1,
-                         :userid1 => from_user.id, :username1 => from_user.short_user_name,
-                         :userid2 => nil, :username2 => nil,
-                         :userid3 => nil, :username3 => nil,
-                         :givername => (gift.user_id_giver ? gift.giver.short_user_name : ""),
-                         :receivername => (gift.user_id_receiver ? gift.receiver.short_user_name : "") }
+      n.noti_key = "#{noti_key_prefix}_1_v#{NOTI_KEY_4}" # no_users = 1
+      n.noti_options = {:giftid => gift.id, :gifttext => gift.description.first(30),
+                        :no_users => 1, :no_other_users => -1,
+                        :userid1 => from_user.id, :username1 => from_user.short_user_name,
+                        :userid2 => nil, :username2 => nil,
+                        :userid3 => nil, :username3 => nil,
+                        :givername => (gift.user_id_giver ? gift.giver.short_user_name : ""),
+                        :receivername => (gift.user_id_receiver ? gift.receiver.short_user_name : "")}
       n.noti_read = 'N'
     elsif n.comments.find { |c| c.user_id == from_user.user_id }
       # user already in unread notification messages "user array"
@@ -194,7 +282,7 @@ class Comment < ActiveRecord::Base
     # buffer is emptied for messages older whan 6 minutes in AjaxComment.after_insert call back
     ac = AjaxComment.new
     ac.user_id = to_user.user_id
-    ac.comment_id = comment_id ;
+    ac.comment_id = comment_id;
     ac.save!
     # add row to CommentNotification / keep track of number of users in notification message
     cn = CommentNotification.where("comment_id = ? and notification_id = ?", id, n.id).first
@@ -204,14 +292,17 @@ class Comment < ActiveRecord::Base
       cn.notification_id = n.id
       cn.save
     end
-  end # create_or_update_noti
+  end
+
+  # create_or_update_noti
 
   # comment no longer relevant for unread notification n
-  # used when comment is deleted or if deal proposal is cancelled
+  # used when comments are deleted, deal proposal is cancelled, rejected or accepted
   def remove_from_notification (n)
     # only modify unread notifications
     return unless n.noti_read == 'N'
-    # find no users before and after removing this comment
+    cn = CommentNotification.where("comment_id = ? and notification_id = ?", id, n.id).first
+    # find no users before and after removing this comment from notification
     old_no_users = n.comments.collect { |c| c.user_id }.uniq.size
     new_users = n.comments.find_all { |c| c.id != id }.collect { |c| c.user }.uniq
     new_no_users = new_users.size
@@ -223,6 +314,7 @@ class Comment < ActiveRecord::Base
     return if old_no_users == new_no_users # unchanged number of users => unchanged notification
     if new_no_users > 3
       # unchanged noti_key and username array. Just change number of users
+      cn.destroy! if cn
       noti_options = n.noti_options
       noti_options[:no_users] = new_no_users
       noti_options[:no_other_users] = new_no_users - 2
@@ -246,49 +338,72 @@ class Comment < ActiveRecord::Base
     noti_options[:no_other_users] = new_no_users - 2
     n.noti_key = "#{noti_key_prefix}_#{new_no_users}_v#{noti_key_version}"
     n.noti_options = noti_options
+    cn.destroy! if cn
     n.save!
-  end # remove_from_notification
+  end
+
+  # remove_from_notification
 
 
   def before_create
     self.status_update_at = Sequence.next_status_update_at
   end
 
-  # Note: 112 different translations.                                   8
+  # Note: 176 different translation keys                                   8
   # config/locales/language.yml/inbox/index/new_comment_* (48 translations)
   # config/locales/language.yml/inbox/index/new_proposal_* (32 translations)
   # config/locales/language.yml/inbox/index/cancelled_proposal_* (32 translations)
-  def after_create
-    # noti_key_format: <noti_key_prefix>_<n>_v1
-    # noti_key_prefix: gift_comment_giver (offer), gift_comment_receiver (seek) or gift_comment_giver_and_receiver (closed)
-    # n: 1, 2, 3 or n : number of users that has commented the gift
-    # v1: version of noti_option hash format - change to next version if changing hast keys for translations
-    # remember to setup translation keys (gift_comment_giver_1_v1_to_url, gift_comment_giver_1_v1_to_msg etc)
-    if new_deal_yn_was == 'Y' and !new_deal_yn and !accepted_yn
-      noti_key_prefix = 'cancelled_proposal_'
-    elsif new_deal_yn == 'Y'
-      noti_key_prefix = 'new_proposal_'
+  # config/locales/language.yml/inbox/index/rejected_proposal_* (32 translations)
+  # config/locales/language.yml/inbox/index/accepted_proposal_* (32 translations)
+  # this method is also called from after_update for noti types 3 .. 5 (cancel, reject and accept). update = true
+  def after_create (update = false)
+    # find noti_type and noti_userid
+    if update
+      # after_update
+      case
+        when new_deal_yn == 'Y' && !accepted_yn_was && accepted_yn == 'Y'
+          noti_key_1 = 5 # accepted
+          noti_userid = gift.user_id_giver || gift.user_id_receiver
+        when new_deal_yn == 'Y' && !accepted_yn_was && accepted_yn == 'N'
+          noti_key_1 = 4 # rejected
+          noti_userid = gift.user_id_giver || gift.user_id_receiver
+        when new_deal_yn_was == 'Y' && !new_deal_yn && !accepted_yn
+          noti_key_1 = 3 # cancelled
+          noti_userid = user_id
+      end # case
+      # after update
     else
-      noti_key_prefix = 'new_comment_'
+      # after insert
+      if new_deal_yn == 'Y'
+        noti_key_1 = 2 # proposal
+      else
+        noti_key_1 = 1 # comment
+      end
+      noti_userid = user_id
+      # after insert
     end
-    noti_key_prefix += case
-                          when gift.giver && gift.receiver then 'giver_and_receiver'
-                          when gift.giver then 'giver'
-                          when gift.receiver then 'receiver'
-                       end
+    case
+      when gift.giver && gift.receiver then
+        noti_key_2 = 3
+      when gift.giver then
+        noti_key_2 = 1
+      when gift.receiver then
+        noti_key_2 = 2
+    end
+    noti_key_prefix = NOTI_KEY_1[noti_key_1] + '_' + NOTI_KEY_2[noti_key_2]
     puts "noti_key_prefix = #{noti_key_prefix}"
     # send notifications
     # 1) notifications to giver and/or receiver
     logger.info "send notifications to gifts giver and/or receiver"
     users1 = []
-    users1.push(gift.giver) if gift.user_id_giver and user_id != gift.user_id_giver
-    users1.push(gift.receiver) if gift.user_id_receiver and user_id != gift.user_id_receiver
+    users1.push(gift.giver) if gift.user_id_giver and noti_userid != gift.user_id_giver
+    users1.push(gift.receiver) if gift.user_id_receiver and noti_userid != gift.user_id_receiver
     users1_ids = users1.collect { |u| u.user_id }
-    # 2) notifications to users that has commented the gift - note that "_other" is added to notification key!
-    users2 = gift.comments.includes(:user).collect { | c| c.user }.find_all { |user2| ![user.user_id, gift.user_id_giver, gift.user_id_receiver].index(user2.user_id) }.uniq
+    # 2) notifications to users that has commented the gift - "_other" is added to notification key!
+    users2 = gift.comments.includes(:user).collect { |c| c.user }.find_all { |user2| ![noti_userid, gift.user_id_giver, gift.user_id_receiver].index(user2.user_id) }.uniq
     users2_ids = users2.collect { |u| u.user_id }
     users_ids = (users1_ids + users2_ids).uniq
-    # check followers - users that have selected to follow gift comments - users that have selected NOT to follow gift comments
+    # 3) check followers - users that have selected to follow gift comments - users that have selected NOT to follow gift comments
     GiftLike.where("gift_id = ? and follow is not null", gift.gift_id).each do |gl|
       if gl.follow == 'Y'
         # user has selected to follow gift
@@ -301,46 +416,29 @@ class Comment < ActiveRecord::Base
     end # each
     # send notifications
     logger.info "send notifications to gifts giver, receiver and followers: " + users1.collect { |u| u.short_user_name }.join(', ')
-    users1.each { |user2| create_or_update_noti(noti_key_prefix, user, user2) }
+    users1.each { |user2| send_notification(noti_key_1, noti_key_2, false, user, user2) }
     logger.info "send notifications to other users that also have commented the gift: " + users2.collect { |u| u.short_user_name }.join(', ')
-    users2.each { |user2| create_or_update_noti(noti_key_prefix + '_other', user, user2) }
+    users2.each { |user2| send_notification(noti_key_1, noti_key_2, true,user, user2) }
   end # after_create
 
   def after_update
     puts "comment: after update: new deal: #{new_deal_yn_was} => #{new_deal_yn}, accepted: #{accepted_yn_was} => #{accepted_yn}"
-    # check for canceled deal proposal
-    if new_deal_yn_was == 'Y' and !new_deal_yn and !accepted_yn
-      # cancelled deal proposal
-      # 1) unread: remove comment from old noti key (new_proposal_...)
-      # 2) unread: add comment to new noti key (new_comments_ ...)
-      # 3) read: send cancel notification to gift giver/receiver
-      notifications.each do |n|
-        if n.noti_read == 'N'
-          # unread notification. must be a new_proposal_... notification. Remove comment from notification
-          remove_from_notification(n)
-          # add comment to a new_comment_... notification.
-          after_create
-        else
-          # read notification.
-          # Send a cancelled proposal notification
-          after_create
-        end
-      end # each n
+    # check for canceled, rejected or accepted deal proposal
+    if  new_deal_yn == 'Y' and !accepted_yn_was and accepted_yn == 'Y' or # noti_type 5: accepted proposal
+        new_deal_yn == 'Y' and !accepted_yn_was and accepted_yn == 'N' or # noti type 4: rejected proposal
+        new_deal_yn_was == 'Y' and !new_deal_yn and !accepted_yn # noti type 3: cancelled proposal
+      after_create(true)
     end # cancelled deal proposal
   end # after_update
 
   def before_destroy
     puts "cleanup any unread notifications"
-    # 1) loop for each unread notifications for this comment
-    # 2) tjek for number of users before and after deleting this comment
-    # not so easy to cleanup any unread notifications after destroy comment
-    # no_users and no_other_users are not correct for more than 3 users
-    # not so easy to decent no_users and no_other_users
+    # change number of users for uny unread notifications
     notifications.find_all { |n| n.noti_read == 'N' }.each do |n|
       remove_from_notification(n)
     end # each n
   end # before_destroy
-  
+
 
   ##############
   # encryption #
@@ -353,9 +451,11 @@ class Comment < ActiveRecord::Base
   def encrypt_pk
     self.comment_id
   end
+
   def encrypt_pk=(new_encrypt_pk_value)
     self.comment_id = new_encrypt_pk_value
   end
+
   def new_encrypt_pk
     loop do
       temp_comment_id = String.generate_random_string(20)
