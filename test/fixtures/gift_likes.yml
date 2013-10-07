@@ -1,17 +1,3 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
 
-one:
-  like_id: MyString
-  user_id: MyString
-  gift_id: MyString
-  like: MyText
-  show: MyText
-  follow: MyText
 
-two:
-  like_id: MyString
-  user_id: MyString
-  gift_id: MyString
-  like: MyText
-  show: MyText
-  follow: MyText

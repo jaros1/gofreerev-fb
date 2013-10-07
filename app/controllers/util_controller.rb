@@ -335,6 +335,7 @@ class UtilController < ApplicationController
     # todo: other comment changes? Maybe an other layout, style, color for accepted gift/comments
     # todo: change gift and comment for other users after reject (new messages count ajax)?
     @link_id = "gift-#{gift.id}-comment-#{comment.id}-reject-link"
+    puts "link_id = #{@link_id}"
   end # reject_new_deal
 
 end # UtilController

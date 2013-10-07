@@ -1,6 +1,7 @@
 require 'test_helper'
 
 class CommentsControllerTest < ActionController::TestCase
+=begin
   test "should get create" do
     get :create
     assert_response :success
@@ -15,5 +16,6 @@ class CommentsControllerTest < ActionController::TestCase
     get :destroy
     assert_response :success
   end
+=end
 
 end

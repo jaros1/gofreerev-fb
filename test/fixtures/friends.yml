@@ -1,9 +1,2 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
 
-one:
-  user_id_giver: MyString
-  user_id_receiver: MyString
-
-two:
-  user_id_giver: MyString
-  user_id_receiver: MyString

@@ -206,12 +206,9 @@
 
 91) comments: timestamps for cancel, reject and accept deal
 
-92) what notification types to send?
-    1: new comment - notification to giver, receiver and other users that also has commented the gift - include/exclude followers
-    2: new proposal - same as new comment
-    3: cancelled proposal - same as new comment - remove unread new proposal and insert new comment notification instead
-    4: reject proposal - send reject notification to user with proposal - remove unread new proposal and insert new comment notification instead
-    5: accept proposal - same as new comment
+92) ajax javascript style = 'display: none' not working for google chrone
+
+
 
 
 

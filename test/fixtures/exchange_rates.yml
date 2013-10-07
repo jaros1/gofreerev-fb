@@ -1,11 +1,11 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
 
 one:
-  from_currency: MyString
-  to_currency: MyString
-  exchange_rate: 
+  from_currency: DKK
+  to_currency: USD
+  exchange_rate: 0.177063
 
 two:
-  from_currency: MyString
-  to_currency: MyString
-  exchange_rate: 
+  from_currency: USD
+  to_currency: DKK
+  exchange_rate: 5.50221464

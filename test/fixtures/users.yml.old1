@@ -1,0 +1,48 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+charlie:
+  id: 458
+  user_id: fb-100006397022113
+  user_name: NbXEVYgIVE9D5on4CiuGXjpjcnlwdF9rZWVwZXI6cZ5D0lzD7pWIylkHJNwjdEbuCKiU/URRItBy5/gago6MlL01UhYQxssBxk6Mvu300unkwtMF7VTiv7lEzUZzRw==
+  created_at: 2013-09-01 16:02:05
+  updated_at: 2013-10-05 08:35:12
+  currency: ZmPVthXFx3V6n6BfZs/wRDpjcnlwdF9rZWVwZXI6uW5K62WCM3W8C9bwNDcI2LDuco1QJnV1t5lyHgWt1II=
+  balance: pa0WSR+ZPY2Dp0q9m6fpZjpjcnlwdF9rZWVwZXI6N0Ed8uGvjyeZAqbUjzOWXnVtuyZASSYqotadmf2Oubg=
+  balance_at: "2013-09-01"
+  permissions: wq2G3gtI3V23uokxGMIN4TpjcnlwdF9rZWVwZXI6d2woWaihLFtlgkoWJQn/6k/TIknjEsgQrEAOvhmrVWxo7sCo0HgPy/8sjj0YQNTVXobFnyrABZblIBrS6R55dwZaj0HuC+Xn18X0+m5SNCIgAPIWODkhYrfZ2OLJWJb3KA6OU+srxmpcLIs+LkE9p7aY6oue6ajlWnc1GFgtQSk/0GA2c8FDFeZo1qKrPNSxdVmx7+ciyClnq69YMMJ2VvtZiICWCHpnkrpRf+c+s6vAS/+Yd2rejV2w8BXs8Te0rgUg3sEOZwjp4U9NmX5I9g==
+  profile_picture_name: "xbdbzi.jpg"
+  timezone: 2
+  no_api_friends: JLE1RdiiR9gVDGPcifrfQDpjcnlwdF9rZWVwZXI6BGZEup1fQTnz7DeUM0TItw==
+  negative_interest:
+
+sandra:
+  id: 2
+  user_id: fb-100006399422155
+  user_name: Sandra Amfciidbbaee Qinsen
+  created_at: 2013-07-19 14:04:36
+  updated_at: 2013-10-06 07:08:41
+  currency: USD
+  balance:
+  balance_at: "2013-07-25"
+  permissions:
+  profile_picture_name: "4quo3t.jpg"
+  timezone: 2
+  no_api_friends: 1
+  negative_interest:
+
+karen:
+  id: 3
+  user_id: fb-100006383526806
+  user_name: Karen Amfchcebfhjf Smithescu
+  created_at: 2013-07-19 13:53:50
+  updated_at: 2013-10-06 07:47:51
+  currency: USD
+  balance:
+  balance_at: "2013-07-26"
+  permissions:
+  profile_picture_name: "vxwmij.jpg"
+  timezone: 2
+  no_api_friends: 1
+  negative_interest:
+
+

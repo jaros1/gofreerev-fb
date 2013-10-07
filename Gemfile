@@ -83,3 +83,11 @@ gem 'will_paginate', '~> 3.0'
 gem 'rails-i18n', '~> 4.0.0.pre'
 
 gem 'debugger'
+
+group :test do
+  if RUBY_PLATFORM =~ /(win32|w32)/
+    gem "win32console", '1.3.0'
+  end
+  gem "minitest"
+  gem "minitest-reporters", '>= 0.5.0'
+end

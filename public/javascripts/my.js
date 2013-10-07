@@ -252,7 +252,7 @@ function insert_new_comments() {
     gifts = document.getElementById("gifts") ;
     if (!gifts) {
         // no gifts table - not gifts/index page
-        alert('no gifts table - not gifts/index page') ;
+        if (debug) alert('no gifts table - not gifts/index page') ;
         return ;
     }
     new_comments_tbody = document.getElementById("new_comments_tbody");
