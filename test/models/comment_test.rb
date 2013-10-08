@@ -165,96 +165,42 @@ class CommentTest < ActiveSupport::TestCase
     u4 = users(:dick)
     gift = gifts(:charlie_gift_a)
     # four notifications when u4/dick comments charlies gift
-
-    old_no_noti = Notification.count
-    # sandra comments charlies gift => one notification to charlie
-    c1 = Comment.new
-    c1.user_id = u1.user_id
-    c1.comment = 'send notification to charlie'
-    c1.gift_id = gift.gift_id
-    assert c1.save
-    new_no_noti = Notification.count
-    assert (old_no_noti + 1 == new_no_noti)
-    n = Notification.last
-    assert (n.to_user_id == charlie.user_id)
-    assert (n.noti_key == 'new_comment_giver_1_v1')
-    assert (n.noti_options[:no_users] == 1)
-    # karen comments charlies gift => one changed notification to charlie and one notification to sandra
-    c2 = Comment.new
-    c2.user_id = u2.user_id
-    c2.comment = 'send notification to charlie and sandra'
-    c2.gift_id = gift.gift_id
-    assert c2.save
-    new_no_noti = Notification.count
-    assert (old_no_noti + 2 == new_no_noti), "expected 2 notification, found #{new_no_noti-old_no_noti} notification(s)"
-    n1, n2 = Notification.last(2)
-    assert (n1.to_user_id == charlie.user_id)
-    assert (n1.noti_key == 'new_comment_giver_2_v1')
-    assert (n1.noti_options[:no_users] == 2)
-    assert (n2.to_user_id == u1.user_id)
-    assert (n2.noti_key == 'new_comment_giver_other_1_v1')
-    assert (n2.noti_options[:no_users] == 1)
-    # david comments charlies gift => one changed notification charlie, obe changed notification to sandra and one notification to karen
-    c3 = Comment.new
-    c3.user_id = u3.user_id
-    c3.comment = 'send notification to charlie, sandra and karen'
-    c3.gift_id = gift.gift_id
-    assert c3.save
-    new_no_noti = Notification.count
-    assert (old_no_noti + 3 == new_no_noti), "expected 3 notification, found #{new_no_noti-old_no_noti} notification(s)"
-    ns = Notification.last(3)
-    n1_charlie = ns.find_all { |n| n.to_user_id == charlie.user_id }.first
-    n2_sandra = ns.find_all { |n| n.to_user_id == u1.user_id }.first
-    n3_karen = ns.find_all { |n| n.to_user_id == u2.user_id }.first
-    # 3 user names in notification to charlie (sandra, karen and david)
-    assert (n1_charlie != nil)
-    assert (n1_charlie.noti_key == 'new_comment_giver_3_v1')
-    assert (n1_charlie.noti_options[:no_users] == 3), "excepted 3 user names in notification to charlie, found #{n1.noti_options[:no_users]}"
-    assert (["David M", "Karen S", "Sandra Q"] == [n1_charlie.noti_options[:username1], n1_charlie.noti_options[:username2], n1_charlie.noti_options[:username3]].sort)
-    # 2 user names in notification to sandra (karen and david)
-    assert (n2_sandra != nil)
-    assert (n2_sandra.noti_key == 'new_comment_giver_other_2_v1')
-    assert (n2_sandra.noti_options[:no_users] == 2)
-    assert (["David M", "Karen S"] == [n2_sandra.noti_options[:username1], n2_sandra.noti_options[:username2]].sort)
-    assert (n3_karen != nil)
-    # 1 user name in notification to karen (david)
-    assert (n3_karen != nil)
-    assert (n3_karen.noti_key == 'new_comment_giver_other_1_v1')
-    assert (n3_karen.noti_options[:no_users] == 1)
-    assert ("David M" == n3_karen.noti_options[:username1])
-    # dick comments charlies gift => one changed notification charlie, one changed notification to sandra, one changed notification to karen and one notification to david
-    c4 = Comment.new
-    c4.user_id = u4.user_id
-    c4.comment = 'send notification to charlie, sandra, karen and dick'
-    c4.gift_id = gift.gift_id
-    assert c4.save
-    new_no_noti = Notification.count
-    assert (old_no_noti + 4 == new_no_noti), "expected 4 notification, found #{new_no_noti-old_no_noti} notification(s)"
-    ns = Notification.last(4)
-    n1_charlie = ns.find_all { |n| n.to_user_id == charlie.user_id }.first
-    n2_sandra = ns.find_all { |n| n.to_user_id == u1.user_id }.first
-    n3_karen = ns.find_all { |n| n.to_user_id == u2.user_id }.first
-    n4_david = ns.find_all { |n| n.to_user_id == u3.user_id }.first
-    # 4 users in notification to charlie (only names for sandra, karen and david)
-    assert (n1_charlie != nil)
-    assert (n1_charlie.noti_key == 'new_comment_giver_n_v1')
-    assert (n1_charlie.noti_options[:no_users] == 4), "excepted 4 users in notification to charlie, found #{n1.noti_options[:no_users]}"
-    assert (["David M", "Karen S", "Sandra Q"] == [n1_charlie.noti_options[:username1], n1_charlie.noti_options[:username2], n1_charlie.noti_options[:username3]].sort)
-    # 3 user names in notification to sandra (karen, david and dick)
-    assert (n2_sandra != nil)
-    assert (n2_sandra.noti_key == 'new_comment_giver_other_3_v1')
-    assert (n2_sandra.noti_options[:no_users] == 3)
-    assert (["David M", "Dick B", "Karen S"] == [n2_sandra.noti_options[:username1], n2_sandra.noti_options[:username2], n2_sandra.noti_options[:username3]].sort)
-    # 2 user name in notification to karen (david and dick)
-    assert (n3_karen != nil)
-    assert (n3_karen.noti_key == 'new_comment_giver_other_2_v1')
-    assert (n3_karen.noti_options[:no_users] == 2)
-    assert (["David M", "Dick B"] == [n3_karen.noti_options[:username1], n3_karen.noti_options[:username2]].sort)
-    # 1 user name in notification to david (dick)
-    assert (n4_david != nil)
-    assert (n4_david.noti_key == 'new_comment_giver_other_1_v1')
-    assert (n4_david.noti_options[:no_users] == 1)
-    assert ("Dick B" == n4_david.noti_options[:username1])
-  end # four_users_comment_charlies_gift
+    # 1) notification to gift owner charlie - 4 users have commented charlies gift
+    # 2) notification to u1/sandra. 3 other users have also commented charlies gift
+    # 3) notification to u2/karen. 2 other users have also commented charlies gift
+    # 4) notificatiob to u3/david. 1 other user has also commented charlies gift
+    assert_notifications(:gift => gift,
+                         :user => u4,
+                         :comment => 'send notification to charlie, sandra, karen and david',
+                         :method => __method__,
+                         :notifications => [
+                             # notification to gift owner charlie
+                             {:to_user_id => charlie.user_id,
+                              :noti_key => 'new_comment_giver_n_v1',
+                              :no_users => 4,
+                              :usernames => ["David M", "Karen S", "Sandra Q"]
+                             },
+                             # notification to u1/sandra that also has commented charlies gift
+                             {:to_user_id => u1.user_id,
+                              :noti_key => 'new_comment_giver_other_3_v1',
+                              :no_users => 3,
+                              :usernames => ["David M", "Dick B", "Karen S"]
+                             },
+                             # notification to u2/karen that also has commented charlies gift
+                             {:to_user_id => u2.user_id,
+                              :noti_key => 'new_comment_giver_other_2_v1',
+                              :no_users => 2,
+                              :usernames => ["David M", "Dick B"]
+                             },
+                             # notification to u3/david that also has commented charlies gift
+                             {:to_user_id => u3.user_id,
+                              :noti_key => 'new_comment_giver_other_1_v1',
+                              :no_users => 1,
+                              :usernames => ["Dick B"]
+                             }]) do
+      # setup context for this test - two other users (sandra and karen) have already commented this gift
+      three_users_comment_charlies_gift
+    end
+  end # three_users_comment_charlies_gift
 
 end
