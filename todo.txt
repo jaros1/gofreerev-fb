@@ -208,6 +208,9 @@
 
 92) ajax javascript style = 'display: none' not working for google chrone
 
+93) usefull to use identical encryption keys on development and test (easy generation of fixtures)
+    must use different encryption keys in production environment
+
 
 
 

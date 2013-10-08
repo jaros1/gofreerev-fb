@@ -126,7 +126,11 @@ class ApplicationController < ActionController::Base
         u = User.new unless u
         u.user_id = user_id
         u.user_name = user_name
-        u.no_api_friends = api_response['friends']['data'].size
+        if api_response['friends']
+          u.no_api_friends = api_response['friends']['data'].size
+        else
+          u.no_api_friends = 0
+        end
         u.timezone = api_response['timezone']
         if u.new_record?
           # set currency and balance for new user.
