@@ -227,7 +227,7 @@ da:
         new_comment_giver_and_receiver_n_v1_to_msg: '%{username1}, %{username2} or %{no_other_users} andre har kommenteret aftale "%{gifttext} ..."'
         new_comment_giver_other_1_v1_to_url: "/gifts/%{giftid}"
         new_comment_giver_other_1_v1_to_msg: '%{username1} har også kommenteret %{givername}-s tilbud "%{gifttext} ..."'
-        new_comment_giver_other_2_v1_to_url: "/gifts/%{giftid}"
+        new_comment_giver_other_2_vsporet ind på opgaven. Det kan være en god buffer opgave 1_to_url: "/gifts/%{giftid}"
         new_comment_giver_other_2_v1_to_msg: '%{username1} og %{username2} har også kommenteret %{givername}-s tilbud "%{gifttext} ..."'
         new_comment_giver_other_3_v1_to_url: "/gifts/%{giftid}"
         new_comment_giver_other_3_v1_to_msg: '%{username1}, %{username2} og %{username3} har også kommenteret %{givername}-s tilbud "%{gifttext} ..."'
@@ -239,7 +239,7 @@ da:
         new_comment_receiver_other_2_v1_to_msg: '%{username1} og %{username2} har også kommenteret %{receivername}-s ønske "%{gifttext} ..."'
         new_comment_receiver_other_3_v1_to_url: "/gifts/%{giftid}"
         new_comment_receiver_other_3_v1_to_msg: '%{username1}, %{username2} og %{username3} har også kommenteret %{receivername}-s ønske "%{gifttext} ..."'
-        new_comment_receiver_other_n_v1_to_url: "/gifts/%{giftid}"
+        new_comment_receiver_other_sporet ind på opgaven. Det kan være en god buffer opgave n_v1_to_url: "/gifts/%{giftid}"
         new_comment_receiver_other_n_v1_to_msg: '%{username1}, %{username2} og %{no_other_users} andre har også kommenteret %{receivername}-s ønske "%{gifttext} ..."'
         new_comment_giver_and_receiver_other_1_v1_to_url: "/gifts/%{giftid}"
         new_comment_giver_and_receiver_other_1_v1_to_msg: '%{username1} har også kommenteret aftale "%{gifttext} ..."'
@@ -266,19 +266,19 @@ da:
         new_proposal_receiver_n_v1_to_url: "/gifts/%{giftid}"
         new_proposal_receiver_n_v1_to_msg: '%{username1}, %{username2} og %{no_other_users} andre har bud på dit ønske "%{gifttext} ..."'
         new_proposal_giver_other_1_v1_to_url: "/gifts/%{giftid}"
-        new_proposal_giver_other_1_v1_to_msg: '%{username1} vil også gerne benytte %{givername}-s tilbud "%{gifttext} ..."'
+        new_proposal_giver_other_1_v1_to_msg: '%{username1} vil gerne benytte %{givername}-s tilbud "%{gifttext} ..."'
         new_proposal_giver_other_2_v1_to_url: "/gifts/%{giftid}"
-        new_proposal_giver_other_2_v1_to_msg: '%{username1} og %{username2} vil også gerne benytte %{givername}-s tilbud "%{gifttext} ..."'
+        new_proposal_giver_other_2_v1_to_msg: '%{username1} og %{username2} vil gerne benytte %{givername}-s tilbud "%{gifttext} ..."'
         new_proposal_giver_other_3_v1_to_url: "/gifts/%{giftid}"
-        new_proposal_giver_other_3_v1_to_msg: '%{username1}, %{username2} og %{username3} vil også gerne benytte %{givername}-s tilbud "%{gifttext} ..."'
+        new_proposal_giver_other_3_v1_to_msg: '%{username1}, %{username2} og %{username3} vil gerne benytte %{givername}-s tilbud "%{gifttext} ..."'
         new_proposal_giver_other_n_v1_to_url: "/gifts/%{giftid}"
-        new_proposal_giver_other_n_v1_to_msg: '%{username1}, %{username2} og %{no_other_users} vil også gerne benytte %{givername}-s tilbud "%{gifttext} ..."'
+        new_proposal_giver_other_n_v1_to_msg: '%{username1}, %{username2} og %{no_other_users} vil gerne benytte %{givername}-s tilbud "%{gifttext} ..."'
         new_proposal_receiver_other_1_v1_to_url: "/gifts/%{giftid}"
-        new_proposal_receiver_other_1_v1_to_msg: '%{username1} har også et bud på %{receivername}-s ønske "%{gifttext} ..."'
+        new_proposal_receiver_other_1_v1_to_msg: '%{username1} har et bud på %{receivername}-s ønske "%{gifttext} ..."'
         new_proposal_receiver_other_2_v1_to_url: "/gifts/%{giftid}"
-        new_proposal_receiver_other_2_v1_to_msg: '%{username1} og %{username2} har også bud på %{receivername}-s ønske "%{gifttext} ..."'
+        new_proposal_receiver_other_2_v1_to_msg: '%{username1} og %{username2} har bud på %{receivername}-s ønske "%{gifttext} ..."'
         new_proposal_receiver_other_3_v1_to_url: "/gifts/%{giftid}"
-        new_proposal_receiver_other_3_v1_to_msg: '%{username1}, %{username2} og %{username3} har også bud på %{receivername}-s ønske "%{gifttext} ..."'
+        new_proposal_receiver_other_3_v1_to_msg: '%{username1}, %{username2} og %{username3} har bud på %{receivername}-s ønske "%{gifttext} ..."'
         new_proposal_receiver_other_n_v1_to_url: "/gifts/%{giftid}"
         new_proposal_receiver_other_n_v1_to_msg: '%{username1}, %{username2} og %{no_other_users} andre har bud på %{receivername}-s ønske "%{gifttext} ..."'
         cancelled_proposal_giver_1_v1_to_url: "/gifts/%{giftid}"
