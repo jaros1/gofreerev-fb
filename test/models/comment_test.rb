@@ -298,6 +298,100 @@ class CommentTest < ActiveSupport::TestCase
     two_proposals_for_charlies_gift
   end # two_proposals_for_charlies_gift
 
+  def three_proposals_for_charlies_gift
+    charlie = users(:charlie)
+    u1 = users(:sandra) # proposal
+    u2 = users(:karen)  # proposal
+    u3 = users(:david)  # proposal
+    gift = gifts(:charlie_gift_a)
+    # three notifications when u3/david comments charlies gift
+    # 1) notification to gift owner charlie - three users with new proposals
+    # 2) notification to u1/sandra - two users with proposals (u2/karen and u3/david)
+    # 3) notification to u2/david - one user with proposal (u3/david)
+    assert_notifications(:gift => gift,
+                         :user => u3,
+                         :comment => 'send notification to charlie, sandra and karen',
+                         :new_deal_yn => 'Y',
+                         :method => __method__,
+                         :notifications => [
+                             # 1) notification to gift owner charlie - three users with new proposals
+                             {:to_user_id => charlie.user_id,
+                              :noti_key => 'new_proposal_giver_3_v1',
+                              :no_users => 3,
+                              :usernames => ["David M", "Karen S", "Sandra Q"]
+                             },
+                             # 2) notification to u1/sandra - two users with proposals (u2/karen and u3/david)
+                             {:to_user_id => u1.user_id,
+                              :noti_key => 'new_proposal_giver_other_2_v1',
+                              :no_users => 2,
+                              :usernames => ["David M", "Karen S"]
+                             },
+                             # 3) notification to u2/david - one user with proposal (u3/david)
+                             {:to_user_id => u2.user_id,
+                              :noti_key => 'new_proposal_giver_other_1_v1',
+                              :no_users => 1,
+                              :usernames => ["David M"]
+                             }  ]) do
+      # setup context for this test
+      two_proposals_for_charlies_gift
+    end
+  end # three_proposals_for_charlies_gift
+
+  test "three_proposals_for_charlies_gift" do
+    three_proposals_for_charlies_gift
+  end # three_proposals_for_charlies_gift
+
+  def four_proposals_for_charlies_gift
+    charlie = users(:charlie)
+    u1 = users(:sandra) # proposal
+    u2 = users(:karen)  # proposal
+    u3 = users(:david)  # proposal
+    u4 = users(:dick)   # proposal
+    gift = gifts(:charlie_gift_a)
+    # four notifications when u4/dick comments charlies gift
+    # 1) notification to gift owner charlie - four users with new proposals
+    # 2) notification to u1/sandra - three users with proposals (u2/karen, u3/david and u4/dick)
+    # 3) notification to u2/karen - two users with proposal (u3/david and u4/dick)
+    # 4) notification to u3/david - one user u4/david with proposal
+    assert_notifications(:gift => gift,
+                         :user => u4,
+                         :comment => 'send notification to charlie, sandra, karen and dick',
+                         :new_deal_yn => 'Y',
+                         :method => __method__,
+                         :notifications => [
+                             # 1) notification to gift owner charlie - four users with new proposals
+                             {:to_user_id => charlie.user_id,
+                              :noti_key => 'new_proposal_giver_n_v1',
+                              :no_users => 4,
+                              :usernames => ["David M", "Karen S", "Sandra Q"]
+                             },
+                             # 2) notification to u1/sandra - three users with proposals (u2/karen, u3/david and u4/dick)
+                             {:to_user_id => u1.user_id,
+                              :noti_key => 'new_proposal_giver_other_3_v1',
+                              :no_users => 3,
+                              :usernames => ["David M", "Dick B", "Karen S"]
+                             },
+                             # 3) notification to u2/karen - two users with proposal (u3/david and u4/dick)
+                             {:to_user_id => u2.user_id,
+                              :noti_key => 'new_proposal_giver_other_2_v1',
+                              :no_users => 2,
+                              :usernames => ["David M", "Dick B"]
+                             },
+                             # 4) notification to u3/david - one user u4/david with proposal
+                             {:to_user_id => u3.user_id,
+                              :noti_key => 'new_proposal_giver_other_1_v1',
+                              :no_users => 1,
+                              :usernames => ["Dick B"]
+                             } ]) do
+      # setup context for this test
+      three_proposals_for_charlies_gift
+    end
+  end # four_proposals_for_charlies_gift
+
+  test "four_proposals_for_charlies_gift" do
+    four_proposals_for_charlies_gift
+  end # four_proposals_for_charlies_gift
+
 
   #
   # test mix of new comments and new proposals
