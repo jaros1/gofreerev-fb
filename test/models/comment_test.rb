@@ -19,13 +19,15 @@ class CommentTest < ActiveSupport::TestCase
     notifications_before = Notification.count
     # create any optional transactions
     yield if block_given?
-    # create gift
-    c = Comment.new
-    c.user_id = user.user_id
-    c.gift_id = gift.gift_id
-    c.comment = comment
-    c.new_deal_yn = new_deal_yn
-    assert c.save, "#{method}: could not send notification: " + c.errors.full_messages.join('. ')
+    if gift or user or comment or new_deal_yn
+      # create comment
+      c = Comment.new
+      c.user_id = user.user_id
+      c.gift_id = gift.gift_id
+      c.comment = comment
+      c.new_deal_yn = new_deal_yn
+      assert c.save, "#{method}: could not send notification: " + c.errors.full_messages.join('. ')
+    end
     # test number of notifications
     notifications_after = Notification.count
     expected_no_notifications = notifications.size
@@ -61,86 +63,160 @@ class CommentTest < ActiveSupport::TestCase
 
 
   #
+  # data setup
+  #
+
+  # one user u1/sandra comments charlies gift
+  def setup_one_user_comments_charlies_gift
+    gift = gifts(:charlie_gift_a)
+    u1 = users(:sandra)
+    # u1/sandra comments charlies gift
+    c = Comment.new
+    c.user_id = u1.user_id
+    c.gift_id = gift.gift_id
+    c.comment = 'send notification to charlie'
+    assert c.save
+  end # setup_one_user_comments_charlies_gift
+
+  # one user u1/sandra make a proposal for charlies gift
+  def setup_one_proposal_for_charlies_gift
+    gift = gifts(:charlie_gift_a)
+    u1 = users(:sandra)
+    # u1/sandra comments charlies gift
+    c = Comment.new
+    c.user_id = u1.user_id
+    c.gift_id = gift.gift_id
+    c.comment = 'send notification to charlie'
+    c.new_deal_yn = 'Y'
+    assert c.save
+  end # setup_one_proposal_for_charlies_gift_a
+
+  # two users u1/sandra and u2/karen comment charlies gift
+  def setup_two_users_comment_charlies_gift
+    # u1/sandra comments charlies gift
+    setup_one_user_comments_charlies_gift
+    u2 = users(:karen)
+    gift = gifts(:charlie_gift_a)
+    # u2/karen comments charlies gift
+    c = Comment.new
+    c.user_id = u2.user_id
+    c.gift_id = gift.gift_id
+    c.comment = 'send notification to charlie and sandra'
+    assert c.save
+  end # setup_two_users_comment_charlies_gift
+
+  # two users u1/sandra and u2/karen makes proposals for charlies gift
+  def setup_two_proposals_for_charlies_gift
+    # u1/sandra make a proposal for charlies gift
+    setup_one_proposal_for_charlies_gift
+    # u2/karen comments charlies gift
+    u2 = users(:karen)
+    gift = gifts(:charlie_gift_a)
+    c = Comment.new
+    c.user_id = u2.user_id
+    c.gift_id = gift.gift_id
+    c.comment = 'send notification to charlie and sandra'
+    c.new_deal_yn = 'Y'
+    assert c.save
+  end # setup_two_proposals_for_charlies_gift
+
+  # three users u1/sandra, u2/karen and u3/david comment charlies gift
+  def setup_three_users_comment_charlies_gift
+    # two users - u1/sandra and u2/karen comment charlies gift
+    setup_two_users_comment_charlies_gift
+    u3 = users(:david)
+    gift = gifts(:charlie_gift_a)
+    # u3/david comments charlies gift
+    c = Comment.new
+    c.user_id = u3.user_id
+    c.gift_id = gift.gift_id
+    c.comment = 'send notification to charlie, sandra and karen'
+    assert c.save
+  end # setup_three_users_comment_charlies_gift
+
+  # four users u1/sandra, u2/karen, u3/david and u4/dick comment charlies gift
+  def setup_four_users_comment_charlies_gift
+    # three users u1/sandra, u2/karen and u3/david comment charlies gift
+    setup_three_users_comment_charlies_gift
+    # u4/dick comments charlies gift
+    u4 = users(:dick)
+    gift = gifts(:charlie_gift_a)
+    # u4/dick comments charlies gift
+    c = Comment.new
+    c.user_id = u4.user_id
+    c.gift_id = gift.gift_id
+    c.comment = 'send notification to charlie, sandra, karen and david'
+    assert c.save
+  end # setup_four_users_comment_charlies_gift
+
+
+
+  #
   # test notifications for new comments
   #
 
   test "charlie_comments_own_gift" do
     charlie = users(:charlie)
     gift = gifts(:charlie_gift_a)
-    assert_notifications :gift => gift,
-                             :user => charlie,
-                             :comment => "don't send any notifications",
-                             :method => __method__,
-                             :notifications => []
+    assert_notifications :method => __method__,
+                         :notifications => [] do
+      # setup - charlie comments his own gift - don't send any notifications
+      c = Comment.new
+      c.user_id = charlie.user_id
+      c.gift_id = gift.gift_id
+      c.comment = "don't send any notifications"
+      assert c.save
+    end
   end # charlie_comments_own_gift
 
-  def one_user_comments_charlies_gift
-    charlie = users(:charlie)
-    gift = gifts(:charlie_gift_a)
-    u1 = users(:sandra)
-    # should send one notification to charlie
-    assert_notifications :gift => gift,
-                             :user => u1,
-                             :comment => 'send notification to charlie',
-                             :method => __method__,
-                             :notifications => [{:to_user_id => charlie.user_id,
-                                                 :noti_key => 'new_comment_giver_1_v1',
-                                                 :no_users => 1,
-                                                 :usernames => ["Sandra Q"]
-                                                }]
-  end # one_user_comments_charlies_gift
-
   test "one_user_comments_charlies_gift" do
-    one_user_comments_charlies_gift
+    charlie = users(:charlie)
+    # should send one notification to charlie
+    assert_notifications :method => __method__,
+                         :notifications => [{:to_user_id => charlie.user_id,
+                                             :noti_key => 'new_comment_giver_1_v1',
+                                             :no_users => 1,
+                                             :usernames => ["Sandra Q"]
+                                            }]  do
+      # setup - one user u1/sandra comments charlies gift
+      setup_one_user_comments_charlies_gift
+    end
   end # one_user_comments_charlies_gift
 
-  def two_users_comment_charlies_gift
+  test "two_users_comment_charlies_gift" do
     charlie = users(:charlie)
     u1 = users(:sandra)
-    u2 = users(:karen)
-    gift = gifts(:charlie_gift_a)
     # two notifications when u2/karen comments charlies gift
     # 1) notification to gift owner charlie
     # 2) notification to other users (sandra) that have commented charlies gift
-    assert_notifications(:gift => gift,
-                         :user => u2,
-                         :comment => 'send notification to charlie and sandra',
-                         :method => __method__,
+    assert_notifications(:method => __method__,
                          :notifications => [ # notification to gift owner charlie
-                                             {:to_user_id => charlie.user_id,
-                                             :noti_key => 'new_comment_giver_2_v1',
-                                             :no_users => 2,
-                                             :usernames => ["Karen S", "Sandra Q"]
-                                            },
-                                             # notification to other users that has commented charlies gift
-                                            {:to_user_id => u1.user_id,
-                                             :noti_key => 'new_comment_giver_other_1_v1',
-                                             :no_users => 1,
-                                             :usernames => ["Karen S"]
-                                            }]) do
-      # setup context for this test - u1/sandra comments charlies gift
-      one_user_comments_charlies_gift
-    end
+                             {:to_user_id => charlie.user_id,
+                              :noti_key => 'new_comment_giver_2_v1',
+                              :no_users => 2,
+                              :usernames => ["Karen S", "Sandra Q"]
+                             },
+                             # notification to other users that has commented charlies gift
+                             {:to_user_id => u1.user_id,
+                              :noti_key => 'new_comment_giver_other_1_v1',
+                              :no_users => 1,
+                              :usernames => ["Karen S"]
+                             }]) do
+      # setup context for this test
+      # two users u1/sandra and u2/karen comment charlies gift
+      setup_two_users_comment_charlies_gift
+    end # assert_notifications
   end # two_users_comment_charlies_gift
 
-  test "two_users_comment_charlies_gift" do
-    two_users_comment_charlies_gift
-  end # two_users_comment_charlies_gift
-
-  def three_users_comment_charlies_gift
+  test "three_users_comment_charlies_gift" do
     charlie = users(:charlie)
     u1 = users(:sandra)
     u2 = users(:karen)
-    u3 = users(:david)
-    gift = gifts(:charlie_gift_a)
     # three notifications when u3/david comments charlies gift
     # 1) notification to gift owner charlie
     # 2) notification to u1/sandra that also has commented charlies gift
     # 3) notification to u2/karen that also has commented charlies gift
-    assert_notifications(:gift => gift,
-                         :user => u3,
-                         :comment => 'send notification to charlie, sandra and karen',
-                         :method => __method__,
+    assert_notifications(:method => __method__,
                          :notifications => [
                              # notification to gift owner charlie
                              {:to_user_id => charlie.user_id,
@@ -160,31 +236,24 @@ class CommentTest < ActiveSupport::TestCase
                               :no_users => 1,
                               :usernames => ["David M"]
                              }]) do
-      # setup context for this test - two other users (sandra and karen) have already commented this gift
-      two_users_comment_charlies_gift
+      # setup context for this test
+      # # three users - u1/sandra, u2/karen and u3/david comment charlies gift
+      setup_three_users_comment_charlies_gift
     end
   end # three_users_comment_charlies_gift
 
-  test "three_users_comment_charlies_gift" do
-    three_users_comment_charlies_gift
-  end # three_users_comment_charlies_gift
 
   test "four_users_comment_charlies_gift" do
     charlie = users(:charlie)
     u1 = users(:sandra)
     u2 = users(:karen)
     u3 = users(:david)
-    u4 = users(:dick)
-    gift = gifts(:charlie_gift_a)
     # four notifications when u4/dick comments charlies gift
-    # 1) notification to gift owner charlie - 4 users have commented charlies gift
+    # 1) notification to charlie. 4 users have commented charlies gift
     # 2) notification to u1/sandra. 3 other users have also commented charlies gift
     # 3) notification to u2/karen. 2 other users have also commented charlies gift
-    # 4) notificatiob to u3/david. 1 other user has also commented charlies gift
-    assert_notifications(:gift => gift,
-                         :user => u4,
-                         :comment => 'send notification to charlie, sandra, karen and david',
-                         :method => __method__,
+    # 4) notification to u3/david. 1 other user has also commented charlies gift
+    assert_notifications(:method => __method__,
                          :notifications => [
                              # notification to gift owner charlie
                              {:to_user_id => charlie.user_id,
@@ -210,73 +279,56 @@ class CommentTest < ActiveSupport::TestCase
                               :no_users => 1,
                               :usernames => ["Dick B"]
                              }]) do
-      # setup context for this test - two other users (sandra and karen) have already commented this gift
-      three_users_comment_charlies_gift
+      # setup context for this test
+      # four users u1/sandra, u2/karen, u3/david and u4/dick comment charlies gift
+      setup_four_users_comment_charlies_gift
     end
-  end # three_users_comment_charlies_gift
+  end # four_users_comment_charlies_gift
 
 
   #
   # test notifications for new proposals
   #
 
-  def one_proposal_for_charlies_gift
+
+
+  test "one_proposal_for_charlies_gift" do
     charlie = users(:charlie)
-    gift = gifts(:charlie_gift_a)
-    u1 = users(:sandra)
     # should send one notification to charlie
-    assert_notifications :gift => gift,
-                         :user => u1,
-                         :comment => 'send notification to charlie',
-                         :new_deal_yn => 'Y',
-                         :method => __method__,
+    assert_notifications :method => __method__,
                          :notifications => [{:to_user_id => charlie.user_id,
                                              :noti_key => 'new_proposal_giver_1_v1',
                                              :no_users => 1,
                                              :usernames => ["Sandra Q"]
-                                            }]
-  end # one_proposal_for_charlies_gift_a
-
-  test "one_proposal_for_charlies_gift" do
-    one_proposal_for_charlies_gift
+                                            }] do
+      # setup - one user u1/sandra make a new proposal for charlies gift
+      setup_one_proposal_for_charlies_gift
+    end
   end # one_user_comments_charlies_gift
 
-  def one_proposal_for_charlies_gift_b
+  test "one_proposal_for_charlies_gift_b" do
     charlie = users(:charlie)
-    gift = gifts(:charlie_gift_a)
-    u1 = users(:sandra)
-    # two proposals from u1/sandra - should send one notification to charlie
-    assert_notifications :gift => gift,
-                         :user => u1,
-                         :comment => 'send notification to charlie',
-                         :new_deal_yn => 'Y',
-                         :method => __method__,
+    # two proposals from u1/sandra - should send only one notification to charlie
+    assert_notifications :method => __method__,
                          :notifications => [{:to_user_id => charlie.user_id,
                                              :noti_key => 'new_proposal_giver_1_v1',
                                              :no_users => 1,
                                              :usernames => ["Sandra Q"]
                                             }]       do
-      one_proposal_for_charlies_gift
+      setup_one_proposal_for_charlies_gift
+      setup_one_proposal_for_charlies_gift
     end
   end # one_proposal_for_charlies_gift_b
 
-  test "one_proposal_for_charlies_gift_b" do
-    one_proposal_for_charlies_gift_b
-  end # one_user_comments_charlies_gift_b
 
-  def two_proposals_for_charlies_gift
+
+  test "two_proposals_for_charlies_gift" do
     charlie = users(:charlie)
     u1 = users(:sandra)
-    u2 = users(:karen)
-    gift = gifts(:charlie_gift_a)
     # two notifications when u2/karen comments charlies gift
     # 1) notification to gift owner charlie
     # 2) notification to one other user (sandra) that also has a proposal for charlies gift
-    assert_notifications(:gift => gift,
-                         :user => u2,
-                         :comment => 'send notification to charlie and sandra',
-                         :new_deal_yn => 'Y',
-                         :method => __method__,
+    assert_notifications(:method => __method__,
                          :notifications => [ # notification to gift owner charlie
                              {:to_user_id => charlie.user_id,
                               :noti_key => 'new_proposal_giver_2_v1',
@@ -289,13 +341,9 @@ class CommentTest < ActiveSupport::TestCase
                               :no_users => 1,
                               :usernames => ["Karen S"]
                              }]) do
-      # setup context for this test - u1/sandra proposal for charlies gift
-      one_proposal_for_charlies_gift
+      # setup context for this test - u1/sandra and u2/karen proposals for charlies gift
+      setup_two_proposals_for_charlies_gift
     end
-  end # two_proposals_for_charlies_gift
-
-  test "two_proposals_for_charlies_gift" do
-    two_proposals_for_charlies_gift
   end # two_proposals_for_charlies_gift
 
   def three_proposals_for_charlies_gift
@@ -333,7 +381,7 @@ class CommentTest < ActiveSupport::TestCase
                               :usernames => ["David M"]
                              }  ]) do
       # setup context for this test
-      two_proposals_for_charlies_gift
+      setup_two_proposals_for_charlies_gift
     end
   end # three_proposals_for_charlies_gift
 
@@ -430,7 +478,7 @@ class CommentTest < ActiveSupport::TestCase
                               :usernames => ["Karen S"]
                              }]) do
       # setup context for this test - u1/sandra has commented charlies gift
-      one_user_comments_charlies_gift
+      setup_one_user_comments_charlies_gift
     end
   end # one_comment_and_one_proposal_for_charlies_gift
 
@@ -472,7 +520,7 @@ class CommentTest < ActiveSupport::TestCase
                               :usernames => ["Karen S"]
                              }]) do
       # setup context for this test - u1/sandra has made a proposal for charlies gift
-      one_proposal_for_charlies_gift
+      setup_one_proposal_for_charlies_gift
     end
   end # one_proposal_and_one_comment_for_charlies_gift
 
@@ -529,7 +577,7 @@ class CommentTest < ActiveSupport::TestCase
                               :usernames => ["David M"]
                              }  ]) do
       # setup context for this test - u1/sandra and u2/karen proposals for charlies gift
-      two_proposals_for_charlies_gift
+      setup_two_proposals_for_charlies_gift
     end
   end # two_proposals_and_one_comment_for_charlies_gift
 
