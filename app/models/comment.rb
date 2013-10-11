@@ -426,7 +426,7 @@ class Comment < ActiveRecord::Base
     users_ids = (users1_ids + users2_ids).uniq
     puts "2: users2 = " + users2_ids.join(', ')
     # 3) check followers - users that have selected to follow gift comments - users that have selected NOT to follow gift comments
-    puts "3: adding followers"
+    puts "3: adding followers to users1 and users2"
     GiftLike.where("gift_id = ? and follow is not null", gift.gift_id).each do |gl|
       next if
       if gl.follow == 'Y'
@@ -458,7 +458,10 @@ class Comment < ActiveRecord::Base
         gl.follow = 'Y'
         gl.show = 'Y'
       end
-      gl.save!
+      if gl.new_record? or gl.changed?
+        puts "added #{user.short_user_name} as follower"
+        gl.save!
+      end
     end
   end # after_create
 
