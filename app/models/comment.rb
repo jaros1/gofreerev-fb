@@ -295,34 +295,38 @@ class Comment < ActiveRecord::Base
     ac.comment_id = comment_id;
     ac.save!
     # add row to CommentNotification / keep track of number of users in notification message
+    puts "add CommentNotification for comment id #{id} and notification id #{n.id}"
     cn = CommentNotification.where("comment_id = ? and notification_id = ?", id, n.id).first
     if !cn
       cn = CommentNotification.new
       cn.comment_id = id
       cn.notification_id = n.id
-      cn.save
+      cn.save!
     end
   end # create_or_update_noti
 
   # comment no longer relevant for unread notification n
   # used when comments are deleted, deal proposal is cancelled, rejected or accepted
   def remove_from_notification (n)
+    puts "remove_from_notification. comment id #{id}. Notification id #{n.id}. notification key #{n.noti_key}"
     # only modify unread notifications
     return unless n.noti_read == 'N'
-    cn = CommentNotification.where("comment_id = ? and notification_id = ?", id, n.id).first
+    cn = notifications.where("notification_id = ?", n.id).first
     # find no users before and after removing this comment from notification
     old_no_users = n.comments.collect { |c| c.user_id }.uniq.size
     new_users = n.comments.find_all { |c| c.id != id }.collect { |c| c.user }.uniq
     new_no_users = new_users.size
     if new_no_users == 0
       # last user for this unread notification has been removed
+      puts "last user for this unread notification has been removed"
       n.destroy!
       return
     end
     return if old_no_users == new_no_users # unchanged number of users => unchanged notification
     if new_no_users > 3
       # unchanged noti_key and username array. Just change number of users
-      cn.destroy! if cn
+      puts "unchanged noti_key and username array. Just change number of users"
+      notifications.delete(cn) if cn
       noti_options = n.noti_options
       noti_options[:no_users] = new_no_users
       noti_options[:no_other_users] = new_no_users - 2
@@ -335,6 +339,7 @@ class Comment < ActiveRecord::Base
       puts "invalid noti key format. noti key = #{noti_key}"
       return
     end
+    puts "change noti_key, username array and number of users"
     noti_key_prefix, noti_key_no_users, noti_key_version = $1
     noti_options = n.noti_options
     (1..3).each { |i| noti_options["username#{i}".to_sym] = nil }
@@ -345,8 +350,9 @@ class Comment < ActiveRecord::Base
     noti_options[:no_users] = new_no_users
     noti_options[:no_other_users] = new_no_users - 2
     n.noti_key = "#{noti_key_prefix}_#{new_no_users}_v#{noti_key_version}"
+    puts "noti_key: old = #{n.noti_key_was}, new = #{n.noti_key}"
     n.noti_options = noti_options
-    cn.destroy! if cn
+    notifications.delete(cn) if cn
     n.save!
   end # remove_from_notification
 
@@ -439,6 +445,21 @@ class Comment < ActiveRecord::Base
     users1.each { |to_user| send_notification(noti_key_1, noti_key_2, false, from_user, to_user) }
     logger.info "send notifications to other users that also have commented the gift: " + users2.collect { |u| u.short_user_name }.join(', ')
     users2.each { |to_user| send_notification(noti_key_1, noti_key_2, true, from_user, to_user) }
+    # new comment and new proposal - add user as follower of gift - user will receive notifications until user stops following the gift
+    if noti_key_1 <= 2 and ![gift.user_id_giver, gift.user_id_receiver].index(user_id)
+      gl = GiftLike.where("user_id = ? and gift_id = ?", user_id, gift.gift_id).first
+      if gl
+        gl.follow = 'Y' unless gl.follow
+      else
+        gl = GiftLike.new
+        gl.user_id = user_id
+        gl.gift_id = gift.gift_id
+        gl.like = 'N'
+        gl.follow = 'Y'
+        gl.show = 'Y'
+      end
+      gl.save!
+    end
   end # after_create
 
   def after_update
