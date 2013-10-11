@@ -340,7 +340,7 @@ class Comment < ActiveRecord::Base
       return
     end
     puts "change noti_key, username array and number of users"
-    noti_key_prefix, noti_key_no_users, noti_key_version = $1
+    noti_key_prefix, noti_key_no_users, noti_key_version = $1, $2, $3
     noti_options = n.noti_options
     (1..3).each { |i| noti_options["username#{i}".to_sym] = nil }
     usernames = new_users.collect { |u| u.short_user_name }

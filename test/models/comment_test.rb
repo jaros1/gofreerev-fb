@@ -33,8 +33,14 @@ class CommentTest < ActiveSupport::TestCase
     expected_no_notifications = notifications.size
     found_no_notifications = notifications_after-notifications_before
     assert (expected_no_notifications == found_no_notifications), "#{method}: Expected #{expected_no_notifications} new notifications. Found #{found_no_notifications} new notifications. #{dump_notifications(found_no_notifications)}"
-    # test notifications
-    expected_notifications = notifications.sort { |a, b| a[:to_user_id] <=> b[:to_user_id] }
+    # test notifications. sort notifications by 1) user_id and 2) noti_key before compare
+    expected_notifications = notifications.sort do |a, b|
+      if a[:to_user_id] == b[:to_user_id]
+        a[:noti_key] <=> b[:noti_key]
+      else
+        a[:to_user_id] <=> b[:to_user_id]
+      end
+    end # sort
     found_notifications = Notification.last(expected_no_notifications).collect do |n|
       {:to_user_id => n.to_user_id,
        :to_user_short_user_name => n.to_user.short_user_name,
@@ -45,10 +51,15 @@ class CommentTest < ActiveSupport::TestCase
                       n.noti_options[:username3]].find_all { |un| un }.sort
       }
     end.sort do |a, b|
-      a[:to_user_id] <=> b[:to_user_id]
+      if a[:to_user_id] == b[:to_user_id]
+        a[:noti_key] <=> b[:noti_key]
+      else
+        a[:to_user_id] <=> b[:to_user_id]
+      end
     end
     0.upto(expected_no_notifications-1) do |i|
-      %w(:to_user_id, :noti_key, :no_users).each do |name|
+      [:to_user_id, :noti_key, :no_users].each do |name|
+        # puts"check #{name}: expected #{expected_notifications[i][name]}. Found #{found_notifications[i][name]}"
         assert (expected_notifications[i][name] == found_notifications[i][name]),
                "#{method}. Notification #{i+1} to #{found_notifications[i][:to_user_short_user_name]}. Field #{name}. " +
                    "Expected #{expected_notifications[i][name]}. " +
@@ -380,21 +391,21 @@ class CommentTest < ActiveSupport::TestCase
     # assert three notifications when u2/karen create a proposal for charlies gift
     assert_notifications(:method => __method__,
                          :notifications => [
-                             # 1) new comment notification to charlie (u1/sandra)
+                             # 1) new proposal notification to charlie (u1/sandra)
                              {:to_user_id => charlie.user_id,
-                              :noti_key => 'new_comment_giver_1_v1',
+                              :noti_key => 'new_proposal_giver_1_v1',
                               :no_users => 1,
                               :usernames => ["Sandra Q"]
                              },
-                             # 2) new proposal notification to charlie (u2/karen)
+                             # 2) new comment notification to charlie (u2/karen)
                              {:to_user_id => charlie.user_id,
-                              :noti_key => 'new_proposal_giver_1_v1',
+                              :noti_key => 'new_comment_giver_1_v1',
                               :no_users => 1,
                               :usernames => ["Karen S"]
                              },
                              # 3) notification to u1/sandra) that u2/karen has commented charlies gift
                              {:to_user_id => u1_sandra.user_id,
-                              :noti_key => 'new_proposal_giver_other_1_v1',
+                              :noti_key => 'new_comment_giver_other_1_v1',
                               :no_users => 1,
                               :usernames => ["Karen S"]
                              }]) do
@@ -495,7 +506,7 @@ class CommentTest < ActiveSupport::TestCase
 
 
   #
-  # test create and delete comments
+  # test delete comments
   #
 
   test "create_and_delete_one_comment" do
@@ -509,31 +520,7 @@ class CommentTest < ActiveSupport::TestCase
   end # create_and_delete_one_comment
 
   test "create_and_delete_comments_a" do
-
-    # todo: test 1 fails, but maybe the correct notifications are being sent?
-    # question 1: should notification to sandra (Karen has also commented charlies's gift ...)
-    #             be removed when sandra deleted comment c1?
-    # question 2: should all users that comment a gift be added as followers?
-    #             that is - notifications are sent even if user deletes all his/hers commnents?
-    # assert one notification to charlie
-
-    # test 1:
-    #assert_notifications(:method => __method__,
-    #                     :notifications => [
-    #                         # 1) notification to charlie - one user u2/karen with comment
-    #                         {:to_user_id => charlie.user_id,
-    #                          :noti_key => 'new_comment_giver_1_v1',
-    #                          :no_users => 1,
-    #                          :usernames => ["Karen S"]
-    #                         }
-    #                     ])  do
-    #  # setup context for this test
-    #  c1 = comment_for_charlies_gift u1_sandra, 'n1: send notification to charlie'
-    #  c2 = comment_for_charlies_gift u2_karen, 'n1: change notification to charlie and n2: send notification to u1/sandra'
-    #  c1.destroy! # n1: change notification to charlie (ok) and n2: delete notification to u1/sandra (missing)
-    #end # assert_notifications
-
-    # test 2
+    # assert two notifications
     assert_notifications(:method => __method__,
                          :notifications => [
                              # 1) notification to charlie - one user u2/karen with comment
@@ -553,7 +540,6 @@ class CommentTest < ActiveSupport::TestCase
       c2 = comment_for_charlies_gift u2_karen, 'n1: change notification to charlie and n2: send notification to u1/sandra'
       c1.destroy! # sandra deletes c1 - n1: change notification to charlie (ok) and n2: unchanged notification to sandra
     end # assert_notifications
-
   end # create_and_delete_comments_a
 
   test "create_and_delete_comments_b" do
@@ -586,13 +572,13 @@ class CommentTest < ActiveSupport::TestCase
                              },
                              # 2) notification to sandra - one user u3/david with comment
                              {:to_user_id => u1_sandra.user_id,
-                              :noti_key => 'new_comment_giver_1_other_v1',
+                              :noti_key => 'new_comment_giver_other_1_v1',
                               :no_users => 1,
                               :usernames => ["David M"]
                              },
                              # 3) notification to karen - one user u3/david with comment
                              {:to_user_id => u2_karen.user_id,
-                              :noti_key => 'new_comment_giver_1_other_v1',
+                              :noti_key => 'new_comment_giver_other_1_v1',
                               :no_users => 1,
                               :usernames => ["David M"]
                              } ])  do
@@ -603,6 +589,11 @@ class CommentTest < ActiveSupport::TestCase
       c2.destroy! # karen deletes her comment - n1: change notification to charlie, n2: change notification to u1/sandra and n3: unchanged notification to u2/karen
     end # assert_notifications
   end # create_and_delete_comments_c
+
+
+  #
+  # Follow / stop follow
+  #
 
   test "comment_and_stop_follow_a" do
     # assert one notification to charlie
@@ -658,5 +649,161 @@ class CommentTest < ActiveSupport::TestCase
     end # assert_notifications
   end # comment_and_stop_follow_b
 
+  test "comment_and_stop_follow_c" do
+    # assert three notifications
+    assert_notifications(:method => __method__,
+                         :notifications => [
+                             # 1) notification to charlie - one user u1/sandra with comment
+                             {:to_user_id => charlie.user_id,
+                              :noti_key => 'new_comment_giver_1_v1',
+                              :no_users => 1,
+                              :usernames => ["Sandra Q"]
+                             },
+                             # 2) notification to u1/sandra - one other user u2/karen with comment
+                             {:to_user_id => u1_sandra.user_id,
+                              :noti_key => 'new_comment_giver_other_1_v1',
+                              :no_users => 1,
+                              :usernames => ["Karen S"]
+                             },
+                             # 3) notification to u2/karen - one other user u3/david with comment
+                             {:to_user_id => u2_karen.user_id,
+                              :noti_key => 'new_comment_giver_other_1_v1',
+                              :no_users => 1,
+                              :usernames => ["David M"]
+                             } ])  do
+      # setup context for this test
+      c1 = comment_for_charlies_gift u1_sandra, 'n1: send notification to charlie'
+      # charlie - stop following gift comments
+      gl = GiftLike.new
+      gl.gift_id = gifts(:charlie_gift_a).gift_id
+      gl.user_id = charlie.user_id
+      gl.like = 'N'
+      gl.show = 'Y'
+      gl.follow = 'N'
+      assert gl.save
+      c2 = comment_for_charlies_gift u2_karen, 'n1: change notification to charlie and n2: send notification to u1/sandra'
+      # sandra - stop following gift comments
+      gl = GiftLike.where("user_id = ? and gift_id = ?", u1_sandra.user_id, gifts(:charlie_gift_a).gift_id).first
+      gl.follow = 'N'
+      assert gl.save
+      c3 = comment_for_charlies_gift u3_david, 'n1: change notification to charlie, n2: change notification to u1/sandra and n3: send notification to u2/karen'
+    end # assert_notifications
+  end # comment_and_stop_follow_c
+
+  test "follow_gift" do
+    # assert two notifications
+    assert_notifications(:method => __method__,
+                         :notifications => [
+                             # 1) notification to charlie - one user u2/karen with comment
+                             {:to_user_id => charlie.user_id,
+                              :noti_key => 'new_comment_giver_1_v1',
+                              :no_users => 1,
+                              :usernames => ["Karen S"]
+                             },
+                             # 2) notification to u1/sandra - one user u2/karen with comment
+                             {:to_user_id => u1_sandra.user_id,
+                              :noti_key => 'new_comment_giver_1_v1',
+                              :no_users => 1,
+                              :usernames => ["Karen S"]
+                             } ])  do
+      # setup context for this test
+      # u1/sandra follows charlies gift
+      gl = GiftLike.new
+      gl.gift_id = gifts(:charlie_gift_a).gift_id
+      gl.user_id = u1_sandra.user_id
+      gl.like = 'N'
+      gl.show = 'Y'
+      gl.follow = 'Y'
+      assert gl.save
+      c1 = comment_for_charlies_gift u2_karen, 'notifications to charlie and sandra'
+    end # assert_notifications
+  end # follow_gift
+
+
+  #
+  # cancel proposal tests
+  #
+
+  test "cancel_proposal_a" do
+    # assert one notification
+    assert_notifications(:method => __method__,
+                         :notifications => [
+                             # 1) notification to charlie - one user u1/sandra with comment
+                             {:to_user_id => charlie.user_id,
+                              :noti_key => 'new_comment_giver_1_v1',
+                              :no_users => 1,
+                              :usernames => ["Sandra Q"]
+                             }
+                         ])  do
+      # setup context for this test
+      c1 = proposal_for_charlies_gift u1_sandra, 'n1: send notification to charlie'
+      c1.new_deal_yn = nil
+      c1.save!
+    end # assert_notifications
+  end # cancel_proposal_a
+
+  test "cancel_proposal_b" do
+    # assert three notification
+    assert_notifications(:method => __method__,
+                         :notifications => [
+                             # 1) notification to charlie - one user u1/sandra with comment
+                             {:to_user_id => charlie.user_id,
+                              :noti_key => 'new_comment_giver_1_v1',
+                              :no_users => 1,
+                              :usernames => ["Sandra Q"]
+                             },
+                             # 2) notification to charlie - one user u2/karen with proposal
+                             {:to_user_id => charlie.user_id,
+                              :noti_key => 'new_proposal_giver_1_v1',
+                              :no_users => 1,
+                              :usernames => ["Karen S"]
+                             },
+                             # 3) notification to u1/sandra - one user u2/karen with proposal
+                             {:to_user_id => u1_sandra.user_id,
+                              :noti_key => 'new_proposal_giver_other_1_v1',
+                              :no_users => 1,
+                              :usernames => ["Karen S"]
+                             }
+                         ])  do
+      # setup context for this test
+      c1 = proposal_for_charlies_gift u1_sandra, 'n1: send notification to charlie'
+      c2 = proposal_for_charlies_gift u2_karen, 'n1: change notification to charlie, n2: send notification to u1/sandra'
+      # u1/sandra cancels new proposal -> 2 notifications to charlie + unchange notification to u1/sandra
+      c1.new_deal_yn = nil
+      c1.save!
+    end # assert_notifications
+  end # cancel_proposal_b
+
+  test "cancel_proposal_c" do
+    # assert three notification
+    assert_notifications(:method => __method__,
+                         :notifications => [
+                             # 1) notification to charlie - one user u1/sandra with proposal
+                             {:to_user_id => charlie.user_id,
+                              :noti_key => 'new_proposal_giver_1_v1',
+                              :no_users => 1,
+                              :usernames => ["Sandra Q"]
+                             },
+                             # 2) notification to charlie - one user u2/karen with comment
+                             {:to_user_id => charlie.user_id,
+                              :noti_key => 'new_comment_giver_1_v1',
+                              :no_users => 1,
+                              :usernames => ["Karen S"]
+                             },
+                             # 3) notification to u1/sandra - one user u2/karen with comment
+                             {:to_user_id => u1_sandra.user_id,
+                              :noti_key => 'new_comment_giver_other_1_v1',
+                              :no_users => 1,
+                              :usernames => ["Karen S"]
+                             }
+                         ])  do
+      # setup context for this test
+      c1 = proposal_for_charlies_gift u1_sandra, 'n1: send notification to charlie'
+      c2 = proposal_for_charlies_gift u2_karen, 'n1: change notification to charlie, n2: send notification to u1/sandra'
+      # u2/karen cancels new proposal -> 2 notifications to charlie + change notification to u1/sandra
+      c2.new_deal_yn = nil
+      c2.save!
+    end # assert_notifications
+  end # cancel_proposal_c
 
 end # CommentTest
