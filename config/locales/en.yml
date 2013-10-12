@@ -41,6 +41,13 @@ en:
       models:
         gift:
           attributes:
+            base:
+              giver_or_receiver_must_be_blank: "A new post can not have a seller/giver and a buyer/receiver"
+              giver_or_receiver_is_required: "A new post must have a seller/giver or a buyer/receiver"
+            user_id_giver:
+              readonly: "can not be updated"
+            user_id_receiver:
+              readonly: "can not be updated"
             price:
               readonly: "can not be changed for a closed post"
 
@@ -310,6 +317,14 @@ en:
         cancelled_proposal_receiver_other_3_v1_to_msg: '%{username1}, %{username2} and %{username3} also no longer have bids on %{receivername}-s wish "%{gifttext} ..."'
         cancelled_proposal_receiver_other_n_v1_to_url: "/gifts/%{giftid}"
         cancelled_proposal_receiver_other_n_v1_to_msg: '%{username1}, %{username2} and %{no_other_users} other persons also have bids on %{receivername}-s wish "%{gifttext} ..."'
+        rejected_proposal_giver_1_v1_to_url: "/gifts/%{giftid}"
+        rejected_proposal_giver_1_v1_to_msg: '%{givername} rejected your bid on his/her offer "%{gifttext} ..."'
+        rejected_proposal_receiver_1_v1_to_url: "/gifts/%{giftid}"
+        rejected_proposal_receiver_1_v1_to_msg: '%{receivername} rejected your bid on his/her wish "%{gifttext} ..."'
+        accepted_proposal_giver_1_v1_to_url: "/gifts/%{giftid}"
+        accepted_proposal_giver_1_v1_to_msg: '%{givername} accepted your bid on his/her offer "%{gifttext} ..."'
+        accepted_proposal_receiver_1_v1_to_url: "/gifts/%{giftid}"
+        accepted_proposal_receiver_1_v1_to_msg: '%{receivername} accepted your bid on his/her wish "%{gifttext} ..."'
 
   # user controller
   users:

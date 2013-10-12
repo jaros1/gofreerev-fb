@@ -152,7 +152,7 @@ class Comment < ActiveRecord::Base
     return false if accepted_yn
     return false if user_id == user.user_id
     return false if gift.user_id_receiver and gift.user_id_giver
-    return false unless [gift.user_id_receiver, gift.user_id_giver].index(user.user_id)
+    return false if [gift.user_id_receiver, gift.user_id_giver].index(user.user_id)
     true
   end
 
@@ -470,13 +470,29 @@ class Comment < ActiveRecord::Base
     puts "new deal_yn: #{new_deal_yn_was} (#{new_deal_yn_was.class}) => #{new_deal_yn} (#{new_deal_yn.class})"
     puts "accepted_jn: #{accepted_yn_was} (#{accepted_yn_was.class}) => #{accepted_yn} (#{accepted_yn.class})"
     # comment: after update: new deal: Y => Y, accepted:  => N
-    # check for canceled, rejected or accepted deal proposal
+    # check for canceled, rejected or accepted deal proposal - notifications are sent from after_create method
     if  (new_deal_yn == 'Y' and !accepted_yn_was and accepted_yn == 'Y') or # noti_type 5: accepted proposal
         (new_deal_yn == 'Y' and !accepted_yn_was and accepted_yn == 'N') or # noti type 4: rejected proposal
         (new_deal_yn_was == 'Y' and !new_deal_yn and !accepted_yn) # noti type 3: cancelled proposal
-      puts "call after_create method"
+      # send notifications
       after_create(true)
+      if accepted_yn == 'Y'
+        # update gift (user, price, received_at etc)
+        gift.reload
+        if !gift.user_id_giver
+          gift.user_id_giver = user_id
+        else
+          gift.user_id_receiver = user_id
+        end
+        if price
+          gift.price = price
+          gift.currency = currency
+        end
+        gift.received_at = updated_at
+        gift.save!
+      end
     end # cancelled deal proposal
+
   end # after_update
 
   def before_destroy

@@ -37,6 +37,13 @@ da:
       models:
         gift:
           attributes:
+            base:
+              giver_or_receiver_must_be_blank: "Et nyt opslag kan ikke både have en sælger/giver og en køber/modtager"
+              giver_or_receiver_is_required: "Et nyt opslag skal have en sælger/giver eller en køber/modtager"
+            user_id_giver:
+              readonly: "må ikke opdateres"
+            user_id_receiver:
+              readonly: "må ikke opdateres"
             price:
               readonly: "kan ikke ændres for et lukket opslag"
 
@@ -317,6 +324,10 @@ da:
         rejected_proposal_giver_1_v1_to_msg: '%{givername} afslog dit bud på sit tilbud "%{gifttext} ..."'
         rejected_proposal_receiver_1_v1_to_url: "/gifts/%{giftid}"
         rejected_proposal_receiver_1_v1_to_msg: '%{receivername} afslog dit bud på sit ønske "%{gifttext} ..."'
+        accepted_proposal_giver_1_v1_to_url: "/gifts/%{giftid}"
+        accepted_proposal_giver_1_v1_to_msg: '%{givername} accepterede dit bud på sit tilbud "%{gifttext} ..."'
+        accepted_proposal_receiver_1_v1_to_url: "/gifts/%{giftid}"
+        accepted_proposal_receiver_1_v1_to_msg: '%{receivername} accepterede dit bud på sit ønske "%{gifttext} ..."'
 
   # user controller
   users:

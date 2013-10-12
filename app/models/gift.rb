@@ -90,7 +90,7 @@ class Gift < ActiveRecord::Base
 
   # 4) price - Float in model - encrypted text in db
   validates_each :price do |record, attr, value|
-    record.errors.add attr, :readonly if value.to_s != record.price_was.to_s and  record.received_at
+    record.errors.add attr, :readonly if value.to_s != record.price_was.to_s and  record.received_at_was
   end
   def price
     return nil unless (temp_extended_price = read_attribute(:price))
@@ -106,11 +106,31 @@ class Gift < ActiveRecord::Base
   end # price=
   alias_method :price_before_type_cast, :price
 
-  # 5) user_id_giver - FK - not encrypted. Gift must have a giver or an receiver when created. Must have giver and receiver when closed
-  validates_presence_of :user_id_giver, :if => Proc.new {|g| (g.received_at or !g.user_id_receiver) }
+  # 5) user_id_giver - FK - not encrypted.
+  # validates_presence_of :user_id_giver, :if => Proc.new {|g| (g.received_at or !g.user_id_receiver) }
+  validates_each :user_id_giver do |record, attr, value|
+    if record.new_record?
+      record.errors.add :base, :giver_or_receiver_must_be_blank if value and record.user_id_receiver
+      record.errors.add :base, :giver_or_receiver_is_required if !value and !record.user_id_receiver
+    elsif record.user_id_giver_was and record.user_id_giver_was != value
+      record.errors.add attr, :readonly
+    elsif record.received_at and !value
+      record.errors.add attr, :empty
+    end
+  end
 
   # 6) user_id_receiver - FK - not encrypted. Gift must have a giver or an receiver when created. Must have giver and receiver when closed
-  validates_presence_of :user_id_receiver, :if => Proc.new {|g| (g.received_at or !g.user_id_giver) }
+  # validates_presence_of :user_id_receiver, :if => Proc.new {|g| (g.received_at or !g.user_id_giver) }
+  validates_each :user_id_receiver do |record, attr, value|
+    if record.new_record?
+      nil if value and record.user_id_giver # error already reported for user_id_giver
+      nil if !value and !record.user_id_giver # # error already reported for user_id_giver
+    elsif record.user_id_receiver_was and record.user_id_receiver_was != value
+      record.errors.add attr, :readonly
+    elsif record.received_at and !value
+      record.errors.add attr, :empty
+    end
+  end
 
   # 7) received_at. Date in model - encrypted text in db - set once when the deal is closed together with user_id_receiver
   def received_at

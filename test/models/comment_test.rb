@@ -1038,4 +1038,98 @@ class CommentTest < ActiveSupport::TestCase
     end # assert_notifications
   end # reject_proposal_f
 
+
+  #
+  # accept tests
+  #
+
+  test "create_accept_proposal_a"  do
+    gift = gifts(:charlie_gift_a)
+    # assert two notification
+    assert_notifications(:method => __method__,
+                         :notifications => [
+                             # 1) notification to charlie - one user u1/sandra proposal (c1)
+                             {:to_user_id => charlie.user_id,
+                              :noti_key => 'new_proposal_giver_1_v1',
+                              :no_users => 1,
+                              :usernames => ["Sandra Q"]
+                             },
+                             # 2) notification to u1/sandra - proposal accepted
+                             {:to_user_id => u1_sandra.user_id,
+                              :noti_key => 'accepted_proposal_giver_1_v1',
+                              :no_users => 0,
+                              :usernames => []
+                             }
+                         ])  do
+      # setup context for this test
+      c1 = proposal_for_charlies_gift u1_sandra, 'n1: send notification to charlie'
+      # charlie accepts u1/sandra proposal - send accepted notification to sandra
+      c1.accepted_yn = 'Y'
+      assert c1.save
+    end # assert_notifications
+    gift.reload
+    assert (gift.user_id_receiver == u1_sandra.user_id)
+  end # create_accept_proposal_a
+
+  test "create_accept_proposal_b"  do
+    gift = gifts(:charlie_gift_a)
+    # assert four notification
+    assert_notifications(:method => __method__,
+                         :notifications => [
+                             # 1) notification to charlie - two users u1/sandra and u2/karen with proposals
+                             {:to_user_id => charlie.user_id,
+                              :noti_key => 'new_proposal_giver_2_v1',
+                              :no_users => 2,
+                              :usernames => ["Karen S", "Sandra Q"]
+                             },
+                             # 2) notification to u1/sandra - an other user u2/karen with proposal
+                             {:to_user_id => u1_sandra.user_id,
+                              :noti_key => 'new_proposal_giver_other_1_v1',
+                              :no_users => 1,
+                              :usernames => ["Sandra Q"]
+                             },
+                             # 3) notification to u1/sandra - proposal accepted
+                             {:to_user_id => u1_sandra.user_id,
+                              :noti_key => 'accepted_proposal_giver_1_v1',
+                              :no_users => 0,
+                              :usernames => []
+                             },
+                             # 4) notification to u2/karen - charlie accepted proposal accepted from u1/sandra
+                             {:to_user_id => u2_karen.user_id,
+                              :noti_key => 'accepted_proposal_giver_other_1_v1',
+                              :no_users => 1,
+                              :usernames => ["Sandra Q"]
+                             }
+                         ])  do
+      # setup context for this test
+      c1 = proposal_for_charlies_gift u1_sandra, 'n1: send notification to charlie'
+      c2 = proposal_for_charlies_gift u2_karen, 'n1: change notification to charlie and n2: send notification to u1/sandra'
+      # charlie accepts u1/sandra proposal - send accepted notification to sandra
+      c1.accepted_yn = 'Y'
+      assert c1.save
+    end # assert_notifications
+    gift.reload
+    assert (gift.user_id_receiver == u1_sandra.user_id)
+  end # create_accept_proposal_b
+
+  test "create_accept_proposal_c"  do
+    # assert should fail at c2.save!
+    begin
+      assert_notifications(:method => __method__,
+                           :notifications => [])  do
+        # setup context for this test
+        c1 = proposal_for_charlies_gift u1_sandra, 'n1: send notification to charlie'
+        c2 = proposal_for_charlies_gift u2_karen, 'n1: change notification to charlie and n2: send notification to u1/sandra'
+        # charlie accepts u1/sandra proposal - send accepted notification to sandra
+        c1.accepted_yn = 'Y'
+        assert c1.save
+        c2.accepted_yn = 'Y'
+        c2.save! # ActiveRecord::RecordInvalid: Validation failed: Buyer/receiver can not be updated
+      end # assert_notifications
+      assert false, "assert_notifications should fail with ActiveRecord::RecordInvalid:   Validation failed: Buyer/receiver can not be updated"
+    rescue ActiveRecord::RecordInvalid => e
+      assert (e.message.to_s == "Validation failed: Buyer/receiver can not be updated")
+    end
+  end # create_accept_proposal_c
+
 end # CommentTest
