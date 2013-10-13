@@ -56,7 +56,10 @@ end
 # Problems with both rb-readline gems.
 
 # https://github.com/jmazzi/crypt_keeper
-gem 'crypt_keeper'
+# crypt_keeper-0.13.1: problem with encrypted fields in after_insert/update callbacks
+# solved in 0.14.0.pre version
+# gem install crypt_keeper -v 0.14.0.pre
+gem 'crypt_keeper', '~> 0.14.0.pre'
 
 # https://github.com/bcardarella/client_side_validations
 # client side validations is not ready for rails 4.0

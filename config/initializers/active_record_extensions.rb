@@ -55,19 +55,28 @@ module ActiveRecordExtensions
   end
 
   def encrypt_add_pre_and_postfix(value, attributename, secret_key_no)
+    debug_attributes = %w()
     r = Random.new encrypt_rand_seed(attributename, secret_key_no)
     o = "#{encrypt_prefix(r, attributename, secret_key_no)}#{value}#{encrypt_postfix(r, attributename, secret_key_no)}"
-    #if attributename == 'noti_t_options'
-    #  puts "encrypt_add_pre_and_postfix: input = \"#{value}\" (#{value.class.name}), output = \"#{o}\" (#{o.class.name})"
-    #end
+    if debug_attributes.index(attributename)
+      puts "encrypt_add_pre_and_postfix: input = \"#{value}\" (#{value.class.name}), output = \"#{o}\" (#{o.class.name})"
+    end
     o
-  end
+  end # encrypt_add_pre_and_postfix
 
   # problem with response from crypt_keeper
   # ActionView::Template::Error (incompatible character encodings: ASCII-8BIT and UTF-8)
   # https://github.com/jmazzi/crypt_keeper/issues/50
   # temporary solution: add .force_encoding("UTF-8") in views
   def encrypt_remove_pre_and_postfix(value, attributename, secret_key_no)
+    debug_attributes = %w()
+    if debug_attributes.index(attributename)
+      puts "encrypt_remove_pre_and_postfix: class = #{self.class}, id = #{id} (#{id.class})"
+      puts "encrypt_remove_pre_and_postfix: value = #{value} (#{value.class})"
+      puts "encrypt_remove_pre_and_postfix: attributename = #{attributename} (#{attributename.class})"
+      puts "encrypt_remove_pre_and_postfix: secret_key_no = #{secret_key_no} (#{secret_key_no.class})"
+    end
+    raise "debug" if id == 540 and value =~ /^OdkKkag2CZu8/
     r = Random.new encrypt_rand_seed(attributename, secret_key_no)
     prefix_lng = encrypt_prefix(r, attributename, secret_key_no).size
     postfix_lng = encrypt_postfix(r, attributename, secret_key_no).size
@@ -75,11 +84,11 @@ module ActiveRecordExtensions
     from = prefix_lng
     to = value_lng - postfix_lng - 1
     o = value[from..to]
-    #if attributename == 'noti_t_options'
-    #  puts "encrypt_remove_pre_and_postfix: attribute = #{attributename}, input = \"#{value}\" (#{value.class.name}), output = \"#{o}\" (#{o.class.name})"
-    #end
+    if debug_attributes.index(attributename)
+      puts "encrypt_remove_pre_and_postfix: attribute = #{attributename}, input = \"#{value}\" (#{value.class.name}), output = \"#{o}\" (#{o.class.name})"
+    end
     o
-  end
+  end # encrypt_remove_pre_and_postfix
 
   def str_to_float_or_nil (str)
     return nil if str.to_s == ''

@@ -1113,19 +1113,16 @@ class CommentTest < ActiveSupport::TestCase
   end # create_accept_proposal_b
 
   test "create_accept_proposal_c"  do
-    # assert should fail at c2.save!
+    # setup context for this test
+    c1 = proposal_for_charlies_gift u1_sandra, 'n1: send notification to charlie'
+    c2 = proposal_for_charlies_gift u2_karen, 'n1: change notification to charlie and n2: send notification to u1/sandra'
+    # charlie accepts u1/sandra proposal - send accepted notification to sandra
+    c1.accepted_yn = 'Y'
+    assert c1.save
+    c2.accepted_yn = 'Y'
+    # save c2.save! should fail
     begin
-      assert_notifications(:method => __method__,
-                           :notifications => [])  do
-        # setup context for this test
-        c1 = proposal_for_charlies_gift u1_sandra, 'n1: send notification to charlie'
-        c2 = proposal_for_charlies_gift u2_karen, 'n1: change notification to charlie and n2: send notification to u1/sandra'
-        # charlie accepts u1/sandra proposal - send accepted notification to sandra
-        c1.accepted_yn = 'Y'
-        assert c1.save
-        c2.accepted_yn = 'Y'
-        c2.save! # ActiveRecord::RecordInvalid: Validation failed: Buyer/receiver can not be updated
-      end # assert_notifications
+      c2.save! # ActiveRecord::RecordInvalid: Validation failed: Buyer/receiver can not be updated
       assert false, "assert_notifications should fail with ActiveRecord::RecordInvalid:   Validation failed: Buyer/receiver can not be updated"
     rescue ActiveRecord::RecordInvalid => e
       assert (e.message.to_s == "Validation failed: Buyer/receiver can not be updated")

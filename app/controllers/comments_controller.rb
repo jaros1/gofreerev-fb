@@ -26,7 +26,8 @@ class CommentsController < ApplicationController
         format.json { render json: @comment, status: :created, location: @comment }
         format.js
       else
-        puts "comment not saved"
+        puts "comment not saved. error = " + @comment.errors.full_messages.join(', ')
+        puts "currency = #{@comment.currency}"
         format.html { render action: "new" }
         format.json { render json: @comment.errors, status: :unprocessable_entity }
         format.js

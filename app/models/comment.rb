@@ -21,16 +21,17 @@ class Comment < ActiveRecord::Base
   has_and_belongs_to_many :notifications
 
   before_create :before_create
+  before_update :before_update
+  before_destroy :before_destroy
   after_create :after_create
   after_update :after_update
-  before_destroy :before_destroy
-
 
   # https://github.com/jmazzi/crypt_keeper - text columns are encrypted in database
   # encrypt_add_pre_and_postfix/encrypt_remove_pre_and_postfix added in setters/getters for better encryption
   # this is different encrypt for each attribute and each db row
   # _before_type_cast methods are used by form helpers and are redefined
   crypt_keeper :comment, :currency, :price, :encryptor => :aes, :key => ENCRYPT_KEYS[28]
+
 
 
   ##############
@@ -77,9 +78,11 @@ class Comment < ActiveRecord::Base
 
   # 5) currency - only for agreement proposal - String in model - encrypted text in db - update not allowed
   attr_readonly :currency
+  validates_inclusion_of :currency, :allow_blank => true, :in => Money::Currency.table.collect { |a| [  a[1][:iso_code] ][0] }
 
   def currency
     return nil unless (extended_currency = read_attribute(:currency))
+    # puts "Comment.currency: currency = #{extended_currency}"
     encrypt_remove_pre_and_postfix(extended_currency, 'currency', 32)
   end
 
@@ -152,7 +155,7 @@ class Comment < ActiveRecord::Base
     return false if accepted_yn
     return false if user_id == user.user_id
     return false if gift.user_id_receiver and gift.user_id_giver
-    return false if [gift.user_id_receiver, gift.user_id_giver].index(user.user_id)
+    return false if ![gift.user_id_receiver, gift.user_id_giver].index(user.user_id)
     true
   end
 
@@ -165,11 +168,25 @@ class Comment < ActiveRecord::Base
   # show_reject_new_deal_link?
 
   def show_delete_comment_link?(user)
-    return false unless user_id == user.user_id
-    return false if new_deal_yn == 'Y' and accepted_yn == 'Y'
-    true
+    return true if [gift.user_id_receiver, gift.user_id_giver].index(user.user_id)
+    (user_id == user.user_id)
   end # show_delete_comment_link?
 
+
+
+
+  def cancelled_proposal?
+    noti_type = 3 if (new_deal_yn_was == 'Y' and !new_deal_yn and !accepted_yn)
+    noti_type
+  end # cancelled_proposal?
+  def rejected_proposal?
+    noti_type = 4 if (new_deal_yn == 'Y' and !accepted_yn_was and accepted_yn == 'N')
+    noti_type
+  end # rejected_proposal?
+  def accepted_proposal?
+    noti_type = 5 if (new_deal_yn == 'Y' and !accepted_yn_was and accepted_yn == 'Y')
+    noti_type
+  end # accepted_proposal?
 
   def get_noti_key_prefix (noti_key_1, noti_key_2, noti_key_3)
     NOTI_KEY_1[noti_key_1] + '_' + NOTI_KEY_2[noti_key_2] + (noti_key_3 ? '_' + NOTI_KEY_3 : '')
@@ -360,6 +377,12 @@ class Comment < ActiveRecord::Base
   def before_create
     self.status_update_at = Sequence.next_status_update_at
   end
+  def before_update
+    puts "Comment.before_update"
+    puts "Comment.before_update: price = #{price} (#{price.class})"
+    puts "Comment.before_update: currency = #{currency} (#{currency.class})"
+    self.status_update_at = Sequence.next_status_update_at if accepted_proposal? or rejected_proposal? or cancelled_proposal?
+  end
 
   # Note: 176 different translation keys                                   8
   # config/locales/language.yml/inbox/index/new_comment_* (48 translations)
@@ -466,9 +489,10 @@ class Comment < ActiveRecord::Base
   end # after_create
 
   def after_update
-    puts "comment.after update:"
-    puts "new deal_yn: #{new_deal_yn_was} (#{new_deal_yn_was.class}) => #{new_deal_yn} (#{new_deal_yn.class})"
-    puts "accepted_jn: #{accepted_yn_was} (#{accepted_yn_was.class}) => #{accepted_yn} (#{accepted_yn.class})"
+    puts "Comment.after_update:"
+    puts "Comment.after_update: new deal_yn: #{new_deal_yn_was} (#{new_deal_yn_was.class}) => #{new_deal_yn} (#{new_deal_yn.class})"
+    puts "Comment.after_update: accepted_jn: #{accepted_yn_was} (#{accepted_yn_was.class}) => #{accepted_yn} (#{accepted_yn.class})"
+    puts "Comment.after_update: currency = #{currency}"
     # comment: after update: new deal: Y => Y, accepted:  => N
     # check for canceled, rejected or accepted deal proposal - notifications are sent from after_create method
     if  (new_deal_yn == 'Y' and !accepted_yn_was and accepted_yn == 'Y') or # noti_type 5: accepted proposal
@@ -477,7 +501,7 @@ class Comment < ActiveRecord::Base
       # send notifications
       after_create(true)
       if accepted_yn == 'Y'
-        # update gift (user, price, received_at etc)
+        # accepted proposal - update gift (user, price, received_at etc)
         gift.reload
         if !gift.user_id_giver
           gift.user_id_giver = user_id
@@ -487,8 +511,10 @@ class Comment < ActiveRecord::Base
         if price
           gift.price = price
           gift.currency = currency
+          puts "Comment.after_update: gift.currency = #{gift.currency}"
         end
-        gift.received_at = updated_at
+        gift.received_at = updated_at # todo: move to gift callback
+        gift.status_update_at = Sequence.next_status_update_at  # todo: move to gift callback
         gift.save!
       end
     end # cancelled deal proposal

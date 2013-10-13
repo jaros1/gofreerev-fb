@@ -71,7 +71,16 @@ class Gift < ActiveRecord::Base
 
   # 3) currency - required - String in model - encrypted text in db - update not allowed
   validates_presence_of :currency
-  attr_readonly :currency
+  validates_inclusion_of :currency, :allow_blank => true, :in => Money::Currency.table.collect { |a| [  a[1][:iso_code] ][0] }
+  validates_each :currency do |record, attr, value|
+    if record.new_record? or value == record.currency_was
+      nil # new record or unchanged currency - always ok
+    elsif !record.received_at_was and record.received_at
+      nil # deal has just been approved - currency and price have just been copied from proposal
+    else
+      record.errors.add attr, :readonly
+    end
+  end
   def currency
     return nil unless (extended_currency = read_attribute(:currency))
     encrypt_remove_pre_and_postfix(extended_currency, 'currency', 3)
@@ -86,11 +95,15 @@ class Gift < ActiveRecord::Base
   end # currency
   alias_method :currency_before_type_cast, :currency
 
-
-
   # 4) price - Float in model - encrypted text in db
   validates_each :price do |record, attr, value|
-    record.errors.add attr, :readonly if value.to_s != record.price_was.to_s and  record.received_at_was
+    if record.new_record? or value == record.price_was
+      nil # new record or unchanged price - always ok
+    elsif !record.received_at_was and record.received_at
+      nil # deal has just been approved - copy currency and price from proposal
+    else
+      record.errors.add attr, :readonly
+    end
   end
   def price
     return nil unless (temp_extended_price = read_attribute(:price))

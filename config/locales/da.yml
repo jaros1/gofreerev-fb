@@ -30,6 +30,7 @@ da:
     attributes:
       gift:
         description: "Tekst"
+        currency: "Valuta"
         price: "Pris"
         user_id_giver: "Sælger/giver"
         user_id_receiver: "Køber/modtager"
