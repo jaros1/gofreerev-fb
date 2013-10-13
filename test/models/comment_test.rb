@@ -1038,6 +1038,54 @@ class CommentTest < ActiveSupport::TestCase
     end # assert_notifications
   end # reject_proposal_f
 
+  test "reject_proposal_g" do
+    # assert five notification
+    assert_notifications(:method => __method__,
+                         :notifications => [
+                             # 1) notification to charlie - three users u1/sandra, u2/karen and u3/david with proposals (c1, c2 and c3)
+                             {:to_user_id => charlie.user_id,
+                              :noti_key => 'new_proposal_giver_3_v1',
+                              :no_users => 3,
+                              :usernames => ["David M", "Karen S", "Sandra Q"]
+                             },
+                             # 2) notification to u1/sandra - comments from u2/karen and u3/david
+                             # note that new proposal notifications are changed to new comment notifications - Comment.send_notification rule 4a
+                             {:to_user_id => u1_sandra.user_id,
+                              :noti_key => 'new_comment_giver_other_2_v1',
+                              :no_users => 2,
+                              :usernames => ["David M", "Karen S"]
+                             },
+                             # 3) notification to u2/karen - comment from u3/david
+                             # note that new proposal notification is changed to new comment notification - Comment.send_notification rule 4a
+                             {:to_user_id => u2_karen.user_id,
+                              :noti_key => 'new_comment_giver_other_1_v1',
+                              :no_users => 1,
+                              :usernames => ["David M"]
+                             },
+                             # 4) notification to u2/karen - charlie rejected proposal
+                             {:to_user_id => u2_karen.user_id,
+                              :noti_key => 'rejected_proposal_giver_1_v1',
+                              :no_users => 0,
+                              :usernames => []
+                             },
+                             # 5) notification to u3/david - charlie rejected proposal
+                             {:to_user_id => u3_david.user_id,
+                              :noti_key => 'rejected_proposal_giver_1_v1',
+                              :no_users => 0,
+                              :usernames => []
+                             }
+                         ])  do
+      # setup context for this test
+      c1 = proposal_for_charlies_gift u1_sandra, 'n1: send notification to charlie'
+      c2 = proposal_for_charlies_gift u2_karen, 'n1: change notification to charlie, n2: send notification to u1/sandra'
+      c3 = proposal_for_charlies_gift u3_david, 'n1: change notification to charlie, n2: change notification to u1/sandra and n3: send notification to u2/karen'
+      # charlie - reject proposals from u2/karen and u3/david
+      c2.accepted_yn = 'N'
+      assert c2.save!
+      c3.accepted_yn = 'N'
+      assert c3.save!
+    end # assert_notifications
+  end # reject_proposal_g
 
   #
   # accept tests

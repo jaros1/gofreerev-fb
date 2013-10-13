@@ -141,11 +141,12 @@ module ApplicationHelper
   end # format_gift_description
 
   def format_direction (gift)
-    return nil if gift.user_id_giver and gift.user_id_receiver ;
-    if gift.user_id_giver
+    if !gift.user_id_receiver
       my_t '.direction_giver', :username => gift.giver.friend?(@user) ? gift.giver.short_user_name : giver.user_name
-    else
+    elsif !gift.user_id_giver
       my_t '.direction_receiver', :username => gift.receiver.friend?(@user) ? gift.receiver.short_user_name : receiver.user_name
+    else
+      my_t '.direction_giver_and_receiver', :givername => gift.giver.short_user_name, :receivername => gift.receiver.short_user_name
     end
   end # format_direction
 

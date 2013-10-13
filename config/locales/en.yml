@@ -146,6 +146,7 @@ en:
         gift_picture_title: "Click on picture for more information"
         direction_giver: "%{username} offers"
         direction_receiver: "%{username} seeks"
+        direction_giver_and_receiver: "from %{givername} to %{receivername}"
         gift_link_text: "%{date} %{optional_price} / %{direction}"  # nested translate
         gift_text_html: " : %{text}" # text is sanitized. Only todo tags is allowed
         optional_price: "/ %{price}"

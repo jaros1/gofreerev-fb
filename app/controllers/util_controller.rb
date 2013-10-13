@@ -325,7 +325,7 @@ class UtilController < ApplicationController
       return
     end
     # accept agreement proposal - mark proposal as accepted - callbacks sent notifications and updates gift
-    puts "util_controller.accept_new_deal: comment.currency = #{comment.currency}"
+    # puts "util_controller.accept_new_deal: comment.currency = #{comment.currency}"
     comment.accepted_yn = 'Y'
     comment.save!
     # todo: other comment changes? Maybe an other layout, style, color for accepted gift/comments

@@ -1,5 +1,5 @@
 <%# todo: ajax hide gift does not work. should hide all rows with id gift-<giftid>- format %>
-document.getElementById('<%= "gift-#{@gift_id}-row-1" %>').style = 'display: none' ;
-document.getElementById('<%= "gift-#{@gift_id}-row-2" %>').style = 'display: none' ;
-document.getElementById('<%= "gift-#{@gift_id}-row-3" %>').style = 'display: none' ;
+document.getElementById('<%= "gift-#{@gift_id}-row-1" %>').style.display = 'none';
+document.getElementById('<%= "gift-#{@gift_id}-row-2" %>').style.display = 'none'
+document.getElementById('<%= "gift-#{@gift_id}-row-3" %>').style.display = 'none'
 

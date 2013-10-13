@@ -378,9 +378,9 @@ class Comment < ActiveRecord::Base
     self.status_update_at = Sequence.next_status_update_at
   end
   def before_update
-    puts "Comment.before_update"
-    puts "Comment.before_update: price = #{price} (#{price.class})"
-    puts "Comment.before_update: currency = #{currency} (#{currency.class})"
+    # puts "Comment.before_update"
+    # puts "Comment.before_update: price = #{price} (#{price.class})"
+    # puts "Comment.before_update: currency = #{currency} (#{currency.class})"
     self.status_update_at = Sequence.next_status_update_at if accepted_proposal? or rejected_proposal? or cancelled_proposal?
   end
 
@@ -492,7 +492,7 @@ class Comment < ActiveRecord::Base
     puts "Comment.after_update:"
     puts "Comment.after_update: new deal_yn: #{new_deal_yn_was} (#{new_deal_yn_was.class}) => #{new_deal_yn} (#{new_deal_yn.class})"
     puts "Comment.after_update: accepted_jn: #{accepted_yn_was} (#{accepted_yn_was.class}) => #{accepted_yn} (#{accepted_yn.class})"
-    puts "Comment.after_update: currency = #{currency}"
+    # puts "Comment.after_update: currency = #{currency}"
     # comment: after update: new deal: Y => Y, accepted:  => N
     # check for canceled, rejected or accepted deal proposal - notifications are sent from after_create method
     if  (new_deal_yn == 'Y' and !accepted_yn_was and accepted_yn == 'Y') or # noti_type 5: accepted proposal
@@ -511,7 +511,7 @@ class Comment < ActiveRecord::Base
         if price
           gift.price = price
           gift.currency = currency
-          puts "Comment.after_update: gift.currency = #{gift.currency}"
+          # puts "Comment.after_update: gift.currency = #{gift.currency}"
         end
         gift.received_at = updated_at # todo: move to gift callback
         gift.status_update_at = Sequence.next_status_update_at  # todo: move to gift callback
