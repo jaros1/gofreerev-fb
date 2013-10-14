@@ -96,6 +96,8 @@ class CommentTest < ActiveSupport::TestCase
           t_key = "inbox.index.#{noti_key}_#{postfix}_msg"
           t_text = translate t_key, found_notifications[i][:noti_options]
           puts "#{language}.#{t_key} = #{t_text}"
+          # translation key must exists
+          assert !t_text.index('class="translation_missing"'), "translation #{language}.#{t_key} is missing"
         end # each language
       end # postfix
     end # each i
