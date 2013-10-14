@@ -28,6 +28,7 @@ class CommentTest < ActiveSupport::TestCase
     new_deal_yn = options[:new_deal_yn]
     notifications = options[:notifications]
     method = options[:method]
+    puts "test #{method}"
     # before test
     notifications_before = Notification.count
     # create any optional transactions
@@ -86,7 +87,7 @@ class CommentTest < ActiveSupport::TestCase
                  "Expected #{expected_notifications[i][:usernames].size} user names. " +
                  "Found #{found_notifications[i][:usernames].size} user names."
     end # each i
-    # todo: add translation texts from/to and en/da
+    # add translation texts from/to and en/da
     0.upto(expected_no_notifications-1) do |i|
       noti_key = found_notifications[i][:noti_key]
       %w(to from).each do |postfix|
@@ -95,9 +96,13 @@ class CommentTest < ActiveSupport::TestCase
           I18n.locale = language
           t_key = "inbox.index.#{noti_key}_#{postfix}_msg"
           t_text = translate t_key, found_notifications[i][:noti_options]
-          puts "#{language}.#{t_key} = #{t_text}"
+          t_touser = found_notifications[i][:to_user_short_user_name]
+          puts "#{language}.#{t_key} = #{t_touser}: #{t_text}"
           # translation key must exists
           assert !t_text.index('class="translation_missing"'), "translation #{language}.#{t_key} is missing"
+          # save translation for compare
+          t_sym = "#{language}_#{postfix}".to_sym
+          found_notifications[i][t_sym] = t_text
         end # each language
       end # postfix
     end # each i
@@ -269,7 +274,11 @@ class CommentTest < ActiveSupport::TestCase
 
   test "charlie_comments_own_gift_b" do
     # assert two notifications
-    # text for 2) is not perfect.
+    # todo: text for notification is not perfect: Charlie S also commented Charlie S-s offer "hello ..."
+    # should be:                                  Charlie S also commented his/hers offer "hello ..."
+    # but what with:                              Charlie S and Karen S also commented his/hers offer "hello ..."
+    # or                                          Charlie S and Karen S also commented Charlie-s offer "Hello ..."
+    assert false, "todo: improve notification to u1/sandra"
     assert_notifications :method => __method__,
                          :notifications => [
                              # 1) notification to charlie. one user u1/sandra has commented charlies gift
