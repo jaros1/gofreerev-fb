@@ -1,6 +1,19 @@
 require 'test_helper'
+include ActionView::Helpers
 
 class CommentTest < ActiveSupport::TestCase
+
+  def my_sanitize (text)
+    # return text.to_s.force_encoding('UTF-8')
+    sanitize(text.to_s.force_encoding('UTF-8')).gsub(/\n/, '<br/>').html_safe
+  end # my_sanitize
+
+  def my_sanitize_hash (hash)
+    # return hash
+    hash.each do |name, value|
+      hash[name] = my_sanitize (value)
+    end
+  end # my_sanitize_hash
 
   def dump_notifications(no_notifications)
     ns = Notification.last(no_notifications)
@@ -44,11 +57,13 @@ class CommentTest < ActiveSupport::TestCase
     found_notifications = Notification.last(expected_no_notifications).collect do |n|
       {:to_user_id => n.to_user_id,
        :to_user_short_user_name => n.to_user.short_user_name,
+       :from_user_id => n.from_user_id,
        :noti_key => n.noti_key,
        :no_users => n.noti_options[:no_users],
        :usernames => [n.noti_options[:username1],
                       n.noti_options[:username2],
-                      n.noti_options[:username3]].find_all { |un| un }.sort
+                      n.noti_options[:username3]].find_all { |un| un }.sort,
+       :noti_options => my_sanitize_hash(n.noti_options)
       }
     end.sort do |a, b|
       if a[:to_user_id] == b[:to_user_id]
@@ -57,6 +72,7 @@ class CommentTest < ActiveSupport::TestCase
         a[:to_user_id] <=> b[:to_user_id]
       end
     end
+    # compare expected/found notification one by one
     0.upto(expected_no_notifications-1) do |i|
       [:to_user_id, :noti_key, :no_users].each do |name|
         # puts"check #{name}: expected #{expected_notifications[i][name]}. Found #{found_notifications[i][name]}"
@@ -69,8 +85,23 @@ class CommentTest < ActiveSupport::TestCase
              "#{method}. Notification #{i+1} to #{found_notifications[i][:to_user_short_user_name]}. Field usernames. " +
                  "Expected #{expected_notifications[i][:usernames].size} user names. " +
                  "Found #{found_notifications[i][:usernames].size} user names."
-      # todo: how to assert translation?
     end # each i
+    # todo: add translation texts from/to and en/da
+    0.upto(expected_no_notifications-1) do |i|
+      noti_key = found_notifications[i][:noti_key]
+      %w(to from).each do |postfix|
+        next if postfix == "from" and !found_notifications[i][:from_userid] # no from user for this notification
+        %w(en da).each do |language|
+          I18n.locale = language
+          t_key = "inbox.index.#{noti_key}_#{postfix}_msg"
+          t_text = translate t_key, found_notifications[i][:noti_options]
+          puts "#{language}.#{t_key} = #{t_text}"
+        end # each language
+      end # postfix
+    end # each i
+    I18n.locale = 'en'
+    # todo: compare translation texts
+
   end # assert_new_notifications
 
 
@@ -118,13 +149,13 @@ class CommentTest < ActiveSupport::TestCase
   # test notifications for new comments
   #
 
-  test "charlie_comments_own_gift" do
+  test "charlie_comments_own_gift_a" do
     assert_notifications :method => __method__,
                          :notifications => [] do
       # setup - charlie comments his own gift - don't send any notifications
       comment_for_charlies_gift charlie, "don't send any notifications"
     end # assert_notifications
-  end # charlie_comments_own_gift
+  end # charlie_comments_own_gift_a
 
   test "one_user_comments_charlies_gift" do
     charlie = users(:charlie)
@@ -233,6 +264,31 @@ class CommentTest < ActiveSupport::TestCase
       comment_for_charlies_gift u4_dick, 'send notification to charlie, u1/sandra, u2/karen and u3/david'
     end # assert_notifications
   end # four_users_comment_charlies_gift
+
+  test "charlie_comments_own_gift_b" do
+    # assert two notifications
+    # text for 2) is not perfect.
+    assert_notifications :method => __method__,
+                         :notifications => [
+                             # 1) notification to charlie. one user u1/sandra has commented charlies gift
+                             {:to_user_id => charlie.user_id,
+                              :noti_key => 'new_comment_giver_1_v1',
+                              :no_users => 1,
+                              :usernames => ["Sandra Q"]
+                             },
+                             # 2) notification to u1/sandra. charlie has also commented his gift
+                             {:to_user_id => u1_sandra.user_id,
+                              :noti_key => 'new_comment_giver_other_1_v1',
+                              :no_users => 1,
+                              :usernames => ["Charlie S"]
+                             }
+                         ] do
+      # setup - charlie comments his own gift - don't send any notifications
+      c1 = comment_for_charlies_gift u1_sandra, 'n1: send notification to charlie'
+      c2 = comment_for_charlies_gift charlie, "n2: notification to u1/sandra"
+    end # assert_notifications
+  end # charlie_comments_own_gift_b
+
 
 
   #
@@ -1173,7 +1229,7 @@ class CommentTest < ActiveSupport::TestCase
       c2.save! # ActiveRecord::RecordInvalid: Validation failed: Buyer/receiver can not be updated
       assert false, "assert_notifications should fail with ActiveRecord::RecordInvalid:   Validation failed: Buyer/receiver can not be updated"
     rescue ActiveRecord::RecordInvalid => e
-      assert (e.message.to_s == "Validation failed: Buyer/receiver can not be updated")
+      assert (e.message.to_s == "Validation failed: Buyer/receiver can not be updated"), e.message.to_s
     end
   end # create_accept_proposal_c
 

@@ -258,7 +258,7 @@ class Comment < ActiveRecord::Base
       puts "first unread comment for this gift"
       n = Notification.new
       n.to_user_id = to_user.user_id
-      n.from_user_id = nil
+      n.from_user_id = from_user.user_id
       n.internal = 'Y'
       n.noti_key = "#{noti_key_prefix}_1_v#{NOTI_KEY_4}" # no_users = 1
       noti_options = {:giftid => gift.id, :gifttext => gift.description.first(30),
@@ -269,11 +269,19 @@ class Comment < ActiveRecord::Base
                         :givername => (gift.user_id_giver ? gift.giver.short_user_name : ""),
                         :receivername => (gift.user_id_receiver ? gift.receiver.short_user_name : "")}
       puts "noti_key_1 = #{noti_key_1}, noti_key_3 = #{noti_key_3}"
-      unless [4,5].index(noti_key_1) and !noti_key_3
+      if [1,2,3].index(noti_key_1) or noti_key_3
         # user array not used for rejected and accepted notification to owner of comment
         noti_options[:username1] = from_user.short_user_name
         noti_options[:no_users] += 1
         noti_options[:no_other_users] += 1
+      end
+      if [4, 5].index(noti_key_1) and !noti_key_3
+        # names of giver/receiver are used in reject/accept notifications
+        # noti_type_1 = 5: giver/receiver is added to gift after the notifications are sent
+        puts "before: givername = #{noti_options[:givername]}, receivername = #{noti_options[:receivername]}"
+        noti_options[:givername] = to_user.short_user_name if noti_options[:givername] == ""
+        noti_options[:receivername] = to_user.short_user_name if noti_options[:receivername] == ""
+        puts "after: givername = #{noti_options[:givername]}, receivername = #{noti_options[:receivername]}"
       end
       n.noti_options = noti_options
       n.noti_read = 'N'
@@ -296,6 +304,7 @@ class Comment < ActiveRecord::Base
         xno_users = noti_options[:no_users].to_s
         noti_options["username#{xno_users}".to_sym] = from_user.short_user_name
       end
+      n.from_user_id = nil
       n.noti_key = "#{noti_key_prefix}_#{xno_users}_v#{NOTI_KEY_4}"
       n.noti_options = noti_options
     end

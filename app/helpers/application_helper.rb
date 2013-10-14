@@ -116,6 +116,12 @@ module ApplicationHelper
     sanitize(text.to_s.force_encoding('UTF-8')).gsub(/\n/, '<br/>').html_safe
   end # my_sanitize
 
+  def my_sanitize_hash (hash)
+    hash.each do |name, value|
+      hash[name] = my_sanitize (value)
+    end
+  end # my_sanitize_hash
+
   # english description for social dividend in database for gifttype = S (social dividend)
   # use this translate for description in other languages for social dividend
   def format_gift_description (gift)

@@ -258,6 +258,8 @@ da:
         new_comment_giver_and_receiver_other_3_v1_to_msg: '%{username1}, %{username2} og %{username3} har også kommenteret aftale "%{gifttext} ..." imellem %{givername} og %{receivername}'
         new_comment_giver_and_receiver_other_n_v1_to_url: "/gifts/%{giftid}"
         new_comment_giver_and_receiver_other_n_v1_to_msg: '%{username1}, %{username2} or %{no_other_users} andre har også kommenteret aftale "%{gifttext} ..."  imellem %{givername} og %{receivername}'
+        new_proposal_giver_1_v1_from_url: "/gifts/%{giftid}"
+        new_proposal_giver_1_v1_from_msg: 'Du oprettede et bud på %{givername}-s tilbud "%{gifttext} ..."'
         new_proposal_giver_1_v1_to_url: "/gifts/%{giftid}"
         new_proposal_giver_1_v1_to_msg: '%{username1} vil gerne benytte dit tilbud "%{gifttext} ..."'
         new_proposal_giver_2_v1_to_url: "/gifts/%{giftid}"
@@ -322,10 +324,14 @@ da:
         cancelled_proposal_receiver_other_3_v1_to_msg: '%{username1}, %{username2} og %{username3} har heller ikke et bud på %{receivername}-s ønske "%{gifttext} ..."'
         cancelled_proposal_receiver_other_n_v1_to_url: "/gifts/%{giftid}"
         cancelled_proposal_receiver_other_n_v1_to_msg: '%{username1}, %{username2} og %{no_other_users} andre har heller ikke et bud på %{receivername}-s ønske "%{gifttext} ..."'
+        rejected_proposal_giver_1_v1_from_url: "/gifts/%{giftid}"
+        rejected_proposal_giver_1_v1_from_msg: 'Du afslog %{receivername}-s bud på dit tilbud "%{gifttext} ..."'
         rejected_proposal_giver_1_v1_to_url: "/gifts/%{giftid}"
         rejected_proposal_giver_1_v1_to_msg: '%{givername} afslog dit bud på sit tilbud "%{gifttext} ..."'
         rejected_proposal_receiver_1_v1_to_url: "/gifts/%{giftid}"
         rejected_proposal_receiver_1_v1_to_msg: '%{receivername} afslog dit bud på sit ønske "%{gifttext} ..."'
+        accepted_proposal_giver_1_v1_from_url: "/gifts/%{giftid}"
+        accepted_proposal_giver_1_v1_from_msg: 'Du accepterede %{receivername}-s bud på dit tilbud "%{gifttext} ..."'
         accepted_proposal_giver_1_v1_to_url: "/gifts/%{giftid}"
         accepted_proposal_giver_1_v1_to_msg: '%{givername} accepterede dit bud på sit tilbud "%{gifttext} ..."'
         accepted_proposal_receiver_1_v1_to_url: "/gifts/%{giftid}"

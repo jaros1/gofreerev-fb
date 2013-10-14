@@ -209,6 +209,10 @@
 93) use identical encryption keys on development and test (easy generation of fixtures)
     use different encryption keys in production environment
 
+94) notifications should have a from user if possible
+
+95) make script to compare language files (en, da etc). Find missing keys
+
 
 
 
