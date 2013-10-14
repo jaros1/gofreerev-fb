@@ -334,6 +334,8 @@ da:
         accepted_proposal_giver_1_v1_from_msg: 'Du accepterede %{receivername}-s bud på dit tilbud "%{gifttext} ..."'
         accepted_proposal_giver_1_v1_to_url: "/gifts/%{giftid}"
         accepted_proposal_giver_1_v1_to_msg: '%{givername} accepterede dit bud på sit tilbud "%{gifttext} ..."'
+        accepted_proposal_giver_other_1_v1_to_url: "/gifts/%{giftid}"
+        accepted_proposal_giver_other_1_v1_to_msg: '%{givername} accepterede %{receivername}-s bud på sit tilbud "%{gifttext} ..."'
         accepted_proposal_receiver_1_v1_to_url: "/gifts/%{giftid}"
         accepted_proposal_receiver_1_v1_to_msg: '%{receivername} accepterede dit bud på sit ønske "%{gifttext} ..."'
 

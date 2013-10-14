@@ -275,12 +275,12 @@ class Comment < ActiveRecord::Base
         noti_options[:no_users] += 1
         noti_options[:no_other_users] += 1
       end
-      if [4, 5].index(noti_key_1) and !noti_key_3
+      if [4, 5].index(noti_key_1)
         # names of giver/receiver are used in reject/accept notifications
         # noti_type_1 = 5: giver/receiver is added to gift after the notifications are sent
         puts "before: givername = #{noti_options[:givername]}, receivername = #{noti_options[:receivername]}"
-        noti_options[:givername] = to_user.short_user_name if noti_options[:givername] == ""
-        noti_options[:receivername] = to_user.short_user_name if noti_options[:receivername] == ""
+        noti_options[:givername] = user.short_user_name if noti_options[:givername] == ""
+        noti_options[:receivername] = user.short_user_name if noti_options[:receivername] == ""
         puts "after: givername = #{noti_options[:givername]}, receivername = #{noti_options[:receivername]}"
       end
       n.noti_options = noti_options

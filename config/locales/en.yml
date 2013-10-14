@@ -327,6 +327,8 @@ en:
         rejected_proposal_receiver_1_v1_to_msg: '%{receivername} rejected your bid on his/her wish "%{gifttext} ..."'
         accepted_proposal_giver_1_v1_to_url: "/gifts/%{giftid}"
         accepted_proposal_giver_1_v1_to_msg: '%{givername} accepted your bid on his/her offer "%{gifttext} ..."'
+        accepted_proposal_giver_other_1_v1_to_url: "/gifts/%{giftid}"
+        accepted_proposal_giver_other_1_v1_to_msg: '%{givername} accepted %{receivername}-s bid on his/her offer "%{gifttext} ..."'
         accepted_proposal_receiver_1_v1_to_url: "/gifts/%{giftid}"
         accepted_proposal_receiver_1_v1_to_msg: '%{receivername} accepted your bid on his/her wish "%{gifttext} ..."'
 

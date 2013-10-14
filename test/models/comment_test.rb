@@ -1200,7 +1200,7 @@ class CommentTest < ActiveSupport::TestCase
                               :no_users => 0,
                               :usernames => []
                              },
-                             # 4) notification to u2/karen - charlie accepted proposal accepted from u1/sandra
+                             # 4) notification to u2/karen - charlie accepted proposal from u1/sandra
                              {:to_user_id => u2_karen.user_id,
                               :noti_key => 'accepted_proposal_giver_other_1_v1',
                               :no_users => 1,
