@@ -213,8 +213,7 @@
 
 95) make script to compare language files (en, da etc). Find missing keys
 
-96) add was methods for encrypted fields. see Notification.noti_key_was
-    added for used _was attributes. Should be added for all encrypted fields
+96) add was methods for all encrypted fields
 
 
 
