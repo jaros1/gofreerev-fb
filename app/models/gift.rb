@@ -95,6 +95,11 @@ class Gift < ActiveRecord::Base
   end # currency
   alias_method :currency_before_type_cast, :currency
 
+  def currency_was
+    return nil unless (extended_currency = attribute_was('currency'))
+    encrypt_remove_pre_and_postfix(extended_currency, 'currency', 3)
+  end
+
   # 4) price - Float in model - encrypted text in db
   validates_each :price do |record, attr, value|
     if record.new_record? or value == record.price_was
@@ -118,6 +123,11 @@ class Gift < ActiveRecord::Base
     end
   end # price=
   alias_method :price_before_type_cast, :price
+
+  def price_was
+    return nil unless (temp_extended_price = attribute_was('price'))
+    str_to_float_or_nil encrypt_remove_pre_and_postfix(temp_extended_price, 'price', 4)
+  end # price_was
 
   # 5) user_id_giver - FK - not encrypted.
   # validates_presence_of :user_id_giver, :if => Proc.new {|g| (g.received_at or !g.user_id_receiver) }
@@ -162,6 +172,14 @@ class Gift < ActiveRecord::Base
     end
   end
   alias_method :received_at_before_type_cast, :received_at
+
+  def received_at_was
+    return nil unless (temp_extended_received_at = attribute_was('received_at'))
+    temp_received_at1 = encrypt_remove_pre_and_postfix(temp_extended_received_at, 'received_at', 5)
+    temp_received_at2 = YAML::load(temp_received_at1)
+    temp_received_at2 = temp_received_at2.to_time if temp_received_at2.class.name == 'Date'
+    temp_received_at2
+  end
 
   # 8) new_price_at - date - not encrypted - almost always = today
 

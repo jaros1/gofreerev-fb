@@ -49,6 +49,8 @@ en:
               readonly: "can not be updated"
             user_id_receiver:
               readonly: "can not be updated"
+            currency:
+              readonly: "can not be changed for a closed post"
             price:
               readonly: "can not be changed for a closed post"
 

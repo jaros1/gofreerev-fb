@@ -45,6 +45,8 @@ da:
               readonly: "må ikke opdateres"
             user_id_receiver:
               readonly: "må ikke opdateres"
+            currency:
+              readonly: "kan ikke ændres for et lukket opslag"
             price:
               readonly: "kan ikke ændres for et lukket opslag"
 

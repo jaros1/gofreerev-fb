@@ -65,7 +65,11 @@ class Notification < ActiveRecord::Base
     end
   end
   alias_method :noti_key_before_type_cast, :noti_key
- 
+
+  def noti_key_was
+    return nil unless (extended_noti_key = attribute_was('noti_key'))
+    encrypt_remove_pre_and_postfix(extended_noti_key, 'noti_key', 19)
+  end
   
   # 6) noti_options - required - Hash in Model - encrypted text in db
   # validates_presence_of :noti_options # does not work for some reason!

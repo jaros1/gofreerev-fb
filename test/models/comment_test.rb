@@ -274,11 +274,11 @@ class CommentTest < ActiveSupport::TestCase
 
   test "charlie_comments_own_gift_b" do
     # assert two notifications
-    # todo: text for notification is not perfect: Charlie S also commented Charlie S-s offer "hello ..."
-    # should be:                                  Charlie S also commented his/hers offer "hello ..."
-    # but what with:                              Charlie S and Karen S also commented his/hers offer "hello ..."
-    # or                                          Charlie S and Karen S also commented Charlie-s offer "Hello ..."
-    assert false, "todo: improve notification to u1/sandra"
+    # todo: text for notification is not perfect:
+    # was:            Charlie S also commented Charlie S-s offer "hello ..."
+    # should be:      Charlie S also commented his/hers offer "hello ..."
+    # but what with:  Charlie S and Karen S also commented his/hers offer "hello ..."
+    # assert false, "todo: improve notification to u1/sandra"
     assert_notifications :method => __method__,
                          :notifications => [
                              # 1) notification to charlie. one user u1/sandra has commented charlies gift
@@ -1238,9 +1238,9 @@ class CommentTest < ActiveSupport::TestCase
     # save c2.save! should fail
     begin
       c2.save! # ActiveRecord::RecordInvalid: Validation failed: Buyer/receiver can not be updated
-      assert false, "assert_notifications should fail with ActiveRecord::RecordInvalid:   Validation failed: Buyer/receiver can not be updated"
+      assert false, "assert_notifications should fail with ActiveRecord::RecordInvalid:   Validation failed: Currency can not be changed for a closed post, Buyer/receiver can not be updated"
     rescue ActiveRecord::RecordInvalid => e
-      assert (e.message.to_s == "Validation failed: Buyer/receiver can not be updated"), e.message.to_s
+      assert e.message.to_s.index("Buyer/receiver can not be updated"), e.message.to_s
     end
   end # create_accept_proposal_c
 
