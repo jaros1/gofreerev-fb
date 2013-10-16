@@ -235,6 +235,12 @@ class Comment < ActiveRecord::Base
         remove_from_notification(new_proposal_notification)
         if [3,4].index(noti_key_1)
           # 3a or 4a
+          puts "Comment.send_notification: case 3a or 4a"
+          puts "new_proposal.from_user.short_user_name = #{new_proposal_notification.from_user.short_user_name}" if new_proposal_notification.from_user
+          puts "new_proposal.to_user.short_user_name = #{new_proposal_notification.to_user.short_user_name}"
+          puts "from_user.short_user_name = #{from_user.short_user_name}"
+          puts "to_user.short_user_name = #{to_user.short_user_name}"
+          puts "todo: can not use from_user in case 4a. is invalid for 4a"
           send_notification(1, noti_key_2, noti_key_3, from_user, to_user) # new comment notification
           return
         end
@@ -338,6 +344,11 @@ class Comment < ActiveRecord::Base
     # only modify unread notifications
     return unless n.noti_read == 'N'
     cn = notifications.where("notification_id = ?", n.id).first
+    puts "cn.class = #{cn.class}"
+    puts "cn.id = #{cn.id}" if cn
+    puts "cn.noti_key = #{cn.noti_key}" if cn
+    puts "cn.from_user.short_user_name = #{cn.from_user.short_user_name}" if cn and cn.from_user
+    puts "cn.to_user.short_user_name = #{cn.to_user.short_user_name}" if cn and cn.to_user
     # find no users before and after removing this comment from notification
     old_no_users = n.comments.collect { |c| c.user_id }.uniq.size
     new_users = n.comments.find_all { |c| c.id != id }.collect { |c| c.user }.uniq

@@ -215,6 +215,18 @@
 
 96) add was methods for all encrypted fields
 
+97) comment test notifications:
+    - follow_gift: notification to Sandra Q.
+      expected: Karen S commented Charlie S-s offer "hello ..."
+      found   : Karen S commented your offer "hello ..."
+      problem: Sandra is following Charlies gift when Karen S comments it. Sandra gets notification as "giver" = charlie.
+      Solution: change notification key to new_comment_giver_other_1_v1 or create new notification key new_comment_giver_follow_1_v1
+    - reject_proposal_e: notification to Sandra Q
+      expected: Karen S also commented Charlie S-s offer "hello ..."
+      found:    Charlie S also commented Charlie S-s offer "hello ..."
+      debug required
+    -
+
 
 
 
