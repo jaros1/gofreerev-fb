@@ -178,13 +178,15 @@ class CommentTest < ActiveSupport::TestCase
                              {:to_user_id => charlie.user_id,
                               :noti_key => 'new_comment_giver_2_v1',
                               :no_users => 2,
-                              :usernames => ["Karen S", "Sandra Q"]
+                              :usernames => ["Karen S", "Sandra Q"],
+                              :noti_text_en_to => 'Sandra Q and Karen S commented your offer "hello ..."'
                              },
                              # 2) notification to other users (sandra) that have commented charlies gift
                              {:to_user_id => u1_sandra.user_id,
                               :noti_key => 'new_comment_giver_other_1_v1',
                               :no_users => 1,
-                              :usernames => ["Karen S"]
+                              :usernames => ["Karen S"],
+                              :noti_text_en_to => 'Karen S also commented Charlie S-s offer "hello ..."'
                              }]) do
       # setup context for this test
       # two users u1/sandra and u2/karen comment charlies gift
@@ -201,19 +203,22 @@ class CommentTest < ActiveSupport::TestCase
                              {:to_user_id => charlie.user_id,
                               :noti_key => 'new_comment_giver_3_v1',
                               :no_users => 3,
-                              :usernames => ["David M", "Karen S", "Sandra Q"]
+                              :usernames => ["David M", "Karen S", "Sandra Q"],
+                              :noti_text_en_to => 'Sandra Q, Karen S and David M commented your offer "hello ..."'
                              },
                              # 2) notification to u1/sandra that also has commented charlies gift
                              {:to_user_id => u1_sandra.user_id,
                               :noti_key => 'new_comment_giver_other_2_v1',
                               :no_users => 2,
-                              :usernames => ["David M", "Karen S"]
+                              :usernames => ["David M", "Karen S"],
+                              :noti_text_en_to => 'Karen S and David M also commented Charlie S-s offer "hello ..."'
                              },
                              # 3) notification to u2/karen that also has commented charlies gift
                              {:to_user_id => u2_karen.user_id,
                               :noti_key => 'new_comment_giver_other_1_v1',
                               :no_users => 1,
-                              :usernames => ["David M"]
+                              :usernames => ["David M"],
+                              :noti_text_en_to => 'David M also commented Charlie S-s offer "hello ..."'
                              }]) do
       # setup context for this test
       # three users - u1/sandra, u2/karen and u3/david comment charlies gift
@@ -280,13 +285,15 @@ class CommentTest < ActiveSupport::TestCase
                              {:to_user_id => charlie.user_id,
                               :noti_key => 'new_comment_giver_1_v1',
                               :no_users => 1,
-                              :usernames => ["Sandra Q"]
+                              :usernames => ["Sandra Q"],
+                              :noti_text_en_to => 'Sandra Q commented your offer "hello ..."'
                              },
                              # 2) notification to u1/sandra. charlie has also commented his gift
                              {:to_user_id => u1_sandra.user_id,
                               :noti_key => 'new_comment_giver_other_1_v1',
                               :no_users => 1,
-                              :usernames => ["Charlie S"]
+                              :usernames => ["Charlie S"],
+                              :noti_text_en_to => 'Charlie S also commented Charlie S-s offer "hello ..."'  # todo: bad text
                              }
                          ] do
       # setup - charlie comments his own gift - don't send any notifications
@@ -341,13 +348,15 @@ class CommentTest < ActiveSupport::TestCase
                              {:to_user_id => charlie.user_id,
                               :noti_key => 'new_proposal_giver_2_v1',
                               :no_users => 2,
-                              :usernames => ["Karen S", "Sandra Q"]
+                              :usernames => ["Karen S", "Sandra Q"],
+                              :noti_text_en_to => 'Sandra Q and Karen S want to use your offer "hello ..."'
                              },
                              # 2) notification to one other user (sandra) that also has a proposal for charlies gift
                              {:to_user_id => u1_sandra.user_id,
                               :noti_key => 'new_proposal_giver_other_1_v1',
                               :no_users => 1,
-                              :usernames => ["Karen S"]
+                              :usernames => ["Karen S"],
+                              :noti_text_en_to => 'Karen S also wants to use Charlie S-s offer "hello ..."'
                              }]) do
       # setup context for this test - u1/sandra and u2/karen proposals for charlies gift
       proposal_for_charlies_gift u1_sandra, 'send notification to charlie'
@@ -363,19 +372,22 @@ class CommentTest < ActiveSupport::TestCase
                              {:to_user_id => charlie.user_id,
                               :noti_key => 'new_proposal_giver_3_v1',
                               :no_users => 3,
-                              :usernames => ["David M", "Karen S", "Sandra Q"]
+                              :usernames => ["David M", "Karen S", "Sandra Q"],
+                              :noti_text_en_to => 'Sandra Q, Karen S and David M want to use your offer "hello ..."'
                              },
                              # 2) notification to u1/sandra - two users with proposals (u2/karen and u3/david)
                              {:to_user_id => u1_sandra.user_id,
                               :noti_key => 'new_proposal_giver_other_2_v1',
                               :no_users => 2,
-                              :usernames => ["David M", "Karen S"]
+                              :usernames => ["David M", "Karen S"],
+                              :noti_text_en_to => 'Karen S and David M also want to use Charlie S-s offer "hello ..."'
                              },
                              # 3) notification to u2/david - one user with proposal (u3/david)
                              {:to_user_id => u2_karen.user_id,
                               :noti_key => 'new_proposal_giver_other_1_v1',
                               :no_users => 1,
-                              :usernames => ["David M"]
+                              :usernames => ["David M"],
+                              :noti_text_en_to => 'David M also wants to use Charlie S-s offer "hello ..."'
                              }  ]) do
       # setup context for this test
       proposal_for_charlies_gift u1_sandra, 'send notification to charlie'
@@ -499,31 +511,36 @@ class CommentTest < ActiveSupport::TestCase
                              {:to_user_id => charlie.user_id,
                               :noti_key => 'new_proposal_giver_2_v1',
                               :no_users => 2,
-                              :usernames => ["Karen S", "Sandra Q"]
+                              :usernames => ["Karen S", "Sandra Q"],
+                              :noti_text_en_to => 'Sandra Q and Karen S want to use your offer "hello ..."'
                              },
                              # 2) notification to charlie - one user with comment
                              {:to_user_id => charlie.user_id,
                               :noti_key => 'new_comment_giver_1_v1',
                               :no_users => 1,
-                              :usernames => ["David M"]
+                              :usernames => ["David M"],
+                              :noti_text_en_to => 'David M commented your offer "hello ..."'
                              },
                              # 3) notification to u1/sandra - from setup - one other user u2/karen with proposal
                              {:to_user_id => u1_sandra.user_id,
                               :noti_key => 'new_proposal_giver_other_1_v1',
                               :no_users => 1,
-                              :usernames => ["Karen S"]
+                              :usernames => ["Karen S"],
+                              :noti_text_en_to => 'Karen S also wants to use Charlie S-s offer "hello ..."'
                              },
                              # 4) notification to u1/sandra - one other user u3/david with comment
                              {:to_user_id => u1_sandra.user_id,
                               :noti_key => 'new_comment_giver_other_1_v1',
                               :no_users => 1,
-                              :usernames => ["David M"]
+                              :usernames => ["David M"],
+                              :noti_text_en_to => 'David M also commented Charlie S-s offer "hello ..."'
                              },
                              # 5) notification to u2/karen - one user u3/david with comment
                              {:to_user_id => u2_karen.user_id,
                               :noti_key => 'new_comment_giver_other_1_v1',
                               :no_users => 1,
-                              :usernames => ["David M"]
+                              :usernames => ["David M"],
+                              :noti_text_en_to => 'David M also commented Charlie S-s offer "hello ..."'
                              }  ]) do
       # setup context for this test
       proposal_for_charlies_gift u1_sandra, 'send notification to charlie'
@@ -540,37 +557,43 @@ class CommentTest < ActiveSupport::TestCase
                              {:to_user_id => charlie.user_id,
                               :noti_key => 'new_proposal_giver_2_v1',
                               :no_users => 2,
-                              :usernames => ["Karen S", "Sandra Q"]
+                              :usernames => ["Karen S", "Sandra Q"],
+                              :noti_text_en_to => 'Sandra Q and Karen S want to use your offer "hello ..."'
                              },
                              # 2) notification to charlie - two users with comments
                              {:to_user_id => charlie.user_id,
                               :noti_key => 'new_comment_giver_2_v1',
                               :no_users => 2,
-                              :usernames => ["David M", "Dick B"]
+                              :usernames => ["David M", "Dick B"],
+                              :noti_text_en_to => 'David M and Dick B commented your offer "hello ..."'
                              },
                              # 3) notification to u1/sandra - from setup - one other user u2/karen with proposal
                              {:to_user_id => u1_sandra.user_id,
                               :noti_key => 'new_proposal_giver_other_1_v1',
                               :no_users => 1,
-                              :usernames => ["Karen S"]
+                              :usernames => ["Karen S"],
+                              :noti_text_en_to => 'Karen S also wants to use Charlie S-s offer "hello ..."'
                              },
                              # 4) notification to u1/sandra - two other users u3/david and u4/dick with comments
                              {:to_user_id => u1_sandra.user_id,
                               :noti_key => 'new_comment_giver_other_2_v1',
                               :no_users => 2,
-                              :usernames => ["David M", "Dick B"]
+                              :usernames => ["David M", "Dick B"],
+                              :noti_text_en_to => 'David M and Dick B also commented Charlie S-s offer "hello ..."'
                              },
                              # 5) notification to u2/karen - two users u3/david and u4/dick with comments
                              {:to_user_id => u2_karen.user_id,
                               :noti_key => 'new_comment_giver_other_2_v1',
                               :no_users => 2,
-                              :usernames => ["David M", "Dick B"]
+                              :usernames => ["David M", "Dick B"],
+                              :noti_text_en_to => 'David M and Dick B also commented Charlie S-s offer "hello ..."'
                              },
                              # 6) notification to u3/david - one user with comment
                              {:to_user_id => u3_david.user_id,
                               :noti_key => 'new_comment_giver_other_1_v1',
                               :no_users => 1,
-                              :usernames => ["Dick B"]
+                              :usernames => ["Dick B"],
+                              :noti_text_en_to => 'Dick B also commented Charlie S-s offer "hello ..."'
                              } ]) do
       # setup context for this test
       proposal_for_charlies_gift u1_sandra, 'send notification to charlie'
@@ -603,13 +626,15 @@ class CommentTest < ActiveSupport::TestCase
                              {:to_user_id => charlie.user_id,
                               :noti_key => 'new_comment_giver_1_v1',
                               :no_users => 1,
-                              :usernames => ["Karen S"]
+                              :usernames => ["Karen S"],
+                              :noti_text_en_to => 'Karen S commented your offer "hello ..."'
                              },
                              # 2) notification to u1/sandra - Karen S also commented Charlie S-s offer "hello ..."
                              {:to_user_id => u1_sandra.user_id,
                               :noti_key => 'new_comment_giver_other_1_v1',
                               :no_users => 1,
-                              :usernames => ["Karen S"]
+                              :usernames => ["Karen S"],
+                              :noti_text_en_to => 'Karen S also commented Charlie S-s offer "hello ..."'
                              } ])  do
       # setup context for this test
       c1 = comment_for_charlies_gift u1_sandra, 'n1: send notification to charlie'
@@ -685,7 +710,8 @@ class CommentTest < ActiveSupport::TestCase
                              {:to_user_id => charlie.user_id,
                               :noti_key => 'new_comment_giver_2_v1',
                               :no_users => 2,
-                              :usernames => ["David M", "Sandra Q"]
+                              :usernames => ["David M", "Sandra Q"],
+                              :noti_text_en_to => 'Sandra Q and David M commented your offer "hello ..."'
                              } ])  do
       # setup context for this test
       c1 = comment_for_charlies_gift u1_sandra, 'n1: send notification to charlie'
@@ -699,28 +725,28 @@ class CommentTest < ActiveSupport::TestCase
 
   test "comment_and_stop_follow_b" do
     # assert three notifications
-    # - Charlie S: Sandra Q, Karen S and David M commented your offer "hello ..."
-    # - Sandra Q: Karen S also commented Charlie S-s offer "hello ..."
-    # - Karen S: David M also commented Charlie S-s offer "hello ..."
     assert_notifications(:method => __method__,
                          :notifications => [
                              # 1) notification to charlie - Sandra Q, Karen S and David M commented your offer "hello ..."
                              {:to_user_id => charlie.user_id,
                               :noti_key => 'new_comment_giver_3_v1',
                               :no_users => 3,
-                              :usernames => ["David M", "Karen S", "Sandra Q"]
+                              :usernames => ["David M", "Karen S", "Sandra Q"],
+                              :noti_text_en_to => 'Sandra Q, Karen S and David M commented your offer "hello ..."'
                              },
                              # 2) notification to u1/sandra - Karen S also commented Charlie S-s offer "hello ..."
                              {:to_user_id => u1_sandra.user_id,
                               :noti_key => 'new_comment_giver_other_1_v1',
                               :no_users => 1,
-                              :usernames => ["Karen S"]
+                              :usernames => ["Karen S"],
+                              :noti_text_en_to => 'Karen S also commented Charlie S-s offer "hello ..."'
                              },
                              # 3) notification to u2/karen - David M also commented Charlie S-s offer "hello ..."
                              {:to_user_id => u2_karen.user_id,
                               :noti_key => 'new_comment_giver_other_1_v1',
                               :no_users => 1,
-                              :usernames => ["David M"]
+                              :usernames => ["David M"],
+                              :noti_text_en_to => 'David M also commented Charlie S-s offer "hello ..."'
                              },
                          ])  do
       # setup context for this test
@@ -742,19 +768,22 @@ class CommentTest < ActiveSupport::TestCase
                              {:to_user_id => charlie.user_id,
                               :noti_key => 'new_comment_giver_1_v1',
                               :no_users => 1,
-                              :usernames => ["Sandra Q"]
+                              :usernames => ["Sandra Q"],
+                              :noti_text_en_to => 'Sandra Q commented your offer "hello ..."'
                              },
                              # 2) notification to u1/sandra - Karen S also commented Charlie S-s offer "hello ..."
                              {:to_user_id => u1_sandra.user_id,
                               :noti_key => 'new_comment_giver_other_1_v1',
                               :no_users => 1,
-                              :usernames => ["Karen S"]
+                              :usernames => ["Karen S"],
+                              :noti_text_en_to => 'Karen S also commented Charlie S-s offer "hello ..."'
                              },
                              # 3) notification to u2/karen - David M also commented Charlie S-s offer "hello ..."
                              {:to_user_id => u2_karen.user_id,
                               :noti_key => 'new_comment_giver_other_1_v1',
                               :no_users => 1,
-                              :usernames => ["David M"]
+                              :usernames => ["David M"],
+                              :noti_text_en_to => 'David M also commented Charlie S-s offer "hello ..."'
                              } ])  do
       # setup context for this test
       c1 = comment_for_charlies_gift u1_sandra, 'n1: send notification to charlie'
@@ -844,19 +873,22 @@ class CommentTest < ActiveSupport::TestCase
                              {:to_user_id => charlie.user_id,
                               :noti_key => 'new_comment_giver_1_v1',
                               :no_users => 1,
-                              :usernames => ["Sandra Q"]
+                              :usernames => ["Sandra Q"],
+                              :noti_text_en_to => 'Sandra Q commented your offer "hello ..."'
                              },
                              # 2) notification to charlie - Karen S wants to use your offer "hello ..."
                              {:to_user_id => charlie.user_id,
                               :noti_key => 'new_proposal_giver_1_v1',
                               :no_users => 1,
-                              :usernames => ["Karen S"]
+                              :usernames => ["Karen S"],
+                              :noti_text_en_to => 'Karen S wants to use your offer "hello ..."'
                              },
                              # 3) notification to u1/sandra - Karen S also wants to use Charlie S-s offer "hello ..."
                              {:to_user_id => u1_sandra.user_id,
                               :noti_key => 'new_proposal_giver_other_1_v1',
                               :no_users => 1,
-                              :usernames => ["Karen S"]
+                              :usernames => ["Karen S"],
+                              :noti_text_en_to => 'Karen S also wants to use Charlie S-s offer "hello ..."'
                              }
                          ])  do
       # setup context for this test
@@ -876,19 +908,22 @@ class CommentTest < ActiveSupport::TestCase
                              {:to_user_id => charlie.user_id,
                               :noti_key => 'new_proposal_giver_1_v1',
                               :no_users => 1,
-                              :usernames => ["Sandra Q"]
+                              :usernames => ["Sandra Q"],
+                              :noti_text_en_to => 'Sandra Q wants to use your offer "hello ..."'
                              },
                              # 2) notification to charlie - Karen S commented your offer "hello ..."
                              {:to_user_id => charlie.user_id,
                               :noti_key => 'new_comment_giver_1_v1',
                               :no_users => 1,
-                              :usernames => ["Karen S"]
+                              :usernames => ["Karen S"],
+                              :noti_text_en_to => 'Karen S commented your offer "hello ..."'
                              },
                              # 3) notification to u1/sandra - Karen S also commented Charlie S-s offer "hello ..."
                              {:to_user_id => u1_sandra.user_id,
                               :noti_key => 'new_comment_giver_other_1_v1',
                               :no_users => 1,
-                              :usernames => ["Karen S"]
+                              :usernames => ["Karen S"],
+                              :noti_text_en_to => 'Karen S also commented Charlie S-s offer "hello ..."'
                              }
                          ])  do
       # setup context for this test
@@ -1112,26 +1147,30 @@ class CommentTest < ActiveSupport::TestCase
                              {:to_user_id => charlie.user_id,
                               :noti_key => 'new_proposal_giver_2_v1',
                               :no_users => 2,
-                              :usernames => ["Karen S", "Sandra Q"]
+                              :usernames => ["Karen S", "Sandra Q"],
+                              :noti_text_en_to => 'Sandra Q and Karen S want to use your offer "hello ..."'
                              },
                              # 2) notification to u1/sandra - proposal from u2/karen
                              # note that new proposal notification to u1/sandra is changed to a new comment notification - Comment.send_notification rule 4a
                              {:to_user_id => u1_sandra.user_id,
                               :noti_key => 'new_proposal_giver_other_1_v1',
                               :no_users => 1,
-                              :usernames => ["Karen S"]
+                              :usernames => ["Karen S"],
+                              :noti_text_en_to => 'Karen S also wants to use Charlie S-s offer "hello ..."'
                              },
                              # 3) notification to u1/sandra - charlie rejected proposal
                              {:to_user_id => u1_sandra.user_id,
                               :noti_key => 'rejected_proposal_giver_1_v1',
                               :no_users => 0,
-                              :usernames => []
+                              :usernames => [],
+                              :noti_text_en_to => 'Charlie S rejected your bid on his/her offer "hello ..."'
                              },
                              # 4) notification to u2/karen - charlie rejected proposal
                              {:to_user_id => u2_karen.user_id,
                               :noti_key => 'rejected_proposal_giver_1_v1',
                               :no_users => 0,
-                              :usernames => []
+                              :usernames => [],
+                              :noti_text_en_to => 'Charlie S rejected your bid on his/her offer "hello ..."'
                              }
                          ])  do
       # setup context for this test
@@ -1159,33 +1198,38 @@ class CommentTest < ActiveSupport::TestCase
                              {:to_user_id => charlie.user_id,
                               :noti_key => 'new_proposal_giver_3_v1',
                               :no_users => 3,
-                              :usernames => ["David M", "Karen S", "Sandra Q"]
+                              :usernames => ["David M", "Karen S", "Sandra Q"],
+                              :noti_text_en_to => 'Sandra Q, Karen S and David M want to use your offer "hello ..."'
                              },
                              # 2) notification to u1/sandra - comments from u2/karen and u3/david
                              # note that new proposal notifications are changed to new comment notifications - Comment.send_notification rule 4a
                              {:to_user_id => u1_sandra.user_id,
                               :noti_key => 'new_comment_giver_other_2_v1',
                               :no_users => 2,
-                              :usernames => ["David M", "Karen S"]
+                              :usernames => ["David M", "Karen S"],
+                              :noti_text_en_to => 'Charlie S and Charlie S also commented Charlie S-s offer "hello ..."'
                              },
                              # 3) notification to u2/karen - comment from u3/david
                              # note that new proposal notification is changed to new comment notification - Comment.send_notification rule 4a
                              {:to_user_id => u2_karen.user_id,
                               :noti_key => 'new_comment_giver_other_1_v1',
                               :no_users => 1,
-                              :usernames => ["David M"]
+                              :usernames => ["David M"],
+                              :noti_text_en_to => 'Charlie S also commented Charlie S-s offer "hello ..."'
                              },
                              # 4) notification to u2/karen - charlie rejected proposal
                              {:to_user_id => u2_karen.user_id,
                               :noti_key => 'rejected_proposal_giver_1_v1',
                               :no_users => 0,
-                              :usernames => []
+                              :usernames => [],
+                              :noti_text_en_to => 'Charlie S rejected your bid on his/her offer "hello ..."'
                              },
                              # 5) notification to u3/david - charlie rejected proposal
                              {:to_user_id => u3_david.user_id,
                               :noti_key => 'rejected_proposal_giver_1_v1',
                               :no_users => 0,
-                              :usernames => []
+                              :usernames => [],
+                              :noti_text_en_to => 'Charlie S rejected your bid on his/her offer "hello ..."'
                              }
                          ])  do
       # setup context for this test
@@ -1207,19 +1251,24 @@ class CommentTest < ActiveSupport::TestCase
   test "create_accept_proposal_a"  do
     gift = gifts(:charlie_gift_a)
     # assert two notification
+    #en.inbox.index.new_proposal_giver_1_v1_to_msg = Charlie S:
+    #en.inbox.index.accepted_proposal_giver_1_v1_to_msg = Sandra Q:
+
     assert_notifications(:method => __method__,
                          :notifications => [
                              # 1) notification to charlie - Sandra Q wants to use your offer "hello ..."
                              {:to_user_id => charlie.user_id,
                               :noti_key => 'new_proposal_giver_1_v1',
                               :no_users => 1,
-                              :usernames => ["Sandra Q"]
+                              :usernames => ["Sandra Q"],
+                              :noti_text_en_to => 'Sandra Q wants to use your offer "hello ..."'
                              },
                              # 2) notification to u1/sandra - Charlie S accepted your bid on his/her offer "hello ..."
                              {:to_user_id => u1_sandra.user_id,
                               :noti_key => 'accepted_proposal_giver_1_v1',
                               :no_users => 0,
-                              :usernames => []
+                              :usernames => [],
+                              :noti_text_en_to => 'Charlie S accepted your bid on his/her offer "hello ..."'
                              }
                          ])  do
       # setup context for this test
@@ -1241,25 +1290,29 @@ class CommentTest < ActiveSupport::TestCase
                              {:to_user_id => charlie.user_id,
                               :noti_key => 'new_proposal_giver_2_v1',
                               :no_users => 2,
-                              :usernames => ["Karen S", "Sandra Q"]
+                              :usernames => ["Karen S", "Sandra Q"],
+                              :noti_text_en_to => 'Sandra Q and Karen S want to use your offer "hello ..."'
                              },
                              # 2) notification to u1/sandra - Karen S also wants to use Charlie S-s offer "hello ..."
                              {:to_user_id => u1_sandra.user_id,
                               :noti_key => 'new_proposal_giver_other_1_v1',
                               :no_users => 1,
-                              :usernames => ["Sandra Q"]
+                              :usernames => ["Sandra Q"],
+                              :noti_text_en_to => 'Karen S also wants to use Charlie S-s offer "hello ..."'
                              },
                              # 3) notification to u1/sandra - Charlie S accepted your bid on his/her offer "hello ..."
                              {:to_user_id => u1_sandra.user_id,
                               :noti_key => 'accepted_proposal_giver_1_v1',
                               :no_users => 0,
-                              :usernames => []
+                              :usernames => [],
+                              :noti_text_en_to => 'Charlie S accepted your bid on his/her offer "hello ..."'
                              },
                              # 4) notification to u2/karen - Charlie S accepted Sandra Q-s bid on his/her offer "hello ..."
                              {:to_user_id => u2_karen.user_id,
                               :noti_key => 'accepted_proposal_giver_other_1_v1',
                               :no_users => 1,
-                              :usernames => ["Sandra Q"]
+                              :usernames => ["Sandra Q"],
+                              :noti_text_en_to => 'Charlie S accepted Sandra Q-s bid on his/her offer "hello ..."'
                              }
                          ])  do
       # setup context for this test
