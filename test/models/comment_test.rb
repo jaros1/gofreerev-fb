@@ -3,6 +3,15 @@ include ActionView::Helpers
 
 class CommentTest < ActiveSupport::TestCase
 
+  # use interrupt class variable if you want to stop after failed test
+  @@interrupt = false
+  def after_teardown
+    @@interrupt = true if !passed? # signal that test must abort after this failed test
+  end
+  def setup
+    raise Interrupt if @@interrupt # previous test has failed. Abort tests
+  end
+
   def my_sanitize (text)
     # return text.to_s.force_encoding('UTF-8')
     sanitize(text.to_s.force_encoding('UTF-8')).gsub(/\n/, '<br/>').html_safe
