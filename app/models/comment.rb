@@ -241,7 +241,11 @@ class Comment < ActiveRecord::Base
           puts "from_user.short_user_name = #{from_user.short_user_name}"
           puts "to_user.short_user_name = #{to_user.short_user_name}"
           puts "todo: can not use from_user in case 4a. is invalid for 4a"
-          send_notification(1, noti_key_2, noti_key_3, from_user, to_user) # new comment notification
+          if noti_key_1 == 3
+            send_notification(1, noti_key_2, noti_key_3, from_user, to_user) # new comment notification
+          else
+            send_notification(1, noti_key_2, noti_key_3, new_proposal_notification.from_user, to_user) # new comment notification
+          end
           return
         end
         # 5a => 5b
@@ -264,7 +268,7 @@ class Comment < ActiveRecord::Base
       puts "first unread comment for this gift"
       n = Notification.new
       n.to_user_id = to_user.user_id
-      n.from_user_id = from_user.user_id
+      n.from_user_id = from_user.user_id # set to nil if no_users > 1
       n.internal = 'Y'
       n.noti_key = "#{noti_key_prefix}_1_v#{NOTI_KEY_4}" # no_users = 1
       noti_options = {:giftid => gift.id, :gifttext => gift.description.first(30),
@@ -310,7 +314,7 @@ class Comment < ActiveRecord::Base
         xno_users = noti_options[:no_users].to_s
         noti_options["username#{xno_users}".to_sym] = from_user.short_user_name
       end
-      n.from_user_id = nil
+      n.from_user_id = nil # set to nil (no_users > 1)
       n.noti_key = "#{noti_key_prefix}_#{xno_users}_v#{NOTI_KEY_4}"
       n.noti_options = noti_options
     end

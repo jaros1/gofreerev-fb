@@ -1199,6 +1199,7 @@ class CommentTest < ActiveSupport::TestCase
       # charlie - reject proposals from u1/sandra and u2/karen
       # random sequence of rejects - the end result should be the same ...
       [c1, c2].shuffle.each do |c|
+        puts "reject proposal from #{c.user.short_user_name}"
         c.accepted_yn = 'N'
         assert c.save!
       end
@@ -1254,6 +1255,7 @@ class CommentTest < ActiveSupport::TestCase
       # charlie - reject proposals from u2/karen and u3/david
       # random sequence of rejects - the end result should be the same ...
       [c2, c3].shuffle.each do |c|
+        puts "reject proposal from #{c.user.short_user_name}"
         c.accepted_yn = 'N'
         assert c.save!
       end
@@ -1316,11 +1318,72 @@ class CommentTest < ActiveSupport::TestCase
       # charlie - rejects all three proposals
       # random sequence of rejects - the end result should be the same ...
       [c1, c2, c3].shuffle.each do |c|
+        puts "reject proposal from #{c.user.short_user_name}"
         c.accepted_yn = 'N'
         assert c.save!
       end
     end # assert_notifications
   end # reject_proposal_h
+
+  test "reject_proposal_i" do
+    # almost like reject_proposal_e, but with 2 proposals from u2/karen where only 1 proposal is rejected
+    # assert five notification
+    # note that new proposal notification to u1/sandra is changed to a new comment notification - Comment.send_notification rule 4a
+    # todo: invalid text in notification 2:
+    # expected: Karen S also commented Charlie S-s offer "hello ..."
+    # found: Charlie S also commented Charlie S-s offer "hello ..."
+    assert_notifications(:method => __method__,
+                         :notifications => [
+                             # 1) notification to charlie - two users u1/sandra and u2/karen with proposals (c1 and c2)
+                             {:to_user_id => charlie.user_id,
+                              :noti_key => 'new_proposal_giver_2_v1',
+                              :no_users => 2,
+                              :usernames => ["Karen S", "Sandra Q"],
+                              :noti_text_en_to => 'Sandra Q and Karen S want to use your offer "hello ..."'
+                             },
+                             # 2) notification to u1/sandra - new proposal from u2/karen now changed to new comment
+                             {:to_user_id => u1_sandra.user_id,
+                              :noti_key => 'new_comment_giver_other_1_v1',
+                              :no_users => 1,
+                              :usernames => ["Karen S"],
+                              :noti_text_en_to => 'Karen S also commented Charlie S-s offer "hello ..."'
+                             },
+                             # 3) notification to u1/sandra - new proposal from u2/karen
+                             {:to_user_id => u1_sandra.user_id,
+                              :noti_key => 'new_proposal_giver_other_1_v1',
+                              :no_users => 1,
+                              :usernames => ["Karen S"],
+                              :noti_text_en_to => 'Karen S also wants to use Charlie S-s offer "hello ..."'
+                             },
+                             # 4) notification to u1/sandra - charlie rejected proposal
+                             {:to_user_id => u1_sandra.user_id,
+                              :noti_key => 'rejected_proposal_giver_1_v1',
+                              :no_users => 0,
+                              :usernames => [],
+                              :noti_text_en_to => 'Charlie S rejected your bid on his/her offer "hello ..."'
+                             },
+                             # 5) notification to u2/karen - charlie rejected proposal
+                             {:to_user_id => u2_karen.user_id,
+                              :noti_key => 'rejected_proposal_giver_1_v1',
+                              :no_users => 0,
+                              :usernames => [],
+                              :noti_text_en_to => 'Charlie S rejected your bid on his/her offer "hello ..."'
+                             }
+                         ])  do
+      # setup context for this test
+      c1 = proposal_for_charlies_gift u1_sandra, 'n1: send notification to charlie'
+      c2 = proposal_for_charlies_gift u2_karen, 'n1: change notification to charlie, n2: send notification to u1/sandra'
+      c3 = proposal_for_charlies_gift u2_karen, 'should send no new notifications'
+      # charlie - reject proposals from u1/sandra and u2/karen
+      c1.accepted_yn = 'N'
+      assert c1.save!
+      # todo: u2/Karen has two proposals c2 and c3 for charlies gift, but only c2 is rejected.
+      #       what should happen with notification to u1/sandra?
+      #       split in two notifications to sandra (comment and proposal)
+      c2.accepted_yn = 'N'
+      assert c2.save!
+    end # assert_notifications
+  end # reject_proposal_i
 
   #
   # accept tests
