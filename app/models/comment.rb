@@ -132,11 +132,13 @@ class Comment < ActiveRecord::Base
   # used in gifts/index page to display "show <n> more comments"
   attr_accessor :no_older_comments
 
+  def debug_notifications
+    true
+  end # debug_notifications
+
   def table_row_id
     "gift-#{gift.id}-comment-#{id}"
-  end
-
-  # table_row_id
+  end # table_row_id
 
   # display cancel new deal check box?
   # only for new not accepted/rejected agreement proposals
@@ -146,9 +148,7 @@ class Comment < ActiveRecord::Base
     return false unless user_id == user.user_id
     return false if gift.user_id_receiver and gift.user_id_giver
     true
-  end
-
-  # show_cancel_new_deal_link?
+  end # show_cancel_new_deal_link?
 
   def show_accept_new_deal_link? (user)
     return false unless new_deal_yn == 'Y'
@@ -157,15 +157,11 @@ class Comment < ActiveRecord::Base
     return false if gift.user_id_receiver and gift.user_id_giver
     return false if ![gift.user_id_receiver, gift.user_id_giver].index(user.user_id)
     true
-  end
-
-  # show_accept_new_deal_link?
+  end # show_accept_new_deal_link?
 
   def show_reject_new_deal_link? (user)
     show_accept_new_deal_link?(user)
-  end
-
-  # show_reject_new_deal_link?
+  end # show_reject_new_deal_link?
 
   def show_delete_comment_link?(user)
     return true if [gift.user_id_receiver, gift.user_id_giver].index(user.user_id)
@@ -189,7 +185,7 @@ class Comment < ActiveRecord::Base
   end # accepted_proposal?
 
   def get_noti_key_prefix (noti_key_1, noti_key_2, noti_key_3)
-    NOTI_KEY_1[noti_key_1] + '_' + NOTI_KEY_2[noti_key_2] + (noti_key_3 ? '_' + NOTI_KEY_3 : '')
+    NOTI_KEY_1[noti_key_1] + '_' + NOTI_KEY_2[noti_key_2] + (noti_key_3 == 2 ? '_' + NOTI_KEY_3 : '')
   end # get_noti_key_prefix
 
   def init_noti_key_regexp (noti_key_1, noti_key_2, noti_key_3)
@@ -202,7 +198,7 @@ class Comment < ActiveRecord::Base
   # Note: nnn different translations. See inbox/index/gift_comment*
   # noti_key_1: 1:new comment, 2:new proposal, 3:cancelled proposal, 4:rejected proposal, 5:accepted proposal
   # noti_key_2: 1:giver, 2:receiver, 3: giver and receiver
-  # noti_key_3: false: notification to owner of gift and followers of gift, true: notification to other users that has commented the gift
+  # noti_key_3: 1: notification to owner of gift and followers of gift, 2: notification to other users that has commented the gift, 3: notification to followers
   # from_user is user that has commented the gift - added to noti_options hash
   # to_user is giver, receiver or an other user that also has commented the gift - receiver of notification
   # noti_key is concatenation of noti_key_1, noti_type_2, noti_key_3 and NOTI_KEY_4 (version)
@@ -213,13 +209,14 @@ class Comment < ActiveRecord::Base
   # config/locales/language.yml/inbox/index/rejected_proposal_* (32 translations)
   # config/locales/language.yml/inbox/index/accepted_proposal_* (32 translations)
   def send_notification (noti_key_1, noti_key_2, noti_key_3, from_user, to_user)
+    raise "invalid noti_key_3" if [true, false].index(noti_key_3)
     puts "send_notification: noti_key_1 = #{noti_key_1} (#{NOTI_KEY_1[noti_key_1]}), " +
              "noti_key_2 = #{noti_key_2} (#{NOTI_KEY_2[noti_key_2]}), " +
-             "noti_key_3 = #{noti_key_3} (#{noti_key_3 ? NOTI_KEY_3 : ''}), " +
+             "noti_key_3 = #{noti_key_3} (#{noti_key_3 == 2 ? NOTI_KEY_3 : ''}), " +
              "from_user = #{from_user.short_user_name}, " +
-             "to_user = #{to_user.short_user_name}"
+             "to_user = #{to_user.short_user_name}" if debug_notifications
     if [3,4].index(noti_key_1)
-      puts "special handling of noti_key_1 = 3..5 ..."
+      puts "special handling of noti_key_1 = 3..5 ..." if debug_notifications
       # special handling of noti_type_1 = 3..5. noti_key_1 (noti_type):
       #   3 - cancelled proposal notification
       #       a) change unread new proposal notification to new_comment notification (remove+send+stop)
@@ -243,35 +240,35 @@ class Comment < ActiveRecord::Base
       # change c) new_proposal_giver_other_1_v1 to Karen S to a new_comment_giver_other_1_v1 (u3/david)
 
       # find any new_proposal_other notifications for this comment. used in 3a, 4a and 5a
-      regexp1 = init_noti_key_regexp(2, noti_key_2, false) # notification to gift giver/receiver
-      regexp2 = init_noti_key_regexp(2, noti_key_2, true) # notification to other users
+      regexp1 = init_noti_key_regexp(2, noti_key_2, 1) # notification to gift giver/receiver
+      regexp2 = init_noti_key_regexp(2, noti_key_2, 2) # notification to other users
       new_proposal_notifications = notifications.find_all { |n| ((noti_key_1 == 3 and regexp1.match(n.noti_key)) or regexp2.match(n.noti_key)) }
       if new_proposal_notifications.size == 0
-        puts "no new proposal notifications was found for comment id #{id}"
+        puts "no new proposal notifications was found for comment id #{id}" if debug_notifications
       else
-        puts "comment id #{id} used in new proposal notifications:"
+        puts "comment id #{id} used in new proposal notifications:" if debug_notifications
         0.upto(new_proposal_notifications.size-1) do |i|
           n = new_proposal_notifications[i]
           puts "#{i+1}: #{n.noti_read == 'N' ? 'un' : ''}read #{n.noti_key} to #{n.to_user.short_user_name}"
           puts "#{i+1}: from user #{n.from_user.short_user_name}" if n.from_user
-        end
+        end if debug_notifications
       end
 
       stop = false
       0.upto(new_proposal_notifications.size-1) do |i|
         new_proposal_notification = new_proposal_notifications[i]
         if new_proposal_notification.noti_read == 'N'
-          puts "#{i+1}: #{new_proposal_notification.noti_read == 'N' ? 'un' : ''}read #{new_proposal_notification.noti_key} to #{new_proposal_notification.to_user.short_user_name}"
+          puts "#{i+1}: #{new_proposal_notification.noti_read == 'N' ? 'un' : ''}read #{new_proposal_notification.noti_key} to #{new_proposal_notification.to_user.short_user_name}" if debug_notifications
           # 3a, 4a, 5a - change unread new_proposal_other notification to new_comment notification
-          puts "#{i+1}: case 3a, 4a, 5a - change unread new_proposal_other notification to new_comment notification"
+          puts "#{i+1}: case 3a, 4a, 5a - change unread new_proposal_other notification to new_comment notification" if debug_notifications
           # change or delete new_proposal_notification
-          puts "#{i+1}: change or delete new_proposal_notification"
+          puts "#{i+1}: change or delete new_proposal_notification" if debug_notifications
           remove_from_notification(new_proposal_notification)
           # add new comment notification corresponding to changed/deleted new proposal notification
-          puts "#{i+1}: add new comment notification corresponding to changed/deleted new proposal notification"
+          puts "#{i+1}: add new comment notification corresponding to changed/deleted new proposal notification" if debug_notifications
           # initialize variables to be used in new comment notification that replaces removed new proposal notification
-          puts "initialize variables to be used in new comment notification that replaces removed new proposal notification"
-          tmp_noti_key_3 = regexp2.match(new_proposal_notification.noti_key) ? true : false
+          puts "initialize variables to be used in new comment notification that replaces removed new proposal notification" if debug_notifications
+          tmp_noti_key_3 = regexp2.match(new_proposal_notification.noti_key) ? 2 : 1
           if noti_key_1 == 3
             # cancelled - from_user = comment.user - ok
             tmp_from_user = from_user
@@ -280,22 +277,22 @@ class Comment < ActiveRecord::Base
             tmp_from_user = new_proposal_notification.from_user || user
           end
           tmp_to_user = new_proposal_notification.to_user
-          puts "#{i+1}: noti_key_3 = #{noti_key_3}, noti_key_3_tmp = #{tmp_noti_key_3}"
-          puts "#{i+1}: from_user = #{from_user.short_user_name}, tmp_from_user = #{tmp_from_user ? tmp_from_user.short_user_name : nil}"
-          puts "#{i+1}: to_user = #{to_user.short_user_name}, tmp_to_user = #{tmp_to_user.short_user_name}"
+          puts "#{i+1}: noti_key_3 = #{noti_key_3}, noti_key_3_tmp = #{tmp_noti_key_3}" if debug_notifications
+          puts "#{i+1}: from_user = #{from_user.short_user_name}, tmp_from_user = #{tmp_from_user ? tmp_from_user.short_user_name : nil}" if debug_notifications
+          puts "#{i+1}: to_user = #{to_user.short_user_name}, tmp_to_user = #{tmp_to_user.short_user_name}" if debug_notifications
           send_notification(1, noti_key_2, tmp_noti_key_3, tmp_from_user, tmp_to_user)
-          puts "#{i+1}: stop check: noti_key_1 = #{noti_key_1}, new_proposal_notification.noti_key = #{new_proposal_notification.noti_key}"
+          puts "#{i+1}: stop check: noti_key_1 = #{noti_key_1}, new_proposal_notification.noti_key = #{new_proposal_notification.noti_key}" if debug_notifications
           if [3,4].index(noti_key_1) and regexp1.match(new_proposal_notification.noti_key)
-            puts "#{i+1}: signal stop"
+            puts "#{i+1}: signal stop" if debug_notifications
             stop = true
           end
         else
           # 3b, 3c, 4b, 4c, 5b - don't change read new proposal notification
-          puts "#{i+1}: 3b, 3c, 4b, 4c, 5b - don't change read new proposal notification"
+          puts "#{i+1}: 3b, 3c, 4b, 4c, 5b - don't change read new proposal notification" if debug_notifications
         end
       end # each new_proposal_notification
       if stop
-        puts "stopped"
+        puts "stopped" if debug_notifications
         return
       end
 
@@ -342,7 +339,7 @@ class Comment < ActiveRecord::Base
     .find { |n| n.noti_options[:giftid] == gift.id and match = regexp.match(n.noti_key) }
     if !n
       # first unread comment for this gift
-      puts "first unread comment for this gift"
+      puts "first unread comment for this gift" if debug_notifications
       n = Notification.new
       n.to_user_id = to_user.user_id
       n.from_user_id = from_user.user_id # set to nil if no_users > 1
@@ -355,8 +352,8 @@ class Comment < ActiveRecord::Base
                         :username3 => nil,
                         :givername => (gift.user_id_giver ? gift.giver.short_user_name : ""),
                         :receivername => (gift.user_id_receiver ? gift.receiver.short_user_name : "")}
-      puts "noti_key_1 = #{noti_key_1}, noti_key_3 = #{noti_key_3}"
-      if [1,2,3].index(noti_key_1) or noti_key_3
+      puts "noti_key_1 = #{noti_key_1}, noti_key_3 = #{noti_key_3}" if debug_notifications
+      if [1,2,3].index(noti_key_1) or noti_key_3 == 2
         # user array not used for rejected and accepted notification to owner of comment
         noti_options[:username1] = from_user.short_user_name
         noti_options[:no_users] += 1
@@ -365,14 +362,14 @@ class Comment < ActiveRecord::Base
       if [4, 5].index(noti_key_1)
         # names of giver/receiver are used in reject/accept notifications
         # noti_type_1 = 5: giver/receiver is added to gift after the notifications are sent
-        puts "before: givername = #{noti_options[:givername]}, receivername = #{noti_options[:receivername]}"
+        puts "before: givername = #{noti_options[:givername]}, receivername = #{noti_options[:receivername]}" if debug_notifications
         noti_options[:givername] = user.short_user_name if noti_options[:givername] == ""
         noti_options[:receivername] = user.short_user_name if noti_options[:receivername] == ""
-        puts "after: givername = #{noti_options[:givername]}, receivername = #{noti_options[:receivername]}"
+        puts "after: givername = #{noti_options[:givername]}, receivername = #{noti_options[:receivername]}" if debug_notifications
       end
       n.noti_options = noti_options
       n.noti_read = 'N'
-    elsif [4,5].index(noti_key_1) and noti_key_3
+    elsif [4,5].index(noti_key_1) and noti_key_3 == 2
       raise "debug - this notification should only be sent once"
     elsif n.comments.find { |c| c.user_id == from_user.user_id }
       # user already in unread notification messages "user array"
@@ -392,7 +389,7 @@ class Comment < ActiveRecord::Base
         noti_options["username#{xno_users}".to_sym] = from_user.short_user_name
       end
       if n.from_user_id
-        puts "clear from_userid (#{n.from_user.short_user_name}) for notification #{n.id}. todo: Can cause problems for rule 4a"
+        puts "clear from_userid (#{n.from_user.short_user_name}) for notification #{n.id}. todo: Can cause problems for rule 4a" if debug_notifications
         n.from_user_id = nil # set to nil (no_users > 1)
       end
       n.noti_key = "#{noti_key_prefix}_#{xno_users}_v#{NOTI_KEY_4}"
@@ -411,7 +408,7 @@ class Comment < ActiveRecord::Base
     ac.comment_id = comment_id
     ac.save!
     # add row to CommentNotification / keep track of number of users in notification message
-    puts "add CommentNotification for comment id #{id} and notification id #{n.id} #{n.noti_key}"
+    puts "add CommentNotification for comment id #{id} and notification id #{n.id} #{n.noti_key}" if debug_notifications
     cn = CommentNotification.where("comment_id = ? and notification_id = ?", id, n.id).first
     if !cn
       cn = CommentNotification.new
@@ -424,29 +421,29 @@ class Comment < ActiveRecord::Base
   # comment no longer relevant for unread notification n
   # used when comments are deleted, deal proposal is cancelled, rejected or accepted
   def remove_from_notification (n)
-    puts "remove_from_notification. comment id #{id}. Notification id #{n.id}. notification key #{n.noti_key}"
+    puts "remove_from_notification. comment id #{id}. Notification id #{n.id}. notification key #{n.noti_key}" if debug_notifications
     # only modify unread notifications
     return unless n.noti_read == 'N'
     cn = notifications.where("notification_id = ?", n.id).first
-    puts "cn.class = #{cn.class}"
-    puts "cn.id = #{cn.id}" if cn
-    puts "cn.noti_key = #{cn.noti_key}" if cn
-    puts "cn.from_user.short_user_name = #{cn.from_user.short_user_name}" if cn and cn.from_user
-    puts "cn.to_user.short_user_name = #{cn.to_user.short_user_name}" if cn and cn.to_user
+    puts "cn.class = #{cn.class}" if debug_notifications
+    puts "cn.id = #{cn.id}" if cn and debug_notifications
+    puts "cn.noti_key = #{cn.noti_key}" if cn and debug_notifications
+    puts "cn.from_user.short_user_name = #{cn.from_user.short_user_name}" if cn and cn.from_user and debug_notifications
+    puts "cn.to_user.short_user_name = #{cn.to_user.short_user_name}" if cn and cn.to_user and debug_notifications
     # find no users before and after removing this comment from notification
     old_no_users = n.comments.collect { |c| c.user_id }.uniq.size
     new_users = n.comments.find_all { |c| c.id != id }.collect { |c| c.user }.uniq
     new_no_users = new_users.size
     if new_no_users == 0
       # last user for this unread notification has been removed
-      puts "last user for this unread notification has been removed"
+      puts "last user for this unread notification has been removed" if debug_notifications
       n.destroy!
       return
     end
     return if old_no_users == new_no_users # unchanged number of users => unchanged notification
     if new_no_users > 3
       # unchanged noti_key and username array. Just change number of users
-      puts "unchanged noti_key and username array. Just change number of users"
+      puts "unchanged noti_key and username array. Just change number of users" if debug_notifications
       notifications.delete(cn) if cn
       noti_options = n.noti_options
       noti_options[:no_users] = new_no_users
@@ -460,7 +457,7 @@ class Comment < ActiveRecord::Base
       puts "invalid noti key format. noti key = #{noti_key}"
       return
     end
-    puts "change noti_key, username array and number of users"
+    puts "change noti_key, username array and number of users" if debug_notifications
     noti_key_prefix, noti_key_no_users, noti_key_version = $1, $2, $3
     noti_options = n.noti_options
     (1..3).each { |i| noti_options["username#{i}".to_sym] = nil }
@@ -471,7 +468,7 @@ class Comment < ActiveRecord::Base
     noti_options[:no_users] = new_no_users
     noti_options[:no_other_users] = new_no_users - 2
     n.noti_key = "#{noti_key_prefix}_#{new_no_users}_v#{noti_key_version}"
-    puts "noti_key: old = #{n.noti_key_was}, new = #{n.noti_key}"
+    puts "noti_key: old = #{n.noti_key_was}, new = #{n.noti_key}" if debug_notifications
     n.noti_options = noti_options
     notifications.delete(cn) if cn
     n.save!
@@ -533,13 +530,13 @@ class Comment < ActiveRecord::Base
         noti_key_2 = 2
     end
     noti_key_prefix = NOTI_KEY_1[noti_key_1] + '_' + NOTI_KEY_2[noti_key_2]
-    puts "noti_key_prefix = #{noti_key_prefix}"
+    puts "noti_key_prefix = #{noti_key_prefix}" if debug_notifications
     # send notifications
     case
       when [1,2,5].index(noti_key_1)
         # new comment, new proposal and accepted proposal
         # 1) notifications to giver and/or receiver
-        puts "send notifications to gifts giver and/or receiver"
+        puts "send notifications to gifts giver and/or receiver" if debug_notifications
         users1 = []
         users1.push(gift.giver) if gift.user_id_giver and from_userid != gift.user_id_giver
         users1.push(gift.receiver) if gift.user_id_receiver and from_userid != gift.user_id_receiver
@@ -549,14 +546,14 @@ class Comment < ActiveRecord::Base
           users1.push(user) if [4, 5].index(noti_key_1)
         end
         users1_ids = users1.collect { |u| u.user_id }
-        puts "1: users1 = " + users1_ids.join(', ')
+        puts "1: users1 = " + users1_ids.join(', ') if debug_notifications
         # 2) notifications to users that has commented the gift - "_other" is added to notification key!
         users2 = gift.comments.includes(:user).collect { |c| c.user }.find_all { |user2| ![from_userid, to_user_id, gift.user_id_giver, gift.user_id_receiver].index(user2.user_id) }.uniq
         users2_ids = users2.collect { |u| u.user_id }
         users_ids = (users1_ids + users2_ids).uniq
-        puts "2: users2 = " + users2_ids.join(', ')
+        puts "2: users2 = " + users2_ids.join(', ') if debug_notifications
         # 3) check followers - users that have selected to follow gift comments - users that have selected NOT to follow gift comments
-        puts "3: adding followers to users1 and users2"
+        puts "3: adding followers to users1 and users2" if debug_notifications
         GiftLike.where("gift_id = ? and follow is not null", gift.gift_id).each do |gl|
           next if
           if gl.follow == 'Y'
@@ -568,15 +565,15 @@ class Comment < ActiveRecord::Base
             users2 = users2.delete_if { |u| u.user_id == gl.user_id }
           end
         end # each
-        puts "3: users1 = " + users1_ids.join(', ')
-        puts "3: users2 = " + users2_ids.join(', ')
+        puts "3: users1 = " + users1_ids.join(', ') if debug_notifications
+        puts "3: users2 = " + users2_ids.join(', ') if debug_notifications
         # send notifications
-        puts "start: send notifications to gifts giver, receiver and followers: " + users1.collect { |u| u.short_user_name }.join(', ')
-        users1.each { |to_user| send_notification(noti_key_1, noti_key_2, false, from_user, to_user) }
-        puts "end: send notifications to gifts giver, receiver and followers: " + users1.collect { |u| u.short_user_name }.join(', ')
-        puts "start: send notifications to other users that also have commented the gift: " + users2.collect { |u| u.short_user_name }.join(', ')
-        users2.each { |to_user| send_notification(noti_key_1, noti_key_2, true, from_user, to_user) }
-        puts "end: send notifications to other users that also have commented the gift: " + users2.collect { |u| u.short_user_name }.join(', ')
+        puts "start: send notifications to gifts giver, receiver and followers: " + users1.collect { |u| u.short_user_name }.join(', ') if debug_notifications
+        users1.each { |to_user| send_notification(noti_key_1, noti_key_2, 1, from_user, to_user) }
+        puts "end: send notifications to gifts giver, receiver and followers: " + users1.collect { |u| u.short_user_name }.join(', ') if debug_notifications
+        puts "start: send notifications to other users that also have commented the gift: " + users2.collect { |u| u.short_user_name }.join(', ') if debug_notifications
+        users2.each { |to_user| send_notification(noti_key_1, noti_key_2, 2, from_user, to_user) }
+        puts "end: send notifications to other users that also have commented the gift: " + users2.collect { |u| u.short_user_name }.join(', ') if debug_notifications
         # new comment and new proposal - add user as follower of gift - user will receive notifications until user stops following the gift
         if noti_key_1 <= 2 and ![gift.user_id_giver, gift.user_id_receiver].index(user_id)
           gl = GiftLike.where("user_id = ? and gift_id = ?", user_id, gift.gift_id).first
@@ -591,7 +588,7 @@ class Comment < ActiveRecord::Base
             gl.show = 'Y'
           end
           if gl.new_record? or gl.changed?
-            puts "added #{user.short_user_name} as follower"
+            puts "added #{user.short_user_name} as follower" if debug_notifications
             gl.save!
           end
         end
@@ -600,20 +597,20 @@ class Comment < ActiveRecord::Base
         users1 = []
         users1.push(gift.giver) if gift.user_id_giver and from_userid != gift.user_id_giver
         users1.push(gift.receiver) if gift.user_id_receiver and from_userid != gift.user_id_receiver
-        users1.each { |to_user| send_notification(noti_key_1, noti_key_2, false, from_user, to_user) }
+        users1.each { |to_user| send_notification(noti_key_1, noti_key_2, 1, from_user, to_user) }
       when [4].index(noti_key_1)
         # rejected/accepted proposal - send notification to creator of proposal / comment
         users1 = []
         to_user_id = user_id
         users1.push(user)
-        users1.each { |to_user| send_notification(noti_key_1, noti_key_2, false, from_user, to_user) }
+        users1.each { |to_user| send_notification(noti_key_1, noti_key_2, 1, from_user, to_user) }
     end # case
   end # after_create
 
   def after_update
-    puts "Comment.after_update:"
-    puts "Comment.after_update: new deal_yn: #{new_deal_yn_was} (#{new_deal_yn_was.class}) => #{new_deal_yn} (#{new_deal_yn.class})"
-    puts "Comment.after_update: accepted_jn: #{accepted_yn_was} (#{accepted_yn_was.class}) => #{accepted_yn} (#{accepted_yn.class})"
+    puts "Comment.after_update:" if debug_notifications
+    puts "Comment.after_update: new deal_yn: #{new_deal_yn_was} (#{new_deal_yn_was.class}) => #{new_deal_yn} (#{new_deal_yn.class})" if debug_notifications
+    puts "Comment.after_update: accepted_jn: #{accepted_yn_was} (#{accepted_yn_was.class}) => #{accepted_yn} (#{accepted_yn.class})" if debug_notifications
     # puts "Comment.after_update: currency = #{currency}"
     # comment: after update: new deal: Y => Y, accepted:  => N
     # check for canceled, rejected or accepted deal proposal - notifications are sent from after_create method
@@ -644,7 +641,7 @@ class Comment < ActiveRecord::Base
   end # after_update
 
   def before_destroy
-    puts "cleanup any unread notifications"
+    puts "cleanup any unread notifications" if debug_notifications
     # change number of users for uny unread notifications
     notifications.find_all { |n| n.noti_read == 'N' }.each do |n|
       remove_from_notification(n)

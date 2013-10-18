@@ -16,7 +16,7 @@ class CommentTest < ActiveSupport::TestCase
   # use this interrupt if you want to stop after failed test <==
 
   def debug_notifications
-    false
+    true
   end # debug_notifications
 
   def my_sanitize (text)
@@ -117,7 +117,6 @@ class CommentTest < ActiveSupport::TestCase
       end # postfix
     end # each i
     I18n.locale = 'en'
-    # todo: compare translation texts
 
   end # assert_new_notifications
 
@@ -318,7 +317,7 @@ class CommentTest < ActiveSupport::TestCase
                               :noti_text_en_to => 'Charlie S also commented Charlie S-s offer "hello ..."'  # todo: bad text
                              }
                          ] do
-      # setup - charlie comments his own gift - don't send any notifications
+      # setup - charlie comments his own gift
       c1 = comment_for_charlies_gift u1_sandra, 'n1: send notification to charlie'
       c2 = comment_for_charlies_gift charlie, "n2: notification to u1/sandra"
     end # assert_notifications
@@ -827,8 +826,6 @@ class CommentTest < ActiveSupport::TestCase
   end # comment_and_stop_follow_c
 
   test "follow_gift" do
-    assert true
-    return
     # assert two notifications
     # todo: invalid notification text to Sandra:
     # text now: Karen S commented your offer "hello ..."
