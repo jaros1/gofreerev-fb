@@ -102,7 +102,13 @@ class CommentTest < ActiveSupport::TestCase
           # check translation
           t_sym = "noti_text_#{language}_#{postfix}".to_sym
           found_notifications[i][t_sym] = t_text
-          assert (t_text == expected_notifications[i][t_sym]), "#{language}.#{t_key} = #{t_touser}: Expected #{expected_notifications[i][t_sym]}, found #{t_text}" if expected_notifications[i].has_key?(t_sym)
+          if expected_notifications[i].has_key?(t_sym)
+            if expected_notifications[i][t_sym].class == Array
+              assert expected_notifications[i][t_sym].index(t_text), "#{language}.#{t_key} = #{t_touser}: Expected #{expected_notifications[i][t_sym].join(', ')}, found #{t_text}"
+            else
+              assert (t_text == expected_notifications[i][t_sym]), "#{language}.#{t_key} = #{t_touser}: Expected #{expected_notifications[i][t_sym]}, found #{t_text}"
+            end
+          end
         end # each language
       end # postfix
     end # each i
@@ -881,6 +887,11 @@ class CommentTest < ActiveSupport::TestCase
 
   test "cancel_proposal_b" do
     # assert three notification
+    # Found 4 new notifications.
+    # - new_comment_giver_1_v1 to Charlie S,
+    # - new_proposal_giver_1_v1 to Charlie S,
+    # - new_proposal_giver_other_1_v1 to Sandra Q,
+    # - cancelled_proposal_giver_other_1_v1 to Karen S
     assert_notifications(:method => __method__,
                          :notifications => [
                              # 1) notification to charlie - Sandra Q commented your offer "hello ..."
@@ -948,6 +959,43 @@ class CommentTest < ActiveSupport::TestCase
       c2.save!
     end # assert_notifications
   end # cancel_proposal_c
+
+  test "cancel_proposal_d" do
+    # assert three notification
+    assert_notifications(:method => __method__,
+                         :notifications => [
+                             # 1) notification to charlie - two users want to use charlies offer
+                             {:to_user_id => charlie.user_id,
+                              :noti_key => 'new_proposal_giver_2_v1',
+                              :no_users => 2,
+                              :usernames => ["Karen S", "Sandra Q"],
+                              :noti_text_en_to => 'Sandra Q and Karen S want to use your offer "hello ..."'
+                             },
+                             # 2) notification to u1/sandra - Karen S also wants to use Charlie S-s offer "hello ..."
+                             {:to_user_id => u1_sandra.user_id,
+                              :noti_key => 'new_proposal_giver_other_1_v1',
+                              :no_users => 1,
+                              :usernames => ["Karen S"],
+                              :noti_text_en_to => 'Karen S also wants to use Charlie S-s offer "hello ..."'
+                             },
+                             # 3) notification to charlie - Sandra Q cancels new proposal
+                             {:to_user_id => charlie.user_id,
+                              :noti_key => 'cancelled_proposal_giver_1_v1',
+                              :no_users => 1,
+                              :usernames => ["Sandra Q"],
+                              :noti_text_en_to => 'Sandra Q no longer wants to use your offer "hello ..."'
+                             }
+                         ])  do
+      # setup context for this test
+      c1 = proposal_for_charlies_gift u1_sandra, 'n1: send notification to charlie'
+      c2 = proposal_for_charlies_gift u2_karen, 'n1: change notification to charlie, n2: send notification to u1/sandra'
+      # charlies reads notifications before u1/sandra cancels her proposal for charlies gift
+      Notification.where("to_user_id = ? and noti_read = 'N'", charlie.user_id).each { |n| n.noti_read = 'Y' ; n.save! }
+      # u1/sandra cancels new proposal -> 2 notifications to charlie + unchange notification to u1/sandra
+      c1.new_deal_yn = nil
+      c1.save!
+    end # assert_notifications
+  end # cancel_proposal_d
 
 
   #
@@ -1034,7 +1082,7 @@ class CommentTest < ActiveSupport::TestCase
                               :noti_key => 'new_comment_giver_other_1_v1',
                               :no_users => 1,
                               :usernames => ["Karen S"],
-                              :noti_text_en_to => 'Charlie S also commented Charlie S-s offer "hello ..."'
+                              :noti_text_en_to => 'Karen S also commented Charlie S-s offer "hello ..."'
                              },
                              # 3) notification to u2/karen - charlie rejected proposal
                              {:to_user_id => u2_karen.user_id,
@@ -1073,7 +1121,7 @@ class CommentTest < ActiveSupport::TestCase
                               :noti_key => 'new_comment_giver_other_1_v1',
                               :no_users => 1,
                               :usernames => ["Karen S"],
-                              :noti_text_en_to => 'Charlie S also commented Charlie S-s offer "hello ..."'
+                              :noti_text_en_to => 'Karen S also commented Charlie S-s offer "hello ..."'
                              },
                              # 3) notification to u1/sandra - charlie rejected proposal
                              {:to_user_id => u1_sandra.user_id,
@@ -1223,7 +1271,8 @@ class CommentTest < ActiveSupport::TestCase
                               :noti_key => 'new_comment_giver_other_2_v1',
                               :no_users => 2,
                               :usernames => ["David M", "Karen S"],
-                              :noti_text_en_to => 'Karen S and David M also commented Charlie S-s offer "hello ..."'
+                              :noti_text_en_to => ['David M and Karen S also commented Charlie S-s offer "hello ..."',
+                                                   'Karen S and David M also commented Charlie S-s offer "hello ..."']
                              },
                              # 3) notification to u2/karen - comment from u3/david
                              # note that new proposal notification is changed to new comment notification - Comment.send_notification rule 4a
@@ -1286,7 +1335,8 @@ class CommentTest < ActiveSupport::TestCase
                               :noti_key => 'new_comment_giver_other_2_v1',
                               :no_users => 2,
                               :usernames => ["David M", "Karen S"],
-                              :noti_text_en_to => 'Karen S and David M also commented Charlie S-s offer "hello ..."'
+                              :noti_text_en_to => ['Karen S and David M also commented Charlie S-s offer "hello ..."',
+                                                   'David M and Karen S also commented Charlie S-s offer "hello ..."']
                              },
                              # 4) notification to u2/karen - charlie rejected proposal
                              {:to_user_id => u2_karen.user_id,
