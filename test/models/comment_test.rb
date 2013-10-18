@@ -842,7 +842,7 @@ class CommentTest < ActiveSupport::TestCase
                              },
                              # 2) notification to u1/sandra - one user u2/karen with comment
                              {:to_user_id => u1_sandra.user_id,
-                              :noti_key => 'new_comment_giver_1_v1',
+                              :noti_key => 'new_comment_giver_follow_1_v1',
                               :no_users => 1,
                               :usernames => ["Karen S"],
                               :noti_text_en_to => 'Karen S commented Charlie S-s offer "hello ..."'

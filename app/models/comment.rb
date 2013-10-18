@@ -5,12 +5,14 @@ NOTI_KEY_1 = {1 => 'new_comment',
               3 => 'cancelled_proposal',
               4 => 'rejected_proposal',
               5 => 'accepted_proposal'}
-# gift type:
+# gift type/status
 NOTI_KEY_2 = {1 => 'giver',
               2 => 'receiver',
               3 => 'giver_and_receiver'}
-# used for other user that have commented the gift
-NOTI_KEY_3 = "other"
+# user group.
+NOTI_KEY_3 = {1 => '',
+              2 => '_other',
+              3 => '_follow'}
 NOTI_KEY_4 = "1" # version
 
 
@@ -185,7 +187,7 @@ class Comment < ActiveRecord::Base
   end # accepted_proposal?
 
   def get_noti_key_prefix (noti_key_1, noti_key_2, noti_key_3)
-    NOTI_KEY_1[noti_key_1] + '_' + NOTI_KEY_2[noti_key_2] + (noti_key_3 == 2 ? '_' + NOTI_KEY_3 : '')
+    NOTI_KEY_1[noti_key_1] + '_' + NOTI_KEY_2[noti_key_2] + NOTI_KEY_3[noti_key_3]
   end # get_noti_key_prefix
 
   def init_noti_key_regexp (noti_key_1, noti_key_2, noti_key_3)
@@ -212,7 +214,7 @@ class Comment < ActiveRecord::Base
     raise "invalid noti_key_3" if [true, false].index(noti_key_3)
     puts "send_notification: noti_key_1 = #{noti_key_1} (#{NOTI_KEY_1[noti_key_1]}), " +
              "noti_key_2 = #{noti_key_2} (#{NOTI_KEY_2[noti_key_2]}), " +
-             "noti_key_3 = #{noti_key_3} (#{noti_key_3 == 2 ? NOTI_KEY_3 : ''}), " +
+             "noti_key_3 = #{noti_key_3} (#{NOTI_KEY_3[noti_key_3]}), " +
              "from_user = #{from_user.short_user_name}, " +
              "to_user = #{to_user.short_user_name}" if debug_notifications
     if [3,4].index(noti_key_1)
@@ -553,27 +555,33 @@ class Comment < ActiveRecord::Base
         users_ids = (users1_ids + users2_ids).uniq
         puts "2: users2 = " + users2_ids.join(', ') if debug_notifications
         # 3) check followers - users that have selected to follow gift comments - users that have selected NOT to follow gift comments
-        puts "3: adding followers to users1 and users2" if debug_notifications
+        users3 = []
+        puts "3: adding/removing followers" if debug_notifications
         GiftLike.where("gift_id = ? and follow is not null", gift.gift_id).each do |gl|
           next if
           if gl.follow == 'Y'
             # user has selected to follow gift
-            users1 << gl.user if gl.user.user_id != from_userid and !users_ids.index(gl.user_id)
+            users3 << gl.user if gl.user.user_id != from_userid and !users_ids.index(gl.user_id)
           else
             # user has deselected to follow gift
             users1 = users1.delete_if { |u| u.user_id == gl.user_id }
             users2 = users2.delete_if { |u| u.user_id == gl.user_id }
           end
         end # each
-        puts "3: users1 = " + users1_ids.join(', ') if debug_notifications
-        puts "3: users2 = " + users2_ids.join(', ') if debug_notifications
+        #puts "3: users1 = " + users1_ids.join(', ') if debug_notifications
+        #puts "3: users2 = " + users2_ids.join(', ') if debug_notifications
+        #puts "3: users3 = " + users3_ids.join(', ') if debug_notifications
         # send notifications
-        puts "start: send notifications to gifts giver, receiver and followers: " + users1.collect { |u| u.short_user_name }.join(', ') if debug_notifications
+        puts "start: send notifications to gifts giver and receiver: " + users1.collect { |u| u.short_user_name }.join(', ') if debug_notifications
         users1.each { |to_user| send_notification(noti_key_1, noti_key_2, 1, from_user, to_user) }
         puts "end: send notifications to gifts giver, receiver and followers: " + users1.collect { |u| u.short_user_name }.join(', ') if debug_notifications
         puts "start: send notifications to other users that also have commented the gift: " + users2.collect { |u| u.short_user_name }.join(', ') if debug_notifications
         users2.each { |to_user| send_notification(noti_key_1, noti_key_2, 2, from_user, to_user) }
         puts "end: send notifications to other users that also have commented the gift: " + users2.collect { |u| u.short_user_name }.join(', ') if debug_notifications
+        puts "start: send notifications to users that follows the gift: " + users3.collect { |u| u.short_user_name }.join(', ') if debug_notifications
+        users3.each { |to_user| send_notification(noti_key_1, noti_key_2, 3, from_user, to_user) }
+        puts "end: send notifications to users that follows the gift: " + users3.collect { |u| u.short_user_name }.join(', ') if debug_notifications
+
         # new comment and new proposal - add user as follower of gift - user will receive notifications until user stops following the gift
         if noti_key_1 <= 2 and ![gift.user_id_giver, gift.user_id_receiver].index(user_id)
           gl = GiftLike.where("user_id = ? and gift_id = ?", user_id, gift.gift_id).first
