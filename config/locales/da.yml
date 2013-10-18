@@ -318,6 +318,22 @@ da:
         new_proposal_receiver_other_3_v1_to_msg: '%{username1}, %{username2} og %{username3} har bud på %{receivername}-s ønske "%{gifttext} ..."'
         new_proposal_receiver_other_n_v1_to_url: "/gifts/%{giftid}"
         new_proposal_receiver_other_n_v1_to_msg: '%{username1}, %{username2} og %{no_other_users} andre har bud på %{receivername}-s ønske "%{gifttext} ..."'
+        new_proposal_giver_follow_1_v1_to_url: "/gifts/%{giftid}"
+        new_proposal_giver_follow_1_v1_to_msg: '%{username1} vil gerne benytte %{givername}-s tilbud "%{gifttext} ..."'
+        new_proposal_giver_follow_2_v1_to_url: "/gifts/%{giftid}"
+        new_proposal_giver_follow_2_v1_to_msg: '%{username1} og %{username2} vil gerne benytte %{givername}-s tilbud "%{gifttext} ..."'
+        new_proposal_giver_follow_3_v1_to_url: "/gifts/%{giftid}"
+        new_proposal_giver_follow_3_v1_to_msg: '%{username1}, %{username2} og %{username3} vil gerne benytte %{givername}-s tilbud "%{gifttext} ..."'
+        new_proposal_giver_follow_n_v1_to_url: "/gifts/%{giftid}"
+        new_proposal_giver_follow_n_v1_to_msg: '%{username1}, %{username2} og %{no_other_users} vil gerne benytte %{givername}-s tilbud "%{gifttext} ..."'
+        new_proposal_receiver_follow_1_v1_to_url: "/gifts/%{giftid}"
+        new_proposal_receiver_follow_1_v1_to_msg: '%{username1} har et bud på %{receivername}-s ønske "%{gifttext} ..."'
+        new_proposal_receiver_follow_2_v1_to_url: "/gifts/%{giftid}"
+        new_proposal_receiver_follow_2_v1_to_msg: '%{username1} og %{username2} har bud på %{receivername}-s ønske "%{gifttext} ..."'
+        new_proposal_receiver_follow_3_v1_to_url: "/gifts/%{giftid}"
+        new_proposal_receiver_follow_3_v1_to_msg: '%{username1}, %{username2} og %{username3} har bud på %{receivername}-s ønske "%{gifttext} ..."'
+        new_proposal_receiver_follow_n_v1_to_url: "/gifts/%{giftid}"
+        new_proposal_receiver_follow_n_v1_to_msg: '%{username1}, %{username2} og %{no_other_users} andre har bud på %{receivername}-s ønske "%{gifttext} ..."'
         cancelled_proposal_giver_1_v1_to_url: "/gifts/%{giftid}"
         cancelled_proposal_giver_1_v1_to_msg: '%{username1} vil alligevel ikke bruge dit tilbud "%{gifttext} ..."'
         cancelled_proposal_giver_2_v1_to_url: "/gifts/%{giftid}"

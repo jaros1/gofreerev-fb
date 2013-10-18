@@ -315,6 +315,22 @@ en:
         new_proposal_receiver_other_3_v1_to_msg: '%{username1}, %{username2} and %{username3} also have bids on %{receivername}-s wish "%{gifttext} ..."'
         new_proposal_receiver_other_n_v1_to_url: "/gifts/%{giftid}"
         new_proposal_receiver_other_n_v1_to_msg: '%{username1}, %{username2} and %{no_other_users} other persons also have bids on %{receivername}-s wish "%{gifttext} ..."'
+        new_proposal_giver_follow_1_v1_to_url: "/gifts/%{giftid}"
+        new_proposal_giver_follow_1_v1_to_msg: '%{username1} wants to use %{givername}-s offer "%{gifttext} ..."'
+        new_proposal_giver_follow_2_v1_to_url: "/gifts/%{giftid}"
+        new_proposal_giver_follow_2_v1_to_msg: '%{username1} and %{username2} want to use %{givername}-s offer "%{gifttext} ..."'
+        new_proposal_giver_follow_3_v1_to_url: "/gifts/%{giftid}"
+        new_proposal_giver_follow_3_v1_to_msg: '%{username1}, %{username2} and %{username3} want to use %{givername}-s offer "%{gifttext} ..."'
+        new_proposal_giver_follow_n_v1_to_url: "/gifts/%{giftid}"
+        new_proposal_giver_follow_n_v1_to_msg: '%{username1}, %{username2} and %{no_other_users} other persons want to use %{givername}-s offer "%{gifttext} ..."'
+        new_proposal_receiver_follow_1_v1_to_url: "/gifts/%{giftid}"
+        new_proposal_receiver_follow_1_v1_to_msg: '%{username1} has a bid on %{receivername}-s wish "%{gifttext} ..."'
+        new_proposal_receiver_follow_2_v1_to_url: "/gifts/%{giftid}"
+        new_proposal_receiver_follow_2_v1_to_msg: '%{username1} and %{username2} have bids on %{receivername}-s wish "%{gifttext} ..."'
+        new_proposal_receiver_follow_3_v1_to_url: "/gifts/%{giftid}"
+        new_proposal_receiver_follow_3_v1_to_msg: '%{username1}, %{username2} and %{username3} have bids on %{receivername}-s wish "%{gifttext} ..."'
+        new_proposal_receiver_follow_n_v1_to_url: "/gifts/%{giftid}"
+        new_proposal_receiver_follow_n_v1_to_msg: '%{username1}, %{username2} and %{no_other_users} other persons have bids on %{receivername}-s wish "%{gifttext} ..."'
         cancelled_proposal_giver_1_v1_to_url: "/gifts/%{giftid}"
         cancelled_proposal_giver_1_v1_to_msg: '%{username1} no longer wants to use your offer "%{gifttext} ..."'
         cancelled_proposal_giver_2_v1_to_url: "/gifts/%{giftid}"
