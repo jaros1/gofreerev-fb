@@ -135,7 +135,7 @@ class Comment < ActiveRecord::Base
   attr_accessor :no_older_comments
 
   def debug_notifications
-    true
+    false
   end # debug_notifications
 
   def table_row_id
@@ -244,7 +244,8 @@ class Comment < ActiveRecord::Base
       # find any new_proposal_other notifications for this comment. used in 3a, 4a and 5a
       regexp1 = init_noti_key_regexp(2, noti_key_2, 1) # notification to gift giver/receiver
       regexp2 = init_noti_key_regexp(2, noti_key_2, 2) # notification to other users
-      new_proposal_notifications = notifications.find_all { |n| ((noti_key_1 == 3 and regexp1.match(n.noti_key)) or regexp2.match(n.noti_key)) }
+      regexp3 = init_noti_key_regexp(2, noti_key_2, 3) # notification to followers
+      new_proposal_notifications = notifications.find_all { |n| ((noti_key_1 == 3 and regexp1.match(n.noti_key)) or regexp2.match(n.noti_key) or regexp3.match(n.noti_key)) }
       if new_proposal_notifications.size == 0
         puts "no new proposal notifications was found for comment id #{id}" if debug_notifications
       else
@@ -269,8 +270,12 @@ class Comment < ActiveRecord::Base
           # add new comment notification corresponding to changed/deleted new proposal notification
           puts "#{i+1}: add new comment notification corresponding to changed/deleted new proposal notification" if debug_notifications
           # initialize variables to be used in new comment notification that replaces removed new proposal notification
-          puts "initialize variables to be used in new comment notification that replaces removed new proposal notification" if debug_notifications
-          tmp_noti_key_3 = regexp2.match(new_proposal_notification.noti_key) ? 2 : 1
+          puts "#(i+1}: initialize variables to be used in new comment notification that replaces removed new proposal notification" if debug_notifications
+          tmp_noti_key_3 = case
+                             when regexp1.match(new_proposal_notification.noti_key) then 1
+                             when regexp2.match(new_proposal_notification.noti_key) then 2
+                             when regexp3.match(new_proposal_notification.noti_key) then 3
+                           end
           if noti_key_1 == 3
             # cancelled - from_user = comment.user - ok
             tmp_from_user = from_user
@@ -279,7 +284,7 @@ class Comment < ActiveRecord::Base
             tmp_from_user = new_proposal_notification.from_user || user
           end
           tmp_to_user = new_proposal_notification.to_user
-          puts "#{i+1}: noti_key_3 = #{noti_key_3}, noti_key_3_tmp = #{tmp_noti_key_3}" if debug_notifications
+          puts "#{i+1}: noti_key_3 = #{noti_key_3}, tmp_noti_key_3 = #{tmp_noti_key_3}" if debug_notifications
           puts "#{i+1}: from_user = #{from_user.short_user_name}, tmp_from_user = #{tmp_from_user ? tmp_from_user.short_user_name : nil}" if debug_notifications
           puts "#{i+1}: to_user = #{to_user.short_user_name}, tmp_to_user = #{tmp_to_user.short_user_name}" if debug_notifications
           send_notification(1, noti_key_2, tmp_noti_key_3, tmp_from_user, tmp_to_user)
