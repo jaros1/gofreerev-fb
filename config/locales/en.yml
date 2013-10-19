@@ -403,6 +403,11 @@ en:
      show:
         invalid_request: "Invalid call."
         page_header_text_html: "<p>User information</p>"
+        not_a_friend: "You can only see user information for your friends."
+        top_text_friend_html: "%{username} user information"
+        top_text_non_friend_html: "Detailed user information is only displayed to your friends. User info for %{username} can not be displayed. Use the above buttons if you want to add %{username} as a friend."
+        api_profile_link_text: "profile"
+     user:
         user_name_prompt: "Name"
         friend_status_prompt: "Status"
         user_balance_prompt: "Balance"
@@ -413,10 +418,6 @@ en:
         friend_status_text_r: "Pending %{appname} friend request"
         friend_status_text_p: "Want to be your %{appname} friend"
         friend_status_text_b: "Blocked. %{appname} friend requests are ignored"
-        not_a_friend: "You can only see user information for your friends."
-        top_text_friend_html: "%{username} user information"
-        top_text_non_friend_html: "Detailed user information is only displayed to your friends. User info for %{username} can not be displayed. Use the above buttons if you want to add %{username} as a friend."
-        api_profile_link_text: "profile"
      friend_action_buttons:
         add_api_friend: "Add %{apiname} friend"
         remove_api_friend: "Remove %{apiname} friend"
@@ -428,3 +429,5 @@ en:
         block_app_user: "Block %{appname} user"
         unblock_app_user: "Unblock"
         edit_user: "Edit"
+     index:
+        page_header_text_html: "Add/remove friends<br /><br />"

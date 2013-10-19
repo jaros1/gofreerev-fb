@@ -64,7 +64,7 @@ class UsersController < ApplicationController
     last_user_id = nil unless last_user_id =~ /^[0-9]+$/
 
     # always use users friends as basic (friends_filter = true)
-    user_friends = @friends = @user.friends.includes(:friend).find_all do |f|
+    user_friends = @user.friends.includes(:friend).find_all do |f|
       f.friend.friend?(@user)
     end.sort do |a,b|
       if a.friend.user_name <=> b.friend.user_name
@@ -95,7 +95,7 @@ class UsersController < ApplicationController
           @last_user_id = nil
         end
       end
-      user_friends = user_friends.collect { |f| f.friend }
+      @friends = user_friends.collect { |f| f.friend }
       # simpel friends search - return user friends
       return
     end # friends_filter == true
