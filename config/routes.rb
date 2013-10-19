@@ -1,5 +1,6 @@
 GofreerevFb::Application.routes.draw do
 
+  get "friends/index"
   get 'util/new_messages_count'
   post 'util/missing_api_picture_urls'
   post 'util/like_gift'

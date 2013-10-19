@@ -68,7 +68,10 @@ en:
         header_home_link_text: 'Home'
         header_inbox_link_title: ''
         header_inbox_link_text: 'Inbox'
+        header_friends_link_title: ''
+        header_friends_link_text: 'Friends'
         header_log_out_link_text: 'Log out'
+        header_log_out_link_title: "Log out of %{appname} and return to %{apiname}."
   fb: # facebook versions
      layouts:
         page_header:

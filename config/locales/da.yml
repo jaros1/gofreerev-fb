@@ -64,7 +64,10 @@ da:
         header_home_link_text: 'Forside'
         header_inbox_link_title: ''
         header_inbox_link_text: 'Meddelelser'
+        header_friends_link_title: ''
+        header_friends_link_text: 'Venner'
         header_log_out_link_text: 'Log ud'
+        header_log_out_link_title: "Log ud af %{appname} og returner til %{apiname}."
   fb: # facebook specific texts
      layouts:
         page_header:

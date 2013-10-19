@@ -202,6 +202,7 @@ class User < ActiveRecord::Base
     case
       when facebook? then 'facebook'
       when google_plus? then 'google+'
+      when linkedin? then 'linkedin'
       else nil
     end
   end
