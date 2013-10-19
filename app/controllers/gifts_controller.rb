@@ -262,7 +262,7 @@ class GiftsController < ApplicationController
     end
 
     # puts "gifts.length = #{@gifts.length}"
-    if  @gifts.length > 10
+    if @gifts.length > 10
       @gifts = @gifts[0..9]
       @last_gift_id = @gifts.last.id
     else

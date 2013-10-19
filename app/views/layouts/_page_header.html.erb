@@ -41,7 +41,7 @@
             </td>
             <td>&nbsp;&nbsp;</td>
             <td style="vertical-align: baseline" title="<%= my_t '.header_friends_link_title', :appname => APP_NAME %>">
-              <%= link_to my_t('.header_friends_link_text'), users_path %>
+              <%= link_to my_t('.header_friends_link_text'), users_path(:friends => true) %>
             </td>
             <td>&nbsp;&nbsp;</td>
             <td style="vertical-align: baseline" title="<%= my_t '.header_log_out_link_title', :appname => APP_NAME, :apiname => @user.api_name_without_brackets %>">

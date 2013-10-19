@@ -47,8 +47,62 @@ class UsersController < ApplicationController
   end
 
   def index
+    # friends filter: true: show friends, false: show not friends (*), nil: show all users (')
+    # * = only show friends of friends - not all Gofreerev users
+    friends_filter = params[:friends]
+    friends_filter = case friends_filter
+                        when nil then nil
+                        when "" then nil
+                        when "true" then true
+                        when "false" then false
+                        else true
+                     end # case
+    # return first 10 friends (last_user_id = nil).
+    # return next 10 friends (last_user_id != nil)
+    last_user_id = params[:last_user_id].to_s
+    last_user_id = nil if last_user_id == ''
+    last_user_id = nil unless last_user_id =~ /^[0-9]+$/
 
-  end
+    # always use users friends as basic (friends_filter = true)
+    user_friends = @friends = @user.friends.includes(:friend).find_all do |f|
+      f.friend.friend?(@user)
+    end.sort do |a,b|
+      if a.friend.user_name <=> b.friend.user_name
+        a.friend.id <=> b.friend.id
+      else
+        a.friend.user_name <=> b.friend.user_name
+      end
+    end
+    puts "friends_filter = #{friends_filter}, found #{user_friends.size} friends"
+
+    if friends_filter == true
+      # simpel friends search - return user friends
+      if last_user_id
+        # ajax request - return next 10 friends
+        from = user_friends.index { |f| f.friend.id == last_user_id }
+        last_user_id = nil unless from # invalid last_user_id - or user is no longer a friend - ignore error and return first 10 friends
+      end
+      if !last_user_id
+        # first http get - return first 10 friends
+        user_friends = user_friends.first(10)
+      else
+        # ajax request - return next 10 friends
+        user_friends = user_friends[from+1..-1]
+        if user_friends.size > 10
+          user_friends = user_friends.first(10)
+          @last_user_id = user_friends.last.friend.id
+        else
+          @last_user_id = nil
+        end
+      end
+      user_friends = user_friends.collect { |f| f.friend }
+      # simpel friends search - return user friends
+      return
+    end # friends_filter == true
+
+    raise "todo: not implemented"
+
+  end # index
 
   def show
     id = params[:id]
