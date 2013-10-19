@@ -57,8 +57,9 @@
 
 <% if @gifts.size == 0 -%>
     <p>
-      <%= my_t '.no_gifts_was_found' %>
+      <%= my_t '.no_gifts_was_found_html', :appname => APP_NAME %>
     </p>
+    <%= my_t '.invite_friends_link_prompt' %> <%= invite_friends_link %>
 <% else -%>
     <br />
     <table id="gifts" style="border-spacing: 0;">

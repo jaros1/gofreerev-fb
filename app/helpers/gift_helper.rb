@@ -29,7 +29,7 @@ module GiftHelper
     case
       when @user.facebook?
         # url - request for status_update priv
-        oauth = session[:oauth] = Koala::Facebook::OAuth.new(api_id, api_secret, 'http://localhost/gifts/')
+        oauth = session[:oauth] = Koala::Facebook::OAuth.new(api_id, api_secret, SITE_URL + 'gifts/')
         state = session[:state] = String.generate_random_string(30)
         url = oauth.url_for_oauth_code(:permissions => 'read_stream', :state => state)
         puts "auth_read_stream_url: url2 = #{url}"

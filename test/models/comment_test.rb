@@ -293,13 +293,10 @@ class CommentTest < ActiveSupport::TestCase
 
   test "charlie_comments_own_gift_b" do
     # assert two notifications
-    # - Charlie S: Sandra Q commented your offer "hello ..."
-    # - Sandra Q: Charlie S also commented Charlie S-s offer "hello ..."
     # todo: text for notification 2 is not perfect:
     # was:            Charlie S also commented Charlie S-s offer "hello ..."
     # should be:      Charlie S also commented his/hers offer "hello ..."
     # but what with:  Charlie S and Karen S also commented his/hers offer "hello ..."
-    # assert false, "todo: improve notification to u1/sandra"
     assert_notifications :method => __method__,
                          :notifications => [
                              # 1) notification to charlie. one user u1/sandra has commented charlies gift
@@ -314,7 +311,7 @@ class CommentTest < ActiveSupport::TestCase
                               :noti_key => 'new_comment_giver_other_1_v1',
                               :no_users => 1,
                               :usernames => ["Charlie S"],
-                              :noti_text_en_to => 'Charlie S also commented Charlie S-s offer "hello ..."'  # todo: bad text
+                              :noti_text_en_to => 'Charlie S also commented Charlie S-s offer "hello ..."'
                              }
                          ] do
       # setup - charlie comments his own gift
@@ -891,14 +888,14 @@ class CommentTest < ActiveSupport::TestCase
     # assert two notifications
     assert_notifications(:method => __method__,
                          :notifications => [
-                             # 1) notification to charlie - one user u2/karen with proposal
+                             # 1) notification to charlie (owner) - one user u2/karen with comment
                              {:to_user_id => charlie.user_id,
                               :noti_key => 'new_comment_giver_1_v1',
                               :no_users => 1,
                               :usernames => ["Karen S"],
                               :noti_text_en_to => 'Karen S commented your offer "hello ..."'
                              },
-                             # 2) notification to u1/sandra - one user u2/karen with commentl
+                             # 2) notification to u1/sandra (follower)- one user u2/karen with comment
                              {:to_user_id => u1_sandra.user_id,
                               :noti_key => 'new_comment_giver_follow_1_v1',
                               :no_users => 1,
@@ -985,6 +982,48 @@ class CommentTest < ActiveSupport::TestCase
       assert c1.save
     end # assert_notifications
   end # follow_gift_e
+
+  test "follow_gift_f" do
+    # assert two notifications
+    assert_notifications(:method => __method__,
+                         :notifications => [
+                             # 1) notification to charlie (owner) - one user u2/karen with proposal
+                             {:to_user_id => charlie.user_id,
+                              :noti_key => 'new_proposal_giver_1_v1',
+                              :no_users => 1,
+                              :usernames => ["Karen S"],
+                              :noti_text_en_to => 'Karen S wants to use your offer "hello ..."'
+                             },
+                             # 2) notification to u1/sandra (follower)- one user u2/karen with comment
+                             {:to_user_id => u1_sandra.user_id,
+                              :noti_key => 'new_comment_giver_follow_1_v1',
+                              :no_users => 1,
+                              :usernames => ["Karen S"],
+                              :noti_text_en_to => 'Karen S commented Charlie S-s offer "hello ..."'
+                             },
+                             # 3) notification to u2/karen - proposal rejected
+                             {:to_user_id => u2_karen.user_id,
+                              :noti_key => 'rejected_proposal_giver_1_v1',
+                              :no_users => 0,
+                              :usernames => [],
+                              :noti_text_en_to => 'Charlie S rejected your bid on his/her offer "hello ..."'
+                             } ])  do
+      # setup context for this test
+      # u1/sandra follows charlies gift
+      gl = GiftLike.new
+      gl.gift_id = gifts(:charlie_gift_a).gift_id
+      gl.user_id = u1_sandra.user_id
+      gl.like = 'N'
+      gl.show = 'Y'
+      gl.follow = 'Y'
+      assert gl.save
+      c1 = proposal_for_charlies_gift u2_karen, 'notifications to charlie and sandra'
+      # charlie rejects proposal
+      c1.accepted_yn = 'N'
+      assert c1.save
+    end # assert_notifications
+  end # follow_gift_f
+
 
   #
   # cancel proposal tests
@@ -1277,11 +1316,8 @@ class CommentTest < ActiveSupport::TestCase
 
   test "reject_proposal_e" do
     # almost like reject_proposal_d
-    # assert three notification
+    # assert four notification
     # note that new proposal notification to u1/sandra is changed to a new comment notification - Comment.send_notification rule 4a
-    # todo: invalid text in notification 2:
-    # expected: Karen S also commented Charlie S-s offer "hello ..."
-    # found: Charlie S also commented Charlie S-s offer "hello ..."
     assert_notifications(:method => __method__,
                          :notifications => [
                              # 1) notification to charlie - two users u1/sandra and u2/karen with proposals (c1 and c2)
@@ -1505,9 +1541,6 @@ class CommentTest < ActiveSupport::TestCase
     # almost like reject_proposal_e, but with 2 proposals from u2/karen where only 1 proposal is rejected
     # assert five notification
     # note that new proposal notification to u1/sandra is changed to a new comment notification - Comment.send_notification rule 4a
-    # todo: invalid text in notification 2:
-    # expected: Karen S also commented Charlie S-s offer "hello ..."
-    # found: Charlie S also commented Charlie S-s offer "hello ..."
     assert_notifications(:method => __method__,
                          :notifications => [
                              # 1) notification to charlie - two users u1/sandra and u2/karen with proposals (c1 and c2)
@@ -1553,9 +1586,6 @@ class CommentTest < ActiveSupport::TestCase
       # charlie - reject proposals from u1/sandra and u2/karen
       c1.accepted_yn = 'N'
       assert c1.save!
-      # todo: u2/Karen has two proposals c2 and c3 for charlies gift, but only c2 is rejected.
-      #       what should happen with notification to u1/sandra?
-      #       split in two notifications to sandra (comment and proposal)
       c2.accepted_yn = 'N'
       assert c2.save!
     end # assert_notifications

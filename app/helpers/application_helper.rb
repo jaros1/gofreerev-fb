@@ -172,4 +172,33 @@ module ApplicationHelper
     }
   end # format_gift_param
 
+  def invite_friends_url
+    unless @user
+      puts 'invite_friends_url: @user was not found'
+      return ''
+    end
+    case
+      when @user.facebook?
+        # url - friend request url
+        title = my_t '.invite_friends_message_title', :appname => APP_NAME
+        message = my_t '.invite_friends_message_body'
+        # no koala gem method for generation a invite friends url
+        url = "https://#{Koala.config.dialog_host}/dialog/apprequests" +
+            "?app_id=#{api_id}" +
+            "&redirect_uri=#{CGI.escape(SITE_URL + 'gifts/')}" +
+            "&message=#{CGI.escape(message.to_str)}" +
+            "&title=#{CGI.escape(title.to_str)}" +
+            "&filters=" + CGI.escape("['app_non_users']")
+        puts "friend request url: url = #{url}"
+        return url
+      else
+        ''
+    end # case
+  end # invite_friends_url
+
+  def invite_friends_link
+    # todo: different url for each API (FB, GP, LI etc)
+    link_to my_t('.invite_friends_link_text', :app_url => FB_APP_URL), invite_friends_url
+  end
+
 end # ApplicationHelper

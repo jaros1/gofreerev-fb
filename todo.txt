@@ -2,8 +2,6 @@
 
 3) Invite friends to app function?
 
-5) opera. client side validation not working in gifts/index page. Works in other browsers.
-
 9) few price info on gifts/index page. More information available in titles
    Full price information in user/show page
 
@@ -194,31 +192,17 @@
     new gifts, new comments and changes gifts and comments are returned in new messages count
     could also just be a sequence
 
-89) comment notifications
-    create comment and deal proposal - ok
-    delete comment - ok
-    cancel deal proposal - ok
-    reject deal proposal - add notification
-    accept deal proposal - not finished - add notifications
-
-90) comment status. cancel deal proposal should insert a delete link
-    maybe ajax render partial comments/comment_status and ajax replace div content
-
 91) comments: timestamps for cancel, reject and accept deal?
 
 93) use identical encryption keys on development and test (easy generation of fixtures)
     use different encryption keys in production environment
 
-94) notifications should have a from user if possible
-
 95) make script to compare language files (en, da etc). Find missing keys
 
 96) add was methods for all encrypted fields
 
-97) comment test notifications:
-    - follow_gift: notification to Sandra Q.
-      expected: Karen S commented vim Charlie S-s offer "hello ..."
-      found   : Karen S commented your offer "hello ..."
-      problem: Sandra is following Charlies gift when Karen S comments it. Sandra gets notification as "giver" = charlie.
-      Solution: change notification key to new_comment_giver_other_1_v1 or create new notification key new_comment_giver_follow_1_v1
-    - check todo's in comment_test.rb
+97) allow new proposal for giver/receiver so that giver/receiver can change price?
+
+98) first user to use gofreerev. Empty page without gifts/friends.
+    make a special welcome to first user and explain how to get friends to use gofreerev.
+    invite friend function.

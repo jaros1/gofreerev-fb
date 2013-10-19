@@ -171,6 +171,9 @@ class User < ActiveRecord::Base
   def self.google_plus_user_prefix
     'gp-'
   end # google_plus_user_prefix
+  def self.linkedin_user_prefix
+    'li-'
+  end # linkedin_user_prefix
 
   def usertype
     return nil unless user_id
@@ -185,6 +188,10 @@ class User < ActiveRecord::Base
     return false unless user_id
     user_id.first(3) == User.google_plus_user_prefix
   end # facebook
+  def linkedin?
+    return false unless user_id
+    user_id.first(3) == User.linkedin_user_prefix
+  end
 
   def short_user_name
     a = user_name.split(' ')
