@@ -61,7 +61,11 @@ class UsersController < ApplicationController
     # return next 10 friends (last_user_id != nil)
     last_user_id = params[:last_user_id].to_s
     last_user_id = nil if last_user_id == ''
-    last_user_id = nil unless last_user_id =~ /^[0-9]+$/
+    if last_user_id =~ /^[0-9]+$/
+      last_user_id = last_user_id.to_i
+    else
+      last_user_id = nil
+    end
 
     # always use users friends as basic (friends_filter = true)
     user_friends = @user.friends.includes(:friend).find_all do |f|
@@ -222,21 +226,28 @@ class UsersController < ApplicationController
     postfix = user2.send(friend_action, @user) ? "_ok" : "_error"
     flash[:notice] = my_t ".#{friend_action}#{postfix}", :appname => APP_NAME, :username => user2.short_user_name
     redirect_to params[:return_to]
-
   end # friend_actions
 
   private
   def get_next_10_users (users, last_user_id)
+    puts "last_user_id = #{last_user_id}"
     if last_user_id
       # ajax request - check if last_user_id still is valid
+      # puts "ajax request - check if last_user_id still is valid"
       from = users.index { |u| u.id == last_user_id }
+      if !from
+        # puts "invalid last_user_id - or user is no longer a friend - ignore error and return first 10 users"
+        last_user_id = nil
+      end
       last_user_id = nil unless from # invalid last_user_id - or user is no longer a friend - ignore error and return first 10 users
     end
     if !last_user_id
       # first http get - return first 10 users
+      # puts "first http get - return first 10 users"
       nil
     else
       # ajax request - return next 10 users
+      # puts "ajax request - return next 10 users"
       users = users[from+1..-1]
     end
     if users.size > 10

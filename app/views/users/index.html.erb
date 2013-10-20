@@ -23,12 +23,13 @@
                     var link = document.getElementById("show-more-users-link") ;
                     if (!link) return ; // link has already been removed
                     var table = document.getElementById("users") ;
-                    var trs = table.getElementsByTagName('tr') ;
+                    var trs = table.rows ;
+                    // alert('length = ' + trs.length) ;
                     var tr = trs[trs.length-1] ;
                     var tr_id = tr.id ;
-                    alert('tr_id = ' + tr_id) ;
+                    // alert('tr_id = ' + tr_id) ;
                     if (tr_id == "") {
-                        alert('no more users - remove link') ;
+                        // alert('no more users - remove link') ;
                         link.parentNode.removeChild(link);
                         // todo: remove this event handler
                     }
@@ -36,7 +37,7 @@
                         // change last_user_id in link
                         var tr_id_a = tr_id.split("_") ;
                         var last_user_id = tr_id_a[tr_id_a.length-1] ;
-                        alert('last_user_id = ' + last_user_id) ;
+                        // alert('last_user_id = ' + last_user_id) ;
                         link.href = "/users?last_user_id=" + last_user_id ;
                         bottom = false ;
                     }
