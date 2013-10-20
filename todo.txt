@@ -206,3 +206,5 @@
 98) first user to use gofreerev. Empty page without gifts/friends.
     make a special welcome to first user and explain how to get friends to use gofreerev.
     invite friend function.
+
+99) error when changing currency in page header: undefined method `size' for 2013-10-13 16:46:55 UTC:Time

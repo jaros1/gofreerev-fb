@@ -161,6 +161,9 @@ class User < ActiveRecord::Base
   # change currency in page header.
   attr_accessor :new_currency
 
+  # users/index - number of mutual friends
+  attr_accessor :mutual_friends
+
   ##################
   # helper methods #
   ##################
@@ -366,8 +369,7 @@ class User < ActiveRecord::Base
   # get friend record from login users cached list of friends
   def get_friend (login_user)
     return nil unless login_user
-    return @friend if defined?(@friend)
-    @friend = login_user.friends.find_all { |f| f.user_id_receiver == self.user_id }.first
+    login_user.friends.find_all { |f| f.user_id_receiver == self.user_id }.first
   end
 
   # reverse friend record is identical with friend record except for app_friend = R, P and B

@@ -76,7 +76,7 @@ class UsersController < ApplicationController
     puts "friends_filter = #{friends_filter}, found #{user_friends.size} friends"
 
     if friends_filter == true
-      # simpel friends search - return user friends
+      # simpel friends search - just return current user friends
       if last_user_id
         # ajax request - return next 10 friends
         from = user_friends.index { |f| f.friend.id == last_user_id }
@@ -100,7 +100,45 @@ class UsersController < ApplicationController
       return
     end # friends_filter == true
 
-    raise "todo: not implemented"
+    # friends_filter = nil (all users) or false (only non friends)
+
+    # find all friends of friends
+    friends_userids = user_friends.collect { |f| f.user_id_receiver }
+    friends_userids.delete(@user.user_id)
+    puts "friends_userids = " + friends_userids.join(', ')
+    friends = User.where("user_id in (?)", friends_userids).includes(:friends)
+    puts "friends = " + friends.collect { |u| u.short_user_name }.join(', ')
+    friends_friends_userids = []
+    friends.each do |u|
+      friends_friends_userids = (friends_friends_userids + u.friends.collect { |f| f.user_id_receiver }).uniq
+    end # each u
+    friends_friends_userids.delete(@user.user_id)
+
+    # find relevant users and number of mutual friends
+    users = []
+    User.where("user_id in (?)", friends_friends_userids).each do |user|
+      next if friends_filter == false and user.friend?(@user) # don't show friends
+      # count number of mutual friends
+      user.mutual_friends = []
+      friends.each do |friend|
+        user.mutual_friends << friend.short_user_name if friend.user_id != user.user_id and user.friend?(friend)
+      end # each friend
+      users << user if user.mutual_friends.size > 0
+      puts "#{user.user_id} #{user.short_user_name}, friend? = #{@user.friend?(user)}, mutual_friends = #{user.mutual_friends.join(', ')}"
+    end # each user
+
+    # sort: number of mutual friends desc, user name, user id
+    users = users.sort do |a, b|
+      if a.mutual_friends.size != b.mutual_friends.size
+        b.mutual_friends.size <=> a.mutual_friends.size
+      elsif a.user_name != b.user_name
+        a.user_name <=> b.user_name
+      else
+        a.id <=> b.id
+      end
+    end # sort
+
+    @friends = users
 
   end # index
 

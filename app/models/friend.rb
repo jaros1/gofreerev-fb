@@ -25,7 +25,15 @@ class Friend < ActiveRecord::Base
     self['friend_id'] = new_friend_id
   end
 
-  # 2) api_friend. String Y/N in model. Encrypted text in db. Required
+  # 2) user_id_giver - String in model and db - not encrypted
+  validates_presence_of :user_id_giver
+  validates_uniqueness_of :user_id_giver, :scope => :user_id_receiver
+
+  # 3) user_id_receiver - String in model and db - not encrypted
+  validates_presence_of :user_id_receiver
+  validates_uniqueness_of :user_id_receiver, :scope => :user_id_giver
+
+  # 4) api_friend. String Y/N in model. Encrypted text in db. Required
   # Y or N. Friends in FB or mutual connection in google+
   validates_presence_of :api_friend
   def api_friend
@@ -45,7 +53,7 @@ class Friend < ActiveRecord::Base
   end
   alias_method :api_friend_before_type_cast, :api_friend
 
-  # 3) app_friend. String Y/N in model. Encrypted text in db.
+  # 5) app_friend. String Y/N in model. Encrypted text in db.
   # values: nil, Y, N or R.
   #   nil (default) means that friend lists are identical in login api and in app - also used if app friendship request is ignored
   #   R - request for app friendship - used for non api friends to create connection within app

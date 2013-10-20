@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20130928143414) do
+ActiveRecord::Schema.define(version: 20131020063408) do
 
   create_table "ajax_comments", force: true do |t|
     t.string   "user_id",    limit: 20, null: false
@@ -72,8 +72,8 @@ ActiveRecord::Schema.define(version: 20130928143414) do
   end
 
   add_index "friends", ["friend_id"], name: "index_friends_on_friend_id", unique: true
-  add_index "friends", ["user_id_giver"], name: "index_friends_on_giver"
-  add_index "friends", ["user_id_receiver"], name: "index_friends_on_receiver"
+  add_index "friends", ["user_id_giver", "user_id_receiver"], name: "index_friends_on_giver", unique: true
+  add_index "friends", ["user_id_receiver", "user_id_giver"], name: "index_friends_on_receiver", unique: true
 
   create_table "gift_likes", force: true do |t|
     t.string   "gift_like_id", limit: 20, null: false
