@@ -2,12 +2,12 @@
 <tr style="vertical-align: top" id="<%= "gift-#{gift.id}" %>-header">
   <td>
     <% if gift.giver -%>
-        <%= @user2 = gift.giver ; render '/shared/user_div' %>
+        <%= render '/shared/user_div', :user_div => gift.giver %>
     <% end -%>
   </td>
   <td>
     <% if gift.receiver -%>
-        <%= @user2 = gift.receiver ; render '/shared/user_div' %>
+        <%= render '/shared/user_div', :user_div => gift.receiver %>
     <% end -%>
   </td>
   <td colspan="2" style="height: 52px; vertical-align: top">
@@ -35,7 +35,7 @@
         </div>
     <% end -%>
   </td>
-  <td style="vertical-align: top;"><%= @user2 = @user ; render '/shared/user_div' %></td>
+  <td style="vertical-align: top;"><%= render '/shared/user_div', :user_div => @user %></td>
   <td>
     <%# remote form for new comment. Sent to comments/create. Inserted in gift-<gift.id>-comments table.
         Post ajax processing done in my.js / add_post_ajax_comment_handler

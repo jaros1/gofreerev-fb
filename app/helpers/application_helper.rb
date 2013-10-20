@@ -117,7 +117,7 @@ module ApplicationHelper
 
   def my_sanitize_hash (hash)
     hash.each do |name, value|
-      hash[name] = my_sanitize (value)
+      hash[name] = my_sanitize (value.to_s.force_encoding('utf-8'))
     end
   end # my_sanitize_hash
 

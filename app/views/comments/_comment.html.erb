@@ -2,6 +2,6 @@
   <td colspan="2" style="text-align: right; vertical-align: top">
     <%= @comment = comment ; render 'comments/comment_status' %>
   </td>
-  <td style="vertical-align: top;"><%= @user2 = comment.user ; render '/shared/user_div' %></td>
+  <td style="vertical-align: top;"><%= render '/shared/user_div', :user_div => comment.user %></td>
   <td><%= my_sanitize comment.comment %></td>
 </tr>

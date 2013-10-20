@@ -14,7 +14,7 @@
 <table>
   <tr style="white-space: nowrap">
     <td>
-      <%= @page_header = true ; @size = nil ; @user2 = @user ; render '/shared/user_div' %>
+      <%= @page_header = true ; @size = nil ; render '/shared/user_div', :user_div => @user %>
     </td>
     <td>&nbsp;&nbsp;&nbsp;</td>
     <td title="<%= my_t '.header_currency_title' %>">

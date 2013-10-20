@@ -86,9 +86,6 @@
 
 34b) add more detailed description of what information what i saved in app
 
-35) Problem with partial parameters. Are using instance variables instead of :locals => {} until the problem is solved.
-    See render '/shared/user_div' used in many views
-
 39) gifts/index: post on api wall checkbox. Only if user has granted post-on-wall prio.
 
 40) gifts/index: comment with final description before the deal is closed? Or keep original text with comments?
