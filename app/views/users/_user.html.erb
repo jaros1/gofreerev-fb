@@ -11,7 +11,8 @@
           <td>:</td>
           <td><%= my_t @user2.friend_status_translate_code(@user), :appname => APP_NAME, :apiname => @user.api_name_without_brackets, :username => @user2.short_user_name %></td></tr>
         <tr><td><%= my_t '.user_balance_prompt' %></td><td>:</td><td><%= format_user_balance(@user2, @user) if friend %></td></tr>
-        <tr><td colspan="3"><table><tr><%= render "friend_action_buttons", :locals => { :user2 => @user2 } %></tr></table></td></tr>
+        <tr><td colspan="3"><table><tr><% puts "user2 = #{@user2.user_id} #{@user2.user_name}"
+                                           render :partial => "friend_action_buttons", :locals => { :user2 => @user2 } %></tr></table></td></tr>
       </table>
     </td>
   </tr>

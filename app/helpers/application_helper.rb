@@ -112,8 +112,7 @@ module ApplicationHelper
 
   # todo: config sanitize
   def my_sanitize (text)
-    # return text.to_s.force_encoding('UTF-8')
-    sanitize(text.to_s.force_encoding('UTF-8')).gsub(/\n/, '<br/>').html_safe
+    sanitize(text.to_s).gsub(/\n/, '<br/>').html_safe
   end # my_sanitize
 
   def my_sanitize_hash (hash)
@@ -126,9 +125,6 @@ module ApplicationHelper
   # use this translate for description in other languages for social dividend
   def format_gift_description (gift)
 
-    # problem with incompatible character encodings: UTF-8 and ASCII-8BIT
-    # temporary workaround with .force_encoding('UTF-8')
-    # do not known were the problem is
     return my_sanitize gift.description if gift.gifttype == 'G'
 
     # format description with social dividend with translate

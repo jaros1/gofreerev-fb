@@ -76,27 +76,9 @@ class UsersController < ApplicationController
     puts "friends_filter = #{friends_filter}, found #{user_friends.size} friends"
 
     if friends_filter == true
-      # simpel friends search - just return current user friends
-      if last_user_id
-        # ajax request - return next 10 friends
-        from = user_friends.index { |f| f.friend.id == last_user_id }
-        last_user_id = nil unless from # invalid last_user_id - or user is no longer a friend - ignore error and return first 10 friends
-      end
-      if !last_user_id
-        # first http get - return first 10 friends
-        user_friends = user_friends.first(10)
-      else
-        # ajax request - return next 10 friends
-        user_friends = user_friends[from+1..-1]
-        if user_friends.size > 10
-          user_friends = user_friends.first(10)
-          @last_user_id = user_friends.last.friend.id
-        else
-          @last_user_id = nil
-        end
-      end
-      @friends = user_friends.collect { |f| f.friend }
-      # simpel friends search - return user friends
+      # simpel friends search - just return login users friends
+      users = user_friends.collect { |f| f.friend }
+      @friends, @last_user_id = get_next_10_users(users, last_user_id)
       return
     end # friends_filter == true
 
@@ -138,7 +120,10 @@ class UsersController < ApplicationController
       end
     end # sort
 
+    # todo: check ajax handling
+    users = User.all.order("id")
     @friends = users
+    @friends, @last_user_id = get_next_10_users(users, last_user_id)
 
   end # index
 
@@ -228,5 +213,28 @@ class UsersController < ApplicationController
     redirect_to params[:return_to]
 
   end # friend_actions
+
+  private
+  def get_next_10_users (users, last_user_id)
+    if last_user_id
+      # ajax request - check if last_user_id still is valid
+      from = users.index { |u| u.id == last_user_id }
+      last_user_id = nil unless from # invalid last_user_id - or user is no longer a friend - ignore error and return first 10 users
+    end
+    if !last_user_id
+      # first http get - return first 10 users
+      nil
+    else
+      # ajax request - return next 10 users
+      users = users[from+1..-1]
+    end
+    if users.size > 10
+      users = users.first(10)
+      last_user_id = users.last.id # return next 10 users in next ajax request
+    else
+      last_user_id = nil # last user - no more ajax requests
+    end
+    [ users, last_user_id]
+  end # get_next_10_users
 
 end

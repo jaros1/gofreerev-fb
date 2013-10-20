@@ -20,8 +20,7 @@ class CommentTest < ActiveSupport::TestCase
   end # debug_notifications
 
   def my_sanitize (text)
-    # return text.to_s.force_encoding('UTF-8')
-    sanitize(text.to_s.force_encoding('UTF-8')).gsub(/\n/, '<br/>').html_safe
+    sanitize(text.to_s).gsub(/\n/, '<br/>').html_safe
   end # my_sanitize
 
   def my_sanitize_hash (hash)

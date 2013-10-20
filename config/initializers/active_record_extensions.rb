@@ -87,7 +87,8 @@ module ActiveRecordExtensions
     if debug_attributes.index(attributename)
       puts "encrypt_remove_pre_and_postfix: attribute = #{attributename}, input = \"#{value}\" (#{value.class.name}), output = \"#{o}\" (#{o.class.name})"
     end
-    o
+    return nil unless o
+    o.force_encoding('UTF-8')
   end # encrypt_remove_pre_and_postfix
 
   def str_to_float_or_nil (str)
