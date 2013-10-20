@@ -1,0 +1,4 @@
+<% for user in @users do loop -%>
+
+    <%= render :partial => 'users/user', :locals => { :user => user } %>
+<% end -%>

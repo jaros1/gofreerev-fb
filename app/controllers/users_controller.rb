@@ -78,7 +78,12 @@ class UsersController < ApplicationController
     if friends_filter == true
       # simpel friends search - just return login users friends
       users = user_friends.collect { |f| f.friend }
-      @friends, @last_user_id = get_next_10_users(users, last_user_id)
+      @users, @last_user_id = get_next_10_users(users, last_user_id)
+      respond_to do |format|
+        format.html {}
+        # format.json { render json: @comment, status: :created, location: @comment }
+        format.js {}
+      end
       return
     end # friends_filter == true
 
@@ -122,8 +127,14 @@ class UsersController < ApplicationController
 
     # todo: check ajax handling
     users = User.all.order("id")
-    @friends = users
-    @friends, @last_user_id = get_next_10_users(users, last_user_id)
+    @users = users
+    @users, @last_user_id = get_next_10_users(users, last_user_id)
+
+    respond_to do |format|
+      format.html {}
+      # format.json { render json: @comment, status: :created, location: @comment }
+      format.js {}
+    end
 
   end # index
 

@@ -269,6 +269,7 @@ class User < ActiveRecord::Base
     "#{profile_picture_os_folder}/#{profile_picture_filename}"
   end
   def profile_picture_url
+    return 'no-picture.jpg' unless profile_picture_filename
     "#{profile_picture_md5_path}/#{profile_picture_filename}"
   end
 
@@ -370,7 +371,7 @@ class User < ActiveRecord::Base
   def get_friend (login_user)
     return nil unless login_user
     login_user.friends.find_all { |f| f.user_id_receiver == self.user_id }.first
-  end
+  end # get_friend
 
   # reverse friend record is identical with friend record except for app_friend = R, P and B
   def get_reverse_friend (login_user)
