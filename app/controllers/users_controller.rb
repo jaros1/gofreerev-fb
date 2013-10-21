@@ -129,9 +129,7 @@ class UsersController < ApplicationController
       end
     end # sort
 
-    # todo: check ajax handling
-    users = User.all.order("id")
-    @users = users
+    # return next 10 gofreerev users
     @users, @last_user_id = get_next_10_users(users, last_user_id)
 
     respond_to do |format|

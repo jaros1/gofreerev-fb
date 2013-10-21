@@ -176,16 +176,16 @@ module ApplicationHelper
     case
       when @user.facebook?
         # url - friend request url
-        title = my_t '.invite_friends_message_title', :appname => APP_NAME
-        message = my_t '.invite_friends_message_body'
+        title = my_t 'shared.invite_friends.invite_friends_message_title', :appname => APP_NAME
+        message = my_t 'shared.invite_friends.invite_friends_message_body'
         # no koala gem method for generation a invite friends url
         url = "https://#{Koala.config.dialog_host}/dialog/apprequests" +
             "?app_id=#{api_id}" +
-            "&redirect_uri=#{CGI.escape(SITE_URL + 'gifts/')}" +
+            "&redirect_uri=#{CGI.escape(SITE_URL + @request_fullpath)}" +
             "&message=#{CGI.escape(message.to_str)}" +
             "&title=#{CGI.escape(title.to_str)}" +
             "&filters=" + CGI.escape("['app_non_users']")
-        puts "friend request url: url = #{url}"
+        # puts "friend request url: url = #{url}"
         return url
       else
         ''

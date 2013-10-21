@@ -205,5 +205,3 @@
     invite friend function.
 
 99) error when changing currency in page header: undefined method `size' for 2013-10-13 16:46:55 UTC:Time
-
-100) use force_encoding('UTF-8') or

@@ -1,4 +1,19 @@
-<%= my_t '.page_header_text_html' %>
+<%# my_t '.page_header_text_html' %>
+<br />
+<table>
+  <tr>
+    <td><%= my_t '.friends_filter_prompt', :appname => APP_NAME %></td>
+    <td><%= link_to my_t('.app_friends_link_text'), users_path(:friends => true) %></td>
+    <td><%= link_to my_t('.not_app_friends_link_text'), users_path(:friends => false) %></td>
+    <td><%= link_to my_t('.all_app_users_link_text'), users_path %></td>
+    <td>&nbsp;&nbsp;|&nbsp;&nbsp;</td>
+    <td><%= my_t '.invite_api_friends_link_prompt', :apiname => @user.api_name_without_brackets %></td>
+    <td title="<%= my_t '.invite_api_friends_link_title', :appname => APP_NAME, :apiname => @user.api_name_without_brackets %>">
+      <%= link_to my_t('.invite_api_friends_link_text', :apiname => @user.api_name_without_brackets), invite_friends_url %>
+    </td>
+  </tr>
+</table>
+<br />
 
 <table id="users">
 <% for user in @users do -%>
@@ -6,7 +21,6 @@
 <% end -%>
 </table>
 
-<br />
 <br />
 <%= link_to "add-more-lines", "/users?last_user_id=#{@last_user_id}", :remote => true, :id => "show-more-users-link", :style => "display: none" %>
 

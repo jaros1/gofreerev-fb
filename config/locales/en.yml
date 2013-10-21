@@ -20,10 +20,6 @@
 # To learn more, please read the Rails Internationalization guide
 # available at http://guides.rubyonrails.org/i18n.html.
 
-
-
-
-
 en:
 
   ##########
@@ -87,6 +83,9 @@ en:
      user_div:
         title_non_friend: "%{username}. Click here to see user info."
         title_friend: "%{username}. Balance %{balance}. Click here to see user info."
+     invite_friends:
+        invite_friends_message_title: "Invite your friends to play %{appname}"
+        invite_friends_message_body: "Try a game about helping each other and sharing each others resources in a new different way and a game with a new kind of money that will change our world inspired by the ideas of Charles Eisenstein's book Sacred Economics"
 
   # will paginate gem
   will_paginate:
@@ -108,7 +107,7 @@ en:
         not_logged_in_text: "You are not logged in and you can not create wall postings."
         welcome_msg_after_login: "Welcome %{username} to %{appname}"
 
-        post_gift_not_allowed_title: "%{appname} lack access to write on your %{apiname} wall. You can share your resources with your friends in here, but postings will only appear here and not on your %{apiname} wall. This means your message is likely to be seen by very few friends. You should therefore allow %{appname} permission to write on your wall. %{appname} will only make the postings you ask for. Pictures are uploaded to %{apiname}. Pictures can not be uploaded without permission to write on your %{apiname} wall."
+        post_gift_not_allowed_title: "%{appname} lack access to write on your %{apiname} wall. You can share your resources with your friends in here, but postings will only appear here and not on your %{apiname} wall. This means your message is likely to be seen by few friends. You should therefore allow %{appname} permission to write on your wall. %{appname} will only make the postings you ask for. Pictures are uploaded to %{apiname}. Pictures can not be uploaded without permission to write on your %{apiname} wall."
         post_gift_not_allowed_text: "%{appname} lack access to write on your %{apiname} wall."
         request_post_gift_priv_link_text: "Allow %{appname} to post on my behalf!"
 
@@ -131,15 +130,13 @@ en:
         pending_gift_popup_msg: "Change currency? Select Cancel if you wish to complete your wall posting. Select OK to ship the not saved posting and change currency."
         description_required_text: "Text is required."
         price_invalid_text: "Price is invalid. Only numbers, max 2 decimals, thousands separator not allowed."
-        no_gifts_was_found_html: "There was not found any posts. Neither you nor your friends have even created<br />some posts here in %{appname}. To get started, you must now create a few posts<br />with anything you want to share with your friends or with something you are looking<br />for or are missing, and that you think your friends might be able to help you.<br /><br />Next, invite one or more of your good friends to use %{appname}.<br />Either by sending a personal message with the link below or by using<br />the link below to invite your friends to use Gofreerev. a personal<br />message is the best since many people will reject game invitations."
+        no_gifts_was_found_html: "There was not found any posts. Neither you nor your friends have even created<br />some posts here in %{appname}. To get started, you must now create a few posts<br />with anything you want to share with your friends or with something you are looking<br />for or are missing, and that you think your friends might be able to help you.<br /><br />Next, invite one or more of your good %{apiname} friends to use %{appname}.<br />Either by sending a personal message with the link below or by using<br />the link below to invite your friends to use Gofreerev. a personal<br />message is the best since many people will reject game invitations."
         social_dividend_description_1: "Social dividend %{price} %{currency} from %{giver} to %{receiver} for period up to %{to}"
         social_dividend_description_2: "Social dividend %{price} %{currency} from %{giver} to %{receiver} for period from %{from} to %{to}"
         comment_comment_required_text: "Comment is required"
         comment_price_invalid_text: "Price is invalid. Only numbers, max 2 decimals, thousands separator not allowed."
-        invite_friends_link_prompt: "Invite friends:"
+        invite_friends_link_prompt: "Invite %{apiname} friends:"
         invite_friends_link_text: "%{app_url}"
-        invite_friends_message_title: "Invite your friends to play %{appname}"
-        invite_friends_message_body: "Try a game about helping each other and sharing each others resources in a new different way and a game with a new kind of money that will change our world inspired by the ideas of Charles Eisenstein's book Sacred Economics"
      table_header_row:
         giver_column_heading_html: "From:"
         receiver_column_heading_html: "To:"
@@ -148,6 +145,7 @@ en:
         received_at_and_pice_heading_html: "Date and price:"
         new_price_column_heading_html: "Value<br />today:"
         balance_column_heading_html: "Balance"
+        link_and_text_column_heading_html: "Text:"
      gifts:
      gift:
         # 4 translate keys to format gift text with link and text.
@@ -431,3 +429,10 @@ en:
         edit_user: "Edit"
      index:
         page_header_text_html: "Add/remove friends<br /><br />"
+        friends_filter_prompt: "Show %{appname}:"
+        app_friends_link_text: "Friends"
+        not_app_friends_link_text: "Not friends"
+        all_app_users_link_text: "All"
+        invite_api_friends_link_prompt: "%{apiname}:"
+        invite_api_friends_link_title: "Use this link to invite your %{apiname} friends to use %{appname}"
+        invite_api_friends_link_text: "Invite friends"
