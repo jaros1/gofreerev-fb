@@ -158,97 +158,117 @@ class ApplicationController < ActionController::Base
         # long sync friend is a problem for new gofreerev users with many friends
         User.fork_with_new_connection do
 
-          # sync friend information after login so that new users with many friends don't have to wait
-          sleep(2)
+          begin
+            # sync friend information after login so that new users with many friends don't have to wait
+            sleep(2)
 
-          #necessary to manage activerecord connections since we are forking
-          ActiveRecord::Base.connection.reconnect!
+            #necessary to manage activerecord connections since we are forking
+            ActiveRecord::Base.connection.reconnect!
 
-          # 2) update friends (insert/delete Friend)
-          # compare Friend model data with friends array from API
-          # only friends using Gofreerev are relevant
-          # friends not using Gofreerev are ignored
-          # todo: batch update for new users with many friends
-          old_friends_list = Friend.where('user_id_giver = ?', u.user_id).includes(:friend)
-          api_friends_list = api_response['friends']['data']
-          # merge friend info from db and fb before db update
-          friends_hash = {}
-          (0..(old_friends_list.size-1)).each do |i|
-            old_friend = old_friends_list[i]
-            old_friend.friend.user_name = old_friend.friend.user_name.force_encoding('UTF-8')
-            user_id = old_friend.user_id_receiver
-            friends_hash[user_id] = { :user => old_friend.friend, :old_name => old_friend.friend.user_name, :new_name => old_friend.friend.user_name, :old_api_friend => old_friend.api_friend, :new_api_friend => 'N', :new_record => false }
-          end
-          api_friends_list.each do |friend|
-            user_id = User.facebook_user_prefix + friend["id"]
-            friend["name"] = friend["name"].force_encoding('UTF-8')
-            if friends_hash.has_key?(user_id)
-              # OK - user already in hash
-              nil
+            # 2) update friends (insert/delete Friend)
+            # compare Friend model data with friends array from API
+            # only friends using Gofreerev are relevant
+            # friends not using Gofreerev are ignored
+            old_friends_list = Friend.where('user_id_giver = ?', u.user_id).includes(:friend)
+            if api_response.has_key?('friends')
+              api_friends_list = api_response['friends']['data']
             else
-              # new FB friend
-              if !(user = User.where("user_id = ?", user_id).first)
-                # create unknown user - create user with minimal user information (user id and name)
-                user = User.new
-                user.user_id = user_id
-                user.user_name = friend["name"]
-                user.save!
-              end
-              friends_hash[user_id] = { :user => user, :old_name => user.user_name, :old_api_friend => 'N', :new_record => true }
+              api_friends_list = [] # no api friends
             end
-            friends_hash[user_id][:new_name] = friend["name"]
-            friends_hash[user_id][:new_api_friend] = 'Y'
-          end # each
-          # update user names
-          friends_hash.each do |user_id, hash|
-            next if hash[:old_name] == hash[:new_name]
-            puts "fetch_user: update user names: old name = #{hash[:old_name]}, new name = #{hash[:new_name]}"
-            user = hash[:user]
-            user.user_name = hash[:new_name].force_encoding('UTF-8')
-            user.save!
-          end # each
-          # update api_fiend
-          friends_hash.each do |user_id, hash|
-            if hash[:new_record]
-              # new friend entries
-              Friend.add_friend(session[:user_id], user_id)
-            else
-              # old friend entry
-              next if hash[:old_api_friend] == hash[:new_api_friend] # no change in api friend status
-              # api friend status changed
-              f1 = Friend.where("user_id_giver = ? and user_id_receiver = ?", session[:user_id], user_id).first
-              f2 = Friend.where("user_id_giver = ? and user_id_receiver = ?", user_id, session[:user_id]).first
-              if (f1 == nil or f1.app_friend == nil) and (f2 == nil or f2.app_friend == nil)
-                # Default app_friend status - just delete
-                Friend.remove_friend(session[:user_id], user_id)
-                next
+            # merge friend info from db and fb before db update
+            friends_hash = {}
+            (0..(old_friends_list.size-1)).each do |i|
+              old_friend = old_friends_list[i]
+              old_friend.friend.user_name = old_friend.friend.user_name.force_encoding('UTF-8')
+              user_id = old_friend.user_id_receiver
+              friends_hash[user_id] = { :user => old_friend.friend, :old_name => old_friend.friend.user_name, :new_name => old_friend.friend.user_name, :old_api_friend => old_friend.api_friend, :new_api_friend => 'N', :new_record => false }
+            end
+            api_friends_list.each do |friend|
+              user_id = User.facebook_user_prefix + friend["id"]
+              friend["name"] = friend["name"].force_encoding('UTF-8')
+              if friends_hash.has_key?(user_id)
+                # OK - user already in hash
+                nil
+              else
+                # new FB friend
+                if !(user = User.where("user_id = ?", user_id).first)
+                  # create unknown user - create user with minimal user information (user id and name)
+                  user = User.new
+                  user.user_id = user_id
+                  user.user_name = friend["name"]
+                  user.save!
+                end
+                friends_hash[user_id] = { :user => user, :old_name => user.user_name, :old_api_friend => 'N', :new_record => true }
               end
-              # non default app_friend status - update - do not delete
-              if !f1
-                # create missing friend (error)
-                f1 = Friend.new
-                f1.user_id_giver = session[:user_id]
-                f1.user_id_receiver = user_id
-                f1.app_friend = nil
-              end
-              if !f2
-                # create missing friend (error)
-                f2 = Friend.new
-                f2.user_id_giver = session[:user_id]
-                f2.api_friend = user_id
-                f2.app_friend = nil
-              end
-              f1.api_friend = f2.api_friend = hash[:new_api_friend]
-              transaction do
+              friends_hash[user_id][:new_name] = friend["name"]
+              friends_hash[user_id][:new_api_friend] = 'Y'
+            end # each
+            # update user names
+            friends_hash.each do |user_id, hash|
+              next if hash[:old_name] == hash[:new_name]
+              # puts "fetch_user: update user names: old name = #{hash[:old_name]}, new name = #{hash[:new_name]}"
+              user = hash[:user]
+              user.user_name = hash[:new_name].force_encoding('UTF-8')
+              user.save!
+            end # each
+            # update api_fiend
+            friends_hash.each do |user_id, hash|
+              if hash[:new_record]
+                # new friend entries
+                # puts "new friend entries"
+                Friend.add_friend(session[:user_id], user_id)
+              else
+                # old friend entry
+                # puts "old friend entry, name = #{hash[:new_name]}, old api friend = #{hash[:old_api_friend]}, new api friend = #{hash[:new_api_friend]}"
+                next if hash[:old_api_friend] == hash[:new_api_friend] # no change in api friend status
+                # api friend status changed
+                f1 = Friend.where("user_id_giver = ? and user_id_receiver = ?", session[:user_id], user_id).first
+                f2 = Friend.where("user_id_giver = ? and user_id_receiver = ?", user_id, session[:user_id]).first
+                if (f1 == nil or f1.app_friend == nil) and (f2 == nil or f2.app_friend == nil)
+                  # Default app_friend status - just delete
+                  # puts "Default app_friend status - just delete"
+                  Friend.remove_friend(session[:user_id], user_id)
+                  next
+                end
+                # non default app_friend status - update - do not delete
+                if !f1
+                  # create missing friend (error)
+                  f1 = Friend.new
+                  f1.user_id_giver = session[:user_id]
+                  f1.user_id_receiver = user_id
+                  f1.app_friend = nil
+                end
+                if !f2
+                  # create missing friend (error)
+                  f2 = Friend.new
+                  f1.user_id_giver = user_id
+                  f1.user_id_receiver = session[:user_id]
+                  f2.app_friend = nil
+                end
+                f1.api_friend = f2.api_friend = hash[:new_api_friend]
+                # puts "before save"
+                # puts "update f1: giver = #{f1.user_id_giver}, receiver = #{f1.user_id_receiver}, api = #{f1.api_friend}, app = #{f1.app_friend}"
+                # puts "update f2: giver = #{f2.user_id_giver}, receiver = #{f2.user_id_receiver}, api = #{f2.api_friend}, app = #{f2.app_friend}"
                 f1.save!
                 f2.save!
-              end # transaction
-            end # if
-          end # each
+                # puts "after save"
+                f1.reload
+                f2.reload
+                # puts "update f1: giver = #{f1.user_id_giver}, receiver = #{f1.user_id_receiver}, api = #{f1.api_friend}, app = #{f1.app_friend}"
+                # puts "update f2: giver = #{f2.user_id_giver}, receiver = #{f2.user_id_receiver}, api = #{f2.api_friend}, app = #{f2.app_friend}"
+                raise "api_friend status was not updated" unless f1.api_friend == hash[:new_api_friend] and f2.api_friend == hash[:new_api_friend]
+              end # if
+            end # each
+          rescue Exception => e
+            puts "application_controller: User.fork_with_new_connection"
+            puts "Error when post login processing api user info for #{u.user_id} #{u.user_name}"
+            puts "Exception: #{e.message.to_s}"
+            puts "Backtrace: " + e.backtrace.join("\n")
+          end # begin
 
         end # fork_with_new_connection
 
-        puts "fetch_user: after fork"
+        # puts "fetch_user: after fork"
 
         # 3) download profile picture
         FileUtils.mkdir_p u.profile_picture_os_folder

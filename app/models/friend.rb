@@ -96,8 +96,26 @@ class Friend < ActiveRecord::Base
       f2.api_friend = 'Y'
       f2.app_friend = nil # nil = default = use api_friend as app_friend status
       f2.save!
-    end # transaciton
+    end # transaction
   end # self.add_friend
+
+  def self.remove_friend(userid1, userid2)
+    transaction do
+      f1 = Friend.where("user_id_giver = ? and user_id_receiver = ?", userid1, userid2).first
+      f2 = Friend.where("user_id_giver = ? and user_id_receiver = ?", userid2, userid1).first
+      if !f1.app_friend and !f2.app_friend
+        # default app_friend value (nil)
+        f1.destroy! if f1
+        f2.destroy! if f2
+        return
+      end
+      # non default app_friend value (N, B)
+      f1.api_friend = 'N'
+      f2.api_friend = 'N'
+      f1.save!
+      f2.save!
+    end # transaction
+  end # self.remove_friend
 
   def api_friend?
     api_friend == 'Y'
