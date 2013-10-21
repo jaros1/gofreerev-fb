@@ -207,9 +207,9 @@ module ApplicationHelper
     end # case
   end # invite_friends_url
 
-  def invite_friends_link
+  def invite_friends_link1
     # todo: different url for each API (FB, GP, LI etc)
-    link_to my_t('.invite_friends_link_text', :app_url => FB_APP_URL), invite_friends_url
+    link_to my_t('shared.invite_friends.invite_friends_link_text1', :app_url => FB_APP_URL), invite_friends_url
   end
 
 end # ApplicationHelper

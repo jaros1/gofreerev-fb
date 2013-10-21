@@ -61,12 +61,12 @@ en:
         header_balance_prompt: "Balance:"
         header_balance_free: "free"
         header_home_link_title: ''
-        header_home_link_text: 'Home'
+        header_home_link_text: 'Share'
         header_inbox_link_title: ''
         header_inbox_link_text: 'Inbox'
         header_friends_link_title: ''
         header_friends_link_text: 'Friends'
-        header_api_link_title: "Retur to %{apiname} WITHOUT %{appname} log out"
+        header_api_link_title: "Retur to %{apiname} WITHOUT logging out of %{appname}"
         header_log_out_link_text: 'Log out'
         header_log_out_link_title: "Log out of %{appname} and return to %{apiname}."
   fb: # facebook versions
@@ -85,6 +85,8 @@ en:
         title_non_friend: "%{username}. Click here to see user info."
         title_friend: "%{username}. Balance %{balance}. Click here to see user info."
      invite_friends:
+        invite_api_friends_link_prompt1: "Invite %{apiname} friends:"
+        invite_friends_link_text1: "%{app_url}"
         invite_friends_message_title: "Invite your friends to play %{appname}"
         invite_friends_message_body: "Try a game about helping each other and sharing each others resources in a new different way and a game with a new kind of money that will change our world inspired by the ideas of Charles Eisenstein's book Sacred Economics"
 
@@ -136,8 +138,6 @@ en:
         social_dividend_description_2: "Social dividend %{price} %{currency} from %{giver} to %{receiver} for period from %{from} to %{to}"
         comment_comment_required_text: "Comment is required"
         comment_price_invalid_text: "Price is invalid. Only numbers, max 2 decimals, thousands separator not allowed."
-        invite_friends_link_prompt: "Invite %{apiname} friends:"
-        invite_friends_link_text: "%{app_url}"
      table_header_row:
         giver_column_heading_html: "From:"
         receiver_column_heading_html: "To:"
@@ -430,10 +430,11 @@ en:
         edit_user: "Edit"
      index:
         page_header_text_html: "Add/remove friends<br /><br />"
-        friends_filter_prompt: "Show %{appname}:"
+        friends_filter_prompt: "%{appname}:"
         app_friends_link_text: "Friends"
         not_app_friends_link_text: "Not friends"
         all_app_users_link_text: "All"
-        invite_api_friends_link_prompt: "%{apiname}:"
-        invite_api_friends_link_title: "Use this link to invite your %{apiname} friends to use %{appname}"
-        invite_api_friends_link_text: "Invite friends"
+        invite_api_friends_link_prompt2: "%{apiname}:"
+        invite_api_friends_link_title2: "Use this link to invite your %{apiname} friends to use %{appname}"
+        invite_api_friends_link_text2: "Invite friends"
+        no_users_was_found_html: "There was not any other %{appname} users. To get started, you should create a few posts<br />with anything you want to share with your friends or with something you are looking<br />for or are missing, and that you think your friends might be able to help you.<br /><br />Invite one or more of your good %{apiname} friends to use %{appname}.<br />Either by sending a personal message with the link below or by using<br />the link below to invite your friends to use Gofreerev. a personal<br />message is the best since many people will reject game invitations."

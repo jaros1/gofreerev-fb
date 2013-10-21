@@ -59,7 +59,7 @@
     <p>
       <%= my_t '.no_gifts_was_found_html', :appname => APP_NAME, :apiname => @user.api_name_without_brackets %>
     </p>
-    <%= my_t '.invite_friends_link_prompt', :apiname => @user.api_name_without_brackets %> <%= invite_friends_link %>
+    <%= my_t 'shared.invite_friends.invite_api_friends_link_prompt1', :apiname => @user.api_name_without_brackets %> <%= invite_friends_link1 %>
 <% else -%>
     <br />
     <table id="gifts" style="border-spacing: 0;">
