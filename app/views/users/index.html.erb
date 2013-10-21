@@ -33,6 +33,9 @@
 <%= link_to "add-more-lines", "/users?last_user_id=#{@last_user_id}", :remote => true, :id => "show-more-users-link", :style => "display: none" %>
 
 <script>
+    // no client side checks before changing currency in this page
+    pre_update_currency = default_pre_update_currency ;
+
     // true when user is near end of page (get more users)
     var bottom = false ;
 

@@ -78,6 +78,7 @@ class Gift < ActiveRecord::Base
     elsif !record.received_at_was and record.received_at
       nil # deal has just been approved - currency and price have just been copied from proposal
     else
+      puts "Gift.validates_each currency: gift id #{record.id}, old value = #{record.currency_was}, new value = #{value}"
       record.errors.add attr, :readonly
     end
   end
@@ -96,6 +97,7 @@ class Gift < ActiveRecord::Base
   alias_method :currency_before_type_cast, :currency
 
   def currency_was
+    return currency unless currency_changed?
     return nil unless (extended_currency = attribute_was('currency'))
     encrypt_remove_pre_and_postfix(extended_currency, 'currency', 3)
   end
@@ -125,6 +127,7 @@ class Gift < ActiveRecord::Base
   alias_method :price_before_type_cast, :price
 
   def price_was
+    return price unless price_changed?
     return nil unless (temp_extended_price = attribute_was('price'))
     str_to_float_or_nil encrypt_remove_pre_and_postfix(temp_extended_price, 'price', 4)
   end # price_was
@@ -174,7 +177,9 @@ class Gift < ActiveRecord::Base
   alias_method :received_at_before_type_cast, :received_at
 
   def received_at_was
+    return received_at unless received_at_changed?
     return nil unless (temp_extended_received_at = attribute_was('received_at'))
+    puts "Gift.received_at_was: temp_extended_received_at = #{temp_extended_received_at} (#{temp_extended_received_at.class})"
     temp_received_at1 = encrypt_remove_pre_and_postfix(temp_extended_received_at, 'received_at', 5)
     temp_received_at2 = YAML::load(temp_received_at1)
     temp_received_at2 = temp_received_at2.to_time if temp_received_at2.class.name == 'Date'
@@ -440,6 +445,7 @@ class Gift < ActiveRecord::Base
                              when 'S' then new_price             # gifttype S = Social dividend given or received
                              else 0.0 # error
                            end # case
+    puts "Gift.recalculate: currency = #{currency}"
     save!
     self
   end # recalculate

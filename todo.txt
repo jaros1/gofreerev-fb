@@ -199,12 +199,3 @@
 96) add was methods for all encrypted fields
 
 97) allow new proposal for giver/receiver so that giver/receiver can change price?
-
-99) error when changing currency in page header: undefined method `size' for 2013-10-13 16:46:55 UTC:Time
-
-100) new api users are not transferred to gofreerev after login
-     check update of friends in application controller.fetch user fork
-     app_friend was N for a new api server (Dick, new FB friend Charlie)
-     Friend.remove_friend does not exists
-     removed FB friend is not removed in Gofreerev at login
-     exceptions are not written to log in application controller.fetch user fork

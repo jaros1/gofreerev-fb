@@ -24,12 +24,13 @@ function gifts_index_disabled_user_currency() {
 
 
 // functions used in page header. Update user currency and return to current page
-function pre_update_currency() {
+function default_pre_update_currency() {
     // use this function to check for other pending changes in currency page before submit
     // eg a confirm popup or maybe copy not saved information to hidden variables in update_currency_form before submit
     return true; // continue
     return false; // stop
-} // update_currency_ok
+} // default_pre_update_currency
+pre_update_currency = default_pre_update_currency ;
 function update_currency() {
     // check if submit is ok (are there other pending changes in page?)
     if (!pre_update_currency()) return;
