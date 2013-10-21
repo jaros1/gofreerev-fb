@@ -39,14 +39,14 @@ class User < ActiveRecord::Base
   def user_id=(new_user_id)
     return self['user_id'] if self['user_id']
     self['user_id'] = new_user_id
-  end
+  end # user_id=
 
   # 2) user_name. User name. String in model. Encrypted text in db. required. is updated when the user logs in.
   validates_presence_of :user_name
   def user_name
     return nil unless (extended_user_name = read_attribute(:user_name))
     encrypt_remove_pre_and_postfix(extended_user_name, 'user_name', 9)
-  end
+  end # user_name
   def user_name=(new_user_name)
     if new_user_name
       # puts "new_user_name = #{new_user_name} (#{new_user_name.class.name})"
@@ -55,8 +55,13 @@ class User < ActiveRecord::Base
     else
       write_attribute :user_name, nil
     end
-  end
+  end # user_name=
   alias_method :user_name_before_type_cast, :user_name
+  def user_name_was
+    return user_name unless user_name_changed?
+    return nil unless (extended_user_name = attribute_was(:user_name))
+    encrypt_remove_pre_and_postfix(extended_user_name, 'user_name', 9)
+  end # user_name_was
 
   # 3) currency. Required. String in model. Encrypted text in db.
   # validates_presence_of :currency # todo: only required for gofreerev users / not required for friends not using gofreerev
@@ -73,6 +78,11 @@ class User < ActiveRecord::Base
     end
   end # currency
   alias_method :currency_before_type_cast, :currency
+  def currency_was
+    return currency unless currency_changed?
+    return nil unless (extended_currency = attribute_was(:currency))
+    encrypt_remove_pre_and_postfix(extended_currency, 'currency', 10)
+  end # currency_was
 
   # 4) balance. Balance. Required. Multi-currency Hash in model. Encrypted text in db
   # Keys is ISO code for currency USD, EUR, GBP etc.
@@ -94,6 +104,13 @@ class User < ActiveRecord::Base
     end
   end # balance=
   alias_method :balance_before_type_cast, :balance
+  def balance_was
+    return balance unless balance_changed?
+    return nil unless (temp_extended_balance = attribute_was(:balance))
+    temp_balance = YAML::load encrypt_remove_pre_and_postfix(temp_extended_balance, 'balance', 11)
+    temp_balance[BALANCE_KEY] = nil unless temp_balance.has_key?(BALANCE_KEY)
+    temp_balance
+  end # balance_was
 
   # 5) balance_at. Date. Not encrypted. Date for last balance calculation. Normally today.
   # validates_presence_of :balance_at # todo: only required for gofreerev users / not required for friends not using gofreerev
@@ -114,6 +131,11 @@ class User < ActiveRecord::Base
     end
   end # permissions
   alias_method :permissions_before_type_cast, :permissions
+  def permissions_was
+    return permissions unless permissions_changed?
+    return nil unless (extended_permissions = attribute_was(:permissions))
+    YAML::load(encrypt_remove_pre_and_postfix(extended_permissions, 'permissions', 12))
+  end # permissions_was
   
   # 7) no_api_friends. Fixnum in Model. Encrypted text in db.
   # for example number of facebook friends for a facebook user
@@ -130,6 +152,11 @@ class User < ActiveRecord::Base
     end
   end # balance=
   alias_method :no_api_friends_before_type_cast, :no_api_friends
+  def no_api_friends_was
+    return no_api_friends unless no_api_friends_changed?
+    return nil unless (temp_extended_no_api_friends = attribute_was(:no_api_friends))
+    encrypt_remove_pre_and_postfix(temp_extended_no_api_friends, 'no_api_friends', 13).to_i
+  end # no_api_friends_was
 
   # 8) profile_picture_type. String in Model and db. Not encrypted.
   # profile picture is downloaded under /public/images/profiles. profile picture name is <user_id>.<profile_picture_type>
@@ -156,6 +183,13 @@ class User < ActiveRecord::Base
     end
   end # negative_interest=
   alias_method :negative_interest_before_type_cast, :negative_interest
+  def negative_interest_was
+    return negative_interest unless negative_interest_changed?
+    return nil unless (temp_ext_neg_interest = attribute_was(:negative_interest))
+    temp_negative_interest = YAML::load encrypt_remove_pre_and_postfix(temp_ext_neg_interest, 'negative_interest', 14)
+    temp_negative_interest[BALANCE_KEY] = nil unless temp_negative_interest.has_key?(BALANCE_KEY)
+    temp_negative_interest
+  end # negative_interest_was
 
 
   # change currency in page header.

@@ -40,7 +40,7 @@ class Friend < ActiveRecord::Base
     # puts "gift.api_friend: api_friend = #{read_attribute(:api_friend)} (#{read_attribute(:api_friend).class.name})"
     return nil unless (extended_api_friend = read_attribute(:api_friend))
     encrypt_remove_pre_and_postfix(extended_api_friend, 'api_friend', 16)
-  end
+  end # api_friend
   def api_friend=(new_api_friend)
     # puts "gift.api_friend=: api_friend = #{new_api_friend} (#{new_api_friend.class.name})"
     if new_api_friend
@@ -50,8 +50,13 @@ class Friend < ActiveRecord::Base
     else
       write_attribute :api_friend, nil
     end
-  end
+  end # api_friend=
   alias_method :api_friend_before_type_cast, :api_friend
+  def api_friend_was
+    return api_friend unless api_friend_changed?
+    return nil unless (extended_api_friend = attribute_was(:api_friend))
+    encrypt_remove_pre_and_postfix(extended_api_friend, 'api_friend', 16)
+  end # api_friend_was
 
   # 5) app_friend. String Y/N in model. Encrypted text in db.
   # values: nil, Y, N or R.
@@ -64,7 +69,7 @@ class Friend < ActiveRecord::Base
     # puts "gift.app_friend: app_friend = #{read_attribute(:app_friend)} (#{read_attribute(:app_friend).class.name})"
     return nil unless (extended_app_friend = read_attribute(:app_friend))
     encrypt_remove_pre_and_postfix(extended_app_friend, 'app_friend', 17)
-  end
+  end # app_friend
   def app_friend=(new_app_friend)
     # puts "gift.app_friend=: app_friend = #{new_app_friend} (#{new_app_friend.class.name})"
     if new_app_friend
@@ -74,8 +79,13 @@ class Friend < ActiveRecord::Base
     else
       write_attribute :app_friend, nil
     end
-  end
+  end # app_friend=
   alias_method :app_friend_before_type_cast, :app_friend
+  def app_friend_was
+    return app_friend unless app_friend_changed?
+    return nil unless (extended_app_friend = attribute_was(:app_friend))
+    encrypt_remove_pre_and_postfix(extended_app_friend, 'app_friend', 17)
+  end # app_friend_was
 
 
   ##################

@@ -55,7 +55,7 @@ class Notification < ActiveRecord::Base
   def noti_key
     return nil unless (extended_noti_key = read_attribute(:noti_key))
     encrypt_remove_pre_and_postfix(extended_noti_key, 'noti_key', 19)
-  end
+  end # noti_key
   def noti_key=(new_noti_key)
     if new_noti_key
       check_type('noti_key', new_noti_key, 'String')
@@ -63,13 +63,13 @@ class Notification < ActiveRecord::Base
     else
       write_attribute :noti_key, nil
     end
-  end
+  end # noti_key=
   alias_method :noti_key_before_type_cast, :noti_key
-
   def noti_key_was
+    return noti_key unless noti_key_changed?
     return nil unless (extended_noti_key = attribute_was('noti_key'))
     encrypt_remove_pre_and_postfix(extended_noti_key, 'noti_key', 19)
-  end
+  end # noti_key_was
   
   # 6) noti_options - required - Hash in Model - encrypted text in db
   # validates_presence_of :noti_options # does not work for some reason!
@@ -90,7 +90,11 @@ class Notification < ActiveRecord::Base
     end
   end # noti_options=
   alias_method :noti_options_before_type_cast, :noti_options
-  
+  def noti_options_was
+    return noti_options unless noti_options_changed?
+    return nil unless (temp_extended_noti_options = attribute_was(:noti_options))
+    YAML::load encrypt_remove_pre_and_postfix(temp_extended_noti_options, 'noti_options', 20)
+  end # noti_options_was
 
   # 7) noti_read - required - Y/N String in model - not encrypted
   # N until message is shown in inbox/index page

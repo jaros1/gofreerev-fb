@@ -40,7 +40,7 @@ class GiftLike < ActiveRecord::Base
     # puts "Giftlike: like = #{read_attribute(:like)} (#{read_attribute(:like).class.name})"
     return nil unless (extended_like = read_attribute(:like))
     encrypt_remove_pre_and_postfix(extended_like, 'like', 29)
-  end
+  end # like
   def like=(new_like)
     # puts "gift.like=: like = #{new_like} (#{new_like.class.name})"
     if new_like
@@ -49,15 +49,20 @@ class GiftLike < ActiveRecord::Base
     else
       write_attribute :like, nil
     end
-  end
+  end # like=
   alias_method :like_before_type_cast, :like
+  def like_was
+    return like uless like_changed?
+    return nil unless (extended_like = attribute_was(:like))
+    encrypt_remove_pre_and_postfix(extended_like, 'like', 29)
+  end # like_was
 
   # 5) show - Y/N - default Y - show/hide gift
   def show
     # puts "Giftshow: show = #{read_attribute(:show)} (#{read_attribute(:show).class.name})"
     return nil unless (extended_show = read_attribute(:show))
     encrypt_remove_pre_and_postfix(extended_show, 'show', 30)
-  end
+  end # show
   def show=(new_show)
     # puts "gift.show=: show = #{new_show} (#{new_show.class.name})"
     if new_show
@@ -66,15 +71,20 @@ class GiftLike < ActiveRecord::Base
     else
       write_attribute :show, nil
     end
-  end
+  end # show=
   alias_method :show_before_type_cast, :show
+  def show_was
+    return show unless show_changed?
+    return nil unless (extended_show = attribute_was(:show))
+    encrypt_remove_pre_and_postfix(extended_show, 'show', 30)
+  end # show_was
   
   # 6) follow - Y/N - default nil - Y/N to explicit follow or ignore gift comments
   def follow
     # puts "Giftfollow: follow = #{read_attribute(:follow)} (#{read_attribute(:follow).class.name})"
     return nil unless (extended_follow = read_attribute(:follow))
     encrypt_remove_pre_and_postfix(extended_follow, 'follow', 31)
-  end
+  end # follow
   def follow=(new_follow)
     # puts "gift.follow=: follow = #{new_follow} (#{new_follow.class.name})"
     if new_follow
@@ -83,8 +93,13 @@ class GiftLike < ActiveRecord::Base
     else
       write_attribute :follow, nil
     end
-  end
+  end # follow=
   alias_method :follow_before_type_cast, :follow
+  def follow_was
+    return follow unless follow_changed?
+    return nil unless (extended_follow = attribute_was(:follow))
+    encrypt_remove_pre_and_postfix(extended_follow, 'follow', 31)
+  end # follow_was
 
 
   # https://github.com/jmazzi/crypt_keeper gem encrypts all attributes and all rows in db with the same key

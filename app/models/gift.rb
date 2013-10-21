@@ -68,20 +68,25 @@ class Gift < ActiveRecord::Base
     end
   end
   alias_method :description_before_type_cast, :description
+  def description_was
+    return description unless description_changed?
+    return nil unless (extended_description = attribute_was(:description))
+    encrypt_remove_pre_and_postfix(extended_description, 'description', 2)
+  end # description_was
 
   # 3) currency - required - String in model - encrypted text in db - update not allowed
   validates_presence_of :currency
   validates_inclusion_of :currency, :allow_blank => true, :in => Money::Currency.table.collect { |a| [  a[1][:iso_code] ][0] }
   validates_each :currency do |record, attr, value|
-    if record.new_record? or value == record.currency_was
+    if record.new_record? or !record.currency_changed?
       nil # new record or unchanged currency - always ok
     elsif !record.received_at_was and record.received_at
       nil # deal has just been approved - currency and price have just been copied from proposal
     else
-      puts "Gift.validates_each currency: gift id #{record.id}, old value = #{record.currency_was}, new value = #{value}"
+      # puts "Gift.validates_each currency: gift id #{record.id}, old value = #{record.currency_was}, new value = #{value}"
       record.errors.add attr, :readonly
     end
-  end
+  end # validates_each :currency
   def currency
     return nil unless (extended_currency = read_attribute(:currency))
     encrypt_remove_pre_and_postfix(extended_currency, 'currency', 3)
@@ -95,12 +100,11 @@ class Gift < ActiveRecord::Base
     end
   end # currency
   alias_method :currency_before_type_cast, :currency
-
   def currency_was
     return currency unless currency_changed?
     return nil unless (extended_currency = attribute_was('currency'))
     encrypt_remove_pre_and_postfix(extended_currency, 'currency', 3)
-  end
+  end # currency_was
 
   # 4) price - Float in model - encrypted text in db
   validates_each :price do |record, attr, value|
@@ -125,7 +129,6 @@ class Gift < ActiveRecord::Base
     end
   end # price=
   alias_method :price_before_type_cast, :price
-
   def price_was
     return price unless price_changed?
     return nil unless (temp_extended_price = attribute_was('price'))
@@ -165,7 +168,7 @@ class Gift < ActiveRecord::Base
     temp_received_at2 = YAML::load(temp_received_at1)
     temp_received_at2 = temp_received_at2.to_time if temp_received_at2.class.name == 'Date'
     temp_received_at2
-  end
+  end # received_at
   def received_at=(new_received_at)
     if new_received_at
       check_type('received_at', new_received_at, 'Time')
@@ -173,18 +176,16 @@ class Gift < ActiveRecord::Base
     else
       write_attribute :received_at, nil
     end
-  end
+  end # received_at=
   alias_method :received_at_before_type_cast, :received_at
-
   def received_at_was
     return received_at unless received_at_changed?
     return nil unless (temp_extended_received_at = attribute_was('received_at'))
-    puts "Gift.received_at_was: temp_extended_received_at = #{temp_extended_received_at} (#{temp_extended_received_at.class})"
     temp_received_at1 = encrypt_remove_pre_and_postfix(temp_extended_received_at, 'received_at', 5)
     temp_received_at2 = YAML::load(temp_received_at1)
     temp_received_at2 = temp_received_at2.to_time if temp_received_at2.class.name == 'Date'
     temp_received_at2
-  end
+  end # received_at_was
 
   # 8) new_price_at - date - not encrypted - almost always = today
 
@@ -202,6 +203,11 @@ class Gift < ActiveRecord::Base
     end
   end # new_price=
   alias_method :new_price_before_type_cast, :new_price
+  def new_price_was
+    return new_price unless new_price_changed?
+    return nil unless (temp_extended_new_price = attribute_was(:new_price))
+    str_to_float_or_nil encrypt_remove_pre_and_postfix(temp_extended_new_price, 'new_price', 6)
+  end # new_price_was
 
   # 10) negative_interest - Float in model - encrypted text in db - recalculated once every day for closed deals with a price and a receiver
   def negative_interest
@@ -217,6 +223,11 @@ class Gift < ActiveRecord::Base
     end
   end # negative_interest=
   alias_method :negative_interest_before_type_cast, :negative_interest
+  def negative_interest_was
+    return negative_interest unless negative_interest_changed?
+    return nil unless (tmp_extended_negative_interest = attribute_was(:negative_interest))
+    str_to_float_or_nil encrypt_remove_pre_and_postfix(tmp_extended_negative_interest, 'negative_interest', 7)
+  end # negative_interest_was
 
   # 11) social_dividend - Float in model - encrypted text in db - recalculated once every day for closed deals with a price
   def social_dividend
@@ -232,6 +243,11 @@ class Gift < ActiveRecord::Base
     end
   end # social_dividend=
   alias_method :social_dividend_before_type_cast, :social_dividend
+  def social_dividend_was
+    return social_dividend unless social_dividend_changed?
+    return nil unless (temp_extended_social_dividend = attribute_was(:social_dividend))
+    str_to_float_or_nil encrypt_remove_pre_and_postfix(temp_extended_social_dividend, 'social_dividend', 8)
+  end # social_dividend_was
 
   # 12) api_gift_id - String in model - encrypted text in db - api id for the gift / status update on the wall
   attr_readonly :api_gift_id
@@ -247,8 +263,13 @@ class Gift < ActiveRecord::Base
     else
       write_attribute :api_gift_id, nil
     end
-  end
+  end # api_gift_id=
   alias_method :api_gift_id_before_type_cast, :api_gift_id
+  def api_gift_id_was
+    return api_gift_id unless api_gift_id_changed?
+    return nil unless (extended_api_gift_id = attribute_was(:api_gift_id))
+    encrypt_remove_pre_and_postfix(extended_api_gift_id, 'api_gift_id', 24)
+  end # api_gift_id_was
 
   # 13) gifttype - String in model and DB - G if gift - S if exchanged social dividend
   # gifttype = G : social dividend = ( new_price - price) / 4
@@ -269,12 +290,18 @@ class Gift < ActiveRecord::Base
     end
   end
   alias_method :social_dividend_from_before_type_cast, :social_dividend_from
+  def social_dividend_from_was
+    return social_dividend_from unless social_dividend_from_changed?
+    return nil unless (temp_ext_soc_div_from = attribute_was(:social_dividend_from))
+    temp_social_dividend_from = encrypt_remove_pre_and_postfix(temp_ext_soc_div_from, 'social_dividend_from', 27)
+    YAML::load(temp_social_dividend_from)
+  end # social_dividend_from_was
 
   # 15) balance giver - Float in Model. Encrypted text in db.
   def balance_giver
     return nil unless (extended_balance_giver = read_attribute(:balance_giver))
     str_to_float_or_nil encrypt_remove_pre_and_postfix(extended_balance_giver, 'balance_giver', 25)
-  end
+  end # balance_giver
   def balance_giver=(new_balance_giver)
     if new_balance_giver.to_s != ''
       check_type('balance_giver', new_balance_giver, 'Float')
@@ -282,8 +309,13 @@ class Gift < ActiveRecord::Base
     else
       write_attribute :balance_giver, nil
     end
-  end
+  end # balance_giver=
   alias_method :balance_giver_before_type_cast, :balance_giver
+  def balance_giver_was
+    return balance_giver unless balance_giver_changed?
+    return nil unless (extended_balance_giver = attribute_was(:balance_giver))
+    str_to_float_or_nil encrypt_remove_pre_and_postfix(extended_balance_giver, 'balance_giver', 25)
+  end # balance_giver_was
 
   # 16) balance receiver - Float in model - encrypted text in db
   def balance_receiver
@@ -299,6 +331,11 @@ class Gift < ActiveRecord::Base
     end
   end
   alias_method :balance_receiver_before_type_cast, :balance_receiver
+  def balance_receiver_was
+    return balance_receiver unless balance_receiver_changed?
+    return nil unless (extended_balance_receiver = attribute_was(:balance_receiver))
+    str_to_float_or_nil encrypt_remove_pre_and_postfix(extended_balance_receiver, 'balance_receiver', 26)
+  end # balance_receiver_was
 
   # 17) picture Y/N - String - not encrypted
   
@@ -307,7 +344,7 @@ class Gift < ActiveRecord::Base
     # puts "gift.api_picture_url: api_picture_url = #{read_attribute(:api_picture_url)} (#{read_attribute(:api_picture_url).class.name})"
     return nil unless (extended_api_picture_url = read_attribute(:api_picture_url))
     encrypt_remove_pre_and_postfix(extended_api_picture_url, 'api_picture_url', 23)
-  end
+  end # api_picture_url
   def api_picture_url=(new_api_picture_url)
     # puts "gift.api_picture_url=: api_picture_url = #{new_api_picture_url} (#{new_api_picture_url.class.name})"
     if new_api_picture_url
@@ -316,15 +353,20 @@ class Gift < ActiveRecord::Base
     else
       write_attribute :api_picture_url, nil
     end
-  end
+  end # api_picture_url=
   alias_method :api_picture_url_before_type_cast, :api_picture_url
+  def api_picture_url_was
+    return api_picture_url unless api_picture_url_changed?
+    return nil unless (extended_api_picture_url = attribute_was(:api_picture_url))
+    encrypt_remove_pre_and_postfix(extended_api_picture_url, 'api_picture_url', 23)
+  end # api_picture_url_was
 
   # 19) api_picture_url_updated_at - timestamp in model - encrypted text 
   def api_picture_url_updated_at
     return nil unless (temp_extended_api_picture_url_updated_at = read_attribute(:api_picture_url_updated_at))
     temp_api_picture_url_updated_at = encrypt_remove_pre_and_postfix(temp_extended_api_picture_url_updated_at, 'api_picture_url_updated_at', 21)
     YAML::load(temp_api_picture_url_updated_at)
-  end
+  end # api_picture_url_updated_at
   def api_picture_url_updated_at=(new_api_picture_url_updated_at)
     if new_api_picture_url_updated_at
       check_type('api_picture_url_updated_at', new_api_picture_url_updated_at, 'Time')
@@ -332,15 +374,21 @@ class Gift < ActiveRecord::Base
     else
       write_attribute :api_picture_url_updated_at, nil
     end
-  end
+  end # api_picture_url_updated_at=
   alias_method :api_picture_url_updated_at_before_type_cast, :api_picture_url_updated_at
+  def api_picture_url_updated_at_was
+    return api_picture_url_updated_at unless api_picture_url_updated_at_changed?
+    return nil unless (temp_extended_api_picture_url_updated_at = attribute_was(:api_picture_url_updated_at))
+    temp_api_picture_url_updated_at = encrypt_remove_pre_and_postfix(temp_extended_api_picture_url_updated_at, 'api_picture_url_updated_at', 21)
+    YAML::load(temp_api_picture_url_updated_at)
+  end # api_picture_url_updated_at_was
 
   # 20) api_picture_url_on_error_at - timestamp in model - encrypted text (todo) in db
   def api_picture_url_on_error_at
     return nil unless (temp_extended_api_picture_url_on_error_at = read_attribute(:api_picture_url_on_error_at))
     temp_api_picture_url_on_error_at = encrypt_remove_pre_and_postfix(temp_extended_api_picture_url_on_error_at, 'api_picture_url_on_error_at', 22)
     YAML::load(temp_api_picture_url_on_error_at)
-  end
+  end # api_picture_url_on_error_at
   def api_picture_url_on_error_at=(new_api_picture_url_on_error_at)
     if new_api_picture_url_on_error_at
       check_type('api_picture_url_on_error_at', new_api_picture_url_on_error_at, 'Time')
@@ -348,8 +396,14 @@ class Gift < ActiveRecord::Base
     else
       write_attribute :api_picture_url_on_error_at, nil
     end
-  end
+  end # api_picture_url_on_error_at=
   alias_method :api_picture_url_on_error_at_before_type_cast, :api_picture_url_on_error_at
+  def api_picture_url_on_error_at_was
+    return api_picture_url_on_error_at unless api_picture_url_on_error_at_changed?
+    return nil unless (temp_extended_api_picture_url_on_error_at = attribute_was(:api_picture_url_on_error_at))
+    temp_api_picture_url_on_error_at = encrypt_remove_pre_and_postfix(temp_extended_api_picture_url_on_error_at, 'api_picture_url_on_error_at', 22)
+    YAML::load(temp_api_picture_url_on_error_at)
+  end # api_picture_url_on_error_at_was
 
   # 21) deleted_at_api. String Y/N.
 

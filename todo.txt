@@ -196,6 +196,4 @@
 
 95) make script to compare language files (en, da etc). Find missing keys
 
-96) add was methods for all encrypted fields
-
 97) allow new proposal for giver/receiver so that giver/receiver can change price?

@@ -63,7 +63,6 @@ class Comment < ActiveRecord::Base
     return nil unless (extended_comment = read_attribute(:comment))
     encrypt_remove_pre_and_postfix(extended_comment, 'comment', 31)
   end
-
   def comment=(new_comment)
     # puts "comment.comment=: comment = #{new_comment} (#{new_comment.class.name})"
     if new_comment
@@ -73,8 +72,13 @@ class Comment < ActiveRecord::Base
       write_attribute :comment, nil
     end
   end
-
   alias_method :comment_before_type_cast, :comment
+  def comment_was
+    return comment unless comment_changed?
+    return nil unless (extended_comment = attribute_was(:comment))
+    encrypt_remove_pre_and_postfix(extended_comment, 'comment', 31)
+  end
+
 
   # 4) Gift id - required - unencrypted string
 
@@ -86,8 +90,7 @@ class Comment < ActiveRecord::Base
     return nil unless (extended_currency = read_attribute(:currency))
     # puts "Comment.currency: currency = #{extended_currency}"
     encrypt_remove_pre_and_postfix(extended_currency, 'currency', 32)
-  end
-
+  end # currency
   def currency=(new_currency)
     if !new_record?
       nil
@@ -97,18 +100,20 @@ class Comment < ActiveRecord::Base
     else
       write_attribute :currency, nil
     end
-  end
-
-  # currency
+  end # currency=
   alias_method :currency_before_type_cast, :currency
+  def currency_was
+    return currency unless currency_changed?
+    return nil unless (extended_currency = attribute_was(:currency))
+    # puts "Comment.currency: currency = #{extended_currency}"
+    encrypt_remove_pre_and_postfix(extended_currency, 'currency', 32)
+  end # currency_was
 
   # 6) price - only for agreement proposal - Float in model - encrypted text in db
   def price
     return nil unless (temp_extended_price = read_attribute(:price))
     str_to_float_or_nil encrypt_remove_pre_and_postfix(temp_extended_price, 'price', 33)
-  end
-
-  # price
+  end # price
   def price=(new_price)
     if !new_record?
       nil
@@ -118,10 +123,13 @@ class Comment < ActiveRecord::Base
     else
       write_attribute :price, nil
     end
-  end
-
-  # price=
+  end # price=
   alias_method :price_before_type_cast, :price
+  def price_was
+    return price unless price_changed?
+    return nil unless (temp_extended_price = attribute_was(:price))
+    str_to_float_or_nil encrypt_remove_pre_and_postfix(temp_extended_price, 'price', 33)
+  end # price_was
 
   # 7) new_deal_yn - y for agreement proposal - n for cancelled agreement - not encrypted string
 
