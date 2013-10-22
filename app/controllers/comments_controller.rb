@@ -4,12 +4,17 @@ class CommentsController < ApplicationController
 
   # POST /comments
   # POST /comments.json
+  # Parameters: {"utf8"=>"✓", "comment"=>{"gift_id"=>"j0N0uppxbj1nmDfsWBbk", "new_deal_yn"=>"Y", "price"=>"1", "comment"=>"25"}, "commit"=>"Gem"}
   def create
-    # todo: add security - can user see gift?
-    # todo: error handling - return row with error message - same format as after success
-    # Parameters: {"utf8"=>"✓", "comment"=>{"gift_id"=>"j0N0uppxbj1nmDfsWBbk", "new_deal_yn"=>"Y", "price"=>"1", "comment"=>"25"}, "commit"=>"Gem"}
+    gift = Gift.find(params[:comment][:gift_id])
+    puts "invalid request - gift with id #{params[:comment][:gift_id]} was not found" if !gift
+    if gift and !gift.visible_for(@user)
+      puts "invalid request - user #{@user.user_id} #{@user.user_name} can not comment gift id #{gift.id}"
+      gift = nil
+    end
+    # todo: error handling - return row with error message - same format as after success?
     @comment = Comment.new
-    @comment.gift_id = params[:comment][:gift_id]
+    @comment.gift_id = gift.gift_id if gift
     @comment.user_id = @user.user_id
     @comment.comment = params[:comment][:comment].to_s.force_encoding('UTF-8')
     if params[:comment][:new_deal_yn] == 'Y'

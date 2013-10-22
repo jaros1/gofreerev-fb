@@ -1,11 +1,9 @@
-2) Maybe allow comments to gifts in Gofreerev => Post af FB comments
+ 1) Maybe allow comments to gifts in Gofreerev => Post af FB comments
 
-3) Invite friends to app function?
+ 2) few price info on gifts/index page. More information available in titles
+    Full price information in user/show page
 
-9) few price info on gifts/index page. More information available in titles
-   Full price information in user/show page
-
-17) exchanged social dividend is displayed as gifts/index view, but social dividend = negative_interest / 4 is missing.
+ 3) exchanged social dividend is displayed as gifts/index view, but social dividend = negative_interest / 4 is missing.
     add social dividend (negative_interest / 4) to balance.
     display social dividend in format_user_balance
     done: add key with social dividend to balance hash
@@ -13,17 +11,14 @@
     done:  maybe add a negative interest / social dividend hash to user
     maybe add a system user - negative currency could be gifts from users to system user and social dividend gifts from system user to users
 
-18) Check da texts in rails-i18n
-
-19) allow negative price?
+ 4) allow negative price?
     E.g. if user wish find some thing og get help. Solutions:
     a) negative price - problem with from/to in gifts/index page
     b) radio group or check box in create gift page (giver or receiver)
     c) negative price. set user_id_receiver. Blank user_id_giver
     Implementing b) with an radio group
 
-
-20) how much information to se about deals between friends and friends friends?
+ 5) how much information to se about deals between friends and friends friends?
     FB: Shows status from friends on wall - do not show status from friends friends on wall
     Show balance for friends - do not show balance for friends friends
     Show gifts started by friends as giver or receiver with all pictures and comments
@@ -32,18 +27,16 @@
     - hide picture and name of friends friend
     - hide text and pictures
 
-21) when closing at deal and paying with money.
+ 6) when closing at deal and paying with money.
     select between anonymous money without a linked story or link the money to one or more stores / other gifts
     anonymous money - no links between gifts - no story updates
     linked money - story updates
 
-22) show gift
-
-23) delete gift.
+ 8) delete gift.
     It should be possible to delete open gifts in gifts/index page
     You should get a confirm dialog if you tries to delete on closed gift
 
-24) balance sorted by received_at in user.recalculate_balance
+ 9) balance sorted by received_at in user.recalculate_balance
     gifts sorted by created_at desc in gifts/index
     closed deals should be sorted by received_at descending to display balance in correct order
     open deals should be sorted by newest comment in top
@@ -53,122 +46,91 @@
     must be a not encrypted field
     problem. what if different users wishes different sort criteria?  fx a) sort by received_at, b) sort by comment_at, c) etc
 
-4) get timezone from login api. ok. timezone added to user
-   Use timezone in views. . not yet any timestamps in views.
+10) get timezone from login api. ok. timezone added to user
+    Use timezone in views. . not yet any timestamps in views.
 
-25) add date format. see application_helper.format_date
+11) add date format. see application_helper.format_date
 
-25) add time format. Use timezone in time format in views
+12) add time format. Use timezone in time format in views
 
-26) add a count to a gift. Normally only 1 gift, but can be any number or nil. Eg. nil for a offered service.
+13) add a counter to a gift. Normally 1 gift, but can be any number or nil. Eg. nil for a service.
     Clone a closed gift, keep the original gift and decrease counter. Close deal when counter reaches zero.
     Maybe link all the stories if accepted by the receiver
 
-27) users/show
-    friends - show detailed user information
-    non friends - link to FB page - link with friend request
+14) users/show
+    friends - show detailed user information (todo)
+    non friends - link to FB page - link with friend request (ok)
 
-29) api notifications:
+15) api notifications:
     get a app access token.
     send only notifications to api if internal notifications in app is not read.
     Short summary of unread app notifications in api notification
     Only few api notifications and stop sending messages if user do not start app
 
-30) user balance not shown correct
+16) user balance not shown correct
     for example charlie balance in usd and in dkk
     Looks like a sign problem
     List balance in users/show page and debug the problem from here.
 
-34) close account and delete all data in app
+17) close account and delete all data in app
     auto cleanup and close of inactive accounts?!
     there is no reason to keep data for users that does not use the app ( other than delete of user and gifts changes other users balance )
     maybe
 
-34b) add more detailed description of what information what i saved in app
+18) add more detailed description of what user information is saved in app
 
-39) gifts/index: post on api wall checkbox. Only if user has granted post-on-wall prio.
+19) gifts/index: post on api wall checkbox. Only if user has granted post-on-wall prio.
 
-40) gifts/index: comment with final description before the deal is closed? Or keep original text with comments?
+20) gifts/index: comment with final description before the deal is closed? Or keep original text with comments?
 
-41) implement other logins. Google+ and linkedin login is almost identical wish facebook login
+21) implement other logins. Google+ and linkedin login is almost identical wish facebook login
 
-42) connect login user across different login apis. Only one balance even if you uses more than one login api.
+22) connect login user across different login apis. Only one balance even if you uses more than one login api.
     can not show gifts from other login apis, but can include balance from other login apis in user's balance.
+    check out rails omniauth gem (multi api login)
+    allow gofreerev friends across login api.
+    how to handle balance across api's?
 
-43) gets only small picture api url from fb. See gift.get_api_picture_url method
-    It should be possible to get url for a larger picture from facebook api
+23) gets only small picture api url from fb. See gift.get_api_picture_url method
+    It should http://www.dr.dk/Nyheder/Politik/2013/10/22/083947.htmbe possible to get url for a larger picture from facebook api
 
-50) wrap fb api into an generic exception handler with dump of request and exception after error
+24) wrap fb api into an generic exception handler with dump of request and exception after error
 
-53) Welcome msg. Some welcome xxx if no gifts. Some welcome back if gifts.
-    Maybe use some timestamps to check if welcome message should be displayed
+25) add accept conditions for new users
 
-54) add accept conditions for new users
+26) add disclaimer
 
-55) add disclaimer
+27) add cookie policy note
 
-56) add cookie policy note
+28) check out coffeescript
 
-57) problem with client validation of price in firefox. Number without decimal is not accepted
-    Price is invalid. Only numbers, max 2 decimals, thousands separator not allowed.
-
-59) check out coffeescript
-
-61) How much sync. of comments in api and comments in app?
+29) How much sync. of comments in api and comments in app?
     write comment to fb - don't download comments from fb
 
-62) edit gift. Can not edit post on api. Allow to edit post in app?
+30) edit gift. Can not edit post on api. Allow to edit post in app?
 
-63) create gift as ajax in gifts/index page?
+31) create gift as ajax in gifts/index page?
 
-65) gifts/index
-    show only last 4 comments. add url to get more comments if more than 4 comments (ok)
-    check user priv. when adding comment
+32) mark new comments with color in inbox.
 
-69) mark new comments with color in inbox.
-
-70) only keep last <n> notifications for each user (ok)
+33) only keep last <n> notifications for each user (ok)
     max keep a notification for n days. (not implemented)
 
-71) Offers - I am interested - price + text
-    Seeks - I can help - price + text
-    Follow/don't follow.
-    Default - follow gift you have commented - don't follow other gifts
+34) Model changes - user/comment - new model/table -
+    like/unlike comment
 
- 73) Model changes - user/user options - Friend - friends.
-     Show/hide gifts - default is show - use hide to hide friend gifts
-     Show/hide comments - default is show - use hide to hide friend comments
+35) Validate comment.price price in JS and on server. Same validation as gift.price.
+    JS validation ok. Check server validation.
 
- 74) Model changes - user/gift - new model/table - GiftLike (ok)
-     like/unlike gift (ok)
-     show/hide gift (ok)
-     follow/don't follow gift (ok)
-
- 75) Model changes - user/comment - new model/table -
-     like/unlike comment
-
- 76) Comment. Add
-     bid - nil/Y/N - nil (default) - Y if comment/other user wish to make a deal - N if comment/other user do not wish to make a deal
-     price - suggest a (new) price for gift if other user - change price if gift owner
-     Expressions: Make bid, Opret bud, Foreslå en pris.
-
- 77) Validate comment.price price in JS and on server. Same validation as gift.price.
-     JS validation ok. Check server validation.
-
- 78) Notification when creating a agreement proposal
-     change existing notitification.
-
-79) change comment format for agreement proposals.
+36) change comment format for agreement proposals.
     after cancel/accept/reject - change format for agreement proposals
     after cancel/accept/reject - change format for agreement proposals in other pages (new messages count)
 
-81) add ajax for cancel/accept/reject new deal proposals
+37) delete gifts
 
-83) delete gifts
+38) ajax hide gift does not work. should hide all rows with id gift-<giftid>- format
 
-84) ajax hide gift does not work. should hide all rows with id gift-<giftid>- format
-
-85) new deal / cancel / accept / reject error handling:
+39) new deal / cancel / accept / reject error handling:
     new deal can fail if gift user has accepted an other offer
     cancel can fail if gift user has accepted a deal or has rejected new deal from user
     accept can fail if other user has cancelled the offer
@@ -176,24 +138,27 @@
     write short error msg in gift-xxx-comment-yyy-status div after errors
     after accept - add sender/receiver and remove links
 
-86) new messages count - replace gift
+40) new messages count - ajax replace gift
     could be used after accept new deal to change gift in other sessions
     change new_comments_div to include comments with changed "status"
 
-87) new messages count - replace comment
-    count be used after cancel or reject to change comment in other sessions
+41) new messages count - ajax delete gift
+
+42) new messages count - ajax replace comment
+    could be used after cancel or reject to change comment in other sessions
     change new_gifts_div to inlcude gifts with changed "status"
 
-88) add a last status update timestamp to gift/comment
-    last status update timestamp is inserted in web page and send to new messages count
-    new gifts, new comments and changes gifts and comments are returned in new messages count
-    could also just be a sequence
+43) new messages count - ajax delete comment
 
-91) comments: timestamps for cancel, reject and accept deal?
+44) add a last status  7) show giftupdate timestamp to gift/comment (ok)
+    last status update timestamp is inserted in web page and send to new messages count (ok)
+    new gifts, new comments and changes gifts and comments are returned in new messages count (todo)
 
-93) use identical encryption keys on development and test (easy generation of fixtures)
+45) comments: timestamps for cancel, reject and accept deal?
+
+46) use identical encryption keys on development and test (easy generation of fixtures)
     use different encryption keys in production environment
 
-95) make script to compare language files (en, da etc). Find missing keys
+47) make script to compare language files (en, da etc). Find missing keys
 
-97) allow new proposal for giver/receiver so that giver/receiver can change price?
+48) allow new proposal for giver/receiver so that giver/receiver can change price?

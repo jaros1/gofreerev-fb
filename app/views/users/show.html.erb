@@ -1,19 +1,16 @@
-<%
-   friend = @user2.friend?(@user)
--%>
 <%= my_t '.page_header_text_html' %>
 
 <table>
 <%= render :partial => 'user', :locals => { :user => @user2 } %>
 </table>
 
+<%
+   friend = @user2.friend?(@user)
+   top_text_html = friend ? '.top_text_friend_html' : '.top_text_non_friend_html'
+-%>
 <p>
-<% if friend -%>
-   <%= my_t '.top_text_friend_html', :username => @user2.short_user_name, :apiname => @user.api_name_without_brackets %>
-<% else -%>
-      <%= my_t '.top_text_non_friend_html', :username => @user2.user_name, :apiname => @user.api_name_without_brackets %>
-<% end -%>
+  <%= my_t top_text_html, :username => @user2.short_or_full_user_name(@user), :apiname => @user.api_name_without_brackets %>
 </p>
 <br />
-<%= friend ? @user2.short_user_name : @user2.user_name %> <%= @user2.api_name_without_brackets %> <%= link_to my_t('.api_profile_link_text'), @user2.api_profile_url, { :target => '_blank' }  %>.
+<%= @user2.short_or_full_user_name(@user) %> <%= @user2.api_name_without_brackets %> <%= link_to my_t('.api_profile_link_text'), @user2.api_profile_url, { :target => '_blank' }  %>.
 <br />

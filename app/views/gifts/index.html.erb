@@ -26,7 +26,7 @@
           <%= link_to my_t('.request_read_stream_priv_link_text', :appname => APP_NAME), "javascript: {top.location.href='#{auth_read_stream_url}'}" %>
         </p>
     <% end -%>
-    <%= form_for @gift, :multipart => true, :html => { :enctype => 'multipart/form-data' } do |f| %>
+    <%= form_for @gift, :multipart => true, :html => { :enctype => 'multipart/form-data' } do |f| -%>
         <table>
           <tr>
             <td colspan="3"><%= my_t '.create_gift_header_line' %></td>
@@ -52,22 +52,24 @@
             <td colspan="2"><%= file_field_tag(:gift_file, :disabled => !@user.post_gift_allowed?) %></td>
           </tr>
         </table>
-    <% end %>
+    <% end # form -%>
+
+    <% if @gifts.size == 0 -%>
+        <p>
+          <%= my_t '.no_gifts_was_found_html', :appname => APP_NAME, :apiname => @user.api_name_without_brackets %>
+        </p>
+        <%= my_t 'shared.invite_friends.invite_api_friends_link_prompt1', :apiname => @user.api_name_without_brackets %> <%= invite_friends_link1 %>
+    <% else -%>
+        <br />
+        <table id="gifts" style="border-spacing: 0;">
+          <%= render :partial => 'table_header_row' %>
+          <%= render :partial => 'gifts' %>
+        </table>
+    <% end -%>
+
 <% end -%>
 
-<% if @gifts.size == 0 -%>
-    <p>
-      <%= my_t '.no_gifts_was_found_html', :appname => APP_NAME, :apiname => @user.api_name_without_brackets %>
-    </p>
-    <%= my_t 'shared.invite_friends.invite_api_friends_link_prompt1', :apiname => @user.api_name_without_brackets %> <%= invite_friends_link1 %>
-<% else -%>
-    <br />
-    <table id="gifts" style="border-spacing: 0;">
-      <%= render :partial => 'table_header_row' %>
-      <%= render :partial => 'gifts' %>
-    </table>
-    <%# will_paginate @gifts %>
-<% end -%>
+
 
 <br />
 <br />

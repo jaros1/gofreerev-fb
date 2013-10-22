@@ -99,7 +99,7 @@ function csv_invalid_price (id)
     if (csv_empty_field(id)) return false ; // empty field - ok
     var price = document.getElementById(id).value ;
     price = $.trim(price);
-    var r = new RegExp('^[0-9]*(\.|,)[0-9]{1,2}$');
+    var r = new RegExp('^[0-9]*((\.|,)[0-9]{0,2})?$');
     if (!r.test(price) || (price == '.') || (price == ',')) return true ;
     return false ;
 } // csv_invalid_price

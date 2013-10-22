@@ -234,6 +234,9 @@ class User < ActiveRecord::Base
     a = user_name.split(' ')
     "#{a.first} #{a.last.first(1)}"
   end
+  def short_or_full_user_name (login_user)
+    friend?(login_user) ? short_user_name : user_name
+  end # short_or_full_user_name
 
   def api_name_without_brackets
     case

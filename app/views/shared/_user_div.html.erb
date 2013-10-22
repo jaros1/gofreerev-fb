@@ -1,6 +1,6 @@
 <% friend = user_div.friend?(@user)
    div_title = '.title' + (friend ? '' : '_non') + '_friend'
-   username = (friend ? user_div.short_user_name : user_div.user_name)
+   username = user_div.short_or_full_user_name(@user)
    balance = friend ? format_user_balance(user_div, @user) : nil
 -%>
 <div title="<%= my_t div_title, :username => username, :balance => balance %>"
