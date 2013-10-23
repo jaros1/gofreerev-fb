@@ -388,7 +388,7 @@ class User < ActiveRecord::Base
       else
         missing_exchange_rates = true
       end
-      puts "recalculate_balance. g.new_price = #{g.new_price.to_s}, new_price = #{new_price.to_s}, balance_hash = #{balance_hash.to_s} "
+      # puts "recalculate_balance. g.new_price = #{g.new_price.to_s}, new_price = #{new_price.to_s}, balance_hash = #{balance_hash.to_s} "
     end # each
     return false if missing_exchange_rates # not all exchange rates was read at this time - they should be updated in a moment
     # calculation ok - all needed exchange rates was found

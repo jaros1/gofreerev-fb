@@ -347,4 +347,37 @@ class ApplicationController < ActionController::Base
     end
   end # get_missing_api_picture_urls
 
+  # used in ajax expanding pages (gifts/index, users/index and users/show pages)
+  # used with partial todo
+  private
+  def get_next_set_of_rows (rows, last_row_id, no_rows=10)
+    puts "last_row_id = #{last_row_id}"
+    if last_row_id
+      # ajax request - check if last_row_id still is valid
+      # puts "ajax request - check if last_row_id still is valid"
+      from = rows.index { |u| u.id == last_row_id }
+      if !from
+        # puts "invalid last_row_id - or user is no longer a friend - ignore error and return first 10 rows"
+        last_row_id = nil
+      end
+      last_row_id = nil unless from # invalid last_row_id - or user is no longer a friend - ignore error and return first 10 rows
+    end
+    if !last_row_id
+      # first http get - return first 10 rows
+      # puts "first http get - return first 10 rows"
+      nil
+    else
+      # ajax request - return next 10 rows
+      # puts "ajax request - return next 10 rows"
+      rows = rows[from+1..-1]
+    end
+    if rows.size > 10
+      rows = rows.first(10)
+      last_row_id = rows.last.id # return next 10 rows in next ajax request
+    else
+      last_row_id = nil # last row - no more ajax requests
+    end
+    [ rows, last_row_id]
+  end # get_next_set_of_rows
+
 end # ApplicationController

@@ -9,6 +9,7 @@ module UsersHelper
     # one format with currency and exgange rate if exchange rate != 1
     # format: new balance yyy user currency = old balance xxx +- (price - negative interest) * exhange rate
     balance_doc = gift.balance_doc(@user.user_id)
+    return nil unless balance_doc
     exchange_rate = balance_doc[:exchange_rate]
     return nil if !exchange_rate
     # 4 keys: balance_title, balance_title_exchange_rate, balance_title_negative_interest, balance_title_exchange_rate_negative_interest

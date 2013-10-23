@@ -57,8 +57,8 @@ class UsersController < ApplicationController
                         when "false" then false
                         else true
                      end # case
-    # return first 10 friends (last_user_id = nil).
-    # return next 10 friends (last_user_id != nil)
+    # http request: return first 10 friends (last_user_id = nil) 
+    # ajax request: return next 10 friends (last_user_id != nil)
     last_user_id = params[:last_user_id].to_s
     last_user_id = nil if last_user_id == ''
     if last_user_id =~ /^[0-9]+$/
@@ -82,7 +82,7 @@ class UsersController < ApplicationController
     if friends_filter == true
       # simpel friends search - just return login users friends
       users = user_friends.collect { |f| f.friend }
-      @users, @last_user_id = get_next_10_users(users, last_user_id)
+      @users, @last_user_id = get_next_set_of_rows(users, last_user_id)
       respond_to do |format|
         format.html {}
         # format.json { render json: @comment, status: :created, location: @comment }
@@ -130,7 +130,7 @@ class UsersController < ApplicationController
     end # sort
 
     # return next 10 gofreerev users
-    @users, @last_user_id = get_next_10_users(users, last_user_id)
+    @users, @last_user_id = get_next_set_of_rows(users, last_user_id)
 
     respond_to do |format|
       format.html {}
@@ -149,17 +149,36 @@ class UsersController < ApplicationController
       redirect_to :action => :index
       return
     end
+    return unless @user2.friend?(@user)
 
-    if @user2.friend?(@user)
-      # friend - detailed user information
-      @gifts = Gift.where('user_id_giver = ? or user_id_receiver = ?', @user.user_id, @user.user_id).includes(:giver, :receiver).sort do |a,b|
-        if (a.received_at || a.created_at.to_date) ==  (b.received_at || b.created_at.to_date)
-          b.id <=> a.id
-        else
-          (b.received_at || b.created_at.to_date) <=>  (a.received_at || a.created_at.to_date)
-        end # if
-      end # sort
-    end # if
+    # friend - user balance information
+
+    # http request: return first 10 gifts (last_gift_id = nil)
+    # ajax request: return next 10 gifts (last_gift_id != nil)
+    last_gift_id = params[:last_gift_id].to_s
+    last_gift_id = nil if last_gift_id == ''
+    if last_gift_id =~ /^[0-9]+$/
+      last_gift_id = last_gift_id.to_i
+    else
+      last_gift_id = nil
+    end
+
+    gifts = Gift.where('user_id_giver = ? or user_id_receiver = ?', @user.user_id, @user.user_id).includes(:giver, :receiver).sort do |a,b|
+      if (a.received_at || a.created_at.to_date) ==  (b.received_at || b.created_at.to_date)
+        b.id <=> a.id
+      else
+        (b.received_at || b.created_at.to_date) <=>  (a.received_at || a.created_at.to_date)
+      end # if
+    end # sort
+
+    # return next 10 gifts - first 10 for http request - next 10 for ajax request
+    @gifts, @last_gift_id = get_next_set_of_rows(gifts, last_gift_id)
+
+    respond_to do |format|
+      format.html {}
+      # format.json { render json: @comment, status: :created, location: @comment }
+      format.js {}
+    end
 
   end # show_friend
 
@@ -232,35 +251,5 @@ class UsersController < ApplicationController
     redirect_to params[:return_to]
   end # friend_actions
 
-  private
-  def get_next_10_users (users, last_user_id)
-    puts "last_user_id = #{last_user_id}"
-    if last_user_id
-      # ajax request - check if last_user_id still is valid
-      # puts "ajax request - check if last_user_id still is valid"
-      from = users.index { |u| u.id == last_user_id }
-      if !from
-        # puts "invalid last_user_id - or user is no longer a friend - ignore error and return first 10 users"
-        last_user_id = nil
-      end
-      last_user_id = nil unless from # invalid last_user_id - or user is no longer a friend - ignore error and return first 10 users
-    end
-    if !last_user_id
-      # first http get - return first 10 users
-      # puts "first http get - return first 10 users"
-      nil
-    else
-      # ajax request - return next 10 users
-      # puts "ajax request - return next 10 users"
-      users = users[from+1..-1]
-    end
-    if users.size > 10
-      users = users.first(10)
-      last_user_id = users.last.id # return next 10 users in next ajax request
-    else
-      last_user_id = nil # last user - no more ajax requests
-    end
-    [ users, last_user_id]
-  end # get_next_10_users
 
 end

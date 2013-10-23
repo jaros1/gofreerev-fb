@@ -414,7 +414,7 @@ da:
         invalid_request: "Ugyldigt kald."
         page_header_text_html: "<p>Bruger oplysninger</p>"
         not_a_friend: "Der vises kun detaljerede brugeroplysninger om dine venner"
-        top_text_friend_html: "%{username} bruger oplysninger."
+        top_text_friend_html: "%{username} saldo oplysninger."
         top_text_non_friend_html: "Detaljerede brugeroplysninger vises kun for dine venner. Brugeroplysninger for %{username} kan ikke vises. Brug ovenstående knapper hvis du ønsker at tilføje %{username} som ven."
         api_profile_link_text: "profile"
      table_header_row:

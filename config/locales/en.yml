@@ -403,7 +403,7 @@ en:
         invalid_request: "Invalid call."
         page_header_text_html: "<p>User information</p>"
         not_a_friend: "You can only see user information for your friends."
-        top_text_friend_html: "%{username} user information"
+        top_text_friend_html: "%{username} balance information"
         top_text_non_friend_html: "Detailed user information is only displayed to your friends. User info for %{username} can not be displayed. Use the above buttons if you want to add %{username} as a friend."
         api_profile_link_text: "profile"
      table_header_row:
