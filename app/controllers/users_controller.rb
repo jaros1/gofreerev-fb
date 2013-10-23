@@ -59,12 +59,12 @@ class UsersController < ApplicationController
                      end # case
     # http request: return first 10 friends (last_user_id = nil) 
     # ajax request: return next 10 friends (last_user_id != nil)
-    last_user_id = params[:last_user_id].to_s
-    last_user_id = nil if last_user_id == ''
-    if last_user_id =~ /^[0-9]+$/
-      last_user_id = last_user_id.to_i
+    last_row_id = params[:last_row_id].to_s
+    last_row_id = nil if last_row_id == ''
+    if last_row_id =~ /^[0-9]+$/
+      last_row_id = last_row_id.to_i
     else
-      last_user_id = nil
+      last_row_id = nil
     end
 
     # always use users friends as basic (friends_filter = true)
@@ -82,7 +82,7 @@ class UsersController < ApplicationController
     if friends_filter == true
       # simpel friends search - just return login users friends
       users = user_friends.collect { |f| f.friend }
-      @users, @last_user_id = get_next_set_of_rows(users, last_user_id)
+      @users, @last_user_id = get_next_set_of_rows(users, last_row_id)
       respond_to do |format|
         format.html {}
         # format.json { render json: @comment, status: :created, location: @comment }
@@ -130,7 +130,7 @@ class UsersController < ApplicationController
     end # sort
 
     # return next 10 gofreerev users
-    @users, @last_user_id = get_next_set_of_rows(users, last_user_id)
+    @users, @last_row_id = get_next_set_of_rows(users, last_row_id)
 
     respond_to do |format|
       format.html {}

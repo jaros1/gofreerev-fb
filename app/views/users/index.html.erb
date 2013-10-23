@@ -38,66 +38,10 @@
 <% end -%>
 
 <br />
-<%= link_to "add-more-lines", "/users?last_user_id=#{@last_user_id}", :remote => true, :id => "show-more-users-link", :style => "display: none" %>
+<%= link_to "show-more-lines", "/users?last_row_id=#{@last_row_id}", :remote => true, :id => "show-more-rows-link", :style => "display: none" %>
+<%= render :partial => 'shared/show_more_rows', :show_more_rows => 'users' %>
 
 <script>
     // no client side checks before changing currency in this page
     pre_update_currency = default_pre_update_currency ;
-
-    // todo: maybe refactor. Almost identical code in gifts/index and users/show page
-
-    // true when user is near end of page (get more users)
-    var bottom = false ;
-
-    // add post ajax event handler for "show-more-users-link" link
-    // change url with new last_user_id or hide url when all gofreerev users have been returned to page
-    $(document).ready(function(){
-        $('#show-more-users-link')
-                .bind("ajax:success", function(evt, data, status, xhr){
-                    // find id for last gift (nil or gift_id for last gift in table)
-                    var link = document.getElementById("show-more-users-link") ;
-                    if (!link) return ; // link has already been removed
-                    var table = document.getElementById("users") ;
-                    if (!table) return ; // no users - ignore ajax
-                    var trs = table.rows ;
-                    // alert('length = ' + trs.length) ;
-                    var tr = trs[trs.length-1] ;
-                    var tr_id = tr.id ;
-                    // alert('tr_id = ' + tr_id) ;
-                    if (tr_id == "") {
-                        // alert('no more users - remove link') ;
-                        link.parentNode.removeChild(link);
-                        // todo: remove this event handler
-                    }
-                    else {
-                        // change last_user_id in link
-                        var tr_id_a = tr_id.split("_") ;
-                        var last_user_id = tr_id_a[tr_id_a.length-1] ;
-                        // alert('last_user_id = ' + last_user_id) ;
-                        link.href = "/users?last_user_id=" + last_user_id ;
-                        bottom = false ;
-                    }
-                });
-    }); // $(document).ready
-
-    // check if user scrolls to end of page and get more Gofreerev users from server before user reaches end of page
-    $(window).scroll(function(){
-        if (bottom) return ;
-        if (($(document).height() - $(window).height()) - $(window).scrollTop() < 600){
-            bottom = true ;
-            // alert("We're at the bottom of the page!!");
-            var table = document.getElementById("users") ;
-            if (!table) return ; // no users - no ajax requests
-            var link = document.getElementById("show-more-users-link") ;
-            if (!link) return ; // no more users - unregister this function
-            // get more Gofreerev users from server
-            link.click() ;
-        }
-    }); // $(window).scroll
-
-    // scroll to top of page after reload - only fetch first 10 users after reload
-    $(document).ready(function(){
-        $(this).scrollTop(0);
-    });
-
 </script>
