@@ -117,7 +117,7 @@ module ApplicationHelper
 
   # todo: add date format
   def format_date (date)
-    l date, :format => :short
+    l date.to_date, :format => :short
   end
 
   # todo: add time format. use timezone from user

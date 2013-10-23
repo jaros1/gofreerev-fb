@@ -324,7 +324,7 @@ class User < ActiveRecord::Base
     end # collect
   end # gifts_received_with_sig
   def gifts_given_and_received
-    gifts_given + gifts_received_with_sign
+    gifts_given + gifts_received
   end
   def app_friends
     friends.find_all do |f|
@@ -366,12 +366,16 @@ class User < ActiveRecord::Base
     missing_exchange_rates = false
     gifts.each do |g|
       # update user.balance hash and save balance in gift.balance for documentation
+      sign = user_id == g.user_id_giver ? 1 : -1
+      balance_doc_hash = { :previous_balance => balance_hash[BALANCE_KEY],
+                           :sign => (sign == 1 ? '+' : '-') }
       balance_hash[g.currency] = 0.0 unless balance_hash.has_key?(g.currency)
-      balance_hash[g.currency] += g.new_price
+      balance_hash[g.currency] += g.new_price * sign
       new_price = ExchangeRate.exchange(g.new_price, g.currency, new_currency)
       if new_price
-        balance_hash[BALANCE_KEY] += new_price
-        g.set_balance(user_id, balance_hash[BALANCE_KEY])
+        balance_doc_hash[:exchange_rate] = new_price / g.new_price
+        balance_hash[BALANCE_KEY] += new_price * sign
+        g.set_balance(user_id, balance_hash[BALANCE_KEY], balance_doc_hash)
       else
         missing_exchange_rates = true
       end

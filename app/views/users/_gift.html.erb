@@ -1,0 +1,30 @@
+<tr style="vertical-align: top" id="<%= "gift-#{gift.id}" %>-header">
+  <td>
+    <% if gift.giver -%>
+        <%= @size = '50x50' ; render '/shared/user_div', :user_div => gift.giver %>
+    <% end -%>
+  </td>
+  <td>
+    <% if gift.receiver -%>
+        <%= @size = '50x50' ; render '/shared/user_div', :user_div => gift.receiver %>
+    <% end -%>
+  </td>
+  <td>
+    <%= format_date(gift.received_at || gift.created_at) %>
+  </td>
+  <td></td>
+  <td style="text-align: right">
+    <%= gift.price ? "#{my_t('.optional_price', :price => format_price(gift.price))} #{gift.currency}" : nil %>
+  </td>
+  <td></td>
+  <td style="text-align: right" title="<%= gift_balance_calculation(gift) %>"><%= format_price gift.balance(@user.user_id) %></td>
+  <td></td>
+  <td style="height: 52px; vertical-align: top">
+    <%= link_to my_t('.gift_link_text', format_gift_param(gift)), url_for(gift), :title => (my_t '.gift_link_title') %>
+    <%= my_t('.gift_text_html', format_gift_param(gift)) %>
+    <% if gift.picture == 'Y' and !gift.api_picture_url_on_error_at -%>
+        <br/><br/>
+        <%= image_tag gift.api_picture_url, :onload => "check_api_picture_url(#{gift.id}, this)" %>
+    <% end -%>
+  </td>
+</tr>

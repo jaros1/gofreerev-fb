@@ -409,9 +409,53 @@ class Gift < ActiveRecord::Base
 
   # 22) status_change_at - integer - not encrypted - keep track of gifts changed after user has loaded gifts/index page
 
-  # 23) created_at - timestamp - not encrypted
+  # 23) balance_doc_giver. documentation for balance_giver to be used in users/show page
+  # Hash in model, encrypted text in db
+  def balance_doc_giver
+    return nil unless (temp_extended_balance_doc_giver = read_attribute(:balance_doc_giver))
+    # puts "temp_extended_balance_doc_giver = #{temp_extended_balance_doc_giver}"
+    YAML::load encrypt_remove_pre_and_postfix(temp_extended_balance_doc_giver, 'balance_doc_giver', 34)
+  end # balance_doc_giver
+  def balance_doc_giver=(new_balance_doc_giver)
+    if new_balance_doc_giver
+      check_type('balance_doc_giver', new_balance_doc_giver, 'Hash')
+      write_attribute :balance_doc_giver, encrypt_add_pre_and_postfix(new_balance_doc_giver.to_yaml, 'balance_doc_giver', 34)
+    else
+      write_attribute :balance_doc_giver, nil
+    end
+  end # balance_doc_giver=
+  alias_method :balance_doc_giver_before_type_cast, :balance_doc_giver
+  def balance_doc_giver_was
+    return balance_doc_giver unless balance_doc_giver_changed?
+    return nil unless (temp_extended_balance_doc_giver = attribute_was(:balance_doc_giver))
+    YAML::load encrypt_remove_pre_and_postfix(temp_extended_balance_doc_giver, 'balance_doc_giver', 34)
+  end # balance_doc_giver_was
 
-  # 24) updated_at - timestamp - not encrypted
+  # 24) balance_doc_receiver. documentation for balance_receiver to be used in users/show page
+  # Hash in model, encrypted text in db
+  def balance_doc_receiver
+    return nil unless (temp_extended_balance_doc_receiver = read_attribute(:balance_doc_receiver))
+    # puts "temp_extended_balance_doc_receiver = #{temp_extended_balance_doc_receiver}"
+    YAML::load encrypt_remove_pre_and_postfix(temp_extended_balance_doc_receiver, 'balance_doc_receiver', 35)
+  end # balance_doc_receiver
+  def balance_doc_receiver=(new_balance_doc_receiver)
+    if new_balance_doc_receiver
+      check_type('balance_doc_receiver', new_balance_doc_receiver, 'Hash')
+      write_attribute :balance_doc_receiver, encrypt_add_pre_and_postfix(new_balance_doc_receiver.to_yaml, 'balance_doc_receiver', 35)
+    else
+      write_attribute :balance_doc_receiver, nil
+    end
+  end # balance_doc_receiver=
+  alias_method :balance_doc_receiver_before_type_cast, :balance_doc_receiver
+  def balance_doc_receiver_was
+    return balance_doc_receiver unless balance_doc_receiver_changed?
+    return nil unless (temp_extended_balance_doc_receiver = attribute_was(:balance_doc_receiver))
+    YAML::load encrypt_remove_pre_and_postfix(temp_extended_balance_doc_receiver, 'balance_doc_receiver', 35)
+  end # balance_doc_receiver_was
+
+  # 25) created_at - timestamp - not encrypted
+
+  # 26) updated_at - timestamp - not encrypted
 
 
   #
@@ -431,23 +475,35 @@ class Gift < ActiveRecord::Base
 
   # get/set balance for actual user. Used in user.recalculate_balance and in /gifts/index page
   def balance (user_id)
-    return nil unless user_id_receiver
+    return nil unless user_id_receiver and user_id_giver
     case user_id
       when user_id_giver then balance_giver
       when user_id_receiver then balance_receiver
       else nil
     end
-  end
-  def set_balance (user_id, new_balance)
+  end # balance
+  def balance_doc (user_id)
+    return nil unless user_id_receiver and user_id_giver
+    case user_id
+      when user_id_giver then balance_doc_giver
+      when user_id_receiver then balance_doc_receiver
+      else nil
+    end
+  end # balance_doc
+  def set_balance (user_id, new_balance, new_balance_doc)
     # puts "Gift.set_balance: id = #{id}, user_id = #{user_id}, new_balance = #{new_balance}, user_id_giver = #{user_id_giver}, user_id_receiver = #{user_id_receiver}"
     return new_balance unless received_at
     case user_id
-      when user_id_giver then self.balance_giver = new_balance
-      when user_id_receiver then self.balance_receiver = new_balance
+      when user_id_giver
+        self.balance_giver = new_balance
+        self.balance_doc_giver = new_balance_doc
+      when user_id_receiver
+        self.balance_receiver = new_balance
+        self.balance_doc_receiver = new_balance_doc
       else return new_balance # error
     end
     new_balance
-  end
+  end # set_balance
 
   # calculate negative interest for a period
   # it can be from received_at to today = self.negative_interest

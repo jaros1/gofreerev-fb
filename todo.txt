@@ -57,20 +57,11 @@
     Clone a closed gift, keep the original gift and decrease counter. Close deal when counter reaches zero.
     Maybe link all the stories if accepted by the receiver
 
-14) users/show
-    friends - show detailed user information (todo)
-    non friends - link to FB page - link with friend request (ok)
-
 15) api notifications:
     get a app access token.
     send only notifications to api if internal notifications in app is not read.
     Short summary of unread app notifications in api notification
     Only few api notifications and stop sending messages if user do not start app
-
-16) user balance not shown correct
-    for example charlie balance in usd and in dkk
-    Looks like a sign problem
-    List balance in users/show page and debug the problem from here.
 
 17) close account and delete all data in app
     auto cleanup and close of inactive accounts?!
@@ -162,3 +153,26 @@
 47) make script to compare language files (en, da etc). Find missing keys
 
 48) allow new proposal for giver/receiver so that giver/receiver can change price?
+
+49) add missing_api_picture_urls check to gifts/show page
+    Maybe also to user/show page
+    get_missing_api_picture_urls (ruby) / report_missing_api_picture_urls (javascript) could be added to other pages
+
+50) maybe move /util/missing_api_picture_urls requests to a batch process
+    problem is that access_token is stored in encrypted cookie and only available in requests/controller
+    could store api access token in db, but that could be a security problem
+    as it will give api access if the server / database in compromised
+
+14) users/show
+    non friends - link to FB page - link with friend request (ok)
+    friends - show detailed user information (todo)
+    friend information - detailed balance information
+    filter: open deals, close deals, open and close deals (all)
+    filter: giver, receiver, giver or receiver (all)
+
+15) add category to gift?
+    could make it easier to find relevant gifts
+    But more information to fill when posting gifts
+
+16) filter links - users/index and users/show
+    mark currency filter - bold and inactive

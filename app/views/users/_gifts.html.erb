@@ -1,0 +1,3 @@
+<% for gift in @gifts do loop -%>
+  <%= render :partial => 'gift', :locals => { :gift => gift } %>
+<% end -%>

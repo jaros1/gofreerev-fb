@@ -6,7 +6,7 @@
     <td><%= @size = '100x100' ; render '/shared/user_div', :user_div => user %></td>
     <td style="vertical-align: top">
       <table>
-        <tr><td><%= my_t '.user_name_prompt' %></td><td>:</td><td><%= user.user_name %></td></tr>
+        <tr><td><%= my_t '.user_name_prompt' %></td><td>:</td><td title="<%= my_t '.user_name_title', :username => user.short_or_full_user_name(@user), :apiname => user.api_name_without_brackets %>"><%= link_to user.user_name, user.api_profile_url, { :target => '_blank' } %></td></tr>
         <tr>
           <td><%= my_t '.friend_status_prompt' %></td>
           <td>:</td>

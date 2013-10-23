@@ -187,33 +187,19 @@ class GiftsController < ApplicationController
     # test if flash object can be used
     puts "flash[:read_stream] = #{flash[:read_stream]}"
 
-
     # get any pictures with invalid picture urls
     # that is gifts where picture url are marked as invalid and where url lookup in /util/missing_api_picture_urls failed
     # most possible explanation is that the pictures has been deleted in api
-    # but is could also be a fb permission problem (gofreerev user was not allowed to see picture in api)
+    # but is could also be a api permission problem (gofreerev user is not allowed to see picture in api)
     # check picture url again with owner permission
-    # the existing /util/missing_api_picture_urls is used to check ivalid picture urls
+    # the existing /util/missing_api_picture_urls is used to check invalid picture urls
     # done in a client js call after the page has been rendered to the user
     # see last lines in /gifts/index page
-    # see onload tag on img
+    # see onLoad tag on img
     # see js functions check_api_picture_url and report_missing_api_picture_urls
-    gifts = []
-    if @user
-      gifts = Gift.where("(user_id_giver = ? or user_id_receiver = ?) and api_picture_url_on_error_at is not null and (deleted_at_api is null or deleted_at_api = 'N')",
-                         @user.user_id, @user.user_id)
-      gifts.delete_if do |gift|
-        user_id_created_by = User.facebook_user_prefix + gift.api_gift_id.split('_')[0]
-        (user_id_created_by != @user.user_id)
-      end # delete_if
-    end # if
-    if gifts.size == 0
-      @missing_api_picture_urls = nil
-    else
-      @missing_api_picture_urls = 'missing_api_picture_urls = [' + gifts.collect { |g| g.id }.join(', ') + '] ;'
-    end
+    @missing_api_picture_urls = get_missing_api_picture_urls()
 
-
+    # initialize gift form in top of gifts/index page
     puts "user_name = #{@user.user_name}" if @user
     puts "access_token = #{session[:access_token]}"
     @gift = Gift.new
@@ -236,7 +222,7 @@ class GiftsController < ApplicationController
     # puts "index: description = #{@gift.description}"
 
     # initialize list of gifts
-    # list of gifts with @user as giver or receiver + list of gifts med @user.friends as giver or receiver
+    # list of gifts with @user as giver or receiver + gifts med @user.friends as giver or receiver
     if @user then
       newest_status_update_at = Sequence.status_update_at
       newest_gift = Gift.last

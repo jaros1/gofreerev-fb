@@ -308,13 +308,10 @@ class ApplicationController < ActionController::Base
     puts "fetch_user: @user_currency_separator = #{@user_currency_separator}, @user_currency_delimiter = #{@user_currency_delimiter}"
   end # fetch_user
 
-
-
   private
   def set_locale
     I18n.locale = session[:language] || I18n.default_locale
   end
-
 
   private
   def login_required
@@ -323,5 +320,31 @@ class ApplicationController < ActionController::Base
     redirect_to :controller => :gifts, :action => :index
   end # login_required
 
+  # get any pictures with invalid picture urls
+  # used in gifts/index page, todo:
+  # that is gifts where picture url are marked as invalid and where url lookup in /util/missing_api_picture_urls failed
+  # most possible explanation is that the pictures has been deleted in api
+  # but is could also be a api permission problem (gofreerev user is not allowed to see picture in api)
+  # check picture url again with owner permission
+  # the existing /util/missing_api_picture_urls is used to check invalid picture urls
+  # done in a client js call after the page has been rendered to the user
+  # see last lines in /gifts/index page
+  # see onLoad tag on img
+  # see js functions check_api_picture_url and report_missing_api_picture_urls
+  private
+  def get_missing_api_picture_urls
+    return nil unless @user
+    gifts = Gift.where("(user_id_giver = ? or user_id_receiver = ?) and api_picture_url_on_error_at is not null and (deleted_at_api is null or deleted_at_api = 'N')",
+                       @user.user_id, @user.user_id)
+    gifts.delete_if do |gift|
+      user_id_created_by = User.facebook_user_prefix + gift.api_gift_id.split('_')[0]
+      (user_id_created_by != @user.user_id)
+    end # delete_if
+    if gifts.size == 0
+      nil
+    else
+      'missing_api_picture_urls = [' + gifts.collect { |g| g.id }.join(', ') + '] ;'
+    end
+  end # get_missing_api_picture_urls
 
 end # ApplicationController

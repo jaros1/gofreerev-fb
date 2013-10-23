@@ -417,8 +417,30 @@ da:
         top_text_friend_html: "%{username} bruger oplysninger."
         top_text_non_friend_html: "Detaljerede brugeroplysninger vises kun for dine venner. Brugeroplysninger for %{username} kan ikke vises. Brug ovenstående knapper hvis du ønsker at tilføje %{username} som ven."
         api_profile_link_text: "profile"
+     table_header_row:
+        giver_column_heading_html: "Fra:"
+        receiver_column_heading_html: "Til:"
+        received_at_column_heading_html : "Dato:"
+        price_column_heading_html: "Pris:"
+        received_at_and_pice_heading_html: "Dato og pris:"
+        new_price_column_heading_html: "Værdi<nr>nu:"
+        balance_column_heading_html: "Saldo:"
+        link_and_text_column_heading_html: "Tekst:"
+     gift:
+        gift_link_title: "Klik på link for flere informationer om opslag"
+        gift_link_text: "%{direction}"  # nested translate
+        optional_price: "%{price}"
+        direction_giver: "%{username} tilbyder"
+        direction_receiver: "%{username} søger"
+        direction_giver_and_receiver: "Fra %{givername} til %{receivername}"
+        gift_text_html: " : %{text}" # text is sanitized. Only todo tags is allowed
+        balance_title: "Ny saldo %{new_balance} = gl. saldo %{old_balance} %{sign} %{old_price}. Endnu ingen negative renter"
+        balance_title_exchange_rate: "Ny saldo %{new_balance} %{new_currency} = gl. saldo %{old_balance} %{new_currency} %{sign} %{old_price} %{old_currency} * %{exchange_rate}. Endnu ingen negativ renter"
+        balance_title_negative_interest: "Ny saldo %{new_balance} = gl. saldo %{old_balance} %{sign} %{new_price}. Negativ rente var %{negative_interest} = %{old_price} - %{new_price}"
+        balance_title_exchange_rate_negative_interest: "Ny saldo %{new_balance} %{new_currency} = gl. saldo %{old_balance} %{new_currency} %{sign} %{new_price} %{old_currency} * %{exchange_rate}. Negativ rente var %{negative_interest} %{old_currency} = %{old_price} - %{new_price}"
      user:
         user_name_prompt: "Navn"
+        user_name_title: "Brugt dette link til at se %{username}'s profil på %{apiname} (nyt faneblad i browser)"
         friend_status_prompt: "Status"
         user_balance_prompt: "Saldo"
         friend_status_text_y: "Venner"

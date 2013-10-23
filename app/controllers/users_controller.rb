@@ -149,11 +149,17 @@ class UsersController < ApplicationController
       redirect_to :action => :index
       return
     end
-    @friend = @user2.friend?(@user)
-    if @friend
-      # todo: find user gifts (giver or receiver)
-    end
 
+    if @user2.friend?(@user)
+      # friend - detailed user information
+      @gifts = Gift.where('user_id_giver = ? or user_id_receiver = ?', @user.user_id, @user.user_id).includes(:giver, :receiver).sort do |a,b|
+        if (a.received_at || a.created_at.to_date) ==  (b.received_at || b.created_at.to_date)
+          b.id <=> a.id
+        else
+          (b.received_at || b.created_at.to_date) <=>  (a.received_at || a.created_at.to_date)
+        end # if
+      end # sort
+    end # if
 
   end # show_friend
 

@@ -406,8 +406,30 @@ en:
         top_text_friend_html: "%{username} user information"
         top_text_non_friend_html: "Detailed user information is only displayed to your friends. User info for %{username} can not be displayed. Use the above buttons if you want to add %{username} as a friend."
         api_profile_link_text: "profile"
+     table_header_row:
+        giver_column_heading_html: "From:"
+        receiver_column_heading_html: "To:"
+        received_at_column_heading_html : "Date:"
+        price_column_heading_html: "Price:"
+        received_at_and_pice_heading_html: "Date and price:"
+        new_price_column_heading_html: "Value<br />today:"
+        balance_column_heading_html: "Balance"
+        link_and_text_column_heading_html: "Text:"
+     gift:
+        gift_link_title: "Click on link for more information"
+        gift_link_text: "%{date} %{optional_price} / %{direction}"  # nested translate
+        optional_price: "/ %{price}"
+        direction_giver: "%{username} offers"
+        direction_receiver: "%{username} seeks"
+        direction_giver_and_receiver: "from %{givername} to %{receivername}"
+        gift_text_html: " : %{text}" # text is sanitized. Only todo tags is allowed
+        balance_title: "New balance %{new_balance} = old balance %{old_balance} %{sign} %{old_price}. Not yet any negative interest"
+        balance_title_exchange_rate: "New balance %{new_balance} %{new_currency} = old balance %{old_balance} %{new_currency} %{sign} %{old_price} %{old_currency} * %{exchange_rate}. Not yet any negative interest"
+        balance_title_negative_interest: "New balance %{new_balance} = gl. saldo %{old_balance} %{sign} %{new_price}. Negative interest was %{negative_interest} = %{old_price} - %{new_price}"
+        balance_title_exchange_rate_negative_interest: "New balance %{new_balance} %{new_currency} = old balance %{old_balance} %{new_currency} %{sign} %{new_price} %{old_currency} * %{exchange_rate}. Negative interest was %{negative_interest} %{old_currency} = %{old_price} - %{new_price}"
      user:
         user_name_prompt: "Name"
+        user_name_title: "Use this link to see %{username}'s profile on %{apiname} (new tab in browser)"
         friend_status_prompt: "Status"
         user_balance_prompt: "Balance"
         friend_status_text_y: "Friend"
