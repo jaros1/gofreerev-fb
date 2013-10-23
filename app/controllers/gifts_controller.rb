@@ -226,35 +226,32 @@ class GiftsController < ApplicationController
     if @user then
       newest_status_update_at = Sequence.status_update_at
       newest_gift = Gift.last
-      @gifts = @user.gifts
+      gifts = @user.gifts
+    end
+
+    # http request: return first 10 gifts (last_row_id = nil)
+    # ajax request: return next 10 gifts (last_row_id != nil)
+    last_row_id = params[:last_row_id].to_s
+    last_row_id = nil if last_row_id == ''
+    if last_row_id =~ /^[0-9]+$/
+      last_row_id = last_row_id.to_i
+    else
+      last_row_id = nil
     end
 
     # last_gift_id != nil. ajax request from end of gifts/index page - return next 10 rows to gifts/index page
     # puts "last_gift_id = #{params[:last_gift_id]}, gifts.length = #{@gifts.length}"
-    if params[:last_gift_id].to_s == ""
-      # not ajax - show first 10 gifts
+    if !last_row_id
+      # http request - return first 10 gifts
       # remember newest gift id (global). Gifts created by friends after page load will be ajax inserted in gifts/index page
       @newest_gift_id = newest_gift.id if newest_gift
       # remember newest status update (gifts and comments). Gifts and comments with status changes after page load will be ajax replaced in gifts/index page
       @newest_status_update_at = newest_status_update_at if newest_gift
       # empty AjaxComment buffer for current user - comments created after page load will be ajax inserted in gifts/index page
       AjaxComment.destroy_all(:user_id => @user.user_id)
-    else
-      # ajax - show next 10 gifts after last_gift_id
-      @last_gift_id = nil
-      from = @gifts.find_index { |g| g.id == params[:last_gift_id].to_i }
-      # puts "from = #{from}"
-      @gifts = @gifts[from+1..-1]
     end
 
-    # puts "gifts.length = #{@gifts.length}"
-    if @gifts.length > 10
-      @gifts = @gifts[0..9]
-      @last_gift_id = @gifts.last.id
-    else
-      @last_gift_id = nil
-    end
-    # puts "last_gift_id = #{@last_gift_id}, gifts.length = #{@gifts.length}"
+    @gifts, @last_row_id = get_next_set_of_rows(gifts, last_row_id)
 
     # show 4 last comments for each gift
     @first_comment_id = nil

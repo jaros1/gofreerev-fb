@@ -26,7 +26,7 @@
 
 <br />
 <%= link_to "show-more-rows", user_path(:id => @user.id, :last_row_id => @last_row_id), :remote => true, :id => "show-more-rows-link", :style => "display: none" if @last_row_id %>
-<%= render :partial => 'shared/show_more_rows', :show_more_rows => 'gifts' %>
+<%= render :partial => 'shared/show_more_rows', :locals => { :show_more_rows => 'gifts' } %>
 
 <script>
     // no client side checks before changing currency in this page

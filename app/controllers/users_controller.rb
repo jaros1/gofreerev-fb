@@ -129,6 +129,8 @@ class UsersController < ApplicationController
       end
     end # sort
 
+    users = User.all
+
     # return next 10 gofreerev users
     @users, @last_row_id = get_next_set_of_rows(users, last_row_id)
 
