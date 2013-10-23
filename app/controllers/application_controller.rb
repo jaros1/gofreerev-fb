@@ -357,14 +357,14 @@ class ApplicationController < ActionController::Base
       # puts "ajax request - check if last_row_id still is valid"
       from = rows.index { |u| u.id == last_row_id }
       if !from
-        # puts "invalid last_row_id - or user is no longer a friend - ignore error and return first 10 rows"
+        puts "invalid last_row_id - or row is no longer in rows - ignore error and return first 10 rows"
         last_row_id = nil
       end
       last_row_id = nil unless from # invalid last_row_id - or user is no longer a friend - ignore error and return first 10 rows
     end
     if !last_row_id
       # first http get - return first 10 rows
-      # puts "first http get - return first 10 rows"
+      puts "first http get - return first 10 rows"
       nil
     else
       # ajax request - return next 10 rows
@@ -377,6 +377,7 @@ class ApplicationController < ActionController::Base
     else
       last_row_id = nil # last row - no more ajax requests
     end
+    puts "returning #{rows.size} rows. last_row_id = #{last_row_id}"
     [ rows, last_row_id]
   end # get_next_set_of_rows
 

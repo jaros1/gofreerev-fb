@@ -429,7 +429,7 @@ function check_api_picture_url(giftid, img) {
 } // check_api_picture_url
 // function to report gift ids with invalid urls. Submitted in end of gifts/index page
 function report_missing_api_picture_urls() {
-    if (missing_api_picture_urls.length == 0) return;
+    if (missing_api_picture_urls.length == 0) return; // no picture urls to check
     // Report ids with invalid picture url
     var missing_api_picture_urls_local = missing_api_picture_urls.join();
     $.ajax({

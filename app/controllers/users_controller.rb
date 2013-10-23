@@ -155,12 +155,12 @@ class UsersController < ApplicationController
 
     # http request: return first 10 gifts (last_gift_id = nil)
     # ajax request: return next 10 gifts (last_gift_id != nil)
-    last_gift_id = params[:last_gift_id].to_s
-    last_gift_id = nil if last_gift_id == ''
-    if last_gift_id =~ /^[0-9]+$/
-      last_gift_id = last_gift_id.to_i
+    last_row_id = params[:last_row_id].to_s
+    last_row_id = nil if last_row_id == ''
+    if last_row_id =~ /^[0-9]+$/
+      last_row_id = last_row_id.to_i
     else
-      last_gift_id = nil
+      last_row_id = nil
     end
 
     gifts = Gift.where('user_id_giver = ? or user_id_receiver = ?', @user.user_id, @user.user_id).includes(:giver, :receiver).sort do |a,b|
@@ -172,7 +172,7 @@ class UsersController < ApplicationController
     end # sort
 
     # return next 10 gifts - first 10 for http request - next 10 for ajax request
-    @gifts, @last_gift_id = get_next_set_of_rows(gifts, last_gift_id)
+    @gifts, @last_row_id = get_next_set_of_rows(gifts, last_row_id)
 
     respond_to do |format|
       format.html {}
@@ -180,7 +180,7 @@ class UsersController < ApplicationController
       format.js {}
     end
 
-  end # show_friend
+  end # show
 
 
   private
