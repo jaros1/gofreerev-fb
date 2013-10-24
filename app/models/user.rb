@@ -195,8 +195,6 @@ class User < ActiveRecord::Base
   # change currency in page header.
   attr_accessor :new_currency
 
-  # users/index - number of mutual friends
-  attr_accessor :mutual_friends
 
   ##################
   # helper methods #
@@ -327,7 +325,7 @@ class User < ActiveRecord::Base
     gifts_given + gifts_received
   end
   def app_friends
-    friends.find_all do |f|
+    Friend.where("user_id_giver = ?", user_id).includes(:friend).find_all do |f|
       # puts "user_id_receiver = #{f.user_id_receiver}, api_friend = #{f.api_friend}, app_friend = #{f.app_friend}"
       if f.app_friend == 'Y'
         true
@@ -726,6 +724,12 @@ class User < ActiveRecord::Base
     gs
 
   end # gifts
+
+
+  def mutual_friends (login_user)
+    return @mutual_friends if @mutual_friends
+    @mutial_friends = (app_friends.collect { |f| f.friend } & login_user.app_friends.collect { |f| f.friend }).collect { |u| u.short_user_name }
+  end
 
 
 

@@ -159,9 +159,9 @@ module ApplicationHelper
 
   def format_direction (gift)
     if !gift.user_id_receiver
-      my_t '.direction_giver', :username => gift.giver.friend?(@user) ? gift.giver.short_user_name : giver.user_name
+      my_t '.direction_giver', :username => gift.giver.short_or_full_user_name(@user)
     elsif !gift.user_id_giver
-      my_t '.direction_receiver', :username => gift.receiver.friend?(@user) ? gift.receiver.short_user_name : receiver.user_name
+      my_t '.direction_receiver', :username => gift.receiver.short_or_full_user_name(@user)
     else
       my_t '.direction_giver_and_receiver', :givername => gift.giver.short_user_name, :receivername => gift.receiver.short_user_name
     end

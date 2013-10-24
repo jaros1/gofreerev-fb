@@ -120,7 +120,7 @@
 37) delete gifts
 
 38) ajax hide gift does not work. should hide all rows with id gift-<giftid>- format
-
+                                                 refactoring show-more-rows ajax code (ok for users/show page and users/index pages, missing for gifts/index )
 39) new deal / cancel / accept / reject error handling:
     new deal can fail if gift user has accepted an other offer
     cancel can fail if gift user has accepted a deal or has rejected new deal from user
@@ -165,14 +165,18 @@
 
 14) users/show
     non friends - link to FB page - link with friend request (ok)
-    friends - show detailed user information (todo)
+    friends - show detailed user information (ok)
     friend information - detailed balance information
-    filter: open deals, close deals, open and close deals (all)
-    filter: giver, receiver, giver or receiver (all)
+    filter: open deals, close deals, open and close deals (todo)
+    filter: giver, receiver, giver or receiver (todo)
 
-15) add category to gift?
+51) add category to gift?
     could make it easier to find relevant gifts
     But more information to fill when posting gifts
 
-16) filter links - users/index and users/show
+52) filter links - users/index and users/show
     mark currency filter - bold and inactive
+
+53) add number of mutual friends to users/index (friends != true)
+
+54) ajax not working for gifts/index page (all gifts)

@@ -109,19 +109,13 @@ class UsersController < ApplicationController
     users = []
     User.where("user_id in (?)", friends_friends_userids).each do |user|
       next if friends_filter == false and user.friend?(@user) # don't show friends
-      # count number of mutual friends
-      user.mutual_friends = []
-      friends.each do |friend|
-        user.mutual_friends << friend.short_user_name if friend.user_id != user.user_id and user.friend?(friend)
-      end # each friend
-      users << user if user.mutual_friends.size > 0
-      puts "#{user.user_id} #{user.short_user_name}, friend? = #{@user.friend?(user)}, mutual_friends = #{user.mutual_friends.join(', ')}"
+      users << user
     end # each user
 
     # sort: number of mutual friends desc, user name, user id
     users = users.sort do |a, b|
-      if a.mutual_friends.size != b.mutual_friends.size
-        b.mutual_friends.size <=> a.mutual_friends.size
+      if a.mutual_friends(@user).size != b.mutual_friends(@user).size
+        b.mutual_friends(@user).size <=> a.mutual_friends(@user).size
       elsif a.user_name != b.user_name
         a.user_name <=> b.user_name
       else
@@ -129,7 +123,7 @@ class UsersController < ApplicationController
       end
     end # sort
 
-    users = User.all
+    # users = User.all # uncomment to test ajax
 
     # return next 10 gofreerev users
     @users, @last_row_id = get_next_set_of_rows(users, last_row_id)
