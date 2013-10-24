@@ -229,7 +229,8 @@ class GiftsController < ApplicationController
       gifts = @user.gifts
     end
 
-    gifts = Gift.where('user_id_giver is not null or user_id_receiver is not null').order('id desc') # uncomment to test ajax
+    # use this gifts select for ajax debug - returns all gifts
+    # gifts = Gift.where('user_id_giver is not null or user_id_receiver is not null').order('id desc') # uncomment to test ajax
 
     # http request: return first 10 gifts (last_row_id = nil)
     # ajax request: return next 10 gifts (last_row_id != nil)

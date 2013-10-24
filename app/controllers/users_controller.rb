@@ -123,6 +123,7 @@ class UsersController < ApplicationController
       end
     end # sort
 
+    # use this users select for ajax test - returns all users
     # users = User.all # uncomment to test ajax
 
     # return next 10 gofreerev users

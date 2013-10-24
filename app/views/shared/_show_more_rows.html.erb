@@ -32,7 +32,7 @@
                         // change last_row_id in link
                         var reg = new RegExp("^last-row-id-[0-9]+$") ;
                         if (!tr_id.match(reg)) {
-                            // alert('row with format last-row-id-<n> was not found') ;
+                            // alert('row with format last-row-id-<n> was not found. id = ' + tr_id) ;
                             // no more ajax requests - end_of_page is still true
                             return ;
                         }
