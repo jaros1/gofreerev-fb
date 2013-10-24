@@ -177,6 +177,10 @@
 52) filter links - users/index and users/show
     mark currency filter - bold and inactive
 
-53) add number of mutual friends to users/index (friends != true)
-
 54) ajax not working for gifts/index page (all gifts)
+
+55) add number of friends to user_div mouseover text?
+
+56) add number of mutual friends to user_div mouseover text?
+
+57) refactor users/_user. Should be one table with 4 columns (picture, prompt, colon and value)

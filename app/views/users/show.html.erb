@@ -17,16 +17,17 @@
            :apiname => @user.api_name_without_brackets %>
 </p>
 
-<% if @user2.friend?(@user) and @gifts.size > 0 -%>
-<table id="gifts" style="border-spacing: 0;">
-  <%= render :partial => 'table_header_row' %>
-  <%= render :partial => 'gifts' %>
-</table>
+<%= render :partial => 'show_tabs' if @tabs.size > 1 %>
+
+<% if !@tab or @tab == 'friends' or !@user2.friend?(@user) -%>
+    <%= render :partial => 'show_friends' %>
+<% elsif @tab == 'balance' -%>
+    <%= render :partial => 'show_balance' %>
 <% end -%>
 
 <br />
-<%= link_to "show-more-rows", user_path(:id => @user.id, :last_row_id => @last_row_id), :remote => true, :id => "show-more-rows-link", :style => "display: none" if @last_row_id %>
-<%= render :partial => 'shared/show_more_rows', :locals => { :show_more_rows => 'gifts' } %>
+<%= link_to "show-more-rows", user_path(:id => @user2.id, :last_row_id => @last_row_id, :tab => @tab), :remote => true, :id => "show-more-rows-link", :style => "display: none" if @last_row_id %>
+<%= render :partial => 'shared/show_more_rows', :locals => { :show_more_rows => (@tab == 'friends' ? 'users' : 'gifts') } %>
 
 <script>
     // no client side checks before changing currency in this page

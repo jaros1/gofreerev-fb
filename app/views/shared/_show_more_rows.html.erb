@@ -19,7 +19,7 @@
                     var link = document.getElementById("show-more-rows-link") ;
                     if (!link) return ; // link has already been removed
                     // alert("show_more_rows = <%= show_more_rows %>") ;
-                    var table = document.getElementById("<%= show_more_rows %>") ; // param - table name - gifts or users
+                    var table = document.getElementById("<%= @show_more_rows %>") ; // param - table name - gifts or users
                     var trs = table.getElementsByTagName('tr') ;
                     var tr = trs[trs.length-1] ;
                     var tr_id = tr.id ;

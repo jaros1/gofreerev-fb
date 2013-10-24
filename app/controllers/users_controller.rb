@@ -137,6 +137,7 @@ class UsersController < ApplicationController
   end # index
 
   def show
+    # check user.id
     id = params[:id]
     @user2 = User.find(id)
     if !@user2
@@ -145,9 +146,33 @@ class UsersController < ApplicationController
       redirect_to :action => :index
       return
     end
-    return unless @user2.friend?(@user)
+    if @user2.mutual_friends(@user).size == 0
+      puts "invalid request. No mutual friends for user with id #{id}"
+      flash[:notice] = my_t '.invalid_request'
+      redirect_to :action => :index
+      return
+    end
+    puts "@user2 = #{@user2.id} #{@user2.user_name}"
 
-    # friend - user balance information
+    # get params: tab, last_row_id and todo: filters
+
+    # tab: blank = friends or balance - only friends can see balance
+    if @user2.friend?(@user)
+      if @user2.user_id == @user.user_id
+        @tabs = %w(balance) # my account - friends information available in Friends menu
+      else
+        @tabs = %w(friends balance) # friend - friend and balance information are allowed
+      end
+    else
+      @tabs = %w(friends) # non friend - balance information not allowed
+    end
+    if @tabs.size == 1
+      @tab = @tabs.first
+    else
+      @tab = params[:tab].to_s || @tabs.first
+      @tab = @tabs.first unless @tabs.index(@tab)
+    end
+    puts "@tab = #{@tab}"
 
     # http request: return first 10 gifts (last_gift_id = nil)
     # ajax request: return next 10 gifts (last_gift_id != nil)
@@ -159,16 +184,25 @@ class UsersController < ApplicationController
       last_row_id = nil
     end
 
-    gifts = Gift.where('user_id_giver = ? or user_id_receiver = ?', @user.user_id, @user.user_id).includes(:giver, :receiver).sort do |a,b|
-      if (a.received_at || a.created_at.to_date) ==  (b.received_at || b.created_at.to_date)
-        b.id <=> a.id
-      else
-        (b.received_at || b.created_at.to_date) <=>  (a.received_at || a.created_at.to_date)
-      end # if
-    end # sort
-
-    # return next 10 gifts - first 10 for http request - next 10 for ajax request
-    @gifts, @last_row_id = get_next_set_of_rows(gifts, last_row_id)
+    if @tab == 'balance'
+      # show balance for @user2 - only friends can see balance information
+      gifts = Gift.where('user_id_giver = ? or user_id_receiver = ?', @user.user_id, @user.user_id).includes(:giver, :receiver).sort do |a,b|
+        if (a.received_at || a.created_at.to_date) ==  (b.received_at || b.created_at.to_date)
+          b.id <=> a.id
+        else
+          (b.received_at || b.created_at.to_date) <=>  (a.received_at || a.created_at.to_date)
+        end # if
+      end # sort
+      # return next 10 gifts - first 10 for http request - next 10 for ajax request
+      @gifts, @last_row_id = get_next_set_of_rows(gifts, last_row_id)
+    end
+    if @tab == 'friends'
+      # show friends for @user2 - sort by user_name
+      users = @user2.app_friends.collect { |f| f.friend }.sort { |a,b| a.user_name <=> b.user_name}
+      # users = User.all # uncomment to test ajax
+      # return next 10 users - first 10 for http request - next 10 for ajax request
+      @users, @last_row_id = get_next_set_of_rows(users, last_row_id)
+    end
 
     respond_to do |format|
       format.html {}

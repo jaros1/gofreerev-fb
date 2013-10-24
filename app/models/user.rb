@@ -726,13 +726,12 @@ class User < ActiveRecord::Base
   end # gifts
 
 
+  # cache mutual friends lookup in @mutual_friends hash index by login_user.id
   def mutual_friends (login_user)
-    return @mutual_friends if @mutual_friends
-    @mutial_friends = (app_friends.collect { |f| f.friend } & login_user.app_friends.collect { |f| f.friend }).collect { |u| u.short_user_name }
+    return @mutual_friends[login_user.id] if @mutual_friends and @mutual_friends.has_key?(login_user.id)
+    @mutual_friends = {} unless @mutual_friends
+    @mutual_friends[login_user.id] = (app_friends.collect { |f| f.friend } & login_user.app_friends.collect { |f| f.friend }).collect { |u| u.short_user_name }
   end
-
-
-
 
 
   ##############

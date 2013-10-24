@@ -417,7 +417,11 @@ da:
         top_text_friend_html: "%{username} saldo oplysninger."
         top_text_non_friend_html: "Detaljerede brugeroplysninger vises kun for dine venner. Brugeroplysninger for %{username} kan ikke vises. Brug ovenstående knapper hvis du ønsker at tilføje %{username} som ven."
         api_profile_link_text: "profile"
-     table_header_row:
+     show_tabs:
+        tabs_prompt: "Vælg faneblad:"
+        friends_tab_text: "Venner"
+        balance_tab_text: "Saldo"
+     show_balance_header:
         giver_column_heading_html: "Fra:"
         receiver_column_heading_html: "Til:"
         received_at_column_heading_html : "Dato:"

@@ -1,0 +1,6 @@
+<% if @user2.friend?(@user) and @gifts.size > 0 -%>
+    <table id="gifts" style="border-spacing: 0;">
+      <%= render :partial => 'show_balance_header' %>
+      <%= render :partial => 'gifts' %>
+    </table>
+<% end -%>

@@ -406,7 +406,11 @@ en:
         top_text_friend_html: "%{username} balance information"
         top_text_non_friend_html: "Detailed user information is only displayed to your friends. User info for %{username} can not be displayed. Use the above buttons if you want to add %{username} as a friend."
         api_profile_link_text: "profile"
-     table_header_row:
+     show_tabs:
+        tabs_prompt: "Select tab:"
+        friends_tab_text: "Friends"
+        balance_tab_text: "Balance"
+     show_balance_header:
         giver_column_heading_html: "From:"
         receiver_column_heading_html: "To:"
         received_at_column_heading_html : "Date:"
@@ -432,6 +436,8 @@ en:
         user_name_title: "Use this link to see %{username}'s profile on %{apiname} (new tab in browser)"
         friend_status_prompt: "Status"
         user_balance_prompt: "Balance"
+        friend_status_title_1: "%{no_mutual_friends} mutual friend: %{mutual_friends}"
+        friend_status_title_n: "%{no_mutual_friends} mutual friends: %{mutual_friends}"
         friend_status_text_y: "Friend"
         friend_status_text_n: "Not a friend"
         friend_status_text_a: "%{apiname} friend but not a %{appname} friend"

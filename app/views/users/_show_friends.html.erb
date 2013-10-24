@@ -1,0 +1,5 @@
+<table id="users">
+  <% for user in @users do -%>
+      <%= render :partial => 'user', :locals => { :user => user } %>
+  <% end -%>
+</table>
