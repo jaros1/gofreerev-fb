@@ -19,7 +19,7 @@
                     var link = document.getElementById("show-more-rows-link") ;
                     if (!link) return ; // link has already been removed
                     // alert("show_more_rows = <%= show_more_rows %>") ;
-                    var table = document.getElementById("<%= @show_more_rows %>") ; // param - table name - gifts or users
+                    var table = document.getElementById("<%= show_more_rows %>") ; // param - table name - gifts or users
                     var trs = table.getElementsByTagName('tr') ;
                     var tr = trs[trs.length-1] ;
                     var tr_id = tr.id ;
@@ -42,6 +42,7 @@
                         var href = link.href ;
                         // alert('ref before = ' + href) ;
                         href = href.replace(/last_row_id=[0-9]+/, 'last_row_id=' + last_row_id) ;
+                        // alert('ref after = ' + href) ;
                         // alert('ref after = ' + href) ;
                         link.href = href ;
                         end_of_page = false ;
