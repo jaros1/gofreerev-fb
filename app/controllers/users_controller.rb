@@ -187,7 +187,21 @@ class UsersController < ApplicationController
 
     if @tab == 'balance'
       # show balance for @user2 - only friends can see balance information
-      gifts = Gift.where('user_id_giver = ? or user_id_receiver = ?', @user.user_id, @user.user_id).includes(:giver, :receiver).sort do |a,b|
+
+      # get any pictures with invalid picture urls
+      # that is gifts where picture url are marked as invalid and where url lookup in /util/missing_api_picture_urls failed
+      # most possible explanation is that the pictures has been deleted in api
+      # but is could also be a api permission problem (gofreerev user is not allowed to see picture in api)
+      # check picture url again with owner permission
+      # the existing /util/missing_api_picture_urls is used to check invalid picture urls
+      # done in a client js call after the page has been rendered to the user
+      # see last lines in /gifts/index page
+      # see onLoad tag on img
+      # see js functions check_api_picture_url and report_missing_api_picture_urls
+      @missing_api_picture_urls = get_missing_api_picture_urls()
+
+      # find gifts with @user2 as giver or receiver
+      gifts = Gift.where('user_id_giver = ? or user_id_receiver = ?', @user2.user_id, @user2.user_id).includes(:giver, :receiver).sort do |a,b|
         if (a.received_at || a.created_at.to_date) ==  (b.received_at || b.created_at.to_date)
           b.id <=> a.id
         else

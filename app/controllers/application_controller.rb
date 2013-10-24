@@ -341,7 +341,7 @@ class ApplicationController < ActionController::Base
       (user_id_created_by != @user.user_id)
     end # delete_if
     if gifts.size == 0
-      nil
+      'missing_api_picture_urls = [] ;'
     else
       'missing_api_picture_urls = [' + gifts.collect { |g| g.id }.join(', ') + '] ;'
     end

@@ -6,7 +6,7 @@ class CommentsController < ApplicationController
   # POST /comments.json
   # Parameters: {"utf8"=>"✓", "comment"=>{"gift_id"=>"j0N0uppxbj1nmDfsWBbk", "new_deal_yn"=>"Y", "price"=>"1", "comment"=>"25"}, "commit"=>"Gem"}
   def create
-    gift = Gift.find(params[:comment][:gift_id])
+    gift = Gift.find_by_gift_id(params[:comment][:gift_id])
     puts "invalid request - gift with id #{params[:comment][:gift_id]} was not found" if !gift
     if gift and !gift.visible_for(@user)
       puts "invalid request - user #{@user.user_id} #{@user.user_name} can not comment gift id #{gift.id}"

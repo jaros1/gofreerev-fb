@@ -338,8 +338,14 @@ class Gift < ActiveRecord::Base
   end # balance_receiver_was
 
   # 17) picture Y/N - String - not encrypted
+  validates_presence_of :picture
+  validates_inclusion_of :picture, :allow_blank => true, :in => %w(Y N) ;
+  validates_each :picture, :allow_blank => true do |record, attr, value|
+    record.errors.add attr, :invalid if value == 'Y' and record.api_picture_url.to_s == ""
+  end
   
   # 18) api_picture_url - String in Model - encrypted text in db
+  validates_presence_of :api_picture_url, :if => Proc.new { |rec| rec.picture == 'Y' }
   def api_picture_url
     # puts "gift.api_picture_url: api_picture_url = #{read_attribute(:api_picture_url)} (#{read_attribute(:api_picture_url).class.name})"
     return nil unless (extended_api_picture_url = read_attribute(:api_picture_url))
