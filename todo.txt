@@ -160,25 +160,13 @@
     could store api access token in db, but that could be a security problem
     as it will give api access if the server / database in compromised
 
-14) users/show
-    non friends - link to FB page - link with friend request (ok)
-    friends - show detailed user information (ok)
-    friend information - detailed balance information
-    filter: open deals, close deals, open and close deals (todo)
-    filter: giver, receiver, giver or receiver (todo)
-
 51) add category to gift?
     could make it easier to find relevant gifts
     But more information to fill when posting gifts
 
-52) filter links - users/index and users/show
-    mark currency filter - bold and inactive
-
 55) add number of friends to user_div mouseover text?
 
 56) add number of mutual friends to user_div mouseover text?
-
-58) users/show - balance - must show balance for @user2
 
 60) test with IE.
     can not get ie6, 7, 8 to start under wine
@@ -188,5 +176,6 @@
 
 61) recalculate user balance at request or once every day
 
-62) add users/show friends and balance tab heading text
+63) refactor styles to stylesheets
 
+64) add comments with available variables to locales files (da, en)

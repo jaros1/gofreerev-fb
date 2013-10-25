@@ -462,11 +462,11 @@ en:
         edit_user: "Edit"
      index:
         page_header_text_html: "Add/remove friends<br /><br />"
-        friends_filter_prompt: "%{appname}:"
+        friends_filter_prompt: "%{appname_camelized}:" # appname, appname_camelized
         app_friends_link_text: "Friends"
         not_app_friends_link_text: "Not friends"
         all_app_users_link_text: "All"
-        invite_api_friends_link_prompt2: "%{apiname}:"
+        invite_api_friends_link_prompt2: "%{apiname_camelized}:" # apiname, apiname_camelized_
         invite_api_friends_link_title2: "Use this link to invite your %{apiname} friends to use %{appname}"
         invite_api_friends_link_text2: "Invite friends"
         no_users_was_found_html: "There was not any other %{appname} users. To get started, you should create a few posts<br />with anything you want to share with your friends or with something you are looking<br />for or are missing, and that you think your friends might be able to help you.<br /><br />Invite one or more of your good %{apiname} friends to use %{appname}.<br />Either by sending a personal message with the link below or by using<br />the link below to invite your friends to use Gofreerev. a personal<br />message is the best since many people will reject game invitations."

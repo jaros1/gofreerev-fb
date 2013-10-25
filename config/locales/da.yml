@@ -421,6 +421,14 @@ da:
         tabs_prompt: "Vælg faneblad:"
         friends_tab_text: "Venner"
         balance_tab_text: "Saldo"
+        deal_status_prompt: "Vælg status:"
+        deal_status_open: "Åbne"
+        deal_status_closed: "Lukkede"
+        deal_status_all: "Alle"
+        deal_direction_prompt: "Vælg retning:"
+        deal_direction_giver: "Fra"
+        deal_direction_receiver: "Til"
+        deal_direction_both: "Begge"
      show_balance:
         balance_tab_header_text_html: "%{username}-s saldo:<br />"
      show_friends:
@@ -473,11 +481,11 @@ da:
         edit_user: "Rediger"
      index:
         page_header_text_html: "Tilføj/fjern venner<br /><br />"
-        friends_filter_prompt: "%{appname}:"
+        friends_filter_prompt: "%{appname_camelized}:" # appname, appname_camelized
         app_friends_link_text: "Venner"
         not_app_friends_link_text: "Ej venner"
         all_app_users_link_text: "Alle"
-        invite_api_friends_link_prompt2: "%{apiname}:"
+        invite_api_friends_link_prompt2: "%{apiname_camelized}:" # apiname, apiname_camelized_
         invite_api_friends_link_title2: "Brug dette link til at inviterer dine %{apiname} venner til at bruge %{appname}"
         invite_api_friends_link_text2: "Inviter venner"
         no_users_was_found_html: "Der blev ikke fundet nogle andre %{appname} brugere. For at komme igang bør du nu<br />oprette et par opslag med noget du gerne vil dele med dine venner eller med noget<br />du søger eller mangler, og som du tror dine venner måske kan hjælpe dig med.<br /><br />Dernæst skal du invitere en eller flere af dine gode venner til at bruge %{appname}.<br />Enten ved at sende et personlig besked med nedenstående link eller ved at bruge<br />nedenstående link til at inviterer dine %{apiname} venner til at bruge %{appname}. <br />En personlig besked er det bedste da mange mennesker vil afvise uopfordrede<br />spil invitationer."

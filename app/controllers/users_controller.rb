@@ -49,8 +49,8 @@ class UsersController < ApplicationController
   def index
     # friends filter: true: show friends, false: show not friends (*), nil: show all users (')
     # * = only show friends of friends - not all Gofreerev users
-    friends_filter = params[:friends]
-    friends_filter = case friends_filter
+    @friends_filter = params[:friends]
+    @friends_filter = case @friends_filter
                         when nil then nil
                         when "" then nil
                         when "true" then true
@@ -77,9 +77,9 @@ class UsersController < ApplicationController
         a.friend.user_name <=> b.friend.user_name
       end
     end
-    puts "friends_filter = #{friends_filter}, found #{user_friends.size} friends"
+    puts "friends_filter = #{@friends_filter}, found #{user_friends.size} friends"
 
-    if friends_filter == true
+    if @friends_filter == true
       # simpel friends search - just return login users friends
       users = user_friends.collect { |f| f.friend }
       @users, @last_user_id = get_next_set_of_rows(users, last_row_id)
@@ -108,7 +108,7 @@ class UsersController < ApplicationController
     # find relevant users and number of mutual friends
     users = []
     User.where("user_id in (?)", friends_friends_userids).each do |user|
-      next if friends_filter == false and user.friend?(@user) # don't show friends
+      next if @friends_filter == false and user.friend?(@user) # don't show friends
       users << user
     end # each user
 
@@ -137,6 +137,7 @@ class UsersController < ApplicationController
 
   end # index
 
+  # show user information, user friends and user balance (balance is only shown for friends)
   def show
     # check user.id
     id = params[:id]
@@ -200,12 +201,25 @@ class UsersController < ApplicationController
       # see js functions check_api_picture_url and report_missing_api_picture_urls
       @missing_api_picture_urls = get_missing_api_picture_urls()
 
+      # filters: status (open, closed and all) and direction (giver, receiver and both)
+      @statuses = %w(open closed all)
+      @status = params[:status] || 'all'
+      @status = 'all' unless %w(open closed all).index(@status)
+      @directions = %w(giver receiver both)
+      @direction = params[:direction] || 'both'
+      @direction = 'both' unless %w(giver receiver both).index(@direction)
+      puts "balance filters: status = #{@status}, direction = #{@direction}"
+
       # find gifts with @user2 as giver or receiver
-      gifts = Gift.where('user_id_giver = ? or user_id_receiver = ?', @user2.user_id, @user2.user_id).includes(:giver, :receiver).sort do |a,b|
-        if (a.received_at || a.created_at.to_date) ==  (b.received_at || b.created_at.to_date)
+      gifts = Gift.where('user_id_giver = ? or user_id_receiver = ?', @user2.user_id, @user2.user_id).includes(:giver, :receiver).find_all do |g|
+        # apply status and direction filters
+        ((@status == 'all' or (@status == 'open' and !g.received_at) or (@status == 'closed' and g.received_at)) and
+            (@direction == 'both' or (@direction == 'giver' and g.user_id_giver == @user2.user_id) or (@direction == 'receiver' and g.user_id_receiver == @user2.user_id)))
+      end.sort do |a, b|
+        if (a.received_at || a.created_at.to_date) == (b.received_at || b.created_at.to_date)
           b.id <=> a.id
         else
-          (b.received_at || b.created_at.to_date) <=>  (a.received_at || a.created_at.to_date)
+          (b.received_at || b.created_at.to_date) <=> (a.received_at || a.created_at.to_date)
         end # if
       end # sort
       # return next 10 gifts - first 10 for http request - next 10 for ajax request

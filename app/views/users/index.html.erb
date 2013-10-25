@@ -10,12 +10,24 @@
 <br />
 <table>
   <tr>
-    <td><%= my_t '.friends_filter_prompt', :appname => APP_NAME %></td>
-    <td><%= link_to my_t('.app_friends_link_text'), users_path(:friends => true) %></td>
-    <td><%= link_to my_t('.not_app_friends_link_text'), users_path(:friends => false) %></td>
-    <td><%= link_to my_t('.all_app_users_link_text'), users_path %></td>
+    <td><%= my_t '.friends_filter_prompt', :appname => APP_NAME, :appname_camelized => APP_NAME.camelize %></td>
+<% if @friends_filter == true -%>
+        <td style="text-decoration:underline;"><%= my_t('.app_friends_link_text') %></td>
+<% else -%>
+        <td><%= link_to my_t('.app_friends_link_text'), users_path(:friends => true) %></td>
+<% end -%>
+<% if @friends_filter == false -%>
+        <td style="text-decoration:underline;"><%= my_t('.not_app_friends_link_text') %></td>
+<% else -%>
+        <td><%= link_to my_t('.not_app_friends_link_text'), users_path(:friends => false) %></td>
+<% end -%>
+<% if @friends_filter == nil -%>
+        <td style="text-decoration:underline;"><%= my_t('.all_app_users_link_text') %></td>
+<% else -%>
+        <td><%= link_to my_t('.all_app_users_link_text'), users_path %></td>
+<% end -%>
     <td>&nbsp;&nbsp;|&nbsp;&nbsp;</td>
-    <td><%= my_t '.invite_api_friends_link_prompt2', :apiname => @user.api_name_without_brackets %></td>
+    <td><%= my_t '.invite_api_friends_link_prompt2', :apiname => @user.api_name_without_brackets, :apiname_camelized => @user.api_name_without_brackets.camelize %></td>
     <td title="<%= my_t '.invite_api_friends_link_title2', :appname => APP_NAME, :apiname => @user.api_name_without_brackets %>">
       <%= link_to my_t('.invite_api_friends_link_text2', :apiname => @user.api_name_without_brackets), invite_friends_url %>
     </td>
