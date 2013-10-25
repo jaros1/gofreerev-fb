@@ -156,6 +156,13 @@ class UsersController < ApplicationController
     end
     puts "@user2 = #{@user2.id} #{@user2.user_name}"
 
+    # recalculate balance once every day
+    if @user2.balance_at != Date.today
+      @user2.recalculate_balance
+      @user2.reload
+      @user.reload if @user.user_id == @user2.user_id
+    end
+
     # get params: tab, last_row_id and todo: filters
 
     # tab: blank = friends or balance - only friends can see balance

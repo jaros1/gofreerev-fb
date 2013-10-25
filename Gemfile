@@ -78,9 +78,6 @@ gem 'money'
 # just in case if we need to exchange currencies
 gem 'google_currency'
 
-# https://github.com/mislav/will_paginate
-gem 'will_paginate', '~> 3.0'
-
 # https://github.com/svenfuchs/rails-i18n
 # rails-i18n (4.0.0.pre) - example yml files for many languages
 gem 'rails-i18n', '~> 4.0.0.pre'

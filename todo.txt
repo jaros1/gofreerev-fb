@@ -178,4 +178,4 @@
 
 63) refactor styles to stylesheets
 
-64) add comments with available variables to locales files (da, en)
+64) add comments with available interpolation variables to locales files (da, en)

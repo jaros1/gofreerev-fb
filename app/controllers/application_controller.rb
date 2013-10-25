@@ -259,6 +259,8 @@ class ApplicationController < ActionController::Base
                 raise "api_friend status was not updated" unless f1.api_friend == hash[:new_api_friend] and f2.api_friend == hash[:new_api_friend]
               end # if
             end # each
+            # update balance
+            u.recalculate_balance if u.balance_at != Date.today
           rescue Exception => e
             puts "application_controller: User.fork_with_new_connection"
             puts "Error when post login processing api user info for #{u.user_id} #{u.user_name}"

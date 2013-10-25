@@ -94,14 +94,6 @@ da:
         invite_friends_message_body: "Prøv et spil om at hjælpe hinanden og dele hinandens resourcer på en ny anderledes måde og et spil med en ny slags penge der vil forandre vores verden inspireret af ideer fra Charles Eisensteins bog Sacred Economics"
 
 
-
-  # will paginate gem
-  will_paginate:
-    next_label: "Næste side"
-    previous_label: "Forrige side"
-
-
-
   # gift controller - general texts
   gifts:
      create:

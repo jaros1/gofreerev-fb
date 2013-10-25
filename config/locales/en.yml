@@ -90,10 +90,6 @@ en:
         invite_friends_message_title: "Invite your friends to play %{appname}"
         invite_friends_message_body: "Try a game about helping each other and sharing each others resources in a new different way and a game with a new kind of money that will change our world inspired by the ideas of Charles Eisenstein's book Sacred Economics"
 
-  # will paginate gem
-  will_paginate:
-    next_label: "Next page"
-    previous_label: "Previous page"
 
   # gift controller
   gifts:
