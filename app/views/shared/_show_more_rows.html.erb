@@ -8,7 +8,7 @@
     // true when user is near end of page (get more rows)
     // is set in $(window).scroll
     // is unset in $(document).ready
-    var end_of_page = false ;
+    var end_of_page = <%= @last_row_id ? "false" : "true" %> ;
 
     // add post ajax event handler for "show-more-rows-link" link
     // change url with new last_row_id or hide url when all rows has been returned to page

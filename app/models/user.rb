@@ -324,6 +324,7 @@ class User < ActiveRecord::Base
   def gifts_given_and_received
     gifts_given + gifts_received
   end
+
   def app_friends
     Friend.where("user_id_giver = ?", user_id).includes(:friend).find_all do |f|
       # puts "user_id_receiver = #{f.user_id_receiver}, api_friend = #{f.api_friend}, app_friend = #{f.app_friend}"
@@ -336,6 +337,10 @@ class User < ActiveRecord::Base
       end
     end # find all
   end # app_friends
+  def no_app_friends
+    return @no_app_friends if @no_app_friends
+    @no_app_friends = app_friends.size
+  end
 
   # todo: initialize social dividend hash from negative_currency hash
   def social_dividend
@@ -445,20 +450,20 @@ class User < ActiveRecord::Base
       case f.app_friend
         when nil then return 'Y' # default - api friends are also app friends
         when 'Y' then return 'Y' #
-        when 'N' then return 'N' # user has been deselected as app friend by login user or friendship request has been blocked login user
+        when 'N' then return 'A' # user has been deselected as app friend by login user
         when 'R' then return 'R' # pending friendship request from login user
         when 'P' then return 'P'
-        when 'B' then return 'B'
+        when 'B' then return 'B' # friendship request has been blocked login user
       end # case
     else
       # non api friend
       case f.app_friend
         when nil then return 'N'
         when 'Y' then return 'G' # not login api friends - only friends within gofreerev app
-        when 'N' then return 'N' # user has been deselected as app friend by login user or friendship request has been blocked login user
+        when 'N' then return 'N' # user has been deselected as app friend by login user
         when 'R' then return 'R' # pending friendship request from login user
         when 'P' then return 'P'
-        when 'B' then return 'B'
+        when 'B' then return 'B' # friendship request has been blocked login user
       end # case
     end
   end
