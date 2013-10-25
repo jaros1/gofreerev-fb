@@ -421,6 +421,10 @@ da:
         tabs_prompt: "Vælg faneblad:"
         friends_tab_text: "Venner"
         balance_tab_text: "Saldo"
+     show_balance:
+        balance_tab_header_text_html: "%{username}-s saldo:<br />"
+     show_friends:
+        friends_tab_header_text_html: "%{username}-s venner:<br />"
      show_balance_header:
         giver_column_heading_html: "Fra:"
         receiver_column_heading_html: "Til:"

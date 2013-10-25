@@ -3,7 +3,7 @@
     <td><%= my_t '.tabs_prompt' %></td>
 <% for tab in @tabs do loop -%>
 <%   if tab == @tab -%>
-            <td><%= my_t ".#{tab}_tab_text" %></td>
+            <td style="text-decoration:underline;"><%= my_t ".#{tab}_tab_text" %></td>
 <%   else -%>
             <td><%= link_to (my_t ".#{tab}_tab_text"), user_path(:id => @user2.id, :tab => tab) %></td>
 <%   end -%>

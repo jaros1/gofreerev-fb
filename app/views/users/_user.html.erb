@@ -1,40 +1,33 @@
 <tr>
-  <td><%= @size = '100x100' ; render '/shared/user_div', :user_div => user %></td>
-  <td style="vertical-align: top">
+  <td rowspan="4"><%= @size = '100x100' ; render '/shared/user_div', :user_div => user %></td>
+  <td><%= my_t '.user_name_prompt' %></td>
+  <td>:</td>
+  <td title="<%= my_t '.user_name_title', :username => user.short_or_full_user_name(@user), :apiname => user.api_name_without_brackets %>">
+    <%= link_to user.user_name, user.api_profile_url, {:target => '_blank'} %>
+  </td>
+</tr>
+<tr>
+  <td><%= my_t '.friend_status_prompt' %></td>
+  <td>:</td>
+  <td title="<%= my_t '.friend_status_title_' + (user.mutual_friends(@user).size == 1 ? '1' : 'n'),
+                      :no_mutual_friends => user.mutual_friends(@user).size,
+                      :mutual_friends => user.mutual_friends(@user).join(', ') if !user.friend?(@user) %>">
+    <%= my_t user.friend_status_translate_code(@user),
+             :appname => APP_NAME, :apiname => @user.api_name_without_brackets,
+             :username => user.short_user_name,
+             :no_mutual_friends => user.mutual_friends(@user).size,
+             :mutual_friends => user.mutual_friends(@user) %>
+  </td>
+</tr>
+<tr>
+  <td><%= my_t '.user_balance_prompt' %></td>
+  <td>:</td>
+  <td><%= format_user_balance(user, @user) if user.friend?(@user) %></td>
+</tr>
+<tr>
+  <td colspan="3">
     <table>
-      <tr>
-        <td><%= my_t '.user_name_prompt' %></td>
-        <td>:</td>
-        <td title="<%= my_t '.user_name_title', :username => user.short_or_full_user_name(@user), :apiname => user.api_name_without_brackets %>">
-          <%= link_to user.user_name, user.api_profile_url, {:target => '_blank'} %>
-        </td>
-      </tr>
-      <tr>
-        <td><%= my_t '.friend_status_prompt' %></td>
-        <td>:</td>
-        <td title="<%= my_t '.friend_status_title_' + (user.mutual_friends(@user).size == 1 ? '1' : 'n'),
-                            :no_mutual_friends => user.mutual_friends(@user).size,
-                            :mutual_friends => user.mutual_friends(@user).join(', ') if !user.friend?(@user) %>">
-          <%= my_t user.friend_status_translate_code(@user),
-                   :appname => APP_NAME, :apiname => @user.api_name_without_brackets,
-                   :username => user.short_user_name,
-                   :no_mutual_friends => user.mutual_friends(@user).size,
-                   :mutual_friends => user.mutual_friends(@user) %>
-        </td>
-      </tr>
-      <tr>
-        <td><%= my_t '.user_balance_prompt' %></td>
-        <td>:</td>
-        <td><%= format_user_balance(user, @user) if user.friend?(@user) %></td>
-      </tr>
-      <tr>
-        <td colspan="3">
-          <table>
-            <tr><%= render :partial => "friend_action_buttons", :locals => {:friend_action_buttons => user} %></tr>
-          </table>
-        </td>
-      </tr>
+      <tr><%= render :partial => "friend_action_buttons", :locals => {:friend_action_buttons => user} %></tr>
     </table>
   </td>
 </tr>
-

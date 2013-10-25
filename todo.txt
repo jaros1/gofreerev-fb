@@ -178,10 +178,6 @@
 
 56) add number of mutual friends to user_div mouseover text?
 
-57) refactor users/_user.
-    Should be one table with 4 columns (picture, prompt, colon and value)
-    Or should left align table
-
 58) users/show - balance - must show balance for @user2
 
 60) test with IE.
@@ -191,4 +187,6 @@
     better to test from a read windows pc.
 
 61) recalculate user balance at request or once every day
+
+62) add users/show friends and balance tab heading text
 

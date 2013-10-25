@@ -410,6 +410,10 @@ en:
         tabs_prompt: "Select tab:"
         friends_tab_text: "Friends"
         balance_tab_text: "Balance"
+     show_balance:
+        balance_tab_header_text_html: "%{username}-s balance:<br />"
+     show_friends:
+        friends_tab_header_text_html: "%{username}-s friends:<br />"
      show_balance_header:
         giver_column_heading_html: "From:"
         receiver_column_heading_html: "To:"
