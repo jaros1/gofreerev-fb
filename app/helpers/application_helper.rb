@@ -142,19 +142,19 @@ module ApplicationHelper
 
     return my_sanitize gift.description if gift.gifttype == 'G'
 
-    # format description with social dividend with translate
+    # gift description with social dividend with translate
     if gift.social_dividend_from
-      # format with start and end dates for period
-      my_t '.social_dividend_description_1', :giver => gift.giver.short_user_name, :receiver => gift.receiver.short_user_name,
-                                             :price => format_price(gift.price), :currency => gift.currency,
-                                             :from => format_date(gift.social_dividend_from), :to => format_date(gift.received_at).html_safe
+      key_no = 1 # format with start and end dates for period
+      to = format_date(gift.received_at).html_safe
     else
-      # format with only end date for period.
-      # Used for first social dividend calculations for a new user
-      my_t '.social_dividend_description_2', :giver => gift.giver.short_user_name, :receiver => gift.receiver.short_user_name,
-                                             :price => format_price(gift.price), :currency => gift.currency,
-                                             :to => format_date(gift.received_at).html_safe
+      key_no = 2 # format with only end date for period. Used for first social dividend calculations for a new user
+      to = nil
     end
+    my_t "gifts.gift.social_dividend_description_#{key_no}",
+         :giver => gift.giver.short_or_full_user_name(@user),
+         :receiver => gift.receiver.short_or_full_user_name(@user),
+         :price => format_price(gift.price), :currency => gift.currency,
+         :from => format_date(gift.social_dividend_from), :to => to
   end # format_gift_description
 
   def format_direction (gift)

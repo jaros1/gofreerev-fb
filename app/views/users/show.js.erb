@@ -1,7 +1,7 @@
 <% puts "@tab = #{@tab}"
   if @tab == 'friends' -%>
-$('#users').append('<%= j render("users/users", :users => @users, :id => @user2.id, :tab => @tab, :last_gift_id => @last_gift_id) %>');
+$('#users').append('<%= j render("users/users", :users => @users, :id => @user2.id, :tab => @tab, :last_row_id => @last_row_id) %>');
 <% end -%>
 <% if @tab == 'balance' -%>
-$('#gifts').append('<%= j render("users/gifts", :gifts => @gifts, :id => @user2.id, :tab => @tab, :last_gift_id => @last_gift_id) %>');
+$('#gifts').append('<%= j render("users/gifts", :gifts => @gifts, :id => @user2.id, :tab => @tab, :last_row_id => @last_row_id) %>');
 <% end -%>

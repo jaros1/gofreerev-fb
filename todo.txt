@@ -208,3 +208,6 @@
     Drop "Not yet any negative interest" for social dividend.
 
 72) Karens balance is invalid - see http://localhost/users/12?tab=balance
+
+73) add social dividend giver and social dividend receiver to format_gift_description for social dividend
+

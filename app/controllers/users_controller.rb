@@ -57,8 +57,8 @@ class UsersController < ApplicationController
                         when "false" then false
                         else true
                      end # case
-    # http request: return first 10 friends (last_user_id = nil) 
-    # ajax request: return next 10 friends (last_user_id != nil)
+    # http request: return first 10 friends (last_row_id = nil)
+    # ajax request: return next 10 friends (last_row_id != nil)
     last_row_id = params[:last_row_id].to_s
     last_row_id = nil if last_row_id == ''
     if last_row_id =~ /^[0-9]+$/
@@ -176,8 +176,8 @@ class UsersController < ApplicationController
     end
     puts "@tab = #{@tab}"
 
-    # http request: return first 10 gifts (last_gift_id = nil)
-    # ajax request: return next 10 gifts (last_gift_id != nil)
+    # http request: return first 10 gifts (last_row_id = nil)
+    # ajax request: return next 10 gifts (last_row_id != nil)
     last_row_id = params[:last_row_id].to_s
     last_row_id = nil if last_row_id == ''
     if last_row_id =~ /^[0-9]+$/

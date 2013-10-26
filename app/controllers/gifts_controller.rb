@@ -242,8 +242,8 @@ class GiftsController < ApplicationController
       last_row_id = nil
     end
 
-    # last_gift_id != nil. ajax request from end of gifts/index page - return next 10 rows to gifts/index page
-    # puts "last_gift_id = #{params[:last_gift_id]}, gifts.length = #{@gifts.length}"
+    # last_row_id != nil. ajax request from end of gifts/index page - return next 10 rows to gifts/index page
+    # puts "last_row_id = #{params[:last_row_id]}, gifts.length = #{@gifts.length}"
     if !last_row_id
       # http request - return first 10 gifts
       # remember newest gift id (global). Gifts created by friends after page load will be ajax inserted in gifts/index page

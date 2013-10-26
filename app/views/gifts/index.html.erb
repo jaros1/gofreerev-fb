@@ -53,6 +53,7 @@
           </tr>
         </table>
     <% end # form -%>
+    <hr/>
 
     <% if @gifts.size == 0 -%>
         <p>
@@ -60,7 +61,6 @@
         </p>
         <%= my_t 'shared.invite_friends.invite_api_friends_link_prompt1', :apiname => @user.api_name_without_brackets %> <%= invite_friends_link1 %>
     <% else -%>
-        <br />
         <table id="gifts" style="border-spacing: 0;">
           <%= render :partial => 'table_header_row' %>
           <%= render :partial => 'gifts' %>

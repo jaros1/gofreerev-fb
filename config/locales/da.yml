@@ -133,8 +133,6 @@ da:
         description_required_text: "Tekst skal udfyldes."
         price_invalid_text: "Pris is ugyldig. Brug kun cifre, højst et decimal komma/punktum og højst 2 decimaler. Tusindtalsseparator er ikke tilladt."
         no_gifts_was_found_html: "Der blev ikke fundet nogle opslag. Hverken du eller dine venner har endnu oprettet<br />nogle opslag herinde i %{appname}. For at komme igang bør du nu oprette et par opslag<br />med noget du gerne vil dele med dine venner eller med noget du søger eller mangler,<br />og som du tror dine venner måske kan hjælpe dig med.<br /><br />Dernæst skal du invitere en eller flere af dine gode venner til at bruge %{appname}.<br />Enten ved at sende et personlig besked med nedenstående link eller ved at bruge<br />nedenstående link til at inviterer dine %{apiname} venner til at bruge %{appname}. <br />En personlig besked er det bedste da mange mennesker vil afvise uopfordrede<br />spil invitationer."
-        social_dividend_description_1: "Social dividende %{price} %{currency} fra %{giver} til %{receiver} for perioden op til %{to}"
-        social_dividend_description_2: "Social dividende %{price} %{currency} fra %{giver} til %{receiver} for perioden fra %{from} til %{to}"
         comment_comment_required_text: "Kommentar felt skal udfyldes"
         comment_price_invalid_text: "Pris is ugyldig. Brug kun cifre, højst et decimal komma/punktum og højst 2 decimaler. Tusindtalsseparator er ikke tilladt."
      table_header_row:
@@ -165,6 +163,8 @@ da:
         new_deal_check_box_prompt: "Foreslå aftale"
         price_prompt: "Pris"
         price_free: "frie"
+        social_dividend_description_1: "Social dividende %{price} %{currency} fra %{giver} til %{receiver} for perioden op til %{to}"
+        social_dividend_description_2: "Social dividende %{price} %{currency} fra %{giver} til %{receiver} for perioden fra %{from} til %{to}"
      show:
         invalid_gift_id: "Ugyldigt kald. Ukendt opslag id"
         no_access: "Ugyldigt kald. Du har ikke adgang til at se dette opslag"

@@ -19,6 +19,8 @@
   </td>
 </tr>
 
+<% if gift.gifttype == 'G' -%>
+
 <%= @gift = gift ; @comments = @gift.comments_with_filter(nil) ; render :partial => 'comments/comments3' %>
 
 <tr id='<%= "gift-#{gift.id}-comment-new" %>'>
@@ -60,15 +62,9 @@
   </td>
 </tr>
 
-<tr id="<%= "gift-#{gift.id}" %>-footer-1">
-  <td colspan="4">&nbsp;</td>
-</tr>
-<% if @last_gift_id and gift.id == @gifts.last.id -%>
-    <tr id='<%= "last_gift_id_#{gift.id}" %>'>
-      <td colspan="4">&nbsp;</td>
-    </tr>
-<% else -%>
-    <tr id="<%= "gift-#{gift.id}" %>-footer-2">
-      <td colspan="4">&nbsp;</td>
-    </tr>
 <% end -%>
+
+<tr id="<%= "gift-#{gift.id}" %>-footer-1">
+  <td colspan="4"><hr/></td>
+</tr>
+
