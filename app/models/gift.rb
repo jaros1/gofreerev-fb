@@ -139,7 +139,7 @@ class Gift < ActiveRecord::Base
   # validates_presence_of :user_id_giver, :if => Proc.new {|g| (g.received_at or !g.user_id_receiver) }
   validates_each :user_id_giver do |record, attr, value|
     if record.new_record?
-      record.errors.add :base, :giver_or_receiver_must_be_blank if value and record.user_id_receiver
+      record.errors.add :base, :giver_or_receiver_must_be_blank if value and record.user_id_receiver and record.gifttype == 'G'
       record.errors.add :base, :giver_or_receiver_is_required if !value and !record.user_id_receiver
     elsif record.user_id_giver_was and record.user_id_giver_was != value
       record.errors.add attr, :readonly
@@ -274,6 +274,8 @@ class Gift < ActiveRecord::Base
   # 13) gifttype - String in model and DB - G if gift - S if exchanged social dividend
   # gifttype = G : social dividend = ( new_price - price) / 4
   # gifttype = S : social divident = new_price when price = social dividend exchanged between the two users.
+  validates_presence_of :gifttype
+  validates_inclusion_of :gifttype, :allow_blank => true, :in => %W(G S)
 
   # 14) received_at. Date in model - encrypted text in db - set once when the deal is closed together with user_id_receiver
   def social_dividend_from
@@ -515,7 +517,9 @@ class Gift < ActiveRecord::Base
   # it can be from received_at to today = self.negative_interest
   # it can also be for a selected period. Used when calculating social dividend exchanged between two users for a period
   def negative_interest_in_period (date1, date2)
+    raise "invalid type" unless date1.class == Date and date2.class == Date
     received_at_date = received_at.to_date if received_at
+    puts "received_at_date = #{received_at_date} (#{received_at_date.class})"
     if !received_at_date or received_at_date >= date2 or date1 == date2
       puts "gifts: negative_interest_in_period: id = #{id}, date1 = #{date1}, date2 = #{date2}, negative_interest = 0"
       return 0.0
@@ -525,7 +529,7 @@ class Gift < ActiveRecord::Base
     if date1 == received_at_date
       price1 = self.price
     else
-      puts "date1 = #{date1} (#{date1.class.name}, received_at_date = #{received_at_date} (#{received_at_date.class.name})"
+      puts "date1 = #{date1} (#{date1.class.name}), received_at_date = #{received_at_date} (#{received_at_date.class.name})"
       days = (date1 - received_at_date).to_i
       price1 = self.price.to_f * PRICE_FACTOR_PER_DAY ** days
     end
@@ -599,8 +603,8 @@ class Gift < ActiveRecord::Base
     else
       last_social_dividend_at = giver_first_gift.received_at
     end
-    date1 = [ giver_first_gift.received_at, receiver_first_gift.received_at, last_social_dividend_at ].max
-    date2 = received_at
+    date1 = [ giver_first_gift.received_at, receiver_first_gift.received_at, last_social_dividend_at ].max.to_date
+    date2 = received_at.to_date
     puts "giver first gift = #{giver_first_gift.received_at}, receiver first gift = #{receiver_first_gift.received_at}, date1 = #{date1}, date2 = #{date2}"
     return nil if date1 == date2 # giver or receiver is a new user - no social dividend is exchanged
     # remove gifts before date1 or after date2
@@ -662,7 +666,8 @@ class Gift < ActiveRecord::Base
       gift.social_dividend = 0.0
       gift.gifttype = 'S'
       gift.social_dividend_from = date1
-      !gift.save!
+      gift.picture = 'N'
+      gift.save!
     end # each
 
     # recalculate any social dividends after received_at

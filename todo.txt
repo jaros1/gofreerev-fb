@@ -1,13 +1,5 @@
  1) Maybe allow comments to gifts in Gofreerev => Post af FB comments
 
- 3) exchanged social dividend is displayed as gifts/index view, but social dividend = negative_interest / 4 is missing.
-    add social dividend (negative_interest / 4) to balance.
-    display social dividend in format_user_balance
-    done: add key with social dividend to balance hash
-    social dividend is splitted in currencies.
-    done:  maybe add a negative interest / social dividend hash to user
-    maybe add a system user - negative currency could be gifts from users to system user and social dividend gifts from system user to users
-
  4) allow negative price?
     E.g. if user wish find some thing og get help. Solutions:
     a) negative price - problem with from/to in gifts/index page
@@ -176,6 +168,43 @@
 
 61) recalculate user balance at request or once every day
 
+62) recalculate user balance after accepted deal with price
+
 63) refactor styles to stylesheets
 
 64) add comments with available interpolation variables to locales files (da, en)
+
+65) user.recalculate_balance recalculates balance for all closed deals with user as giver or receiver.
+    ok when few closed deals for a user, but may be a performance issue for many closed deals.
+    allow recalculating balance from a specific date or from a specific gift.id
+
+66) delete user account - recalculate all relevant user balances
+
+67) delete close deal - recalculate balances for giver and receiver
+
+ 3) exchanged social dividend is displayed as gifts/index view, but social dividend = negative_interest / 4 is missing.
+    add social dividend (negative_interest / 4) to balance.
+    display social dividend in format_user_balance
+    done: add key with social dividend to balance hash
+    social dividend is splitted in currencies.
+    done:  maybe add a negative interest / social dividend hash to user
+    maybe add a system user - negative currency could be gifts from users to system user and social dividend gifts from system user to users
+
+68) migration - social_dividend should be added for each gift
+
+69) create social dividend for each closed deal
+    done in util_controller.accept_new_deal or in a batch job what creates/updates social dividend for alle closed deals
+    problem in util_controller.accept_new_deal
+    processing with create social dividend and recalculate balance.
+    Could be in one transaction, but that will block accept if post processing fails.
+
+70) batch processing:
+    accept new deal - set new_balance_at = yesterday - for both users - user is marked for recalculate balance
+    batch processing - recalculate balance for all users where new_balance_at != today
+    batch processing - create any missing social dividend.
+
+71) users/show balance tab - invalid mouse over text for social dividend.
+    "New balance -339,54 SEK = old balance -339,63 SEK + 0,07 DKK * 1.17534349. Not yet any negative interest"
+    Drop "Not yet any negative interest" for social dividend.
+
+72) Karens balance is invalid - see http://localhost/users/12?tab=balance

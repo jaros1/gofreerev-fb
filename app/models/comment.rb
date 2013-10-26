@@ -656,9 +656,14 @@ class Comment < ActiveRecord::Base
         gift.received_at = updated_at # todo: move to gift callback
         gift.status_update_at = Sequence.next_status_update_at  # todo: move to gift callback
         gift.save!
-      end
-    end # cancelled deal proposal
-
+        # mark users for balance recalculation - ensures that balance is recalculated even if accept new deal post processing should fail for some reason
+        [ gift.giver, gift.receiver].each do |u|
+          u.reload
+          u.balance_at = Date.yesterday
+          u.save
+        end # each
+      end # if accepted
+    end # if cancelled, rejected or accepted
   end # after_update
 
   def before_destroy

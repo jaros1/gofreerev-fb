@@ -328,8 +328,15 @@ class UtilController < ApplicationController
     # puts "util_controller.accept_new_deal: comment.currency = #{comment.currency}"
     comment.accepted_yn = 'Y'
     comment.save!
-    # todo: other comment changes? Maybe an other layout, style, color for accepted gift/comments
-    # todo: change gift. add giver/receiver.
+    if gift.price and gift.price != 0.0
+      # create social didivend and recalculate new balance for giver and receiver
+      gift.reload
+      gift.create_social_dividend
+      gift.giver.recalculate_balance
+      gift.receiver.recalculate_balance
+      # todo: change @user balance in page header
+    end
+    # todo: should ajax replace gift for current user (added giver or receiver, changed currency, changed price, changed comment)
     # todo: change gift and comment for other users after cancel (new messages count ajax)?
     # hide links
     @link_id = "gift-#{gift.id}-comment-#{comment.id}-status"
