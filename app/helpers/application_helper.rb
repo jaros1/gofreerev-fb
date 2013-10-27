@@ -92,22 +92,21 @@ module ApplicationHelper
     from_amount = balance[BALANCE_KEY]
     from_currency = user.currency
     to_currency = login_user.currency
-    if balance.size == 2
+    if balance.size == 2 and user.currency == login_user.currency
       # short format. only one currency in balance hash. Return this without any conversion if login user currency
-      return format_price(balance[to_currency]) if balance.has_key?(to_currency)
       return format_price(from_amount) if user.currency == login_user.currency
-    end
+    end # æøå
     # exchange from_amount
     if from_currency == to_currency
-      # puts "format_user_balance: no exchange: to_amount = from_amount = #{from_amount}"
+      puts "format_user_balance: no exchange: to_amount = from_amount = #{from_amount}"
       to_amount = from_amount
       to_currency = ''
     elsif (to_amount = ExchangeRate.exchange(from_amount, from_currency, to_currency))
-      # puts "format_user_balance: exchange ok: from_amount = #{from_amount}, from_currency = #{from_currency}, to_amount = #{to_amount}, to_currency = #{to_currency}"
+      puts "format_user_balance: exchange ok: from_amount = #{from_amount}, from_currency = #{from_currency}, to_amount = #{to_amount}, to_currency = #{to_currency}"
       to_currency = ''
     else
       # exchange rate was not ready - show original user balance with currency - exchange rate should be ready in next request
-      # puts "format_user_balance: exchange rate not ready: from_amount = #{from_amount}, from_currency = #{from_currency}"
+      puts "format_user_balance: exchange rate not ready: from_amount = #{from_amount}, from_currency = #{from_currency}"
       to_amount = from_amount
       to_currency = ' ' + from_currency
     end

@@ -199,15 +199,12 @@
     Could be in one transaction, but that will block accept if post processing fails.
 
 70) batch processing:
-    accept new deal - set new_balance_at = yesterday - for both users - user is marked for recalculate balance
-    batch processing - recalculate balance for all users where new_balance_at != today
-    batch processing - create any missing social dividend.
+    accept new deal - set new_balance_at = yesterday - for both users - user is marked for recalculate balance (ok)
+    batch processing - recalculate balance for all users where new_balance_at != today (todo)
+    batch processing - create any missing social dividend. (todo)
 
 71) users/show balance tab - invalid mouse over text for social dividend.
     "New balance -339,54 SEK = old balance -339,63 SEK + 0,07 DKK * 1.17534349. Not yet any negative interest"
     Drop "Not yet any negative interest" for social dividend.
 
-72) Karens balance is invalid - see http://localhost/users/12?tab=balance
-
 73) add social dividend giver and social dividend receiver to format_gift_description for social dividend
-

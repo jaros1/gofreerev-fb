@@ -482,17 +482,20 @@ class Gift < ActiveRecord::Base
 
 
   # get/set balance for actual user. Used in user.recalculate_balance and in /gifts/index page
-  def balance (user_id)
+  def balance (current_user, login_user)
     return nil unless user_id_receiver and user_id_giver
-    case user_id
+    balance_current_user = case current_user.user_id
       when user_id_giver then balance_giver
       when user_id_receiver then balance_receiver
       else nil
     end
+    return nil unless balance_current_user
+    balance_login_user = ExchangeRate.exchange(balance_current_user, current_user.currency, login_user.currency)
+    balance_login_user
   end # balance
-  def balance_doc (user_id)
+  def balance_doc (current_user)
     return nil unless user_id_receiver and user_id_giver
-    case user_id
+    case current_user.user_id
       when user_id_giver then balance_doc_giver
       when user_id_receiver then balance_doc_receiver
       else nil

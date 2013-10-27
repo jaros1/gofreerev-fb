@@ -42,16 +42,15 @@ class ExchangeRate < ActiveRecord::Base
       er.to_currency = to_currency
       er.request_update = 'Y'
       er.save!
-      to_amount = nil
-      # puts "exchange: from_amount = #{from_amount}, from_currency = #{from_currency}, to_amount = #{to_amount}, to_currency = #{to_currency}"
-      return to_amount
+      # puts "exchange: from_amount = #{from_amount}, from_currency = #{from_currency}, to_amount = #{nil}, to_currency = #{to_currency}"
+      return nil # no exchange rate for this combination
     end
     unless er.exchange_rate
       # no exchange rate yet
       # puts 'exchange: exchange rate not ready yet'
       to_amount = nil
-      # puts "exchange: from_amount = #{from_amount}, from_currency = #{from_currency}, to_amount = #{to_amount}, to_currency = #{to_currency}"
-      return from_amount
+      # puts "exchange: from_amount = #{from_amount}, from_currency = #{from_currency}, to_amount = #{nil}, to_currency = #{to_currency}"
+      return nil # no exchange rate for this combination
     end
     if er.request_update != 'Y' and 1.day.since(er.exchange_rate_at) < Time.new
       # old exchange rate - request new update
