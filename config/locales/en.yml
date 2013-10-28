@@ -422,6 +422,11 @@ en:
         balance_column_heading_html: "Balance"
         link_and_text_column_heading_html: "Text:"
      gift:
+        price_title_gift:
+          one: "1 gift"
+          other: "%{count} gifts"
+        price_title_1: "%{giver}-s negative interest for period up to %{to_date} was %{negative_interest_giver} for %{no_gifts_giver}. %{receiver}-s negative interest for the same period was %{negative_interest_receiver} for %{no_gifts_receiver}. %{giver}-s social dividend was %{social_dividend_giver}. %{receiver}-s social dividend was %{social_dividend_receiver}. There was exchanged %{price} in social dividend between %{giver} and %{receiver}."
+        price_title_2: "%{giver}-s negative interest for period %{from_date} to %{to_date} was %{negative_interest_giver} for %{no_gifts_giver}. %{receiver}-s negative interest for the same period %{negative_interest_receiver} for %{no_gifts_receiver}. %{giver}-s social dividend was %{social_dividend_giver}. %{receiver}-s social dividend was %{social_dividend_receiver}. There was exchanged %{price} in social dividend between %{giver} and %{receiver}."
         gift_link_title: "Click on link for more information"
         gift_link_text: "%{date} %{optional_price} / %{direction}"  # nested translate
         optional_price: "/ %{price}"

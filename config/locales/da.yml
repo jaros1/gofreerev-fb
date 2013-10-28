@@ -436,6 +436,11 @@ da:
         balance_column_heading_html: "Saldo:"
         link_and_text_column_heading_html: "Tekst:"
      gift:
+        price_title_gift:
+          one: "1 gave"
+          other: "%{count} gaver"
+        price_title_1: "%{giver}-s negative renter for perioden frem til %{to_date} var %{negative_interest_giver} for %{no_gifts_giver}. %{receiver}-s negative renter for samme periode var %{negative_interest_receiver} for %{no_gifts_receiver}. %{giver}-s social dividende var %{social_dividend_giver}. %{receiver}-s social dividende var %{social_dividend_receiver}. Der blev derfor udlignet %{price} i social dividend imellem %{giver} og %{receiver}."
+        price_title_2: "%{giver}-s negative renter for perioden %{from_date} til %{to_date} var %{negative_interest_giver} for %{no_gifts_giver}. %{receiver}-s negative renter for samme periode var %{negative_interest_receiver} for %{no_gifts_receiver}. %{giver}-s social dividende var %{social_dividend_giver}. %{receiver}-s social dividende var %{social_dividend_receiver}. Der blev derfor udlignet %{price} i social dividend imellem %{giver} og %{receiver}."
         gift_link_title: "Klik på link for flere informationer om opslag"
         gift_link_text: "%{direction}"  # nested translate
         optional_price: "%{price}"
