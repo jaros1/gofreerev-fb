@@ -208,3 +208,7 @@
     Drop "Not yet any negative interest" for social dividend.
 
 73) add social dividend giver and social dividend receiver to format_gift_description for social dividend
+    or add mouse over text to price for social dividend
+
+75) missing balance field for social dividend in users/show balance tab (charlie and karen)
+    the problem is that balance has not yet been calculated for social dividend gift

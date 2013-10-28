@@ -141,19 +141,24 @@ module ApplicationHelper
 
     return my_sanitize gift.description if gift.gifttype == 'G'
 
+    social_dividend_doc = gift.social_dividend_doc
+    return nil unless social_dividend_doc # error if social_document_doc hash is missing
+    return nil unless social_dividend_doc.class == Hash # error if not a hash
+
     # gift description with social dividend with translate
-    if gift.social_dividend_from
+    if social_dividend_doc[:social_dividend_from]
       key_no = 1 # format with start and end dates for period
-      to = format_date(gift.received_at).html_safe
+      from = format_date(social_dividend_doc[:social_dividend_from]).html_safe
     else
       key_no = 2 # format with only end date for period. Used for first social dividend calculations for a new user
-      to = nil
+      from = nil
     end
+    # this format is also used in gift.create_social_dividend (description saved in db)
     my_t "gifts.gift.social_dividend_description_#{key_no}",
          :giver => gift.giver.short_or_full_user_name(@user),
          :receiver => gift.receiver.short_or_full_user_name(@user),
          :price => format_price(gift.price), :currency => gift.currency,
-         :from => format_date(gift.social_dividend_from), :to => to
+         :from_date => from, :to_date => format_date(gift.received_at).html_safe
   end # format_gift_description
 
   def format_direction (gift)

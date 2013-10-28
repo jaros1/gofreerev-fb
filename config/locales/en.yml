@@ -160,8 +160,10 @@ en:
         new_deal_check_box_prompt: "Agreement proposal"
         price_prompt: "Price"
         price_free: "free"
-        social_dividend_description_1: "Social dividend %{price} %{currency} from %{giver} to %{receiver} for period up to %{to}"
-        social_dividend_description_2: "Social dividend %{price} %{currency} from %{giver} to %{receiver} for period from %{from} to %{to}"
+        # social_dividend_description keys are used in Gift,create_social_dividend (text in db) and in application_helper.format_gift_description (text in view)
+        # variables: giver, receiver, price, currency, from_date and to_date
+        social_dividend_description_1: "Social dividend %{price} %{currency} from %{giver} to %{receiver} for period up to %{to_date}"
+        social_dividend_description_2: "Social dividend %{price} %{currency} from %{giver} to %{receiver} for period from %{from_date} to %{to_date}"
      show:
         invalid_gift_id: "Invalid request. Unknown post id"
         no_access: "Invalid request. You are not allowed to see this post"

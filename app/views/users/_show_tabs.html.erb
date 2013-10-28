@@ -1,16 +1,20 @@
 <table>
   <tr>
-    <td><%= my_t '.tabs_prompt' %></td>
-    <% for tab in @tabs do
-         loop -%>
-        <% if tab == @tab -%>
-            <td style="text-decoration:underline;"><%= my_t ".#{tab}_tab_text" %></td>
-        <% else -%>
-            <td><%= link_to (my_t ".#{tab}_tab_text"), user_path(:id => @user2.id, :tab => tab) %></td>
+    <% if @tabs.size > 1 -%>
+        <td><%= my_t '.tabs_prompt' %></td>
+        <% for tab in @tabs do
+             loop -%>
+            <% if tab == @tab -%>
+                <td style="text-decoration:underline;"><%= my_t ".#{tab}_tab_text" %></td>
+            <% else -%>
+                <td><%= link_to (my_t ".#{tab}_tab_text"), user_path(:id => @user2.id, :tab => tab) %></td>
+            <% end -%>
         <% end -%>
     <% end -%>
     <% if @tab == 'balance' -%>
-        <td>&nbsp;&nbsp;|&nbsp;&nbsp;</td>
+        <% if @tabs.size > 1 -%>
+            <td>&nbsp;&nbsp;|&nbsp;&nbsp;</td>
+        <% end -%>
         <td><%= my_t '.deal_status_prompt' %></td>
         <% for status in @statuses do
              loop -%>

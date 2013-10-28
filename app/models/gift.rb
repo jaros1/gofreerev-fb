@@ -31,7 +31,7 @@ class Gift < ActiveRecord::Base
   # encrypt_add_pre_and_postfix/encrypt_remove_pre_and_postfix added in setters/getters for better encryption
   # this is different encrypt for each attribute and each db row
   # _before_type_cast methods are used by form helpers and are redefined
-  crypt_keeper :description, :currency, :price, :received_at, :new_price, :negative_interest, :social_dividend, :api_gift_id, :social_dividend_from, :balance_giver, :balance_receiver, :api_picture_url, :api_picture_url_updated_at, :api_picture_url_on_error_at, :encryptor => :aes, :key => ENCRYPT_KEYS[1]
+  crypt_keeper :description, :currency, :price, :received_at, :new_price, :negative_interest, :social_dividend, :api_gift_id, :balance_giver, :balance_receiver, :api_picture_url, :api_picture_url_updated_at, :api_picture_url_on_error_at, :balance_doc_giver, :balance_doc_receiver, :social_dividend_doc, :encryptor => :aes, :key => ENCRYPT_KEYS[1]
 
 
   ##############
@@ -277,27 +277,7 @@ class Gift < ActiveRecord::Base
   validates_presence_of :gifttype
   validates_inclusion_of :gifttype, :allow_blank => true, :in => %W(G S)
 
-  # 14) received_at. Date in model - encrypted text in db - set once when the deal is closed together with user_id_receiver
-  def social_dividend_from
-    return nil unless (temp_ext_soc_div_from = read_attribute(:social_dividend_from))
-    temp_social_dividend_from = encrypt_remove_pre_and_postfix(temp_ext_soc_div_from, 'social_dividend_from', 27)
-    YAML::load(temp_social_dividend_from)
-  end
-  def social_dividend_from=(new_soc_div_from)
-    if new_soc_div_from
-      check_type('social_dividend_from', new_soc_div_from, 'Date')
-      write_attribute :social_dividend_from, encrypt_add_pre_and_postfix(new_soc_div_from.to_yaml, 'social_dividend_from', 27)
-    else
-      write_attribute :social_dividend_from, nil
-    end
-  end
-  alias_method :social_dividend_from_before_type_cast, :social_dividend_from
-  def social_dividend_from_was
-    return social_dividend_from unless social_dividend_from_changed?
-    return nil unless (temp_ext_soc_div_from = attribute_was(:social_dividend_from))
-    temp_social_dividend_from = encrypt_remove_pre_and_postfix(temp_ext_soc_div_from, 'social_dividend_from', 27)
-    YAML::load(temp_social_dividend_from)
-  end # social_dividend_from_was
+  # 14) field social_dividend_from has been moved to social_dividend_doc hash
 
   # 15) balance giver - Float in Model. Encrypted text in db.
   def balance_giver
@@ -461,9 +441,31 @@ class Gift < ActiveRecord::Base
     YAML::load encrypt_remove_pre_and_postfix(temp_extended_balance_doc_receiver, 'balance_doc_receiver', 35)
   end # balance_doc_receiver_was
 
-  # 25) created_at - timestamp - not encrypted
+  # 25) social_dividend_doc. documentation for social dividend calculation used in gifts/index and users/show balance tab page
+  # Hash in model, encrypted text in db
+  def social_dividend_doc
+    return nil unless (temp_extended_social_dividend_doc = read_attribute(:social_dividend_doc))
+    # puts "temp_extended_social_dividend_doc = #{temp_extended_social_dividend_doc}"
+    YAML::load encrypt_remove_pre_and_postfix(temp_extended_social_dividend_doc, 'social_dividend_doc', 36)
+  end # social_dividend_doc
+  def social_dividend_doc=(new_social_dividend_doc)
+    if new_social_dividend_doc
+      check_type('social_dividend_doc', new_social_dividend_doc, 'Hash')
+      write_attribute :social_dividend_doc, encrypt_add_pre_and_postfix(new_social_dividend_doc.to_yaml, 'social_dividend_doc', 36)
+    else
+      write_attribute :social_dividend_doc, nil
+    end
+  end # social_dividend_doc=
+  alias_method :social_dividend_doc_before_type_cast, :social_dividend_doc
+  def social_dividend_doc_was
+    return social_dividend_doc unless social_dividend_doc_changed?
+    return nil unless (temp_extended_social_dividend_doc = attribute_was(:social_dividend_doc))
+    YAML::load encrypt_remove_pre_and_postfix(temp_extended_social_dividend_doc, 'social_dividend_doc', 36)
+  end # social_dividend_doc_was
 
-  # 26) updated_at - timestamp - not encrypted
+  # 26) created_at - timestamp - not encrypted
+
+  # 27) updated_at - timestamp - not encrypted
 
 
   #
@@ -599,8 +601,11 @@ class Gift < ActiveRecord::Base
     # find first gifts
     giver_first_gift    = giver_gifts.first
     receiver_first_gift    = receiver_gifts.first
-    last_social_dividend = social_dividends.reverse.find { |g| g.received_at < self.received_at }
     return nil unless giver_first_gift and receiver_first_gift # error
+    # find previous social dividend before this gift (self.received_at)
+    # only calculate social dividend for period between last social dividend and this gift
+    # also needed in documentation for social dividend calculation (from variable)
+    last_social_dividend = social_dividends.reverse.find { |g| g.received_at < self.received_at }
     if last_social_dividend
       last_social_dividend_at = last_social_dividend.received_at
     else
@@ -619,63 +624,107 @@ class Gift < ActiveRecord::Base
     # puts "receiver_gifts (after) : dates =" + receiver_gifts.collect { |g| g.received_at.to_s }.join(', ')
     puts "giver_gifts.size = #{giver_gifts.size}, receiver_gifts.size = #{receiver_gifts.size}"
     hash = {}
+    null_hash = {:giver_no_gifts => 0,
+                         :giver_negative_interest => 0.0,
+                         :giver_social_dividend => 0.00,
+                         :receiver_no_gifts => 0,
+                         :receiver_negative_interest => 0.00,
+                         :receiver_social_dividend => 0.00}
     giver_gifts.each do |g|
       next if g.gifttype != 'G' or g.price == 0
-      hash[g.currency] = { :giver => 0, :receiver => 0 } unless hash.has_key?(g.currency)
-      hash[g.currency][:giver] += g.negative_interest_in_period(date1, date2) / 4
+      hash[g.currency] = null_hash unless hash.has_key?(g.currency)
+      hash[g.currency][:giver_no_gifts] += 1
+      negative_interest = g.negative_interest_in_period(date1, date2)
+      hash[g.currency][:giver_negative_interest] += negative_interest
+      hash[g.currency][:giver_social_dividend] += negative_interest / 4
     end
     receiver_gifts.each do |g|
       next if g.gifttype != 'G' or g.price == 0
-      hash[g.currency] = { :giver => 0, :receiver => 0 } unless hash.has_key?(g.currency)
-      hash[g.currency][:receiver] += g.negative_interest_in_period(date1, date2) / 4
+      hash[g.currency] = null_hash unless hash.has_key?(g.currency)
+      hash[g.currency][:receiver_no_gifts] += 1
+      negative_interest = g.negative_interest_in_period(date1, date2)
+      hash[g.currency][:receiver_negative_interest] += negative_interest
+      hash[g.currency][:receiver_social_dividend] += negative_interest / 4
     end
     puts "hash = #{hash.to_s}"
 
-    # delete any social dividend calculation for this date (received_at)
+    # delete any social dividend calculation for this date (received_at) and this giver/receiver combination
     social_dividends.each { |g| g.destroy if g.received_at == self.received_at }
 
     # insert social dividend calculation for this date (received_at)
     hash.each do |name, value|
+      puts "#{name} = #{value}"
       currency = name
-      giver_social_dividend = value[:giver]
-      receiver_social_dividend = value[:receiver]
+      giver_social_dividend = value[:giver_social_dividend]
+      receiver_social_dividend = value[:receiver_social_dividend]
       difference = ((giver_social_dividend - receiver_social_dividend)/2).abs.round(2)
       puts "currency = #{currency}, diference = #{difference}"
-      next if difference == 0
+      next if difference == 0.00
+      social_dividend_doc_hash = {:social_dividend_from => last_social_dividend ? date1 : nil }
       gift = Gift.new
       gift.currency = currency
       gift.price = difference
-      # description in english.
-      # views should use a description translate helper
-      gift.description = "Social dividend %0.2f #{currency}" % difference
+
       if giver_social_dividend > receiver_social_dividend
         gift.user_id_giver = self.user_id_giver
         gift.user_id_receiver = self.user_id_receiver
-        gift.description += " from #{self.giver.short_user_name} to #{self.receiver.short_user_name}"
+        giver_user_name = giver.user_name
+        receiver_user_name = receiver.user_name
+        social_dividend_doc_hash[:giver_no_gifts] = value[:giver_no_gifts]
+        social_dividend_doc_hash[:receiver_no_gifts] = value[:receiver_no_gifts]
+        social_dividend_doc_hash[:giver_negative_interest] = value[:giver_negative_interest]
+        social_dividend_doc_hash[:receiver_negative_interest] = value[:receiver_negative_interest]
+        social_dividend_doc_hash[:giver_old_social_dividend] = value[:giver_social_dividend]
+        social_dividend_doc_hash[:receiver_old_social_dividend] = value[:receiver_social_dividend]
+        social_dividend_doc_hash[:giver_new_social_dividend] = value[:giver_social_dividend] - difference
+        social_dividend_doc_hash[:receiver_new_social_dividend] = value[:receiver_social_dividend] + difference
       else
         gift.user_id_giver = self.user_id_receiver
         gift.user_id_receiver = self.user_id_giver
-        gift.description += " from #{self.receiver.short_user_name} to #{self.giver.short_user_name}"
+        giver_user_name = receiver.user_name
+        receiver_user_name = giver.user_name
+        social_dividend_doc_hash[:giver_no_gifts] = value[:receiver_no_gifts]
+        social_dividend_doc_hash[:receiver_no_gifts] = value[:giver_no_gifts]
+        social_dividend_doc_hash[:giver_negative_interest] = value[:receiver_negative_interest]
+        social_dividend_doc_hash[:receiver_negative_interest] = value[:giver_negative_interest]
+        social_dividend_doc_hash[:giver_old_social_dividend] = value[:receiver_social_dividend]
+        social_dividend_doc_hash[:receiver_old_social_dividend] = value[:giver_social_dividend]
+        social_dividend_doc_hash[:giver_new_social_dividend] = value[:receiver_social_dividend] - difference
+        social_dividend_doc_hash[:receiver_new_social_dividend] = value[:giver_social_dividend] + difference
       end
       if last_social_dividend
-        gift.description += " for period #{date1} to #{date2}"
+        key_no = 2 # description with from and to dates
       else
-        gift.description += " for period up to #{date2}"
+        key_no = 1 # description only with to date - first social dividend for a new Gofreerev user
       end
+      # this format (description saved in db) is also used in application_helper.format_gift_description
+      gift.description = I18n.t "gifts.gift.social_dividend_description_#{key_no}",
+                              :currency => currency,
+                              :price => "%0.2f" % difference,
+                              :giver => giver_user_name,
+                              :receiver => receiver_user_name,
+                              :from_date => social_dividend_doc_hash[:social_dividend_from],
+                              :to_date => date2
       gift.received_at = self.received_at
       gift.new_price = gift.price
       gift.new_price_at = gift.received_at
       gift.negative_interest = 0.0
       gift.social_dividend = 0.0
       gift.gifttype = 'S'
-      gift.social_dividend_from = date1
+      # gift.social_dividend_from = date1 # moved to social_dividend_doc hash
       gift.picture = 'N'
+      gift.social_dividend_doc = social_dividend_doc_hash
       gift.save!
     end # each
 
     # recalculate any social dividends after received_at
     next_social_dividend = social_dividends.find { |g| g.received_at > self.received_at }
     next_social_dividend.create_social_dividend if next_social_dividend # recursive call
+
+    # recalculate balance for giver and receiver
+    # todo: should only recalculate balance for actuel gift.id and forward
+    giver.recalculate_balance
+    receiver.recalculate_balance
 
   end # create_social_dividend
 

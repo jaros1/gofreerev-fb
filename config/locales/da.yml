@@ -163,8 +163,9 @@ da:
         new_deal_check_box_prompt: "Foreslå aftale"
         price_prompt: "Pris"
         price_free: "frie"
-        social_dividend_description_1: "Social dividende %{price} %{currency} fra %{giver} til %{receiver} for perioden op til %{to}"
-        social_dividend_description_2: "Social dividende %{price} %{currency} fra %{giver} til %{receiver} for perioden fra %{from} til %{to}"
+        # social_dividend_description keys are used in Gift,create_social_dividend (text in db) and in application_helper.format_gift_description (text in view)
+        social_dividend_description_1: "Social dividende %{price} %{currency} fra %{giver} til %{receiver} for perioden op til %{to_date}"
+        social_dividend_description_2: "Social dividende %{price} %{currency} fra %{giver} til %{receiver} for perioden fra %{from_date} til %{to_date}"
      show:
         invalid_gift_id: "Ugyldigt kald. Ukendt opslag id"
         no_access: "Ugyldigt kald. Du har ikke adgang til at se dette opslag"

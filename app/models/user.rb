@@ -371,6 +371,7 @@ class User < ActiveRecord::Base
     gifts.each do |g|
       # update user.balance hash and save balance in gift.balance for documentation
       sign = user_id == g.user_id_giver ? 1 : -1
+      sign = -sign if g.gifttype == 'S' # direction is reverse for social dividend as social dividend is money and not a thing with a value
       balance_doc_hash = { :previous_balance => balance_hash[BALANCE_KEY],
                            :sign => (sign == 1 ? '+' : '-') }
       balance_hash[g.currency] = 0.0 unless balance_hash.has_key?(g.currency)
