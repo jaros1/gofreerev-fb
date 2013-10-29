@@ -19,6 +19,7 @@ module UsersHelper
     translate_key << 'exchange_rate' if exchange_rate.round(3) != 1.000
     negative_interest = gift.negative_interest
     translate_key << 'negative_interest' if negative_interest.round(2) != 0.00
+    translate_key << "social_dividend" if gift.gifttype == 'S'
     translate_key = translate_key.join('_')
     old_balance = balance_doc[:previous_balance]
     old_balance = (old_balance * exchange_rate2).round(2)

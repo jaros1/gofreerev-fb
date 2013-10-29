@@ -190,25 +190,22 @@
     done:  maybe add a negative interest / social dividend hash to user
     maybe add a system user - negative currency could be gifts from users to system user and social dividend gifts from system user to users
 
-68) migration - social_dividend should be added for each gift
-
 69) create social dividend for each closed deal
-    done in util_controller.accept_new_deal or in a batch job what creates/updates social dividend for alle closed deals
+    done in util_controller.accept_new_deal or in a batch job what creates/updates social dividend for all closed deals
     problem in util_controller.accept_new_deal
     processing with create social dividend and recalculate balance.
-    Could be in one transaction, but that will block accept if post processing fails.
+    Could be in one transaction, but that will block accept if post processing fails for an accepted deal.
 
 70) batch processing:
     accept new deal - set new_balance_at = yesterday - for both users - user is marked for recalculate balance (ok)
     batch processing - recalculate balance for all users where new_balance_at != today (todo)
     batch processing - create any missing social dividend. (todo)
 
-71) users/show balance tab - invalid mouse over text for social dividend.
-    "New balance -339,54 SEK = old balance -339,63 SEK + 0,07 DKK * 1.17534349. Not yet any negative interest"
-    Drop "Not yet any negative interest" for social dividend.
-
-73) add social dividend giver and social dividend receiver to format_gift_description for social dividend
-    or add mouse over text to price for social dividend
-
 75) missing balance field for social dividend in users/show balance tab (charlie and karen)
     the problem is that balance has not yet been calculated for social dividend gift
+
+76) add parameters to gift.create_social_dividend
+    Y/N to recalculate following social dividends
+    Y/N to recalculate balance for giver and receiver
+
+77) create test cases for user balance calculation

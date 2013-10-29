@@ -49,16 +49,8 @@ end
 # Use debugger
 # gem 'debugger', group: [:development, :test]
 
-# rb-readline not needed. Problems with 0.4.2 and 0.5.0.pre.1 gems was fixed with:
-# http://askubuntu.com/questions/261914/install-ruby-2-0-with-openssl-and-readline-support
-# gem 'rb-readline', '~> 0.4.2'
-# gem 'rb-readline', '~> 0.5.0.pre.1'
-# Problems with both rb-readline gems.
-
 # https://github.com/jmazzi/crypt_keeper
-# crypt_keeper-0.13.1: problem with encrypted fields in after_insert/update callbacks
-# solved in 0.14.0.pre version
-# gem install crypt_keeper -v 0.14.0.pre
+# crypt_keeper-0.13.1: problem with encrypted fields in after_insert/update callbacks. solved in 0.14.0.pre version
 gem 'crypt_keeper', '~> 0.14.0.pre'
 
 # https://github.com/bcardarella/client_side_validations

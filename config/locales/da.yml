@@ -448,11 +448,13 @@ da:
         direction_receiver: "%{username} søger"
         direction_giver_and_receiver: "Fra %{givername} til %{receivername}"
         gift_text_html: " : %{text}" # text is sanitized. Only todo tags is allowed
-        # 4 balance title keys. variables: old_balance, new_balance, old_price, negative_interest, new_price, sign, exchange_rate, new_currency, old_currency, gift.currency. See user_helpers.gift_balance_calculation_doc for more information
+        # 6 balance title keys. variables: old_balance, new_balance, old_price, negative_interest, new_price, sign, exchange_rate, new_currency, old_currency, gift.currency. See user_helpers.gift_balance_calculation_doc for more information
         balance_title: "Ny saldo %{new_balance} = gl. saldo %{old_balance} %{sign} %{old_price}. Endnu ingen negative renter"
         balance_title_exchange_rate: "Ny saldo %{new_balance} = gl. saldo %{old_balance} %{sign} %{old_price} %{old_currency} * %{exchange_rate}. Endnu ingen negativ renter"
         balance_title_negative_interest: "Ny saldo %{new_balance} = gl. saldo %{old_balance} %{sign} %{new_price}. Negativ rente var %{negative_interest} = %{old_price} - %{new_price}"
         balance_title_exchange_rate_negative_interest: "Ny saldo %{new_balance} = gl. saldo %{old_balance} %{sign} %{new_price} %{old_currency} * %{exchange_rate}. Negativ rente var %{negative_interest} %{old_currency} = %{old_price} - %{new_price}"
+        balance_title_social_dividend: "Ny saldo %{new_balance} = gl. saldo %{old_balance} %{sign} %{old_price}"
+        balance_title_exchange_rate_social_dividend: "Ny saldo %{new_balance} = gl. saldo %{old_balance} %{sign} %{old_price} %{old_currency} * %{exchange_rate}"
      user:
         user_name_prompt: "Navn"
         user_name_title: "Brugt dette link til at se %{username}'s profil på %{apiname} (nyt faneblad i browser)"

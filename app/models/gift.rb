@@ -559,15 +559,19 @@ class Gift < ActiveRecord::Base
       puts 'open offer - prices is not recalculated'
       return self
     end
-    today =  Date.today
+    today = Date.today
     return self if new_price_at == today
     # calculate new interest, price and social dividend
-    self.negative_interest = negative_interest_in_period(received_at.to_date, today) unless new_price_at == today
+    self.negative_interest = case gifttype
+                               when 'G' then negative_interest_in_period(received_at.to_date, today)
+                               when 'S' then 0.0
+                               else 0.0 # error
+                             end # case
     self.new_price = price - negative_interest
     self.new_price_at = today
     self.social_dividend = case gifttype
                              when 'G' then negative_interest / 4 # gifttype G = Gift
-                             when 'S' then new_price             # gifttype S = Social dividend given or received
+                             when 'S' then new_price # gifttype S = Social dividend given or received
                              else 0.0 # error
                            end # case
     puts "Gift.recalculate: currency = #{currency}"
@@ -660,6 +664,7 @@ class Gift < ActiveRecord::Base
       difference = ((giver_social_dividend - receiver_social_dividend)/2).abs.round(2)
       puts "currency = #{currency}, diference = #{difference}"
       next if difference == 0.00
+      # initialize and create social dividend for actuel currency
       social_dividend_doc_hash = {:social_dividend_from => last_social_dividend ? date1 : nil }
       gift = Gift.new
       gift.currency = currency

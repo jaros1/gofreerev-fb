@@ -381,6 +381,7 @@ class User < ActiveRecord::Base
         balance_doc_hash[:exchange_rate] = new_price / g.new_price
         balance_hash[BALANCE_KEY] += new_price * sign
         g.set_balance(user_id, balance_hash[BALANCE_KEY], balance_doc_hash)
+        # g.save
       else
         missing_exchange_rates = true
       end
