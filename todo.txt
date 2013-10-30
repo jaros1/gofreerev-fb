@@ -182,14 +182,6 @@
 
 67) delete close deal - recalculate balances for giver and receiver
 
- 3) exchanged social dividend is displayed as gifts/index view, but social dividend = negative_interest / 4 is missing.
-    add social dividend (negative_interest / 4) to balance.
-    display social dividend in format_user_balance
-    done: add key with social dividend to balance hash
-    social dividend is splitted in currencies.
-    done:  maybe add a negative interest / social dividend hash to user
-    maybe add a system user - negative currency could be gifts from users to system user and social dividend gifts from system user to users
-
 69) create social dividend for each closed deal
     done in util_controller.accept_new_deal or in a batch job what creates/updates social dividend for all closed deals
     problem in util_controller.accept_new_deal
@@ -211,3 +203,13 @@
 77) create test cases for user balance calculation
 
 78) users/show add gifts tab - as gifts/index, but only with @user2 as giver/receiver
+
+ 3) exchanged social dividend is displayed as gifts/index view, but social dividend = negative_interest / 4 is missing.
+    add social dividend (negative_interest / 4) to balance.
+    display social dividend in format_user_balance
+    done: add key with social dividend to balance hash
+    social dividend is splitted in currencies.
+    done:  maybe add a negative interest / social dividend hash to user
+    maybe add a system user - negative currency could be gifts from users to system user and social dividend gifts from system user to users
+    could also include social dividend calculation in accepted deal
+

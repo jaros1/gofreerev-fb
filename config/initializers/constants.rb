@@ -41,3 +41,15 @@ NEGATIVE_INTEREST_PER_YEAR = (1 - PRICE_FACTOR_PER_YEAR) * 100
 
 # user.balance is an hash with user balance for each currency.. Key BALANCE_KEY is used for total balance in actual user.currency.
 BALANCE_KEY = 'BALANCE'
+
+# interest calculation setup. Uses different negative interest for positive (5 %) and negative amounts (10 %)
+# year 1: a = 100, b = -100. year 2: a =  95, b =  -90.
+# in this way we have negative interest and increasing supply in free money
+NEG_INT_NEG_AMOUNT_PER_YEAR = 10.0 # Negative interest per year for positive balance (gifts given to others)
+NEG_INT_POS_AMOUNT_PER_YEAR =  5.0 # Negative interest per year for negative balance (gifts received from others)
+NET_NEG_INT_PER_YEAR = NEG_INT_NEG_AMOUNT_PER_YEAR - NEG_INT_POS_AMOUNT_PER_YEAR # Net negative interest per year
+FACTOR_NEG_AMOUNT_PER_YEAR = 1.0 - NEG_INT_NEG_AMOUNT_PER_YEAR / 100.0
+FACTOR_POS_AMOUNT_PER_YEAR = 1.0 - NEG_INT_POS_AMOUNT_PER_YEAR / 100.0
+FACTOR_NEG_AMOUNT_PER_DAY = (Math::E) ** (Math.log(FACTOR_NEG_AMOUNT_PER_YEAR,Math::E) / 365)
+FACTOR_POS_AMOUNT_PER_DAY = (Math::E) ** (Math.log(FACTOR_POS_AMOUNT_PER_YEAR,Math::E) / 365)
+

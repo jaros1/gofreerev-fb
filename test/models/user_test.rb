@@ -307,7 +307,8 @@ class UserTest < ActiveSupport::TestCase
                 :balance_giver => 8.222739573558101, # sandra usd
                 :balance_receiver => -11.711315462763936 # karen usd
 
-    # check user balance
+    # check user balance :
+
     # charlie - 2 gifts - g1 10.00 dkk 100 days ago and g2 10.00 dkk 50 days ago
     #           g1 = 10.00 * 0.9998 ** 100 = 9.801967126499463 dkk
     #           g2 = 10.00 * 0.9998 ** 50 = 9.90048843567804 dkk
@@ -315,6 +316,7 @@ class UserTest < ActiveSupport::TestCase
     assert_balance charlie,
                    :balance => 19.702455562177505, # dkk
                    :dkk => 19.702455562177505
+
     # sandra - 3 gifts - g1 10.00 dkk 100 days ago, g3 10.00 usd 20 days ago, g4 social dividend 20 days ago
     #          g1 = -10.00 * 0.9998 ** 100 = -9.801967126499463 dkk = -1.7355657053193743 usd
     #          g3 =  10.00 * 0.9998 ** 20 = 9.960075908877474 usd
@@ -326,17 +328,36 @@ class UserTest < ActiveSupport::TestCase
                    :balance => 8.222739573558101, # usd
                    :dkk => -9.811967126499463,
                    :usd => 9.960075908877474
+
     # karen - 3 gifts - g2 10.00 dkk 50 days ago, g3 10.00 usd 20 days ago and g4 social dividend 20 days ago
     #         g2 = -10.00 * 0.9998 ** 50 = -9.90048843567804 dkk = -1.753010183886461 usd
     #         g3 = -10.00 * 0.9998 ** 20 = -9.960075908877474 usd
     #         g4 = 0.01 dkk = 0.00177063 usd
     #         usd = g3 = -9.960075908877474 usd
     #         dkk = g2 + g4 = -9.90048843567804 + 0.01 = -9.89048843567804 dkk
-    #         balance = -1.753010183886461 + -9.960075908877474 + 0.00177063 = -11.711315462763936
+    #         balance = -1.753010183886461 + -9.960075908877474 + 0.00177063 = -11.711315462763936 usd
     assert_balance u2_karen,
                    :balance => -11.711315462763936, # usd
                    :dkk => -9.89048843567804,
                    :usd => -9.960075908877474
+
+    # control. sum user balances
+    # charlie: 19.702455562177505 dkk = 3.4885758892058356 usd
+    # sandra: 8.222739573558101 usd
+    # karen: -11.711315462763936 usd
+    # sum: 3.4885758892058356 + 8.222739573558101 + -11.711315462763936 = 0
+    assert (charlie.balance[BALANCE_KEY] * dkk_usd + u1_sandra.balance[BALANCE_KEY] + u2_karen.balance[BALANCE_KEY] == 0.00)
+
+    # todo: how to add social dividend to balance?
+    a = [charlie, u1_sandra, u2_karen]
+    puts "class = #{a.class}"
+    a.each do |u|
+       puts "#{u.short_user_name} (#{u.currency}), social balance = #{u.social_dividend} "
+    end # u
+    # Charlie S (DKK), social balance = {"BALANCE"=>0.07438610945562418, "DKK"=>0.07438610945562418}
+    # Sandra Q (USD), social balance = {"BALANCE"=>0.018747096450787804, "DKK"=>0.049508218375134305, "USD"=>0.009981022780631399}
+    # Karen S (USD), social balance = {"BALANCE"=>0.014385976809016179, "DKK"=>0.024877891080489878, "USD"=>0.009981022780631399}
+
   end # create_gift_100_and_20_days_ago
 
 
