@@ -710,6 +710,7 @@ class Gift < ActiveRecord::Base
                               :receiver => receiver_user_name,
                               :from_date => social_dividend_doc_hash[:social_dividend_from],
                               :to_date => date2
+      puts "self.id = #{self.id}, self.recieved_at = #{self.received_at}"
       gift.received_at = self.received_at
       gift.new_price = gift.price
       gift.new_price_at = gift.received_at

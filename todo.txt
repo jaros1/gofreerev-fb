@@ -209,3 +209,5 @@
     Y/N to recalculate balance for giver and receiver
 
 77) create test cases for user balance calculation
+
+78) users/show add gifts tab - as gifts/index, but only with @user2 as giver/receiver

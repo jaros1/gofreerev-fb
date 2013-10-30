@@ -358,7 +358,10 @@ class User < ActiveRecord::Base
   def recalculate_balance (new_currency=nil)
     new_currency = currency unless new_currency
     gifts = gifts_given_and_received.sort do |a,b|
-      if a.received_at == b.received_at
+      if a.received_at.to_date == b.received_at.to_date and a.gifttype != b.gifttype
+        # social dividend after gifts in balance
+        a.gifttype <=> b.gifttype
+      elsif a.received_at == b.received_at
         a.id <=> b.id
       else
         a.received_at <=> b.received_at
@@ -377,6 +380,7 @@ class User < ActiveRecord::Base
       balance_hash[g.currency] = 0.0 unless balance_hash.has_key?(g.currency)
       balance_hash[g.currency] += g.new_price * sign
       new_price = ExchangeRate.exchange(g.new_price, g.currency, new_currency)
+      # puts "recalculate_balance: g.id = #{g.id}, g.currency = #{g.currency}, new_currency = #{new_currency}, g.new_price = #{g.new_price}, new_price = #{new_price}"
       if new_price
         balance_doc_hash[:exchange_rate] = new_price / g.new_price
         balance_hash[BALANCE_KEY] += new_price * sign
@@ -394,7 +398,7 @@ class User < ActiveRecord::Base
       else
         missing_exchange_rates = true
       end
-      puts "recalculate_balance. g.id = #{g.id}, g.new_price = #{g.new_price.to_s}, new_price = #{new_price.to_s}, balance_hash = #{balance_hash.to_s}, balance_doc_hash = #{balance_doc_hash}"
+      puts "recalculate_balance. g.id = #{g.id}, g.received_at = #{g.received_at}, g.gifttype = #{g.gifttype}, g.new_price = #{g.new_price.to_s}, new_price = #{new_price.to_s}, balance_hash = #{balance_hash.to_s}, balance_doc_hash = #{balance_doc_hash}"
     end # each
     return false if missing_exchange_rates # not all exchange rates was read at this time - they should be updated in a moment
     # calculation ok - all needed exchange rates was found
