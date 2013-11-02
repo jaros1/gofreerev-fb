@@ -1,29 +1,41 @@
 # require 'money/bank/google_currency'
 
+BASE_CURRENCY = 'USD'
+
 class ExchangeRate < ActiveRecord::Base
 
 =begin
   create_table "exchange_rates", force: true do |t|
-    t.string   "from_currency",    limit: 3, null: false
-    t.string   "to_currency",      limit: 3, null: false
+    t.string   "from_currency", limit: 3, null: false
+    t.string   "to_currency",   limit: 3, null: false
     t.decimal  "exchange_rate"
-    t.datetime "exchange_rate_at"
-    t.string   "request_update",   limit: 1
-    t.datetime "last_request_at"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "date",          limit: 8, null: false
   end
+
+  add_index "exchange_rates", ["from_currency", "to_currency", "date"], name: "index_exchange_rates_pk", unique: true
 =end
 
 
   # returns nil is exchange rate was not found
-  # missing exchange rates is placed in a request queue and is processed batch
-  # should be available in next user request
-  def self.exchange (from_amount, from_currency, to_currency)
+  # currency rate is found via USD as base currency
+  # from_currency => USD => to_currency (requires only about 90 exchange rates per day)
+  def self.exchange (from_amount, from_currency, to_currency, date=nil)
     # check params
     raise "invalid from_amount #{from_amount.class.name}" unless %w(Float BigDecimal).index(from_amount.class.name)
     raise "invalid from_currency" unless from_currency.class.name == 'String' and from_currency.size == 3 and from_currency == from_currency.upcase
     raise "invalid to_currency" unless to_currency.class.name == 'String' and to_currency.size == 3 and to_currency == to_currency.upcase
+    today = Date.today.strftime("%Y%m%d")
+    date = today unless date
+    raise "invalid date" unless date.class.name == 'String' and date =~ /^20[0-9]{2}[0-1][0-9][0-3][0-9]$/
+    begin
+      dummy = Date.parse(date)
+    rescue ArgumentError => e
+      raise "invalid date"
+    end
+    raise "invalid date" if date > today
+
     # check for zero or identical currencies
     from_amount = from_amount.to_f
     if from_amount == 0 or from_currency. == to_currency
@@ -32,110 +44,96 @@ class ExchangeRate < ActiveRecord::Base
       # puts "exchange: from_amount = #{from_amount}, from_currency = #{from_currency}, to_amount = #{to_amount}, to_currency = #{to_currency}"
       return to_amount
     end
-    # find exchange rate - exchanges rates are fetch batch - refreshed once every day on request
-    er = ExchangeRate.find_by_from_currency_and_to_currency(from_currency, to_currency)
-    unless er
-      # not converter. Request for exchange rate requested
-      # puts 'exchange: exchange rate not found - request has been sent to bank'
-      er = ExchangeRate.new
-      er.from_currency = from_currency
-      er.to_currency = to_currency
-      er.request_update = 'Y'
-      er.save!
-      # puts "exchange: from_amount = #{from_amount}, from_currency = #{from_currency}, to_amount = #{nil}, to_currency = #{to_currency}"
-      return nil # no exchange rate for this combination
+
+    if from_currency == BASE_CURRENCY
+      exchange_rate1 = 1.0
+    else
+      er1 = ExchangeRate.where('date = ? and from_currency = ? and to_currency = ?', date, BASE_CURRENCY, from_currency).first
+      er1 = ExchangeRate.where('date < ? and from_currency = ? and to_currency = ?', date, BASE_CURRENCY, from_currency).order('date desc').first unless er1
+      return nil unless er1
+      exchange_rate1 = er1.exchange_rate
     end
-    unless er.exchange_rate
-      # no exchange rate yet
-      # puts 'exchange: exchange rate not ready yet'
-      to_amount = nil
-      # puts "exchange: from_amount = #{from_amount}, from_currency = #{from_currency}, to_amount = #{nil}, to_currency = #{to_currency}"
-      return nil # no exchange rate for this combination
+
+    if to_currency == BASE_CURRENCY
+      exchange_rate2 = 1.0
+    else
+      er2 = ExchangeRate.where('date = ? and from_currency = ? and to_currency = ?', date, BASE_CURRENCY, to_currency).first
+      er2 = ExchangeRate.where('date < ? and from_currency = ? and to_currency = ?', date, BASE_CURRENCY, to_currency).order('date desc').first unless er2
+      return nil unless er2
+      exchange_rate2 = er2.exchange_rate
     end
-    if er.request_update != 'Y' and 1.day.since(er.exchange_rate_at) < Time.new
-      # old exchange rate - request new update
-      # puts 'exchange: using old exchange rate'
-      er.request_update = 'Y'
-      er.save!
-    end
-    # convert.
-    to_amount = from_amount * er.exchange_rate
-    # puts "exchange: from_amount = #{from_amount}, from_currency = #{from_currency}, to_amount = #{to_amount}, to_currency = #{to_currency}"
+
+    to_amount = from_amount / exchange_rate1 * exchange_rate2
     to_amount
   end # self.exchange
 
 
-=begin
-  # https://gist.github.com/danieldbower/842562
-  # Logic for forking connections
-  # The forked process does not have access to static vars as far as I can discern, so I've done some stuff to check if the op threw an exception.
-  def self.fork_with_new_connection
-    # Store the ActiveRecord connection information
-    config = ActiveRecord::Base.remove_connection
-
-    pid = fork do
-    # tracking if the op failed for the Process exit
-      success = true
-
-      begin
-        ActiveRecord::Base.establish_connection(config)
-        # This is needed to re-initialize the random number generator after forking (if you want diff random numbers generated in the forks)
-        srand
-
-        # Run the closure passed to the fork_with_new_connection method
-        yield
-
-      rescue Exception => exception
-        puts ('Forked operation failed with exception: ' + exception)
-        # the op failed, so note it for the Process exit
-        success = false
-
-      ensure
-        ActiveRecord::Base.remove_connection
-        Process.exit! success
-      end
-    end
-
-    # Restore the ActiveRecord connection information
-    ActiveRecord::Base.establish_connection(config)
-
-    #return the process id
-    pid
-  end  # fork_with_new_connection
-=end
-
-
-  # called from last line in application.html.erb - any new exchange rates should be ready in next request.
+  # called from last line in application.html.erb to get new exchange rates.
+  # about 90 exchange rates is saved each day
+  # used in page header, user div mouse over texts and in user balance
   def self.fetch_exchange_rates
-    ers = ExchangeRate.where("request_update = 'Y' and (last_request_at is null or last_request_at < ?)", 1.hour.ago)
-    return if ers.size == 0
+    # check if todays currency rates have already been fetched
+    date = Date.today.strftime("%Y%m%d")
+    return if ExchangeRate.where('date = ?', date).first
 
-    # run in sub process with no wait
+    # max request currency rates fromm bank once every 6 hours (about 165 requests)
+    s = Sequence.find_by_name('last_money_bank_request')
+    return if s and s.value >= Time.current_hour_no - 6
+
+    # run in sub process with no wait so that current user don't has to wait
     ExchangeRate.fork_with_new_connection do
 
-      #necessary to manage activerecord connections since we are forking
+      # necessary to manage activerecord connections since we are forking
       ActiveRecord::Base.connection.reconnect!
 
-      b = Money.default_bank
-      ExchangeRate.where("request_update = 'Y'").each do |er|
-        # check if exchange rate has been updated in an other process
-        er.reload
-        next if er.request_update != 'Y'
-        next if er.last_request_at and er.last_request_at > 1.hour.ago
-        # update exchange_rate
-        er.last_request_at = Time.new
-        begin
-          er.exchange_rate = b.get_rate(er.from_currency, er.to_currency)
-          # OK
-          er.exchange_rate_at = er.last_request_at
-          er.request_update = 'N'
-        rescue Exception => e
-          puts "fetch_exchange_rates: #{e.message}"  # ignore errors - try again in 1 hour
-        end
-        er.save!
-      end # each
+      # create/update last_money_bank_request sequence
+      if !s
+        s = Sequence.new
+        s.name = 'last_money_bank_request'
+      end
+      s.value = Time.current_hour_no
+
+      # get all available currency rates - about 90 currency rates
+      from = BASE_CURRENCY
+      usd_rates = ExchangeRate.get_all_exchange_rates(from)
+      if usd_rates.size < 50
+        puts "Error: found less than 50 exchange rates from default money bank"
+        puts "rates = #{usd_rates}"
+        puts "next request in 6 hours"
+        s.save!
+        return
+      end
+
+      # save currency rates and update sequence
+      transaction do
+        usd_rates.each do |to, rate|
+          er = ExchangeRate.new
+          er.date = date
+          er.from_currency = from
+          er.to_currency = to
+          er.exchange_rate = rate
+          er.save!
+        end # each
+        s.save!
+      end # transaction
+
     end # fork_with_new_connection
   end # fetch_exchange_rates
 
+
+
+  def self.get_all_exchange_rates (from_currency)
+    exchange_rates = {}
+    Money::Currency.table.collect { |a| a[1][:iso_code] }.each do |to_currency|
+      next if to_currency == from_currency
+      begin
+        exchange_rate = Money.default_bank.get_rate(from_currency, to_currency)
+        exchange_rates[to_currency] = exchange_rate
+      rescue Money::Bank::UnknownRate => e
+        nil # ignore currencies with unknown exchange rates
+      end
+    end # each
+    exchange_rates
+  end # get_all_rates
 
 end # ExchangeRate

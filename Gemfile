@@ -68,7 +68,7 @@ gem 'money'
 
 # https://github.com/RubyMoney/google_currency
 # just in case if we need to exchange currencies
-gem 'google_currency'
+gem 'google_currency', '~> 2.3.0'
 
 # https://github.com/svenfuchs/rails-i18n
 # rails-i18n (4.0.0.pre) - example yml files for many languages

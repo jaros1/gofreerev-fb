@@ -2,66 +2,18 @@
 
 usd_dkk:
   id: 6
+  date: <%= Date.today.strftime("%Y%m%d") %>
   from_currency: USD
   to_currency: DKK
   exchange_rate: 5.6477073132162
-  exchange_rate_at: <%= Time.now %>
-  request_update: N
-  last_request_at: <%= Time.now %>
-  created_at: <%= Time.now %>
+  created_at: <%= Date.today.strftime("%Y%m%d") %>
   updated_at: <%= Time.now %>
 
 usd_sek:
   id: 10
+  date: <%= Date.today.strftime("%Y%m%d") %>
   from_currency: USD
   to_currency: SEK
   exchange_rate: 6.51145473644974
-  exchange_rate_at: <%= Time.now %>
-  request_update: N
-  last_request_at: <%= Time.now %>
-  created_at: <%= Time.now %>
-  updated_at: <%= Time.now %>
-
-sek_usd:
-  id: 13
-  from_currency: SEK
-  to_currency: USD
-  exchange_rate: 0.15357551276556
-  exchange_rate_at: <%= Time.now %>
-  request_update: N
-  last_request_at: <%= Time.now %>
-  created_at: <%= Time.now %>
-  updated_at: <%= Time.now %>
-
-dkk_usd:
-  id: 14
-  from_currency: DKK
-  to_currency: USD
-  exchange_rate: 0.177063
-  exchange_rate_at: <%= Time.now %>
-  request_update: N
-  last_request_at: <%= Time.now %>
-  created_at: <%= Time.now %>
-  updated_at: <%= Time.now %>
-
-sek_dkk:
-  id: 15
-  from_currency: SEK
-  to_currency: DKK
-  exchange_rate: 0.867349546576979
-  exchange_rate_at: <%= Time.now %>
-  request_update: N
-  last_request_at: <%= Time.now %>
-  created_at: <%= Time.now %>
-  updated_at: <%= Time.now %>
-
-dkk_sek:
-  id: 16
-  from_currency: DKK
-  to_currency: SEK
-  exchange_rate: 1.15293771
-  exchange_rate_at: <%= Time.now %>
-  request_update: N
-  last_request_at: <%= Time.now %>
   created_at: <%= Time.now %>
   updated_at: <%= Time.now %>

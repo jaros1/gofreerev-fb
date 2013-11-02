@@ -33,23 +33,23 @@ ENCRYPT_KEYS = [ ENV['GOFREEREV_KEY_1'], ENV['GOFREEREV_KEY_2'], ENV['GOFREEREV_
 NEGATIVE_INTEREST_PER_DAY = 0.02 # 0.02 % per day <=> 0.6 % per month <=> 7.0 % per year
 
 # calculate interest per month and per year
-PRICE_FACTOR_PER_DAY = 1 - NEGATIVE_INTEREST_PER_DAY / 100
-PRICE_FACTOR_PER_MONTH = PRICE_FACTOR_PER_DAY**(365 / 12)
-PRICE_FACTOR_PER_YEAR = PRICE_FACTOR_PER_DAY**365
-NEGATIVE_INTEREST_PER_MONTH = (1 - PRICE_FACTOR_PER_MONTH) * 100
-NEGATIVE_INTEREST_PER_YEAR = (1 - PRICE_FACTOR_PER_YEAR) * 100
+#PRICE_FACTOR_PER_DAY = 1 - NEGATIVE_INTEREST_PER_DAY / 100
+#PRICE_FACTOR_PER_MONTH = PRICE_FACTOR_PER_DAY**(365 / 12)
+#PRICE_FACTOR_PER_YEAR = PRICE_FACTOR_PER_DAY**365
+#NEGATIVE_INTEREST_PER_MONTH = (1 - PRICE_FACTOR_PER_MONTH) * 100
+#NEGATIVE_INTEREST_PER_YEAR = (1 - PRICE_FACTOR_PER_YEAR) * 100
 
 # user.balance is an hash with user balance for each currency.. Key BALANCE_KEY is used for total balance in actual user.currency.
 BALANCE_KEY = 'BALANCE'
 
 # interest calculation setup. Uses different negative interest for positive (5 %) and negative amounts (10 %)
 # year 1: a = 100, b = -100. year 2: a =  95, b =  -90.
-# in this way we have negative interest and increasing supply in free money
-NEG_INT_NEG_AMOUNT_PER_YEAR = 10.0 # Negative interest per year for positive balance (gifts given to others)
-NEG_INT_POS_AMOUNT_PER_YEAR =  5.0 # Negative interest per year for negative balance (gifts received from others)
-NET_NEG_INT_PER_YEAR = NEG_INT_NEG_AMOUNT_PER_YEAR - NEG_INT_POS_AMOUNT_PER_YEAR # Net negative interest per year
-FACTOR_NEG_AMOUNT_PER_YEAR = 1.0 - NEG_INT_NEG_AMOUNT_PER_YEAR / 100.0
-FACTOR_POS_AMOUNT_PER_YEAR = 1.0 - NEG_INT_POS_AMOUNT_PER_YEAR / 100.0
-FACTOR_NEG_AMOUNT_PER_DAY = (Math::E) ** (Math.log(FACTOR_NEG_AMOUNT_PER_YEAR,Math::E) / 365)
-FACTOR_POS_AMOUNT_PER_DAY = (Math::E) ** (Math.log(FACTOR_POS_AMOUNT_PER_YEAR,Math::E) / 365)
+# in that way we get negative interest and an increasing supply of free money
+NEG_INT_NEG_AMOUNT_PER_YEAR = 10.0 # 10 % negative interest per year for positive balance (gifts given to others)
+NEG_INT_POS_AMOUNT_PER_YEAR =  5.0 # 5 % negative interest per year for negative balance (gifts received from others)
+NET_NEG_INT_PER_YEAR = NEG_INT_NEG_AMOUNT_PER_YEAR - NEG_INT_POS_AMOUNT_PER_YEAR # 5 % increase in supply of free money per year
+FACTOR_NEG_AMOUNT_PER_YEAR = 1.0 - NEG_INT_NEG_AMOUNT_PER_YEAR / 100.0 # 0.9
+FACTOR_POS_AMOUNT_PER_YEAR = 1.0 - NEG_INT_POS_AMOUNT_PER_YEAR / 100.0 # 0.95
+FACTOR_NEG_AMOUNT_PER_DAY = (Math::E) ** (Math.log(FACTOR_NEG_AMOUNT_PER_YEAR,Math::E) / 365) # 0.9997113827109777
+FACTOR_POS_AMOUNT_PER_DAY = (Math::E) ** (Math.log(FACTOR_POS_AMOUNT_PER_YEAR,Math::E) / 365) # 0.9998594803001535
 

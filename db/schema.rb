@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20131028071130) do
+ActiveRecord::Schema.define(version: 20131101172647) do
 
   create_table "ajax_comments", force: true do |t|
     t.string   "user_id",    limit: 20, null: false
@@ -49,17 +49,15 @@ ActiveRecord::Schema.define(version: 20131028071130) do
   add_index "comments_notifications", ["notification_id"], name: "index_comment_notifications_on_notification_id"
 
   create_table "exchange_rates", force: true do |t|
-    t.string   "from_currency",    limit: 3, null: false
-    t.string   "to_currency",      limit: 3, null: false
+    t.string   "from_currency", limit: 3, null: false
+    t.string   "to_currency",   limit: 3, null: false
     t.decimal  "exchange_rate"
-    t.datetime "exchange_rate_at"
-    t.string   "request_update",   limit: 1
-    t.datetime "last_request_at"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "date",          limit: 8, null: false
   end
 
-  add_index "exchange_rates", ["from_currency", "to_currency"], name: "index_exchange_rates_on_from_currency_and_to_currency", unique: true
+  add_index "exchange_rates", ["from_currency", "to_currency", "date"], name: "index_exchange_rates_pk", unique: true
 
   create_table "friends", force: true do |t|
     t.string   "user_id_giver"

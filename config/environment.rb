@@ -53,5 +53,12 @@ class Hash
   end # find_usertype (usertype)
 end # find_usertype
 
+# used in last_money_bank_request sequence
+class Time
+  def self.current_hour_no
+    (Time.new.to_i/60-23000000).to_i
+  end
+end
+
 # Initialize the Rails application.
 GofreerevFb::Application.initialize!

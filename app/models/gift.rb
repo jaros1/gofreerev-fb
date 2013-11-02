@@ -536,10 +536,10 @@ class Gift < ActiveRecord::Base
     else
       puts "date1 = #{date1} (#{date1.class.name}), received_at_date = #{received_at_date} (#{received_at_date.class.name})"
       days = (date1 - received_at_date).to_i
-      price1 = self.price.to_f * PRICE_FACTOR_PER_DAY ** days
+      price1 = Gift.calculate_new_price(self.price.to_f, days)
     end
     days = (date2 - received_at_date).to_i
-    price2 = self.price * PRICE_FACTOR_PER_DAY ** days
+    price2 = Gift.calculate_new_price(self.price, days)
     negative_interest = price1 - price2
     puts "gifts: negative_interest_in_period: id = #{id}, date1 = #{date1}, date2 = #{date2}, price = #{self.price}, negative_interest = #{negative_interest} (#{negative_interest.class.name})"
     negative_interest

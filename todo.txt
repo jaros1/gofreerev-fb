@@ -213,3 +213,12 @@
     maybe add a system user - negative currency could be gifts from users to system user and social dividend gifts from system user to users
     could also include social dividend calculation in accepted deal
 
+79) exchange rates - we need historic exchange rates to show user balance in any currency
+    166 currencies gives 27556 combination per day and 10057940 combinations per year :-(
+    use USD as base for all exchange rates. That is 165 exchange rates per day and 60225 per year :-)
+    freeze from currency to USD
+
+
+
+
+
