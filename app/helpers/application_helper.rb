@@ -90,7 +90,7 @@ module ApplicationHelper
     return nil unless user.balance
     return nil unless balance.size > 1
     from_amount = balance[BALANCE_KEY]
-    from_currency = user.currency
+    from_currency = 'USD'
     to_currency = login_user.currency
     if balance.size == 2 and user.currency == login_user.currency
       # short format. only one currency in balance hash. Return this without any conversion if login user currency

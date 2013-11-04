@@ -308,6 +308,7 @@ class ApplicationController < ActionController::Base
       @usertype = session[:usertype] = nil
     end
     puts "fetch_user: @user_currency_separator = #{@user_currency_separator}, @user_currency_delimiter = #{@user_currency_delimiter}"
+
   end # fetch_user
 
   private

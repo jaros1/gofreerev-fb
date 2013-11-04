@@ -31,7 +31,7 @@ class Gift < ActiveRecord::Base
   # encrypt_add_pre_and_postfix/encrypt_remove_pre_and_postfix added in setters/getters for better encryption
   # this is different encrypt for each attribute and each db row
   # _before_type_cast methods are used by form helpers and are redefined
-  crypt_keeper :description, :currency, :price, :received_at, :new_price, :negative_interest, :social_dividend, :api_gift_id, :balance_giver, :balance_receiver, :api_picture_url, :api_picture_url_updated_at, :api_picture_url_on_error_at, :balance_doc_giver, :balance_doc_receiver, :social_dividend_doc, :encryptor => :aes, :key => ENCRYPT_KEYS[1]
+  crypt_keeper :description, :currency, :price, :received_at, :negative_interest_pos_balance, :negative_interest_neg_balance, :api_gift_id, :balance_giver, :balance_receiver, :api_picture_url, :api_picture_url_updated_at, :api_picture_url_on_error_at, :balance_doc_giver, :balance_doc_receiver, :social_dividend_doc, :encryptor => :aes, :key => ENCRYPT_KEYS[1]
 
 
   ##############
@@ -189,65 +189,45 @@ class Gift < ActiveRecord::Base
 
   # 8) new_price_at - date - not encrypted - almost always = today
 
-  # 9) new_price - Float in model - encrypted text in db - recalculated once every day for closed deals with a price and a receiver
-  def new_price
-    return nil unless (temp_extended_new_price = read_attribute(:new_price))
-    str_to_float_or_nil encrypt_remove_pre_and_postfix(temp_extended_new_price, 'new_price', 6)
-  end # new_price
-  def new_price=(new_new_price)
-    if new_new_price.to_s != ''
-      check_type('new_price', new_new_price, 'Float')
-      write_attribute :new_price, encrypt_add_pre_and_postfix(new_new_price.to_s, 'new_price', 6)
-    else
-      write_attribute :new_price, nil
-    end
-  end # new_price=
-  alias_method :new_price_before_type_cast, :new_price
-  def new_price_was
-    return new_price unless new_price_changed?
-    return nil unless (temp_extended_new_price = attribute_was(:new_price))
-    str_to_float_or_nil encrypt_remove_pre_and_postfix(temp_extended_new_price, 'new_price', 6)
-  end # new_price_was
-
-  # 10) negative_interest - Float in model - encrypted text in db - recalculated once every day for closed deals with a price and a receiver
-  def negative_interest
-    return nil unless (tmp_extended_negative_interest = read_attribute(:negative_interest))
-    str_to_float_or_nil encrypt_remove_pre_and_postfix(tmp_extended_negative_interest, 'negative_interest', 7)
-  end # negative_interest
-  def negative_interest=(new_neg_int)
+  # 10) negative_interest_pos_balance - Float in model - encrypted text in db - recalculated once every day for closed deals with a price and a receiver
+  def negative_interest_pos_balance
+    return nil unless (tmp_extended_negative_interest_pos_balance = read_attribute(:negative_interest_pos_balance))
+    str_to_float_or_nil encrypt_remove_pre_and_postfix(tmp_extended_negative_interest_pos_balance, 'negative_interest_pos_balance', 7)
+  end # negative_interest_pos_balance
+  def negative_interest_pos_balance=(new_neg_int)
     if new_neg_int.to_s != ''
-      check_type('negative_interest', new_neg_int, 'Float')
-      write_attribute :negative_interest, encrypt_add_pre_and_postfix(new_neg_int.to_s, 'negative_interest', 7)
+      check_type('negative_interest_pos_balance', new_neg_int, 'Float')
+      write_attribute :negative_interest_pos_balance, encrypt_add_pre_and_postfix(new_neg_int.to_s, 'negative_interest_pos_balance', 7)
     else
-      write_attribute :negative_interest, nil
+      write_attribute :negative_interest_pos_balance, nil
     end
-  end # negative_interest=
-  alias_method :negative_interest_before_type_cast, :negative_interest
-  def negative_interest_was
-    return negative_interest unless negative_interest_changed?
-    return nil unless (tmp_extended_negative_interest = attribute_was(:negative_interest))
-    str_to_float_or_nil encrypt_remove_pre_and_postfix(tmp_extended_negative_interest, 'negative_interest', 7)
-  end # negative_interest_was
+  end # negative_interest_pos_balance=
+  alias_method :negative_interest_pos_balance_before_type_cast, :negative_interest_pos_balance
+  def negative_interest_pos_balance_was
+    return negative_interest_pos_balance unless negative_interest_pos_balance_changed?
+    return nil unless (tmp_extended_negative_interest_pos_balance = attribute_was(:negative_interest_pos_balance))
+    str_to_float_or_nil encrypt_remove_pre_and_postfix(tmp_extended_negative_interest_pos_balance, 'negative_interest_pos_balance', 7)
+  end # negative_interest_pos_balance_was
 
-  # 11) social_dividend - Float in model - encrypted text in db - recalculated once every day for closed deals with a price
-  def social_dividend
-    return nil unless (temp_extended_social_dividend = read_attribute(:social_dividend))
-    str_to_float_or_nil encrypt_remove_pre_and_postfix(temp_extended_social_dividend, 'social_dividend', 8)
+  # 11) negative_interest_neg_balance - Float in model - encrypted text in db - recalculated once every day for closed deals with a price
+  def negative_interest_neg_balance
+    return nil unless (temp_extended_negative_interest_neg_balance = read_attribute(:negative_interest_neg_balance))
+    str_to_float_or_nil encrypt_remove_pre_and_postfix(temp_extended_negative_interest_neg_balance, 'negative_interest_neg_balance', 8)
   end # negative_interest
-  def social_dividend=(new_social_dividend)
-    if new_social_dividend.to_s != ''
-      check_type('social_dividend', new_social_dividend, 'Float')
-      write_attribute :social_dividend, encrypt_add_pre_and_postfix(new_social_dividend.to_s, 'social_dividend', 8)
+  def negative_interest_neg_balance=(new_negative_interest_neg_balance)
+    if new_negative_interest_neg_balance.to_s != ''
+      check_type('negative_interest_neg_balance', new_negative_interest_neg_balance, 'Float')
+      write_attribute :negative_interest_neg_balance, encrypt_add_pre_and_postfix(new_negative_interest_neg_balance.to_s, 'negative_interest_neg_balance', 8)
     else
-      write_attribute :social_dividend, nil
+      write_attribute :negative_interest_neg_balance, nil
     end
-  end # social_dividend=
-  alias_method :social_dividend_before_type_cast, :social_dividend
-  def social_dividend_was
-    return social_dividend unless social_dividend_changed?
-    return nil unless (temp_extended_social_dividend = attribute_was(:social_dividend))
-    str_to_float_or_nil encrypt_remove_pre_and_postfix(temp_extended_social_dividend, 'social_dividend', 8)
-  end # social_dividend_was
+  end # negative_interest_neg_balance=
+  alias_method :negative_interest_neg_balance_before_type_cast, :negative_interest_neg_balance
+  def negative_interest_neg_balance_was
+    return negative_interest_neg_balance unless negative_interest_neg_balance_changed?
+    return nil unless (temp_extended_negative_interest_neg_balance = attribute_was(:negative_interest_neg_balance))
+    str_to_float_or_nil encrypt_remove_pre_and_postfix(temp_extended_negative_interest_neg_balance, 'negative_interest_neg_balance', 8)
+  end # negative_interest_neg_balance_was
 
   # 12) api_gift_id - String in model - encrypted text in db - api id for the gift / status update on the wall
   attr_readonly :api_gift_id
@@ -467,6 +447,47 @@ class Gift < ActiveRecord::Base
 
   # 27) updated_at - timestamp - not encrypted
 
+  # virtual columns new_price_pos_balance and new_price_neg_balance,
+  # there are used different negative interest rates for positive and negative user balance
+  def new_price_pos_balance
+    return nil unless user_id_giver and user_id_receiver and price
+    return price unless new_price_at
+    price - negative_interest_pos_balance
+  end # new_price_pos_balance
+  def new_price_neg_balance
+    return nil unless user_id_giver and user_id_receiver and price
+    return price unless new_price_at
+    price - negative_interest_neg_balance
+  end # new_price_neg_balance
+  def new_price (previous_balance)
+    return nil unless previous_balance
+    if previous_balance >= 0
+      new_price_pos_balance
+    else
+      new_price_neg_balance
+    end
+  end # new_price
+
+  def social_dividend_pos_balance
+    return nil unless user_id_giver and user_id_receiver and price
+    case gifttype
+      when 'G' then negative_interest_pos_balance / 4
+      when 'S' then new_price_pos_balance
+    end # case
+  end # social_dividend_pos_balance
+  def social_dividend_neg_balance
+    return nil unless user_id_giver and user_id_receiver and price
+    case gifttype
+      when 'G' then negative_interest_neg_balance / 4
+      when 'S' then new_price_neg_balance
+    end # case
+  end # social_dividend_neg_balance
+
+  def negative_interest (previous_balance)
+    return nil unless previous_balance
+    previous_balance >= 0 ? negative_interest_pos_balance : negative_interest_neg_balance
+  end # negative_interest
+
 
   #
   # helper methods
@@ -476,11 +497,11 @@ class Gift < ActiveRecord::Base
   def price_with_2_decimals
     return nil unless price
     '%0.2f' % (price || 0)
-  end
+  end # price_with_2_decimals
   def new_price_with_2_decimals
     return nil unless new_price
     '%0.2f' % (new_price || 0)
-  end
+  end # new_price_with_2_decimals
 
 
   # get/set balance for actual user. Used in user.recalculate_balance and in /gifts/index page
@@ -492,7 +513,7 @@ class Gift < ActiveRecord::Base
       else nil
     end
     return nil unless balance_current_user
-    balance_login_user = ExchangeRate.exchange(balance_current_user, current_user.currency, login_user.currency)
+    balance_login_user = ExchangeRate.exchange(balance_current_user, 'USD', login_user.currency, received_at)
     balance_login_user
   end # balance
   def balance_doc (current_user)
@@ -555,27 +576,18 @@ class Gift < ActiveRecord::Base
   # that is - no social dividend of social dividend.
   def recalculate
     puts "gift: recalculate: id = #{id}"
-    unless received_at
-      puts 'open offer - prices is not recalculated'
+    unless received_at and gifttype == 'G'
+      puts 'open offer - or social dividend - prices is not recalculated'
       return self
     end
     today = Date.today
-    return self if new_price_at == today
+    return self if new_price_at == today # negative interest has already been calculated
     # calculate new interest, price and social dividend
-    self.negative_interest = case gifttype
-                               when 'G' then negative_interest_in_period(received_at.to_date, today)
-                               when 'S' then 0.0
-                               else 0.0 # error
-                             end # case
-    self.new_price = price - negative_interest
+    days = (today - received_at.to_date).to_i
+    self.negative_interest_pos_balance = price - price * FACTOR_POS_BALANCE_PER_DAY ** days
+    self.negative_interest_neg_balance = price - price * FACTOR_NEG_BALANCE_PER_DAY ** days
     self.new_price_at = today
-    self.social_dividend = case gifttype
-                             when 'G' then negative_interest / 4 # gifttype G = Gift
-                             when 'S' then new_price # gifttype S = Social dividend given or received
-                             else 0.0 # error
-                           end # case
-    puts "Gift.recalculate: currency = #{currency}"
-    save!
+    self.save!
     self
   end # recalculate
 

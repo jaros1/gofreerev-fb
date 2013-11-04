@@ -12,9 +12,8 @@ charlie_gift_a:
   user_id_receiver:
   received_at:
   new_price_at:
-  new_price:
-  negative_interest:
-  social_dividend:
+  negative_interest_pos_balance:
+  negative_interest_neg_balance:
   created_at: '2013-09-02 17:08:24.196811'
   updated_at: '2013-09-26 16:31:21.234272'
   api_gift_id: |

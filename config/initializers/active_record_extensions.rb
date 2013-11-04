@@ -138,8 +138,8 @@ module ActiveRecordExtensions
     # interest calculation - different interest for positive and negative amount - see constants.rb
     def calculate_new_price(amount, days)
       return amount if amount == NilClass or amount == 0 or amount == 0.0
-      return amount * FACTOR_POS_AMOUNT_PER_DAY ** days if amount > 0
-      return amount * FACTOR_NEG_AMOUNT_PER_DAY ** days if amount < 0
+      return amount * FACTOR_POS_BALANCE_PER_DAY ** days if amount > 0
+      return amount * FACTOR_NEG_BALANCE_PER_DAY ** days if amount < 0
       amount
     end
 

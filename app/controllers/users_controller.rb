@@ -150,7 +150,8 @@ class UsersController < ApplicationController
     puts "@user2 = #{@user2.id} #{@user2.user_name}"
 
     # recalculate balance once every day
-    if @user2.balance_at != Date.today
+    # todo: should only recalculate user balance from @user2.balance_at and to today
+    if @user2.balance_at.strftime("%Y%m%d") != Sequence.get_last_exchange_rate_date
       @user2.recalculate_balance
       @user2.reload
       @user.reload if @user.user_id == @user2.user_id

@@ -359,7 +359,7 @@ class User < ActiveRecord::Base
     new_currency = currency unless new_currency
     gifts = gifts_given_and_received.sort do |a,b|
       if a.received_at.to_date == b.received_at.to_date and a.gifttype != b.gifttype
-        # social dividend after gifts in balance
+        # social dividend after gifts in user balance
         a.gifttype <=> b.gifttype
       elsif a.received_at == b.received_at
         a.id <=> b.id
@@ -367,45 +367,88 @@ class User < ActiveRecord::Base
         a.received_at <=> b.received_at
       end
     end # sort
-    balance_hash = { BALANCE_KEY => 0.0 }
-    negative_interest_hash = { BALANCE_KEY => 0.0 }
+    balance_hash = { BALANCE_KEY => 0.0 } # BASE_CURRENCY
+    user_negative_interest_hash = { BALANCE_KEY => 0.0 } # BASE_CURRENCY (USD)
     missing_exchange_rates = false
-    puts "recalculate_balance: #{gifts.size} gifts"
+    puts "recalculate_balance: user #{self.short_user_name}. #{gifts.size} gifts"
+    previous_date = nil
+    date = nil
     gifts.each do |g|
       # update user.balance hash and save balance in gift.balance for documentation
+      # previous balance >= 0 - use FACTOR_POS_BALANCE_PER_DAY to calculate new price
+      # previous balance < 0 - use FACTOR_NEG_BALANCE_PER_DAY to calculate new price
+      # note a small problem as balance in BASE_CURRENCY is a sum of different currencies and sum changes when currency rates changes
+      # balance in BASE_CURRENCY can change between >= 0 and < 0 in period between two deals
+      # but only previous balance is used when selection negative interest rate
+      balance_doc_hash = {}
+      previous_date = g.received_at.to_date unless previous_date
+      previous_balance_hash = balance_hash.clone
+      balance_doc_hash[:previous_balance] = previous_balance_hash
+      # puts "balance_doc_hash[:previous_balance] = #{balance_doc_hash[:previous_balance]}"
+      balance_doc_hash[:previous_date] = previous_date
+      # calculate negative interest from previous gift to this gift
+      # use FACTOR_POS_BALANCE_PER_DAY for positive balance
+      # use FACTOR_NEG_BALANCE_PER_DAY for negative balance
+      date = previous_date
+      while (date < g.received_at.to_date) do
+        date = 1.day.since(date)
+        factor = (balance_hash[BALANCE_KEY] >= 0 ? FACTOR_POS_BALANCE_PER_DAY : FACTOR_NEG_BALANCE_PER_DAY)
+        balance_sum = 0.0
+        balance_hash.keys.each do |balance_hash_currency|
+          next if balance_hash_currency == BALANCE_KEY
+          balance_hash[balance_hash_currency] *= factor
+          balance_sum += ExchangeRate.exchange(balance_hash[balance_hash_currency], balance_hash_currency, BASE_CURRENCY, date)
+        end # each
+        balance_hash[BALANCE_KEY] = balance_sum
+      end # while
+      # initialize and save negative interest hash
+      gift_negative_interest_hash = {}
+      balance_hash.keys.each do |balance_hash_currency|
+        gift_negative_interest = previous_balance_hash[balance_hash_currency] - balance_hash[balance_hash_currency]
+        gift_negative_interest_hash[balance_hash_currency] = gift_negative_interest
+        user_negative_interest_hash[balance_hash_currency] = 0.0 unless user_negative_interest_hash.has_key?(balance_hash_currency)
+        user_negative_interest_hash[balance_hash_currency] += gift_negative_interest
+      end
+      balance_doc_hash[:negative_interest] = gift_negative_interest_hash
+      # new balance with this gift
       sign = user_id == g.user_id_giver ? 1 : -1
-      sign = -sign if g.gifttype == 'S' # direction is reverse for social dividend as social dividend is money and not a thing with a value
-      balance_doc_hash = { :previous_balance => balance_hash[BALANCE_KEY],
-                           :sign => (sign == 1 ? '+' : '-') }
+      sign = -sign if g.gifttype == 'S' # direction is reverse
       balance_hash[g.currency] = 0.0 unless balance_hash.has_key?(g.currency)
-      balance_hash[g.currency] += g.new_price * sign
-      new_price = ExchangeRate.exchange(g.new_price, g.currency, new_currency)
-      # puts "recalculate_balance: g.id = #{g.id}, g.currency = #{g.currency}, new_currency = #{new_currency}, g.new_price = #{g.new_price}, new_price = #{new_price}"
-      if new_price
-        balance_doc_hash[:exchange_rate] = new_price / g.new_price
-        balance_hash[BALANCE_KEY] += new_price * sign
-        g.set_balance(user_id, balance_hash[BALANCE_KEY], balance_doc_hash)
-        # g.save
-      else
-        missing_exchange_rates = true
-      end
-      # update user.negative_interest hash
-      negative_interest_hash[g.currency] = 0 unless negative_interest_hash.has_key?(g.currency)
-      negative_interest_hash[g.currency] += g.negative_interest
-      new_neg_int = ExchangeRate.exchange(g.negative_interest, g.currency, new_currency)
-      if new_neg_int
-        negative_interest_hash[BALANCE_KEY] += new_neg_int
-      else
-        missing_exchange_rates = true
-      end
-      puts "recalculate_balance. g.id = #{g.id}, g.received_at = #{g.received_at}, g.gifttype = #{g.gifttype}, g.new_price = #{g.new_price.to_s}, new_price = #{new_price.to_s}, balance_hash = #{balance_hash.to_s}, balance_doc_hash = #{balance_doc_hash}"
+      balance_hash[g.currency] += g.price * sign
+      balance_hash[BALANCE_KEY] += ExchangeRate.exchange((g.price*sign), g.currency, BASE_CURRENCY, date)
+      balance_doc_hash[:balance] = balance_hash
+      g.set_balance(user_id, balance_hash[BALANCE_KEY], balance_doc_hash)
+      # g.save
+      puts "recalculate_balance. g.id = #{g.id}, g.received_at = #{g.received_at}, g.gifttype = #{g.gifttype}, balance_hash = #{balance_hash.to_s}, balance_doc_hash = #{balance_doc_hash}"
     end # each
-    return false if missing_exchange_rates # not all exchange rates was read at this time - they should be updated in a moment
+    return false if missing_exchange_rates # error - one or more missing currency rates
+    if date
+      # calculate negative interest from last gift and up to today
+      previous_balance_hash = balance_hash.clone
+      today = Date.parse(Sequence.get_last_exchange_rate_date)
+      while (date < today) do
+        date = 1.day.since(date)
+        factor = (balance_hash[BALANCE_KEY] >= 0 ? FACTOR_POS_BALANCE_PER_DAY : FACTOR_NEG_BALANCE_PER_DAY)
+        balance_sum = 0.0
+        balance_hash.keys.each do |balance_hash_currency|
+          next if balance_hash_currency == BALANCE_KEY
+          balance_hash[balance_hash_currency] *= factor
+          balance_sum += ExchangeRate.exchange(balance_hash[balance_hash_currency], balance_hash_currency, BASE_CURRENCY, date)
+        end # each
+        balance_hash[BALANCE_KEY] = balance_sum
+      end
+      balance_hash.keys.each do |balance_hash_currency|
+        user_negative_interest_hash[balance_hash_currency] = 0.0 unless user_negative_interest_hash.has_key?(balance_hash_currency)
+        user_negative_interest_hash[balance_hash_currency] += (previous_balance_hash[balance_hash_currency] - balance_hash[balance_hash_currency])
+      end
+    end
+    puts "user balance = #{balance_hash}"
+    puts "user negative_interest #{user_negative_interest_hash}"
     # calculation ok - all needed exchange rates was found
     self.currency = new_currency
     self.balance = balance_hash
     self.balance_at = Date.today
-    self.negative_interest = negative_interest_hash
+    self.negative_interest = user_negative_interest_hash
     # todo: catch any exception and return false if transaction fails
     transaction do
       gifts.each { |g| g.save! }

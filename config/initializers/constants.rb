@@ -39,17 +39,19 @@ NEGATIVE_INTEREST_PER_DAY = 0.02 # 0.02 % per day <=> 0.6 % per month <=> 7.0 % 
 #NEGATIVE_INTEREST_PER_MONTH = (1 - PRICE_FACTOR_PER_MONTH) * 100
 #NEGATIVE_INTEREST_PER_YEAR = (1 - PRICE_FACTOR_PER_YEAR) * 100
 
-# user.balance is an hash with user balance for each currency.. Key BALANCE_KEY is used for total balance in actual user.currency.
+# user.balance is an hash with user balance for each currency. Key BALANCE_KEY is used for total balance in BASE_CURRENCY.
 BALANCE_KEY = 'BALANCE'
 
 # interest calculation setup. Uses different negative interest for positive (5 %) and negative amounts (10 %)
 # year 1: a = 100, b = -100. year 2: a =  95, b =  -90.
 # in that way we get negative interest and an increasing supply of free money
-NEG_INT_NEG_AMOUNT_PER_YEAR = 10.0 # 10 % negative interest per year for positive balance (gifts given to others)
-NEG_INT_POS_AMOUNT_PER_YEAR =  5.0 # 5 % negative interest per year for negative balance (gifts received from others)
-NET_NEG_INT_PER_YEAR = NEG_INT_NEG_AMOUNT_PER_YEAR - NEG_INT_POS_AMOUNT_PER_YEAR # 5 % increase in supply of free money per year
-FACTOR_NEG_AMOUNT_PER_YEAR = 1.0 - NEG_INT_NEG_AMOUNT_PER_YEAR / 100.0 # 0.9
-FACTOR_POS_AMOUNT_PER_YEAR = 1.0 - NEG_INT_POS_AMOUNT_PER_YEAR / 100.0 # 0.95
-FACTOR_NEG_AMOUNT_PER_DAY = (Math::E) ** (Math.log(FACTOR_NEG_AMOUNT_PER_YEAR,Math::E) / 365) # 0.9997113827109777
-FACTOR_POS_AMOUNT_PER_DAY = (Math::E) ** (Math.log(FACTOR_POS_AMOUNT_PER_YEAR,Math::E) / 365) # 0.9998594803001535
+# increase in free money will be between 0 and 5% per year
+NEG_INT_NEG_BALANCE_PER_YEAR = 10.0 # 10 % negative interest per year for positive balance (gifts given to others)
+NEG_INT_POS_BALANCE_PER_YEAR =  5.0 # 5 % negative interest per year for negative balance (gifts received from others)
+NET_NEG_INT_PER_YEAR = NEG_INT_NEG_BALANCE_PER_YEAR - NEG_INT_POS_BALANCE_PER_YEAR # 5 % increase in supply of free money per year
+FACTOR_NEG_BALANCE_PER_YEAR = 1.0 - NEG_INT_NEG_BALANCE_PER_YEAR / 100.0 # 0.9
+FACTOR_POS_BALANCE_PER_YEAR = 1.0 - NEG_INT_POS_BALANCE_PER_YEAR / 100.0 # 0.95
+FACTOR_NEG_BALANCE_PER_DAY = (Math::E) ** (Math.log(FACTOR_NEG_BALANCE_PER_YEAR,Math::E) / 365) # 0.9997113827109777
+FACTOR_POS_BALANCE_PER_DAY = (Math::E) ** (Math.log(FACTOR_POS_BALANCE_PER_YEAR,Math::E) / 365) # 0.9998594803001535
 
+BASE_CURRENCY = 'USD' # store exchange rates and internal balance in this currency

@@ -14,7 +14,16 @@ class String
   def each
     yield self
   end
-end
+  def yyyymmdd?
+    return false unless self =~ /^20[0-9]{2}[0-1][0-9][0-3][0-9]$/
+    begin
+      Date.parse(self)
+    rescue ArgumentError => e
+      return false
+    end
+    (self <= Date.today.strftime("%Y%m%d"))
+  end # yyyymmdd?
+end # String
 
 # Implement find_usertype. Only relevant for Hash, but must exists as dummy methods in String and Array
 # usertype is first two characters in user_id. That is FB, GP etc
