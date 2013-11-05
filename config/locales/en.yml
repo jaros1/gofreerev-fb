@@ -434,13 +434,23 @@ en:
         direction_receiver: "%{username} seeks"
         direction_giver_and_receiver: "from %{givername} to %{receivername}"
         gift_text_html: " : %{text}" # text is sanitized. Only todo tags is allowed
-        # 6 balance title keys. variables: old_balance, new_balance, old_price, negative_interest, new_price, sign, exchange_rate, new_currency, old_currency, gift.currency. See user_helpers.gift_balance_calculation_doc for more information
-        balance_title: "New balance %{new_balance} = old balance %{old_balance} %{sign} %{price}. Not yet any negative interest"
-        balance_title_exchange_rate: "New balance %{new_balance} = old balance %{old_balance} %{sign} %{price} %{old_currency} * %{exchange_rate}. Not yet any negative interest"
-        balance_title_negative_interest: "New balance %{new_balance} = gl. saldo %{old_balance} %{sign} %{price}. Negative interest was %{negative_interest} = %{price} - %{price}"
-        balance_title_exchange_rate_negative_interest: "New balance %{new_balance} = old balance %{old_balance} %{sign} %{price} %{old_currency} * %{exchange_rate}. Negative interest was %{negative_interest} = %{price} - %{price}"
-        balance_title_social_dividend: "New balance %{new_balance} = old balance %{old_balance} %{sign} %{price}"
-        balance_title_exchange_rate_social_dividend: "New balance %{new_balance} = old balance %{old_balance} %{sign} %{price} %{old_currency} * %{exchange_rate}"
+        # 14 balance title keys. Documentation for balance calculation.
+        # variables: new_balance, old_balance, sign_price, price, exchange_rate, sign_negative_interest, negative_interest,
+        #            sign_currency_gain_loss, currency_gain_loss, new_currency, old_currency and number_of_days
+        balance_title: "New balance %{new_balance} = old balance %{old_balance} %{sign_price} %{price}."
+        balance_title_gain: "New balance %{new_balance} = old balance %{old_balance} %{sign_price} %{price} %{sign_currency_gain_loss} %{currency_gain_loss}. Currency gain for %{number_of_days} days was %{currency_gain_loss}."
+        balance_title_loss: "New balance %{new_balance} = old balance %{old_balance} %{sign_price} %{price} %{sign_currency_gain_loss} %{currency_gain_loss}. Currency loss for %{number_of_days} days was %{currency_gain_loss}."
+        balance_title_exchange_rate: "New balance %{new_balance} = old balance %{old_balance} %{sign_price} %{price} %{old_currency} * %{exchange_rate}."
+        balance_title_exchange_rate_gain: "New balance %{new_balance} = old balance %{old_balance} %{sign_price} %{price} %{old_currency} * %{exchange_rate} %{sign_currency_gain_loss} %{currency_gain_loss}. Currency gain for %{number_of_days} days was %{currency_gain_loss}."
+        balance_title_exchange_rate_loss: "New balance %{new_balance} = old balance %{old_balance} %{sign_price} %{price} %{old_currency} * %{exchange_rate} %{sign_currency_gain_loss} %{currency_gain_loss}. Currency loss for %{number_of_days} days was %{currency_gain_loss}."
+        balance_title_negative_interest: "New balance %{new_balance} = old balance %{old_balance} %{sign_price} %{price} %{sign_negative_interest} %{negative_interest}. Negative interest of %{old_balance} in %{number_of_days} days was %{negative_interest}."
+        balance_title_negative_interest_gain: "New balance %{new_balance} = old balance %{old_balance} %{sign_price} %{price}% %{sign_negative_interest} %{negative_interest} %{sign_currency_gain_loss} %{currency_gain_loss}. Negative interest of %{old_balance} in %{number_of_days} days was %{negative_interest}. Currency gain for the same period was %{currency_gain_loss}."
+        balance_title_negative_interest_loss: "New balance %{new_balance} = old balance %{old_balance} %{sign_price} %{price}% %{sign_negative_interest} %{negative_interest} %{sign_currency_gain_loss} %{currency_gain_loss}. Negative interest of %{old_balance} in %{number_of_days} days was %{negative_interest}. Currency loss for the same period was %{currency_gain_loss}."
+        balance_title_exchange_rate_negative_interest: "New balance %{new_balance} = old balance %{old_balance} %{sign_price} %{price} %{old_currency} * %{exchange_rate} %{sign_negative_interest} %{negative_interest}. Negative interest of %{old_balance} in %{number_of_days} days was %{negative_interest}."
+        balance_title_exchange_rate_negative_interest_gain: "New balance %{new_balance} = old balance %{old_balance} %{sign_price} %{price} %{old_currency} * %{exchange_rate} %{sign_negative_interest} %{negative_interest} %{sign_currency_gain_loss} %{currency_gain_loss}. Negative interest of %{old_balance} in %{number_of_days} days was %{negative_interest}. Currency gain for the same period was %{currency_gain_loss}."
+        balance_title_exchange_rate_negative_interest_loss: "New balance %{new_balance} = old balance %{old_balance} %{sign_price} %{price} %{old_currency} * %{exchange_rate} %{sign_negative_interest} %{negative_interest} %{sign_currency_gain_loss} %{currency_gain_loss}. Negative interest of %{old_balance} in %{number_of_days} days was %{negative_interest}. Currency loss for the same period was %{currency_gain_loss}."
+        balance_title_social_dividend: "New balance %{new_balance} = old balance %{old_balance} %{sign_price} %{price}"
+        balance_title_exchange_rate_social_dividend: "New balance %{new_balance} = old balance %{old_balance} %{sign_price} %{price} %{old_currency} * %{exchange_rate}"
      user:
         user_name_prompt: "Name"
         user_name_title: "Use this link to see %{username}'s profile on %{apiname} (new tab in browser)"

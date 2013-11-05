@@ -16,10 +16,10 @@ module UsersHelper
     return nil unless exchange_rate1 and exchange_rate2 and exchange_rate3
     old_balance_hash = balance_doc[:previous_balance]
     old_balance = (old_balance_hash[BALANCE_KEY] * exchange_rate3).round(2)
-
+    sign_negative_interest = old_balance >= 0 ? '-' : '+'
     # calculate exchange rate gains/losses
-    # that is previous_balance + negative_interest with old and new exchange rates
-    # calculation is done in current user
+    # that is previous_balance + negative_interest in old and new exchange rates
+    # calculation is done in current users actual currency
     if gift.gifttype == 'G' and balance_doc[:number_of_days] > 0
       old_exchange_rates = balance_doc[:previous_exchange_rates]
       new_exchange_rates = balance_doc[:exchange_rates]
@@ -37,7 +37,12 @@ module UsersHelper
     else
       gain_loss = 0.0
     end
-    # 4 keys: balance_title, balance_title_exchange_rate, balance_title_negative_interest, balance_title_exchange_rate_negative_interest
+    # 5 translation key elements: balance_title [, exchange_rate ] [, negative_interest] [, gain/loss], [, social_dividend]
+    # 14 translation keys: balance_title, balance_title_gain, balance_title_loss, balance_title_exchange_rate, balance_title_exchange_rate_gain,
+    #                      balance_title_exchange_rate_loss, balance_title_negative_interest, balance_title_negative_interest_gain,
+    #                      balance_title_negative_interest_loss, balance_title_exchange_rate_negative_interest,
+    #                      balance_title_exchange_rate_negative_interest_gain, balance_title_exchange_rate_negative_interest_loss,
+    #                      balance_title_social_dividend and balance_title_exchange_rate_social_dividend:
     translate_key = ['.balance_title']
     translate_key << 'exchange_rate' if exchange_rate1.round(3) != 1.000
     negative_interest = gift.balance_doc(current_user)[:negative_interest][BALANCE_KEY] || 0.00
@@ -55,7 +60,6 @@ module UsersHelper
     end
     translate_key << "social_dividend" if gift.gifttype == 'S'
     translate_key = translate_key.join('_')
-    sign_negative_interest = old_balance >= 0 ? '-' : '+'
     # todo: add exchange_rate_difference hash
     my_t translate_key, # calculation: new_balance = old_balance + price * exchange_rate + negative_interest + currency_gain_loss
                         :new_balance => format_price(gift.balance(current_user, @user)),
