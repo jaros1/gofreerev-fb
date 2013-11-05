@@ -36,8 +36,8 @@ class ExchangeRate < ActiveRecord::Base
   def self.exchange (from_amount, from_currency, to_currency, date=nil)
     # check params
     raise "invalid from_amount #{from_amount.class.name}" unless %w(Float BigDecimal).index(from_amount.class.name)
-    raise "invalid from_currency" unless from_currency.class.name == 'String' and from_currency.size == 3 and from_currency == from_currency.upcase
-    raise "invalid to_currency" unless to_currency.class.name == 'String' and to_currency.size == 3 and to_currency == to_currency.upcase
+    raise "invalid from_currency #{from_currency}" unless from_currency.class.name == 'String' and from_currency.size == 3 and from_currency == from_currency.upcase
+    raise "invalid to_currency #{to_currency}" unless to_currency.class.name == 'String' and to_currency.size == 3 and to_currency == to_currency.upcase
     date = date.strftime("%Y%m%d") unless [NilClass, String].index(date.class) # convert date and time to string
     if defined? @@today
       cache = true if date and date > @@today # refresh cache
@@ -159,6 +159,8 @@ class ExchangeRate < ActiveRecord::Base
         exchange_rates[to_currency] = exchange_rate
       rescue Money::Bank::UnknownRate => e
         nil
+      rescue Money::Bank::GoogleCurrencyFetchError => e
+        puts "Money::Bank::GoogleCurrencyFetchError. to_currency = #{to_currency}"
       end
     end # each
     exchange_rates

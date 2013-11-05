@@ -438,7 +438,7 @@ en:
         balance_title: "New balance %{new_balance} = old balance %{old_balance} %{sign} %{price}. Not yet any negative interest"
         balance_title_exchange_rate: "New balance %{new_balance} = old balance %{old_balance} %{sign} %{price} %{old_currency} * %{exchange_rate}. Not yet any negative interest"
         balance_title_negative_interest: "New balance %{new_balance} = gl. saldo %{old_balance} %{sign} %{price}. Negative interest was %{negative_interest} = %{price} - %{price}"
-        balance_title_exchange_rate_negative_interest: "New balance %{new_balance} = old balance %{old_balance} %{sign} %{price} %{old_currency} * %{exchange_rate}. Negative interest was %{negative_interest} %{old_currency} = %{price} - %{price}"
+        balance_title_exchange_rate_negative_interest: "New balance %{new_balance} = old balance %{old_balance} %{sign} %{price} %{old_currency} * %{exchange_rate}. Negative interest was %{negative_interest} = %{price} - %{price}"
         balance_title_social_dividend: "New balance %{new_balance} = old balance %{old_balance} %{sign} %{price}"
         balance_title_exchange_rate_social_dividend: "New balance %{new_balance} = old balance %{old_balance} %{sign} %{price} %{old_currency} * %{exchange_rate}"
      user:
