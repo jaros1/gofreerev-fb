@@ -438,12 +438,12 @@ class User < ActiveRecord::Base
 
       # step 2: calculate previous_balance + negative_interest hash
       # used for exchange rate gains/losses calculation in view
-      previous_balance_neg_int_hash = {}
-      previous_balance_hash.keys.each do |balance_hash_currency|
-        next if balance_hash_currency == BALANCE_KEY
-        previous_balance_neg_int_hash[balance_hash_currency] = previous_balance_hash[balance_hash_currency] + gift_negative_interest_hash[balance_hash_currency]
-      end
-      balance_doc_hash[:previous_balance_and_negative_interest] = previous_balance_neg_int_hash
+      #previous_balance_neg_int_hash = {}
+      #previous_balance_hash.keys.each do |balance_hash_currency|
+      #  next if balance_hash_currency == BALANCE_KEY
+      #  previous_balance_neg_int_hash[balance_hash_currency] = previous_balance_hash[balance_hash_currency] + gift_negative_interest_hash[balance_hash_currency]
+      #end
+      #balance_doc_hash[:previous_balance_and_negative_interest] = previous_balance_neg_int_hash
 
       # step 3 - new balance with this gift
       sign = user_id == g.user_id_giver ? 1 : -1

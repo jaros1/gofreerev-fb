@@ -18,20 +18,24 @@ module UsersHelper
     old_balance = (old_balance_hash[BALANCE_KEY] * exchange_rate3).round(2)
     sign_negative_interest = old_balance >= 0 ? '-' : '+'
     # calculate exchange rate gains/losses
-    # that is previous_balance + negative_interest in old and new exchange rates
+    # that is previous_balance + negative_interest in old (date=previous_date) and new (date=received_at) exchange rates
     # calculation is done in current users actual currency
+    # note that gains/losses changes if current user selects to see balance in an other currency
     previous_date = balance_doc[:previous_date]
     if gift.gifttype == 'G' and previous_date != gift.received_at.to_yyyymmdd
       old_exchange_rates = balance_doc[:previous_exchange_rates]
       new_exchange_rates = balance_doc[:exchange_rates]
       previous_date = balance_doc[:previous_date]
-      previous_balance_neg_int_hash = balance_doc[:previous_balance_and_negative_interest]
+      previous_balance_hash = balance_doc[:previous_balance]
+      negative_interest_hash = balance_doc[:negative_interest]
       old_sum = 0.0
       new_sum = 0.0
-      previous_balance_neg_int_hash.keys.each do |currency|
+      previous_balance_hash.keys.each do |currency|
+        next if currency == BALANCE_KEY
         puts "gift id = #{gift.id}, currency = #{currency}"
-        old_sum += ExchangeRate.exchange(previous_balance_neg_int_hash[currency] / old_exchange_rates[currency], 'USD', current_user.currency, previous_date)
-        new_sum += ExchangeRate.exchange(previous_balance_neg_int_hash[currency] / new_exchange_rates[currency], 'USD', current_user.currency, gift.received_at)
+        amount = previous_balance_hash[currency] + negative_interest_hash[currency]
+        old_sum += ExchangeRate.exchange(amount / old_exchange_rates[currency], 'USD', current_user.currency, previous_date)
+        new_sum += ExchangeRate.exchange(amount / new_exchange_rates[currency], 'USD', current_user.currency, gift.received_at)
       end
       gain_loss = new_sum - old_sum
       puts "exchange rate gains/losses. gift id #{gift.id}, gain/loss #{gain_loss}"
