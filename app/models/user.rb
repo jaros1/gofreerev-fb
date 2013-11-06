@@ -310,10 +310,10 @@ class User < ActiveRecord::Base
 
   # relation helpers
   def gifts_given
-    offers.find_all { |g| (g.user_id_receiver and g.price and g.price != 0.00) }.collect { |g| g.recalculate ; g }
+    offers.find_all { |g| (g.user_id_receiver and g.price and g.price != 0.00) }
   end # gifts_given
   def gifts_received
-    wishes.find_all { |g| (g.user_id_giver and g.price and g.price != 0.00) }.collect { |g| g.recalculate ; g }
+    wishes.find_all { |g| (g.user_id_giver and g.price and g.price != 0.00) }
   end
   #def gifts_received_with_sign
   #  gifts_received.collect do |g|
@@ -395,8 +395,8 @@ class User < ActiveRecord::Base
       previous_exchange_rates_hash = exchange_rates_hash.clone
       balance_doc_hash[:previous_exchange_rates] = previous_exchange_rates_hash
       # puts "balance_doc_hash[:previous_balance] = #{balance_doc_hash[:previous_balance]}"
-      balance_doc_hash[:previous_date] = previous_date
-      balance_doc_hash[:number_of_days] = (g.received_at.to_date - previous_date).to_i
+      balance_doc_hash[:previous_date] = previous_date.to_yyyymmdd
+      # balance_doc_hash[:number_of_days] = (g.received_at.to_date - previous_date).to_i
 
       # step 1 - calculate negative interest from previous gift to this gift
       # use FACTOR_POS_BALANCE_PER_DAY for positive balance - 0.9998594803001535 per day <=>  5 % per year

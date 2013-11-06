@@ -38,7 +38,7 @@ class ExchangeRate < ActiveRecord::Base
     raise "invalid from_amount #{from_amount.class.name}" unless %w(Float BigDecimal).index(from_amount.class.name)
     raise "invalid from_currency #{from_currency}" unless from_currency.class.name == 'String' and from_currency.size == 3 and from_currency == from_currency.upcase
     raise "invalid to_currency #{to_currency}" unless to_currency.class.name == 'String' and to_currency.size == 3 and to_currency == to_currency.upcase
-    date = date.strftime("%Y%m%d") unless [NilClass, String].index(date.class) # convert date and time to string
+    date = date.to_yyyymmdd unless [NilClass, String].index(date.class) # convert date and time to string
     if defined? @@today
       cache = true if date and date > @@today # refresh cache
     else
@@ -91,7 +91,7 @@ class ExchangeRate < ActiveRecord::Base
   # about 90 exchange rates is saved every day
   def self.fetch_exchange_rates
     # check if currency rates for today have already been read and saved in db
-    today = Date.today.strftime("%Y%m%d")
+    today = Date.today.to_yyyymmdd
     s = Sequence.get_last_exchange_rate_date
     return if s and s == today # currency rates are up-to-date
 

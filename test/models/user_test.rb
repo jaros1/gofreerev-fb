@@ -96,7 +96,6 @@ class UserTest < ActiveSupport::TestCase
     g.picture = 'N'
     assert g.save
     g.update_attributes! :user_id_receiver => receiver.user_id, :received_at => days_ago.days.ago(Time.now)
-    g.recalculate
     g.reload
     assert (g.received_at.to_date == days_ago.days.ago(Date.today)), "create_deal: received_at is invalid. Expected #{days_ago.days.ago(Date.today)}. Found #{g.received_at.to_date}"
     g

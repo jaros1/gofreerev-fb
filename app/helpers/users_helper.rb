@@ -20,7 +20,8 @@ module UsersHelper
     # calculate exchange rate gains/losses
     # that is previous_balance + negative_interest in old and new exchange rates
     # calculation is done in current users actual currency
-    if gift.gifttype == 'G' and balance_doc[:number_of_days] > 0
+    previous_date = balance_doc[:previous_date]
+    if gift.gifttype == 'G' and previous_date != gift.received_at.to_yyyymmdd
       old_exchange_rates = balance_doc[:previous_exchange_rates]
       new_exchange_rates = balance_doc[:exchange_rates]
       previous_date = balance_doc[:previous_date]
@@ -61,6 +62,7 @@ module UsersHelper
     translate_key << "social_dividend" if gift.gifttype == 'S'
     translate_key = translate_key.join('_')
     # todo: add exchange_rate_difference hash
+    number_of_days = (gift.received_at.to_date - Date.parse(previous_date)).to_i
     my_t translate_key, # calculation: new_balance = old_balance + price * exchange_rate + negative_interest + currency_gain_loss
                         :new_balance => format_price(gift.balance(current_user, @user)),
                         :old_balance => format_price(old_balance),
@@ -73,7 +75,7 @@ module UsersHelper
                         :currency_gain_loss => format_price(gain_loss),
                         :new_currency => @user.currency,
                         :old_currency => gift.currency,
-                        :number_of_days => balance_doc[:number_of_days]
+                        :number_of_days => number_of_days
   end # gift_balance_calculation_doc
 
 end

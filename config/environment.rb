@@ -21,7 +21,7 @@ class String
     rescue ArgumentError => e
       return false
     end
-    (self <= Date.today.strftime("%Y%m%d"))
+    (self <= Date.today.to_yyyymmdd)
   end # yyyymmdd?
 end # String
 
@@ -66,6 +66,15 @@ end # find_usertype
 class Time
   def self.current_hour_no
     (Time.new.to_i/60-23000000).to_i
+  end
+  def to_yyyymmdd
+    self.strftime("%Y%m%d")
+  end
+end
+
+class Date
+  def to_yyyymmdd
+    self.strftime("%Y%m%d")
   end
 end
 

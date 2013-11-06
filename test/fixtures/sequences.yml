@@ -8,6 +8,6 @@ status_update_at_seq:
 
 last_exchange_rate_date:
   name: last_exchange_rate_date
-  value: <%= Date.today.strftime("%Y%m%d").to_i %>
+  value: <%= Date.today.to_yyyymmdd %>
   created_at: <%= Time.new %>
   updated_at: <%= Time.new %>

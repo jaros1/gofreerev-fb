@@ -20,7 +20,7 @@ class ExchangeRateTest < ActiveSupport::TestCase
     to_currency = options[:to_currency]
     expected_exchange_rate = options[:exchange_rate]
     days_ago = options[:days_ago] || 0
-    date = days_ago.days.ago.strftime("%Y%m%d")
+    date = days_ago.days.ago.to_yyyymmdd
     found_exchange_rate = ExchangeRate.exchange(from_amount, from_currency, to_currency, date)
     msg_prefix = "#{days_ago} days ago - #{date} - #{from_currency} => #{to_currency}: "
     if !expected_exchange_rate

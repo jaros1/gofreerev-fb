@@ -2,7 +2,7 @@
 
 usd_dkk_0:
   id: 1
-  date: <%= Date.today.strftime("%Y%m%d") %>
+  date: <%= Date.today.to_yyyymmdd %>
   from_currency: USD
   to_currency: DKK
   exchange_rate: 5.6477073132162
@@ -11,7 +11,7 @@ usd_dkk_0:
 
 usd_sek_0:
   id: 2
-  date: <%= Date.today.strftime("%Y%m%d") %>
+  date: <%= Date.today.to_yyyymmdd %>
   from_currency: USD
   to_currency: SEK
   exchange_rate: 6.51145473644974
@@ -20,7 +20,7 @@ usd_sek_0:
 
 usd_dkk_20:
   id: 3
-  date: <%= 20.days.ago.strftime("%Y%m%d") %>
+  date: <%= 20.days.ago.to_yyyymmdd %>
   from_currency: USD
   to_currency: DKK
   exchange_rate: 5.930092678877011
@@ -29,7 +29,7 @@ usd_dkk_20:
 
 usd_sek_20:
   id: 4
-  date: <%= 20.days.ago.strftime("%Y%m%d") %>
+  date: <%= 20.days.ago.to_yyyymmdd %>
   from_currency: USD
   to_currency: SEK
   exchange_rate: 6.185881999627252
@@ -38,7 +38,7 @@ usd_sek_20:
 
 usd_dkk_50:
   id: 5
-  date: <%= 50.days.ago.strftime("%Y%m%d") %>
+  date: <%= 50.days.ago.to_yyyymmdd %>
   from_currency: USD
   to_currency: DKK
   exchange_rate: 6.226597312820862
@@ -47,7 +47,7 @@ usd_dkk_50:
 
 usd_sek_50:
   id: 6
-  date: <%= 50.days.ago.strftime("%Y%m%d") %>
+  date: <%= 50.days.ago.to_yyyymmdd %>
   from_currency: USD
   to_currency: SEK
   exchange_rate: 5.876587899645889
@@ -56,7 +56,7 @@ usd_sek_50:
 
 usd_dkk_100:
   id: 7
-  date: <%= 100.days.ago.strftime("%Y%m%d") %>
+  date: <%= 100.days.ago.to_yyyymmdd %>
   from_currency: USD
   to_currency: DKK
   exchange_rate: 6.537927178461905
@@ -65,7 +65,7 @@ usd_dkk_100:
 
 usd_sek_100:
   id: 8
-  date: <%= 100.days.ago.strftime("%Y%m%d") %>
+  date: <%= 100.days.ago.to_yyyymmdd %>
   from_currency: USD
   to_currency: SEK
   exchange_rate: 5.582758504663595

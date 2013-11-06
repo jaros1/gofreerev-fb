@@ -483,10 +483,10 @@ class Gift < ActiveRecord::Base
   #  end # case
   #end # social_dividend_neg_balance
 
-  def negative_interest (previous_balance)
-    return nil unless previous_balance
-    previous_balance >= 0 ? negative_interest_pos_balance : negative_interest_neg_balance
-  end # negative_interest
+  #def negative_interest (previous_balance)
+  #  return nil unless previous_balance
+  #  previous_balance >= 0 ? negative_interest_pos_balance : negative_interest_neg_balance
+  #end # negative_interest
 
 
   #
@@ -564,20 +564,8 @@ class Gift < ActiveRecord::Base
   # negative interest for gifts (gifttype = G) is used in social dividend calculation
   # negative interest for social dividend (gifttype = S) in social dividend calculation
   # that is - no social dividend of social dividend.
+  # todo: remove
   def recalculate
-    puts "gift: recalculate: id = #{id}"
-    unless received_at and gifttype == 'G'
-      puts 'open offer - or social dividend - prices is not recalculated'
-      return self
-    end
-    today = Date.today
-    return self if new_price_at == today # negative interest has already been calculated
-    # calculate new interest, price and social dividend
-    days = (today - received_at.to_date).to_i
-    self.negative_interest_pos_balance = price - price * FACTOR_POS_BALANCE_PER_DAY ** days
-    self.negative_interest_neg_balance = price - price * FACTOR_NEG_BALANCE_PER_DAY ** days
-    self.new_price_at = today
-    self.save!
     self
   end # recalculate
 
@@ -715,9 +703,9 @@ class Gift < ActiveRecord::Base
       puts "self.id = #{self.id}, self.recieved_at = #{self.received_at}"
       gift.received_at = self.received_at
       gift.new_price = gift.price
-      gift.new_price_at = gift.received_at
-      gift.negative_interest = 0.0
-      gift.social_dividend = 0.0
+      #gift.new_price_at = gift.received_at
+      #gift.negative_interest = 0.0
+      #gift.social_dividend = 0.0
       gift.gifttype = 'S'
       # gift.social_dividend_from = date1 # moved to social_dividend_doc hash
       gift.picture = 'N'
