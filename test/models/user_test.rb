@@ -30,14 +30,18 @@ class UserTest < ActiveSupport::TestCase
       # puts "#{text}: #{name}. Expected #{expected[name]}. Found #{found[name]}"
       assert (expected[name].round(8) == found[name].round(8)), "#{text}: #{name} is invalid. Expected #{expected[name]}. Found #{found[name]}" if expected.has_key?(name)
     end
-  end
+  end # assert_hash
 
   def assert_gift (gift, expected)
-    found = { :new_price => gift.new_price,
-              :negative_interest => gift.negative_interest,
-              :social_dividend => gift.social_dividend,
+    puts "balance_doc_giver = #{gift.balance_doc_giver}"
+    puts "balance_doc_receiver = #{gift.balance_doc_receiver}"
+    found = { :negative_interest_giver => gift.balance_doc_giver[:negative_interest][BALANCE_KEY],
+              :negative_interest_receiver => gift.balance_doc_receiver[:negative_interest][BALANCE_KEY],
               :balance_giver => gift.balance_giver,
-              :balance_receiver => gift.balance_receiver }
+              :balance_receiver => gift.balance_receiver,
+              :previous_balance_giver => gift.balance_doc_giver[:previous_balance][BALANCE_KEY],
+              :previous_balance_receiver => gift.balance_doc_receiver[:previous_balance][BALANCE_KEY]
+            }
     assert_hash 'gift', expected, found
   end # assert_user_balance
 
@@ -47,7 +51,7 @@ class UserTest < ActiveSupport::TestCase
               :dkk => user.balance['DKK'],
               :sek => user.balance['SEK'] }
     assert_hash user.short_user_name, expected, found
-  end
+  end # assert_balance
 
   # alias for fixtures
   def charlie # default currency DKK
@@ -103,121 +107,154 @@ class UserTest < ActiveSupport::TestCase
 
 
   test "create_gift_today" do
-    return
     # simple: create gift today - 0 negative interest and 0 social dividend
     g1 = create_deal(charlie, u2_karen, 10.0, 0) # charlie 10.00 dkk today
     charlie.recalculate_balance
     u2_karen.recalculate_balance
     g1.reload
     assert_gift g1,
-                :new_price => 10.0,
-                :negative_interest => 0.0,
-                :social_dividend => 0.0,
-                :balance_giver => 10.0, # charlie dkk
-                :balance_receiver => -1.77063 # karen usd
+                :negative_interest_giver => 0.0,
+                :negative_interest_receiver => 0.0,
+                :previous_balance_giver => 0.0,
+                :previous_balance_receiver => 0.0,
+                :balance_giver => 1.77063, # charlie usd = 10 / 5.6477073132162
+                :balance_receiver => -1.77063 # karen usd = -10 / 5.6477073132162
     assert_balance charlie,
-                   :balance => 10.0, # dkk
+                   :balance => 1.77063, # usd = 10.0 dkk / 5.6477073132162 = 1.77063 usd
                    :dkk => 10.0
     assert_balance u2_karen,
-                   :balance => -1.77063, # usd = -10.0 dkk * 0.177063
+                   :balance => -1.77063, # usd = -10.0 dkk / 5.6477073132162 = -1.77063
                    :dkk => -10.0
   end # create_gift_today
 
 
   test "create_gift_100_days_ago" do
-    return
     g1 = create_deal(charlie, u2_karen, 10.0, 100) # charlie 10.00 dkk 100 days ago
-    # new price charlie - positive balance - 10.0 * FACTOR_POS_AMOUNT_PER_DAY ** 100
-    # new price karen - negative balanace - -10.0 * FACTOR_NEG_AMOUNT_PER_DAY ** 100
-    # new price after 100 days = 10.0 * 0.9998 ** 100 = 9.801967126499463 dkk
-    # negative interest after 100 days = 10.0 - 9.801967126499463 = 0.19803287350053722 dkk
-    # social dividend after 100 days = 0.19803287350053722 / 4 = 0.049508218375134305 dkk
     charlie.recalculate_balance
     u2_karen.recalculate_balance
     g1.reload
+    # gift balance 100 days ago
+    #   - charlie - 10.00 dkk = 10.00 / 6.537927178461905 = 1.5295367670877873
+    #   - sandra - -10.00 dkk = -10.00 / 6.537927178461905 = -1.5295367670877873
     assert_gift g1,
-                :new_price => 9.801967126499463,
-                :negative_interest => 0.19803287350053722,
-                :social_dividend => 0.049508218375134305,
-                :balance_giver => 9.801967126499463, # dkk
-                :balance_receiver => -1.7355657053193743 # usd
-    # balance giver (charlie/dkk) = 9.801967126499463 DKK
-    # balance receiver (karen/usd) = -9.801967126499463 DKK * 0.177063 = -1.7355657053193743 USD
+                :negative_interest_giver => 0.0, # no following deals yet
+                :negative_interest_receiver => 0.0, # no following deals yet
+                :balance_giver => 1.5295367670877873, # usd
+                :balance_receiver => -1.5295367670877873 # usd
+    # negative interest charlie - positive balance
+    #   = 10.00 - 10.00 * FACTOR_POS_BALANCE_PER_DAY ** 100
+    #   = 0.13954675483425838 dkk
+    #   = 0.02134418922467836 usd
+    # negative interest sandra - negative balance
+    #   = 10.00 - 10.00 * FACTOR_NEG_BALANCE_PER_DAY ** 100
+    #   = 0.28453254702274045 dkk
+    #   = 0.04352029921044162 usd
+    # balance charlie:
+    #   = 10.00 - 0.13954675483425838 = 9.860453245165742 dkk = 9.860453245165742 / 5.6477073132162 usd = 1.7459214329487815 usd
+    # balance sandra:
+    #   = -10.00 + 0.28453254702274045 = -9.71546745297726 dkk = -9.71546745297726 / 5.6477073132162 usd = -1.7202498136265125
     assert_balance charlie,
-                   :balance => 9.801967126499463, # dkk
-                   :dkk => 9.801967126499463
+                   :balance => 1.7459214329487815, # usd
+                   :dkk => 9.860453245165742
     assert_balance u2_karen,
-                   :balance => -1.7355657053193743, # usd
-                   :dkk => -9.801967126499463
+                   :balance => -1.7202498136265125, # usd
+                   :dkk => -9.71546745297726
   end # create_gift_100_days_ago
 
   test "create_gift_100_and_0_days_ago" do
-    return
     g1 = create_deal(charlie, u2_karen, 10.0, 100) # charlie 10.00 dkk 100 days ago
     g2 = create_deal(charlie, u2_karen, 10.0, 0) # charlie 10.00 dkk today
     charlie.recalculate_balance
     u2_karen.recalculate_balance
     g1.reload
     g2.reload
+
     # g1: 100 days ago. Same check as in create_gift_100_days_ago
+    # gift balance 100 days ago
+    #   - charlie - 10.00 dkk = 10.00 / 6.537927178461905 = 1.5295367670877873
+    #   - sandra - -10.00 dkk = -10.00 / 6.537927178461905 = -1.5295367670877873
     assert_gift g1,
-                :new_price => 9.801967126499463,
-                :negative_interest => 0.19803287350053722,
-                :social_dividend => 0.049508218375134305,
-                :balance_giver => 9.801967126499463, # dkk
-                :balance_receiver => -1.7355657053193743 # usd
-    # g2: today. add/subtract 10.00 dkk to/from balance
-    # balance giver = 9.801967126499463 + 10.00 = 19.801967126499463
-    # balance receiver = -1.7355657053193743 usd - (10.00 dkk * 0.177063) = -3.5061957053193744 usd
+                :negative_interest_giver => 0.0, # no following deals yet
+                :negative_interest_receiver => 0.0, # no following deals yet
+                :balance_giver => 1.5295367670877873, # usd
+                :balance_receiver => -1.5295367670877873 # usd
+
+    # g2: today.
+    # negative interest 100 days:
+    # negative interest charlie - positive balance
+    #   = 10.00 - 10.00 * FACTOR_POS_BALANCE_PER_DAY ** 100
+    #   = 0.13954675483425838 dkk
+    #   = 0.02134418922467836 usd
+    # negative interest karen - negative balance
+    #   = 10.00 - 10.00 * FACTOR_NEG_BALANCE_PER_DAY ** 100
+    #   = 0.28453254702274045 dkk
+    #   = 0.04352029921044162 usd
+    # balance charlie
+    #   = 10.00 - 0.13954675483425838 + 10.00 = 19.860453245165743 dkk = 19.860453245165743 / 5.6477073132162 = 3.516551432948782 usd
+    # balance karen
+    #   = -10.00 + 0.28453254702274045 -10.00 = -19.715467452977258 dkk = -19.715467452977258 / 5.6477073132162 = -3.490879813626512 usd
     assert_gift g2,
-                :new_price => 10.0,
-                :negative_interest => 0.0,
-                :social_dividend => 0.0,
-                :balance_giver => 19.801967126499463, # charlie dkk
-                :balance_receiver => -3.5061957053193744 # karen usd
+                :negative_interest_giver => 0.02134418922467836,
+                :negative_interest_receiver => 0.04352029921044162,
+                :balance_giver => 3.516551432948782, # charlie usd
+                :balance_receiver => -3.490879813626512 # karen usd
     # check user balance
     assert_balance charlie,
-                   :balance => 19.801967126499463, # dkk
-                   :dkk => 19.801967126499463
+                   :balance => 3.516551432948782, # dkk
+                   :dkk => 19.860453245165743
     assert_balance u2_karen,
-                   :balance => -3.5061957053193744, # usd
-                   :dkk => -19.801967126499463
+                   :balance => -3.490879813626512, # usd
+                   :dkk => -19.715467452977258
   end # create_gift_100_and_0_days_ago
 
   test "create_gift_100_and_20_days_ago" do
-    return
     g1 = create_deal(charlie, u2_karen, 10.0, 100) # charlie 10.00 dkk 100 days ago
     g2 = create_deal(charlie, u2_karen, 10.0, 20) # charlie 10.00 dkk 20 days ago
     charlie.recalculate_balance
     u2_karen.recalculate_balance
     g1.reload
     g2.reload
-    # g1: 100 days ago. Same check as in create_gift_100_days_ago
+
+    # g1 gift balance 100 days ago
+    #   - charlie - 10.00 dkk = 10.00 / 6.537927178461905 = 1.5295367670877873
+    #   - sandra - -10.00 dkk = -10.00 / 6.537927178461905 = -1.5295367670877873
     assert_gift g1,
-                :new_price => 9.801967126499463,
-                :negative_interest => 0.19803287350053722,
-                :social_dividend => 0.049508218375134305,
-                :balance_giver => 9.801967126499463, # dkk
-                :balance_receiver => -1.7355657053193743 # usd
-    # g2: 20 days ago.
-    # new_price = 10.00 * 0.9998 ** 20 = 9.960075908877474 dkk
-    # negative_interest = 10.00 - 9.960075908877474 = 0.039924091122525596 dkk
-    # social_dividend = 0.039924091122525596 / 4 = 0.009981022780631399 dkk
-    # balance_giver = 9.801967126499463 + 9.960075908877474 = 19.762043035376937
-    # balance_receiver = -1.7355657053193743 usd - (9.960075908877474 dkk * 0.177063) = -1.7355657053193743 - 1.7635609206535723 usd = -3.4991266259729468 usd
+                :negative_interest_giver => 0.0, # no following deals yet
+                :negative_interest_receiver => 0.0, # no following deals yet
+                :balance_giver => 1.5295367670877873, # usd
+                :balance_receiver => -1.5295367670877873 # usd
+
+    # g2 gift 20 days ago
+    # charlie negative interest 80 days (100 => 20 days ago)
+    #  = 10.00 - 10.00 * FACTOR_POS_BALANCE_PER_DAY ** 80 = 0.11179406655528012 dkk = 0.11179406655528012 / 6.537927178461905 = 0.017099313513856008 usd
+    # karen negative interest 80 days (100 => 20 days ago)
+    #  = 10.00 - 10.00 * FACTOR_NEG_BALANCE_PER_DAY ** 80 = 0.2282811966098155 dkk = 0.2282811966098155 / 6.537927178461905 = 0.03491644834495087 usd
+    # charlie balance 20 days ago:
+    #  = 10.00 - 0.11179406655528012 + 10.00 = 19.88820593344472 dkk = 19.88820593344472 / 5.930092678877011 = 3.3537765782795446 usd
+    # karen balance 20 days ago:
+    #  = -10.00 + 0.2282811966098155 - 10.00 = -19.771718803390186 dkk = -19.771718803390186 / 5.930092678877011 = -3.3341331871282627 usd
     assert_gift g2,
-                :new_price => 9.960075908877474,
-                :negative_interest => 0.039924091122525596,
-                :social_dividend => 0.009981022780631399,
-                :balance_giver => 19.762043035376937, # charlie dkk
-                :balance_receiver => -3.4991266259729468 # karen usd
+                :negative_interest_giver => 0.017099313513856008,
+                :negative_interest_receiver => 0.03491644834495087,
+                :balance_giver => 3.3537765782795446, # charlie usd
+                :balance_receiver => -3.3341331871282627 # karen usd
+
+    # balance today
+    # charlie negative interest day 20 => day 0
+    #   = 19.88820593344472 - 19.88820593344472 * FACTOR_POS_BALANCE_PER_DAY ** 20 = 0.055819142867171934 dkk
+    # karen negative interest day 20 => day 0
+    #   = 19.771718803390186 - 19.771718803390186 * FACTOR_NEG_BALANCE_PER_DAY ** 20 = 0.11381681207296523 dkk
+    # charlie balance today
+    #   = 19.88820593344472 - 0.055819142867171934 = 19.832386790577548 dkk = 19.832386790577548 / 5.6477073132162 = 3.511581902300032 usd
+    # karen balance today
+    #   = -19.771718803390186 + 0.11381681207296523 = -19.65790199131722 dkk = -19.65790199131722 / 5.6477073132162 = -3.480687100288601 usd
     # check user balance
     assert_balance charlie,
-                   :balance => 19.762043035376937, # dkk
-                   :dkk => 19.762043035376937
+                   :balance => 3.511581902300032, # usd
+                   :dkk => 19.832386790577548
     assert_balance u2_karen,
-                   :balance => -3.4991266259729468, # usd
-                   :dkk => -19.762043035376937
+                   :balance => -3.480687100288601, # usd
+                   :dkk => -19.65790199131722
   end # create_gift_100_and_20_days_ago
 
   test "create_gift_100_50_and_20_days_ago" do
@@ -378,7 +415,7 @@ class UserTest < ActiveSupport::TestCase
     # sandra: -100.00 dk + 16.00 usd = -100.00 / 5.6477073132162 + 16.00 = -1.7062999999999988 usd
     # note that balances change sign 50 days ago
 
-    # balances 100 days ago
+    # balances 100 days ago - charlie starts with a negative balance - sandra starts with a positive balance
     date = 100.days.ago.to_date
     charlie_dkk = 100.00
     charlie_usd = -16.00
@@ -388,12 +425,11 @@ class UserTest < ActiveSupport::TestCase
     sandra_balance = ExchangeRate.exchange(sandra_dkk, 'DKK', 'USD', date) + sandra_usd # -100.00 dk + 16.00 usd = -100.00 / 5.6477073132162 + 16.00 = -1.7062999999999988 usd
 
     # day 99..50: charlie has negative balance until 50 days ago. Sandra has positive balance until 50 days ago
-    factor = charlie_balance >= 0 ? FACTOR_POS_BALANCE_PER_DAY : FACTOR_NEG_BALANCE_PER_DAY
-    charlie_dkk = charlie_dkk * factor **50
-    charlie_usd = charlie_usd * factor **50
-    factor = sandra_balance >= 0 ? FACTOR_POS_BALANCE_PER_DAY : FACTOR_NEG_BALANCE_PER_DAY
-    sandra_dkk = sandra_dkk * factor ** 50
-    sandra_usd = sandra_usd * factor ** 50
+    # use FACTOR_NEG_BALANCE_PER_DAY for charlie. use FACTOR_POS_BALANCE_PER_DAY for sandra
+    charlie_dkk = charlie_dkk * FACTOR_NEG_BALANCE_PER_DAY ** 50
+    charlie_usd = charlie_usd * FACTOR_NEG_BALANCE_PER_DAY ** 50
+    sandra_dkk = sandra_dkk * FACTOR_POS_BALANCE_PER_DAY ** 50
+    sandra_usd = sandra_usd * FACTOR_POS_BALANCE_PER_DAY ** 50
     date = 50.days.since(date)
     charlie_balance = ExchangeRate.exchange(charlie_dkk, 'DKK', 'USD', date) + charlie_usd
     sandra_balance = ExchangeRate.exchange(sandra_dkk, 'DKK', 'USD', date) + sandra_usd
@@ -415,7 +451,16 @@ class UserTest < ActiveSupport::TestCase
     # sandra: dkk = -97.87691892116936, usd = 15.660307027387109, balance = -1.6700738675519027
     charlie.recalculate_balance
     u1_sandra.recalculate_balance
-    assert false
+
+    # charlie balance: 97.87691892116952 / 5.6477073132162 - 15.660307027387113 = 1.670073867551924
+    assert_balance charlie, :dkk => 97.87691892116952,
+                            :usd => -15.660307027387113,
+                            :balance => 1.670073867551924
+    # sandra balance: -97.87691892116936 / 5.6477073132162 + 15.660307027387109 = -1.6700738675519027
+    assert_balance u1_sandra, :dkk => -97.87691892116952,
+                              :usd => 15.660307027387113,
+                              :balance => -1.6700738675519027
+
   end # two_gifts_100_days_ago
 
 end

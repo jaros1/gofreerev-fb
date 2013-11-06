@@ -46,7 +46,7 @@ class ExchangeRate < ActiveRecord::Base
     end
     ExchangeRate.cache_exchange_rates if cache
     date = @@today unless date
-    puts "date = #{date}, @@today = #{@@today}"
+    # puts "date = #{date}, @@today = #{@@today}"
     raise "invalid date" unless date.to_s.yyyymmdd? and date <= @@today
 
     # check for zero or identical currencies
