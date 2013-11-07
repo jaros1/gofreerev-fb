@@ -160,10 +160,6 @@ en:
         new_deal_check_box_prompt: "Agreement proposal"
         price_prompt: "Price"
         price_free: "free"
-        # social_dividend_description keys are used in Gift,create_social_dividend (text in db) and in application_helper.format_gift_description (text in view)
-        # variables: giver, receiver, price, currency, from_date and to_date
-        social_dividend_description_1: "Social dividend %{price} %{currency} from %{giver} to %{receiver} for period up to %{to_date}"
-        social_dividend_description_2: "Social dividend %{price} %{currency} from %{giver} to %{receiver} for period from %{from_date} to %{to_date}"
      show:
         invalid_gift_id: "Invalid request. Unknown post id"
         no_access: "Invalid request. You are not allowed to see this post"
@@ -422,11 +418,6 @@ en:
         balance_column_heading_html: "Balance"
         link_and_text_column_heading_html: "Text:"
      gift:
-        price_title_gift:
-          one: "1 gift"
-          other: "%{count} gifts"
-        price_title_1: "%{giver}-s negative interest for period up to %{to_date} was %{negative_interest_giver} for %{no_gifts_giver}. %{receiver}-s negative interest for the same period was %{negative_interest_receiver} for %{no_gifts_receiver}. %{giver}-s social dividend was %{social_dividend_giver}. %{receiver}-s social dividend was %{social_dividend_receiver}. There was exchanged %{price} in social dividend between %{giver} and %{receiver}."
-        price_title_2: "%{giver}-s negative interest for period %{from_date} to %{to_date} was %{negative_interest_giver} for %{no_gifts_giver}. %{receiver}-s negative interest for the same period %{negative_interest_receiver} for %{no_gifts_receiver}. %{giver}-s social dividend was %{social_dividend_giver}. %{receiver}-s social dividend was %{social_dividend_receiver}. There was exchanged %{price} in social dividend between %{giver} and %{receiver}."
         gift_link_title: "Click on link for more information"
         gift_link_text: "%{date} %{optional_price} / %{direction}"  # nested translate
         optional_price: "/ %{price}"
@@ -434,7 +425,7 @@ en:
         direction_receiver: "%{username} seeks"
         direction_giver_and_receiver: "from %{givername} to %{receivername}"
         gift_text_html: " : %{text}" # text is sanitized. Only todo tags is allowed
-        # 14 balance title keys. Documentation for balance calculation.
+        # 12 balance title keys. Documentation for balance calculation.
         # variables: new_balance, old_balance, sign_price, price, exchange_rate, sign_negative_interest, negative_interest,
         #            sign_currency_gain_loss, currency_gain_loss, new_currency, old_currency and number_of_days
         balance_title: "New balance %{new_balance} = old balance %{old_balance} %{sign_price} %{price}."
@@ -449,8 +440,6 @@ en:
         balance_title_exchange_rate_negative_interest: "New balance %{new_balance} = old balance %{old_balance} %{sign_price} %{price} %{old_currency} * %{exchange_rate} %{sign_negative_interest} %{negative_interest}. Negative interest of %{old_balance} in %{number_of_days} days was %{negative_interest}."
         balance_title_exchange_rate_negative_interest_gain: "New balance %{new_balance} = old balance %{old_balance} %{sign_price} %{price} %{old_currency} * %{exchange_rate} %{sign_negative_interest} %{negative_interest} %{sign_currency_gain_loss} %{currency_gain_loss}. Negative interest of %{old_balance} in %{number_of_days} days was %{negative_interest}. Currency gain for the same period was %{currency_gain_loss}."
         balance_title_exchange_rate_negative_interest_loss: "New balance %{new_balance} = old balance %{old_balance} %{sign_price} %{price} %{old_currency} * %{exchange_rate} %{sign_negative_interest} %{negative_interest} %{sign_currency_gain_loss} %{currency_gain_loss}. Negative interest of %{old_balance} in %{number_of_days} days was %{negative_interest}. Currency loss for the same period was %{currency_gain_loss}."
-        balance_title_social_dividend: "New balance %{new_balance} = old balance %{old_balance} %{sign_price} %{price}"
-        balance_title_exchange_rate_social_dividend: "New balance %{new_balance} = old balance %{old_balance} %{sign_price} %{price} %{old_currency} * %{exchange_rate}"
      user:
         user_name_prompt: "Name"
         user_name_title: "Use this link to see %{username}'s profile on %{apiname} (new tab in browser)"

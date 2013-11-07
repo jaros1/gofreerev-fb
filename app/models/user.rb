@@ -342,15 +342,6 @@ class User < ActiveRecord::Base
     @no_app_friends = app_friends.size
   end
 
-  # todo: initialize social dividend hash from negative_currency hash
-  def social_dividend
-    hash = {}
-    negative_interest.each do |name, value|
-      hash[name] = value / 4
-    end
-    hash
-  end
-
   # recalculate user balance
   # currency and balance is not updated if one or more exchange rates are missing
   # missing exchange rates is put in queue for bank and looked up batch
@@ -358,10 +349,7 @@ class User < ActiveRecord::Base
   def recalculate_balance (new_currency=nil)
     new_currency = currency unless new_currency
     gifts = gifts_given_and_received.sort do |a,b|
-      if a.received_at.to_date == b.received_at.to_date and a.gifttype != b.gifttype
-        # social dividend after gifts in user balance
-        a.gifttype <=> b.gifttype
-      elsif a.received_at == b.received_at
+      if a.received_at == b.received_at
         a.id <=> b.id
       else
         a.received_at <=> b.received_at
@@ -447,7 +435,6 @@ class User < ActiveRecord::Base
 
       # step 3 - new balance with this gift
       sign = user_id == g.user_id_giver ? 1 : -1
-      sign = -sign if g.gifttype == 'S' # direction is reverse
       user_balance_hash[g.currency] = 0.0 unless user_balance_hash.has_key?(g.currency)
       user_balance_hash[g.currency] += g.price * sign
       user_balance_hash[BALANCE_KEY] += ExchangeRate.exchange((g.price*sign), g.currency, BASE_CURRENCY, date)
@@ -457,7 +444,7 @@ class User < ActiveRecord::Base
       # save balance and balance documentation
       g.set_balance(user_id, user_balance_hash[BALANCE_KEY], balance_doc_hash)
       # g.save
-      puts "recalculate_balance. g.id = #{g.id}, g.received_at = #{g.received_at}, g.gifttype = #{g.gifttype}, balance_hash = #{user_balance_hash.to_s}, balance_doc_hash = #{balance_doc_hash}"
+      puts "recalculate_balance. g.id = #{g.id}, g.received_at = #{g.received_at}, balance_hash = #{user_balance_hash.to_s}, balance_doc_hash = #{balance_doc_hash}"
     end # each
     return false if missing_exchange_rates # error - one or more missing currency rates
     today = Date.parse(Sequence.get_last_exchange_rate_date)

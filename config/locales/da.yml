@@ -161,9 +161,6 @@ da:
         new_deal_check_box_prompt: "Foreslå aftale"
         price_prompt: "Pris"
         price_free: "frie"
-        # social_dividend_description keys are used in Gift,create_social_dividend (text in db) and in application_helper.format_gift_description (text in view)
-        social_dividend_description_1: "Social dividende %{price} %{currency} fra %{giver} til %{receiver} for perioden op til %{to_date}"
-        social_dividend_description_2: "Social dividende %{price} %{currency} fra %{giver} til %{receiver} for perioden fra %{from_date} til %{to_date}"
      show:
         invalid_gift_id: "Ugyldigt kald. Ukendt opslag id"
         no_access: "Ugyldigt kald. Du har ikke adgang til at se dette opslag"
@@ -434,11 +431,6 @@ da:
         balance_column_heading_html: "Saldo:"
         link_and_text_column_heading_html: "Tekst:"
      gift:
-        price_title_gift:
-          one: "1 gave"
-          other: "%{count} gaver"
-        price_title_1: "%{giver}-s negative renter for perioden frem til %{to_date} var %{negative_interest_giver} for %{no_gifts_giver}. %{receiver}-s negative renter for samme periode var %{negative_interest_receiver} for %{no_gifts_receiver}. %{giver}-s social dividende var %{social_dividend_giver}. %{receiver}-s social dividende var %{social_dividend_receiver}. Der blev derfor udlignet %{price} i social dividend imellem %{giver} og %{receiver}."
-        price_title_2: "%{giver}-s negative renter for perioden %{from_date} til %{to_date} var %{negative_interest_giver} for %{no_gifts_giver}. %{receiver}-s negative renter for samme periode var %{negative_interest_receiver} for %{no_gifts_receiver}. %{giver}-s social dividende var %{social_dividend_giver}. %{receiver}-s social dividende var %{social_dividend_receiver}. Der blev derfor udlignet %{price} i social dividend imellem %{giver} og %{receiver}."
         gift_link_title: "Klik på link for flere informationer om opslag"
         gift_link_text: "%{direction}"  # nested translate
         optional_price: "%{price}"
@@ -446,7 +438,7 @@ da:
         direction_receiver: "%{username} søger"
         direction_giver_and_receiver: "Fra %{givername} til %{receivername}"
         gift_text_html: " : %{text}" # text is sanitized. Only todo tags is allowed
-        # 14 balance title keys. Documentation for balance calculation.
+        # 12 balance title keys. Documentation for balance calculation.
         # variables: new_balance, old_balance, sign_price, price, exchange_rate, sign_negative_interest, negative_interest,
         #            sign_currency_gain_loss, currency_gain_loss, new_currency, old_currency and number_of_days
         balance_title: "Ny saldo %{new_balance} = gl. saldo %{old_balance} %{sign_price} %{price}."
@@ -461,8 +453,6 @@ da:
         balance_title_exchange_rate_negative_interest: "Ny saldo %{new_balance} = gl. saldo %{old_balance} %{sign_price} %{price} %{old_currency} * %{exchange_rate} %{sign_negative_interest} %{negative_interest}. Negativ rente af %{old_balance} i %{number_of_days} dage var %{negative_interest}."
         balance_title_exchange_rate_negative_interest_gain: "Ny saldo %{new_balance} = gl. saldo %{old_balance} %{sign_price} %{price} %{old_currency} * %{exchange_rate} %{sign_negative_interest} %{negative_interest} %{sign_currency_gain_loss} %{currency_gain_loss}. Negativ rente af %{old_balance} i %{number_of_days} dage var %{negative_interest}. Valutagevinst for same periode var %{currency_gain_loss}."
         balance_title_exchange_rate_negative_interest_loss: "Ny saldo %{new_balance} = gl. saldo %{old_balance} %{sign_price} %{price} %{old_currency} * %{exchange_rate} %{sign_negative_interest} %{negative_interest} %{sign_currency_gain_loss} %{currency_gain_loss}. Negativ rente af %{old_balance} i %{number_of_days} dage var %{negative_interest}. Valutatab for same periode var %{currency_gain_loss}."
-        balance_title_social_dividend: "Ny saldo %{new_balance} = gl. saldo %{old_balance} %{sign_price} %{price}"
-        balance_title_exchange_rate_social_dividend: "Ny saldo %{new_balance} = gl. saldo %{old_balance} %{sign_price} %{price} %{old_currency} * %{exchange_rate}"
      user:
         user_name_prompt: "Navn"
         user_name_title: "Brugt dette link til at se %{username}'s profil på %{apiname} (nyt faneblad i browser)"

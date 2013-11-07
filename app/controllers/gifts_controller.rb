@@ -19,7 +19,6 @@ class GiftsController < ApplicationController
     else
       @gift.user_id_receiver = session[:user_id]
     end
-    @gift.gifttype = 'G'
     gift_file = params[:gift_file]
     @gift.picture = gift_file.class.name == 'ActionDispatch::Http::UploadedFile' ? 'Y' : 'N'
     unless @gift.valid?

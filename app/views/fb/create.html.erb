@@ -2,13 +2,12 @@
   Welcome to <%= APP_NAME %>
 </h1>
 <p>
-  <%= APP_NAME %> plays with some of the concepts that <%= link_to_charles_eisenstein %>
-  presents in his book <%= link_to_sacred_economics %>,
-  including community, free money, negative interest rates and social dividend.<br />
-  I have in this game chosen facebook as community,
-  national free money with negative interest rate of <%= NEGATIVE_INTEREST_PER_YEAR.round(1) %>% per year of assets and liabilities.
+  <%= APP_NAME %> plays with some of the concepts that
+  <%= link_to_charles_eisenstein %> presents in his book <%= link_to_sacred_economics %>.<br />
+  I have in this game chosen facebook as community and national free money with negative interest.
+  Negative Interest per year <%= NEG_INT_POS_BALANCE_PER_YEAR.round(1) %>% for positive balance
+  and <%= NEG_INT_POS_BALANCE_PER_YEAR.round(1) %>% for negative balance.
   Ie both assets and liabilities diminish with time.
-  Half of the negative interest rates (<%= (NEGATIVE_INTEREST_PER_YEAR/2).round(1) %>%) is distributed amount the participants as social dividend as you play.
   <br />
   <br />
   You share the things you have in surplus and your friends might enjoy.

@@ -96,7 +96,6 @@ class UserTest < ActiveSupport::TestCase
     g.currency = giver.currency
     g.price = price.to_f
     g.user_id_giver = giver.user_id
-    g.gifttype = 'G'
     g.picture = 'N'
     assert g.save
     g.update_attributes! :user_id_receiver => receiver.user_id, :received_at => days_ago.days.ago(Time.now)
@@ -259,34 +258,12 @@ class UserTest < ActiveSupport::TestCase
 
   test "create_gift_100_50_and_20_days_ago" do
     # charlie => sandra 10.00 dkk 100 days ago
-    old_no_gifts = Gift.where("received_at is not null").count
     g1 = create_deal(charlie, u1_sandra, 10.00, 100) # 10.00 dkk - charlie balance 10.00 - sandra balance -10.00
-    g1.create_social_dividend
-    new_no_gifts = Gift.where("received_at is not null").count
-    assert new_no_gifts == old_no_gifts + 1 # no social dividend yet. first deal for both users
-    # charlie => karen 10.00 dkk 50 days ago
-    old_no_gifts = new_no_gifts
     g2 = create_deal(charlie, u2_karen, 10.00, 50)
-    g2.create_social_dividend
-    new_no_gifts = Gift.where("received_at is not null").count
-    assert new_no_gifts == old_no_gifts + 1 # no social dividend yet. Karen is a new user
-    # sandra => karen 10.00 USD 20 days ago
-    old_no_gifts = new_no_gifts
     g3 = create_deal(u1_sandra, u2_karen, 10.00, 20)
-    g3.create_social_dividend # social dividend between sandra and karen
-    assert false, "debug - should not create social dividend between sandra and karen"
-    g3.reload
-    new_no_gifts = Gift.where("received_at is not null").count
-    assert new_no_gifts == old_no_gifts + 2 # social dividend created
-    # sandra/karen social dividend
-    g4 = Gift.last
-    assert g4.gifttype == 'S'
-    # recalculate/reload before asserts
-    charlie.recalculate_balance
     g1.reload
     g2.reload
     g3.reload
-    g4.reload
     charlie.reload
     u1_sandra.reload
     u2_karen.reload
@@ -331,99 +308,6 @@ class UserTest < ActiveSupport::TestCase
                 :negative_interest_receiver => 0.013847660581914846,
                 :balance_giver => 8.352181098586023, # sandra usd
                 :balance_receiver => -11.671774242103275 # karen usd
-
-    # xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-
-    # g4: social dividend for g3: 20 days ago (sandra => karen)
-    # calculation must cover period from 50 days ago to 20 days ago
-    # sandra:
-    # - balance 100 days ago: -10.00 dkk
-    # - balance 50 days ago: -10.00 * FACTOR_NEG_BALANCE_PER_DAY ** 50 = 9.85670708349257 dkk
-    # - negative interest 30 days: 9.85670708349257 - 9.85670708349257 * FACTOR_NEG_BALANCE_PER_DAY ** 30 = 0.0849882801023849 dkk
-    # - social dividend: 0.0849882801023849 / 4 = 0.021247070025596226
-    # karen:
-    # - balance 50 days ago: -10.00 dkk
-    # - negative interest 30 days: 10.00 - 10.00 * FACTOR_NEG_BALANCE_PER_DAY ** 30 = 0.08622380616820635 dkk
-    # - social dividend: 0.08622380616820635 / 4 = 0.021555951542051588 dkk
-    # difference in social dividend for period 50 days ago to 20 days ago:
-    # - ((0.021555951542051588 - 0.021247070025596226)/2).abs = 0.00015444075822768077
-    # - 0.00015444075822768077.round(2) = 0.00
-    # that is no exchange in social dividend between sandra and karen
-
-    # sandra: one gift g1 with charlie 10.00 dkk 100 days ago
-    #         g1 new price 20 days ago: 10.00 * 0.9998 ** 80 = 9.841257452428561 dkk
-    #         g1 negative interest 20 days ago = 0.15874254757143902 dkk
-    #         g1 social dividend = 0.15874254757143902 / 4 = 0.039685636892859755 dkk
-    # karen:  one gift g2 with charlie 10.00 dkk 50 days ago
-    #         g2 new price 20 days ago: 10.00 * 0.9998 ** 30 = 9.94017367563803 dkk
-    #         g2 negative interest 20 days ago = 10.00 - 9.94017367563803 = 0.05982632436196944 dkk
-    #         g2 social dividend 20 days ago = 0.05982632436196944 / 4 = 0.01495658109049236 dkk
-    # difference: (0.039685636892859755 - 0.01495658109049236)/2).abs.round(2) = 0.01 dkk
-    # g4 should transfer 0.01 dkk from sandra to karen
-    assert g4.gifttype == 'S'
-    assert g4.currency == 'DKK'
-    assert g4.price == 0.01
-    assert g4.user_id_giver == u1_sandra.user_id
-    assert g4.user_id_receiver == u2_karen.user_id
-    # balance giver sandra  :   8.2245102035581   - 0.01 * 0.177063 =  8.222739573558101 usd
-    # balance receiver karen: -11.713086092763936 + 0.01 * 0.177063 = -11.711315462763936 usd
-    assert_gift g4,
-                :new_price => 0.01, # dkk
-                :negative_interest => 0.00,
-                :social_dividend => 0.01, # dkk
-                :balance_giver => 8.222739573558101, # sandra usd
-                :balance_receiver => -11.711315462763936 # karen usd
-
-    # check user balance :
-
-    # charlie - 2 gifts - g1 10.00 dkk 100 days ago and g2 10.00 dkk 50 days ago
-    #           g1 = 10.00 * 0.9998 ** 100 = 9.801967126499463 dkk
-    #           g2 = 10.00 * 0.9998 ** 50 = 9.90048843567804 dkk
-    #           9.801967126499463 + 9.90048843567804 = 19.702455562177505
-    assert_balance charlie,
-                   :balance => 19.702455562177505, # dkk
-                   :dkk => 19.702455562177505
-
-    # sandra - 3 gifts - g1 10.00 dkk 100 days ago, g3 10.00 usd 20 days ago, g4 social dividend 20 days ago
-    #          g1 = -10.00 * 0.9998 ** 100 = -9.801967126499463 dkk = -1.7355657053193743 usd
-    #          g3 =  10.00 * 0.9998 ** 20 = 9.960075908877474 usd
-    #          g4 =  -0.01 dkk = -0.00177063 usd
-    #          usd = g3 = 9.960075908877474
-    #          dkk = g1 + g4 = -9.801967126499463 - 0.01 = -9.811967126499463
-    #          balance = -1.7355657053193743 + 9.960075908877474 - 0.00177063 = 8.222739573558101
-    assert_balance u1_sandra,
-                   :balance => 8.222739573558101, # usd
-                   :dkk => -9.811967126499463,
-                   :usd => 9.960075908877474
-
-    # karen - 3 gifts - g2 10.00 dkk 50 days ago, g3 10.00 usd 20 days ago and g4 social dividend 20 days ago
-    #         g2 = -10.00 * 0.9998 ** 50 = -9.90048843567804 dkk = -1.753010183886461 usd
-    #         g3 = -10.00 * 0.9998 ** 20 = -9.960075908877474 usd
-    #         g4 = 0.01 dkk = 0.00177063 usd
-    #         usd = g3 = -9.960075908877474 usd
-    #         dkk = g2 + g4 = -9.90048843567804 + 0.01 = -9.89048843567804 dkk
-    #         balance = -1.753010183886461 + -9.960075908877474 + 0.00177063 = -11.711315462763936 usd
-    assert_balance u2_karen,
-                   :balance => -11.711315462763936, # usd
-                   :dkk => -9.89048843567804,
-                   :usd => -9.960075908877474
-
-    # control. sum user balances
-    # charlie: 19.702455562177505 dkk = 3.4885758892058356 usd
-    # sandra: 8.222739573558101 usd
-    # karen: -11.711315462763936 usd
-    # sum: 3.4885758892058356 + 8.222739573558101 + -11.711315462763936 = 0
-    assert (charlie.balance[BALANCE_KEY] * dkk_usd + u1_sandra.balance[BALANCE_KEY] + u2_karen.balance[BALANCE_KEY] == 0.00)
-
-    # todo: how to add social dividend to balance?
-    a = [charlie, u1_sandra, u2_karen]
-    puts "class = #{a.class}"
-    a.each do |u|
-       puts "#{u.short_user_name} (#{u.currency}), social balance = #{u.social_dividend} "
-    end # u
-    # Charlie S (DKK), social balance = {"BALANCE"=>0.07438610945562418, "DKK"=>0.07438610945562418}
-    # Sandra Q (USD), social balance = {"BALANCE"=>0.018747096450787804, "DKK"=>0.049508218375134305, "USD"=>0.009981022780631399}
-    # Karen S (USD), social balance = {"BALANCE"=>0.014385976809016179, "DKK"=>0.024877891080489878, "USD"=>0.009981022780631399}
 
   end # create_gift_100_and_20_days_ago
 

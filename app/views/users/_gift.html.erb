@@ -13,7 +13,7 @@
     <%= format_date(gift.received_at || gift.created_at) %>
   </td>
   <td></td>
-  <td style="text-align: right" title="<%= format_social_dividend_doc(gift) if gift.gifttype == 'S' %>">
+  <td style="text-align: right">
     <%=  my_t '.optional_price', :price => "#{format_price(gift.price)} #{gift.currency}" if gift.price %>
   </td>
   <td></td>

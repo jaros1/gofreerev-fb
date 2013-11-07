@@ -3,11 +3,12 @@
 </h1>
 <p>
   <%= APP_NAME %> leger med nogle af begreber fra <%= link_to_charles_eisenstein %>'s bog <%= link_to_sacred_economics %>,
-  fx. fællesskab, frie penge, negativ rente, gavenetværk og social dividende.<br />
+  fx. fællesskab, frie penge, negativ rente og gavenetværk.<br />
   Som fællesskab i dette spil er valgt ens facebook venner,
-  frie penge er danske frie kr. med negativ rente på <%= NEGATIVE_INTEREST_PER_YEAR.round(1) %>% om året på formue og gæld.
+  frie penge er danske frie kr. med negativ rente.
+  Negativ rente pr. år <%= NEG_INT_POS_BALANCE_PER_YEAR.round(1) %>% for positiv saldo
+  og <%= NEG_INT_POS_BALANCE_PER_YEAR.round(1) %>% for negativ saldo.
   Dvs. både formue og gæld vil blive mindre med tiden.
-  Halvdelen af de negative renter (<%= (NEGATIVE_INTEREST_PER_YEAR/2).round(1) %>%) bliver fordelt ligeligt imellem deltagerne når man spiller.
   <br />
   <br />
   Du deler de ting (eller tjenester) du har i overskue og som dine vemner kan have glæde af.

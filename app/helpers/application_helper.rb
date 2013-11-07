@@ -136,31 +136,6 @@ module ApplicationHelper
     end
   end # my_sanitize_hash
 
-  # english description for social dividend in database for gifttype = S (social dividend)
-  # use this translate for description in other languages for social dividend
-  def format_gift_description (gift)
-
-    return my_sanitize gift.description if gift.gifttype == 'G'
-
-    social_dividend_doc = gift.social_dividend_doc
-    return nil unless social_dividend_doc # error if social_document_doc hash is missing
-    return nil unless social_dividend_doc.class == Hash # error if not a hash
-
-    # gift description with social dividend with translate
-    if social_dividend_doc[:social_dividend_from]
-      key_no = 2 # format with start and end dates for period
-      from = format_date(social_dividend_doc[:social_dividend_from]).html_safe
-    else
-      key_no = 1 # format with only end date for period. Used for first social dividend calculations for a new user
-      from = nil
-    end
-    # this format is also used in gift.create_social_dividend (description saved in db)
-    my_t "gifts.gift.social_dividend_description_#{key_no}",
-         :giver => gift.giver.short_or_full_user_name(@user),
-         :receiver => gift.receiver.short_or_full_user_name(@user),
-         :price => format_price(gift.price), :currency => gift.currency,
-         :from_date => from, :to_date => format_date(gift.received_at).html_safe
-  end # format_gift_description
 
   def format_direction (gift)
     if !gift.user_id_receiver
@@ -184,7 +159,7 @@ module ApplicationHelper
     { :date           => format_date(gift.received_at || gift.created_at),
       :direction      => format_direction(gift),
       :optional_price => optional_price,
-      :text           => format_gift_description(gift)
+      :text           =>  my_sanitize(gift.description)
     }
   end # format_gift_param
 
@@ -216,24 +191,5 @@ module ApplicationHelper
     # todo: different url for each API (FB, GP, LI etc)
     link_to my_t('shared.invite_friends.invite_friends_link_text1', :app_url => FB_APP_URL), invite_friends_url
   end
-
-  # title / mouse over text for price in users/show balance tab page
-  def format_social_dividend_doc(gift)
-    return nil unless gift.gifttype == 'S'
-    return nul unless hash = gift.social_dividend_doc
-    # gift description with social dividend with translate
-    key_no = hash[:social_dividend_from] ? 2 : 1
-    my_t ".price_title_#{key_no}", :giver => gift.giver.short_or_full_user_name(@user),
-         :receiver => gift.receiver.short_or_full_user_name(@user),
-         :from_date => format_date(hash[:social_dividend_from]),
-         :to_date => format_date(gift.received_at),
-         :negative_interest_giver => format_price(hash[:giver_negative_interest]),
-         :negative_interest_receiver => format_price(hash[:receiver_negative_interest]),
-         :no_gifts_giver => (my_t '.price_title_gift', :count => hash[:giver_no_gifts]),
-         :no_gifts_receiver => (my_t '.price_title_gift', :count => hash[:receiver_no_gifts]),
-         :social_dividend_giver => format_price(hash[:giver_old_social_dividend]),
-         :social_dividend_receiver => format_price(hash[:receiver_old_social_dividend]),
-         :price => format_price(gift.price)
-  end # format_social_dividend_doc
 
 end # ApplicationHelper
