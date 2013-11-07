@@ -31,7 +31,7 @@
           <tr>
             <td colspan="3"><%= my_t '.create_gift_header_line' %></td>
           </tr>
-          <tr title="<%= my_t '.price_title' %>">
+          <tr title="<%= my_t '.price_title', :min_interest => NEG_INT_POS_BALANCE_PER_YEAR, :max_interest => NEG_INT_NEG_BALANCE_PER_YEAR %>">
             <td><%= my_t '.price_prompt' %></td>
             <td colspan="2">
               <%= f.text_field(:price, :size=>10, :maxlength=>10) %>

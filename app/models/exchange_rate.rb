@@ -100,8 +100,9 @@ class ExchangeRate < ActiveRecord::Base
     s = Sequence.get_last_money_bank_request
     return if s and s >= Time.current_hour_no - 6 # error in last default money bank lookup - wait
 
+    # todo: mark that exchange rate lookup is in progress to prevent to simultaneous lookups
+
     # run in sub process with no wait so that current user don't has to wait
-    # todo: add exception handler and dump any error to log. See fork in application_controller.fetch_user
     ExchangeRate.fork_with_new_connection do
 
       begin
@@ -160,7 +161,7 @@ class ExchangeRate < ActiveRecord::Base
       rescue Money::Bank::UnknownRate => e
         nil
       rescue Money::Bank::GoogleCurrencyFetchError => e
-        puts "Money::Bank::GoogleCurrencyFetchError. to_currency = #{to_currency}"
+        nil
       end
     end # each
     exchange_rates

@@ -113,8 +113,8 @@ class UserTest < ActiveSupport::TestCase
     u2_karen.recalculate_balance
     g1.reload
     assert_gift g1,
-                :negative_interest_giver => 0.0,
-                :negative_interest_receiver => 0.0,
+                :negative_interest_giver => 0.0, # no negative interest before first deal
+                :negative_interest_receiver => 0.0, # no negative interest before first deal
                 :previous_balance_giver => 0.0,
                 :previous_balance_receiver => 0.0,
                 :balance_giver => 1.77063, # charlie usd = 10 / 5.6477073132162
@@ -137,8 +137,8 @@ class UserTest < ActiveSupport::TestCase
     #   - charlie - 10.00 dkk = 10.00 / 6.537927178461905 = 1.5295367670877873
     #   - sandra - -10.00 dkk = -10.00 / 6.537927178461905 = -1.5295367670877873
     assert_gift g1,
-                :negative_interest_giver => 0.0, # no following deals yet
-                :negative_interest_receiver => 0.0, # no following deals yet
+                :negative_interest_giver => 0.0, # no negative interest before first deal
+                :negative_interest_receiver => 0.0, # no negative interest before first deal
                 :balance_giver => 1.5295367670877873, # usd
                 :balance_receiver => -1.5295367670877873 # usd
     # negative interest charlie - positive balance
@@ -219,8 +219,8 @@ class UserTest < ActiveSupport::TestCase
     #   - charlie - 10.00 dkk = 10.00 / 6.537927178461905 = 1.5295367670877873
     #   - sandra - -10.00 dkk = -10.00 / 6.537927178461905 = -1.5295367670877873
     assert_gift g1,
-                :negative_interest_giver => 0.0, # no following deals yet
-                :negative_interest_receiver => 0.0, # no following deals yet
+                :negative_interest_giver => 0.0, # no negative interest before first deal
+                :negative_interest_receiver => 0.0, # no negative interest before first deal
                 :balance_giver => 1.5295367670877873, # usd
                 :balance_receiver => -1.5295367670877873 # usd
 
@@ -258,7 +258,6 @@ class UserTest < ActiveSupport::TestCase
   end # create_gift_100_and_20_days_ago
 
   test "create_gift_100_50_and_20_days_ago" do
-    return
     # charlie => sandra 10.00 dkk 100 days ago
     old_no_gifts = Gift.where("received_at is not null").count
     g1 = create_deal(charlie, u1_sandra, 10.00, 100) # 10.00 dkk - charlie balance 10.00 - sandra balance -10.00
@@ -275,6 +274,7 @@ class UserTest < ActiveSupport::TestCase
     old_no_gifts = new_no_gifts
     g3 = create_deal(u1_sandra, u2_karen, 10.00, 20)
     g3.create_social_dividend # social dividend between sandra and karen
+    assert false, "debug - should not create social dividend between sandra and karen"
     g3.reload
     new_no_gifts = Gift.where("received_at is not null").count
     assert new_no_gifts == old_no_gifts + 2 # social dividend created
@@ -292,40 +292,64 @@ class UserTest < ActiveSupport::TestCase
     u2_karen.reload
 
     # g1: 100 days ago charlie => sandra. Same check as in create_gift_100_days_ago
+    # gift balance 100 days ago
+    #   - charlie - 10.00 dkk = 10.00 / 6.537927178461905 = 1.5295367670877873
+    #   - sandra - -10.00 dkk = -10.00 / 6.537927178461905 = -1.5295367670877873
     assert_gift g1,
-                :new_price => 9.801967126499463, # dkk
-                :negative_interest => 0.19803287350053722,
-                :social_dividend => 0.049508218375134305,
-                :balance_giver => 9.801967126499463, # dkk charlie
-                :balance_receiver => -1.7355657053193743 # usd sandra
+                :negative_interest_giver => 0.0, # no negative interest before first deal
+                :negative_interest_receiver => 0.0, # no negative interest before first deal
+                :balance_giver => 1.5295367670877873, # usd
+                :balance_receiver => -1.5295367670877873 # usd
 
     # g2: 50 days ago (charlie => karen)
-    # new_price = 10.00 * 0.9998 ** 50 = 9.90048843567804 dkk
-    # negative_interest = 10.00 - 9.90048843567804 = 0.09951156432195951 dkk
-    # social_dividend = 0.09951156432195951 / 4 = 0.024877891080489878 dkk
-    # balance_giver = 9.801967126499463 + 9.90048843567804 = 19.702455562177505 dkk (charlie)
-    # balance_receiver = - (9.90048843567804 dkk * 0.177063) = -1.753010183886461 usd (karen)
+    # negative interest old user charlie for period 100 days ago to 50 days ago
+    # = 10.00 - 10.00 * FACTOR_POS_BALANCE_PER_DAY ** 50 = 0.07001850698313561 dkk = 0.07001850698313561 / 6.537927178461905 = 0.010709588080729889 usd
+    # no negative interest for new user karen
+    # balance charlie 50 days ago
+    # = 10.00 - 0.07001850698313561 + 10.00 = 19.929981493016864 dkk = 19.929981493016864 / 6.226597312820862 = 3.2007821433995867 usd
+    # balance karen 50 days ago
+    # = -10.00 dkk = -10.00 / 6.226597312820862 = -1.6060136054421765 usd
     assert_gift g2,
-                :new_price => 9.90048843567804, # dkk
-                :negative_interest => 0.09951156432195951,
-                :social_dividend => 0.024877891080489878,
-                :balance_giver => 19.702455562177505, # charlie dkk
-                :balance_receiver => -1.753010183886461 # karen usd
+                :negative_interest_giver => 0.010709588080729889,
+                :negative_interest_receiver => 0.0, # no previous deal for karen - no negative interest
+                :balance_giver => 3.2007821433995867, # charlie usd
+                :balance_receiver => -1.6060136054421765 # karen usd
 
     # g3: 20 days ago (sandra => karen)
-    # new_price = 10 * 0.9998 ** 20 = 9.960075908877474 usd
-    # negative_interest = 10 - 9.960075908877474 = 0.039924091122525596 usd
-    # social_dividend = 0.039924091122525596 / 4 = 0.009981022780631399
-    # balance_giver (sandra) = -1.7355657053193743 + 9.960075908877474 = 8.2245102035581 usd
-    # balance_receiver (karen) = -1.753010183886461 - 9.960075908877474 = -11.713086092763936 usd
+    # sandra: balance 100 days ago: -10.00 dkk
+    # karen: balance 50 days ago: -10.dkk
+    # sandra negative interest 80 days
+    # = 10.00 - 10.00 * FACTOR_NEG_BALANCE_PER_DAY ** 80 = 0.2282811966098155 dkk = 0.2282811966098155 / 6.537927178461905 = 0.03491644834495087 usd
+    # karen negative interest 30 days
+    # = 10.00 - 10.00 * FACTOR_NEG_BALANCE_PER_DAY ** 30 == 0.08622380616820635 dkk = 0.08622380616820635 / 6.226597312820862 = 0.013847660581914846 usd
+    # sandra balance:
+    # = (-10.00 + 0.2282811966098155) / 5.930092678877011 + 10.00 = 8.352181098586023 usd
+    # karen balance:
+    # = (-10.00 + 0.08622380616820635) / 5.930092678877011 - 10.00 = -11.671774242103275 usd
     assert_gift g3,
-                :new_price => 9.960075908877474, # usd
-                :negative_interest => 0.039924091122525596,
-                :social_dividend => 0.009981022780631399,
-                :balance_giver => 8.2245102035581, # sandra usd
-                :balance_receiver => -11.713086092763936 # karen usd
+                :negative_interest_giver => 0.03491644834495087,
+                :negative_interest_receiver => 0.013847660581914846,
+                :balance_giver => 8.352181098586023, # sandra usd
+                :balance_receiver => -11.671774242103275 # karen usd
+
+    # xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
     # g4: social dividend for g3: 20 days ago (sandra => karen)
+    # calculation must cover period from 50 days ago to 20 days ago
+    # sandra:
+    # - balance 100 days ago: -10.00 dkk
+    # - balance 50 days ago: -10.00 * FACTOR_NEG_BALANCE_PER_DAY ** 50 = 9.85670708349257 dkk
+    # - negative interest 30 days: 9.85670708349257 - 9.85670708349257 * FACTOR_NEG_BALANCE_PER_DAY ** 30 = 0.0849882801023849 dkk
+    # - social dividend: 0.0849882801023849 / 4 = 0.021247070025596226
+    # karen:
+    # - balance 50 days ago: -10.00 dkk
+    # - negative interest 30 days: 10.00 - 10.00 * FACTOR_NEG_BALANCE_PER_DAY ** 30 = 0.08622380616820635 dkk
+    # - social dividend: 0.08622380616820635 / 4 = 0.021555951542051588 dkk
+    # difference in social dividend for period 50 days ago to 20 days ago:
+    # - ((0.021555951542051588 - 0.021247070025596226)/2).abs = 0.00015444075822768077
+    # - 0.00015444075822768077.round(2) = 0.00
+    # that is no exchange in social dividend between sandra and karen
+
     # sandra: one gift g1 with charlie 10.00 dkk 100 days ago
     #         g1 new price 20 days ago: 10.00 * 0.9998 ** 80 = 9.841257452428561 dkk
     #         g1 negative interest 20 days ago = 0.15874254757143902 dkk

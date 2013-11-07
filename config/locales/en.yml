@@ -115,7 +115,7 @@ en:
         request_read_stream_priv_link_text: "Allow %{appname} to read posts on my wall!"
 
         create_gift_header_line: "Help each other and the environment. Share your resources. Give loan / rent out, sell etc."
-        price_title: "Price in virtual free money. Optional. Can be set now or later. Best set be buyer / receiver so that the price becomes a measure of how much the thing / help was appreciated. There is used free virtual national money in here with a negative rate of 7.6% per year. One goal of the negative rate is to ensure that money and resources circulates. The negative interest rate makes it possible with a society without growth, overconsumption and with plenty of leisure to all."
+        price_title: "Price in virtual free money. Optional. Can be set now or later. Best set be buyer / receiver so that the price becomes a measure of how much the thing / help was appreciated. There is used free virtual national money in here with a negative interest. %{min_interest}% per year with a positive balance and %{max_interest}% per year for a negative balance. One goal of the negative rate is to ensure that money and resources circulates. The negative interest rate makes it possible with a society without growth, overconsumption and with plenty of leisure to all."
         price_prompt: "Price:"
         price_free: "free"
         direction_giver_prompt: "Offers:"

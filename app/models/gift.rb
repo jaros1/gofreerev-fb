@@ -574,7 +574,7 @@ class Gift < ActiveRecord::Base
   def create_social_dividend
     # find first gifts. New users do not get social dividend from old users.
     # find all relevant gifts
-    puts "giver = #{giver.user_name}, receiver = #{receiver.user_name}, received_at = #{received_at}"
+    puts "Gift.create_social_dividend: giver = #{giver.user_name}, receiver = #{receiver.user_name}, received_at = #{received_at}"
     gifts = Gift.where('(? in (user_id_giver, user_id_receiver) or ? in (user_id_giver, user_id_receiver)) and received_at is not null', user_id_receiver, user_id_giver)
     gifts.sort! { |a,b| a.received_at <=> b.received_at }
     giver_gifts = gifts.find_all { |g| g.gifttype == 'G' and [g.user_id_giver, g.user_id_receiver].index(user_id_giver) }
@@ -702,7 +702,7 @@ class Gift < ActiveRecord::Base
                               :to_date => date2
       puts "self.id = #{self.id}, self.recieved_at = #{self.received_at}"
       gift.received_at = self.received_at
-      gift.new_price = gift.price
+      # gift.new_price = gift.price
       #gift.new_price_at = gift.received_at
       #gift.negative_interest = 0.0
       #gift.social_dividend = 0.0

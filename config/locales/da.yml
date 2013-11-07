@@ -112,13 +112,11 @@ da:
         post_gift_not_allowed_title: "%{appname} mangler adgang til at skrive på din %{apiname} væg. Du kan godt dele dine resourcer med dine venner herinde, men opslag vil kun blive vist her og ikke på din %{apiname} væg. Dvs. dine opslag vil sandsynligvis kun blive set af få venner. Du bør derfor give %{appname} tilladelse til at skrive på din væg. %{appname} laver kun de opslag du selv beder om. Billeder gemmes kun i %{apiname}. Uden adgang til at skrive på din %{apiname} væg kan der derfor ikke uploades billeder i forbindelse med opslag herinde."
         post_gift_not_allowed_text: "%{appname} mangler adgang til at skrive på din %{apiname} væg."
         request_post_gift_priv_link_text: "Giv %{appname} lov til at skrive på min væg!"
-        # todo: translate to danish
         read_stream_not_allowed_title: "%{appname} mangler adgang til at læse opslag på din %{apiname} væg. Du kan herinde fra lave opslag med foto på din %{apiname} væg, men billeder kan ikke blive vist i %{appname}. Du kan løse problemet ved at ændre synlighed for %{appname}'s opslag til offentligt eller du kan give %{appname} lov til at læse opslag på din %{apiname} væg. %{appname} vil udelukkende bruge adgangen til at vise de uploadede billeder her."
         read_stream_not_allowed_text: "%{appname} mangler adgang til at læse opslag på din %{apiname} væg."
         request_read_stream_priv_link_text: "Giv %{appname} lov til at læse opslag på min væg!"
-        # end todo
         create_gift_header_line: "Hjælp hinanden og miljøet. Del jeres resourcer. Giv, lån/lej ud, sælg etc."
-        price_title: "Pris i virtuelle frie penge. Valgfri. Kan sættes nu eller senere. Bedst hvis køber/modtager sætter pris der så bliver et mål for hvor meget pris vedkommende satte på den modtagne ting/hjælp. Der anvendes frie virtuelle nationale penge herinde med en negativ rente på 7.6 % om året. Et formål med den negative rente er at sikre at penge og resourcer cirkulerer. Den negative rente gør det muligt med et samfund uden vækst, uden overforbrug og med mere fritid."
+        price_title: "Pris i virtuelle frie penge. Valgfri. Kan sættes nu eller senere. Bedst hvis køber/modtager sætter pris der så bliver et mål for hvor meget pris vedkommende satte på den modtagne ting/hjælp. Der anvendes frie virtuelle nationale penge herinde med en negativ rente. %{min_interest}% om året for en positiv saldo og %{max_interest}% om året for en negativ saldo. Et formål med den negative rente er at sikre at penge og resourcer cirkulerer. Den negative rente gør det muligt med et samfund uden vækst, uden overforbrug og med mere fritid."
         price_prompt: "Pris:"
         price_free: "frie"
         direction_giver_prompt: "Tilbyder:"

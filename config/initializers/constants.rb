@@ -44,14 +44,12 @@ BALANCE_KEY = 'BALANCE'
 
 # interest calculation setup. Uses different negative interest for positive (5 %) and negative amounts (10 %)
 # year 1: a = 100, b = -100. year 2: a =  95, b =  -90.
-# in that way we get negative interest and an increasing supply of free money
-# increase in free money will be between 0 and 5% per year
+# in that way we get negative interest and an increasing supply of free money between 0 and 5 % per year
 NEG_INT_NEG_BALANCE_PER_YEAR = 10.0 # 10 % negative interest per year for positive balance (gifts given to others)
 NEG_INT_POS_BALANCE_PER_YEAR =  5.0 # 5 % negative interest per year for negative balance (gifts received from others)
-NET_NEG_INT_PER_YEAR = NEG_INT_NEG_BALANCE_PER_YEAR - NEG_INT_POS_BALANCE_PER_YEAR # 5 % increase in supply of free money per year
-FACTOR_NEG_BALANCE_PER_YEAR = 1.0 - NEG_INT_NEG_BALANCE_PER_YEAR / 100.0 # 0.9
-FACTOR_POS_BALANCE_PER_YEAR = 1.0 - NEG_INT_POS_BALANCE_PER_YEAR / 100.0 # 0.95
+FACTOR_NEG_BALANCE_PER_YEAR = 1.0 - NEG_INT_NEG_BALANCE_PER_YEAR / 100.0 # 0.90 = 100 - 10 %
+FACTOR_POS_BALANCE_PER_YEAR = 1.0 - NEG_INT_POS_BALANCE_PER_YEAR / 100.0 # 0.95 = 100 - 5 %
 FACTOR_NEG_BALANCE_PER_DAY = (Math::E) ** (Math.log(FACTOR_NEG_BALANCE_PER_YEAR,Math::E) / 365) # 0.9997113827109777
 FACTOR_POS_BALANCE_PER_DAY = (Math::E) ** (Math.log(FACTOR_POS_BALANCE_PER_YEAR,Math::E) / 365) # 0.9998594803001535
 
-BASE_CURRENCY = 'USD' # store exchange rates and internal balance in this currency
+BASE_CURRENCY = 'USD' # store exchange rates and internal balances in this currency.
