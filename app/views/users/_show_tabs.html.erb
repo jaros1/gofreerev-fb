@@ -11,7 +11,7 @@
             <% end -%>
         <% end -%>
     <% end -%>
-    <% if @tab == 'balance' -%>
+    <% if %w(gifts balance).index(@tab) -%>
         <% if @tabs.size > 1 -%>
             <td>&nbsp;&nbsp;|&nbsp;&nbsp;</td>
         <% end -%>
