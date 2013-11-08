@@ -1,25 +1,20 @@
  1) Maybe allow comments to gifts in Gofreerev => Post af FB comments
 
- 4) allow negative price?
-    E.g. if user wish find some thing og get help. Solutions:
-    a) negative price - problem with from/to in gifts/index page
-    b) radio group or check box in create gift page (giver or receiver)
-    c) negative price. set user_id_receiver. Blank user_id_giver
-    Implementing b) with an radio group
-
- 5) how much information to se about deals between friends and friends friends?
+ 2) how much information to se about deals between friends and friends friends?
     FB: Shows status from friends on wall - do not show status from friends friends on wall
-    Show balance for friends - do not show balance for friends friends
     Show gifts started by friends as giver or receiver with all pictures and comments
     Anonymous gifts started by friends friends as giver or receiver and with friends as receiver or giver
     - display received at and balance.
     - hide picture and name of friends friend
     - hide text and pictures
 
- 6) when closing at deal and paying with money.
+ 3) when closing at deal and paying with money.
     select between anonymous money without a linked story or link the money to one or more stores / other gifts
     anonymous money - no links between gifts - no story updates
     linked money - story updates
+
+ 4) link stories. Insert link for one story in an other story.
+    how to handle security? Should only see gifts from7to friends
 
  8) delete gift.
     It should be possible to delete open gifts in gifts/index page
@@ -108,8 +103,6 @@
 
 37) delete gifts
 
-38) ajax hide gift does not work. should hide all rows with id gift-<giftid>- format
-
 39) new deal / cancel / accept / reject error handling:
     new deal can fail if gift user has accepted an other offer
     cancel can fail if gift user has accepted a deal or has rejected new deal from user
@@ -168,15 +161,14 @@
 
 61) recalculate user balance at request or once every day
 
-62) recalculate user balance after accepted deal with price
-
-63) refactor styles to stylesheets
+63) refactor styles to stylesheets - use stylesheets and not inline styles.
 
 64) add comments with available interpolation variables to locales files (da, en)
 
 65) user.recalculate_balance recalculates balance for all closed deals with user as giver or receiver.
     ok when few closed deals for a user, but may be a performance issue for many closed deals.
     allow recalculating balance from a specific date or from a specific gift.id
+    should only recalculate balance from last closed deal
 
 66) delete user account - recalculate all relevant user balances
 
@@ -186,17 +178,6 @@
     accept new deal - set new_balance_at = yesterday - for both users - user is marked for recalculate balance (ok)
     batch processing - recalculate balance for all users where new_balance_at != today (todo)
 
-77) create test cases for user balance calculation
-
-78) users/show add gifts tab - as gifts/index, but only with @user2 as giver/receiver
-
 80) check texts in views/fb/create.html.erb and create_da_html.erb
 
-81) get exchange rates from default money bank - prevent simultaneous lookups
-
-82) use stylesheets and not inline styles.
-
-
-
-
-
+81) check todo's in source

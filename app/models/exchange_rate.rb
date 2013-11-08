@@ -99,8 +99,8 @@ class ExchangeRate < ActiveRecord::Base
     # max request currency rates fromm bank once every 6 hours (about 165 currency lookups in each request)
     s = Sequence.get_last_money_bank_request
     return if s and s >= Time.current_hour_no - 6 # error in last default money bank lookup - wait
-
-    # todo: mark that exchange rate lookup is in progress to prevent to simultaneous lookups
+    # prevent simultaneous currency exchange rate lookup
+    ExchangeRate.set_last_money_bank_request(Time.current_hour_no)
 
     # run in sub process with no wait so that current user don't has to wait
     ExchangeRate.fork_with_new_connection do
@@ -120,7 +120,7 @@ class ExchangeRate < ActiveRecord::Base
           puts "Error: found less than 50 exchange rates from default money bank"
           puts "rates = #{usd_rates}"
           puts "next currency request in 6 hours"
-          ExchangeRate.set_last_money_bank_request(Time.current_hour_no)
+          # ExchangeRate.set_last_money_bank_request(Time.current_hour_no) # already set
           return
         end
 

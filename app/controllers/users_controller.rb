@@ -189,6 +189,7 @@ class UsersController < ApplicationController
 
     if %w(gifts balance)
       # show balance for @user2 - only friends can see balance information
+      # show gifts for @user2 - only friends can see gifts for @user2
 
       # get any pictures with invalid picture urls
       # that is gifts where picture url are marked as invalid and where url lookup in /util/missing_api_picture_urls failed
@@ -235,6 +236,7 @@ class UsersController < ApplicationController
       # return next 10 users - first 10 for http request - next 10 for ajax request
       @users, @last_row_id = get_next_set_of_rows(users, last_row_id)
     end # friends
+
     if @tab == 'gifts'
       # show 4 last comments for each gift
       @first_comment_id = nil
