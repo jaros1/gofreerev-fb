@@ -409,6 +409,7 @@ da:
         tabs_prompt: "Vælg faneblad:"
         friends_tab_text: "Venner"
         balance_tab_text: "Saldo"
+        gifts_tab_text: "Delt"
         deal_status_prompt: "Vælg status:"
         deal_status_open: "Åbne"
         deal_status_closed: "Lukkede"

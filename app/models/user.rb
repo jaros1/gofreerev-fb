@@ -777,15 +777,23 @@ class User < ActiveRecord::Base
 
 
   # find gifts user can see. user friends must be giver or receiver of gifts
-  def gifts (newest_gift_id=0)
+  # show_friends_gifts=true in users/index
+  # show_friends_gifts=false in users/show gifts tab
+  def gifts (newest_gift_id=0, show_friends_gifts=true)
     # initialize list of gifts
     # list of gifts with @user as giver or receiver + list of gifts med @user.friends as giver or receiver
     # where clause is used for non encrypted fields. find_all is used for encrypted fields
-    friends = app_friends.collect { |u| u.user_id_receiver }
-    friends.push(user_id)
+
+    if show_friends_gifts
+      friends = app_friends.collect { |u| u.user_id_receiver }
+      friends.push(user_id)
+      gs = Gift.where('id > ? and (user_id_giver in (?) or user_id_receiver in (?))', newest_gift_id, friends, friends).includes(:giver, :receiver)
+    else
+      gs = Gift.where('id > ? and ? in (user_id_giver, user_id_receiver)', newest_gift_id, user_id).includes(:giver, :receiver)
+    end
 
     # find gifts
-    gs = Gift.where('id > ? and (user_id_giver in (?) or user_id_receiver in (?))', newest_gift_id, friends, friends).includes(:giver, :receiver).sort do |a,b|
+    gs.sort! do |a,b|
       if (a.received_at || a.created_at.to_date) ==  (b.received_at || b.created_at.to_date)
         b.id <=> a.id
       else

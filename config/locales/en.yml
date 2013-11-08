@@ -404,6 +404,15 @@ en:
         tabs_prompt: "Select tab:"
         friends_tab_text: "Friends"
         balance_tab_text: "Balance"
+        gifts_tab_text: "Shared"
+        deal_status_prompt: "Select status:"
+        deal_status_open: "Open"
+        deal_status_closed: "Closed"
+        deal_status_all: "All"
+        deal_direction_prompt: "Select direction:"
+        deal_direction_giver: "From"
+        deal_direction_receiver: "To"
+        deal_direction_both: "Both"
      show_balance:
         balance_tab_header_text_html: "%{username}-s balance:<br />"
      show_friends:

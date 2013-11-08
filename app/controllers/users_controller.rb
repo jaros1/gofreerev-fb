@@ -162,12 +162,12 @@ class UsersController < ApplicationController
     # tab: blank = friends or balance - only friends can see balance
     if @user2.friend?(@user)
       if @user2.user_id == @user.user_id
-        @tabs = %w(balance) # my account - friends information available in Friends menu
+        @tabs = %w(gifts balance) # my account - friends information available in Friends menu
       else
-        @tabs = %w(friends balance) # friend - friend and balance information are allowed
+        @tabs = %w(friends gifts balance) # friend - friend and balance information are allowed
       end
     else
-      @tabs = %w(friends) # non friend - balance information not allowed
+      @tabs = %w(friends) # non friend - balance and gifts information not allowed
     end
     if @tabs.size == 1
       @tab = @tabs.first
@@ -225,14 +225,41 @@ class UsersController < ApplicationController
       end # sort
       # return next 10 gifts - first 10 for http request - next 10 for ajax request
       @gifts, @last_row_id = get_next_set_of_rows(gifts, last_row_id)
-    end
+    end # balance
     if @tab == 'friends'
       # show friends for @user2 - sort by user_name
       users = @user2.app_friends.collect { |f| f.friend }.sort { |a,b| a.user_name <=> b.user_name}
       # users = User.all # uncomment to test ajax
       # return next 10 users - first 10 for http request - next 10 for ajax request
       @users, @last_row_id = get_next_set_of_rows(users, last_row_id)
-    end
+    end # friends
+    if @tab == 'gifts'
+      # show gifts for @user2 - giver or receiver
+
+      # get any pictures with invalid picture urls
+      # that is gifts where picture url are marked as invalid and where url lookup in /util/missing_api_picture_urls failed
+      # most possible explanation is that the pictures has been deleted in api
+      # but is could also be a api permission problem (gofreerev user is not allowed to see picture in api)
+      # check picture url again with owner permission
+      # the existing /util/missing_api_picture_urls is used to check invalid picture urls
+      # done in a client js call after the page has been rendered to the user
+      # see last lines in /gifts/index page
+      # see onLoad tag on img
+      # see js functions check_api_picture_url and report_missing_api_picture_urls
+      @missing_api_picture_urls = get_missing_api_picture_urls()
+
+      newest_status_update_at = Sequence.status_update_at
+      newest_gift = Gift.last
+      gifts = @user2.gifts(0, false) # show_friends_gifts=false - show only @user2 gifts
+      puts "gifts.size = #{gifts.size}"
+
+      @gifts, @last_row_id = get_next_set_of_rows(gifts, last_row_id)
+      puts "@gifts.size = #{@gifts.size}, @last_row_id = #{@last_row_id}"
+
+      # show 4 last comments for each gift
+      @first_comment_id = nil
+
+    end # gifts
 
     respond_to do |format|
       format.html {}
