@@ -261,12 +261,12 @@ class UserTest < ActiveSupport::TestCase
     g1 = create_deal(charlie, u1_sandra, 10.00, 100) # 10.00 dkk - charlie balance 10.00 - sandra balance -10.00
     g2 = create_deal(charlie, u2_karen, 10.00, 50)
     g3 = create_deal(u1_sandra, u2_karen, 10.00, 20)
+    charlie.recalculate_balance
+    u1_sandra.recalculate_balance
+    u2_karen.recalculate_balance
     g1.reload
     g2.reload
     g3.reload
-    charlie.reload
-    u1_sandra.reload
-    u2_karen.reload
 
     # g1: 100 days ago charlie => sandra. Same check as in create_gift_100_days_ago
     # gift balance 100 days ago
