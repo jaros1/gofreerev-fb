@@ -66,8 +66,14 @@ module ApplicationHelper
   end # render_application_partial
 
   # application layout helpers
+  # active currencies to by used in page header LOV
   def currencies
-    Money::Currency.table.collect { |a| [  "#{a[1][:iso_code]} #{a[1][:name]}".first(25), a[1][:iso_code] ] }
+    active_currencies = ExchangeRate.active_currencies
+    Money::Currency.table.find_all do |a|
+      !active_currencies or active_currencies.size == 0 or active_currencies.index(a[1][:iso_code])
+    end.collect do |a|
+      [ "#{a[1][:iso_code]} #{a[1][:name]}".first(25), a[1][:iso_code] ]
+    end
   end
   def header_log_out_link_url
     fb_path(@user.id)
@@ -153,6 +159,7 @@ module ApplicationHelper
     return APP_NAME unless n > 0
     "(#{n}) #{APP_NAME}"
   end # title
+
 
   def format_gift_param (gift)
     optional_price = gift.price ? "#{my_t('.optional_price', :price => format_price(gift.price))} #{gift.currency}" : nil

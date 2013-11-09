@@ -184,3 +184,5 @@
 80) check texts in views/fb/create.html.erb and create_da_html.erb
 
 81) check todo's in source
+
+84) check log - don't dump access_code in log

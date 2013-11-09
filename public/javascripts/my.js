@@ -368,35 +368,74 @@ function insert_new_comments() {
 
 function insert_new_gifts ()
 {
-    // ajax response from new_messages_count
-    // check/update newest_gift_id
+    // process ajax response received from new_messages_count ajax request
+    // response has been inserted in new_messages_buffer_div in page header
+
+    // check/update newest_gift_id (id for latest created gift)
     var new_newest_gift_id = document.getElementById("new-newest-gift-id") ;
     if (!new_newest_gift_id) return ; // ok - not gifts/index page or not new gifts
     if  (new_newest_gift_id.value == "") return // error - new_messages_count should return id for newest gift id
     var newest_gift_id = document.getElementById("newest-gift-id") ;
     if (!newest_gift_id) return // error - hidden field was not found i gifts/index page - ignore error silently
     newest_gift_id.value = new_newest_gift_id.value ;
-    // check if new_messages_count response has a table with new gifts
+    // check/update newest_status_update_at (stamp for latest updated or deleted gift )
+    var new_newest_status_update_at = document.getElementById("new-status-update-at") ;
+    if (!new_newest_status_update_at) return ; // ok - not gifts/index page or not new gifts
+    if  (new_newest_status_update_at.value == "") return // error - new_messages_count should return id for newest status update at stamp
+    var newest_status_update_at = document.getElementById("newest-status-update-at") ;
+    if (!newest_status_update_at) return // error - hidden field was not found i gifts/index page - ignore error silently
+    newest_status_update_at.value = new_newest_status_update_at.value ;
+    // check if new_messages_count response has a table with new gifts (new_messages_buffer_div in page header)
     var new_gifts_tbody = document.getElementById("new_gifts_tbody") ;
     if (!new_gifts_tbody) return ; // ok - not gifts/index page or no new gifts to error tbody with new gifts was not found
+    // find gift ids received in new_gifts_tbody table. Any existing old rows with these gift ids must be removed before inserting new rows
+    var new_gifts_trs = new_gifts_tbody.rows ;
+    var new_gifts_tr ;
+    var new_gifts_id ;
+    var new_gifts_gift_id ;
+    var new_gifts_ids = [] ;
+    var re = new RegExp('^gift-[0-9]+-') ;
+    for (var i=0 ; i<new_gifts_trs.length ; i++) {
+        new_gifts_id = new_gifts_trs[i].id ;
+        if (new_gifts_id && new_gifts_id.match(re)) {
+            new_gifts_gift_id = new_gifts_id.split('-')[1] ;
+            if (new_gifts_ids.indexOf(new_gifts_gift_id) == -1) new_gifts_ids.push(new_gifts_gift_id) ;
+        } // if
+    } // for
+    alert('new_gifts_ids = ' + new_gifts_ids.join(',')) ;
     // old page: find first gift row in gifts table. id format gift-220-header.
     // new gifts from ajax response are to be inserted before this row
     var old_gifts_table = document.getElementById("gifts") ;
     if (!old_gifts_table) return ; // not gifts/index page - ok
     var old_gifts_trs = old_gifts_table.rows ;
+    var old_gifts_tr ;
+    var old_gifts_id ;
+    var old_gifts_gift_id ;
+    if (new_gifts_ids.length > 0) {
+        // remove any old gift rows found in new_gifts_ids array
+        // will be replaced by new gift rows from new_messages_buffer_div
+        for (i=old_gifts_trs.length-1 ; i>= 0 ; i--) {
+            old_gifts_tr = old_gifts_trs[i] ;
+            old_gifts_id = old_gifts_tr.id ;
+            if (old_gifts_id && old_gifts_id.match(re)) {
+                old_gifts_gift_id = old_gifts_id.split('-')[1] ;
+                if (new_gifts_ids.indexOf(old_gifts_gift_id) != -1) {
+                    // remove old row with gift id. old_gifts_gift_id from gifts table
+                    old_gifts_tr.parentNode.removeChild(old_gifts_tr) ;
+                } // if
+            } // if
+        } // for
+    } // if
     // alert(old_gifts_trs.length + ' gifts lines in old page') ;
     var old_gifts_index ;
-    var re = new RegExp('^gift-[0-9]+-') ;
     for (var i=0 ; (!old_gifts_index && (i<old_gifts_trs.length)) ; i++) {
         if (old_gifts_trs[i].id.match(re)) old_gifts_index = i ;
     } // for
     // alert('old_gifts_index = ' + old_gifts_index) ;
-    if (!old_gifts_index) return ; // error - id with format format gift-220-row-1 was not found - ignore error silently
+    if (!old_gifts_index) return ; // error - id with format format gift-<999>-1 was not found - ignore error silently
     var first_old_gift_tr = old_gifts_trs[old_gifts_index] ;
     var old_gifts_tbody = first_old_gift_tr.parentNode ;
     // new gifts from ajax response are to be inserted before first_old_gift_tr
-    var new_gifts_trs = new_gifts_tbody.rows ;
-    var new_gifts_tr ;
     for (i=new_gifts_trs.length-1 ; i>= 0 ; i--) {
         new_gifts_tr = new_gifts_trs[i] ;
         if (new_gifts_tr.id.match(re)) {

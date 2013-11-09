@@ -777,23 +777,24 @@ class User < ActiveRecord::Base
 
 
   # find gifts user can see. user friends must be giver or receiver of gifts
-  # show_friends_gifts=true in users/index
-  # show_friends_gifts=false in users/show gifts tab
-  def gifts (newest_gift_id=0, show_friends_gifts=true)
+  # params newest_gift_id and newest_status_update_at are normally 0 (for example when called from gifts/index)
+  # but is newest gift_id and status_update_at when called from util/new_messages_count
+  # (that is - ajax - get only new, updated or deleted gifts)
+  def gifts (newest_gift_id=0, newest_status_update_at=0)
     # initialize list of gifts
     # list of gifts with @user as giver or receiver + list of gifts med @user.friends as giver or receiver
     # where clause is used for non encrypted fields. find_all is used for encrypted fields
 
-    if show_friends_gifts
-      friends = app_friends.collect { |u| u.user_id_receiver }
-      friends.push(user_id)
-      gs = Gift.where('id > ? and (user_id_giver in (?) or user_id_receiver in (?)) and deleted_at is null', newest_gift_id, friends, friends).includes(:giver, :receiver)
-    else
-      gs = Gift.where('id > ? and ? in (user_id_giver, user_id_receiver) and deleted_at is null', newest_gift_id, user_id).includes(:giver, :receiver)
-    end
-
     # find gifts
-    gs.sort! do |a,b|
+    friends = app_friends.collect { |u| u.user_id_receiver }
+    friends.push(user_id)
+    if newest_gift_id == 0 and newest_status_update_at == 0
+      gs = Gift.where('(user_id_giver in (?) or user_id_receiver in (?)) and deleted_at is null', friends, friends).includes(:giver, :receiver)
+    else
+      gs = Gift.where('(id > ? or status_update_at > ?) and (user_id_giver in (?) or user_id_receiver in (?)) and deleted_at is null', newest_gift_id, newest_status_update_at, friends, friends).includes(:giver, :receiver)
+    end
+    # sort
+    gs = gs.sort do |a,b|
       if (a.received_at || a.created_at.to_date) ==  (b.received_at || b.created_at.to_date)
         b.id <=> a.id
       else

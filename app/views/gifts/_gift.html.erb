@@ -1,66 +1,73 @@
-<tr style="vertical-align: top" id="<%= "gift-#{gift.id}" %>-header">
-  <td>
-    <% if gift.giver -%>
-        <%= @size = '50x50'; render '/shared/user_div', :user_div => gift.giver %>
-    <% end -%>
-  </td>
-  <td>
-    <% if gift.receiver -%>
-        <%= @size = '50x50'; render '/shared/user_div', :user_div => gift.receiver %>
-    <% end -%>
-  </td>
-  <td colspan="2" style="height: 52px; vertical-align: top">
-    <%= link_to my_t('.gift_link_text', format_gift_param(gift)), url_for(gift), :title => (my_t '.gift_link_title') %>
-    <%= my_t('.gift_text_html', format_gift_param(gift)) %>
-    <% if gift.picture == 'Y' and !gift.api_picture_url_on_error_at -%>
-        <br/><br/>
-        <%= image_tag gift.api_picture_url, :onload => "check_api_picture_url(#{gift.id}, this)" %>
-    <% end -%>
-  </td>
-</tr>
+<% if gift.deleted_at -%>
+    <tr style="display: none" id="<%= "gift-#{gift.id}-deleted" %>">
+      <td></td>
+    </tr>
+<% else -%>
+    <tr style="vertical-align: top" id="<%= "gift-#{gift.id}-header" %>">
+      <td>
+        <% if gift.giver -%>
+            <%= @size = '50x50'; render '/shared/user_div', :user_div => gift.giver %>
+        <% end -%>
+      </td>
+      <td>
+        <% if gift.receiver -%>
+            <%= @size = '50x50'; render '/shared/user_div', :user_div => gift.receiver %>
+        <% end -%>
+      </td>
+      <td colspan="2" style="height: 52px; vertical-align: top">
+        <%= link_to my_t('.gift_link_text', format_gift_param(gift)), url_for(gift), :title => (my_t '.gift_link_title') %>
+        <%= my_t('.gift_text_html', format_gift_param(gift)) %>
+        <% if gift.picture == 'Y' and !gift.api_picture_url_on_error_at -%>
+            <br/><br/>
+            <%= image_tag gift.api_picture_url, :onload => "check_api_picture_url(#{gift.id}, this)" %>
+        <% end -%>
+      </td>
+    </tr>
 
-<%= @gift = gift ; @comments = @gift.comments_with_filter(nil) ; render :partial => 'comments/comments3' %>
+    <%= @gift = gift ; @comments = @gift.comments_with_filter(nil) ; render :partial => 'comments/comments3' %>
 
-<tr id='<%= "gift-#{gift.id}-comment-new" %>'>
-  <td colspan="2" style="text-align: right; vertical-align: top">
-    <% if gift.show_new_deal_checkbox?(@user) -%>
-        <div id="<%= "gift-#{gift.id}-comment-new-status" %>">
-          <table>
-            <tr>
-              <td><%= my_t '.new_deal_check_box_prompt' %></td>
-              <td><%= check_box_tag "gift-#{gift.id}-new-deal-check-box", 'x', false, :onclick => "check_uncheck_new_deal_checkbox(this,#{gift.id})" %></td>
-            </tr>
-          </table>
-        </div>
-    <% end -%>
-  </td>
-  <td style="vertical-align: top;"><%= @size = '50x50' ; render '/shared/user_div', :user_div => @user %></td>
-  <td>
-    <%# remote form for new comment. Sent to comments/create. Inserted in gift-<gift.id>-comments table.
+    <tr id='<%= "gift-#{gift.id}-comment-new" %>'>
+      <td colspan="2" style="text-align: right; vertical-align: top">
+        <% if gift.show_new_deal_checkbox?(@user) -%>
+            <div id="<%= "gift-#{gift.id}-comment-new-status" %>">
+              <table>
+                <tr>
+                  <td><%= my_t '.new_deal_check_box_prompt' %></td>
+                  <td><%= check_box_tag "gift-#{gift.id}-new-deal-check-box", 'x', false, :onclick => "check_uncheck_new_deal_checkbox(this,#{gift.id})" %></td>
+                </tr>
+              </table>
+            </div>
+        <% end -%>
+      </td>
+      <td style="vertical-align: top;"><%= @size = '50x50' ; render '/shared/user_div', :user_div => @user %></td>
+      <td>
+        <%# remote form for new comment. Sent to comments/create. Inserted in gift-<gift.id>-comments table.
         Post ajax processing done in my.js / add_post_ajax_comment_handler
     -%>
-    <% comment = Comment.new ; comment.gift_id = gift.gift_id ; comment.user_id = @user.user_id -%>
-    <%= form_for comment, :remote => true, :html => {:id => "gift-#{gift.id}-new-comment-form"} do |f| %>
-        <%= f.hidden_field :gift_id, :id => "gift-#{gift.id}-comment-gift-id" %>
-        <%= f.hidden_field :new_deal_yn, :id => "gift-#{gift.id}-comment-new-deal-yn" %>
+        <% comment = Comment.new ; comment.gift_id = gift.gift_id ; comment.user_id = @user.user_id -%>
+        <%= form_for comment, :remote => true, :html => {:id => "gift-#{gift.id}-new-comment-form"} do |f| %>
+            <%= f.hidden_field :gift_id, :id => "gift-#{gift.id}-comment-gift-id" %>
+            <%= f.hidden_field :new_deal_yn, :id => "gift-#{gift.id}-comment-new-deal-yn" %>
 
-        <table style="border-spacing: 0;">
-          <tr id="<%= "gift-#{gift.id}-comment-new-price-tr" %>" style="display: none">
-            <td colspan="2">
-              <%= f.text_field :price, :size => 10, :id => "gift-#{gift.id}-comment-new-price", :placeholder => my_t('.price_prompt') %>
-              <%= my_t '.price_free' %> <%= @user.currency %>
-            </td>
-          </tr>
-          <tr>
-            <td><%= f.text_area :comment, :size => '60x1', :placeholder => my_t('.enter_comment'), :onfocus => 'autoresize_text_field(this)', :id => "gift-#{gift.id}-comment-new-textarea" %></td>
-            <td><%= f.submit 'Gem', :onclick => "return csv_comment(#{gift.id})" %></td>
-          </tr>
-        </table>
-    <% end -%>
-  </td>
-</tr>
+            <table style="border-spacing: 0;">
+              <tr id="<%= "gift-#{gift.id}-comment-new-price-tr" %>" style="display: none">
+                <td colspan="2">
+                  <%= f.text_field :price, :size => 10, :id => "gift-#{gift.id}-comment-new-price", :placeholder => my_t('.price_prompt') %>
+                  <%= my_t '.price_free' %> <%= @user.currency %>
+                </td>
+              </tr>
+              <tr>
+                <td><%= f.text_area :comment, :size => '60x1', :placeholder => my_t('.enter_comment'), :onfocus => 'autoresize_text_field(this)', :id => "gift-#{gift.id}-comment-new-textarea" %></td>
+                <td><%= f.submit 'Gem', :onclick => "return csv_comment(#{gift.id})" %></td>
+              </tr>
+            </table>
+        <% end -%>
+      </td>
+    </tr>
 
-<tr id="<%= "gift-#{gift.id}" %>-footer-1">
-  <td colspan="4"><hr/></td>
-</tr>
-
+    <tr id="<%= "gift-#{gift.id}" %>-footer-1">
+      <td colspan="4">
+        <hr/>
+      </td>
+    </tr>
+<% end -%>

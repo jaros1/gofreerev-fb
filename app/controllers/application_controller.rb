@@ -355,6 +355,7 @@ class ApplicationController < ActionController::Base
   private
   def get_next_set_of_rows (rows, last_row_id, no_rows=10)
     puts "last_row_id = #{last_row_id}"
+    total_no_rows = rows.size
     if last_row_id
       # ajax request - check if last_row_id still is valid
       # puts "ajax request - check if last_row_id still is valid"
@@ -367,7 +368,7 @@ class ApplicationController < ActionController::Base
     end
     if !last_row_id
       # first http get - return first 10 rows
-      puts "first http get - return first 10 rows"
+      puts "first http get - return first 10 of #{total_no_rows} rows"
       nil
     else
       # ajax request - return next 10 rows
@@ -380,7 +381,7 @@ class ApplicationController < ActionController::Base
     else
       last_row_id = nil # last row - no more ajax requests
     end
-    puts "returning #{rows.size} rows. last_row_id = #{last_row_id}"
+    puts "returning next #{rows.size} of #{total_no_rows} rows . last_row_id = #{last_row_id}"
     [ rows, last_row_id]
   end # get_next_set_of_rows
 

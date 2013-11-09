@@ -3,19 +3,20 @@
 <div id="new_comments_div">
   <table>
     <tbody id="new_comments_tbody">
-      <%= render :partial => 'comments/comments1' if @comments %>
+    <%= render :partial => 'comments/comments1' if @comments %>
     </tbody>
   </table>
 </div>
-<% if @gifts or @new_newest_gift_id -%>
-<div id="new_gifts_div">
-  <%= hidden_field_tag :new_newest_gift_id, @new_newest_gift_id, :id => "new-newest-gift-id" %>
-<% if @gifts -%>
-  <table>
-    <tbody id="new_gifts_tbody">
-    <%= render :partial => 'gifts/gifts' %>
-    </tbody>
-  </table>
-<% end -%>
-</div>
+<% if @gifts or @new_newest_gift_id or @new_newest_status_update_at -%>
+    <div id="new_gifts_div">
+      <%= hidden_field_tag :new_newest_gift_id, @new_newest_gift_id, :id => "new-newest-gift-id" %>
+      <%= hidden_field_tag :new_newest_status_update_at, @new_newest_status_update_at, :id => "new-newest-status-update-at" %>
+      <% if @gifts -%>
+          <table>
+            <tbody id="new_gifts_tbody">
+            <%= render :partial => 'gifts/gifts' %>
+            </tbody>
+          </table>
+      <% end -%>
+    </div>
 <% end -%>

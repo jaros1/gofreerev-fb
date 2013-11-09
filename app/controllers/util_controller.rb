@@ -14,6 +14,7 @@ class UtilController < ApplicationController
     # todo: send new comments to all relevant users? today new comments is only sent to giver, receiver and other users that have commented the gift
     # todo: ajax remove delete marked gifts from gifts table
     # todo: destroy delete marked gifts after that have been ajax removed from gifts table
+    # todo: must send new_status_update_at to client
     if @new_messages_count and ( params[:request_fullpath] == '/gifts' or params[:request_fullpath] =~ /^\/gifts\/([0-9]+)$/ )
       # find comments to ajax insert in gifts/index or gifts/show pages
       # puts "find comments to ajax insert in gifts/index or gifts/show pages"
@@ -31,14 +32,18 @@ class UtilController < ApplicationController
       # empty AjaxComment buffer - only return ajax comments once
       AjaxComment.destroy_all(:user_id => @user.user_id)
     end
-    # return newly created gifts. Input newest_gift_id when user page was loaded or newest gift_id in last new_messages_count
+    # return newly created gifts. Input newest_gift_id when user page was loaded or newest gift_id in last new_messages_count request
+    # return newly updated (or deleted) gifts. Input newest_status_update_at when user page was loaded or newest_status_update_at in last new_message:count request
     # 0 if not called from gifts/index page
     old_newest_gift_id = params[:newest_gift_id].to_i
     new_newest_gift_id = Gift.last.id if old_newest_gift_id > 0
-    if old_newest_gift_id > 0 and new_newest_gift_id > old_newest_gift_id
+    old_newest_status_update_at = params[:newest_status_update_at].to_i
+    new_newest_status_update_at = Sequence.status_update_at if old_newest_status_update_at > 0
+    if old_newest_gift_id > 0 and ( new_newest_gift_id > old_newest_gift_id or new_newest_status_update_at > old_newest_status_update_at )
       # called from gifts/index page and new gifts created since page load or last new_messages_count request
       # return new newest_gift_id value and any new gifts visible to user
       @new_newest_gift_id = new_newest_gift_id
+      @new_newest_status_update_at = new_newest_status_update_at
       @gifts = @user.gifts(old_newest_gift_id)
       @gifts = nil if @gifts.length == 0
     end

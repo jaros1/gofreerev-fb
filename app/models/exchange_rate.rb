@@ -29,6 +29,11 @@ class ExchangeRate < ActiveRecord::Base
     @@today = today
   end # self.cache_exchange_rates
 
+  # get active currencies to be used in currency LOV in page header
+  def self.active_currencies
+    ExchangeRate.cache_exchange_rates if !defined? @@exchange_rates
+    @@exchange_rates.collect { |a| a[0] }
+  end # self.active_currencies
 
   # returns nil is exchange rate was not found
   # currency rate is found via USD as base currency
