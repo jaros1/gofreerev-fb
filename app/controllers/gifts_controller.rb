@@ -225,6 +225,7 @@ class GiftsController < ApplicationController
     if @user then
       newest_status_update_at = Sequence.status_update_at
       newest_gift = Gift.last
+      # get list with gifts
       gifts = @user.gifts
     end
 

@@ -77,6 +77,22 @@ module GiftHelper
     link_to my_t('.hide_gift'), util_hide_gift_path(:gift_id => gift.id), :id => "gift-#{gift.id}-hide-link", :remote => true, :method => :post, :data => { :confirm => my_t('.confirm_hide_gift') }
   end
 
+  def link_to_delete_gift (gift)
+    return nil unless [gift.user_id_giver, gift.user_id_receiver].index(@user.user_id)
+    # confirm delete texts
+    # - confirm_delete_gift_1 if delete gift effects user balance
+    # - confirm_delete_gift_2 if delete gift does not effect user balance
+    confirm_delete_gift_options = { :price => gift.price, :currency => gift.currency }
+    if gift.received_at and gift.price and gift.price != 0.0
+      keyno = 1
+      confirm_delete_gift_options[:user_name] = gift.user_id_giver == @user.user_id ? gift.receiver.short_user_name : gift.giver.short_user_name
+    else
+      keyno = 2
+    end
+    confirm_delete_gift_key = ".confirm_delete_gift_#{keyno}"
+    link_to my_t('.delete_gift'), util_delete_gift_path(:gift_id => gift.id), :id => "gift-#{gift.id}-delete-link", :remote => true, :method => :post, :data => { :confirm => my_t(confirm_delete_gift_key, confirm_delete_gift_options) }
+  end # link_to_delete_gift
+
   def link_to_cancel_new_deal (comment)
     link_to my_t('.cancel_new_deal'), util_cancel_new_deal_path(:comment_id => comment.id), :id => "gift-#{comment.gift.id}-comment-#{comment.id}-cancel-link", :remote => true, :method => :post, :data => { :confirm => my_t('.confirm_cancel_new_deal') }
   end

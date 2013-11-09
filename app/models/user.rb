@@ -310,10 +310,10 @@ class User < ActiveRecord::Base
 
   # relation helpers
   def gifts_given
-    offers.find_all { |g| (g.user_id_receiver and g.price and g.price != 0.00) }
+    offers.find_all { |g| (g.user_id_receiver and g.price and g.price != 0.00 and !g.deleted_at) }
   end # gifts_given
   def gifts_received
-    wishes.find_all { |g| (g.user_id_giver and g.price and g.price != 0.00) }
+    wishes.find_all { |g| (g.user_id_giver and g.price and g.price != 0.00 and !g.deleted_at) }
   end
   #def gifts_received_with_sign
   #  gifts_received.collect do |g|
@@ -787,9 +787,9 @@ class User < ActiveRecord::Base
     if show_friends_gifts
       friends = app_friends.collect { |u| u.user_id_receiver }
       friends.push(user_id)
-      gs = Gift.where('id > ? and (user_id_giver in (?) or user_id_receiver in (?))', newest_gift_id, friends, friends).includes(:giver, :receiver)
+      gs = Gift.where('id > ? and (user_id_giver in (?) or user_id_receiver in (?)) and deleted_at is null', newest_gift_id, friends, friends).includes(:giver, :receiver)
     else
-      gs = Gift.where('id > ? and ? in (user_id_giver, user_id_receiver)', newest_gift_id, user_id).includes(:giver, :receiver)
+      gs = Gift.where('id > ? and ? in (user_id_giver, user_id_receiver) and deleted_at is null', newest_gift_id, user_id).includes(:giver, :receiver)
     end
 
     # find gifts

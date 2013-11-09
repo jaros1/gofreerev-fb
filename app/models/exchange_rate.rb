@@ -100,7 +100,7 @@ class ExchangeRate < ActiveRecord::Base
     s = Sequence.get_last_money_bank_request
     return if s and s >= Time.current_hour_no - 6 # error in last default money bank lookup - wait
     # prevent simultaneous currency exchange rate lookup
-    ExchangeRate.set_last_money_bank_request(Time.current_hour_no)
+    Sequence.set_last_money_bank_request(Time.current_hour_no)
 
     # run in sub process with no wait so that current user don't has to wait
     ExchangeRate.fork_with_new_connection do

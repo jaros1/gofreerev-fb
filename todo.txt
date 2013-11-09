@@ -17,8 +17,11 @@
     how to handle security? Should only see gifts from7to friends
 
  8) delete gift.
-    It should be possible to delete open gifts in gifts/index page
-    You should get a confirm dialog if you tries to delete on closed gift
+    It should be possible to delete open gifts in gifts/index page (ok)
+    You should get a confirm dialog if you tries to delete a closed gift (ok)
+    must delete mark with new status_update_at timestamp to allow ajax remove gift in other sessions (ok)
+    remove delete marked gifts after 5 minutes (todo)
+    ajax remove delete marked gifts in new_messages_count for current user (todo)
 
  9) balance sorted by received_at in user.recalculate_balance
     gifts sorted by created_at desc in gifts/index

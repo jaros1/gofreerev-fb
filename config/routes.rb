@@ -7,6 +7,7 @@ GofreerevFb::Application.routes.draw do
   post 'util/follow_gift'
   post 'util/unfollow_gift'
   post 'util/hide_gift'
+  post 'util/delete_gift'
   post 'util/cancel_new_deal'
   post 'util/accept_new_deal'
   post 'util/reject_new_deal'

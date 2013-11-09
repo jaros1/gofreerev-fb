@@ -12,6 +12,8 @@ class UtilController < ApplicationController
     # return new comments
     # todo: return new comments and comments with changed status (new deal proposal cancelled or rejected)
     # todo: send new comments to all relevant users? today new comments is only sent to giver, receiver and other users that have commented the gift
+    # todo: ajax remove delete marked gifts from gifts table
+    # todo: destroy delete marked gifts after that have been ajax removed from gifts table
     if @new_messages_count and ( params[:request_fullpath] == '/gifts' or params[:request_fullpath] =~ /^\/gifts\/([0-9]+)$/ )
       # find comments to ajax insert in gifts/index or gifts/show pages
       # puts "find comments to ajax insert in gifts/index or gifts/show pages"
@@ -253,6 +255,25 @@ class UtilController < ApplicationController
     @gift_id = gift.id
   end # hide_gift
 
+  def delete_gift
+    gift_id = params[:gift_id]
+    gift = Gift.find_by_id(gift_id)
+    if !gift
+      puts "Gift with id #{gift_id} was not found - silently ignore ajax request"
+      return
+    end
+    if ![gift.user_id_giver, gift.user_id_receiver].index(@user.user_id)
+      puts "#{@user.short_user_name} is not allowed to delete gift id #{gift_id} - silently ignore ajax request"
+      return
+    end
+    # delete mark gift. Delete marked gifts will be ajax removed within the next 5 minutes and will be deleted after 5 minutes
+    gift.deleted_at = Time.new
+    gift.status_update_at = Sequence.next_status_update_at
+    gift.save!
+    # todo: recalculate user balances if close deal with price != 0.0. Recalculate from previous deal and to today
+    # remove gift from gift from current gifts table
+    @gift_id = gift.id
+  end # delete_gift
 
   #
   # comment link ajax methods
