@@ -194,3 +194,6 @@
 87) util_controller.accept_new_deal
     should insert gift in new_messages_buffer_div and call ajax_insert_update_gifts() to ajax replace gift in page
 
+88) sort problem after adding new post.
+    should be first gift in gifts/index page
+

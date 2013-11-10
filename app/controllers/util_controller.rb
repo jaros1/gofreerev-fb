@@ -367,12 +367,10 @@ class UtilController < ApplicationController
       gift.receiver.recalculate_balance
       # todo: change @user balance in page header
     end
-    # todo: should ajax replace gift for current user (added giver or receiver, changed currency, changed price, changed comment)
-    # todo: change gift and comment for other users after cancel (new messages count ajax)?
-    # hide links
-    # @link_id = "gift-#{gift.id}-comment-#{comment.id}-status"
 
-    # ajax replace accepted gift for current user
+    # use a discount version af new_messages_count to ajax replace accepted deal in gifts/index page for current user
+    # that is without @new_messages_count, @comments, only with this accepted gift and without new values for new-newest-gift-id andnew-newest-status-update-at
+    # only client ajax_insert_update_gifts JS function is called
     gift.reload
     @gifts = [gift]
     respond_to do |format|
