@@ -44,9 +44,14 @@ class UtilController < ApplicationController
       # return new newest_gift_id value and any new gifts visible to user
       @new_newest_gift_id = new_newest_gift_id
       @new_newest_status_update_at = new_newest_status_update_at
-      @gifts = @user.gifts(old_newest_gift_id)
+      @gifts = @user.gifts(old_newest_gift_id, old_newest_status_update_at)
       @gifts = nil if @gifts.length == 0
     end
+    puts "@gifts.size = #{@gifts.size}, gifts = " + @gifts.collect { |g| g.id }.join(', ') if @gifts
+    puts "@comments.size = #{@comments.size}, comments = " + @comments.collect { |c| c.id }.join(', ') if @comments
+    puts "@new_newest_gift_id = #{@new_newest_gift_id}"
+    puts "@new_newest_status_update_at = #{@new_newest_status_update_at}"
+    # todo: remove any comments that is included in gifts
     respond_to do |format|
       format.html {}
       format.json { render json: @comment, status: :created, location: @comment }
@@ -365,7 +370,16 @@ class UtilController < ApplicationController
     # todo: should ajax replace gift for current user (added giver or receiver, changed currency, changed price, changed comment)
     # todo: change gift and comment for other users after cancel (new messages count ajax)?
     # hide links
-    @link_id = "gift-#{gift.id}-comment-#{comment.id}-status"
+    # @link_id = "gift-#{gift.id}-comment-#{comment.id}-status"
+
+    # ajax replace accepted gift for current user
+    gift.reload
+    @gifts = [gift]
+    respond_to do |format|
+      format.html {}
+      format.json { render json: @comment, status: :created, location: @comment }
+      format.js {}
+    end
   end # accept_new_deal
 
 end # UtilController

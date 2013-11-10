@@ -366,25 +366,32 @@ function insert_new_comments() {
     if (debug) alert(summary) ;
 } // insert_new_comments
 
-function insert_new_gifts ()
+function ajax_insert_update_gifts ()
 {
     // process ajax response received from new_messages_count ajax request
     // response has been inserted in new_messages_buffer_div in page header
+    // also used after util/accept_new_deal to ajax replace gift
 
     // check/update newest_gift_id (id for latest created gift)
-    var new_newest_gift_id = document.getElementById("new-newest-gift-id") ;
-    if (!new_newest_gift_id) return ; // ok - not gifts/index page or not new gifts
-    if  (new_newest_gift_id.value == "") return // error - new_messages_count should return id for newest gift id
-    var newest_gift_id = document.getElementById("newest-gift-id") ;
-    if (!newest_gift_id) return // error - hidden field was not found i gifts/index page - ignore error silently
-    newest_gift_id.value = new_newest_gift_id.value ;
+    var new_newest_gift_id = document.getElementById("new-newest-gift-id") ; // from new_messages_buffer_div
+    if (!new_newest_gift_id) return ; // ok - not gifts/index page or no new/updated/deleted gifts
+    if  (new_newest_gift_id.value != "") {
+        // util/new_message_count returned new newest giftid
+        var newest_gift_id = document.getElementById("newest-gift-id") ;
+        if (!newest_gift_id) return // error - hidden field was not found i gifts/index page - ignore error silently
+        newest_gift_id.value = new_newest_gift_id.value ;
+    }
+
     // check/update newest_status_update_at (stamp for latest updated or deleted gift )
-    var new_newest_status_update_at = document.getElementById("new-status-update-at") ;
-    if (!new_newest_status_update_at) return ; // ok - not gifts/index page or not new gifts
-    if  (new_newest_status_update_at.value == "") return // error - new_messages_count should return id for newest status update at stamp
-    var newest_status_update_at = document.getElementById("newest-status-update-at") ;
-    if (!newest_status_update_at) return // error - hidden field was not found i gifts/index page - ignore error silently
-    newest_status_update_at.value = new_newest_status_update_at.value ;
+    var new_newest_status_update_at = document.getElementById("new-newest-status-update-at") ; // from new_messages_buffer_div
+    if (!new_newest_status_update_at) return ; // ok - not gifts/index page or no new/updated/deleted gifts
+    if  (new_newest_status_update_at.value != "") {
+        // util/new_message_count returned new newest status_update_at
+        var newest_status_update_at = document.getElementById("newest-status-update-at") ;
+        if (!newest_status_update_at) return // error - hidden field was not found i gifts/index page - ignore error silently
+        newest_status_update_at.value = new_newest_status_update_at.value ;
+    }
+
     // check if new_messages_count response has a table with new gifts (new_messages_buffer_div in page header)
     var new_gifts_tbody = document.getElementById("new_gifts_tbody") ;
     if (!new_gifts_tbody) return ; // ok - not gifts/index page or no new gifts to error tbody with new gifts was not found
@@ -402,7 +409,7 @@ function insert_new_gifts ()
             if (new_gifts_ids.indexOf(new_gifts_gift_id) == -1) new_gifts_ids.push(new_gifts_gift_id) ;
         } // if
     } // for
-    alert('new_gifts_ids = ' + new_gifts_ids.join(',')) ;
+    // alert('new_gifts_ids = ' + new_gifts_ids.join(',')) ;
     // old page: find first gift row in gifts table. id format gift-220-header.
     // new gifts from ajax response are to be inserted before this row
     var old_gifts_table = document.getElementById("gifts") ;
@@ -447,7 +454,7 @@ function insert_new_gifts ()
         } // if
     } // for
     // that's it
-} //  insert_new_gifts
+} //  ajax_insert_update_gifts
 
 // catch load errors  for api pictures. Gift could have been deleted. url could have been changed
 // gift ids with invalid picture urls are collected in a global javascript array and submitted to server in 2 seconds
@@ -546,6 +553,9 @@ function post_ajax_add_new_comment_handler(giftid) {
                 } // for
                 // move table row up before add new comment table row
                 add_new_comment_tr = document.getElementById("gift-" + giftid + "-comment-new") ;
+                if (!add_new_comment_tr) {
+                    alert("post_ajax_add_new_comment_handler: gift-" + giftid + "-comment-new was not found")
+                }
                 tbody = new_comment_tr.parentNode ;
                 tbody.removeChild(new_comment_tr) ;
                 tbody.insertBefore(new_comment_tr, add_new_comment_tr) ;

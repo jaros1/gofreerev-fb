@@ -186,3 +186,11 @@
 81) check todo's in source
 
 84) check log - don't dump access_code in log
+
+85) delete gift - dialog box with removed from shared (unchanged balance) or delete (changed balance)
+
+86) wrong page gifts/create after duplicate posts on FB wall. Should return til gifts/index page with message in top
+
+87) util_controller.accept_new_deal
+    should insert gift in new_messages_buffer_div and call ajax_insert_update_gifts() to ajax replace gift in page
+
