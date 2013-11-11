@@ -561,12 +561,12 @@ function post_ajax_add_new_comment_handler(giftid) {
                     alert("new comment row with format " + re + " was not found") ;
                     return ;
                 }
-                // move table row up before add new comment table row
                 add_new_comment_tr = document.getElementById("gift-" + giftid + "-comment-new") ;
                 if (!add_new_comment_tr) {
                     alert("post_ajax_add_new_comment_handler: gift-" + giftid + "-comment-new was not found") ;
                     return ;
                 }
+                // move new table row up before add new comment table row
                 new_comment_tr.parentNode.removeChild(new_comment_tr) ;
                 add_new_comment_tr.parentNode.insertBefore(new_comment_tr, add_new_comment_tr) ; // error: Node was not found
                 // save timestamp for last new ajax comment

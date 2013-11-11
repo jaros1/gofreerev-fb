@@ -124,8 +124,6 @@
     could be used after cancel or reject to change comment in other sessions
     change new_gifts_div to inlcude gifts with changed "status"
 
-43) new messages count - ajax delete comment
-
 45) comments: timestamps for cancel, reject and accept deal?
 
 46) use identical encryption keys on development and test (easy generation of fixtures)

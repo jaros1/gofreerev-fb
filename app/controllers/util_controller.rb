@@ -22,8 +22,7 @@ class UtilController < ApplicationController
     count = @user.inbox_new_notifications
     @new_messages_count = count if count > 0
     # return new comments
-    # todo: return new comments and comments with changed status (new deal proposal cancelled or rejected)
-    # todo: send new comments to all relevant users? today new comments is only sent to giver, receiver and other users that have commented the gift
+    # return new comments and comments with changed status (new deal proposal cancelled or rejected or deleted comment)
     if  params[:request_fullpath] == '/gifts' or params[:request_fullpath] =~ /^\/gifts\/([0-9]+)$/
       # find comments to ajax insert in gifts/index or gifts/show pages
       # two sources for comments to ajax insert into gifts table
@@ -46,6 +45,10 @@ class UtilController < ApplicationController
         @comments = @comments.find_all { |c| c.gift.id.to_s == $1 }
         # puts "new comments after gift_id filter = #{@comments.length}"
         @comments = nil if @comments.length == 0
+      end
+      # do not return comment just created by current user (problem with extra flash for new comments)
+      @comments = @comments.delete_if do |c|
+        (c.user_id == @user.user_id and c.created_at > 30.seconds.ago and c.created_at == c.updated_at)
       end
       # empty AjaxComment buffer - only return ajax comments once
       AjaxComment.destroy_all(:user_id => @user.user_id)
