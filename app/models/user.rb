@@ -778,8 +778,8 @@ class User < ActiveRecord::Base
 
   # find gifts user can see. user friends must be giver or receiver of gifts
   # params newest_gift_id and newest_status_update_at are normally 0 (for example when called from gifts/index)
-  # but is newest gift_id and status_update_at when called from util/new_messages_count
-  # (that is - ajax - get only new, updated or deleted gifts)
+  # but is newest gift_id and status_update_at when called from util/new_messages_count (that is - ajax - get only new, updated or deleted gifts)
+  # note that delete marked rows is returned. Is rendered in views as an invisible row. Used for ajax removal of deleted gifts
   def gifts (newest_gift_id=0, newest_status_update_at=0)
     # initialize list of gifts
     # list of gifts with @user as giver or receiver + list of gifts med @user.friends as giver or receiver
@@ -789,16 +789,16 @@ class User < ActiveRecord::Base
     friends = app_friends.collect { |u| u.user_id_receiver }
     friends.push(user_id)
     if newest_gift_id == 0 and newest_status_update_at == 0
-      gs = Gift.where('(user_id_giver in (?) or user_id_receiver in (?)) and deleted_at is null', friends, friends).includes(:giver, :receiver)
+      gs = Gift.where('(user_id_giver in (?) or user_id_receiver in (?))', friends, friends).includes(:giver, :receiver)
     else
-      gs = Gift.where('(id > ? or status_update_at > ?) and (user_id_giver in (?) or user_id_receiver in (?)) and deleted_at is null', newest_gift_id, newest_status_update_at, friends, friends).includes(:giver, :receiver)
+      gs = Gift.where('(id > ? or status_update_at > ?) and (user_id_giver in (?) or user_id_receiver in (?))', newest_gift_id, newest_status_update_at, friends, friends).includes(:giver, :receiver)
     end
     # sort
     gs = gs.sort do |a,b|
-      if (a.received_at || a.created_at.to_date) ==  (b.received_at || b.created_at.to_date)
+      if (a.received_at || a.created_at) ==  (b.received_at || b.created_at)
         b.id <=> a.id
       else
-        (b.received_at || b.created_at.to_date) <=>  (a.received_at || a.created_at.to_date)
+        (b.received_at || b.created_at) <=>  (a.received_at || a.created_at)
       end
     end
     return gs if gs.length == 0

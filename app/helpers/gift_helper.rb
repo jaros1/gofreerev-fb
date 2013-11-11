@@ -77,6 +77,13 @@ module GiftHelper
     link_to my_t('.hide_gift'), util_hide_gift_path(:gift_id => gift.id), :id => "gift-#{gift.id}-hide-link", :remote => true, :method => :post, :data => { :confirm => my_t('.confirm_hide_gift') }
   end
 
+  # it could be nice with a popup dialog box with three choices. a) hide and keep balance, b) destroy and update balance, c) cancel
+  # but no build in JS function for this
+  # must send a/b choice to util/delete_gift. must cancel require on c
+  # some maybe useful links:
+  # - http://www.pjmccormick.com/nicer-rails-confirm-dialogs-and-not-just-delete-methods
+  # - http://stackoverflow.com/questions/7435859/custom-rails-confirm-box-with-rails-confirm-override
+  # - http://rors.org/demos/custom-confirm-in-rails
   def link_to_delete_gift (gift)
     return nil unless [gift.user_id_giver, gift.user_id_receiver].index(@user.user_id)
     # confirm delete texts

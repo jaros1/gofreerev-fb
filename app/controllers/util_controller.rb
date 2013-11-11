@@ -4,17 +4,23 @@ class UtilController < ApplicationController
   # called from hidden check-new-messages-link link in page header once every todo: describe frequence
   #   Parameters: {"request_fullpath"=>"/gifts"}
   def new_messages_count
-    # return new messages count
-    if @user
-      count = @user.inbox_new_notifications
-      @new_messages_count = count if count > 0
+    if !@user
+      puts "ignoring not logged in user"
+      render :nothing => true
+      return
     end
+    # cleanup - destroy old deleted gifts
+    # gift was marked as deleted in delete_gift request
+    # gift has been ajax removed from  gifts/index page for other users in new_message_count requests
+    Gift.where("? in (user_id_giver, user_id_received) and deleted_at is not null and deleted_at > ?", @user.user_id, 10.minutes.ago) do |g|
+      g.destroy
+    end
+    # return new messages count
+    count = @user.inbox_new_notifications
+    @new_messages_count = count if count > 0
     # return new comments
     # todo: return new comments and comments with changed status (new deal proposal cancelled or rejected)
     # todo: send new comments to all relevant users? today new comments is only sent to giver, receiver and other users that have commented the gift
-    # todo: ajax remove delete marked gifts from gifts table
-    # todo: destroy delete marked gifts after that have been ajax removed from gifts table
-    # todo: must send new_status_update_at to client
     if @new_messages_count and ( params[:request_fullpath] == '/gifts' or params[:request_fullpath] =~ /^\/gifts\/([0-9]+)$/ )
       # find comments to ajax insert in gifts/index or gifts/show pages
       # puts "find comments to ajax insert in gifts/index or gifts/show pages"
@@ -47,11 +53,17 @@ class UtilController < ApplicationController
       @gifts = @user.gifts(old_newest_gift_id, old_newest_status_update_at)
       @gifts = nil if @gifts.length == 0
     end
+    # remove any ajax comments for gifts in gifts array - that is gifts that will be ajax inserted or replaced in gifts html table
+    if @comments and @gifts and @comments.size > 0 and @gifts.size > 0
+      # puts "remove any comments that is included in gifts"
+      # puts "old @comments.size = #{@comments.size}, comments = " + @comments.collect { |c| c.id }.join(', ') if @comments
+      @comments = @comments.delete_if { |c| @gifts.find_all { |g| c.gift_id == g.gift_id }.first }
+      # puts "new @comments.size = #{@comments.size}, comments = " + @comments.collect { |c| c.id }.join(', ') if @comments
+    end
     puts "@gifts.size = #{@gifts.size}, gifts = " + @gifts.collect { |g| g.id }.join(', ') if @gifts
     puts "@comments.size = #{@comments.size}, comments = " + @comments.collect { |c| c.id }.join(', ') if @comments
     puts "@new_newest_gift_id = #{@new_newest_gift_id}"
     puts "@new_newest_status_update_at = #{@new_newest_status_update_at}"
-    # todo: remove any comments that is included in gifts
     respond_to do |format|
       format.html {}
       format.json { render json: @comment, status: :created, location: @comment }
@@ -280,7 +292,11 @@ class UtilController < ApplicationController
     gift.deleted_at = Time.new
     gift.status_update_at = Sequence.next_status_update_at
     gift.save!
-    # todo: recalculate user balances if close deal with price != 0.0. Recalculate from previous deal and to today
+    if gift.received_at and gift.price and gift.price != 0.0
+      # recalculate balance - todo: should only recalculate balance from previous gift and forward
+      gift.giver.recalculate_balance if gift.giver
+      gift.receiver.recalculate_balance if gift.receiver
+    end
     # remove gift from gift from current gifts table
     @gift_id = gift.id
   end # delete_gift
@@ -371,6 +387,7 @@ class UtilController < ApplicationController
     # use a discount version af new_messages_count to ajax replace accepted deal in gifts/index page for current user
     # that is without @new_messages_count, @comments, only with this accepted gift and without new values for new-newest-gift-id andnew-newest-status-update-at
     # only client ajax_insert_update_gifts JS function is called
+    # next new_mesage_count request will ajax replace this gift once more, but that is a minor problem
     gift.reload
     @gifts = [gift]
     respond_to do |format|

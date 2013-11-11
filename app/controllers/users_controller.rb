@@ -213,15 +213,15 @@ class UsersController < ApplicationController
       puts "balance filters: status = #{@status}, direction = #{@direction}"
 
       # find gifts with @user2 as giver or receiver
-      gifts = Gift.where('(user_id_giver = ? or user_id_receiver = ?) and deleted_at is not null', @user2.user_id, @user2.user_id).includes(:giver, :receiver).find_all do |g|
+      gifts = Gift.where('(user_id_giver = ? or user_id_receiver = ?)', @user2.user_id, @user2.user_id).includes(:giver, :receiver).find_all do |g|
         # apply status and direction filters
         ((@status == 'all' or (@status == 'open' and !g.received_at) or (@status == 'closed' and g.received_at)) and
             (@direction == 'both' or (@direction == 'giver' and g.user_id_giver == @user2.user_id) or (@direction == 'receiver' and g.user_id_receiver == @user2.user_id)))
       end.sort do |a, b|
-        if (a.received_at || a.created_at.to_date) == (b.received_at || b.created_at.to_date)
+        if (a.received_at || a.created_at) == (b.received_at || b.created_at)
           b.id <=> a.id
         else
-          (b.received_at || b.created_at.to_date) <=> (a.received_at || a.created_at.to_date)
+          (b.received_at || b.created_at) <=> (a.received_at || a.created_at)
         end # if
       end # sort
       # return next 10 gifts - first 10 for http request - next 10 for ajax request

@@ -126,10 +126,6 @@
 
 43) new messages count - ajax delete comment
 
-44) add a last status  7) show giftupdate timestamp to gift/comment (ok)
-    last status update timestamp is inserted in web page and send to new messages count (ok)
-    new gifts, new comments and changes gifts and comments are returned in new messages count (todo)
-
 45) comments: timestamps for cancel, reject and accept deal?
 
 46) use identical encryption keys on development and test (easy generation of fixtures)
@@ -139,27 +135,23 @@
 
 48) allow new proposal for giver/receiver so that giver/receiver can change price?
 
-49) add missing_api_picture_urls check to gifts/show page
-    Maybe also to user/show page
-    get_missing_api_picture_urls (ruby) / report_missing_api_picture_urls (javascript) could be added to other pages
-
 50) maybe move /util/missing_api_picture_urls requests to a batch process
     problem is that access_token is stored in encrypted cookie and only available in requests/controller
-    could store api access token in db, but that could be a security problem
+    could store api access token in db, but that would be a security problem
     as it will give api access if the server / database in compromised
 
 51) add category to gift?
     could make it easier to find relevant gifts
     But more information to fill when posting gifts
 
-55) add number of friends to user_div mouseover text?
+55) add number of friends to user_div mouse over text?
 
-56) add number of mutual friends to user_div mouseover text?
+56) add number of mutual friends to user_div mouse over text?
 
 60) test with IE.
     can not get ie6, 7, 8 to start under wine
     ie8 is running under PlayOnLinux, but runs wery slow.
-    http posts in gofreerev not working (http and ajax)
+    http posts in gofreerev not working (http and ajax)- rails server: ERROR invalid body size - no solution found
     better to test from a read windows pc.
 
 61) recalculate user balance at request or once every day
@@ -169,13 +161,11 @@
 64) add comments with available interpolation variables to locales files (da, en)
 
 65) user.recalculate_balance recalculates balance for all closed deals with user as giver or receiver.
-    ok when few closed deals for a user, but may be a performance issue for many closed deals.
+    ok when few closed deals for a user, but can be a performance issue for many closed deals.
     allow recalculating balance from a specific date or from a specific gift.id
     should only recalculate balance from last closed deal
 
 66) delete user account - recalculate all relevant user balances
-
-67) delete close deal - recalculate balances for giver and receiver
 
 70) batch processing:
     accept new deal - set new_balance_at = yesterday - for both users - user is marked for recalculate balance (ok)
@@ -183,17 +173,21 @@
 
 80) check texts in views/fb/create.html.erb and create_da_html.erb
 
-81) check todo's in source
+81) show a more informative page when not logged in
+    ensure that all not logged users is rendered to same page
+    this page is also index by search engines and should be informative
+    maybe the same texts as in /fb/create.html.erb and create_da_html.erb pages
+
+83) check todo's in source
 
 84) check log - don't dump access_code in log
 
-85) delete gift - dialog box with removed from shared (unchanged balance) or delete (changed balance)
+85) delete gift - dialog box with
+    a) removed from gift from share page with unchanged balance
+    b) delete gift with changed balance
+    c) cancel
+    No easy was to implement this. See gift_helper.link_to_delete_gift
 
 86) wrong page gifts/create after duplicate posts on FB wall. Should return til gifts/index page with message in top
 
-87) util_controller.accept_new_deal
-    should insert gift in new_messages_buffer_div and call ajax_insert_update_gifts() to ajax replace gift in page
-
-88) sort problem after adding new post.
-    should be first gift in gifts/index page
 
