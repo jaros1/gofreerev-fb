@@ -415,7 +415,7 @@ function ajax_insert_update_gifts ()
             if (new_gifts_ids.indexOf(new_gifts_gift_id) == -1) new_gifts_ids.push(new_gifts_gift_id) ;
         } // if
     } // for
-    // alert('new_gifts_ids = ' + new_gifts_ids.join(',')) ;
+    // alert('new_gifts_trs.length = ' + new_gifts_trs.length + ', new_gifts_ids = ' + new_gifts_ids.join(',')) ;
     // old page: find first gift row in gifts table. id format gift-220-header.
     // new gifts from ajax response are to be inserted before this row
     var old_gifts_table = document.getElementById("gifts") ;

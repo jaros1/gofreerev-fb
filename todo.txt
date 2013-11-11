@@ -179,5 +179,3 @@
     No easy was to implement this. See gift_helper.link_to_delete_gift
 
 86) wrong page gifts/create after duplicate posts on FB wall. Should return til gifts/index page with message in top
-
-87) new gift ajax. charlie new gift was not ajax inserted in sandra gifts/index page

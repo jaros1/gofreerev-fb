@@ -1,18 +1,23 @@
 class UtilController < ApplicationController
 
-  # update new message count in menu line in page header once every minute
-  # called from hidden check-new-messages-link link in page header once every todo: describe frequence
-  #   Parameters: {"request_fullpath"=>"/gifts"}
+  # update new message count in menu line in page header
+  # called from hidden check-new-messages-link link in page header once every 15, 60 or 300 seconds
+  # new_message_count is also ajax injecting gifts and comments into gifts pages
+  # Parameters: {"request_fullpath"=>"/gifts", "newest_gift_id"=>"275", "newest_status_update_at"=>"417"}
+  # - request_fullpath is request path for current page where ajax request was send from
+  # - newest_gift_id is newest gift id when page was loaded or newest gift id in last new_messages_count request for this session
+  # - newest_status_update_at is newest status_update_at when page was loaded or newest status_update_at in last new_message_count request for this session
   def new_messages_count
     if !@user
       puts "ignoring not logged in user"
       render :nothing => true
       return
     end
-    # cleanup - destroy old deleted gifts
-    # gift was marked as deleted in delete_gift request
-    # gift has been ajax removed from  gifts/index page for other users in new_message_count requests
-    Gift.where("? in (user_id_giver, user_id_received) and deleted_at is not null and deleted_at > ?", @user.user_id, 10.minutes.ago) do |g|
+    # cleanup - destroy old delete marked gifts
+    # gift was marked as deleted in util/delete_gift request
+    # gift has been ajax removed from  gifts pages for other sessions in previous util/new_message_count requests
+    # now is the time to destroy old delete marked gifts
+    Gift.where("? in (user_id_giver, user_id_received) and deleted_at is not null and deleted_at < ?", @user.user_id, 10.minutes.ago) do |g|
       g.destroy
     end
     # get params
@@ -58,7 +63,7 @@ class UtilController < ApplicationController
         # remove comments for hidden gifts
         @comments = @comments.find_all { |c| !hide_giftids.index(c.gift_id) } if hide_giftids.length > 0
         new_size = @comments.size
-        puts "#{old_size-new_size} comments for hidden gifts was removed" if old_size != new_size
+        # puts "#{old_size-new_size} comments for hidden gifts was removed" if old_size != new_size
       end
       @comments = nil if @comments.size == 0
       # empty AjaxComment buffer - only return ajax comments once
@@ -82,6 +87,7 @@ class UtilController < ApplicationController
       # puts "remove any comments that is included in gifts"
       # puts "old @comments.size = #{@comments.size}, comments = " + @comments.collect { |c| c.id }.join(', ') if @comments
       @comments = @comments.delete_if { |c| @gifts.find_all { |g| c.gift_id == g.gift_id }.first }
+      @comments = nil if @comments.size == 0
       # puts "new @comments.size = #{@comments.size}, comments = " + @comments.collect { |c| c.id }.join(', ') if @comments
     end
     puts "@gifts.size = #{@gifts.size}, gifts = " + @gifts.collect { |g| g.id }.join(', ') if @gifts
