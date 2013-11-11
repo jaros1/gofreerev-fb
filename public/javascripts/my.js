@@ -345,7 +345,13 @@ function insert_new_comments() {
             }
             if (new_comment_comment_id == old_comments2_comment_id) {
                 // new comment already in old comments table
-                alert('comment ' + new_comment_comment_id + ' is already in page');
+                // replace old comment with new comment
+                // alert('comment ' + new_comment_comment_id + ' is already in page');
+                old_comments2_tr.id = "" ;
+                new_comments_tbody.removeChild(new_comment_tr) ;
+                old_comments2_tr.parentNode.insertBefore(new_comment_tr, old_comments2_tr.nextSibling);
+                ajax_flash(new_comment_tr.id) ;
+                old_comments2_tr.parentNode.removeChild(old_comments2_tr) ;
                 inserted = true;
                 summary = summary + '. ' + i + ': comment ' + new_comment_comment_id + ' inserted (c) for gift id ' + new_comment_gift_id  ;
                 continue;
@@ -527,7 +533,7 @@ function autoresize_text_field(text) {
 }
 
 // post ajax processing after adding a comment.
-// comments/create.js.rb inserts new comment last i gifts table
+// comments/create.js.rb inserts new comment as last row i gifts table
 // move new comment from last row to row before new comment row
 // clear comment text area and reset frequency for new message check
 function post_ajax_add_new_comment_handler(giftid) {
@@ -551,14 +557,18 @@ function post_ajax_add_new_comment_handler(giftid) {
                     id2 = trs[i].id ;
                     if (id2 && id2.match(re)) new_comment_tr = trs[i] ;
                 } // for
+                if (!new_comment_tr) {
+                    alert("new comment row with format " + re + " was not found") ;
+                    return ;
+                }
                 // move table row up before add new comment table row
                 add_new_comment_tr = document.getElementById("gift-" + giftid + "-comment-new") ;
                 if (!add_new_comment_tr) {
-                    alert("post_ajax_add_new_comment_handler: gift-" + giftid + "-comment-new was not found")
+                    alert("post_ajax_add_new_comment_handler: gift-" + giftid + "-comment-new was not found") ;
+                    return ;
                 }
-                tbody = new_comment_tr.parentNode ;
-                tbody.removeChild(new_comment_tr) ;
-                tbody.insertBefore(new_comment_tr, add_new_comment_tr) ;
+                new_comment_tr.parentNode.removeChild(new_comment_tr) ;
+                add_new_comment_tr.parentNode.insertBefore(new_comment_tr, add_new_comment_tr) ; // error: Node was not found
                 // save timestamp for last new ajax comment
                 last_user_ajax_comment_at = new Date() ;
                 restart_check_new_messages() ;

@@ -24,7 +24,7 @@ class Comment < ActiveRecord::Base
 
   before_create :before_create
   before_update :before_update
-  before_destroy :before_destroy
+  # before_destroy :before_destroy
   after_create :after_create
   after_update :after_update
 
@@ -193,6 +193,9 @@ class Comment < ActiveRecord::Base
     noti_type = 5 if (new_deal_yn == 'Y' and !accepted_yn_was and accepted_yn == 'Y')
     noti_type
   end # accepted_proposal?
+  def deleted_comment?
+    !deleted_at_was and deleted_at # deleted mark comment
+  end # deleted_comment?
 
   def get_noti_key_prefix (noti_key_1, noti_key_2, noti_key_3)
     NOTI_KEY_1[noti_key_1] + '_' + NOTI_KEY_2[noti_key_2] + NOTI_KEY_3[noti_key_3]
@@ -498,7 +501,16 @@ class Comment < ActiveRecord::Base
     # puts "Comment.before_update: price = #{price} (#{price.class})"
     # puts "Comment.before_update: currency = #{currency} (#{currency.class})"
     self.status_update_at = Sequence.next_status_update_at if accepted_proposal? or rejected_proposal? or cancelled_proposal?
-  end
+    if deleted_comment?
+      # delete marked comment - will be removed from gift/index pages within the next 5 minutes
+      self.status_update_at = Sequence.next_status_update_at
+      puts "cleanup any unread notifications" if debug_notifications
+      # change number of users for uny unread notifications
+      notifications.find_all { |n| n.noti_read == 'N' }.each do |n|
+        remove_from_notification(n)
+      end # each n
+    end # if
+  end # before_update
 
   # Note: 176 different translation keys                                   8
   # config/locales/language.yml/inbox/index/new_comment_* (48 translations)
@@ -666,13 +678,13 @@ class Comment < ActiveRecord::Base
     end # if cancelled, rejected or accepted
   end # after_update
 
-  def before_destroy
-    puts "cleanup any unread notifications" if debug_notifications
-    # change number of users for uny unread notifications
-    notifications.find_all { |n| n.noti_read == 'N' }.each do |n|
-      remove_from_notification(n)
-    end # each n
-  end # before_destroy
+  #def before_destroy
+  #  puts "cleanup any unread notifications" if debug_notifications
+  #  # change number of users for uny unread notifications
+  #  notifications.find_all { |n| n.noti_read == 'N' }.each do |n|
+  #    remove_from_notification(n)
+  #  end # each n
+  #end # before_destroy
 
 
   ##############

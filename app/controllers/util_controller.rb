@@ -15,20 +15,32 @@ class UtilController < ApplicationController
     Gift.where("? in (user_id_giver, user_id_received) and deleted_at is not null and deleted_at > ?", @user.user_id, 10.minutes.ago) do |g|
       g.destroy
     end
+    # get params
+    old_newest_gift_id = params[:newest_gift_id].to_i
+    old_newest_status_update_at = params[:newest_status_update_at].to_i
     # return new messages count
     count = @user.inbox_new_notifications
     @new_messages_count = count if count > 0
     # return new comments
     # todo: return new comments and comments with changed status (new deal proposal cancelled or rejected)
     # todo: send new comments to all relevant users? today new comments is only sent to giver, receiver and other users that have commented the gift
-    if @new_messages_count and ( params[:request_fullpath] == '/gifts' or params[:request_fullpath] =~ /^\/gifts\/([0-9]+)$/ )
+    if  params[:request_fullpath] == '/gifts' or params[:request_fullpath] =~ /^\/gifts\/([0-9]+)$/
       # find comments to ajax insert in gifts/index or gifts/show pages
+      # two sources for comments to ajax insert into gifts table
+      # 1) comment id's from AjaxComment - maybe deprecation - todo: check where AjaxCommment is initialized
+      # 2) comments with status_update_at > :newest_status_update_at
       # puts "find comments to ajax insert in gifts/index or gifts/show pages"
       # puts "new_messages_count = #{@new_messages_count}"
+      # source 1 - comments selected to be ajax inserted for this user
       com_ids = AjaxComment.where("user_id = ?", @user.user_id).collect { |ac| ac.comment_id }
+      com_ids.push('x') if com_ids.size == 0
+      # source 2 - all visible gifts, but only comments with status_update_at > :newest_status_update_at
+      friends = @user.app_friends.collect { |u| u.user_id_receiver }
+      friends.push(@user.user_id)
       # puts "com_ids.length = #{com_ids.length}"
-      @comments = Comment.where("comment_id in (?)", com_ids) if com_ids.length > 0
-      if @comments and params[:request_fullpath] =~ /^\/gifts\/([0-9]+)$/
+      # @comments = Comment.where("(comment_id in (?))", com_ids)
+      @comments = Comment.includes(:gift).where("(comment_id in (?)) or ((gifts.user_id_giver in (?) or gifts.user_id_receiver in (?)) and comments.status_update_at > ?)", com_ids, friends, friends, old_newest_status_update_at).references(:gifts)
+      if @comments.size > 0 and params[:request_fullpath] =~ /^\/gifts\/([0-9]+)$/
         # gifts/show/<nnn> page - return only ajax comments for actual gift (id=<nnn>)
         # puts "new comments before gift_id filter = #{@comments.length}"
         @comments = @comments.find_all { |c| c.gift.id.to_s == $1 }
@@ -41,9 +53,7 @@ class UtilController < ApplicationController
     # return newly created gifts. Input newest_gift_id when user page was loaded or newest gift_id in last new_messages_count request
     # return newly updated (or deleted) gifts. Input newest_status_update_at when user page was loaded or newest_status_update_at in last new_message:count request
     # 0 if not called from gifts/index page
-    old_newest_gift_id = params[:newest_gift_id].to_i
     new_newest_gift_id = Gift.last.id if old_newest_gift_id > 0
-    old_newest_status_update_at = params[:newest_status_update_at].to_i
     new_newest_status_update_at = Sequence.status_update_at if old_newest_status_update_at > 0
     if old_newest_gift_id > 0 and ( new_newest_gift_id > old_newest_gift_id or new_newest_status_update_at > old_newest_status_update_at )
       # called from gifts/index page and new gifts created since page load or last new_messages_count request

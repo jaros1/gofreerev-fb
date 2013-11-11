@@ -99,8 +99,10 @@ class CommentsController < ApplicationController
       render :nothing => true
       return
     end
-    # delete comment
-    comment.destroy!
+    # delete mark comment
+    # comment will be removed from gifts/index page now for current user
+    comment.deleted_at = Time.new
+    comment.save
     @link_id = comment.table_row_id
   end # destroy
 
