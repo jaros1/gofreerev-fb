@@ -25,31 +25,42 @@ class UtilController < ApplicationController
     # return new comments and comments with changed status (new deal proposal cancelled or rejected or deleted comment)
     if  params[:request_fullpath] == '/gifts' or params[:request_fullpath] =~ /^\/gifts\/([0-9]+)$/
       # find comments to ajax insert in gifts/index or gifts/show pages
-      # two sources for comments to ajax insert into gifts table
-      # 1) comment id's from AjaxComment - maybe deprecation - todo: check where AjaxCommment is initialized
-      # 2) comments with status_update_at > :newest_status_update_at
       # puts "find comments to ajax insert in gifts/index or gifts/show pages"
-      # puts "new_messages_count = #{@new_messages_count}"
-      # source 1 - comments selected to be ajax inserted for this user
+      # two sources for comments to ajax insert into gifts table
+      # source 1 - comments selected to be ajax inserted for this user - todo: check where AjaxCommment is initialized
       com_ids = AjaxComment.where("user_id = ?", @user.user_id).collect { |ac| ac.comment_id }
       com_ids.push('x') if com_ids.size == 0
+      # puts "com_ids.length = #{com_ids.length}"
       # source 2 - all visible gifts, but only comments with status_update_at > :newest_status_update_at
       friends = @user.app_friends.collect { |u| u.user_id_receiver }
       friends.push(@user.user_id)
-      # puts "com_ids.length = #{com_ids.length}"
-      # @comments = Comment.where("(comment_id in (?))", com_ids)
-      @comments = Comment.includes(:gift).where("(comment_id in (?)) or ((gifts.user_id_giver in (?) or gifts.user_id_receiver in (?)) and comments.status_update_at > ?)", com_ids, friends, friends, old_newest_status_update_at).references(:gifts)
+      @comments = Comment.includes(:gift).where("(comment_id in (?)) or " +
+                                                    "((gifts.user_id_giver in (?) or gifts.user_id_receiver in (?)) and " +
+                                                    "gifts.deleted_at is null and " +
+                                                    "comments.status_update_at > ?)",
+                                                com_ids,
+                                                friends, friends, old_newest_status_update_at).references(:gifts)
       if @comments.size > 0 and params[:request_fullpath] =~ /^\/gifts\/([0-9]+)$/
         # gifts/show/<nnn> page - return only ajax comments for actual gift (id=<nnn>)
         # puts "new comments before gift_id filter = #{@comments.length}"
         @comments = @comments.find_all { |c| c.gift.id.to_s == $1 }
         # puts "new comments after gift_id filter = #{@comments.length}"
-        @comments = nil if @comments.length == 0
       end
       # do not return comment just created by current user (problem with extra flash for new comments)
       @comments = @comments.delete_if do |c|
         (c.user_id == @user.user_id and c.created_at > 30.seconds.ago and c.created_at == c.updated_at)
       end
+      # remove comments for hidden gifts - that is gifts user has selected not to see
+      if @comments.size > 0
+        old_size = @comments.size
+        giftids = @comments.collect { |c| c.gift_id }
+        hide_giftids = GiftLike.where("user_id = ? and gift_id in (?)", @user.user_id, giftids).find_all { |gl| gl.show == 'N'}.collect { |gl| gl.gift_id }
+        # remove comments for hidden gifts
+        @comments = @comments.find_all { |c| !hide_giftids.index(c.gift_id) } if hide_giftids.length > 0
+        new_size = @comments.size
+        puts "#{old_size-new_size} comments for hidden gifts was removed" if old_size != new_size
+      end
+      @comments = nil if @comments.size == 0
       # empty AjaxComment buffer - only return ajax comments once
       AjaxComment.destroy_all(:user_id => @user.user_id)
     end

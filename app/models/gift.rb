@@ -547,6 +547,8 @@ class Gift < ActiveRecord::Base
   def visible_for (user)
     if !user
       access = nil
+    elsif deleted_at
+      access = nil
     elsif [user_id_receiver, user_id_giver].index(user.user_id)
       access = 'Y'
     else

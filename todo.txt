@@ -114,15 +114,7 @@
     write short error msg in gift-xxx-comment-yyy-status div after errors
     after accept - add sender/receiver and remove links
 
-40) new messages count - ajax replace gift
-    could be used after accept new deal to change gift in other sessions
-    change new_comments_div to include comments with changed "status"
-
 41) new messages count - ajax delete gift
-
-42) new messages count - ajax replace comment
-    could be used after cancel or reject to change comment in other sessions
-    change new_gifts_div to inlcude gifts with changed "status"
 
 45) comments: timestamps for cancel, reject and accept deal?
 
@@ -188,4 +180,4 @@
 
 86) wrong page gifts/create after duplicate posts on FB wall. Should return til gifts/index page with message in top
 
-
+87) new gift ajax. charlie new gift was not ajax inserted in sandra gifts/index page
