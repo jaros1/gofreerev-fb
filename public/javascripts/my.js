@@ -94,6 +94,8 @@ function csv_empty_field (id)
 } // csv_required_field
 
 // Check price - allow decimal comma/point, max 2 decimals. Thousands separators not allowed
+// used for price in gift and comment
+// should be identical to ruby function invalid_price? in application controller
 function csv_invalid_price (id)
 {
     if (csv_empty_field(id)) return false ; // empty field - ok

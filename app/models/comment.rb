@@ -110,6 +110,8 @@ class Comment < ActiveRecord::Base
   end # currency_was
 
   # 6) price - only for agreement proposal - Float in model - encrypted text in db
+  # todo: there is a minor problem with price validation.
+  # price= accepts only float and model can not return invalid price errors
   def price
     return nil unless (temp_extended_price = read_attribute(:price))
     str_to_float_or_nil encrypt_remove_pre_and_postfix(temp_extended_price, 'price', 33)

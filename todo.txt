@@ -97,9 +97,6 @@
 34) Model changes - user/comment - new model/table -
     like/unlike comment
 
-35) Validate comment.price price in JS and on server. Same validation as gift.price.
-    JS validation ok. Check server validation.
-
 36) change comment format for agreement proposals.
     after cancel/accept/reject - change format for agreement proposals
     after cancel/accept/reject - change format for agreement proposals in other pages (new messages count)
@@ -181,3 +178,7 @@
 88) add som kind of flash when removing gifts and comments from page - get some jquery books
 
 89) check translate key is being used for all flash messages
+
+90) price validation.
+    price is validated in JS and is validated in gifts and comments controller.
+    price validation should be in Gift and Comment model, but price is a Float in model and can not be invalid

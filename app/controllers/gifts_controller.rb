@@ -9,8 +9,7 @@ class GiftsController < ApplicationController
   def create
     flash.now[:notice] = nil
     @gift = Gift.new
-    # todo: should validate :price with an regular expressions. "x".to_f == 0.0
-    @gift.price = params[:gift][:price].to_f if params[:gift][:price].to_s != ''
+    @gift.price = params[:gift][:price].gsub(',','.').to_f unless invalid_price?(params[:gift][:price])
     @gift.direction = 'giver' if @gift.direction.to_s == ''
     @gift.currency = @user.currency
     @gift.description = params[:gift][:description]
@@ -21,7 +20,10 @@ class GiftsController < ApplicationController
     end
     gift_file = params[:gift_file]
     @gift.picture = gift_file.class.name == 'ActionDispatch::Http::UploadedFile' ? 'Y' : 'N'
-    if !@gift.valid?
+    # price= accepts only float and model can not return invalid price errors
+    @gift.valid?
+    @gift.errors.add :price, :invalid if invalid_price?(params[:gift][:price])
+    if @gift.errors.size > 0
       flash.now[:notice] = @gift.errors.full_messages.join(', ')
       index
       return
@@ -97,7 +99,6 @@ class GiftsController < ApplicationController
             if e.fb_error_type == 'OAuthException' && e.fb_error_code == 506
               # delete gift and ignore error OAuthException, code: 506, message: (#506) Duplicate status message [HTTP 400]
               gift_posted_on_wall_api_wall = 4 # Gift posted in here but not on your facebook wall. Duplicate status message on facebook wall.
-              flash.now[:notice] = 'Not posted. Duplicate status message on wall'
             elsif e.fb_error_type == 'OAuthException' && e.fb_error_code == 200
               # todo: catch the folling error. permission status_update was removed.
               # e.fb_error_type = OAuthException

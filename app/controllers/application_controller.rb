@@ -385,4 +385,15 @@ class ApplicationController < ActionController::Base
     [ rows, last_row_id]
   end # get_next_set_of_rows
 
+  # Check price - allow decimal comma/point, max 2 decimals. Thousands separators not allowed
+  # used in gifts and comments controller
+  # should be identical to JS function csv_invalid_price (csv = client side validation)
+  def invalid_price? (price)
+    price = price.to_s.strip
+    return false if price == ""
+    r = Regexp.new '^[0-9]*((\.|,)[0-9]{0,2})?$'
+    return true if (!r.match(price) || (price == '.') || (price == ','))
+    false
+  end # invalid_price?
+
 end # ApplicationController

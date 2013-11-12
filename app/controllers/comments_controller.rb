@@ -19,13 +19,16 @@ class CommentsController < ApplicationController
     @comment.comment = params[:comment][:comment].to_s.force_encoding('UTF-8')
     if params[:comment][:new_deal_yn] == 'Y'
       @comment.new_deal_yn = params[:comment][:new_deal_yn]
-      # todo: validate price - use same server validation as for gift.price
-      @comment.price = params[:comment][:price].to_f
+      @comment.price = params[:comment][:price].gsub(',','.').to_f unless invalid_price?(params[:comment][:price])
       @comment.currency = @user.currency
     end
 
     respond_to do |format|
-      if @comment.save
+      # price= accepts only float and model can not return invalid price errors
+      @comment.valid?
+      @comment.errors.add :price, :invalid if params[:comment][:new_deal_yn] == 'Y' and invalid_price?(params[:comment][:price])
+      if @comment.errors.size == 0
+        @comment.save
         puts "comment saved"
         format.html { redirect_to @comment, notice: 'Comment was successfully created.' }
         format.json { render json: @comment, status: :created, location: @comment }
