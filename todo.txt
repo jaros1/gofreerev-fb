@@ -16,14 +16,7 @@
  4) link stories. Insert link for one story in an other story.
     how to handle security? Should only see gifts from7to friends
 
- 8) delete gift.
-    It should be possible to delete open gifts in gifts/index page (ok)
-    You should get a confirm dialog if you tries to delete a closed gift (ok)
-    must delete mark with new status_update_at timestamp to allow ajax remove gift in other sessions (ok)
-    remove delete marked gifts after 5 minutes (todo)
-    ajax remove delete marked gifts in new_messages_count for current user (todo)
-
- 9) balance sorted by received_at in user.recalculate_balance
+ 5) balance sorted by received_at in user.recalculate_balance
     gifts sorted by created_at desc in gifts/index
     closed deals should be sorted by received_at descending to display balance in correct order
     open deals should be sorted by newest comment in top
@@ -33,152 +26,132 @@
     must be a not encrypted field
     problem. what if different users wishes different sort criteria?  fx a) sort by received_at, b) sort by comment_at, c) etc
 
-10) get timezone from login api. ok. timezone added to user
+ 6) get timezone from login api. ok. timezone added to user
     Use timezone in views. . not yet any timestamps in views.
 
-11) add date format. see application_helper.format_date
+ 7) add date format. see application_helper.format_date
 
-12) add time format. Use timezone in time format in views
+ 8) add time format. Use timezone in time format in views
 
-13) add a counter to a gift. Normally 1 gift, but can be any number or nil. Eg. nil for a service.
+ 9) add a counter to a gift. Normally 1 gift, but can be any number or nil. Eg. nil for a service.
     Clone a closed gift, keep the original gift and decrease counter. Close deal when counter reaches zero.
     Maybe link all the stories if accepted by the receiver
 
-15) api notifications:
+10) api notifications:
     get a app access token.
     send only notifications to api if internal notifications in app is not read.
     Short summary of unread app notifications in api notification
     Only few api notifications and stop sending messages if user do not start app
 
-17) close account and delete all data in app
+11) close account and delete all data in app
     auto cleanup and close of inactive accounts?!
     there is no reason to keep data for users that does not use the app ( other than delete of user and gifts changes other users balance )
     maybe
 
-18) add more detailed description of what user information is saved in app
+12) add more detailed description of what user information is saved in app. privacy note. Maybe with cookie note.
 
-19) gifts/index: post on api wall checkbox. Only if user has granted post-on-wall prio.
+13) gifts/index: post on api wall checkbox. Only if user has granted post-on-wall prio.
 
-20) gifts/index: comment with final description before the deal is closed? Or keep original text with comments?
+14) gifts/index: comment with final description before the deal is closed? Or keep original text with comments?
 
-21) implement other logins. Google+ and linkedin login is almost identical wish facebook login
+15) implement other logins. Google+ and linkedin login is almost identical wish facebook login
 
-22) connect login user across different login apis. Only one balance even if you uses more than one login api.
+16) connect login user across different login apis. Only one balance even if you uses more than one login api.
     can not show gifts from other login apis, but can include balance from other login apis in user's balance.
     check out rails omniauth gem (multi api login)
     allow gofreerev friends across login api.
     how to handle balance across api's?
 
-23) gets only small picture api url from fb. See gift.get_api_picture_url method
+17) gets only small picture api url from fb. See gift.get_api_picture_url method
     It should http://www.dr.dk/Nyheder/Politik/2013/10/22/083947.htmbe possible to get url for a larger picture from facebook api
 
-24) wrap fb api into an generic exception handler with dump of request and exception after error
+18) wrap fb api into an generic exception handler with dump of request and exception after error
 
-25) add accept conditions for new users
+19) add accept conditions for new users
 
-26) add disclaimer
+20) add disclaimer
 
-27) add cookie policy note
+21) add cookie policy note
 
-28) check out coffeescript
+22) check out coffeescript
 
-29) How much sync. of comments in api and comments in app?
+23) How much sync. of comments in api and comments in app?
     write comment to fb - don't download comments from fb
 
-30) edit gift. Can not edit post on api. Allow to edit post in app?
+24) edit gift. Can not edit post on api. Allow to edit post in app?
 
-31) create gift as ajax in gifts/index page?
+25) create gift as ajax in gifts/index page?
+    How to handle picture upload, missing api privs. show/hide link i gifts/index page?
 
-32) mark new comments with color in inbox.
+26) mark new comments with color in inbox.
 
-33) only keep last <n> notifications for each user (ok)
-    max keep a notification for n days. (not implemented)
-
-34) Model changes - user/comment - new model/table -
+27) Model changes - user/comment - new model/table -
     like/unlike comment
 
-36) change comment format for agreement proposals.
-    after cancel/accept/reject - change format for agreement proposals
-    after cancel/accept/reject - change format for agreement proposals in other pages (new messages count)
-
-37) delete gifts
-
-39) new deal / cancel / accept / reject error handling:
+28) new deal / cancel / accept / reject error handling:
     new deal can fail if gift user has accepted an other offer
     cancel can fail if gift user has accepted a deal or has rejected new deal from user
     accept can fail if other user has cancelled the offer
     reject can fail if other user has cancelled the offer
     write short error msg in gift-xxx-comment-yyy-status div after errors
-    after accept - add sender/receiver and remove links
 
-41) new messages count - ajax delete gift
+29) comments: timestamps for cancel, reject and accept deal?
 
-45) comments: timestamps for cancel, reject and accept deal?
-
-46) use identical encryption keys on development and test (easy generation of fixtures)
+30) use identical encryption keys on development and test (easy generation of fixtures)
     use different encryption keys in production environment
 
-47) make script to compare language files (en, da etc). Find missing keys
+31) make script to compare language files (en, da etc). Find missing keys
 
-48) allow new proposal for giver/receiver so that giver/receiver can change price?
+32) allow new proposal for giver/receiver so that giver/receiver can change price?
 
-50) maybe move /util/missing_api_picture_urls requests to a batch process
-    problem is that access_token is stored in encrypted cookie and only available in requests/controller
-    could store api access token in db, but that would be a security problem
-    as it will give api access if the server / database in compromised
-
-51) add category to gift?
+33) add category to gift?
     could make it easier to find relevant gifts
     But more information to fill when posting gifts
 
-55) add number of friends to user_div mouse over text?
+34) add number of friends to user_div mouse over text?
 
-56) add number of mutual friends to user_div mouse over text?
+35) add number of mutual friends to user_div mouse over text?
 
-60) test with IE.
+36) test with IE.
     can not get ie6, 7, 8 to start under wine
     ie8 is running under PlayOnLinux, but runs wery slow.
     http posts in gofreerev not working (http and ajax)- rails server: ERROR invalid body size - no solution found
     better to test from a read windows pc.
 
-61) recalculate user balance at request or once every day
+37) recalculate user balance at request or once every day
 
-63) refactor styles to stylesheets - use stylesheets and not inline styles.
+38) refactor styles to stylesheets - use stylesheets and not inline styles.
 
-64) add comments with available interpolation variables to locales files (da, en)
+39) add comments with available interpolation variables to locales files (da, en)
 
-65) user.recalculate_balance recalculates balance for all closed deals with user as giver or receiver.
+40) user.recalculate_balance recalculates balance for all closed deals with user as giver or receiver.
     ok when few closed deals for a user, but can be a performance issue for many closed deals.
     allow recalculating balance from a specific date or from a specific gift.id
     should only recalculate balance from last closed deal
 
-66) delete user account - recalculate all relevant user balances
+41) delete user account - recalculate all relevant user balances (closed deals)
 
-70) batch processing:
+42) batch processing:
     accept new deal - set new_balance_at = yesterday - for both users - user is marked for recalculate balance (ok)
     batch processing - recalculate balance for all users where new_balance_at != today (todo)
 
-80) check texts in views/fb/create.html.erb and create_da_html.erb
+43) check texts in views/fb/create.html.erb and create_da_html.erb
 
-81) show a more informative page when not logged in
+44) show a more informative page when not logged in
     ensure that all not logged users is rendered to same page
     this page is also index by search engines and should be informative
     maybe the same texts as in /fb/create.html.erb and create_da_html.erb pages
 
-83) check todo's in source
+45) check todo's in source
 
-84) check log - don't dump access_code in log
-
-85) delete gift - dialog box with
+46) delete gift - dialog box with
     a) removed from gift from share page with unchanged balance
     b) delete gift with changed balance
     c) cancel
     No easy was to implement this. See gift_helper.link_to_delete_gift
 
-88) add som kind of flash when removing gifts and comments from page - get some jquery books
+47) add som kind of flash when removing gifts and comments from page - get some jquery books
 
-89) check translate key is being used for all flash messages
-
-90) price validation.
+48) price validation.
     price is validated in JS and is validated in gifts and comments controller.
     price validation should be in Gift and Comment model, but price is a Float in model and can not be invalid

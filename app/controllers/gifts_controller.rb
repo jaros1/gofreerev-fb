@@ -69,7 +69,7 @@ class GiftsController < ApplicationController
       # post gift on login api wall (facebook, google+ etc)
       case
         when @user.facebook?
-          puts "access_token = #{session[:access_token]}"
+          # puts "access_token = #{session[:access_token]}"
           api = Koala::Facebook::API.new(session[:access_token])
           begin
             if gift_file
@@ -100,28 +100,21 @@ class GiftsController < ApplicationController
               # delete gift and ignore error OAuthException, code: 506, message: (#506) Duplicate status message [HTTP 400]
               gift_posted_on_wall_api_wall = 4 # Gift posted in here but not on your facebook wall. Duplicate status message on facebook wall.
             elsif e.fb_error_type == 'OAuthException' && e.fb_error_code == 200
-              # todo: catch the folling error. permission status_update was removed.
-              # e.fb_error_type = OAuthException
-              # e.fb_error_code = 200
-              # e.fb_error_subcode =
-              # e.fb_error_message = (#200) The user hasn't authorized the application to perform this action
-              # e.http_status = 403
               # e.response_body = {"error":{"message":"(#200) The user hasn't authorized the application to perform this action","type":"OAuthException","code":200}}
-              # e.fb_error_type.class.name = String
-              # e.fb_error_code.class.name = Fixnum
+              # check if permission to post i api wall has been removed
               error = e.to_s
               @user.get_api_permissions(session[:access_token])
               if !@user.post_gift_allowed?
-                # permission status_update has been removed.
+                # permission to post on api wall has been removed.
                 # show request_post_gift_priv_link link in gifts/index page
                 gift_posted_on_wall_api_wall = 3
                 error = nil
               else
-                # status_update stil in permissions
+                # permission to post on api wall has NOT been removed. Unknown error
                 gift_posted_on_wall_api_wall = 1 # unknown error. no translation
-                # error message is already saved in error
               end
             else
+              # unhandled exceptions
               gift_posted_on_wall_api_wall = 1 # unknown error. no translation
               error = e.to_s
             end
@@ -129,10 +122,13 @@ class GiftsController < ApplicationController
         when @user.google_plus?
           # todo: post message on google+ wall
           gift_posted_on_wall_api_wall = 5 # Post on %{apiname} wall not implemented.
-          error = 'Post on Google+ not implemented'
+        when @user.linkedin?
+          # todo: post message on linkedIn wall
+          gift_posted_on_wall_api_wall = 5 # Post on %{apiname} wall not implemented.
         else
           # not implemented login api
           gift_posted_on_wall_api_wall = 5 # Post on %{apiname} wall not implemented.
+          error = 'Unknown api'
       end # case
     else
       gift_posted_on_wall_api_wall = 3
@@ -148,17 +144,14 @@ class GiftsController < ApplicationController
     else
       # save picture posted message
       messages = [ my_t(".gift_posted_#{gift_posted_on_wall_api_wall}", :apiname => @user.api_name_without_brackets, :error => error) ]
-
+      # get url for picture
       if @gift.picture == 'Y'
         # todo: gets only small picture url from fb - is should be possible to get url for a larger picture from fb
         # get temporary picture url - may change - url change is catched in onerror in img in html page
         api_request = "#{@gift.api_gift_id}?fields=full_picture"
         # api_request = @gift.api_gift_id.split('_').join('/picture/') + '?type=normal' # still small picture
         # api_request = @gift.api_gift_id.split('_').join('/picture/')  + '?fields=full_picture' # empty response (302 redirect) with profile picture
-        # todo: add exception handler
-        puts "access_token = #{session[:access_token]}"
         puts "api_request = #{api_request}"
-
         begin
           @gift.api_picture_url = @gift.get_api_picture_url(session[:access_token])
           if @gift.api_picture_url
@@ -228,7 +221,7 @@ class GiftsController < ApplicationController
 
     # initialize gift form in top of gifts/index page
     puts "user_name = #{@user.user_name}" if @user
-    puts "access_token = #{session[:access_token]}"
+    # puts "access_token = #{session[:access_token]}"
     @gift = Gift.new
     if params[:gift]
       # returned from create - error in save or error in api request - gift not saved

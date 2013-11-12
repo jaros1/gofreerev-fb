@@ -28,7 +28,7 @@ class FbController < ApplicationController
         # todo: error handling?!
         puts "code = #{params[:code]}"
         access_token = session[:access_token] = session[:oauth].get_access_token(params[:code])
-        puts "access_token = #{access_token}"
+        # puts "access_token = #{access_token}"
         # login completed. access token is saved.
         session.delete(:oauth)
         session.delete(:state)
