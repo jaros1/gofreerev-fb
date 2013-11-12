@@ -145,6 +145,8 @@ function csv_comment(giftid)
 } // csv_comment
 
 
+// this ajax flash is used when inserting or updating gifts and comments in gifts table
+// todo: add some kind of flash when removing (display=none) rows from gifts table
 function ajax_flash (id)
 {
     $('#' + id).css({'background-color':'green'}).animate({'background-color':'white'}, 2000) ;

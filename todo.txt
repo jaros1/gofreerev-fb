@@ -178,4 +178,6 @@
     c) cancel
     No easy was to implement this. See gift_helper.link_to_delete_gift
 
-86) wrong page gifts/create after duplicate posts on FB wall. Should return til gifts/index page with message in top
+88) add som kind of flash when removing gifts and comments from page - get some jquery books
+
+89) check translate key is being used for all flash messages

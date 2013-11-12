@@ -100,11 +100,21 @@ da:
         file_upload_not_allowed: "Fil upload ej tilladt. %{appname} mangler adgang til at skrive på din %{apiname} væg."
         unsupported_filetype: "Usupporteret filtype %{filetype} i fil upload. Supporterede filtyper er jpg, gif, png og bmp."
         file_is_too_big: "Fil er for stor. Højst tilladte størrelse på billede er %{maxsize}."
-        # todo: translate to danish
-        posted_api_and_app_ok: "Opslag opretter herinde og på din %{apiname} væg"
-        posted_app_ok: "Opslag opretter herinde, men ikke på din %{apiname} væg"
-        picture_upload_unknown_problem: "Opslag opretter herinde og på din %{apiname} væg. Foto blev uploaded til din #{apiname} væg, men #{APP_NAME} mangler rettigheder til at se billedet på din %{apiname} væg og kan derfor ikke vise foto herinde. Måske du har ændret rettighedsindstillinger for %{appname}."
+        picture_upload_unknown_problem: "Opslag opretter herinde og på din %{apiname} væg. Foto blev uploaded til din %{apiname} væg, men %{appname} mangler rettigheder til at se billedet på din %{apiname} væg og kan derfor ikke vise foto herinde. Måske du har ændret rettighedsindstillinger for %{appname}."
         picture_upload_missing_permission: "Opslag opretter herinde og på din %{apiname} væg. Foto blev uploaded til din %{apiname} væg, men %{appname} mangler rettigheder til at se billedet på din %{apiname} og kan derfor ikke vise foto herinde. Du kan løse dette problem ved enten at ændre synlighed for %{appname} opslag til offentlig eller ved at give %{appname} lov til at læse opslag på din %{apiname} væg."
+        # gift_posted_<n> is used if gift was saved in gifts table
+        gift_posted_1: "Opslag opretter herinde, men ikke på din %{apiname} væg (%{error})" # unhandled error message
+        gift_posted_2: "Opslag opretter herinde og på din %{apiname} væg"
+        gift_posted_3: "Opslag opretter herinde, men ikke på din %{apiname} væg" # missing privileges
+        gift_posted_4: "Opslag opretter herinde, men ikke på din %{apiname} væg. Opslag fandes allerede på %{apiname} væg"
+        gift_posted_5: "Opslag opretter herinde, men ikke på din %{apiname} væg. Opslag på %{apiname} væg er endnu ikke implementeret"
+        # gift_not_posted_<n> is used if gift was not saved in gifts table - should never happen
+        gift_not_posted_1: "Opslag blev ikke oprettet på din %{apiname} væg (%{error})" # unhandled error message
+        gift_not_posted_2: "Opslag blev oprettet på din %{apiname} væg"
+        gift_not_posted_3: "Opslag blev ikke oprettet på din %{apiname} væg" # missing privileges
+        gift_not_posted_4: "Opslag fandes allerede på %{apiname} væg"
+        gift_not_posted_5: "Opslag på %{apiname} væg er endnu ikke implementeret"
+        no_api_picture_url: "Foto blev uploaded, men ingen URL til foto blev modtaget fra #{apiname}"
      index:
         not_logged_in_flash: "Ugyldigt kald. Du er ikke logget på."
         not_logged_in_text: "Du er ikke logget ind og der kan ikke oprettes opslag."

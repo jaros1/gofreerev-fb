@@ -271,7 +271,7 @@ class User < ActiveRecord::Base
       when facebook?
          permissions['status_update'] == 1
       else
-        puts "post_on_wall? not impleented for #{user_id.first(2)} users"
+        puts "post_on_wall? not implemented for #{user_id.first(2)} users"
         false
     end
   end # post_gift_allowed?

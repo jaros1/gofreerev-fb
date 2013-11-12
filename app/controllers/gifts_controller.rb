@@ -21,15 +21,13 @@ class GiftsController < ApplicationController
     end
     gift_file = params[:gift_file]
     @gift.picture = gift_file.class.name == 'ActionDispatch::Http::UploadedFile' ? 'Y' : 'N'
-    unless @gift.valid?
-      # todo: check how to handle error messages in rails 4
+    if !@gift.valid?
       flash.now[:notice] = @gift.errors.full_messages.join(', ')
       index
       return
     end
 
     # check for file upload
-
     if gift_file.class.name == 'ActionDispatch::Http::UploadedFile' and @user.post_gift_allowed?
       # puts "gift_file = #{gift_file} (#{gift_file.class.name})"
       # puts "gift_file.methods = " + gift_file.methods.sort.join(', ')
@@ -56,11 +54,17 @@ class GiftsController < ApplicationController
 
     # puts "create: description = #{@gift.description}"
 
-    gift_posted_on_wall_api_wall = nil
+    # gift_posted_on_wall_api_wall. values:
+    #  1: "Gift posted in here but not on your %{apiname} wall. #{error}" # unhandled error message
+    #  2: "Gift posted in here and on your %{apiname} wall"
+    #  3: "Gift posted in here but not on your %{apiname} wall." # missing privileges
+    #  4: "Gift posted in here but not on your %{apiname} wall. Duplicate status message on #{apiname} wall."
+    #  5: "Gift posted in here but not on your %{apiname} wall. Post on #{apiname} wall not implemented."
+    gift_posted_on_wall_api_wall = 1
+    error = 'unknown error'
+
     if @user.post_gift_allowed?
       # post gift on login api wall (facebook, google+ etc)
-
-      gift_posted_on_wall_api_wall = false
       case
         when @user.facebook?
           puts "access_token = #{session[:access_token]}"
@@ -79,7 +83,7 @@ class GiftsController < ApplicationController
               @gift.api_gift_id = api_response['id']
             end
             puts "api_response = #{api_response} (#{api_response.class.name})"
-            gift_posted_on_wall_api_wall = true
+            gift_posted_on_wall_api_wall = 2 # Gift posted in here and on your facebook wall
           rescue Koala::Facebook::ClientError => e
             puts 'Koala::Facebook::ClientError'
             puts "e.fb_error_type = #{e.fb_error_type}"
@@ -92,32 +96,57 @@ class GiftsController < ApplicationController
             puts "e.fb_error_code.class.name = #{e.fb_error_code.class.name}"
             if e.fb_error_type == 'OAuthException' && e.fb_error_code == 506
               # delete gift and ignore error OAuthException, code: 506, message: (#506) Duplicate status message [HTTP 400]
+              gift_posted_on_wall_api_wall = 4 # Gift posted in here but not on your facebook wall. Duplicate status message on facebook wall.
               flash.now[:notice] = 'Not posted. Duplicate status message on wall'
+            elsif e.fb_error_type == 'OAuthException' && e.fb_error_code == 200
+              # todo: catch the folling error. permission status_update was removed.
+              # e.fb_error_type = OAuthException
+              # e.fb_error_code = 200
+              # e.fb_error_subcode =
+              # e.fb_error_message = (#200) The user hasn't authorized the application to perform this action
+              # e.http_status = 403
+              # e.response_body = {"error":{"message":"(#200) The user hasn't authorized the application to perform this action","type":"OAuthException","code":200}}
+              # e.fb_error_type.class.name = String
+              # e.fb_error_code.class.name = Fixnum
+              error = e.to_s
+              @user.get_api_permissions(session[:access_token])
+              if !@user.post_gift_allowed?
+                # permission status_update has been removed.
+                # show request_post_gift_priv_link link in gifts/index page
+                gift_posted_on_wall_api_wall = 3
+                error = nil
+              else
+                # status_update stil in permissions
+                gift_posted_on_wall_api_wall = 1 # unknown error. no translation
+                # error message is already saved in error
+              end
             else
-              flash.now[:notice] = e.to_s
+              gift_posted_on_wall_api_wall = 1 # unknown error. no translation
+              error = e.to_s
             end
           end # rescue
         when @user.google_plus?
-          # todo: post message on gogole+ wall
-          gift_posted_on_wall_api_wall = false
+          # todo: post message on google+ wall
+          gift_posted_on_wall_api_wall = 5 # Post on %{apiname} wall not implemented.
+          error = 'Post on Google+ not implemented'
         else
           # not implemented login api
-          gift_posted_on_wall_api_wall = nil
+          gift_posted_on_wall_api_wall = 5 # Post on %{apiname} wall not implemented.
       end # case
+    else
+      gift_posted_on_wall_api_wall = 3
     end # if
 
-    puts "flash.now[:notice] = #{flash.now[:notice]}"
-    unless flash.now[:notice]
-      @gift.save!
-      # todo: use api.get_object('me/statuses?__paging_token=3287865251224&limit=1') to read status
-      # todo: fol query 100006397022113_1396195803936974?fields=full_picture returns picture url
-      # todo: fol query me/picture/1396195803936974 returns picture url
-      #                 <userid>/picture/<picture_id>
-      if gift_posted_on_wall_api_wall
-        flash[:notice] = my_t '.posted_api_and_app_ok', :apiname => @user.api_name_without_brackets
-      else
-        flash[:notice] = my_t '.posted_app_ok', :apiname => @user.api_name_without_brackets
-      end
+    if !@gift.save
+      # @gift.save should not fail. @gift was validated a moment ago before posting on api wall
+      messages = [ my_t(".gift_not_posted_#{gift_posted_on_wall_api_wall}", :apiname => @user.api_name_without_brackets, :error => error) ]
+      messages = messages + @gift.errors.full_messages
+      flash.now[:notice] = messages.join('. ')
+      index
+      return
+    else
+      # save picture posted message
+      messages = [ my_t(".gift_posted_#{gift_posted_on_wall_api_wall}", :apiname => @user.api_name_without_brackets, :error => error) ]
 
       if @gift.picture == 'Y'
         # todo: gets only small picture url from fb - is should be possible to get url for a larger picture from fb
@@ -131,6 +160,15 @@ class GiftsController < ApplicationController
 
         begin
           @gift.api_picture_url = @gift.get_api_picture_url(session[:access_token])
+          if @gift.api_picture_url
+            # valid picture url received from apii
+            @gift.api_picture_url_updated_at = Time.now
+            @gift.api_picture_url_on_error_at = nil
+            @gift.save!
+          else
+            puts "Did not get a picture url from api. Must be problem with missing access token, picture != Y or deleted_at_api == Y"
+            messages << my_t('.no_api_picture_url', :apiname => @user.api_name_without_brackets)
+          end
         rescue ApiPostNotFoundException => e
           # problem with picture uploads and permissions
           # could not get full_picture url for an uploaded picture with visibility friends
@@ -145,32 +183,21 @@ class GiftsController < ApplicationController
           end
           if @user.read_gifts_allowed?
             # error - this should not happen.
-            flash[:notice] = my_t '.picture_upload_unknown_problem', :appname => APP_NAME, :apiname => @user.api_name_without_brackets
+            messages << my_t('.picture_upload_unknown_problem', :appname => APP_NAME, :apiname => @user.api_name_without_brackets)
           else
             # flash with request for read stream privs
-            flash[:notice] = my_t '.picture_upload_missing_permission', :appname => APP_NAME, :apiname => @user.api_name_without_brackets
-            flash[:read_stream] = 'Missing read_stream permission' # display link to grant read_stream permission
+            messages << my_t('.picture_upload_missing_permission', :appname => APP_NAME, :apiname => @user.api_name_without_brackets)
+            flash[:read_stream] = 'Missing read_stream permission' # display link to grant read_stream permission in gifts/index page
           end
           @gift.picture = 'N'
           @gift.save!
-          redirect_to :action => 'index'
-          return
         end # rescue
-        if @gift.api_picture_url
-          # save picture url from api
-          @gift.api_picture_url_updated_at = Time.now
-          @gift.api_picture_url_on_error_at = nil
-          @gift.save!
-        else
-          puts "Did not get a picture url from api. Must be problem with missing access token, picture != Y or deleted_at_api == Y"
-        end
       end
-
-      redirect_to :action => 'index'
-      return
     end
 
-    index
+    flash[:notice] = messages.join('. ')
+    redirect_to :action => 'index'
+
   end # create
 
   def update
@@ -260,7 +287,7 @@ class GiftsController < ApplicationController
     @first_comment_id = nil
 
     respond_to do |format|
-      format.html {}
+      format.html { render :action => "index" }
       # format.json { render json: @comment, status: :created, location: @comment }
       format.js {}
     end
