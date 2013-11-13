@@ -36,6 +36,7 @@ class Gift < ActiveRecord::Base
   has_many :likes, :class_name => 'GiftLike', :primary_key => :gift_id, :foreign_key => :gift_id, :dependent => :destroy
 
   before_create :before_create
+  before_update :before_update
 
   # https://github.com/jmazzi/crypt_keeper - text columns are encrypted in database
   # encrypt_add_pre_and_postfix/encrypt_remove_pre_and_postfix added in setters/getters for better encryption
@@ -587,9 +588,25 @@ class Gift < ActiveRecord::Base
   attr_accessor :file, :direction
 
 
+
+
   def before_create
     self.status_update_at = Sequence.next_status_update_at
   end
+
+  def before_update
+    if !deleted_at_was and deleted_at
+      # gift has been delete marked in util_controller.delete_gift
+      # update status_update_at so that gift will be ajax deleted in other sessions
+      self.status_update_at = Sequence.next_status_update_at
+      # destroy all notifications for this gift
+      comment_ids = comments.collect { |c| c.comment_id }
+      return if comment_ids.size == 0
+      notification_ids = CommentNotification.where("comment_id in (?)", comment_ids).collect { |cn| cn.notification_id }.uniq
+      return if notification_ids.size == 0
+      Notification.where("notification_id in (?)", notification_ids).each { |n| n.destroy }
+    end # if
+  end # before_update
 
 
   # https://github.com/jmazzi/crypt_keeper gem encrypts all attributes and all rows in db with the same key

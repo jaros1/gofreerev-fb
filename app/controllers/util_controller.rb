@@ -318,9 +318,8 @@ class UtilController < ApplicationController
       puts "#{@user.short_user_name} is not allowed to delete gift id #{gift_id} - silently ignore ajax request"
       return
     end
-    # delete mark gift. Delete marked gifts will be ajax removed within the next 5 minutes and will be deleted after 5 minutes
+    # delete mark gift. Delete marked gifts will be ajax removed from other sessions within the next 5 minutes and will be physical deleted after 5 minutes
     gift.deleted_at = Time.new
-    gift.status_update_at = Sequence.next_status_update_at
     gift.save!
     if gift.received_at and gift.price and gift.price != 0.0
       # recalculate balance - todo: should only recalculate balance from previous gift and forward
