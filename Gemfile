@@ -11,6 +11,7 @@ gem 'omniauth'
 gem 'omniauth-facebook'
 gem 'omniauth-gplus'
 gem 'omniauth-linkedin-oauth2'
+gem 'omniauth-twitter'
 
 # Use sqlite3 as the database for Active Record
 gem 'sqlite3'
