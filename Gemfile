@@ -6,6 +6,12 @@ gem 'rails', '4.0.0'
 # Gem for FB APP integration
 gem 'koala', '1.7.0rc1'
 
+# switch to omniauth for multi API integration (FB, Google+, LinkedIm, twitter etc)
+gem 'omniauth'
+gem 'omniauth-facebook'
+gem 'omniauth-gplus'
+gem 'omniauth-linkedin-oauth2'
+
 # Use sqlite3 as the database for Active Record
 gem 'sqlite3'
 

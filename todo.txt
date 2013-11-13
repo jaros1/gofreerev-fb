@@ -156,12 +156,4 @@
     price is validated in JS and is validated in gifts and comments controller.
     price validation should be in Gift and Comment model, but price is a Float in model and can not be invalid
 
-49) inbox/index should not show notification for delete marked gifts
-
-50) new messages count should not include delete marked messages
-    It looks like notifications are changed or deleted when comments are delete marked
-    It looks like notifications are not changed or deleted when gifts are delete marked
-    Find notifications to remove
-    Use noti_options[:giftid]
-    Use CommentNotification
-    Use url from translation. for example new_comment_giver_1_v1_to_url that is a link to a gift
+49) compare list of socialnetworks with list of oauth2 api's
