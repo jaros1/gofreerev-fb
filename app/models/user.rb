@@ -743,8 +743,21 @@ class User < ActiveRecord::Base
 
   def inbox_new_notifications
     return @new_notifications if defined?(@new_notifications)
-    @new_notifications = Notification.where("to_user_id = ? and noti_read = 'N'", self.user_id).size
-  end
+    notifications = Notification.where("to_user_id = ? and noti_read = 'N'", self.user_id)
+    # don't count notifications for deleted or delete marked gifts
+    notifications = notifications.find_all do |noti|
+      giftid = noti.noti_options[:giftid]
+      if giftid
+        # gift/comment notification. Check if gift has been deleted or delete marked.
+        gift = Gift.find(giftid)
+        gift and !gift.deleted_at
+      else
+        # other notifications
+        true
+      end
+    end
+    @new_notifications = notifications.size
+  end # inbox_new_notifications
 
   # refresh user permisssion
   # called in error handling after picture upload with ApiPostNotFoundException error

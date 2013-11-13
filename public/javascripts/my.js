@@ -233,8 +233,8 @@ function update_new_messages_count() {
     // restart setInterval function if refresh period has changed
     restart_check_new_messages() ;
     var new_messages_count_div = document.getElementById("new_messages_count_div");
-    if (!new_messages_count_div) return; // table not found
-    if (new_messages_count_div.innerHTML == "") return;
+    if (!new_messages_count_div) return; // div not found
+    // if (new_messages_count_div.innerHTML == "") return;
     var new_messages_count = document.getElementById("new_messages_count");
     if (!new_messages_count) return;
     new_messages_count.innerHTML = new_messages_count_div.innerHTML

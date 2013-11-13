@@ -9,27 +9,28 @@
     <th><%= my_t '.created_at_column_heading_html' %></th>
     <th><%= my_t '.message_column_heading_html' %></th>
   </tr>
-  <% for noti in @notifications do loop
-        postfix = noti.to_user_id == @user.user_id ? 'to' : 'from' -%>
-    <tr>
-      <td>
-<% if noti.from_user -%>
-    <%= render '/shared/user_div', :user_div => noti.from_user %>
-<% end -%>
-      </td>
-      <td>
-<% if noti.to_user -%>
-    <%= render '/shared/user_div', :user_div => noti.to_user %>
-<% end -%>
-      </td>
-      <td><%= link_to l(noti.created_at, format: :short), my_t(".#{noti.noti_key}_#{postfix}_url", my_sanitize_hash(noti.noti_options)) %></td>
-      <td><%= my_t(".#{noti.noti_key}_#{postfix}_msg", my_sanitize_hash(noti.noti_options)) %></td>
-    </tr>
+  <% for noti in @notifications do
+       loop
+       postfix = noti.to_user_id == @user.user_id ? 'to' : 'from' -%>
+      <tr>
+        <td>
+          <% if noti.from_user -%>
+              <%= render '/shared/user_div', :user_div => noti.from_user %>
+          <% end -%>
+        </td>
+        <td>
+          <% if noti.to_user -%>
+              <%= render '/shared/user_div', :user_div => noti.to_user %>
+          <% end -%>
+        </td>
+        <td><%= link_to l(noti.created_at, format: :short), my_t(".#{noti.noti_key}_#{postfix}_url", my_sanitize_hash(noti.noti_options)) %></td>
+        <td><%= my_t(".#{noti.noti_key}_#{postfix}_msg", my_sanitize_hash(noti.noti_options)) %></td>
+      </tr>
   <% end -%>
 </table>
 
 <script>
     // no client side checks before changing currency in this page
-    pre_update_currency = default_pre_update_currency ;
+    pre_update_currency = default_pre_update_currency;
 </script>
 
