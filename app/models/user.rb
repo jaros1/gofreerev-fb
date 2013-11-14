@@ -200,32 +200,54 @@ class User < ActiveRecord::Base
   # helper methods #
   ##################
 
-  def self.facebook_user_prefix
-    'fb-'
-  end # facebook_user_prefix
-  def self.google_plus_user_prefix
-    'gp-'
-  end # google_plus_user_prefix
-  def self.linkedin_user_prefix
-    'li-'
-  end # linkedin_user_prefix
+  ## removed - used for migration from old to new user ids
+  #def self.new_user_id (old_user_id)
+  #  return nil unless old_user_id
+  #  old_prefix = old_user_id.first(2)
+  #  uid = old_user_id.from(3)
+  #  provider = case old_prefix
+  #                  when 'fb' then 'facebook'
+  #                  when 'gp' then 'google'
+  #                  when 'li' then 'linkedin'
+  #                  when 'tw' then 'twitter'
+  #                end # case
+  #  "#{uid}/#{provider}"
+  #end # self.new_user_i
+  #def self.old_user_id (new_user_id)
+  #  return nil unless new_user_id
+  #  provider = new_user_id.split("/").last
+  #  uid = new_user_id.first(new_user_id.size-provider.size-1)
+  #  prefix = case provider
+  #             when 'facebook' then 'fb-'
+  #             when 'google' then 'gp-'
+  #             when 'linkedin' then 'li-'
+  #             when 'twitter' then 'tw-'
+  #           end
+  #  "#{prefix}#{uid}"
+  #end # self.new_user_i
+
+
 
   def usertype
     return nil unless user_id
     user_id.first(2)
   end
+  def provider
+    return nil unless user_id
+    user_id.split('/').last
+  end
 
   def facebook?
     return false unless user_id
-    user_id.first(3) == User.facebook_user_prefix
+    provider == 'facebook'
   end # facebook
   def google_plus?
     return false unless user_id
-    user_id.first(3) == User.google_plus_user_prefix
+    provider == 'google'
   end # facebook
   def linkedin?
     return false unless user_id
-    user_id.first(3) == User.linkedin_user_prefix
+    provider == 'linkedin'
   end
 
   def short_user_name
@@ -237,12 +259,8 @@ class User < ActiveRecord::Base
   end # short_or_full_user_name
 
   def api_name_without_brackets
-    case
-      when facebook? then 'facebook'
-      when google_plus? then 'google+'
-      when linkedin? then 'linkedin'
-      else nil
-    end
+    return 'google+' if provider == 'google'
+    provider
   end
 
   def api_name_with_brackets

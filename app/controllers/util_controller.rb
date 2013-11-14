@@ -136,7 +136,7 @@ class UtilController < ApplicationController
         gift.api_picture_url = gift.get_api_picture_url(access_token)
       rescue ApiPostNotFoundException => e
         # identical api error response if picture is deleted or if user is not allowed to see picture
-        user_id_created_by = User.facebook_user_prefix + gift.api_gift_id.split('_').first
+        user_id_created_by = gift.api_gift_id.split('_').first + '/facebook'
         if @user.user_id != user_id_created_by
           # picture may have or may not have been deleted in facebook.
           # current user may not have permission to read picture on wall

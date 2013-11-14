@@ -118,7 +118,7 @@ class ApplicationController < ActionController::Base
         puts "fetch_user: api_request = #{api_request}"
         api_response = api.get_object api_request
         puts "fetch_user: api_response = #{api_response.to_s}"
-        user_id = "#{User.facebook_user_prefix}#{api_response['id']}"
+        user_id = "#{api_response['id']}/facebook"
         user_name = ERB::Util.html_escape(api_response['name'])
         user_name = "#{user_name}"
         puts "fetch_user: user_name = #{user_name} (#{user_name.class.name})"
@@ -184,7 +184,7 @@ class ApplicationController < ActionController::Base
               friends_hash[user_id] = { :user => old_friend.friend, :old_name => old_friend.friend.user_name, :new_name => old_friend.friend.user_name, :old_api_friend => old_friend.api_friend, :new_api_friend => 'N', :new_record => false }
             end
             api_friends_list.each do |friend|
-              user_id = User.facebook_user_prefix + friend["id"]
+              user_id = friend["id"] + '/facebook'
               friend["name"] = friend["name"].force_encoding('UTF-8')
               if friends_hash.has_key?(user_id)
                 # OK - user already in hash
@@ -299,13 +299,13 @@ class ApplicationController < ActionController::Base
 
     # add some instance variables
     if @user
-      @usertype = session[:usertype] = @user.usertype
+      session[:provider] = @user.provider
       Money.default_currency = Money::Currency.new(@user.currency)
       # Money.default_bank = Money::Bank::GoogleCurrency.new # todo: move to config
       @user_currency_separator = Money::Currency.table[@user.currency.downcase.to_sym][:decimal_mark]
       @user_currency_delimiter = Money::Currency.table[@user.currency.downcase.to_sym][:thousands_separator]
     else
-      @usertype = session[:usertype] = nil
+      session[:provider] = nil
     end
     puts "fetch_user: @user_currency_separator = #{@user_currency_separator}, @user_currency_delimiter = #{@user_currency_delimiter}"
 
@@ -340,7 +340,7 @@ class ApplicationController < ActionController::Base
     gifts = Gift.where("(user_id_giver = ? or user_id_receiver = ?) and api_picture_url_on_error_at is not null and (deleted_at_api is null or deleted_at_api = 'N')",
                        @user.user_id, @user.user_id)
     gifts.delete_if do |gift|
-      user_id_created_by = User.facebook_user_prefix + gift.api_gift_id.split('_')[0]
+      user_id_created_by = gift.api_gift_id.split('_')[0] + '/facebook'
       (user_id_created_by != @user.user_id)
     end # delete_if
     if gifts.size == 0

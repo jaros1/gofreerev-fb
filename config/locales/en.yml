@@ -69,12 +69,12 @@ en:
         header_api_link_title: "Retur to %{apiname} WITHOUT logging out of %{appname}"
         header_log_out_link_text: 'Log out'
         header_log_out_link_title: "Log out of %{appname} and return to %{apiname}."
-  fb: # facebook versions
+  facebook: # facebook versions
      layouts:
         page_header:
            header_log_out_link_title: "Log out of %{appname} and return to facebook."
   # google+ specific texts
-  gp: # google+ versions
+  google: # google+ versions
      layouts:
         page_header:
            header_log_out_link_title: "Log out of %{appname} and return to google+."

@@ -36,11 +36,12 @@ class Notification < ActiveRecord::Base
 
   # 2) to_user_id - required - FK - not encrypted - readonly
   validates_presence_of :to_user_id
-  attr_readonly :to_user_id
+  # attr_readonly :to_user_id # todo: uncomment
 
   
   # 3) from_user_id - required - FK - not encrypted - readonly
   attr_readonly
+  # attr_readonly :from_user_id # todo: uncomment
 
 
   # 4) internal - required - Y/N - not encrypted

@@ -12,10 +12,10 @@ module GofreerevExtensions
       scope = scope.to_s if scope.class.name == 'Symbol'
       scope = scope.split('.') if scope.class.name == 'String'
       return translate(key, options) unless scope.class.name == 'Array'
-      usertype_in_scope = scope.find { |s| s.to_s.downcase == session[:usertype] }
-      options[:scope] = scope = [ session[:usertype] ] + scope unless usertype_in_scope
+      provider_in_scope = scope.find { |s| s.to_s.downcase == session[:provider] }
+      options[:scope] = scope = [ session[:provider] ] + scope unless provider_in_scope
     else
-      options[:scope] = scope = [ session[:usertype] ]
+      options[:scope] = scope = [ session[:provider] ]
     end
     # first lookup with usertype in scope
     options[:raise] = I18n::MissingTranslationData
@@ -26,7 +26,7 @@ module GofreerevExtensions
       # puts("I18n::MissingTranslationData. e = #{e.to_s}") if key == '.welcome_msg_after_login'
       # second lookup without usertype in scope
       options.delete(:raise)
-      options[:scope] = scope.delete_if { |s| s.to_s.downcase == session[:usertype] }
+      options[:scope] = scope.delete_if { |s| s.to_s.downcase == session[:provider] }
       # repeat translate without usertype in scope
       # puts("my_translate: second lookup: key = #{key}, scope = " + scope.join(',')) if key == '.welcome_msg_after_login'
       return translate(key, options)

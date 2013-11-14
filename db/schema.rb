@@ -11,10 +11,10 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20131111072935) do
+ActiveRecord::Schema.define(version: 20131114074307) do
 
   create_table "ajax_comments", force: true do |t|
-    t.string   "user_id",    limit: 20, null: false
+    t.string   "user_id",    limit: 40, null: false
     t.string   "comment_id", limit: 20, null: false
     t.datetime "created_at"
     t.datetime "updated_at"
@@ -24,7 +24,6 @@ ActiveRecord::Schema.define(version: 20131111072935) do
 
   create_table "comments", force: true do |t|
     t.string   "comment_id",       limit: 20, null: false
-    t.string   "user_id",          limit: 20, null: false
     t.text     "comment",                     null: false
     t.datetime "created_at"
     t.datetime "updated_at"
@@ -35,6 +34,7 @@ ActiveRecord::Schema.define(version: 20131111072935) do
     t.string   "accepted_yn",      limit: 1
     t.integer  "status_update_at",            null: false
     t.datetime "deleted_at"
+    t.string   "user_id",          limit: 40, null: false
   end
 
   add_index "comments", ["comment_id"], name: "index_comments_on_comment_id", unique: true
@@ -61,8 +61,8 @@ ActiveRecord::Schema.define(version: 20131111072935) do
   add_index "exchange_rates", ["from_currency", "to_currency", "date"], name: "index_exchange_rates_pk", unique: true
 
   create_table "friends", force: true do |t|
-    t.string   "user_id_giver"
-    t.string   "user_id_receiver"
+    t.string   "user_id_giver",    limit: 40
+    t.string   "user_id_receiver", limit: 40
     t.datetime "created_at"
     t.datetime "updated_at"
     t.text     "api_friend"
@@ -76,13 +76,13 @@ ActiveRecord::Schema.define(version: 20131111072935) do
 
   create_table "gift_likes", force: true do |t|
     t.string   "gift_like_id", limit: 20, null: false
-    t.string   "user_id",      limit: 20, null: false
     t.string   "gift_id",      limit: 20, null: false
     t.text     "like"
     t.text     "show"
     t.text     "follow"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "user_id",      limit: 40, null: false
   end
 
   add_index "gift_likes", ["gift_id", "user_id"], name: "index_gift_lines_on_gift_id", unique: true
@@ -93,8 +93,8 @@ ActiveRecord::Schema.define(version: 20131111072935) do
     t.text     "description",                            null: false
     t.text     "currency",                               null: false
     t.text     "price"
-    t.string   "user_id_giver",               limit: 20
-    t.string   "user_id_receiver",            limit: 20
+    t.string   "user_id_giver",               limit: 40
+    t.string   "user_id_receiver",            limit: 40
     t.text     "received_at"
     t.datetime "created_at"
     t.datetime "updated_at"
@@ -119,8 +119,8 @@ ActiveRecord::Schema.define(version: 20131111072935) do
 
   create_table "notifications", force: true do |t|
     t.string   "noti_id",      limit: 20, null: false
-    t.string   "to_user_id",   limit: 20, null: false
-    t.string   "from_user_id", limit: 20
+    t.string   "to_user_id",   limit: 40, null: false
+    t.string   "from_user_id", limit: 40
     t.string   "internal",     limit: 1,  null: false
     t.text     "noti_key",                null: false
     t.text     "noti_options"
@@ -142,7 +142,7 @@ ActiveRecord::Schema.define(version: 20131111072935) do
   add_index "sequences", ["name"], name: "index_sequences_on_name", unique: true
 
   create_table "users", force: true do |t|
-    t.string   "user_id",              limit: 20
+    t.string   "user_id",              limit: 40
     t.text     "user_name"
     t.datetime "created_at"
     t.datetime "updated_at"

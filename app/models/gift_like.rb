@@ -29,7 +29,7 @@ class GiftLike < ActiveRecord::Base
 
   # 2) user_id - required - not encrypted - readonly
   validates_presence_of :user_id
-  attr_readonly :user_id
+  attr_readonly :user_id # todo: uncomment
   
   # 3) gift_id - required - not encrypted - readonly
   validates_presence_of :gift_id
