@@ -1,5 +1,8 @@
 GofreerevFb::Application.routes.draw do
 
+  get '/auth/:provider/callback', :to => 'auth#create'
+  post '/auth/:provider/callback', :to => 'auth#create'
+
   get 'util/new_messages_count'
   post 'util/missing_api_picture_urls'
   post 'util/like_gift'

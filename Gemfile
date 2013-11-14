@@ -6,7 +6,8 @@ gem 'rails', '4.0.0'
 # Gem for FB APP integration
 gem 'koala', '1.7.0rc1'
 
-# switch to omniauth for multi API integration (FB, Google+, LinkedIm, twitter etc)
+# replacing koala with omniauth
+# https://github.com/intridea/omniauth/wiki/List-of-Strategies
 gem 'omniauth'
 gem 'omniauth-facebook'
 gem 'omniauth-gplus'

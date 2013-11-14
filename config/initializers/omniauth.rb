@@ -1,3 +1,4 @@
+# https://github.com/intridea/omniauth/wiki/List-of-Strategies
 Rails.application.config.middleware.use OmniAuth::Builder do
   provider :facebook, ENV['GOFREEREV_FB_APP_ID'], ENV['GOFREEREV_FB_APP_SECRET']
   provider :gplus,    ENV['GOFREEREV_GP_APP_ID'], ENV['GOFREEREV_GP_APP_SECRET'], :name => "google"
