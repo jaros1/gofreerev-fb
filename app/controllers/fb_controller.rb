@@ -1,11 +1,11 @@
 class FbController < ApplicationController
 
-  skip_before_filter :verify_authenticity_token, :only => [:create] # no crsf token when FB starts the App with post /fb
+  skip_before_filter :verify_authenticity_token, :only => [:create] # no crsf token when facebook starts the App with post /fb
   after_filter :allow_iframe
 
   # get /fb - is called after authorization (create)
   # rejected: Parameters: {"error_reason"=>"user_denied", "error"=>"access_denied", "error_description"=>"The user denied your request."}
-  # accepted: Parameters: {"code"=>"AQA6165EwuVn3EVKkzy2TOocej1wBb_tD0-9jEuhJQFFK7GH2PDkDbbSOOd9lhoqIYibusDfPpWOwaUg6XYiR2lcmP2tLgG0RPgRxL6qwFBZalg0j6wXSO8bZmjKn-yf9O_GOH9wm5ugMKLUihU7mjfLAbR58FrJ8wdgnej2aG9KLQvKNenb16Hf_ULI016u3DGHM-zGvmyb8xAgAAabOHkDQNT5C3lIO0eXTGMwo66zLrnn0jkENguAnAUuZrVym9OMiBV1f9ocg8WfgprflPq-BHOSHdhuHgYISHxO_nTs1dT7Ku5z551ZyBq1hG15aG4"}
+  # accepted: Parameters: {"code"=>"AQA6165EwuVn3EVKkzy2TOocej1wBb_t-9jEuhJQFFK7GH2PDkDbbSOOd9lhoqIYibusDfPpWOwaUg6XYiR2lcmP2tLgG0RPgRxL6qwFBZalg0j6wXSO8bZmjKn-yf9O_GOH9wm5ugMKLUihU7mjfLAbR58FrJ8wdgnej2aG9KLQvKNenb16Hf_ULI016u3DGHM-zGvmyb8xAgAAabOHkDQNT5C3lIO0eXTGMwo66zLrnn0jkENguAnAUuZrVym9OMiBV1f9ocg8WfgprflPq-BHOSHdhuHgYISHxO_nTs1dT7Ku5z551ZyBq1hG15aG4"}
   def index
     # uncomment the next line to check Cross-site Request Forgery response
     # session[:state] = String.generate_random_string(30)
@@ -62,7 +62,7 @@ class FbController < ApplicationController
       puts "api_request = #{api_request}"
       api_response = api.get_object api_request
       puts "api_response = #{api_response.to_s}"
-      user_id = "FB-#{api_response['id']}"
+      user_id = "{api_response['id']}/facebook"
       user_name = api_response['name']
       u = User.find_by_user_id(user_id)
       u = User.new unless u
@@ -150,7 +150,7 @@ class FbController < ApplicationController
       # autologin redirect to https://www.facebook.com/dialog/oauth? to get code without showing create.html erb page
       viewname = 'autologin'
     else
-      # create.erb.html shows an intro page with an authorize link
+      # create.html.erb shows an intro page with an authorize link
       viewname = __method__
     end
 

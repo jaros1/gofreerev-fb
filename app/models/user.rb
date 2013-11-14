@@ -227,6 +227,30 @@ class User < ActiveRecord::Base
   #end # self.new_user_i
 
 
+  # find and create or update user from amniauth auth_hash information
+  def self.find_or_create_from_auth_hash (auth_hash)
+    provider = auth_hash.get_provider
+    puts "provider = #{provider}"
+    token = auth_hash[:credentials][:token] if auth_hash[:credentials]
+    token = nil if token.to_s == ""
+    puts "token = #{token}"
+    uid = auth_hash.get_uid
+    puts "uid = #{uid}"
+    user_name = auth_hash.get_user_name
+    puts "user_name = #{user_name}"
+    return nil unless provider and token and uid and user_name
+    image = auth_hash.get_image
+    puts "image = #{image}"
+    user_id = "#{uid}/#{provider}"
+    puts "user_id = #{user_id}"
+    user = User.find_by_user_id(user_id)
+    if !user
+      user = User.new
+      user.user_id = user_id
+      user.user_name = user_name
+
+    end
+  end # find_or_create_from_auth_hash
 
   def usertype
     return nil unless user_id

@@ -1,7 +1,7 @@
- 1) Maybe allow comments to gifts in Gofreerev => Post af FB comments
+ 1) Maybe allow comments to gifts in Gofreerev => Post facebook comments
 
  2) how much information to se about deals between friends and friends friends?
-    FB: Shows status from friends on wall - do not show status from friends friends on wall
+    facebook: Shows status from friends on wall - do not show status from friends friends on wall
     Show gifts started by friends as giver or receiver with all pictures and comments
     Anonymous gifts started by friends friends as giver or receiver and with friends as receiver or giver
     - display received at and balance.

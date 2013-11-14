@@ -58,7 +58,7 @@ class ApplicationController < ActionController::Base
 
 
 
-  # check for code from FB - create/update user
+  # check for code from facebook - create/update user
   # fetch user info. Used in page heading etc
   private
   def fetch_user
@@ -68,7 +68,7 @@ class ApplicationController < ActionController::Base
     puts "I18n.locale = #{I18n.locale}"
     # Cross-site Request Forgery check
     if params[:state] != session[:state] and params[:code].to_s != ''
-      # Possible Cross-site Request Forgery - ignore code from FB
+      # Possible Cross-site Request Forgery - ignore code from facebook
       puts "fetch_user: Possible csrf: params[:state] = #{params[:state]}, session[:state] = #{session[:state]}, params[:code] = #{params[:code]}"
       params[:code] = nil
     end
@@ -190,7 +190,7 @@ class ApplicationController < ActionController::Base
                 # OK - user already in hash
                 nil
               else
-                # new FB friend
+                # new facebook friend
                 if !(user = User.where("user_id = ?", user_id).first)
                   # create unknown user - create user with minimal user information (user id and name)
                   user = User.new

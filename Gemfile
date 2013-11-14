@@ -3,14 +3,15 @@ source 'https://rubygems.org'
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '4.0.0'
 
-# Gem for FB APP integration
+# Gem for facebook auth. integration
 gem 'koala', '1.7.0rc1'
 
 # replacing koala with omniauth
 # https://github.com/intridea/omniauth/wiki/List-of-Strategies
+#
 gem 'omniauth'
 gem 'omniauth-facebook'
-gem 'omniauth-gplus'
+gem "omniauth-google-oauth2" # https://github.com/zquestz/omniauth-google-oauth2
 gem 'omniauth-linkedin-oauth2'
 gem 'omniauth-twitter'
 
