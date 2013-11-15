@@ -1,14 +1,36 @@
+# http://stackoverflow.com/questions/13112430/find-loaded-providers-for-omniauth
+# add OmniAuth::Builder.providers method to return list of loaded providers
+module OmniAuth
+  class Builder < ::Rack::Builder
+    def provider_patch(klass, *args, &block)
+      @@providers ||= []
+      @@providers << klass.to_s
+      old_provider(klass, *args, &block)
+    end
+    alias old_provider provider
+    alias provider provider_patch
+    class << self
+      def providers
+        @@providers
+      end
+    end
+  end
+end # OmniAuth
+
 # setup list of providers to be used for authorization. Should be API with "friend-liste"
 # providers: https://github.com/intridea/omniauth/wiki/List-of-Strategies
 # add providers to GemFile and locales
+# add locales for supported providers in todo:
 Rails.application.config.middleware.use OmniAuth::Builder do
   provider :facebook,      ENV['GOFREEREV_FB_APP_ID'], ENV['GOFREEREV_FB_APP_SECRET'], :scope => "", :image_size => :normal, :info_fields => "name,permissions,friends,picture,timezone"
-  provider :google_oauth2, ENV['GOFREEREV_GP_APP_ID'], ENV['GOFREEREV_GP_APP_SECRET'], :name => "google"
-  provider :linkedin,      ENV['GOFREEREV_LI_APP_ID'], ENV['GOFREEREV_LI_APP_SECRET'], :scope => "r_basicprofile", :fields => ['id', 'first-name', 'last-name', 'picture-url', 'public-profile-url']
+  provider :google_oauth2, ENV['GOFREEREV_GP_APP_ID'], ENV['GOFREEREV_GP_APP_SECRET']
+  provider :linkedin,      ENV['GOFREEREV_LI_APP_ID'], ENV['GOFREEREV_LI_APP_SECRET'], :scope => "r_basicprofile", :fields => ['id', 'first-name', 'last-name', 'picture-url', 'public-profile-url', 'location']
   provider :twitter,       ENV['GOFREEREV_TW_APP_ID'], ENV['GOFREEREV_TW_APP_SECRET']
 end
 
-# extract basic information from auth_hash.
+# extract basic information from auth_hash (provider, uid, user_name, token, language)
+# provider specific versions can be implemented with get_<method>_<provider>.
+# See omniauth_linkedin.rb for an example.
 class OmniAuth::AuthHash
   def get_provider
     provider = self[:provider]
@@ -16,11 +38,17 @@ class OmniAuth::AuthHash
     provider
   end
   def get_uid
+    provider = get_provider()
+    method = "get_uid_#{provider}"
+    return eval(method) if respond_to? method.to_sym
     uid = self[:uid]
     uid = nil if uid.to_s == ""
     uid
   end
   def get_user_name
+    provider = get_provider()
+    method = "get_user_name_#{provider}"
+    return eval(method) if respond_to? method.to_sym
     name = self[:info][:name] if self[:info]
     name = nil if name.to_s == ""
     nickname =self[:info][:nickname] if self[:info]
@@ -31,26 +59,35 @@ class OmniAuth::AuthHash
     name || nickname || email    
   end
   def get_token
+    provider = get_provider()
+    method = "get_token_#{provider}"
+    return eval(method) if respond_to? method.to_sym
     token = self[:credentials][:token] if self[:credentials]
     token = nil if token.to_s == ""
     token
   end
-  def get_locale
-    case get_provider
-      when 'facebook'
-        locale = self[:extra][:raw_info][:locale] if self[:extra] and self[:extra][:raw_info]
-      when 'google'
-        locale = self[:extra][:raw_info][:locale] if self[:extra] and self[:extra][:raw_info]
-      else nil # = en
-    end # case
+  def get_country
+    provider = get_provider()
+    method = "get_country_#{provider}"
+    return eval(method) if respond_to? method.to_sym
+    nil
+  end
+  def get_language
+    provider = get_provider()
+    method = "get_language_#{provider}"
+    return eval(method) if respond_to? method.to_sym
+    locale = self[:extra][:raw_info][:locale] if self[:extra] and self[:extra][:raw_info]
     locale = "#{locale}".first(2)
     locale = 'en' if locale.to_s == ""
     locale
   end
   def get_image
+    provider = get_provider()
+    method = "get_image_#{provider}"
+    return eval(method) if respond_to? method.to_sym
     image = self[:info][:image] if self[:info]
     image = nil if image.to_s == ""
     image = nil if image and image !~ /^https?:/
     image
   end
-end
+end # OmniAuth::AuthHash

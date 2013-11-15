@@ -228,28 +228,30 @@ class User < ActiveRecord::Base
 
 
   # find and create or update user from amniauth auth_hash information
+  # return user if ok
+  # return key or key + options if not ok (for translate)
   def self.find_or_create_from_auth_hash (auth_hash)
+    # missing provider, token, uid or user_name are fatal errors.
+    # unknown provider is a fatal error
     provider = auth_hash.get_provider
-    puts "provider = #{provider}"
+    return '.callback_provider_missing' unless provider
+    return ['.callback_unknown_provider', provider] unless OmniAuth::Builder.providers.index(provider.to_s)
     token = auth_hash[:credentials][:token] if auth_hash[:credentials]
     token = nil if token.to_s == ""
-    puts "token = #{token}"
+    return '.callback_token_missing' unless token
     uid = auth_hash.get_uid
-    puts "uid = #{uid}"
+    return '.callback_uid_missing' unless uid
     user_name = auth_hash.get_user_name
-    puts "user_name = #{user_name}"
-    return nil unless provider and token and uid and user_name
+    return '.callback_user_name_missing' unless user_name
+    # missing image a minor problem
     image = auth_hash.get_image
     puts "image = #{image}"
     user_id = "#{uid}/#{provider}"
-    puts "user_id = #{user_id}"
     user = User.find_by_user_id(user_id)
-    if !user
-      user = User.new
-      user.user_id = user_id
-      user.user_name = user_name
+    user = User.new unless user
+    user.user_id = user_id
+    user.user_name = user_name
 
-    end
   end # find_or_create_from_auth_hash
 
   def usertype

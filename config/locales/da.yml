@@ -54,6 +54,13 @@ da:
   # views #
   #########
 
+  auth:
+     index:
+        log_in_link_text_facebook: "Log in med facebook"
+        log_in_link_text_google_oauth2: "Log in med google+"
+        log_in_link_text_linkedin: "Log in med linkedin"
+        log_in_link_text_twitter: "Log in med twitter"
+
   # application layout with page header and footer
   layouts:
      page_header:
@@ -77,7 +84,7 @@ da:
 
 
 
-  google: # google+ specific texts
+  google_oauth2: # google+ specific texts
      layouts:
         page_header:
            header_log_out_link_title: "Log ud af %{appname} og returner til google+."
@@ -92,7 +99,11 @@ da:
         invite_friends_link_text1: "%{app_url}"
         invite_friends_message_title: "Inviter dine venner til %{appname}"
         invite_friends_message_body: "Prøv et spil om at hjælpe hinanden og dele hinandens resourcer på en ny anderledes måde og et spil med en ny slags penge der vil forandre vores verden inspireret af ideer fra Charles Eisensteins bog Sacred Economics"
-
+     providers:
+        login_link_text_facebook: "Facebook"
+        login_link_text_google_oauth2: "Google+"
+        login_link_text_linkedin: "LinkedIn"
+        login_link_text_twitter: "Twitter"
 
   # gift controller - general texts
   gifts:

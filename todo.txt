@@ -157,3 +157,9 @@
     price validation should be in Gift and Comment model, but price is a Float in model and can not be invalid
 
 49) compare list of socialnetworks with list of oauth2 api's
+    https://github.com/intridea/omniauth/wiki/List-of-Strategies
+    http://webtrends.about.com/od/socialnetworks/tp/general-social-network-list.htm
+    http://en.wikipedia.org/wiki/List_of_social_networking_websites
+
+50) no locale is received from linkedin and twitter.
+    add locale in url and allow users to select language in app

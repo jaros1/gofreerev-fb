@@ -1,0 +1,9 @@
+<br />
+<% for provider in @providers do %>
+    <% if @logged_in_providers.index(provider) -%>
+        <%= log_out_link(provider) %>
+    <% else -%>
+        <%= log_in_link(provider) %>
+    <% end -%>
+    <br />
+<% end %>

@@ -74,7 +74,7 @@ en:
         page_header:
            header_log_out_link_title: "Log out of %{appname} and return to facebook."
   # google+ specific texts
-  google: # google+ versions
+  google_oauth2: # google+ versions
      layouts:
         page_header:
            header_log_out_link_title: "Log out of %{appname} and return to google+."
@@ -89,7 +89,12 @@ en:
         invite_friends_link_text1: "%{app_url}"
         invite_friends_message_title: "Invite your friends to play %{appname}"
         invite_friends_message_body: "Try a game about helping each other and sharing each others resources in a new different way and a game with a new kind of money that will change our world inspired by the ideas of Charles Eisenstein's book Sacred Economics"
-
+     providers:
+        # must have one login link text for each supported provider
+        login_link_text_facebook: "Facebook"
+        login_link_text_google_oauth2: "Google+"
+        login_link_text_linkedin: "LinkedIn"
+        login_link_text_twitter: "Twitter"
 
   # gift controller
   gifts:
