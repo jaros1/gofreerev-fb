@@ -78,7 +78,7 @@ class OmniAuth::AuthHash
     return eval(method) if respond_to? method.to_sym
     locale = self[:extra][:raw_info][:locale] if self[:extra] and self[:extra][:raw_info]
     locale = "#{locale}".first(2)
-    locale = 'en' if locale.to_s == ""
+    locale = BASE_LANGUAGE if locale.to_s == ""
     locale
   end
   def get_image

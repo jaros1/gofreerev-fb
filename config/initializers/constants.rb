@@ -52,4 +52,6 @@ FACTOR_POS_BALANCE_PER_YEAR = 1.0 - NEG_INT_POS_BALANCE_PER_YEAR / 100.0 # 0.95 
 FACTOR_NEG_BALANCE_PER_DAY = (Math::E) ** (Math.log(FACTOR_NEG_BALANCE_PER_YEAR,Math::E) / 365) # 0.9997113827109777
 FACTOR_POS_BALANCE_PER_DAY = (Math::E) ** (Math.log(FACTOR_POS_BALANCE_PER_YEAR,Math::E) / 365) # 0.9998594803001535
 
-BASE_CURRENCY = 'USD' # store exchange rates and internal balances in this currency.
+BASE_CURRENCY = 'USD' # store exchange rates and internal balances in this currency
+BASE_COUNTRY = 'us' # default country if user country is unknown.
+BASE_LANGUAGE = 'en' # default language if user language is unknown

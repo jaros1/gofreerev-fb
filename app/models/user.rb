@@ -231,13 +231,11 @@ class User < ActiveRecord::Base
   # return user if ok
   # return key or key + options if not ok (for translate)
   def self.find_or_create_from_auth_hash (auth_hash)
-    # missing provider, token, uid or user_name are fatal errors.
-    # unknown provider is a fatal error
+    # missing provider, unknown provider, missing token, uid or user_name are fatal errors.
     provider = auth_hash.get_provider
     return '.callback_provider_missing' unless provider
     return ['.callback_unknown_provider', provider] unless OmniAuth::Builder.providers.index(provider.to_s)
-    token = auth_hash[:credentials][:token] if auth_hash[:credentials]
-    token = nil if token.to_s == ""
+    token = auth_hash.get_token
     return '.callback_token_missing' unless token
     uid = auth_hash.get_uid
     return '.callback_uid_missing' unless uid
@@ -251,7 +249,40 @@ class User < ActiveRecord::Base
     user = User.new unless user
     user.user_id = user_id
     user.user_name = user_name
-
+    if user.new_record?
+      # initialize currency from country
+      country_code = auth_hash.get_country
+      if !country_code
+        # provider dod not return country code (google and twitter).
+        # Try to get country code from language code
+        language_code = auth_hash.get_language
+        countries = []
+        Country.countries.each do |a|
+          country_code2 = a[1]
+          country2 = Country[country_code2]
+          countries << country_code2 if country2.languages.index(language_code)
+        end
+        if countries.size == 1
+          country_code = countries.first
+        else
+          country_code = BASE_COUNTRY
+        end
+      end # inner if
+      c = Country[country_code]
+      if !c
+        currency = BASE_CURRENCY
+      else
+        currency = c.currency.code
+      end
+      active_currencies = ExchangeRate.active_currencies
+      currency = BASE_CURRENCY if active_currencies.size > 0 and !active_currencies.index(currency)
+      user.currency = currency
+    end # outer if
+    # permissions not returned in auth_hash for any provider
+    # image is returned from all providers, but requires some processing before it can be saved
+    # timezone only returned from facebook in auth_hash
+    user.save
+    user
   end # find_or_create_from_auth_hash
 
   def usertype

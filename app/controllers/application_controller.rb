@@ -30,9 +30,9 @@ class ApplicationController < ActionController::Base
   private
   def render_with_language(viewname)
     language = session[:language]
-    # language = 'en' # todo: remove this line
+    # language = BASE_LANGUAGE # todo: remove this line
     puts "render_with_language: language = #{language}"
-    if !language or language == 'en'
+    if !language or language == BASE_LANGUAGE
       render :action => viewname
       return
     end

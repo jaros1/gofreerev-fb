@@ -52,7 +52,7 @@ module ApplicationHelper
   def render_partial_with_language (folder, partialname)
     language = session[:language]
     puts "render_partial_with_language: folder = #{folder}, partialname = #{partialname}, language = #{language}"
-    language = nil if language == 'en'
+    language = nil if language == BASE_LANGUAGE
     unless language
       # no language or english
       return (render(:partial => "#{folder}/#{partialname}"))

@@ -115,7 +115,7 @@ class CommentTest < ActiveSupport::TestCase
         end # each language
       end # postfix
     end # each i
-    I18n.locale = 'en'
+    I18n.locale = BASE_LANGUAGE
 
   end # assert_new_notifications
 

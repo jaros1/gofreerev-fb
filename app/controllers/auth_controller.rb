@@ -11,24 +11,22 @@ class AuthController < ApplicationController
   def create
     @auth_hash = auth_hash
     user = User.find_or_create_from_auth_hash(auth_hash)
-    language_code = auth_hash.get_language
-    country = auth_hash.get_country
-    if !country
-      # provider dod not return country code. Try to get country code from language code
-      countries = []
-      Country.countries.each do |a|
-        country_code = a[1]
-        country = Country[country_code]
-        countries << country_code if country.languages.index('da')
-      end
-      if countries.size == 1
-        country = countries.first
-      else
-        country = 'us'
-      end
+    if user.class == User
+      # login ok - insert user_id and token in session
+      provider = auth_hash.get_provider
+      user_ids = session[:user_ids] || []
+      user_ids.delete_if { |user_id| user_id.split('/').last == provider }
+      user_ids << user.user_id
+      tokens = session[:tokens] || {}
+      tokens[provider] = auth_hash.get_token
+      session[:user_ids] = user_ids
+      session[:tokens] = tokens
+      redirect_to '/auth'
+      return
     end
-    puts "auth.create: language = #{language_code}"
-    puts "auth.create: country = #{country}"
+    # login not ok
+    key, options = user
+    puts "login_error: #{my_t(key, options)}"
   end # create
 
   protected
