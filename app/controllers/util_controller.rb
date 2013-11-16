@@ -426,4 +426,41 @@ class UtilController < ApplicationController
     end
   end # accept_new_deal
 
+  # post login processing - use after login and todo: to get new currency rates
+  # download profile image
+  # get permissions from login provider
+  # get friend lists from login provider
+  # get currency rates for a new date
+  def post_login
+    # todo: to be implemented
+
+    # find user
+    provider = params[:provider]
+    provider = nil unless valid_provider?(provider)
+    user_ids = session[:user_ids] || []
+    user_id = user_ids.find { |user_id2| user_id2.split('/').last == provider } if provider and user_ids.size > 0
+    user = User.find_by_user_id(user_id) if user_id
+
+    # download profile image from provider
+    image = params[:image]
+    msg1 = user.download_profile_image(image) if image.to_s != ""
+
+    # todo: permissions not returned in auth_hash for any provider
+
+
+
+    # todo: timezone only returned from facebook in auth_hash. Maybe get timezone from browser
+    # javascript:
+    #   var offset = new Date().getTimezoneOffset();
+    #   var timezone = offset / 60.0 ;
+    # fx. ajax request
+    # maybe drop timezone from user and only user client timezone.
+
+
+
+    # todo: maybe send error messages to flash notice div in page header
+    # todo: maybe other minor changes. Change number of friends in mouse over text etc.
+    render :nothing => true
+  end
+
 end # UtilController

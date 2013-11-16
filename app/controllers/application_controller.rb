@@ -388,6 +388,7 @@ class ApplicationController < ActionController::Base
   # Check price - allow decimal comma/point, max 2 decimals. Thousands separators not allowed
   # used in gifts and comments controller
   # should be identical to JS function csv_invalid_price (csv = client side validation)
+  private
   def invalid_price? (price)
     price = price.to_s.strip
     return false if price == ""
@@ -395,5 +396,10 @@ class ApplicationController < ActionController::Base
     return true if (!r.match(price) || (price == '.') || (price == ','))
     false
   end # invalid_price?
+
+  private
+  def valid_provider? (provider)
+    OmniAuth::Builder.providers.index(provider)
+  end
 
 end # ApplicationController

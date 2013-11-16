@@ -28,6 +28,8 @@
 
  6) get timezone from login api. ok. timezone added to user
     Use timezone in views. . not yet any timestamps in views.
+    only facebook returns timezone for user
+    drop timezone from user and get timezone from browser with javascript
 
  7) add date format. see application_helper.format_date
 
@@ -163,3 +165,17 @@
 
 50) no locale is received from linkedin and twitter.
     add locale in url and allow users to select language in app
+
+51) omniauth handles only login process.
+    need to have some helpers for each provider:
+    - facebook - koala
+    - google+.
+      http://code.google.com/p/google-api-ruby-client/
+    - linked:
+    - twitter:
+
+52) Provider API requests should be processes batch
+    check out http://4loc.wordpress.com/2010/03/10/background-jobs-in-ruby-on-rails/
+    a solution could also be ajax call from client.
+    For example facebook: download profile picture, refresh permissions, refresh friends.
+    flash[:post_login] = provider => ajax request from page header for post provider processing

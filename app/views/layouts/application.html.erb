@@ -2,7 +2,7 @@
 <html>
 <head>
   <title><%= title %></title>
-  <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track' => true %>
+  <%= stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track' => true %>
   <%= javascript_include_tag 'application', 'data-turbolinks-track' => true %>
   <script src="/javascripts/my.js"></script>
   <%= csrf_meta_tags %>
@@ -10,29 +10,45 @@
   </script>
 </head>
 <body>
-<!-- show_friend page header for logged in users -->
 <% if  session[:user_id] and @user -%>
-  <!-- Hidden form to update currency => post to /users/:id/ => return to this page after currency has been changed -->
-  <div id="update_currency_div" style="display:none">
-    <%= form_for @user, :class => 'update_currency_form' do |f| %>
-        <%= hidden_field_tag :return_to, @request_fullpath %>
-        <%= f.text_field :new_currency %>
-    <% end %>
-  </div>
-  <!-- page header -->
-  <%= render :partial => 'layouts/page_header' %>
-  <hr/>
+    <!-- show page header for logged in users -->
+    <%# Hidden form to update currency => post to /users/:id/ => return to this page after currency has been changed -%>
+    <div id="update_currency_div" style="display:none">
+      <%= form_for @user, :class => 'update_currency_form' do |f| %>
+          <%= hidden_field_tag :return_to, @request_fullpath %>
+          <%= f.text_field :new_currency %>
+      <% end %>
+    </div>
+    <% if flash[:post_login] -%>
+        <%# Hidden form for post login processing (for example downloading profile image -%>
+        <div id="post_login_div" style="display:none">
+          <%= form_tag url_for(:controller => :util, :action => :post_login), :remote => true, :id => 'post_login_form' do %>
+              <%= hidden_field_tag :provider, flash[:post_login][:provider] %>
+              <%= hidden_field_tag :image, flash[:post_login][:image] %>
+          <% end %>
+        </div>
+    <% end -%>
+    <!-- page header -->
+    <%= render :partial => 'layouts/page_header' %>
+    <hr/>
 <% end -%>
 <!-- todo: better flash/error handling -->
 <% if flash[:notice] -%>
-    <br />
+    <br/>
+
     <div id="notification"><%= h flash[:notice] %></div>
-    <br />
+    <br/>
 <% end -%>
 <!-- the page -->
 <%= yield %>
 <!-- page footer -->
 <%= render :partial => 'layouts/page_footer/page_footer' -%>
+<% if flash[:post_login] -%>
+    <%# trigger hidden form for post login processing (for example downloading profile image -%>
+    <script>
+        $('#post_login_form').trigger('submit.rails');
+    </script>
+<% end -%>
 </body>
 </html>
 <% ExchangeRate.fetch_exchange_rates -%>

@@ -2,6 +2,10 @@ GofreerevFb::Application.routes.draw do
 
   get '/auth/:provider/callback', :to => 'auth#create'
   post '/auth/:provider/callback', :to => 'auth#create'
+  get '/auth/failure' do
+    flash[:notice] = params[:message] # if using sinatra-flash or rack-flash
+    redirect '/auth'
+  end
   get '/auth', :to => 'auth#index'
   get '/auth/index'
 
@@ -16,6 +20,7 @@ GofreerevFb::Application.routes.draw do
   post 'util/cancel_new_deal'
   post 'util/accept_new_deal'
   post 'util/reject_new_deal'
+  post 'util/post_login'
 
   # get "fb/index"
   # The priority is based upon order of creation: first created -> highest priority.

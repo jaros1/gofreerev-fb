@@ -21,6 +21,8 @@ class AuthController < ApplicationController
       tokens[provider] = auth_hash.get_token
       session[:user_ids] = user_ids
       session[:tokens] = tokens
+      # any post login processing is done in util/post_login ajax call
+      flash[:post_login] = { :provider => auth_hash.provider, :image => auth_hash.get_image }
       redirect_to '/auth'
       return
     end

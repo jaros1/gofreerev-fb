@@ -10,7 +10,7 @@ gem 'koala', '1.7.0rc1'
 # https://github.com/intridea/omniauth/wiki/List-of-Strategies
 #
 gem 'omniauth'
-gem 'omniauth-facebook'
+gem 'omniauth-facebook'      # https://github.com/mkdynamic/omniauth-facebook
 gem "omniauth-google-oauth2" # https://github.com/zquestz/omniauth-google-oauth2
 gem 'omniauth-linkedin-oauth2'
 gem 'omniauth-twitter'
