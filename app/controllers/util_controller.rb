@@ -443,24 +443,23 @@ class UtilController < ApplicationController
 
     # download profile image from provider
     image = params[:image]
-    msg1 = user.download_profile_image(image) if image.to_s != ""
+    msg1 = user.download_profile_image(image) if user and image.to_s != ""
 
-    # todo: permissions not returned in auth_hash for any provider
+    # update timezone (from browser/javascript) -  (new Date().getTimezoneOffset()) / 60.0
+    # todo: change timezone from Fixnum to Float to allow 0.5 timezone values. "-1" for denmark, "-5.5" for india etc
+    timezone = params[:timezone]
+    if user and timezone.to_s != ""
+      user.timezone = timezone.to_i
+      user.save if user.timezone_changed?
+    end
 
-
-
-    # todo: timezone only returned from facebook in auth_hash. Maybe get timezone from browser
-    # javascript:
-    #   var offset = new Date().getTimezoneOffset();
-    #   var timezone = offset / 60.0 ;
-    # fx. ajax request
-    # maybe drop timezone from user and only user client timezone.
-
-
+    # run any provider specific post login methods
+    method = "post_login_#{provider}"
+    eval(method) if respond_to? method.to_sym
 
     # todo: maybe send error messages to flash notice div in page header
     # todo: maybe other minor changes. Change number of friends in mouse over text etc.
     render :nothing => true
-  end
+  end # post_login
 
 end # UtilController

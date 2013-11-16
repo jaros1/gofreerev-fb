@@ -25,6 +25,7 @@
           <%= form_tag url_for(:controller => :util, :action => :post_login), :remote => true, :id => 'post_login_form' do %>
               <%= hidden_field_tag :provider, flash[:post_login][:provider] %>
               <%= hidden_field_tag :image, flash[:post_login][:image] %>
+              <%= hidden_field_tag :timezone, "" %>
           <% end %>
         </div>
     <% end -%>
@@ -46,6 +47,7 @@
 <% if flash[:post_login] -%>
     <%# trigger hidden form for post login processing (for example downloading profile image -%>
     <script>
+        document.getElementById("timezone").value = (new Date().getTimezoneOffset()) / 60.0 ;
         $('#post_login_form').trigger('submit.rails');
     </script>
 <% end -%>

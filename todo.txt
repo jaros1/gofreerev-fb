@@ -179,3 +179,5 @@
     a solution could also be ajax call from client.
     For example facebook: download profile picture, refresh permissions, refresh friends.
     flash[:post_login] = provider => ajax request from page header for post provider processing
+
+53) allow .5 timezones. Timezone new is a Fixnum. "-1" for denmark. "-5.5" for india.
