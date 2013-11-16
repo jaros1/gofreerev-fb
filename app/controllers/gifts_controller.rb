@@ -41,6 +41,7 @@ class GiftsController < ApplicationController
       original_filename = gift_file.original_filename
       # puts "gift_file.original_filename = #{gift_file.original_filename}"
       # puts "size = #{gift_file.size}"
+      # todo: should not get image type from file extension. Should check image type from file content
       filetype = gift_file.original_filename.split('.').last
       if !%w(jpg gif png bmp).index(filetype)
         flash.now[:notice] = my_t '.unsupported_filetype', :filetype => filetype

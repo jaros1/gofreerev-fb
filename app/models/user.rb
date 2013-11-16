@@ -1,3 +1,5 @@
+# require 'open4'
+
 class User < ActiveRecord::Base
 
   FRIEND_REQUEST_NOTI_KEY = 'request_for_app_friendship_v1'
@@ -227,6 +229,17 @@ class User < ActiveRecord::Base
   #end # self.new_user_i
 
 
+  public
+  def self.open4 (command, dir = nil)
+    pid, stdin, stdout, stderr = Open4::popen4 "sh"
+    stdin.puts "cd #{dir}" if dir
+    stdin.puts command
+    stdin.close
+    ignored, status = Process::waitpid2 pid
+    return [ stdout.read, stderr.read, status.exitstatus ]
+  end # open4
+
+
   # find and create or update user from amniauth auth_hash information
   # return user if ok
   # return key or key + options if not ok (for translate)
@@ -278,9 +291,64 @@ class User < ActiveRecord::Base
       currency = BASE_CURRENCY if active_currencies.size > 0 and !active_currencies.index(currency)
       user.currency = currency
     end # outer if
-    # permissions not returned in auth_hash for any provider
-    # image is returned from all providers, but requires some processing before it can be saved
-    # timezone only returned from facebook in auth_hash
+    # todo: permissions not returned in auth_hash for any provider
+
+    # download and save image
+    if image
+      # check image type
+      image_type = FastImage.type(image).to_s
+      if !%w(gif jpeg png jpg bmp).index(image_type)
+        if image_type.to_s == ""
+          puts "image #{image} was not found"
+        else
+          puts "unsupported image type #{image_type} for #{image}"
+        end
+        image = nil
+      end
+    end
+    if image
+      # prepare work dir for download
+      FileUtils.mkdir_p FileUtils.mkdir_p user.profile_picture_tmp_os_folder
+      stdout, stderr, status = User.open4('rm *', user.profile_picture_tmp_os_folder)
+      puts "rm: stdout = #{stdout}, stderr = #{stderr}, status = #{status} (#{status.class})" if status != 0
+    end
+    if image
+      # download image to work dir
+      stdout, stderr, status = User.open4("wget #{image}", user.profile_picture_tmp_os_folder)
+      if status != 0
+        puts "image download failed: wget: stdout = #{stdout}, stderr = #{stderr}, status = #{status} (#{status.class})"
+        image = nil
+      end
+    end
+    if image
+      # check download
+      files = Dir.entries(user.profile_picture_tmp_os_folder).delete_if { |x| ['.', '..'].index(x) }
+      if files.size != 1
+        puts "image download failed. expected 1 image. found #{files.size} images"
+        image = nil
+      end
+    end
+    if image
+      # rename/move image
+      old_file_name = files.first
+      if user.profile_picture_name and user.profile_picture_name.split('.').last == image_type
+        new_file_name = user.profile_picture_name # unchanged image type - keep old picture name
+      else
+        new_file_name = (String.generate_random_string(10) + '.' + image_type).last(10).downcase # generate new picture name
+      end
+      stdout, stderr, status = User.open4("mv #{old_file_name} ../#{new_file_name}", user.profile_picture_tmp_os_folder)
+      if status == 0
+        # download, rename and move ok
+        user.profile_picture_name = new_file_name
+        stdout, stderr, status = User.open4("rmdir tmp", user.profile_picture_os_folder)
+      else
+        # rename/move failed
+        puts "image rename/move failed: stdout = #{stdout}, stderr = #{stderr}, status = #{status} (#{status.class})"
+      end
+    end
+
+    # todo: timezone only returned from facebook in auth_hash. Maybe get timezone from browser
+
     user.save
     user
   end # find_or_create_from_auth_hash
@@ -375,6 +443,10 @@ class User < ActiveRecord::Base
   def profile_picture_os_folder
     Rails.root.join('public', 'images', profile_picture_md5_path).to_s
   end
+  def profile_picture_tmp_os_folder
+    Rails.root.join('public', 'images', profile_picture_md5_path, 'tmp').to_s
+  end
+
   def profile_picture_os_filename
     "#{profile_picture_os_folder}/#{profile_picture_filename}"
   end
