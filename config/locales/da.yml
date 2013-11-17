@@ -76,18 +76,6 @@ da:
         header_api_link_title: "Returner til %{apiname} UDEN at logge ud af %{appname}"
         header_log_out_link_text: 'Log ud'
         header_log_out_link_title: "Log ud af %{appname} og returner til %{apiname}."
-  facebook: # facebook specific texts
-     layouts:
-        page_header:
-           header_log_out_link_title: "Log ud af %{appname} og returner til facebook."
-
-
-
-
-  google_oauth2: # google+ specific texts
-     layouts:
-        page_header:
-           header_log_out_link_title: "Log ud af %{appname} og returner til google+."
 
   # shared partials
   shared:
@@ -100,10 +88,10 @@ da:
         invite_friends_message_title: "Inviter dine venner til %{appname}"
         invite_friends_message_body: "Prøv et spil om at hjælpe hinanden og dele hinandens resourcer på en ny anderledes måde og et spil med en ny slags penge der vil forandre vores verden inspireret af ideer fra Charles Eisensteins bog Sacred Economics"
      providers:
-        login_link_text_facebook: "Facebook"
-        login_link_text_google_oauth2: "Google+"
-        login_link_text_linkedin: "LinkedIn"
-        login_link_text_twitter: "Twitter"
+        facebook: "Facebook"
+        google_oauth2: "Google+"
+        linkedin: "LinkedIn"
+        twitter: "Twitter"
 
   # gift controller - general texts
   gifts:
@@ -404,6 +392,7 @@ da:
         accepted_proposal_receiver_1_v1_to_msg: '%{receivername} accepterede dit bud på sit ønske "%{gifttext} ..."'
 
   # user controller
+
   users:
      update:
         invalid_request: "Ugyldigt kald. Bruger indstillinger blev ikke ændret."
@@ -513,3 +502,14 @@ da:
         invite_api_friends_link_title2: "Brug dette link til at inviterer dine %{apiname} venner til at bruge %{appname}"
         invite_api_friends_link_text2: "Inviter venner"
         no_users_was_found_html: "Der blev ikke fundet nogle andre %{appname} brugere. For at komme igang bør du nu<br />oprette et par opslag med noget du gerne vil dele med dine venner eller med noget<br />du søger eller mangler, og som du tror dine venner måske kan hjælpe dig med.<br /><br />Dernæst skal du invitere en eller flere af dine gode venner til at bruge %{appname}.<br />Enten ved at sende et personlig besked med nedenstående link eller ved at bruge<br />nedenstående link til at inviterer dine %{apiname} venner til at bruge %{appname}. <br />En personlig besked er det bedste da mange mennesker vil afvise uopfordrede<br />spil invitationer."
+
+  # util controller - used for ajax requests
+  util:
+     do_ajax_tasks:
+        ajax_task_exception: "Systemfejl \"%{exception}\" for ajax task \"%{task}\"." # task, exception
+        ajax_task_invalid_response: "Systemfejl. Ugyldigt svar fra ajax task %{task}. Skal være Nil eller gyldigt input til translate." # task, response and exception. response is invalid response from ajax task and exception is ruby exception from translate
+        update_timezone_invalid_user_id: "Systemfejl. Ugyldigt user_id %{user_id} ved opdatering af tidszone information" # user_id
+        update_timezone_timezone_missing: "Systemfejl. Modtag ikke tidszone information fra browser/javascript"
+        update_timezone_save_error: "Systemfejl. Kunne ikke opdatere bruger information om tidszone: \"%{errors}\"" # error = user errors.
+        profile_image_invalid_user: "Systemfejl. Ugyldigt bruger id. %{user_id} ved download af profil billede" # user_id
+        profile_image_blank: "Intet profil billede modtaget fra %{provider}" # provider

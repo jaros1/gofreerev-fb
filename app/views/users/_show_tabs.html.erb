@@ -1,13 +1,13 @@
 <table>
   <tr>
     <% if @tabs.size > 1 -%>
-        <td><%= my_t '.tabs_prompt' %></td>
+        <td><%= t '.tabs_prompt' %></td>
         <% for tab in @tabs do
              loop -%>
             <% if tab == @tab -%>
-                <td style="text-decoration:underline;"><%= my_t ".#{tab}_tab_text" %></td>
+                <td style="text-decoration:underline;"><%= t ".#{tab}_tab_text" %></td>
             <% else -%>
-                <td><%= link_to (my_t ".#{tab}_tab_text"), user_path(:id => @user2.id, :tab => tab) %></td>
+                <td><%= link_to (t ".#{tab}_tab_text"), user_path(:id => @user2.id, :tab => tab) %></td>
             <% end -%>
         <% end -%>
     <% end -%>
@@ -15,23 +15,23 @@
         <% if @tabs.size > 1 -%>
             <td>&nbsp;&nbsp;|&nbsp;&nbsp;</td>
         <% end -%>
-        <td><%= my_t '.deal_status_prompt' %></td>
+        <td><%= t '.deal_status_prompt' %></td>
         <% for status in @statuses do
              loop -%>
             <% if status == @status -%>
-                <td style="text-decoration:underline;"><%= my_t ".deal_status_#{status}" %></td>
+                <td style="text-decoration:underline;"><%= t ".deal_status_#{status}" %></td>
             <% else -%>
-                <td><%= link_to (my_t ".deal_status_#{status}"), user_path(:id => @user2.id, :tab => @tab, :status => status, :direction => @direction) %></td>
+                <td><%= link_to (t ".deal_status_#{status}"), user_path(:id => @user2.id, :tab => @tab, :status => status, :direction => @direction) %></td>
             <% end -%>
         <% end -%>
         <td>&nbsp;&nbsp;|&nbsp;&nbsp;</td>
-        <td><%= my_t '.deal_direction_prompt' %></td>
+        <td><%= t '.deal_direction_prompt' %></td>
         <% for direction in @directions do
              loop -%>
             <% if direction == @direction -%>
-                <td style="text-decoration:underline;"><%= my_t ".deal_direction_#{direction}" %></td>
+                <td style="text-decoration:underline;"><%= t ".deal_direction_#{direction}" %></td>
             <% else -%>
-                <td><%= link_to (my_t ".deal_direction_#{direction}"), user_path(:id => @user2.id, :tab => @tab, :status => @status, :direction => direction) %></td>
+                <td><%= link_to (t ".deal_direction_#{direction}"), user_path(:id => @user2.id, :tab => @tab, :status => @status, :direction => direction) %></td>
             <% end -%>
         <% end -%>
     <% end -%>

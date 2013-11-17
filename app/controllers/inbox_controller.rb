@@ -12,7 +12,7 @@ class InboxController < ApplicationController
     # todo: delete notifications when gift has been delete marked
     @notifications = @notifications.find_all do |noti|
       postfix = noti.to_user_id == @user.user_id ? 'to' : 'from'
-      url = my_t ".#{noti.noti_key}_#{postfix}_url", noti.noti_options
+      url = t ".#{noti.noti_key}_#{postfix}_url", noti.noti_options
       puts url
       if url =~ /^\/gifts\/([0-9]+)$/
         # gift/comment notification

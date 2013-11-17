@@ -65,7 +65,7 @@ module UsersHelper
     translate_key = translate_key.join('_')
     # todo: add more documentation for gain/loss calculation?
     number_of_days = (gift.received_at.to_date - Date.parse(previous_date)).to_i
-    my_t translate_key, # calculation: new_balance = old_balance + price * exchange_rate + negative_interest + currency_gain_loss
+    t translate_key, # calculation: new_balance = old_balance + price * exchange_rate + negative_interest + currency_gain_loss
                         :new_balance => format_price(gift.balance(current_user, @user)),
                         :old_balance => format_price(old_balance),
                         :sign_price => balance_doc[:sign],

@@ -1,4 +1,4 @@
-<%= my_t ".balance_tab_header_text_html", :username => @user2.short_or_full_user_name(@user) %>
+<%= t ".balance_tab_header_text_html", :username => @user2.short_or_full_user_name(@user) %>
 <br />
 <% if @user2.friend?(@user) and @gifts.size > 0 -%>
     <table id="gifts" style="border-spacing: 0;">

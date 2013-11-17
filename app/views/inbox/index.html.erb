@@ -1,13 +1,13 @@
 <p>
-  <%= my_t '.page_header_html' %>
+  <%= t '.page_header_html' %>
 </p>
 
 <table>
   <tr>
-    <th><%= my_t '.from_column_heading_html' %></th>
-    <th><%= my_t '.to_column_heading_html' %></th>
-    <th><%= my_t '.created_at_column_heading_html' %></th>
-    <th><%= my_t '.message_column_heading_html' %></th>
+    <th><%= t '.from_column_heading_html' %></th>
+    <th><%= t '.to_column_heading_html' %></th>
+    <th><%= t '.created_at_column_heading_html' %></th>
+    <th><%= t '.message_column_heading_html' %></th>
   </tr>
   <% for noti in @notifications do
        loop
@@ -23,8 +23,8 @@
               <%= render '/shared/user_div', :user_div => noti.to_user %>
           <% end -%>
         </td>
-        <td><%= link_to l(noti.created_at, format: :short), my_t(".#{noti.noti_key}_#{postfix}_url", my_sanitize_hash(noti.noti_options)) %></td>
-        <td><%= my_t(".#{noti.noti_key}_#{postfix}_msg", my_sanitize_hash(noti.noti_options)) %></td>
+        <td><%= link_to l(noti.created_at, format: :short), t(".#{noti.noti_key}_#{postfix}_url", my_sanitize_hash(noti.noti_options)) %></td>
+        <td><%= t(".#{noti.noti_key}_#{postfix}_msg", my_sanitize_hash(noti.noti_options)) %></td>
       </tr>
   <% end -%>
 </table>

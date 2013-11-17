@@ -19,7 +19,7 @@
       </td>
       <td></td>
       <td style="text-align: right">
-        <%= my_t '.optional_price', :price => "#{format_price(gift.price)} #{gift.currency}" if gift.price %>
+        <%= t '.optional_price', :price => "#{format_price(gift.price)} #{gift.currency}" if gift.price %>
       </td>
       <td></td>
       <td style="text-align: right" title="<%= gift_balance_calculation_doc(gift, @user2) %>">
@@ -27,8 +27,8 @@
       </td>
       <td></td>
       <td style="height: 52px; vertical-align: top">
-        <%= link_to my_t('.gift_link_text', format_gift_param(gift)), url_for(gift), :title => (my_t '.gift_link_title') %>
-        <%= my_t('.gift_text_html', format_gift_param(gift)) %>
+        <%= link_to t('.gift_link_text', format_gift_param(gift)), url_for(gift), :title => (t '.gift_link_title') %>
+        <%= t('.gift_text_html', format_gift_param(gift)) %>
         <% if gift.picture == 'Y' and !gift.api_picture_url_on_error_at -%>
             <br/><br/>
             <%= image_tag gift.api_picture_url, :onload => "check_api_picture_url(#{gift.id}, this)" %>

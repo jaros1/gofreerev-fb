@@ -1,9 +1,5 @@
-require File.join(Rails.root, "lib/gofreerev_extensions.rb")
-
 # encoding: utf-8
 module ApplicationHelper
-
-  include GofreerevExtensions
 
   # debug
   def dump_session_variables
@@ -136,20 +132,30 @@ module ApplicationHelper
     sanitize(text.to_s).gsub(/\n/, '<br/>').html_safe
   end # my_sanitize
 
+  def my_provider (provider)
+    return provider if !valid_provider?(provider) # unknown provider or already translated
+    t "shared.providers.#{provider}"
+  end
+
+  # todo: translate value for key provider.
   def my_sanitize_hash (hash)
     hash.each do |name, value|
-      hash[name] = my_sanitize (value.to_s.force_encoding('utf-8'))
+      if name.to_s == 'provider'
+        hash[name] = my_provider(value)
+      else
+        hash[name] = my_sanitize (value.to_s.force_encoding('utf-8'))
+      end
     end
   end # my_sanitize_hash
 
 
   def format_direction (gift)
     if !gift.user_id_receiver
-      my_t '.direction_giver', :username => gift.giver.short_or_full_user_name(@user)
+      t '.direction_giver', :username => gift.giver.short_or_full_user_name(@user)
     elsif !gift.user_id_giver
-      my_t '.direction_receiver', :username => gift.receiver.short_or_full_user_name(@user)
+      t '.direction_receiver', :username => gift.receiver.short_or_full_user_name(@user)
     else
-      my_t '.direction_giver_and_receiver', :givername => gift.giver.short_user_name, :receivername => gift.receiver.short_user_name
+      t '.direction_giver_and_receiver', :givername => gift.giver.short_user_name, :receivername => gift.receiver.short_user_name
     end
   end # format_direction
 
@@ -162,7 +168,7 @@ module ApplicationHelper
 
 
   def format_gift_param (gift)
-    optional_price = gift.price ? "#{my_t('.optional_price', :price => format_price(gift.price))} #{gift.currency}" : nil
+    optional_price = gift.price ? "#{t('.optional_price', :price => format_price(gift.price))} #{gift.currency}" : nil
     { :date           => format_date(gift.received_at || gift.created_at),
       :direction      => format_direction(gift),
       :optional_price => optional_price,
@@ -178,8 +184,8 @@ module ApplicationHelper
     case
       when @user.facebook?
         # url - friend request url
-        title = my_t 'shared.invite_friends.invite_friends_message_title', :appname => APP_NAME
-        message = my_t 'shared.invite_friends.invite_friends_message_body'
+        title = t 'shared.invite_friends.invite_friends_message_title', :appname => APP_NAME
+        message = t 'shared.invite_friends.invite_friends_message_body'
         # no koala gem method for generation a invite friends url
         url = "https://#{Koala.config.dialog_host}/dialog/apprequests" +
             "?app_id=#{api_id}" +
@@ -196,7 +202,7 @@ module ApplicationHelper
 
   def invite_friends_link1
     # todo: different url for each API (FB, GP, LI etc)
-    link_to my_t('shared.invite_friends.invite_friends_link_text1', :app_url => FB_APP_URL), invite_friends_url
+    link_to t('shared.invite_friends.invite_friends_link_text1', :app_url => FB_APP_URL), invite_friends_url
   end
 
   def ajax_tasks?

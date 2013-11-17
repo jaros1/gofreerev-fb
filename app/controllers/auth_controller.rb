@@ -31,7 +31,7 @@ class AuthController < ApplicationController
     end
     # login not ok
     key, options = user
-    puts "login_error: #{my_t(key, options)}"
+    puts "login_error: #{t(key, options)}"
   end # create
 
   protected

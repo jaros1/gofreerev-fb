@@ -302,11 +302,11 @@ class User < ActiveRecord::Base
   # return array with translate key and options if warning or error
   def self.download_profile_image (user_id, url)
     user = User.find_by_user_id(user_id)
-    if true or !user
+    if !user
       puts "error: invalid user id"
       return [ '.profile_image_invalid_user', { :user_id => user_id } ]
     end
-    if url.to_s == ""
+    if true or url.to_s == ""
       puts "error: no image received from provider / post_login ajax request"
       return [ '.profile_image_blank', { :provider => user.provider } ]
     end
@@ -314,6 +314,7 @@ class User < ActiveRecord::Base
       puts "error: invalid image #{url} received from provider / post_login ajax request"
       return [ '.profile_image_invalid_url', { :provider => user.provider, :image => url }]
     end
+    raise "test error handling in do_ajax_tasks"
     # check image type
     image_type = FastImage.type(url).to_s
     if !%w(gif jpeg png jpg bmp).index(image_type)
@@ -367,14 +368,18 @@ class User < ActiveRecord::Base
     user = User.find_by_user_id(user_id)
     if !user
       puts "User with user id #{user_id} was not found"
-      return
+      return ['.update_timezone_invalid_user_id', { :user_id => user_id }]
     end
     if timezone.to_s == ""
       puts "No timezone received from client/javascript (params[:timezone])"
-      return
+      return ['.update_timezone_timezone_missing', {} ]
     end
     user.timezone = timezone.to_s.to_i
-    user.save
+    if !user.save
+      puts "Could not update timezone information. errors = #{user.errors.full_messages.join('. ')}"
+      return ['.update_timezone_save_error', { :errors => user.errors.full_messages.join('. ') }]
+    end
+    nil
   end # self.update_timezone
 
   def usertype

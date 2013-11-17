@@ -1,11 +1,8 @@
 # encoding: utf-8
 require 'money/bank/google_currency'
-require File.join(Rails.root, "lib/gofreerev_extensions.rb")
 
 #noinspection RubyResolve
 class ApplicationController < ActionController::Base
-
-  include GofreerevExtensions
 
   # Prevent CSRF attacks by raising an exception.
   # For APIs, you may want to use :null_session instead.
@@ -149,7 +146,7 @@ class ApplicationController < ActionController::Base
         # login ok - user created/updated - set session[:user_id]
         puts "fetch_user: login ok: user_id = #{session[:user_id]}"
         session[:user_id] = user_id
-        flash[:notice] = my_t 'gifts.index.welcome_msg_after_login', :appname => APP_NAME, :username => u.short_user_name
+        flash[:notice] = t 'gifts.index.welcome_msg_after_login', :appname => APP_NAME, :username => u.short_user_name
 
         # do not cache friends info - friends info. are sync. after login has finished
         includes_friends = false
@@ -319,7 +316,7 @@ class ApplicationController < ActionController::Base
   private
   def login_required
     return true if session[:user_id]
-    flash[:notice] = my_t 'gifts.index.not_logged_in_flash'
+    flash[:notice] = t 'gifts.index.not_logged_in_flash'
     redirect_to :controller => :gifts, :action => :index
   end # login_required
 
@@ -401,5 +398,6 @@ class ApplicationController < ActionController::Base
   def valid_provider? (provider)
     OmniAuth::Builder.providers.index(provider)
   end
+  helper_method "valid_provider?"
 
 end # ApplicationController

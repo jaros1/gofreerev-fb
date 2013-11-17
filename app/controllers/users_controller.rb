@@ -11,7 +11,7 @@ class UsersController < ApplicationController
   def update
     if params[:id] != @user.id.to_s
       puts "invalid id. params[:id] = #{params[:id]}, @user.id = #{@user.id}"
-      flash[:notice] = my_t '.invalid_request'
+      flash[:notice] = t '.invalid_request'
       if params[:return_to].to_s != ''
         redirect_to params[:return_to]
       else
@@ -137,13 +137,13 @@ class UsersController < ApplicationController
     @user2 = User.find(id)
     if !@user2
       puts "invalid request. User with id #{id} was not found"
-      flash[:notice] = my_t '.invalid_request'
+      flash[:notice] = t '.invalid_request'
       redirect_to :action => :index
       return
     end
     if @user2.mutual_friends(@user).size == 0
       puts "invalid request. No mutual friends for user with id #{id}"
-      flash[:notice] = my_t '.invalid_request'
+      flash[:notice] = t '.invalid_request'
       redirect_to :action => :index
       return
     end
@@ -268,7 +268,7 @@ class UsersController < ApplicationController
     if !@user.recalculate_balance(new_currency)
       # not all exchange rates was ready yet - keep old balance and currency
       # puts "not all exchange rates was ready yet - keep old balance and currency"
-      flash[:notice] = my_t '.exchange_rates_not_ready'
+      flash[:notice] = t '.exchange_rates_not_ready'
       redirect_to params[:return_to]
       return
     end
@@ -289,7 +289,7 @@ class UsersController < ApplicationController
     user2 = User.find(id2)
     if !user2
       puts "invalid request. Friend with id #{id2} was not found"
-      flash[:notice] = my_t '.invalid_request'
+      flash[:notice] = t '.invalid_request'
       redirect_to params[:return_to]
       return
     end
@@ -314,7 +314,7 @@ class UsersController < ApplicationController
     # do app friend action
     # for example send_app_friend_request with ok response send_app_friend_request_ok and error response send_app_friend_request_error
     postfix = user2.send(friend_action, @user) ? "_ok" : "_error"
-    flash[:notice] = my_t ".#{friend_action}#{postfix}", :appname => APP_NAME, :username => user2.short_user_name
+    flash[:notice] = t ".#{friend_action}#{postfix}", :appname => APP_NAME, :username => user2.short_user_name
     redirect_to params[:return_to]
   end # friend_actions
 

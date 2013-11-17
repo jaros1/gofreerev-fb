@@ -12,43 +12,43 @@
 <% #noinspection RubyResolve
    if !@user -%>
     <p>
-      <%= my_t '.not_logged_in_text' %>
+      <%= t '.not_logged_in_text' %>
     </p>
 <% else -%>
     <% if !@user.post_gift_allowed? -%>
-        <p title="<%= my_t '.post_gift_not_allowed_title', :appname => APP_NAME, :apiname => @user.api_name_without_brackets %>">
-          <%= my_t '.post_gift_not_allowed_text', :appname => APP_NAME, :apiname => @user.api_name_without_brackets %><br />
-          <%= link_to my_t('.request_post_gift_priv_link_text', :appname => APP_NAME), "javascript: {top.location.href='#{auth_post_gift_url}'}" %>
+        <p title="<%= t '.post_gift_not_allowed_title', :appname => APP_NAME, :apiname => @user.api_name_without_brackets %>">
+          <%= t '.post_gift_not_allowed_text', :appname => APP_NAME, :apiname => @user.api_name_without_brackets %><br />
+          <%= link_to t('.request_post_gift_priv_link_text', :appname => APP_NAME), "javascript: {top.location.href='#{auth_post_gift_url}'}" %>
         </p>
     <% elsif flash[:read_stream] -%>
-        <p title="<%= my_t '.read_stream_not_allowed_title', :appname => APP_NAME, :apiname => @user.api_name_without_brackets %>">
-          <%= my_t '.read_stream_not_allowed_text', :appname => APP_NAME, :apiname => @user.api_name_without_brackets %><br />
-          <%= link_to my_t('.request_read_stream_priv_link_text', :appname => APP_NAME), "javascript: {top.location.href='#{auth_read_stream_url}'}" %>
+        <p title="<%= t '.read_stream_not_allowed_title', :appname => APP_NAME, :apiname => @user.api_name_without_brackets %>">
+          <%= t '.read_stream_not_allowed_text', :appname => APP_NAME, :apiname => @user.api_name_without_brackets %><br />
+          <%= link_to t('.request_read_stream_priv_link_text', :appname => APP_NAME), "javascript: {top.location.href='#{auth_read_stream_url}'}" %>
         </p>
     <% end -%>
     <%= form_for @gift, :multipart => true, :html => { :enctype => 'multipart/form-data' } do |f| -%>
         <table>
           <tr>
-            <td colspan="3"><%= my_t '.create_gift_header_line' %></td>
+            <td colspan="3"><%= t '.create_gift_header_line' %></td>
           </tr>
-          <tr title="<%= my_t '.price_title', :min_interest => NEG_INT_POS_BALANCE_PER_YEAR, :max_interest => NEG_INT_NEG_BALANCE_PER_YEAR %>">
-            <td><%= my_t '.price_prompt' %></td>
+          <tr title="<%= t '.price_title', :min_interest => NEG_INT_POS_BALANCE_PER_YEAR, :max_interest => NEG_INT_NEG_BALANCE_PER_YEAR %>">
+            <td><%= t '.price_prompt' %></td>
             <td colspan="2">
               <%= f.text_field(:price, :size=>10, :maxlength=>10) %>
-              <%= my_t '.price_free' %>
+              <%= t '.price_free' %>
               <%= @user.currency %>
               &nbsp;&nbsp;&nbsp;
-              <%= my_t '.direction_giver_prompt' %> <%= f.radio_button :direction, 'giver' %>
-              <%= my_t '.direction_receiver_prompt' %> <%= f.radio_button :direction, 'receiver' %>
+              <%= t '.direction_giver_prompt' %> <%= f.radio_button :direction, 'giver' %>
+              <%= t '.direction_receiver_prompt' %> <%= f.radio_button :direction, 'receiver' %>
             </td>
           </tr>
-          <tr title="<%= my_t '.description_title' %>">
-            <td style="vertical-align: top"><%= my_t '.description_prompt' %></td>
+          <tr title="<%= t '.description_title' %>">
+            <td style="vertical-align: top"><%= t '.description_prompt' %></td>
             <td><%= f.text_area :description, :size => '60x2', :placeholder => 'Enter Comments', :onfocus => 'autoresize_text_field(this)' %></td>
-            <td><%= f.submit my_t('.gift_submit_button_text'), :onclick => '{return csv_gift()}' %></td>
+            <td><%= f.submit t('.gift_submit_button_text'), :onclick => '{return csv_gift()}' %></td>
           </tr>
-          <tr title="<%= my_t ".file_title_#{@user.post_gift_allowed?}", :appname => APP_NAME, :apiname => @user.api_name_without_brackets %>">
-            <td><%= my_t '.file_prompt' %></td>
+          <tr title="<%= t ".file_title_#{@user.post_gift_allowed?}", :appname => APP_NAME, :apiname => @user.api_name_without_brackets %>">
+            <td><%= t '.file_prompt' %></td>
             <td colspan="2"><%= file_field_tag(:gift_file, :disabled => !@user.post_gift_allowed?) %></td>
           </tr>
         </table>
@@ -57,9 +57,9 @@
 
     <% if @gifts.size == 0 -%>
         <p>
-          <%= my_t '.no_gifts_was_found_html', :appname => APP_NAME, :apiname => @user.api_name_without_brackets %>
+          <%= t '.no_gifts_was_found_html', :appname => APP_NAME, :apiname => @user.api_name_without_brackets %>
         </p>
-        <%= my_t 'shared.invite_friends.invite_api_friends_link_prompt1', :apiname => @user.api_name_without_brackets %> <%= invite_friends_link1 %>
+        <%= t 'shared.invite_friends.invite_api_friends_link_prompt1', :apiname => @user.api_name_without_brackets %> <%= invite_friends_link1 %>
     <% else -%>
         <table id="gifts" style="border-spacing: 0;">
           <%= render :partial => 'table_header_row' %>
@@ -76,12 +76,12 @@
 <script>
     // add page specific version of pre_update_currency function.
     // That is confirm popup before leaving page with unsaved data.
-    pending_gift_msg = '<%= my_t '.pending_gift_popup_msg' %>' ;
+    pending_gift_msg = '<%= t '.pending_gift_popup_msg' %>' ;
     pre_update_currency = gifts_pre_update_currency ;
 
     // Translate texts used in client side validations.
-    csv_gift_description_required = '<%= my_t '.description_required_text' %>' ;
-    csv_gift_price_invalid = '<%= my_t '.price_invalid_text' %>' ;
-    csv_comment_comment_required = '<%= my_t '.comment_comment_required_text' %>' ;
-    csv_comment_price_invalid = '<%= my_t '.comment_price_invalid_text' %>' ;
+    csv_gift_description_required = '<%= t '.description_required_text' %>' ;
+    csv_gift_price_invalid = '<%= t '.price_invalid_text' %>' ;
+    csv_comment_comment_required = '<%= t '.comment_comment_required_text' %>' ;
+    csv_comment_price_invalid = '<%= t '.comment_price_invalid_text' %>' ;
 </script>

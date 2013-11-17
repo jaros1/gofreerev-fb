@@ -197,7 +197,7 @@ class UtilController < ApplicationController
     # change link
     @gift_link_id = "gift-#{gift.id}-like-unlike-link"
     @gift_link_href = util_unlike_gift_path(:gift_id => gift.id)
-    @gift_link_text = my_t('gifts.gift.unlike_gift')
+    @gift_link_text = t('gifts.gift.unlike_gift')
   end # like_gift
 
   def unlike_gift
@@ -221,7 +221,7 @@ class UtilController < ApplicationController
     # change link
     @gift_link_id = "gift-#{gift.id}-like-unlike-link"
     @gift_link_href = util_like_gift_path(:gift_id => gift.id)
-    @gift_link_text = my_t('gifts.gift.like_gift')
+    @gift_link_text = t('gifts.gift.like_gift')
   end # unlike_gift
 
   def follow_gift
@@ -250,7 +250,7 @@ class UtilController < ApplicationController
     # change link
     @gift_link_id = "gift-#{gift.id}-follow-unfollow-link"
     @gift_link_href = util_unfollow_gift_path(:gift_id => gift.id)
-    @gift_link_text = my_t('gifts.gift.unfollow_gift')
+    @gift_link_text = t('gifts.gift.unfollow_gift')
   end # follow_gift
 
   def unfollow_gift
@@ -277,7 +277,7 @@ class UtilController < ApplicationController
     # change link
     @gift_link_id = "gift-#{gift.id}-follow-unfollow-link"
     @gift_link_href = util_follow_gift_path(:gift_id => gift.id)
-    @gift_link_text = my_t('gifts.gift.follow_gift')
+    @gift_link_text = t('gifts.gift.follow_gift')
   end # unfollow_gift
 
   def hide_gift
@@ -441,16 +441,23 @@ class UtilController < ApplicationController
     session[:ajax_tasks] = [] unless session[:ajax_tasks]
     while session[:ajax_tasks].size > 0
       task = session[:ajax_tasks].shift
-      res = eval(task)
-      puts "ajax task #{task}, response = #{res}, no tasks = #{session[:ajax_tasks].size}"
+      begin
+        res = eval(task)
+      rescue Exception => e
+        puts "error when processing ajax task #{task}"
+        puts "Exception: #{e.message.to_s}"
+        puts "Backtrace: " + e.backtrace.join("\n")
+        res = [ '.ajax_task_exception', { :task => task, :exception => e.message.to_s }]
+      end
+      # puts "ajax task #{task}, response = #{res}, no tasks = #{session[:ajax_tasks].size}"
       next unless res
       # check response from ajax task. Must be a valid input to translate
       begin
         key, options = res
-        my_t key, options
+        t key, options
       rescue Exception => e
-        res = [ '.ajax_task_invalid_response', { :task => task, :error => e.message.to_s }]
-        puts "invalid response from ajax task #{task}. Must be nil or a valid input to translate"
+        puts "invalid response from ajax task #{task}. Must be nil or a valid input to translate. Response: #{res}"
+        res = [ '.ajax_task_invalid_response', { :task => task, :response => res, :exception => e.message.to_s }]
       end
       @errors << res
     end

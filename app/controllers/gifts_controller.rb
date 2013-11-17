@@ -34,7 +34,7 @@ class GiftsController < ApplicationController
       # puts "gift_file = #{gift_file} (#{gift_file.class.name})"
       # puts "gift_file.methods = " + gift_file.methods.sort.join(', ')
       if !@user.post_gift_allowed?
-        flash.now[:notice] = my_t '.file_upload_not_allowed', :appname => APP_NAME, :apiname => @user.api_name_without_brackets
+        flash.now[:notice] = t '.file_upload_not_allowed', :appname => APP_NAME, :apiname => @user.api_name_without_brackets
         index
         return
       end
@@ -44,12 +44,12 @@ class GiftsController < ApplicationController
       # todo: should not get image type from file extension. Should check image type from file content
       filetype = gift_file.original_filename.split('.').last
       if !%w(jpg gif png bmp).index(filetype)
-        flash.now[:notice] = my_t '.unsupported_filetype', :filetype => filetype
+        flash.now[:notice] = t '.unsupported_filetype', :filetype => filetype
         index
         return
       end
       if gift_file.size > 2.megabytes
-        flash.now[:notice] = my_t '.file_is_too_big', :maxsize => '2 Mb'
+        flash.now[:notice] = t '.file_is_too_big', :maxsize => '2 Mb'
         index
         return
       end
@@ -137,14 +137,14 @@ class GiftsController < ApplicationController
 
     if !@gift.save
       # @gift.save should not fail. @gift was validated a moment ago before posting on api wall
-      messages = [ my_t(".gift_not_posted_#{gift_posted_on_wall_api_wall}", :apiname => @user.api_name_without_brackets, :error => error) ]
+      messages = [ t(".gift_not_posted_#{gift_posted_on_wall_api_wall}", :apiname => @user.api_name_without_brackets, :error => error) ]
       messages = messages + @gift.errors.full_messages
       flash.now[:notice] = messages.join('. ')
       index
       return
     else
       # save picture posted message
-      messages = [ my_t(".gift_posted_#{gift_posted_on_wall_api_wall}", :apiname => @user.api_name_without_brackets, :error => error) ]
+      messages = [ t(".gift_posted_#{gift_posted_on_wall_api_wall}", :apiname => @user.api_name_without_brackets, :error => error) ]
       # get url for picture
       if @gift.picture == 'Y'
         # todo: gets only small picture url from fb - is should be possible to get url for a larger picture from fb
@@ -162,7 +162,7 @@ class GiftsController < ApplicationController
             @gift.save!
           else
             puts "Did not get a picture url from api. Must be problem with missing access token, picture != Y or deleted_at_api == Y"
-            messages << my_t('.no_api_picture_url', :apiname => @user.api_name_without_brackets)
+            messages << t('.no_api_picture_url', :apiname => @user.api_name_without_brackets)
           end
         rescue ApiPostNotFoundException => e
           # problem with picture uploads and permissions
@@ -178,10 +178,10 @@ class GiftsController < ApplicationController
           end
           if @user.read_gifts_allowed?
             # error - this should not happen.
-            messages << my_t('.picture_upload_unknown_problem', :appname => APP_NAME, :apiname => @user.api_name_without_brackets)
+            messages << t('.picture_upload_unknown_problem', :appname => APP_NAME, :apiname => @user.api_name_without_brackets)
           else
             # flash with request for read stream privs
-            messages << my_t('.picture_upload_missing_permission', :appname => APP_NAME, :apiname => @user.api_name_without_brackets)
+            messages << t('.picture_upload_missing_permission', :appname => APP_NAME, :apiname => @user.api_name_without_brackets)
             flash[:read_stream] = 'Missing read_stream permission' # display link to grant read_stream permission in gifts/index page
           end
           @gift.picture = 'N'
@@ -294,14 +294,14 @@ class GiftsController < ApplicationController
     gift = Gift.find_by_id(params[:id])
     if !gift
       puts "invalid gift id"
-      flash[:notice] = my_t '.invalid_gift_id'
+      flash[:notice] = t '.invalid_gift_id'
       redirect_to :action => :index
       return
     end
     # check access. giver and/or receiver of gift must be a app friend
     if !gift.visible_for(@user)
       puts "no access"
-      flash[:notice] = my_t ('.no_access')
+      flash[:notice] = t ('.no_access')
       redirect_to :action => :index
       return
     end

@@ -189,3 +189,4 @@
     get new exchange rates for a new date
     post picture to multiple providers
 
+55) drop t. Can not be used for multiple login's

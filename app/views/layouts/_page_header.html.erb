@@ -17,9 +17,9 @@
       <%= @page_header = true ; @size = nil ; render '/shared/user_div', :user_div => @user %>
     </td>
     <td>&nbsp;&nbsp;&nbsp;</td>
-    <td title="<%= my_t '.header_currency_title' %>">
+    <td title="<%= t '.header_currency_title' %>">
       <table height="100%">
-        <tr><td><%= my_t '.header_balance_prompt' %> <%= format_price ExchangeRate.exchange(@user.balance[BALANCE_KEY], 'USD', @user.currency) %> <%= my_t '.header_balance_free' %> <%= @user.currency %></td></tr>
+        <tr><td><%= t '.header_balance_prompt' %> <%= format_price ExchangeRate.exchange(@user.balance[BALANCE_KEY], 'USD', @user.currency) %> <%= t '.header_balance_free' %> <%= @user.currency %></td></tr>
         <tr>
           <td>
             <%= hidden_field_tag :user_currency_old, @user.currency %>
@@ -32,12 +32,12 @@
     <td>
       <table>
         <tr>
-            <td style="vertical-align: baseline" title="<%= my_t '.header_home_link_title', :appname => APP_NAME %>">
-              <%= link_to my_t('.header_home_link_text'), gifts_path %>
+            <td style="vertical-align: baseline" title="<%= t '.header_home_link_title', :appname => APP_NAME %>">
+              <%= link_to t('.header_home_link_text'), gifts_path %>
             </td>
             <td>&nbsp;&nbsp;</td>
-            <td style="vertical-align: baseline" title="<%= my_t '.header_inbox_link_title', :appname => APP_NAME %>">
-              <%= link_to my_t('.header_inbox_link_text'), inbox_index_path %>
+            <td style="vertical-align: baseline" title="<%= t '.header_inbox_link_title', :appname => APP_NAME %>">
+              <%= link_to t('.header_inbox_link_text'), inbox_index_path %>
               <b>
                 <sup>
                   <span id="new_messages_count" style="background-color:red; color:white; font-size:x-small"><%= @user.inbox_new_notifications if @user and @user.inbox_new_notifications > 0 %></span>
@@ -45,18 +45,18 @@
               </b>
             </td>
             <td>&nbsp;&nbsp;</td>
-            <td style="vertical-align: baseline" title="<%= my_t '.header_friends_link_title', :appname => APP_NAME %>">
-              <%= link_to my_t('.header_friends_link_text'), users_path(:friends => true) %>
+            <td style="vertical-align: baseline" title="<%= t '.header_friends_link_title', :appname => APP_NAME %>">
+              <%= link_to t('.header_friends_link_text'), users_path(:friends => true) %>
             </td>
 
             <td>&nbsp;&nbsp;</td>
-            <td style="vertical-align: baseline" title="<%= my_t '.header_api_link_title', :apiname => @user.api_name_without_brackets, :appname => APP_NAME %>">
+            <td style="vertical-align: baseline" title="<%= t '.header_api_link_title', :apiname => @user.api_name_without_brackets, :appname => APP_NAME %>">
               <%= link_to_api %>
             </td>
 
             <td>&nbsp;&nbsp;</td>
-            <td style="vertical-align: baseline" title="<%= my_t '.header_log_out_link_title', :appname => APP_NAME, :apiname => @user.api_name_without_brackets %>">
-              <%= link_to my_t('.header_log_out_link_text'), header_log_out_link_url, :method => 'delete' %>
+            <td style="vertical-align: baseline" title="<%= t '.header_log_out_link_title', :appname => APP_NAME, :apiname => @user.api_name_without_brackets %>">
+              <%= link_to t('.header_log_out_link_text'), header_log_out_link_url, :method => 'delete' %>
             </td>
         </tr>
       </table>

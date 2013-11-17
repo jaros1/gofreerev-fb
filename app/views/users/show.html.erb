@@ -5,7 +5,7 @@
 %>
 </script>
 
-<%= my_t '.page_header_text_html' %>
+<%= t '.page_header_text_html' %>
 
 <table>
 <%= render :partial => 'user', :locals => { :user => @user2 } %>
@@ -14,7 +14,7 @@
 
 <% if false -%>
 <p>
-  <%= my_t (@user2.friend?(@user) ? '.top_text_friend_html' : '.top_text_non_friend_html'),
+  <%= t (@user2.friend?(@user) ? '.top_text_friend_html' : '.top_text_non_friend_html'),
            :username => @user2.short_or_full_user_name(@user),
            :apiname => @user.api_name_without_brackets %>
 </p>

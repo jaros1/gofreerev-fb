@@ -69,15 +69,6 @@ en:
         header_api_link_title: "Retur to %{apiname} WITHOUT logging out of %{appname}"
         header_log_out_link_text: 'Log out'
         header_log_out_link_title: "Log out of %{appname} and return to %{apiname}."
-  facebook: # facebook versions
-     layouts:
-        page_header:
-           header_log_out_link_title: "Log out of %{appname} and return to facebook."
-  # google+ specific texts
-  google_oauth2: # google+ versions
-     layouts:
-        page_header:
-           header_log_out_link_title: "Log out of %{appname} and return to google+."
 
   # shared partials
   shared:
@@ -90,11 +81,10 @@ en:
         invite_friends_message_title: "Invite your friends to play %{appname}"
         invite_friends_message_body: "Try a game about helping each other and sharing each others resources in a new different way and a game with a new kind of money that will change our world inspired by the ideas of Charles Eisenstein's book Sacred Economics"
      providers:
-        # must have one login link text for each supported provider
-        login_link_text_facebook: "Facebook"
-        login_link_text_google_oauth2: "Google+"
-        login_link_text_linkedin: "LinkedIn"
-        login_link_text_twitter: "Twitter"
+        facebook: "Facebook"
+        google_oauth2: "Google+"
+        linkedin: "LinkedIn"
+        twitter: "Twitter"
 
   # gift controller
   gifts:
@@ -503,3 +493,12 @@ en:
         invite_api_friends_link_title2: "Use this link to invite your %{apiname} friends to use %{appname}"
         invite_api_friends_link_text2: "Invite friends"
         no_users_was_found_html: "There was not any other %{appname} users. To get started, you should create a few posts<br />with anything you want to share with your friends or with something you are looking<br />for or are missing, and that you think your friends might be able to help you.<br /><br />Invite one or more of your good %{apiname} friends to use %{appname}.<br />Either by sending a personal message with the link below or by using<br />the link below to invite your friends to use Gofreerev. a personal<br />message is the best since many people will reject game invitations."
+
+  # util controller - used for ajax requests
+     do_ajax_tasks:
+        ajax_task_exception: "System error \"%{exception}\" for ajax task \"%{task}\"."
+        ajax_task_invalid_response: "System error. Invalid response from ajax task \"%{task}\". Must be Nil or a valid input to translate." # task, response and exception. response is invalid response from ajax task and exception is exception from translate
+        update_timezone_invalid_user_id: "System error. Invalid user id %{user_id} when updating timezone information"
+        update_timezone_timezone_missing: "System error. Did not receive timezone information from browser/javascript"
+        update_timezone_save_error: "System error. Could not update user timezone information: \"%{errors}\""
+        profile_image_invalid_user: "System error. Invalid user id. %{user_id} when downloading profile picture"

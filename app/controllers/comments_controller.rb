@@ -49,21 +49,21 @@ class CommentsController < ApplicationController
   #   first_comment_id: optional. Used in ajax request from gifts/index page to get more comments for a gift
   def index
     # find gift
-    @error = my_t '.gift_id_is_missing' unless params[:gift_id].to_s != ""
+    @error = t '.gift_id_is_missing' unless params[:gift_id].to_s != ""
     if !@error
       @gift = Gift.find_by_id(params[:gift_id])
-      @error = my_t '.gift_was_not_found' unless @gift
+      @error = t '.gift_was_not_found' unless @gift
     end
     # check if user may see gift. Must be giver, receiver, friend with giver or friend with receiver
     if !@error and !@gift.giver.friend?(@user) and !@gift.receiver.friend?(@user)
       @gift = nil
-      @error = my_t '.gift_not_friends'
+      @error = t '.gift_not_friends'
     end
     if !@error and params[:first_comment_id].to_s != ""
       first_comment = Comment.find_by_id(params[:first_comment_id])
-      @error = my_t '.comment_not_found' if !first_comment
+      @error = t '.comment_not_found' if !first_comment
     end
-    @error = my_t '.gift_comment_mismatch' if !@error and first_comment and first_comment.gift_id != @gift.gift_id
+    @error = t '.gift_comment_mismatch' if !@error and first_comment and first_comment.gift_id != @gift.gift_id
 
     if !@error
       @comments = @gift.comments_with_filter(params[:first_comment_id])

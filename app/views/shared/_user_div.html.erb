@@ -3,7 +3,7 @@
    username = user_div.short_or_full_user_name(@user)
    balance = friend ? format_user_balance(user_div, @user) : nil
 -%>
-<div title="<%= my_t div_title, :username => username, :balance => balance %>"
+<div title="<%= t div_title, :username => username, :balance => balance %>"
      onclick="top.location.href = '<%= url_for(user_div) %>'">
 <% if @page_header -%>
       <table>

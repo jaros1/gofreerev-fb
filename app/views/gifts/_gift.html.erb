@@ -19,8 +19,8 @@
         <% end -%>
       </td>
       <td colspan="2" style="height: 52px; vertical-align: top">
-        <%= link_to my_t('.gift_link_text', format_gift_param(gift)), url_for(gift), :title => (my_t '.gift_link_title') %>
-        <%= my_t('.gift_text_html', format_gift_param(gift)) %>
+        <%= link_to t('.gift_link_text', format_gift_param(gift)), url_for(gift), :title => (t '.gift_link_title') %>
+        <%= t('.gift_text_html', format_gift_param(gift)) %>
         <% if gift.picture == 'Y' and !gift.api_picture_url_on_error_at -%>
             <br/><br/>
             <%= image_tag gift.api_picture_url, :onload => "check_api_picture_url(#{gift.id}, this)" %>
@@ -36,7 +36,7 @@
             <div id="<%= "gift-#{gift.id}-comment-new-status" %>">
               <table>
                 <tr>
-                  <td><%= my_t '.new_deal_check_box_prompt' %></td>
+                  <td><%= t '.new_deal_check_box_prompt' %></td>
                   <td><%= check_box_tag "gift-#{gift.id}-new-deal-check-box", 'x', false, :onclick => "check_uncheck_new_deal_checkbox(this,#{gift.id})" %></td>
                 </tr>
               </table>
@@ -56,12 +56,12 @@
             <table style="border-spacing: 0;">
               <tr id="<%= "gift-#{gift.id}-comment-new-price-tr" %>" style="display: none">
                 <td colspan="2">
-                  <%= f.text_field :price, :size => 10, :id => "gift-#{gift.id}-comment-new-price", :placeholder => my_t('.price_prompt') %>
-                  <%= my_t '.price_free' %> <%= @user.currency %>
+                  <%= f.text_field :price, :size => 10, :id => "gift-#{gift.id}-comment-new-price", :placeholder => t('.price_prompt') %>
+                  <%= t '.price_free' %> <%= @user.currency %>
                 </td>
               </tr>
               <tr>
-                <td><%= f.text_area :comment, :size => '60x1', :placeholder => my_t('.enter_comment'), :onfocus => 'autoresize_text_field(this)', :id => "gift-#{gift.id}-comment-new-textarea" %></td>
+                <td><%= f.text_area :comment, :size => '60x1', :placeholder => t('.enter_comment'), :onfocus => 'autoresize_text_field(this)', :id => "gift-#{gift.id}-comment-new-textarea" %></td>
                 <td><%= f.submit 'Gem', :onclick => "return csv_comment(#{gift.id})" %></td>
               </tr>
             </table>
