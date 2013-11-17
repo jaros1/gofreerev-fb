@@ -199,4 +199,8 @@ module ApplicationHelper
     link_to my_t('shared.invite_friends.invite_friends_link_text1', :app_url => FB_APP_URL), invite_friends_url
   end
 
+  def ajax_tasks?
+    (session[:ajax_tasks] || []).size > 0
+  end
+
 end # ApplicationHelper

@@ -21,8 +21,11 @@ class AuthController < ApplicationController
       tokens[provider] = auth_hash.get_token
       session[:user_ids] = user_ids
       session[:tokens] = tokens
-      # any post login processing is done in util/post_login ajax call
-      flash[:post_login] = { :provider => auth_hash.provider, :image => auth_hash.get_image }
+      # add tasks to be ajax processed after login - see util.do_ajax_tasks
+      session[:ajax_tasks] = [] unless session[:ajax_tasks]
+      session[:ajax_tasks] << "User.update_timezone('#{user.user_id}', params[:timezone])" # timezone from client/javascript
+      image = auth_hash.get_image
+      session[:ajax_tasks] << "User.download_profile_image('#{user.user_id}', '#{image}')" if image.to_s =~ /^https?\:\/\//
       redirect_to '/auth'
       return
     end

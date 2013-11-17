@@ -296,60 +296,86 @@ class User < ActiveRecord::Base
     user
   end # find_or_create_from_auth_hash
 
-  # download and save image
-  # called from util/post_login ajax request after login process has completed
-  def download_profile_image (image)
-    if image.to_s == ""
-      puts "error: no image received from provider / post_login ajax request"
-      return
+  # task from ajax task queue session[:ajax_tasks]- download and save profile picture from provider after login
+  # called from util.do_ajax_tasks after login process has completed
+  # return nil if ok
+  # return array with translate key and options if warning or error
+  def self.download_profile_image (user_id, url)
+    user = User.find_by_user_id(user_id)
+    if true or !user
+      puts "error: invalid user id"
+      return [ '.profile_image_invalid_user', { :user_id => user_id } ]
     end
-    if image !~ /https?\:\/\//
-      puts "error: invalid image #{image} received from provider / post_login ajax request"
-      return
+    if url.to_s == ""
+      puts "error: no image received from provider / post_login ajax request"
+      return [ '.profile_image_blank', { :provider => user.provider } ]
+    end
+    if url !~ /https?\:\/\//
+      puts "error: invalid image #{url} received from provider / post_login ajax request"
+      return [ '.profile_image_invalid_url', { :provider => user.provider, :image => url }]
     end
     # check image type
-    image_type = FastImage.type(image).to_s
+    image_type = FastImage.type(url).to_s
     if !%w(gif jpeg png jpg bmp).index(image_type)
-      puts "warning: unsupported image type #{image_type} for #{image}"
-      return
+      puts "warning: unsupported image type #{image_type} for #{url}"
+      return [ '.profile_image_invalid_type', { :provider => user.provider, :image => url, :image_type => image_type }]
     end
     # prepare work dir for download
-    FileUtils.mkdir_p FileUtils.mkdir_p profile_picture_tmp_os_folder
-    stdout, stderr, status = User.open4('rm *', profile_picture_tmp_os_folder)
+    FileUtils.mkdir_p FileUtils.mkdir_p user.profile_picture_tmp_os_folder
+    stdout, stderr, status = User.open4('rm *', user.profile_picture_tmp_os_folder)
     # puts "rm: stdout = #{stdout}, stderr = #{stderr}, status = #{status} (#{status.class})" if status != 0
     # download image to work dir
-    stdout, stderr, status = User.open4("wget #{image}", profile_picture_tmp_os_folder)
+    stdout, stderr, status = User.open4("wget #{url}", user.profile_picture_tmp_os_folder)
     if status != 0
       puts "image download failed: wget: stdout = #{stdout}, stderr = #{stderr}, status = #{status} (#{status.class})"
-      return
+      error = stderr.to_s.split("\n").last
+      return ['.profile_image_wget_failed', { :provider => user.provider, :image => url, :error => error } ]
     end
     # check download
-    files = Dir.entries(profile_picture_tmp_os_folder).delete_if { |x| ['.', '..'].index(x) }
+    files = Dir.entries(user.profile_picture_tmp_os_folder).delete_if { |x| ['.', '..'].index(x) }
     if files.size != 1
       puts "image download failed. expected 1 image. found #{files.size} images"
-      return
+      return ['.profile_image_count_failed', { :provider => user.provider, :image => url, :count => files.size } ]
     end
     # rename/move image
     old_file_name = files.first
-    if profile_picture_name and profile_picture_name.split('.').last == image_type
-      new_file_name = profile_picture_name # unchanged image type - keep old picture name
+    if user.profile_picture_name and user.profile_picture_name.split('.').last == image_type
+      new_file_name = user.profile_picture_name # unchanged image type - keep old picture name
     else
       new_file_name = (String.generate_random_string(10) + '.' + image_type).last(10).downcase # generate new picture name
     end
-    stdout, stderr, status = User.open4("mv #{old_file_name} ../#{new_file_name}", profile_picture_tmp_os_folder)
+    stdout, stderr, status = User.open4("mv #{old_file_name} ../#{new_file_name}", user.profile_picture_tmp_os_folder)
     if status != 0
       # rename/move failed
       puts "image rename/move failed: stdout = #{stdout}, stderr = #{stderr}, status = #{status} (#{status.class})"
-      return
+      error = stderr.to_s.split("\n").last
+      return ['.profile_image_mv_failed', { :provider => user.provider, :image => url, :error => error } ]
     end
     # download, rename and move ok
-    reload
-    self.profile_picture_name = new_file_name
-    update_attribute('profile_picture_name', new_file_name) if profile_picture_name_changed?
+    user.reload
+    user.profile_picture_name = new_file_name
+    user.update_attribute('profile_picture_name', new_file_name) if user.profile_picture_name_changed?
     # cleanup
-    stdout, stderr, status = User.open4("rmdir tmp", profile_picture_os_folder)
+    stdout, stderr, status = User.open4("rmdir tmp", user.profile_picture_os_folder)
     puts "rmdir: stdout = #{stdout}, stderr = #{stderr}, status = #{status} (#{status.class})" if status != 0
-  end # download_profile_image
+    nil
+  end # self.download_profile_image
+
+  # task from ajax task queue session[:ajax_tasks]- update timezone from client/javascript after login
+  # called from util.do_ajax_tasks - timezone is from params[:timezone]
+  def self.update_timezone(user_id, timezone)
+    user = User.find_by_user_id(user_id)
+    if !user
+      puts "User with user id #{user_id} was not found"
+      return
+    end
+    if timezone.to_s == ""
+      puts "No timezone received from client/javascript (params[:timezone])"
+      return
+    end
+    user.timezone = timezone.to_s.to_i
+    user.save
+  end # self.update_timezone
 
   def usertype
     return nil unless user_id

@@ -426,40 +426,40 @@ class UtilController < ApplicationController
     end
   end # accept_new_deal
 
-  # post login processing - use after login and todo: to get new currency rates
-  # download profile image
-  # get permissions from login provider
-  # get friend lists from login provider
-  # get currency rates for a new date
-  def post_login
-    # todo: to be implemented
-
-    # find user
-    provider = params[:provider]
-    provider = nil unless valid_provider?(provider)
-    user_ids = session[:user_ids] || []
-    user_id = user_ids.find { |user_id2| user_id2.split('/').last == provider } if provider and user_ids.size > 0
-    user = User.find_by_user_id(user_id) if user_id
-
-    # download profile image from provider
-    image = params[:image]
-    msg1 = user.download_profile_image(image) if user and image.to_s != ""
-
-    # update timezone (from browser/javascript) -  (new Date().getTimezoneOffset()) / 60.0
-    # todo: change timezone from Fixnum to Float to allow 0.5 timezone values. "-1" for denmark, "-5.5" for india etc
-    timezone = params[:timezone]
-    if user and timezone.to_s != ""
-      user.timezone = timezone.to_i
-      user.save if user.timezone_changed?
+  # process ajax tasks from session[:ajax_tasks] queue
+  # that is tasks that could slow request/response cycle or information that is not available on server (timezone)
+  # tasks:
+  # - update user timezone from client/javascript after login
+  # - download user profile image from login provider after login
+  # - get permissions from login provider after login
+  # - get friend lists from login provider after login
+  # - get currency rates for a new date
+  # - upload post and optional picture to login provider
+  # todo: task should return nil (ok) or key + options for translate (error). Send any error messages to client
+  def do_ajax_tasks
+    @errors = []
+    session[:ajax_tasks] = [] unless session[:ajax_tasks]
+    while session[:ajax_tasks].size > 0
+      task = session[:ajax_tasks].shift
+      res = eval(task)
+      puts "ajax task #{task}, response = #{res}, no tasks = #{session[:ajax_tasks].size}"
+      next unless res
+      # check response from ajax task. Must be a valid input to translate
+      begin
+        key, options = res
+        my_t key, options
+      rescue Exception => e
+        res = [ '.ajax_task_invalid_response', { :task => task, :error => e.message.to_s }]
+        puts "invalid response from ajax task #{task}. Must be nil or a valid input to translate"
+      end
+      @errors << res
     end
+    if @errors.size == 0
+      render :nothing => true
+      return
+    end
+    # ajax inject errors in browser
+  end # do_ajax_tasks
 
-    # run any provider specific post login methods
-    method = "post_login_#{provider}"
-    eval(method) if respond_to? method.to_sym
-
-    # todo: maybe send error messages to flash notice div in page header
-    # todo: maybe other minor changes. Change number of friends in mouse over text etc.
-    render :nothing => true
-  end # post_login
 
 end # UtilController

@@ -19,12 +19,10 @@
           <%= f.text_field :new_currency %>
       <% end %>
     </div>
-    <% if flash[:post_login] -%>
+    <% if ajax_tasks? -%>
         <%# Hidden form for post login processing (for example downloading profile image -%>
-        <div id="post_login_div" style="display:none">
-          <%= form_tag url_for(:controller => :util, :action => :post_login), :remote => true, :id => 'post_login_form' do %>
-              <%= hidden_field_tag :provider, flash[:post_login][:provider] %>
-              <%= hidden_field_tag :image, flash[:post_login][:image] %>
+        <div id="ajax_tasks_div" style="display:none">
+          <%= form_tag url_for(:controller => :util, :action => :do_ajax_tasks), :remote => true, :id => 'ajax_tasks_form' do %>
               <%= hidden_field_tag :timezone, "" %>
           <% end %>
         </div>
@@ -40,15 +38,16 @@
     <div id="notification"><%= h flash[:notice] %></div>
     <br/>
 <% end -%>
+<table id="ajax_tasks_errors"></table>
 <!-- the page -->
 <%= yield %>
 <!-- page footer -->
 <%= render :partial => 'layouts/page_footer/page_footer' -%>
-<% if flash[:post_login] -%>
-    <%# trigger hidden form for post login processing (for example downloading profile image -%>
+<% if ajax_tasks? -%>
+    <%# trigger hidden form for some ajax processing - for example downloading profile image from login provider -%>
     <script>
         document.getElementById("timezone").value = (new Date().getTimezoneOffset()) / 60.0 ;
-        $('#post_login_form').trigger('submit.rails');
+        $('#ajax_tasks_form').trigger('submit.rails');
     </script>
 <% end -%>
 </body>

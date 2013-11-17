@@ -1,0 +1,6 @@
+<% for error in @errors do -%>
+    <% key, options = error ; puts "key = #{key}, options = #{options}" -%>
+    <tr>
+      <td><%= my_t key, options %></td>
+    </tr>
+<% end -%>
