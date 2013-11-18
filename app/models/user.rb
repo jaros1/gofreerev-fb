@@ -252,7 +252,9 @@ class User < ActiveRecord::Base
     return '.callback_token_missing' unless token
     uid = auth_hash.get_uid
     return '.callback_uid_missing' unless uid
-    user_name = auth_hash.get_user_name
+    puts "auth_hash = #{auth_hash}"
+    puts "user_name = #{auth_hash.get_user_name}"
+    user_name = auth_hash.get_user_name # todo: should escape username - ERB::Util.html_escape(user_name) does not work from activemodel
     return '.callback_user_name_missing' unless user_name
     # missing image a minor problem
     image = auth_hash.get_image
