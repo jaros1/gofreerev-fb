@@ -81,10 +81,11 @@ en:
         invite_friends_message_title: "Invite your friends to play %{appname}"
         invite_friends_message_body: "Try a game about helping each other and sharing each others resources in a new different way and a game with a new kind of money that will change our world inspired by the ideas of Charles Eisenstein's book Sacred Economics"
      providers:
-        facebook: "Facebook"
-        google_oauth2: "Google+"
-        linkedin: "LinkedIn"
-        twitter: "Twitter"
+        # provider lowercase name - used in error messages
+        facebook: "facebook"
+        google_oauth2: "google+"
+        linkedin: "linkedin"
+        twitter: "twitter"
 
   # gift controller
   gifts:
@@ -502,3 +503,4 @@ en:
         update_timezone_timezone_missing: "System error. Did not receive timezone information from browser/javascript"
         update_timezone_save_error: "System error. Could not update user timezone information: \"%{errors}\""
         profile_image_invalid_user: "System error. Invalid user id. %{user_id} when downloading profile picture"
+        profile_image_invalid_url: "Invalid profile picture url %{image} received from %{provider}" # image and provider - image must be an url (http or https)

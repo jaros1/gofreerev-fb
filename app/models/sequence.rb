@@ -67,5 +67,4 @@ class Sequence < ActiveRecord::Base
     s.save!
   end # self.set_last_exchange_rate_date
 
-
 end

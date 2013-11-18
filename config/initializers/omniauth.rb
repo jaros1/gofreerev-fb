@@ -1,6 +1,7 @@
 # http://stackoverflow.com/questions/13112430/find-loaded-providers-for-omniauth
 # add OmniAuth::Builder.providers method to return list of loaded providers
 module OmniAuth
+
   class Builder < ::Rack::Builder
     def provider_patch(klass, *args, &block)
       @@providers ||= []
@@ -91,3 +92,6 @@ class OmniAuth::AuthHash
     image
   end
 end # OmniAuth::AuthHash
+
+OmniAuth.config.on_failure = AuthController.action(:oauth_failure)
+

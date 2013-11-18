@@ -437,27 +437,28 @@ class UtilController < ApplicationController
   # - upload post and optional picture to login provider
   # todo: task should return nil (ok) or key + options for translate (error). Send any error messages to client
   def do_ajax_tasks
+    # delete old ajax tasks
+    AjaxTask.where("created_at < ?", 2.minute.ago).destroy_all
     @errors = []
-    session[:ajax_tasks] = [] unless session[:ajax_tasks]
-    while session[:ajax_tasks].size > 0
-      task = session[:ajax_tasks].shift
+    AjaxTask.where("session_id = ?", session[:session_id]).order("id").each do |at|
+      at.destroy
       begin
-        res = eval(task)
+        res = eval(at.task)
       rescue Exception => e
-        puts "error when processing ajax task #{task}"
+        puts "error when processing ajax task #{at.task}"
         puts "Exception: #{e.message.to_s}"
         puts "Backtrace: " + e.backtrace.join("\n")
-        res = [ '.ajax_task_exception', { :task => task, :exception => e.message.to_s }]
+        res = [ '.ajax_task_exception', { :task => at.task, :exception => e.message.to_s }]
       end
-      # puts "ajax task #{task}, response = #{res}, no tasks = #{session[:ajax_tasks].size}"
+      # puts "ajax task #{at.task}, response = #{res}, no tasks = #{session[:ajax_tasks].size}"
       next unless res
       # check response from ajax task. Must be a valid input to translate
       begin
         key, options = res
         t key, options
       rescue Exception => e
-        puts "invalid response from ajax task #{task}. Must be nil or a valid input to translate. Response: #{res}"
-        res = [ '.ajax_task_invalid_response', { :task => task, :response => res, :exception => e.message.to_s }]
+        puts "invalid response from ajax task #{at.task}. Must be nil or a valid input to translate. Response: #{res}"
+        res = [ '.ajax_task_invalid_response', { :task => at.task, :response => res, :exception => e.message.to_s }]
       end
       @errors << res
     end
@@ -465,7 +466,6 @@ class UtilController < ApplicationController
       render :nothing => true
       return
     end
-    # ajax inject errors in browser
   end # do_ajax_tasks
 
 

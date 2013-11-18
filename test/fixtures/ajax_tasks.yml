@@ -1,0 +1,9 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+one:
+  sessionid: 1
+  task: MyText
+
+two:
+  sessionid: 1
+  task: MyText

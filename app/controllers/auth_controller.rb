@@ -21,11 +21,11 @@ class AuthController < ApplicationController
       tokens[provider] = auth_hash.get_token
       session[:user_ids] = user_ids
       session[:tokens] = tokens
-      # add tasks to be ajax processed after login - see util.do_ajax_tasks
-      session[:ajax_tasks] = [] unless session[:ajax_tasks]
-      session[:ajax_tasks] << "User.update_timezone('#{user.user_id}', params[:timezone])" # timezone from client/javascript
+      # add tasks to be ajax processed after login
       image = auth_hash.get_image
-      session[:ajax_tasks] << "User.download_profile_image('#{user.user_id}', '#{image}')" if image.to_s =~ /^https?\:\/\//
+      AjaxTask.add_task(session[:session_id], "User.update_timezone('#{user.user_id}', params[:timezone])") # timezone from client/javascript
+      AjaxTask.add_task(session[:session_id], "User.download_profile_image('#{user.user_id}', '#{image}')")
+      # todo: add provider tasks (get permissions, friend lists)
       redirect_to '/auth'
       return
     end
@@ -33,6 +33,10 @@ class AuthController < ApplicationController
     key, options = user
     puts "login_error: #{t(key, options)}"
   end # create
+
+  def oauth_failure
+
+  end
 
   protected
 

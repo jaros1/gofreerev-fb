@@ -306,11 +306,11 @@ class User < ActiveRecord::Base
       puts "error: invalid user id"
       return [ '.profile_image_invalid_user', { :user_id => user_id } ]
     end
-    if true or url.to_s == ""
+    if url.to_s == ""
       puts "error: no image received from provider / post_login ajax request"
       return [ '.profile_image_blank', { :provider => user.provider } ]
     end
-    if url !~ /https?\:\/\//
+    if true or url !~ /https?\:\/\//
       puts "error: invalid image #{url} received from provider / post_login ajax request"
       return [ '.profile_image_invalid_url', { :provider => user.provider, :image => url }]
     end

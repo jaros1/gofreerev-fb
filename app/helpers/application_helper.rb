@@ -8,7 +8,7 @@ module ApplicationHelper
   end
 
   # link_to helpers
-
+  # todo: link to api helpers should be more generic. For example use translate keys
   def link_to_facebook
     link_to 'Facebook', 'javascript: {top.location.href="http://www.facebook.com/"}'
   end
@@ -206,7 +206,7 @@ module ApplicationHelper
   end
 
   def ajax_tasks?
-    (session[:ajax_tasks] || []).size > 0
+    AjaxTask.where("session_id = ?", session[:session_id]).count > 0
   end
 
 end # ApplicationHelper

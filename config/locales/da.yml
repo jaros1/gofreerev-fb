@@ -88,10 +88,11 @@ da:
         invite_friends_message_title: "Inviter dine venner til %{appname}"
         invite_friends_message_body: "Prøv et spil om at hjælpe hinanden og dele hinandens resourcer på en ny anderledes måde og et spil med en ny slags penge der vil forandre vores verden inspireret af ideer fra Charles Eisensteins bog Sacred Economics"
      providers:
-        facebook: "Facebook"
-        google_oauth2: "Google+"
-        linkedin: "LinkedIn"
-        twitter: "Twitter"
+        # provider lowercase name - used in error messages
+        facebook: "facebook"
+        google_oauth2: "google+"
+        linkedin: "linkedin"
+        twitter: "twitter"
 
   # gift controller - general texts
   gifts:
@@ -513,3 +514,4 @@ da:
         update_timezone_save_error: "Systemfejl. Kunne ikke opdatere bruger information om tidszone: \"%{errors}\"" # error = user errors.
         profile_image_invalid_user: "Systemfejl. Ugyldigt bruger id. %{user_id} ved download af profil billede" # user_id
         profile_image_blank: "Intet profil billede modtaget fra %{provider}" # provider
+        profile_image_invalid_url: "Ugyldig profil billede url %{image} modtaget fra %{provider}" # image and provider - image must be an url (http or https)
