@@ -87,6 +87,41 @@ en:
         linkedin: "linkedin"
         twitter: "twitter"
 
+  # auth controller
+  auth:
+     oauth_failure:
+        authentication_failure: "%{provider} authentication failure! %{type}: %{message}"
+
+  # comments controller
+  comments:
+     index:
+        gift_id_is_missing: "Invalid request. Gift_id is missing"
+        gift_was_not_found: "Invalid request. Gift was not found"
+        gift_not_friends: "Invalid request. You are not allowed to see this gift"
+        comment_not_found: "Invalid request. Comment was not found"
+        gift_comment_mismatch: "Invalid request. Gift and comment does not match"
+     comments2:
+        like_gift: "Like"
+        unlike_gift: "Unlike"
+        follow_gift: "Follow"
+        unfollow_gift: "Don't follow"
+        hide_gift: "Hide post"
+        confirm_hide_gift: "Hide post?"
+        delete_gift: "Delete post"
+        confirm_delete_gift_1: "Delete post? Note that %{user_name} and your balance will change with %{price} %{currency} if this post is deleted" # currency, price and user_name. user_name is short user name for other user in closed deal
+        confirm_delete_gift_2: "Delete post?"
+        show_older_comment: "Show older comment"
+        show_older_comments: "Show %{no_older_comments} older comments"
+     comment_status:
+        cancel_new_deal: "Cancel"
+        confirm_cancel_new_deal: "Cancel proposal?"
+        accept_new_deal: "Accept"
+        confirm_accept_new_deal: "Accept proposal?"
+        reject_new_deal: "Reject"
+        confirm_reject_new_deal: "Reject proposal?"
+        delete_comment: "Delete"
+        confirm_delete_comment: "Delete comment?"
+
   # gift controller
   gifts:
      create:
@@ -170,37 +205,6 @@ en:
      show:
         invalid_gift_id: "Invalid request. Unknown post id"
         no_access: "Invalid request. You are not allowed to see this post"
-
-
-  # comments controller
-  comments:
-     index:
-        gift_id_is_missing: "Invalid request. Gift_id is missing"
-        gift_was_not_found: "Invalid request. Gift was not found"
-        gift_not_friends: "Invalid request. You are not allowed to see this gift"
-        comment_not_found: "Invalid request. Comment was not found"
-        gift_comment_mismatch: "Invalid request. Gift and comment does not match"
-     comments2:
-        like_gift: "Like"
-        unlike_gift: "Unlike"
-        follow_gift: "Follow"
-        unfollow_gift: "Don't follow"
-        hide_gift: "Hide post"
-        confirm_hide_gift: "Hide post?"
-        delete_gift: "Delete post"
-        confirm_delete_gift_1: "Delete post? Note that %{user_name} and your balance will change with %{price} %{currency} if this post is deleted" # currency, price and user_name. user_name is short user name for other user in closed deal
-        confirm_delete_gift_2: "Delete post?"
-        show_older_comment: "Show older comment"
-        show_older_comments: "Show %{no_older_comments} older comments"
-     comment_status:
-        cancel_new_deal: "Cancel"
-        confirm_cancel_new_deal: "Cancel proposal?"
-        accept_new_deal: "Accept"
-        confirm_accept_new_deal: "Accept proposal?"
-        reject_new_deal: "Reject"
-        confirm_reject_new_deal: "Reject proposal?"
-        delete_comment: "Delete"
-        confirm_delete_comment: "Delete comment?"
 
   # inbox controller
   inbox:
@@ -496,6 +500,7 @@ en:
         no_users_was_found_html: "There was not any other %{appname} users. To get started, you should create a few posts<br />with anything you want to share with your friends or with something you are looking<br />for or are missing, and that you think your friends might be able to help you.<br /><br />Invite one or more of your good %{apiname} friends to use %{appname}.<br />Either by sending a personal message with the link below or by using<br />the link below to invite your friends to use Gofreerev. a personal<br />message is the best since many people will reject game invitations."
 
   # util controller - used for ajax requests
+  util:
      do_ajax_tasks:
         ajax_task_exception: "System error \"%{exception}\" for ajax task \"%{task}\"."
         ajax_task_invalid_response: "System error. Invalid response from ajax task \"%{task}\". Must be Nil or a valid input to translate." # task, response and exception. response is invalid response from ajax task and exception is exception from translate

@@ -400,4 +400,11 @@ class ApplicationController < ActionController::Base
   end
   helper_method "valid_provider?"
 
+  private
+  def my_provider (provider)
+    return provider if !valid_provider?(provider) # unknown provider or already translated
+    t "shared.providers.#{provider}"
+  end
+  helper_method :my_provider
+
 end # ApplicationController

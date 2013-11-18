@@ -35,8 +35,36 @@ class AuthController < ApplicationController
   end # create
 
   def oauth_failure
-
-  end
+    env = request.env
+    # puts "env.keys = #{env.keys.sort.join(', ')}"
+    # puts "env = #{env} (#{env.class})"
+    error = env['omniauth.error']
+    type = env['omniauth.error.type']
+    strategy = env['omniauth.error.strategy']
+    puts "error = #{error} (#{error.class})"
+    puts "error.methods = #{error.methods.sort.join(', ')}"
+    puts "error.message = #{error.message} (#{error.message.class})"
+    # puts "type = #{type}"
+    # puts "strategy = #{strategy}"
+    # puts "strategy.methods = #{strategy.methods.sort.join(', ')}"
+    # puts "strategy.name = #{strategy.name}"
+    #error = :
+    #    {
+    #        "errorCode": 0,
+    #    "message": "Unable to verify access token",
+    #    "requestId": "K7SXSRYQUA",
+    #    "status": 401,
+    #    "timestamp": 1384762283211
+    #}
+    #type = invalid_credentials
+    #strategy = #<OmniAuth::Strategies::LinkedIn:0xb6480cb8>
+    #strategy.name = linkedin
+    message = $1 if error.message =~ /"message": "(.*?)"/
+    message = error.message unless message
+    # flash[:notice] = "Authentication failure! #{type}: #{message}"
+    flash[:notice] = t '.authentication_failure', :provider => my_provider(strategy.name), :type => type, :message => message
+    redirect_to '/auth'
+  end # oauth_failure
 
   protected
 

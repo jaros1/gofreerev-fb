@@ -132,10 +132,6 @@ module ApplicationHelper
     sanitize(text.to_s).gsub(/\n/, '<br/>').html_safe
   end # my_sanitize
 
-  def my_provider (provider)
-    return provider if !valid_provider?(provider) # unknown provider or already translated
-    t "shared.providers.#{provider}"
-  end
 
   # todo: translate value for key provider.
   def my_sanitize_hash (hash)

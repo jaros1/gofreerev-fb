@@ -194,3 +194,15 @@
 56) md5 alternatives?
 
 57) add table for ajax tasks
+
+58) get error messages after failed provider callback
+    I, [2013-11-18T08:30:58.396769 #2492]  INFO -- omniauth: (linkedin) Callback phase initiated.
+    E, [2013-11-18T08:31:00.025753 #2492] ERROR -- omniauth: (linkedin) Authentication failure! invalid_credentials: OAuth2::Error, :
+    {
+      "errorCode": 0,
+      "message": "Unable to verify access token",
+      "requestId": "A9ULXQJ9Q8",
+      "status": 401,
+      "timestamp": 1384759859930
+    }
+
