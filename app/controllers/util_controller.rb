@@ -1,3 +1,5 @@
+require 'google/api_client'
+
 class UtilController < ApplicationController
 
   # update new message count in menu line in page header
@@ -536,7 +538,7 @@ class UtilController < ApplicationController
           friend_user.save!
         end
         friends_hash[friend_user_id] = {:user => friend_user, :old_name => friend_user.user_name, :old_api_friend => 'N', :new_record => true}
-      end
+     google_oauth2 end
       friends_hash[friend_user_id][:new_name] = friend["name"]
       friends_hash[friend_user_id][:new_api_friend] = 'Y'
     end # each
@@ -605,6 +607,63 @@ class UtilController < ApplicationController
     nil
 
   end # post_login_facebook
+
+
+  # post login ajax task for google+ - todo: use for .....
+  # using google-api-client
+  # called from do_ajax_tasks - ajax requests after login
+  # must return nil or a valid input to translate
+  private
+  def post_login_google_oauth2
+    provider = "google_oauth2"
+    puts "post_login_#{provider}"
+
+    # find user id and token for facebook user
+    login_user_id = (session[:user_ids] || []).find { |user_id2| user_id2.split('/').last == provider }
+    return ['.post_login_user_id_not_found', {:provider => provider}] unless login_user_id
+    login_user = User.find_by_user_id(login_user_id)
+    return ['.post_login_unknown_user_id', {:provider => provider, :user_id => login_user_id}] unless login_user
+    token = (session[:tokens] || {})[provider]
+    return ['.post_login_token_not_found', {:provider => provider}] if token.to_s == ""
+
+    puts "google token = #{token}"
+
+    client = Google::APIClient.new(
+        :application_name => 'Gofreerev',
+        :application_version => '0.1'
+    )
+    plus = client.discovered_api('plus')
+    client.authorization.client_id = ENV['GOFREEREV_GP_APP_ID']
+    client.authorization.client_secret = ENV['GOFREEREV_GP_APP_SECRET']
+    client.authorization.access_token = token
+    result = client.execute(:api_method => plus.people.list,
+                            :parameters => {'collection' => 'visible', 'userId' => 'me'}
+                            )
+    puts "result = #{result}"
+    puts "result.error_message = #{result.error_message}"
+    #result.error_message = {
+    #    "kind": "plus#peopleFeed",
+    #    "etag": "\"QR7ccvNi-CeX9lFTHRm3szTVkpo/lZDO4-dFZ0NFLfhR92UMMY8uQCc\"",
+    #    "title": "Google+ List of Visible People",
+    #    "totalItems": 14,
+    #    "items": [
+    #    {
+    #        "kind": "plus#person",
+    #    "etag": "\"QR7ccvNi-CeX9lFTHRm3szTVkpo/2S9G8Bdu4XoaBMyXkF6YMgpD_U0\"",
+    #    "objectType": "person",
+    #    "id": "114902618678942596705",
+    #    "displayName": "Birgitte Pedersen",
+    #    "url": "https://plus.google.com/114902618678942596705",
+    #    "image": {
+    #    "url": "https://lh5.googleusercontent.com/-JssupQoWvMw/AAAAAAAAAAI/AAAAAAAAAJY/3YU5jnmGWDg/photo.jpg?sz=50"
+    #}
+    #},
+    #    {
+    #    .....
+
+    raise "not implemented"
+
+  end # post_login_google_oauth2
 
 
 end # UtilController
