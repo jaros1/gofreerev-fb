@@ -91,66 +91,59 @@ class ExchangeRate < ActiveRecord::Base
     to_amount
   end # self.exchange
 
+  def self.fetch_exchange_rates?
 
-  # called from last line in application.html.erb to fetch new exchange rates.
-  # about 90 exchange rates is saved every day
-  def self.fetch_exchange_rates
     # check if currency rates for today have already been read and saved in db
     today = Date.today.to_yyyymmdd
     s = Sequence.get_last_exchange_rate_date
-    return if s and s == today # currency rates are up-to-date
+    return false if s and s == today # currency rates are up-to-date
 
     # currency rates are not up-to-date
     # max request currency rates fromm bank once every 6 hours (about 165 currency lookups in each request)
     s = Sequence.get_last_money_bank_request
-    return if s and s >= Time.current_hour_no - 6 # error in last default money bank lookup - wait
+    return false if s and s >= Time.current_hour_no - 6 # error in last default money bank lookup - wait
+
+    true
+  end # self.fetch_exchange_rates?
+
+
+  # called from ajax task queue
+  # about 90 new exchange rates each day
+  def self.fetch_exchange_rates
+    return nil unless ExchangeRate.fetch_exchange_rates? # exchange rates up-to-date or 6 hour timeout
+
+    # currency rates are not up-to-date
     # prevent simultaneous currency exchange rate lookup
     Sequence.set_last_money_bank_request(Time.current_hour_no)
 
-    # run in sub process with no wait so that current user don't has to wait
-    ExchangeRate.fork_with_new_connection do
+    # get all available currency rates - about 90 currency rates
+    from = BASE_CURRENCY
+    usd_rates = ExchangeRate.get_all_exchange_rates(from)
+    if usd_rates.size < 50
+      puts "Error: found less than 50 exchange rates from default money bank"
+      puts "rates = #{usd_rates}"
+      puts "next currency request in 6 hours"
+      # ExchangeRate.set_last_money_bank_request(Time.current_hour_no) # already set
+      return ['.too_few_exchange_rates', {:bank => Money.default_bank.class.name.split('::').last, :expected => 50, :found => usd_rates.size} ]
+    end
 
-      begin
+    # save currency rates and update sequence
+    transaction do
+      usd_rates.each do |to, rate|
+        er = ExchangeRate.new
+        er.date = today
+        er.from_currency = from
+        er.to_currency = to
+        er.exchange_rate = rate
+        er.save!
+      end # each
+      # create/update last_exchange_rate_date - used when caching exchange rates of "today
+      Sequence.set_last_money_bank_request(nil)
+      Sequence.set_last_exchange_rate_date(today)
+    end # transaction
 
-        # wait until actual page has been rendered to user
-        sleep(2)
+    nil
 
-          # necessary to manage activerecord connections since we are forking
-        ActiveRecord::Base.connection.reconnect!
-
-        # get all available currency rates - about 90 currency rates
-        from = BASE_CURRENCY
-        usd_rates = ExchangeRate.get_all_exchange_rates(from)
-        if usd_rates.size < 50
-          puts "Error: found less than 50 exchange rates from default money bank"
-          puts "rates = #{usd_rates}"
-          puts "next currency request in 6 hours"
-          # ExchangeRate.set_last_money_bank_request(Time.current_hour_no) # already set
-          return
-        end
-
-        # save currency rates and update sequence
-        transaction do
-          usd_rates.each do |to, rate|
-            er = ExchangeRate.new
-            er.date = today
-            er.from_currency = from
-            er.to_currency = to
-            er.exchange_rate = rate
-            er.save!
-          end # each
-          # create/update last_exchange_rate_date - used when caching exchange rates of "today
-          Sequence.set_last_money_bank_request(nil)
-          Sequence.set_last_exchange_rate_date(today)
-        end # transaction
-      rescue Exception => e
-        puts "ExchangeRate.fetch_exchange_rates"
-        puts "Error when fetching and saving exchange rates from default money bank"
-        puts "Exception: #{e.message.to_s}"
-        puts "Backtrace: " + e.backtrace.join("\n")
-      end # begin
-
-    end # fork_with_new_connection
   end # fetch_exchange_rates
 
 

@@ -520,3 +520,4 @@ da:
         profile_image_wget_failed: "Download af profil billede fra %{provider} fejlede: %{error}. Url til profil billede var \"%{image}\""
         profile_image_count_failed: "Systemfejl. Download af profil billede fra %{provider} fejlede. Forventede et profil billede. Fandt %{count} profil billeder. Url var \"%{image}\""
         profile_image_mv_failed: "Systemfejl. Kunne ikke indsætte nyt profil billede modtaget fra %{provider}: %{error}"
+        too_few_exchange_rates: "Advarsel. Opslag af dagens valuta kurser fra %{bank} fejlede. Forventede >= %{expected} kurser. Modtag %{found} kurser"

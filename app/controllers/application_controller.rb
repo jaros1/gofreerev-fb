@@ -306,6 +306,8 @@ class ApplicationController < ActionController::Base
     end
     puts "fetch_user: @user_currency_separator = #{@user_currency_separator}, @user_currency_delimiter = #{@user_currency_delimiter}"
 
+    # get new exchange rates? send to ajax task queue
+    AjaxTask.add_task(session[:session_id], 'ExchangeRate.fetch_exchange_rates') if ExchangeRate.fetch_exchange_rates?
   end # fetch_user
 
   private
