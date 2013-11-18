@@ -174,20 +174,9 @@
     - linked:
     - twitter:
 
-52) Provider API requests should be processes batch
-    check out http://4loc.wordpress.com/2010/03/10/background-jobs-in-ruby-on-rails/
-    a solution could also be ajax call from client.
-    For example facebook: download profile picture, refresh permissions, refresh friends.
-    flash[:post_login] = provider => ajax request from page header for post provider processing
-
 53) allow .5 timezones. Timezone new is a Fixnum. "-1" for denmark. "-5.5" for india.
 
-54) rename util/post_login to util/post_response
-    remove parameters from util/post_response to session
-    add post_response queue
-    it is not only post_login processing
-    get new exchange rates for a new date
-    post picture to multiple providers
-
 56) md5 alternatives?
+
+57) ajax task for each provider.
 

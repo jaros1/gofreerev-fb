@@ -22,10 +22,12 @@ class AuthController < ApplicationController
       session[:user_ids] = user_ids
       session[:tokens] = tokens
       # add tasks to be ajax processed after login
+      # todo: add helper add_ajax_task
       image = auth_hash.get_image
-      AjaxTask.add_task(session[:session_id], "User.update_timezone('#{user.user_id}', params[:timezone])") # timezone from client/javascript
-      AjaxTask.add_task(session[:session_id], "User.download_profile_image('#{user.user_id}', '#{image}')")
-      # todo: add provider tasks (get permissions, friend lists)
+      post_login_task_provider = "post_login_#{provider}" # private method in UtilController
+      add_ajax_task "User.update_timezone('#{user.user_id}', params[:timezone])" # timezone from client/javascript
+      add_ajax_task "User.download_profile_image('#{user.user_id}', '#{image}')"
+      add_ajax_task post_login_task_provider if UtilController.new.private_methods.index(post_login_task_provider.to_sym)
     else
       # login failed
       key, options = user

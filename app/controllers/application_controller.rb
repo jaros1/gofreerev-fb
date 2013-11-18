@@ -307,7 +307,7 @@ class ApplicationController < ActionController::Base
     puts "fetch_user: @user_currency_separator = #{@user_currency_separator}, @user_currency_delimiter = #{@user_currency_delimiter}"
 
     # get new exchange rates? send to ajax task queue
-    AjaxTask.add_task(session[:session_id], 'ExchangeRate.fetch_exchange_rates') if ExchangeRate.fetch_exchange_rates?
+    add_ajax_task 'ExchangeRate.fetch_exchange_rates' if ExchangeRate.fetch_exchange_rates?
   end # fetch_user
 
   private
@@ -408,5 +408,10 @@ class ApplicationController < ActionController::Base
     t "shared.providers.#{provider}"
   end
   helper_method :my_provider
+
+  private
+  def add_ajax_task (task)
+    AjaxTask.add_task(session[:session_id], task)
+  end
 
 end # ApplicationController

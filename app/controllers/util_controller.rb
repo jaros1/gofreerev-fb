@@ -468,5 +468,11 @@ class UtilController < ApplicationController
     end
   end # do_ajax_tasks
 
+  private
+  def post_login_facebook
+    puts "post_login_facebook"
+    nil
+  end
+
 
 end # UtilController

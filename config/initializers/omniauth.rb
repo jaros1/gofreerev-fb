@@ -20,8 +20,14 @@ end # OmniAuth
 
 # setup list of providers to be used for authorization. Should be API with "friend-liste"
 # providers: https://github.com/intridea/omniauth/wiki/List-of-Strategies
-# add providers to GemFile and locales
-# add locales for supported providers in todo:
+# tasks when adding a new provider:
+#  1) add provider to GemFile
+#  2) add provider here
+#  3) add any provider specific methods to OmniAuth::AuthHash. See config/initializers/omniauth_<provider>.rb
+#  4) add provider to locals
+#     a) shared/providers with lowercase provider name used in messages
+#  5) add post_login task to UtilController.post_login_<provider> if any (get friend lists, permissions etc)
+#  6) todo: add methods to post status and pictures on provider wall if any. See xxxxxxx
 Rails.application.config.middleware.use OmniAuth::Builder do
   provider :facebook,      ENV['GOFREEREV_FB_APP_ID'], ENV['GOFREEREV_FB_APP_SECRET'], :scope => "", :image_size => :normal, :info_fields => "name,permissions,friends,picture,timezone"
   provider :google_oauth2, ENV['GOFREEREV_GP_APP_ID'], ENV['GOFREEREV_GP_APP_SECRET']
