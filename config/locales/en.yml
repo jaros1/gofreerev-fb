@@ -91,6 +91,8 @@ en:
   auth:
      oauth_failure:
         authentication_failure: "%{provider} authentication failure! %{type}: %{message}"
+     create:
+        find_or_create_from_auth_hash: "System error. Invalid response from user update after login"
 
   # comments controller
   comments:
@@ -508,4 +510,8 @@ en:
         update_timezone_timezone_missing: "System error. Did not receive timezone information from browser/javascript"
         update_timezone_save_error: "System error. Could not update user timezone information: \"%{errors}\""
         profile_image_invalid_user: "System error. Invalid user id. %{user_id} when downloading profile picture"
-        profile_image_invalid_url: "Invalid profile picture url %{image} received from %{provider}" # image and provider - image must be an url (http or https)
+        profile_image_invalid_url: "Invalid profile picture url \"%{image}\" received from %{provider}" # image and provider - image must be an url (http or https)
+        profile_image_invalid_type: "Warning. Profile picture type %{image_type} from %{provider} is not supported. Url to profile picture was \"%{image}\""
+        profile_image_wget_failed: "Profile picture download from %{provider} failed: %{error}. Url was \"%{image}\""
+        profile_image_count_failed: "Profile picture download from %{provider} failed. Expected one profile picture. Found %{count} profile pictures. Url was \"%{image}\""
+        profile_image_mv_failed: "System error. Could not insert new profile picture received from %{provider}: %{error}"

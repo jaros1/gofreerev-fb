@@ -92,11 +92,8 @@ da:
   auth:
      oauth_failure:
         authentication_failure: "%{provider} login fejlede! %{type}: %{message}"
-     index:
-        log_in_link_text_facebook: "Log in med facebook"
-        log_in_link_text_google_oauth2: "Log in med google+"
-        log_in_link_text_linkedin: "Log in med linkedin"
-        log_in_link_text_twitter: "Log in med twitter"
+     create:
+        find_or_create_from_auth_hash: "System fejl. Ugyldigt svar fra bruger opdatering efter login."
 
   # comments controller
   comments:
@@ -518,4 +515,8 @@ da:
         update_timezone_save_error: "Systemfejl. Kunne ikke opdatere bruger information om tidszone: \"%{errors}\"" # error = user errors.
         profile_image_invalid_user: "Systemfejl. Ugyldigt bruger id. %{user_id} ved download af profil billede" # user_id
         profile_image_blank: "Intet profil billede modtaget fra %{provider}" # provider
-        profile_image_invalid_url: "Ugyldig profil billede url %{image} modtaget fra %{provider}" # image and provider - image must be an url (http or https)
+        profile_image_invalid_url: "Ugyldig profil billede url \"%{image}\" modtaget fra %{provider}" # image and provider - image must be an url (http or https)
+        profile_image_invalid_type: "Advarsel. Profil billede type %{image_type} modtaget fra %{provider} er ikke understøttet. Url til profil billede var \"%{image}\""
+        profile_image_wget_failed: "Download af profil billede fra %{provider} fejlede: %{error}. Url til profil billede var \"%{image}\""
+        profile_image_count_failed: "Systemfejl. Download af profil billede fra %{provider} fejlede. Forventede et profil billede. Fandt %{count} profil billeder. Url var \"%{image}\""
+        profile_image_mv_failed: "Systemfejl. Kunne ikke indsætte nyt profil billede modtaget fra %{provider}: %{error}"

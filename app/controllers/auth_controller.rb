@@ -26,12 +26,17 @@ class AuthController < ApplicationController
       AjaxTask.add_task(session[:session_id], "User.update_timezone('#{user.user_id}', params[:timezone])") # timezone from client/javascript
       AjaxTask.add_task(session[:session_id], "User.download_profile_image('#{user.user_id}', '#{image}')")
       # todo: add provider tasks (get permissions, friend lists)
-      redirect_to '/auth'
-      return
+    else
+      # login failed
+      key, options = user
+      begin
+        flash[:nootice] = t key, options
+      rescue Exception => e
+        puts "invalid response from User.find_or_create_from_auth_hash. Must be nil or a valid input to translate. Response: #{user}"
+        flash[:notice] = t '.find_or_create_from_auth_hash', :response => user, :exception => e.message.to_s
+      end
     end
-    # login not ok
-    key, options = user
-    puts "login_error: #{t(key, options)}"
+    redirect_to '/auth'
   end # create
 
   def oauth_failure

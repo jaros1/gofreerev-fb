@@ -292,7 +292,7 @@ class User < ActiveRecord::Base
       user.currency = currency
     end # outer if
 
-    user.save
+    user.save!
     user
   end # find_or_create_from_auth_hash
 
@@ -310,11 +310,10 @@ class User < ActiveRecord::Base
       puts "error: no image received from provider / post_login ajax request"
       return [ '.profile_image_blank', { :provider => user.provider } ]
     end
-    if true or url !~ /https?\:\/\//
+    if url !~ /https?\:\/\//
       puts "error: invalid image #{url} received from provider / post_login ajax request"
       return [ '.profile_image_invalid_url', { :provider => user.provider, :image => url }]
     end
-    raise "test error handling in do_ajax_tasks"
     # check image type
     image_type = FastImage.type(url).to_s
     if !%w(gif jpeg png jpg bmp).index(image_type)
