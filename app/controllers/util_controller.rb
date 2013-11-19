@@ -645,40 +645,53 @@ class UtilController < ApplicationController
       client.authorization.client_id = ENV['GOFREEREV_GP_APP_ID']
       client.authorization.client_secret = ENV['GOFREEREV_GP_APP_SECRET']
       client.authorization.access_token = token
-      result = client.execute(:api_method => plus.people.list,
-                              :parameters => {'collection' => 'visible', 'userId' => 'me'}
-      )
-      puts "result = #{result}"
-      puts "result.error_message.class = #{result.error_message.class}"
-      puts "result.error_message = #{result.error_message}"
-      #result.error_message = {
-      #    "kind": "plus#peopleFeed",
-      #    "etag": "\"QR7ccvNi-CeX9lFTHRm3szTVkpo/lZDO4-dFZ0NFLfhR92UMMY8uQCc\"",
-      #    "title": "Google+ List of Visible People",
-      #    "totalItems": 14,
-      #    "items": [
-      #    {
-      #        "kind": "plus#person",
-      #    "etag": "\"QR7ccvNi-CeX9lFTHRm3szTVkpo/2S9G8Bdu4XoaBMyXkF6YMgpD_U0\"",
-      #    "objectType": "person",
-      #    "id": "114902618678942596705",
-      #    "displayName": "Birgitte Pedersen",
-      #    "url": "https://plus.google.com/114902618678942596705",
-      #    "image": {
-      #    "url": "https://lh5.googleusercontent.com/-JssupQoWvMw/AAAAAAAAAAI/AAAAAAAAAJY/3YU5jnmGWDg/photo.jpg?sz=50"
-      #}
-      #},
-      #    {
-      #    .....
-      puts "result.data.class = #{result.data.class}"
-      puts "result.data = #{result.data}"
-      puts "result.data.total_items = #{result.data.total_items}"
 
-      # known errors from Google API
-      return ['.google_access_not_configured', {:provider => provider}] if result.error_message.to_s == 'Access Not Configured'
-      return ['.google_insufficient_permission', {:provider => provider}] if result.error_message.to_s == 'Insufficient Permission'
-      # other errors from Google API
-      return ['.google_other_errors', {:provider => provider, :error => result.error_message }] if !result.data.total_items
+      # https://developers.google.com/api-client-library/ruby/guide/pagination
+      request = {:api_method => plus.people.list,
+                 :parameters => {'collection' => 'visible', 'userId' => 'me'}}
+
+      # loop for all google+ friends
+      loop do
+
+        result = client.execute(request)
+        # puts "result = #{result}"
+        # puts "result.error_message.class = #{result.error_message.class}"
+        # puts "result.error_message = #{result.error_message}"
+        #result.error_message = {
+        #    "kind": "plus#peopleFeed",
+        #    "etag": "\"QR7ccvNi-CeX9lFTHRm3szTVkpo/lZDO4-dFZ0NFLfhR92UMMY8uQCc\"",
+        #    "title": "Google+ List of Visible People",
+        #    "totalItems": 14,
+        #    "items": [
+        #    {
+        #        "kind": "plus#person",
+        #    "etag": "\"QR7ccvNi-CeX9lFTHRm3szTVkpo/2S9G8Bdu4XoaBMyXkF6YMgpD_U0\"",
+        #    "objectType": "person",
+        #    "id": "114902618678942596705",
+        #    "displayName": "Birgitte Pedersen",
+        #    "url": "https://plus.google.com/114902618678942596705",
+        #    "image": {
+        #    "url": "https://lh5.googleusercontent.com/-JssupQoWvMw/AAAAAAAAAAI/AAAAAAAAAJY/3YU5jnmGWDg/photo.jpg?sz=50"
+        #}
+        #},
+        #    {
+        #    .....
+        # puts "result.data.class = #{result.data.class}"
+        # puts "result.data = #{result.data}"
+        # puts "result.data.total_items = #{result.data.total_items}"
+
+        # known errors from Google API
+        return ['.google_access_not_configured', {:provider => provider}] if result.error_message.to_s == 'Access Not Configured'
+        return ['.google_insufficient_permission', {:provider => provider}] if result.error_message.to_s == 'Insufficient Permission'
+        # other errors from Google API
+        return ['.google_other_errors', {:provider => provider, :error => result.error_message}] if !result.data.total_items
+
+        # copy friends to hash.
+        puts "result.data.items = #{result.data.items}"
+
+        break unless result.next_page_token
+        request = result.next_page
+      end
 
       raise "not implemented"
 
