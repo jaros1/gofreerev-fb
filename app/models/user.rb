@@ -247,16 +247,17 @@ class User < ActiveRecord::Base
     # missing provider, unknown provider, missing token, uid or user_name are fatal errors.
     provider = auth_hash.get_provider
     return '.callback_provider_missing' unless provider
-    return ['.callback_unknown_provider', provider] unless OmniAuth::Builder.providers.index(provider.to_s)
+    return ['.callback_unknown_provider', { :provider => provider } ] unless OmniAuth::Builder.providers.index(provider.to_s)
     token = auth_hash.get_token
-    return '.callback_token_missing' unless token
+    return ['.callback_token_missing', { :provider => provider } ] unless token
     uid = auth_hash.get_uid
-    return '.callback_uid_missing' unless uid
+    return ['.callback_uid_missing', { :provider => provider }] unless uid
     puts "auth_hash = #{auth_hash}"
     puts "user_name = #{auth_hash.get_user_name}"
     user_name = auth_hash.get_user_name # todo: should escape username - ERB::Util.html_escape(user_name) does not work from activemodel
-    return '.callback_user_name_missing' unless user_name
-    # missing image a minor problem
+    return '.callback_user_name_missing_google' if !user_name and provider.first(6) == 'google'
+    return ['.callback_user_name_missing',  { :provider => provider } ] unless user_name
+    # missing image is a minor problem
     image = auth_hash.get_image
     puts "image = #{image}"
     user_id = "#{uid}/#{provider}"
@@ -265,7 +266,7 @@ class User < ActiveRecord::Base
     user.user_id = user_id
     user.user_name = user_name
     if user.new_record?
-      # initialize currency from country
+      # initialize currency from country - for example google and twitter
       country_code = auth_hash.get_country
       if !country_code
         # provider dod not return country code (google and twitter).

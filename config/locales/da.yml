@@ -93,6 +93,12 @@ da:
      oauth_failure:
         authentication_failure: "%{provider} login fejlede! %{type}: %{message}"
      create:
+        callback_provider_missing: "Login fejlede. Modtog ikke navn på login provider"
+        callback_unknown_provider: "Login fejlede. Modtag ukendt login provider %{provider}"
+        callback_token_missing: "Login fejlede. Modtag ikke adgangs billet til %{provider}"
+        callback_uid_missing: "Login fejlede. Modtog ikke bruger id fra %{provider}"
+        callback_user_name_missing_google: "Login fejlede. Modtog ikke brugernavn fra google. Evt. mangler scope userinfo.profile for provider"
+        callback_user_name_missing: "Login fejlede. Modtag ikke brugernavn fra %{provider}"
         find_or_create_from_auth_hash: "System fejl. Ugyldigt svar fra bruger opdatering efter login."
 
   # comments controller
@@ -525,3 +531,5 @@ da:
         post_login_unknown_user_id: "Systemfejl. Fandt ikke bruger. Kunne ikke hente venneliste fra %{provider}"
         post_login_token_not_found: "Advarsel. Fandt ikke adgangs \"billet\". Kunne ikke hente venneliste fra %{provider}"
         google_access_not_configured: "Fejl ved hentning af venneliste fra Google+ API. Access Not Configured. Tjek liste ved API opsætning: 1) Tjek log for mere information, 2) At application_name og application_version sættes når Google::APIClient initialiseres, 3) Status er ON for Google+ API i Google Cloud Console"
+        google_insufficient_permission: "Fejl ved hentning af venneliste fra Google+ API. Insufficient Permission. Tjek liste ved API opsætning: 1) scope plus.login mangler i provider opsætning for google"
+        google_other_errors: "Fejl ved hentning af venneliste fra Google+ API. %{error}"

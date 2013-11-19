@@ -670,7 +670,15 @@ class UtilController < ApplicationController
       #},
       #    {
       #    .....
+      puts "result.data.class = #{result.data.class}"
+      puts "result.data = #{result.data}"
+      puts "result.data.total_items = #{result.data.total_items}"
+
+      # known errors from Google API
       return ['.google_access_not_configured', {:provider => provider}] if result.error_message.to_s == 'Access Not Configured'
+      return ['.google_insufficient_permission', {:provider => provider}] if result.error_message.to_s == 'Insufficient Permission'
+      # other errors from Google API
+      return ['.google_other_errors', {:provider => provider, :error => result.error_message }] if !result.data.total_items
 
       raise "not implemented"
 

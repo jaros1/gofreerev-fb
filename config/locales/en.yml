@@ -92,6 +92,12 @@ en:
      oauth_failure:
         authentication_failure: "%{provider} authentication failure! %{type}: %{message}"
      create:
+        callback_provider_missing: "Login failed. Did not receive name for login provider"
+        callback_unknown_provider: "Login failed. Received unknown login provider %{provider}"
+        callback_token_missing: "Login failed. Did not receive access token from %{provider}"
+        callback_uid_missing: "Login failed. Did not receive user id from %{provider}"
+        callback_user_name_missing_google: "Login failed. Did not receive username from google. Maybe scope userinfo.profile is missing for provider"
+        callback_user_name_missing: "Login failed. Did not receive username from %{provider}"
         find_or_create_from_auth_hash: "System error. Invalid response from user update after login"
 
   # comments controller
@@ -519,4 +525,5 @@ en:
         post_login_unknown_user_id: "System error. Did not find user. Could not get friend list from %{provider}"
         post_login_token_not_found: "Warning. Did not find access token. Could not get friend list from %{provider}"
         google_access_not_configured: "Error when fetching friend list from Google+ API. Access Not Configured. Check list: 1) Status is ON for Google+ API in Google Cloud Console"
-
+        google_insufficient_permission: "Error when fetching friend list from Google+ API. API. Insufficient Permission. Check list: 1) scope plus.login maybe is missing in provider setup for google"
+        google_other_errors: "Error when fetching friend list from Google+ API. %{error}"

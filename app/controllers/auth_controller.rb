@@ -32,7 +32,7 @@ class AuthController < ApplicationController
       # login failed
       key, options = user
       begin
-        flash[:nootice] = t key, options
+        flash[:notice] = t key, options
       rescue Exception => e
         puts "invalid response from User.find_or_create_from_auth_hash. Must be nil or a valid input to translate. Response: #{user}"
         flash[:notice] = t '.find_or_create_from_auth_hash', :response => user, :exception => e.message.to_s
