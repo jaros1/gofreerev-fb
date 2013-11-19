@@ -441,8 +441,9 @@ class UtilController < ApplicationController
     # delete old ajax tasks
     AjaxTask.where("created_at < ?", 2.minute.ago).destroy_all
     @errors = []
-    AjaxTask.where("session_id = ?", session[:session_id]).order("id").each do |at|
+    AjaxTask.where("session_id = ?", session[:session_id]).order('priority desc, id').each do |at|
       at.destroy
+      # all ajax tasks should have exception handlers with backtrace. Exception handler for eval will not dump backtrace in at.task
       begin
         res = eval(at.task)
       rescue Exception => e
@@ -474,138 +475,144 @@ class UtilController < ApplicationController
   # must return nil or a valid input to translate
   private
   def post_login_facebook
-    provider = "facebook"
-    puts "post_login_#{provider}"
+    begin
+      provider = "facebook"
+      puts "post_login_#{provider}"
 
-    # find user id and token for facebook user
-    login_user_id = (session[:user_ids] || []).find { |user_id2| user_id2.split('/').last == provider }
-    return ['.post_login_user_id_not_found', {:provider => provider}] unless login_user_id
-    login_user = User.find_by_user_id(login_user_id)
-    return ['.post_login_unknown_user_id', {:provider => provider, :user_id => login_user_id}] unless login_user
-    token = (session[:tokens] || {})[provider]
-    return ['.post_login_token_not_found', {:provider => provider}] if token.to_s == ""
+      # find user id and token for facebook user
+      login_user_id = (session[:user_ids] || []).find { |user_id2| user_id2.split('/').last == provider }
+      return ['.post_login_user_id_not_found', {:provider => provider}] unless login_user_id
+      login_user = User.find_by_user_id(login_user_id)
+      return ['.post_login_unknown_user_id', {:provider => provider, :user_id => login_user_id}] unless login_user
+      token = (session[:tokens] || {})[provider]
+      return ['.post_login_token_not_found', {:provider => provider}] if token.to_s == ""
 
-    # get user information - permissions and friends  - use koala gem for this
-    # puts 'fetch_user: get user id and name'
-    api = Koala::Facebook::API.new(token)
-    api_request = 'me?fields=permissions,friends'
-    # puts "fetch_user: api_request = #{api_request}"
-    api_response = api.get_object api_request
-    # puts "fetch_user: api_response = #{api_response.to_s}"
-    #fetch_user: api_response = {"id"=>"100006397022113", "friends"=>{"data"=>[{"name"=>"David Amfcdabcjbif Martinazzisen", "id"=>"100006341230296"}, {"name"=>"Dick Amfceacglc Bushakson", "id"=>"100006351370003"}, {"name"=>"Karen Amfchcebfhjf Smithescu", "id"=>"100006383526806"}, {"name"=>"Sandra Amfciidbbaee Qinsen", "id"=>"100006399422155"}], "paging"=>{"next"=>"https://graph.facebook.com/100006397022113/friends?access_token=CAAFjZBGzzOkcBAFgvgvY7DmLBrzbKFuOiULN248i3AWlSNWqzzTLLINmRjDSM2djyQriVkcKnVJ80pRz3TiJ1koCNcOPU1ioy40aHHuAZCSXovba3pz74db08a6obnrABFZCgEMwX8cKStw25hwvyqkF1YHiV8d2yV5YoFytaI9hGYyCgk3&limit=5000&offset=5000&__after_id=100006399422155"}}, "permissions"=>{"data"=>[{"installed"=>1, "basic_info"=>1, "status_update"=>1, "photo_upload"=>1, "video_upload"=>1, "email"=>1, "create_note"=>1, "share_item"=>1, "publish_stream"=>1, "publish_actions"=>1, "user_friends"=>1, "bookmarked"=>1}], "paging"=>{"next"=>"https://graph.facebook.com/100006397022113/permissions?access_token=CAAFjZBGzzOkcBAFgvgvY7DmLBrzbKFuOiULN248i3AWlSNWqzzTLLINmRjDSM2djyQriVkcKnVJ80pRz3TiJ1koCNcOPU1ioy40aHHuAZCSXovba3pz74db08a6obnrABFZCgEMwX8cKStw25hwvyqkF1YHiV8d2yV5YoFytaI9hGYyCgk3&limit=5000&offset=5000"}}}
+      # get user information - permissions and friends  - use koala gem for this
+      # puts 'fetch_user: get user id and name'
+      api = Koala::Facebook::API.new(token)
+      api_request = 'me?fields=permissions,friends'
+      # puts "fetch_user: api_request = #{api_request}"
+      api_response = api.get_object api_request
+      # puts "fetch_user: api_response = #{api_response.to_s}"
+      #fetch_user: api_response = {"id"=>"100006397022113", "friends"=>{"data"=>[{"name"=>"David Amfcdabcjbif Martinazzisen", "id"=>"100006341230296"}, {"name"=>"Dick Amfceacglc Bushakson", "id"=>"100006351370003"}, {"name"=>"Karen Amfchcebfhjf Smithescu", "id"=>"100006383526806"}, {"name"=>"Sandra Amfciidbbaee Qinsen", "id"=>"100006399422155"}], "paging"=>{"next"=>"https://graph.facebook.com/100006397022113/friends?access_token=CAAFjZBGzzOkcBAFgvgvY7DmLBrzbKFuOiULN248i3AWlSNWqzzTLLINmRjDSM2djyQriVkcKnVJ80pRz3TiJ1koCNcOPU1ioy40aHHuAZCSXovba3pz74db08a6obnrABFZCgEMwX8cKStw25hwvyqkF1YHiV8d2yV5YoFytaI9hGYyCgk3&limit=5000&offset=5000&__after_id=100006399422155"}}, "permissions"=>{"data"=>[{"installed"=>1, "basic_info"=>1, "status_update"=>1, "photo_upload"=>1, "video_upload"=>1, "email"=>1, "create_note"=>1, "share_item"=>1, "publish_stream"=>1, "publish_actions"=>1, "user_friends"=>1, "bookmarked"=>1}], "paging"=>{"next"=>"https://graph.facebook.com/100006397022113/permissions?access_token=CAAFjZBGzzOkcBAFgvgvY7DmLBrzbKFuOiULN248i3AWlSNWqzzTLLINmRjDSM2djyQriVkcKnVJ80pRz3TiJ1koCNcOPU1ioy40aHHuAZCSXovba3pz74db08a6obnrABFZCgEMwX8cKStw25hwvyqkF1YHiV8d2yV5YoFytaI9hGYyCgk3&limit=5000&offset=5000"}}}
 
-    # 1) update number of friends
-    if api_response['friends']
-      login_user.no_api_friends = api_response['friends']['data'].size
-    else
-      login_user.no_api_friends = 0
-    end
-    login_user.permissions = api_response['permissions']['data'][0]
-    login_user.permissions = {} if login_user.permissions == []
-    login_user.save!
-
-    # 2) update friends (insert/delete Friend)
-    # compare Friend model data with friends array from API
-    # only friends using Gofreerev are relevant
-    # friends not using Gofreerev are ignored
-    old_friends_list = Friend.where('user_id_giver = ?', login_user_id).includes(:friend)
-    if api_response.has_key?('friends')
-      api_friends_list = api_response['friends']['data']
-    else
-      api_friends_list = [] # no api friends
-    end
-    # merge friend info from db and fb before db update
-    friends_hash = {}
-    (0..(old_friends_list.size-1)).each do |i|
-      old_friend = old_friends_list[i]
-      old_friend.friend.user_name = old_friend.friend.user_name.force_encoding('UTF-8')
-      login_user_id = old_friend.user_id_receiver
-      friends_hash[login_user_id] = {:user => old_friend.friend, :old_name => old_friend.friend.user_name, :new_name => old_friend.friend.user_name, :old_api_friend => old_friend.api_friend, :new_api_friend => 'N', :new_record => false}
-    end
-    api_friends_list.each do |friend|
-      friend_user_id = friend["id"] + '/facebook'
-      friend["name"] = friend["name"].force_encoding('UTF-8')
-      if friends_hash.has_key?(friend_user_id)
-        # OK - user already in hash
-        nil
+      # 1) update number of friends
+      if api_response['friends']
+        login_user.no_api_friends = api_response['friends']['data'].size
       else
-        # new facebook friend
-        if !(friend_user = User.where("user_id = ?", friend_user_id).first)
-          # create unknown user - create user with minimal user information (user id and name)
-          friend_user = User.new
-          friend_user.user_id = friend_user_id
-          friend_user.user_name = friend["name"]
-          friend_user.save!
-        end
-        friends_hash[friend_user_id] = {:user => friend_user, :old_name => friend_user.user_name, :old_api_friend => 'N', :new_record => true}
-     google_oauth2 end
-      friends_hash[friend_user_id][:new_name] = friend["name"]
-      friends_hash[friend_user_id][:new_api_friend] = 'Y'
-    end # each
-    # update user names
-    friends_hash.each do |user_id2, hash|
-      next if hash[:old_name] == hash[:new_name]
-      # puts "fetch_user: update user names: old name = #{hash[:old_name]}, new name = #{hash[:new_name]}"
-      login_user = hash[:user]
-      login_user.user_name = hash[:new_name].force_encoding('UTF-8')
+        login_user.no_api_friends = 0
+      end
+      login_user.permissions = api_response['permissions']['data'][0]
+      login_user.permissions = {} if login_user.permissions == []
       login_user.save!
-    end # each
-    # update api_fiend
-    friends_hash.each do |user_id2, hash|
-      if hash[:new_record]
-        # new friend entries
-        # puts "new friend entries"
-        Friend.add_friend(login_user_id, user_id2)
+
+      # 2) update friends (insert/delete Friend)
+      # compare Friend model data with friends array from API
+      # only friends using Gofreerev are relevant
+      # friends not using Gofreerev are ignored
+      old_friends_list = Friend.where('user_id_giver = ?', login_user_id).includes(:friend)
+      if api_response.has_key?('friends')
+        api_friends_list = api_response['friends']['data']
       else
-        # old friend entry
-        # puts "old friend entry, name = #{hash[:new_name]}, old api friend = #{hash[:old_api_friend]}, new api friend = #{hash[:new_api_friend]}"
-        next if hash[:old_api_friend] == hash[:new_api_friend] # no change in api friend status
-                                                               # api friend status changed
-        f1 = Friend.where("user_id_giver = ? and user_id_receiver = ?", login_user_id, user_id2).first
-        f2 = Friend.where("user_id_giver = ? and user_id_receiver = ?", user_id2, login_user_id).first
-        if (f1 == nil or f1.app_friend == nil) and (f2 == nil or f2.app_friend == nil)
-          # Default app_friend status - just delete
-          # puts "Default app_friend status - just delete"
-          Friend.remove_friend(login_user_id, user_id2)
-          next
+        api_friends_list = [] # no api friends
+      end
+      # merge friend info from db and fb before db update
+      friends_hash = {}
+      (0..(old_friends_list.size-1)).each do |i|
+        old_friend = old_friends_list[i]
+        old_friend.friend.user_name = old_friend.friend.user_name.force_encoding('UTF-8')
+        login_user_id = old_friend.user_id_receiver
+        friends_hash[login_user_id] = {:user => old_friend.friend, :old_name => old_friend.friend.user_name, :new_name => old_friend.friend.user_name, :old_api_friend => old_friend.api_friend, :new_api_friend => 'N', :new_record => false}
+      end
+      api_friends_list.each do |friend|
+        friend_user_id = friend["id"] + '/facebook'
+        friend["name"] = friend["name"].force_encoding('UTF-8')
+        if friends_hash.has_key?(friend_user_id)
+          # OK - user already in hash
+          nil
+        else
+          # new facebook friend
+          if !(friend_user = User.where("user_id = ?", friend_user_id).first)
+            # create unknown user - create user with minimal user information (user id and name)
+            friend_user = User.new
+            friend_user.user_id = friend_user_id
+            friend_user.user_name = friend["name"]
+            friend_user.save!
+          end
+          friends_hash[friend_user_id] = {:user => friend_user, :old_name => friend_user.user_name, :old_api_friend => 'N', :new_record => true}
+          google_oauth2
         end
-        # non default app_friend status - update - do not delete
-        if !f1
-          # create missing friend (error)
-          f1 = Friend.new
-          f1.user_id_giver = login_user_id
-          f1.user_id_receiver = user_id2
-          f1.app_friend = nil
-        end
-        if !f2
-          # create missing friend (error)
-          f2 = Friend.new
-          f1.user_id_giver = user_id2
-          f1.user_id_receiver = login_user_id
-          f2.app_friend = nil
-        end
-        f1.api_friend = f2.api_friend = hash[:new_api_friend]
-        # puts "before save"
-        # puts "update f1: giver = #{f1.user_id_giver}, receiver = #{f1.user_id_receiver}, api = #{f1.api_friend}, app = #{f1.app_friend}"
-        # puts "update f2: giver = #{f2.user_id_giver}, receiver = #{f2.user_id_receiver}, api = #{f2.api_friend}, app = #{f2.app_friend}"
-        f1.save!
-        f2.save!
-        # puts "after save"
-        f1.reload
-        f2.reload
-        # puts "update f1: giver = #{f1.user_id_giver}, receiver = #{f1.user_id_receiver}, api = #{f1.api_friend}, app = #{f1.app_friend}"
-        # puts "update f2: giver = #{f2.user_id_giver}, receiver = #{f2.user_id_receiver}, api = #{f2.api_friend}, app = #{f2.app_friend}"
-        raise "api_friend status was not updated" unless f1.api_friend == hash[:new_api_friend] and f2.api_friend == hash[:new_api_friend]
-      end # if
-    end # each
-    # facebook friend list updated
+        friends_hash[friend_user_id][:new_name] = friend["name"]
+        friends_hash[friend_user_id][:new_api_friend] = 'Y'
+      end # each
+      # update user names
+      friends_hash.each do |user_id2, hash|
+        next if hash[:old_name] == hash[:new_name]
+        # puts "fetch_user: update user names: old name = #{hash[:old_name]}, new name = #{hash[:new_name]}"
+        login_user = hash[:user]
+        login_user.user_name = hash[:new_name].force_encoding('UTF-8')
+        login_user.save!
+      end # each
+      # update api_fiend
+      friends_hash.each do |user_id2, hash|
+        if hash[:new_record]
+          # new friend entries
+          # puts "new friend entries"
+          Friend.add_friend(login_user_id, user_id2)
+        else
+          # old friend entry
+          # puts "old friend entry, name = #{hash[:new_name]}, old api friend = #{hash[:old_api_friend]}, new api friend = #{hash[:new_api_friend]}"
+          next if hash[:old_api_friend] == hash[:new_api_friend] # no change in api friend status
+                                                                 # api friend status changed
+          f1 = Friend.where("user_id_giver = ? and user_id_receiver = ?", login_user_id, user_id2).first
+          f2 = Friend.where("user_id_giver = ? and user_id_receiver = ?", user_id2, login_user_id).first
+          if (f1 == nil or f1.app_friend == nil) and (f2 == nil or f2.app_friend == nil)
+            # Default app_friend status - just delete
+            # puts "Default app_friend status - just delete"
+            Friend.remove_friend(login_user_id, user_id2)
+            next
+          end
+                                                                 # non default app_friend status - update - do not delete
+          if !f1
+            # create missing friend (error)
+            f1 = Friend.new
+            f1.user_id_giver = login_user_id
+            f1.user_id_receiver = user_id2
+            f1.app_friend = nil
+          end
+          if !f2
+            # create missing friend (error)
+            f2 = Friend.new
+            f1.user_id_giver = user_id2
+            f1.user_id_receiver = login_user_id
+            f2.app_friend = nil
+          end
+          f1.api_friend = f2.api_friend = hash[:new_api_friend]
+                                                                 # puts "before save"
+                                                                 # puts "update f1: giver = #{f1.user_id_giver}, receiver = #{f1.user_id_receiver}, api = #{f1.api_friend}, app = #{f1.app_friend}"
+                                                                 # puts "update f2: giver = #{f2.user_id_giver}, receiver = #{f2.user_id_receiver}, api = #{f2.api_friend}, app = #{f2.app_friend}"
+          f1.save!
+          f2.save!
+                                                                 # puts "after save"
+          f1.reload
+          f2.reload
+                                                                 # puts "update f1: giver = #{f1.user_id_giver}, receiver = #{f1.user_id_receiver}, api = #{f1.api_friend}, app = #{f1.app_friend}"
+                                                                 # puts "update f2: giver = #{f2.user_id_giver}, receiver = #{f2.user_id_receiver}, api = #{f2.api_friend}, app = #{f2.app_friend}"
+          raise "api_friend status was not updated" unless f1.api_friend == hash[:new_api_friend] and f2.api_friend == hash[:new_api_friend]
+        end # if
+      end # each
+      # facebook friend list updated
 
-    # 3) update balance
-    login_user.recalculate_balance if login_user.balance_at != Date.today
+      # 3) update balance
+      login_user.recalculate_balance if login_user.balance_at != Date.today
 
-    # ok
-    nil
-
+      # ok
+      nil
+    rescue Exception => e
+      puts "Exception: #{e.message.to_s}"
+      puts "Backtrace: " + e.backtrace.join("\n")
+      raise
+    end
   end # post_login_facebook
 
 
@@ -615,54 +622,63 @@ class UtilController < ApplicationController
   # must return nil or a valid input to translate
   private
   def post_login_google_oauth2
-    provider = "google_oauth2"
-    puts "post_login_#{provider}"
+    begin
+      provider = "google_oauth2"
+      puts "post_login_#{provider}"
 
-    # find user id and token for facebook user
-    login_user_id = (session[:user_ids] || []).find { |user_id2| user_id2.split('/').last == provider }
-    return ['.post_login_user_id_not_found', {:provider => provider}] unless login_user_id
-    login_user = User.find_by_user_id(login_user_id)
-    return ['.post_login_unknown_user_id', {:provider => provider, :user_id => login_user_id}] unless login_user
-    token = (session[:tokens] || {})[provider]
-    return ['.post_login_token_not_found', {:provider => provider}] if token.to_s == ""
+      # find user id and token for facebook user
+      login_user_id = (session[:user_ids] || []).find { |user_id2| user_id2.split('/').last == provider }
+      return ['.post_login_user_id_not_found', {:provider => provider}] unless login_user_id
+      login_user = User.find_by_user_id(login_user_id)
+      return ['.post_login_unknown_user_id', {:provider => provider, :user_id => login_user_id}] unless login_user
+      token = (session[:tokens] || {})[provider]
+      return ['.post_login_token_not_found', {:provider => provider}] if token.to_s == ""
 
-    puts "google token = #{token}"
+      puts "google token = #{token}"
 
-    client = Google::APIClient.new(
-        :application_name => 'Gofreerev',
-        :application_version => '0.1'
-    )
-    plus = client.discovered_api('plus')
-    client.authorization.client_id = ENV['GOFREEREV_GP_APP_ID']
-    client.authorization.client_secret = ENV['GOFREEREV_GP_APP_SECRET']
-    client.authorization.access_token = token
-    result = client.execute(:api_method => plus.people.list,
-                            :parameters => {'collection' => 'visible', 'userId' => 'me'}
-                            )
-    puts "result = #{result}"
-    puts "result.error_message = #{result.error_message}"
-    #result.error_message = {
-    #    "kind": "plus#peopleFeed",
-    #    "etag": "\"QR7ccvNi-CeX9lFTHRm3szTVkpo/lZDO4-dFZ0NFLfhR92UMMY8uQCc\"",
-    #    "title": "Google+ List of Visible People",
-    #    "totalItems": 14,
-    #    "items": [
-    #    {
-    #        "kind": "plus#person",
-    #    "etag": "\"QR7ccvNi-CeX9lFTHRm3szTVkpo/2S9G8Bdu4XoaBMyXkF6YMgpD_U0\"",
-    #    "objectType": "person",
-    #    "id": "114902618678942596705",
-    #    "displayName": "Birgitte Pedersen",
-    #    "url": "https://plus.google.com/114902618678942596705",
-    #    "image": {
-    #    "url": "https://lh5.googleusercontent.com/-JssupQoWvMw/AAAAAAAAAAI/AAAAAAAAAJY/3YU5jnmGWDg/photo.jpg?sz=50"
-    #}
-    #},
-    #    {
-    #    .....
+      client = Google::APIClient.new(
+          :application_name => 'Gofreerev',
+          :application_version => '0.1'
+      )
+      # client = Google::APIClient.new
+      plus = client.discovered_api('plus')
+      client.authorization.client_id = ENV['GOFREEREV_GP_APP_ID']
+      client.authorization.client_secret = ENV['GOFREEREV_GP_APP_SECRET']
+      client.authorization.access_token = token
+      result = client.execute(:api_method => plus.people.list,
+                              :parameters => {'collection' => 'visible', 'userId' => 'me'}
+      )
+      puts "result = #{result}"
+      puts "result.error_message.class = #{result.error_message.class}"
+      puts "result.error_message = #{result.error_message}"
+      #result.error_message = {
+      #    "kind": "plus#peopleFeed",
+      #    "etag": "\"QR7ccvNi-CeX9lFTHRm3szTVkpo/lZDO4-dFZ0NFLfhR92UMMY8uQCc\"",
+      #    "title": "Google+ List of Visible People",
+      #    "totalItems": 14,
+      #    "items": [
+      #    {
+      #        "kind": "plus#person",
+      #    "etag": "\"QR7ccvNi-CeX9lFTHRm3szTVkpo/2S9G8Bdu4XoaBMyXkF6YMgpD_U0\"",
+      #    "objectType": "person",
+      #    "id": "114902618678942596705",
+      #    "displayName": "Birgitte Pedersen",
+      #    "url": "https://plus.google.com/114902618678942596705",
+      #    "image": {
+      #    "url": "https://lh5.googleusercontent.com/-JssupQoWvMw/AAAAAAAAAAI/AAAAAAAAAJY/3YU5jnmGWDg/photo.jpg?sz=50"
+      #}
+      #},
+      #    {
+      #    .....
+      return ['.google_access_not_configured', {:provider => provider}] if result.error_message.to_s == 'Access Not Configured'
 
-    raise "not implemented"
+      raise "not implemented"
 
+    rescue Exception => e
+      puts "Exception: #{e.message.to_s}"
+      puts "Backtrace: " + e.backtrace.join("\n")
+      raise
+    end
   end # post_login_google_oauth2
 
 

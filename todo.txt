@@ -182,3 +182,14 @@
 
 58) ajax post login - add welcome message?
 
+60) must have stack dump for all ajax tasks called with eval
+    add exception to all ajax tasks and check log
+
+61) add priority to ajax task queue. fetch echange rates should be executed after post_login ajax tasks
+
+62) don't insert same ajax task twice in ajax task queue
+
+63) check for special api setup error messages and return translate with some hints
+    for example google+ : Access Not Configured
+
+64) add no post login ajax task error message with hint how to fix this problem

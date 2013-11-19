@@ -110,40 +110,46 @@ class ExchangeRate < ActiveRecord::Base
   # called from ajax task queue
   # about 90 new exchange rates each day
   def self.fetch_exchange_rates
-    return nil unless ExchangeRate.fetch_exchange_rates? # exchange rates up-to-date or 6 hour timeout
+    begin
+      return nil unless ExchangeRate.fetch_exchange_rates? # exchange rates up-to-date or 6 hour timeout
+      today = Date.today.to_yyyymmdd
 
-    # currency rates are not up-to-date
-    # prevent simultaneous currency exchange rate lookup
-    Sequence.set_last_money_bank_request(Time.current_hour_no)
+      # currency rates are not up-to-date
+      # prevent simultaneous currency exchange rate lookup
+      Sequence.set_last_money_bank_request(Time.current_hour_no)
 
-    # get all available currency rates - about 90 currency rates
-    from = BASE_CURRENCY
-    usd_rates = ExchangeRate.get_all_exchange_rates(from)
-    if usd_rates.size < 50
-      puts "Error: found less than 50 exchange rates from default money bank"
-      puts "rates = #{usd_rates}"
-      puts "next currency request in 6 hours"
-      # ExchangeRate.set_last_money_bank_request(Time.current_hour_no) # already set
-      return ['.too_few_exchange_rates', {:bank => Money.default_bank.class.name.split('::').last, :expected => 50, :found => usd_rates.size} ]
+      # get all available currency rates - about 90 currency rates
+      from = BASE_CURRENCY
+      usd_rates = ExchangeRate.get_all_exchange_rates(from)
+      if usd_rates.size < 50
+        puts "Error: found less than 50 exchange rates from default money bank"
+        puts "rates = #{usd_rates}"
+        puts "next currency request in 6 hours"
+        # ExchangeRate.set_last_money_bank_request(Time.current_hour_no) # already set
+        return ['.too_few_exchange_rates', {:bank => Money.default_bank.class.name.split('::').last, :expected => 50, :found => usd_rates.size}]
+      end
+
+      # save currency rates and update sequence
+      transaction do
+        usd_rates.each do |to, rate|
+          er = ExchangeRate.new
+          er.date = today
+          er.from_currency = from
+          er.to_currency = to
+          er.exchange_rate = rate
+          er.save!
+        end # each
+            # create/update last_exchange_rate_date - used when caching exchange rates of "today
+        Sequence.set_last_money_bank_request(nil)
+        Sequence.set_last_exchange_rate_date(today)
+      end # transaction
+
+      nil
+    rescue Exception => e
+      puts "Exception: #{e.message.to_s}"
+      puts "Backtrace: " + e.backtrace.join("\n")
+      raise
     end
-
-    # save currency rates and update sequence
-    transaction do
-      usd_rates.each do |to, rate|
-        er = ExchangeRate.new
-        er.date = today
-        er.from_currency = from
-        er.to_currency = to
-        er.exchange_rate = rate
-        er.save!
-      end # each
-      # create/update last_exchange_rate_date - used when caching exchange rates of "today
-      Sequence.set_last_money_bank_request(nil)
-      Sequence.set_last_exchange_rate_date(today)
-    end # transaction
-
-    nil
-
   end # fetch_exchange_rates
 
 

@@ -518,3 +518,5 @@ en:
         post_login_user_id_not_found: "Warning. Did not find user id. Could not get friend list from %{provider}"
         post_login_unknown_user_id: "System error. Did not find user. Could not get friend list from %{provider}"
         post_login_token_not_found: "Warning. Did not find access token. Could not get friend list from %{provider}"
+        google_access_not_configured: "Error when fetching friend list from Google+ API. Access Not Configured. Check list: 1) Status is ON for Google+ API in Google Cloud Console"
+
