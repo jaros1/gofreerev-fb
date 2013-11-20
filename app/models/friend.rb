@@ -135,6 +135,69 @@ class Friend < ActiveRecord::Base
   end
 
 
+  def self.update_friends_from_hash (login_user_id, friends_hash)
+    # update friend user names
+    friends_hash.each do |user_id2, hash|
+      next if hash[:old_name] == hash[:new_name]
+      # puts "fetch_user: update user names: old name = #{hash[:old_name]}, new name = #{hash[:new_name]}"
+      friend_user = hash[:user]
+      friend_user.user_name = hash[:new_name].force_encoding('UTF-8')
+      friend_user.save!
+    end # each
+
+    # update api_fiend
+    friends_hash.each do |user_id2, hash|
+      if hash[:new_record]
+        # new friend entries
+        # puts "new friend entries"
+        Friend.add_friend(login_user_id, user_id2)
+      else
+        # old friend entry
+        # puts "old friend entry, name = #{hash[:new_name]}, old api friend = #{hash[:old_api_friend]}, new api friend = #{hash[:new_api_friend]}"
+        next if hash[:old_api_friend] == hash[:new_api_friend] # no change in api friend status
+                                                               # api friend status changed
+        f1 = Friend.where("user_id_giver = ? and user_id_receiver = ?", login_user_id, user_id2).first
+        f2 = Friend.where("user_id_giver = ? and user_id_receiver = ?", user_id2, login_user_id).first
+        if (f1 == nil or f1.app_friend == nil) and (f2 == nil or f2.app_friend == nil)
+          # Default app_friend status - just delete
+          # puts "Default app_friend status - just delete"
+          Friend.remove_friend(login_user_id, user_id2)
+          next
+        end
+                                                               # non default app_friend status - update - do not delete
+        if !f1
+          # create missing friend (error)
+          f1 = Friend.new
+          f1.user_id_giver = login_user_id
+          f1.user_id_receiver = user_id2
+          f1.app_friend = nil
+        end
+        if !f2
+          # create missing friend (error)
+          f2 = Friend.new
+          f1.user_id_giver = user_id2
+          f1.user_id_receiver = login_user_id
+          f2.app_friend = nil
+        end
+        f1.api_friend = f2.api_friend = hash[:new_api_friend]
+                                                               # puts "before save"
+                                                               # puts "update f1: giver = #{f1.user_id_giver}, receiver = #{f1.user_id_receiver}, api = #{f1.api_friend}, app = #{f1.app_friend}"
+                                                               # puts "update f2: giver = #{f2.user_id_giver}, receiver = #{f2.user_id_receiver}, api = #{f2.api_friend}, app = #{f2.app_friend}"
+        f1.save!
+        f2.save!
+                                                               # puts "after save"
+        f1.reload
+        f2.reload
+                                                               # puts "update f1: giver = #{f1.user_id_giver}, receiver = #{f1.user_id_receiver}, api = #{f1.api_friend}, app = #{f1.app_friend}"
+                                                               # puts "update f2: giver = #{f2.user_id_giver}, receiver = #{f2.user_id_receiver}, api = #{f2.api_friend}, app = #{f2.app_friend}"
+        raise "api_friend status was not updated" unless f1.api_friend == hash[:new_api_friend] and f2.api_friend == hash[:new_api_friend]
+      end # if
+    end # each
+    # facebook friend list updated
+
+  end # self.update_friends_from_hash
+
+
 
   ##############
   # encryption #
