@@ -96,6 +96,10 @@ GEM
       multi_json
     launchy (2.4.0)
       addressable (~> 2.3)
+    linkedin (0.4.4)
+      hashie (>= 1.2, < 2.1)
+      multi_json (~> 1.0)
+      oauth (~> 0.4)
     mail (2.5.4)
       mime-types (~> 1.16)
       treetop (~> 1.4.8)
@@ -125,9 +129,8 @@ GEM
     omniauth-google-oauth2 (0.2.1)
       omniauth (~> 1.0)
       omniauth-oauth2
-    omniauth-linkedin-oauth2 (0.1.1)
-      omniauth (~> 1.0)
-      omniauth-oauth2
+    omniauth-linkedin (0.1.0)
+      omniauth-oauth (~> 1.0)
     omniauth-oauth (1.0.1)
       oauth
       omniauth (~> 1.0)
@@ -217,13 +220,14 @@ DEPENDENCIES
   jquery-rails
   jquery-ui-rails (~> 4.0.4)
   koala (= 1.7.0rc1)
+  linkedin
   minitest
   minitest-reporters (>= 0.5.0)
   money
   omniauth
   omniauth-facebook
   omniauth-google-oauth2
-  omniauth-linkedin-oauth2
+  omniauth-linkedin
   omniauth-twitter
   open4
   rails (= 4.0.0)

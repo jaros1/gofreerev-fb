@@ -134,10 +134,12 @@ class Friend < ActiveRecord::Base
     app_friend == 'Y'
   end
 
-
-  def self.update_friends_from_hash (login_user_id, friends_hash)
+  # friends_hash is hash with old and new friend from util_controller.post_login_<provider> api request
+  # mutual_friends = true: facebook, linkedin - update friend list for login user and for friend
+  # mutual friends = false: google+, twitter - update only friend list for login user
+  def self.update_friends_from_hash (login_user_id, friends_hash, mutual_friends)
     # update friend user names
-    friends_hash.each do |user_id2, hash|
+    friends_hash.each do |friend_user_id, hash|
       next if hash[:old_name] == hash[:new_name]
       # puts "fetch_user: update user names: old name = #{hash[:old_name]}, new name = #{hash[:new_name]}"
       friend_user = hash[:user]
@@ -146,22 +148,22 @@ class Friend < ActiveRecord::Base
     end # each
 
     # update api_fiend
-    friends_hash.each do |user_id2, hash|
+    friends_hash.each do |friend_user_id, hash|
       if hash[:new_record]
         # new friend entries
         # puts "new friend entries"
-        Friend.add_friend(login_user_id, user_id2)
+        Friend.add_friend(login_user_id, friend_user_id)
       else
         # old friend entry
         # puts "old friend entry, name = #{hash[:new_name]}, old api friend = #{hash[:old_api_friend]}, new api friend = #{hash[:new_api_friend]}"
         next if hash[:old_api_friend] == hash[:new_api_friend] # no change in api friend status
                                                                # api friend status changed
-        f1 = Friend.where("user_id_giver = ? and user_id_receiver = ?", login_user_id, user_id2).first
-        f2 = Friend.where("user_id_giver = ? and user_id_receiver = ?", user_id2, login_user_id).first
+        f1 = Friend.where("user_id_giver = ? and user_id_receiver = ?", login_user_id, friend_user_id).first
+        f2 = Friend.where("user_id_giver = ? and user_id_receiver = ?", friend_user_id, login_user_id).first
         if (f1 == nil or f1.app_friend == nil) and (f2 == nil or f2.app_friend == nil)
           # Default app_friend status - just delete
           # puts "Default app_friend status - just delete"
-          Friend.remove_friend(login_user_id, user_id2)
+          Friend.remove_friend(login_user_id, friend_user_id)
           next
         end
                                                                # non default app_friend status - update - do not delete
@@ -169,13 +171,13 @@ class Friend < ActiveRecord::Base
           # create missing friend (error)
           f1 = Friend.new
           f1.user_id_giver = login_user_id
-          f1.user_id_receiver = user_id2
+          f1.user_id_receiver = friend_user_id
           f1.app_friend = nil
         end
         if !f2
           # create missing friend (error)
           f2 = Friend.new
-          f1.user_id_giver = user_id2
+          f1.user_id_giver = friend_user_id
           f1.user_id_receiver = login_user_id
           f2.app_friend = nil
         end

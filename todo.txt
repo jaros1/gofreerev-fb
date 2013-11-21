@@ -193,3 +193,8 @@
     for example google+ : Access Not Configured
 
 64) add no post login ajax task error message with hint how to fix this problem
+
+65) difference between facegook & linkedin friends and google+ & twitter friends
+    facebook & linkedin friends are mutual friends
+    google+ and twitter friends are not mutual friends
+    how to handle not mutual friends in gofreerev?

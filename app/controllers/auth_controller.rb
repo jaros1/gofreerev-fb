@@ -10,6 +10,8 @@ class AuthController < ApplicationController
 
   def create
     @auth_hash = auth_hash
+    puts "ENV = #{ENV}"
+    puts "auth_hash = #{auth_hash}"
     user = User.find_or_create_from_auth_hash(auth_hash)
     if user.class == User
       # login ok - insert user_id and token in session

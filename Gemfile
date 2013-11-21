@@ -8,12 +8,14 @@ gem 'rails', '4.0.0'
 gem 'omniauth'
 gem 'omniauth-facebook'      # https://github.com/mkdynamic/omniauth-facebook
 gem "omniauth-google-oauth2" # https://github.com/zquestz/omniauth-google-oauth2
-gem 'omniauth-linkedin-oauth2'
+# gem 'omniauth-linkedin-oauth2' # only token no secret is returned from omniauth-linkedin-oauth2
+gem 'omniauth-linkedin'
 gem 'omniauth-twitter'
 
-# gems for post login API access
-gem 'koala', '1.7.0rc1' # facebook API integration
-gem 'google-api-client' # google+ API integration
+# gems for post login API access - get friend list, update status, etc
+gem 'koala', '1.7.0rc1' # facebook API calls
+gem 'google-api-client' # google+ API calls - https://github.com/google/google-api-ruby-client & https://developers.google.com/api-client-library/ruby/
+gem 'linkedin'          # LinkedIn API calls - https://rubygems.org/gems/linkedin
 
 # Use sqlite3 as the database for Active Record
 gem 'sqlite3'

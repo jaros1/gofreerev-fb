@@ -1,4 +1,5 @@
 require 'google/api_client'
+require 'linkedin'
 
 class UtilController < ApplicationController
 
@@ -546,7 +547,7 @@ class UtilController < ApplicationController
       end # each
 
       # update facebook friends
-      Friend.update_friends_from_hash(login_user_id, friends_hash)
+      Friend.update_friends_from_hash(login_user_id, friends_hash, true)
       # facebook friend list updated
 
       # 3) update balance
@@ -591,8 +592,7 @@ class UtilController < ApplicationController
       end
 
       # get new google api friends
-      puts "google token = #{token}"
-
+      puts "token = #{token}"
       client = Google::APIClient.new(
           :application_name => 'Gofreerev',
           :application_version => '0.1'
@@ -603,6 +603,7 @@ class UtilController < ApplicationController
       client.authorization.client_secret = ENV['GOFREEREV_GP_APP_SECRET']
       client.authorization.access_token = token
 
+      # find people in login user circles
       # https://developers.google.com/api-client-library/ruby/guide/pagination
       request = {:api_method => plus.people.list,
                  :parameters => {'collection' => 'visible', 'userId' => 'me'}}
@@ -672,7 +673,7 @@ class UtilController < ApplicationController
       end # loop for all google+ friends
 
       # update google+ friends
-      Friend.update_friends_from_hash(login_user_id, friends_hash)
+      Friend.update_friends_from_hash(login_user_id, friends_hash, false)
       # google+ friends updated
 
       # 3) update balance
@@ -687,5 +688,79 @@ class UtilController < ApplicationController
     end
   end # post_login_google_oauth2
 
+  # post login ajax task for linkedIn - get connections
+  # using linked gem
+  # called from do_ajax_tasks - ajax requests after login
+  # must return nil or a valid input to translate  private
+  private
+  def post_login_linkedin
+    begin
+
+      # todo: refactor ==>
+      provider = "linkedin"
+      puts "post_login_#{provider}"
+
+      # find user id and token for linkedin user
+      login_user_id = (session[:user_ids] || []).find { |user_id2| user_id2.split('/').last == provider }
+      return ['.post_login_user_id_not_found', {:provider => provider}] unless login_user_id
+      login_user = User.find_by_user_id(login_user_id)
+      return ['.post_login_unknown_user_id', {:provider => provider, :user_id => login_user_id}] unless login_user
+      token = (session[:tokens] || {})[provider]
+      return ['.post_login_token_not_found', {:provider => provider}] if token.to_s == ""
+      puts "token = #{token}"
+
+      # old google api friends
+      old_friends_list = Friend.where('user_id_giver = ?', login_user_id).includes(:friend)
+      friends_hash = {}
+      (0..(old_friends_list.size-1)).each do |i|
+        old_friend = old_friends_list[i]
+        old_friend.friend.user_name = old_friend.friend.user_name.force_encoding('UTF-8')
+        login_user_id = old_friend.user_id_receiver
+        friends_hash[login_user_id] = {:user => old_friend.friend, :old_name => old_friend.friend.user_name, :new_name => old_friend.friend.user_name, :old_api_friend => old_friend.api_friend, :new_api_friend => 'N', :new_record => false}
+      end
+      # todo: <== refactor
+
+      client = LinkedIn::Client.new ENV['GOFREEREV_LI_APP_ID'], ENV['GOFREEREV_LI_APP_SECRET']
+      client.authorize_from_access token[0], token[1]
+
+      client.connections.all.each do |connection|
+        # copy friend to friends_hash
+        friend_user_id = "#{connection.id}/#{provider}"
+        friend_name = "#{connection.first_name} #{connection.last_name}".force_encoding('UTF-8')
+        if friends_hash.has_key?(friend_user_id)
+          # OK - user already in hash
+          nil
+        else
+          # new google friend
+          if !(friend_user = User.where("user_id = ?", friend_user_id).first)
+            # create unknown user - create user with minimal user information (user id and name)
+            friend_user = User.new
+            friend_user.user_id = friend_user_id
+            friend_user.user_name = friend_name
+            friend_user.save!
+          end
+          friends_hash[friend_user_id] = {:user => friend_user, :old_name => friend_user.user_name, :old_api_friend => 'N', :new_record => true}
+        end
+        friends_hash[friend_user_id][:new_name] = friend_name
+        friends_hash[friend_user_id][:new_api_friend] = 'Y'
+      end # connection loop
+
+      # update linkedin connections
+      Friend.update_friends_from_hash(login_user_id, friends_hash, false)
+      # linkedin connections updated
+
+      # 3) update balance
+      login_user.recalculate_balance if login_user.balance_at != Date.today
+
+      # ok
+      nil
+
+
+    rescue Exception => e
+      puts "Exception: #{e.message.to_s}"
+      puts "Backtrace: " + e.backtrace.join("\n")
+      raise
+    end
+  end # post_login_linkedin
 
 end # UtilController

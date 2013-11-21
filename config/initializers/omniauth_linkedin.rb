@@ -13,4 +13,11 @@ class OmniAuth::AuthHash
     language = BASE_LANGUAGE unless language
     language
   end # get_language_linkedin
+  # return array with token AND secret for linkedin - token AND secret are required for linkedin gem
+  def get_token_linkedin
+    token = self[:credentials][:token] if self[:credentials]
+    secret = self[:credentials][:secret] if self[:credentials]
+    return nil unless token.to_s != "" and secret.to_s != ""
+    [ token, secret]
+  end # get_token_linkedin
 end
