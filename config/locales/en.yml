@@ -525,5 +525,6 @@ en:
         post_login_unknown_user_id: "System error. Did not find user. Could not get friend list from %{provider}"
         post_login_token_not_found: "Warning. Did not find access token. Could not get friend list from %{provider}"
         google_access_not_configured: "Error when fetching friend list from Google+ API. Access Not Configured. Check list: 1) Status is ON for Google+ API in Google Cloud Console"
-        google_insufficient_permission: "Error when fetching friend list from Google+ API. API. Insufficient Permission. Check list: 1) scope plus.login maybe is missing in provider setup for google"
+        google_insufficient_permission: "Error when fetching friend list from Google+ API. API. Insufficient Permission. Check list: 1) scope plus.login maybe is missing in provider setup for google+"
         google_other_errors: "Error when fetching friend list from Google+ API. %{error}"
+        linkedin_access_denied: "Error when fetching connections from LinkedIn API. Access to connections denied. Check list: 1) scope r_network mangler maybe is missing in provider setup for LinkedIn"

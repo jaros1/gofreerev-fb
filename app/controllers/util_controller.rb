@@ -471,22 +471,49 @@ class UtilController < ApplicationController
     end
   end # do_ajax_tasks
 
+
+  # helper to get information to be used in post_login_<provider> methods
+  # return array with login_user, friends_hash, token, key and options - key and options only if error
+  private
+  def get_user_friends_and_token(provider)
+    puts "post_login_#{provider}"
+    login_user = friends_hash = token = nil
+    # find user id and token for provider
+    login_user_id = (session[:user_ids] || []).find { |user_id2| user_id2.split('/').last == provider }
+    return [login_user, friends_hash, token, '.post_login_user_id_not_found', {:provider => provider}] unless login_user_id
+    login_user = User.find_by_user_id(login_user_id)
+    return [login_user, friends_hash, token, '.post_login_unknown_user_id', {:provider => provider, :user_id => login_user_id}] unless login_user
+    # initialize hash with old friends
+    old_friends_list = Friend.where('user_id_giver = ?', login_user_id).includes(:friend)
+    friends_hash = {}
+    (0..(old_friends_list.size-1)).each do |i|
+      old_friend = old_friends_list[i]
+      old_friend.friend.user_name = old_friend.friend.user_name.force_encoding('UTF-8')
+      login_user_id = old_friend.user_id_receiver
+      friends_hash[login_user_id] = {:user => old_friend.friend, :old_name => old_friend.friend.user_name, :new_name => old_friend.friend.user_name, :old_api_friend => old_friend.api_friend, :new_api_friend => 'N', :new_record => false}
+    end
+    # get token for api requests
+    token = (session[:tokens] || {})[provider]
+    return [login_user, friends_hash, token, '.post_login_token_not_found', {:provider => provider}] if token.to_s == ""
+    puts "token = #{token}"
+    # ok
+    return [login_user, friends_hash, token]
+  end # get_user_friends_and_token
+
+
   # post login ajax task for facebook - get permissions and friends - using koala gem
   # called from do_ajax_tasks - ajax requests after login
   # must return nil or a valid input to translate
   private
   def post_login_facebook
     begin
+      # get facebook user, friends and api token
       provider = "facebook"
-      puts "post_login_#{provider}"
+      login_user, friends_hash, token, key, options = get_user_friends_and_token(provider)
+      return [key, options] if key
+      login_user_id = login_user.user_id
 
-      # find user id and token for facebook user
-      login_user_id = (session[:user_ids] || []).find { |user_id2| user_id2.split('/').last == provider }
-      return ['.post_login_user_id_not_found', {:provider => provider}] unless login_user_id
-      login_user = User.find_by_user_id(login_user_id)
-      return ['.post_login_unknown_user_id', {:provider => provider, :user_id => login_user_id}] unless login_user
-      token = (session[:tokens] || {})[provider]
-      return ['.post_login_token_not_found', {:provider => provider}] if token.to_s == ""
+      # setup facebook api client - get permissions and friends
 
       # get user information - permissions and friends  - use koala gem for this
       # puts 'fetch_user: get user id and name'
@@ -497,7 +524,7 @@ class UtilController < ApplicationController
       # puts "fetch_user: api_response = #{api_response.to_s}"
       #fetch_user: api_response = {"id"=>"100006397022113", "friends"=>{"data"=>[{"name"=>"David Amfcdabcjbif Martinazzisen", "id"=>"100006341230296"}, {"name"=>"Dick Amfceacglc Bushakson", "id"=>"100006351370003"}, {"name"=>"Karen Amfchcebfhjf Smithescu", "id"=>"100006383526806"}, {"name"=>"Sandra Amfciidbbaee Qinsen", "id"=>"100006399422155"}], "paging"=>{"next"=>"https://graph.facebook.com/100006397022113/friends?access_token=CAAFjZBGzzOkcBAFgvgvY7DmLBrzbKFuOiULN248i3AWlSNWqzzTLLINmRjDSM2djyQriVkcKnVJ80pRz3TiJ1koCNcOPU1ioy40aHHuAZCSXovba3pz74db08a6obnrABFZCgEMwX8cKStw25hwvyqkF1YHiV8d2yV5YoFytaI9hGYyCgk3&limit=5000&offset=5000&__after_id=100006399422155"}}, "permissions"=>{"data"=>[{"installed"=>1, "basic_info"=>1, "status_update"=>1, "photo_upload"=>1, "video_upload"=>1, "email"=>1, "create_note"=>1, "share_item"=>1, "publish_stream"=>1, "publish_actions"=>1, "user_friends"=>1, "bookmarked"=>1}], "paging"=>{"next"=>"https://graph.facebook.com/100006397022113/permissions?access_token=CAAFjZBGzzOkcBAFgvgvY7DmLBrzbKFuOiULN248i3AWlSNWqzzTLLINmRjDSM2djyQriVkcKnVJ80pRz3TiJ1koCNcOPU1ioy40aHHuAZCSXovba3pz74db08a6obnrABFZCgEMwX8cKStw25hwvyqkF1YHiV8d2yV5YoFytaI9hGYyCgk3&limit=5000&offset=5000"}}}
 
-      # 1) update number of friends
+      # 1) update number of friends and permissions
       if api_response['friends']
         login_user.no_api_friends = api_response['friends']['data'].size
       else
@@ -511,20 +538,13 @@ class UtilController < ApplicationController
       # compare Friend model data with friends array from API
       # only friends using Gofreerev are relevant
       # friends not using Gofreerev are ignored
-      old_friends_list = Friend.where('user_id_giver = ?', login_user_id).includes(:friend).find_all { ||}
+
       if api_response.has_key?('friends')
         api_friends_list = api_response['friends']['data']
       else
         api_friends_list = [] # no api friends
       end
-      # merge friend info from db and fb before db update
-      friends_hash = {}
-      (0..(old_friends_list.size-1)).each do |i|
-        old_friend = old_friends_list[i]
-        old_friend.friend.user_name = old_friend.friend.user_name.force_encoding('UTF-8')
-        login_user_id = old_friend.user_id_receiver
-        friends_hash[login_user_id] = {:user => old_friend.friend, :old_name => old_friend.friend.user_name, :new_name => old_friend.friend.user_name, :old_api_friend => old_friend.api_friend, :new_api_friend => 'N', :new_record => false}
-      end
+
       api_friends_list.each do |friend|
         friend_user_id = friend["id"] + '/facebook'
         friend["name"] = friend["name"].force_encoding('UTF-8')
@@ -570,26 +590,11 @@ class UtilController < ApplicationController
   private
   def post_login_google_oauth2
     begin
+      # get google user, friends and api token
       provider = "google_oauth2"
-      puts "post_login_#{provider}"
-
-      # find user id and token for facebook user
-      login_user_id = (session[:user_ids] || []).find { |user_id2| user_id2.split('/').last == provider }
-      return ['.post_login_user_id_not_found', {:provider => provider}] unless login_user_id
-      login_user = User.find_by_user_id(login_user_id)
-      return ['.post_login_unknown_user_id', {:provider => provider, :user_id => login_user_id}] unless login_user
-      token = (session[:tokens] || {})[provider]
-      return ['.post_login_token_not_found', {:provider => provider}] if token.to_s == ""
-
-      # old google api friends
-      old_friends_list = Friend.where('user_id_giver = ?', login_user_id).includes(:friend)
-      friends_hash = {}
-      (0..(old_friends_list.size-1)).each do |i|
-        old_friend = old_friends_list[i]
-        old_friend.friend.user_name = old_friend.friend.user_name.force_encoding('UTF-8')
-        login_user_id = old_friend.user_id_receiver
-        friends_hash[login_user_id] = {:user => old_friend.friend, :old_name => old_friend.friend.user_name, :new_name => old_friend.friend.user_name, :old_api_friend => old_friend.api_friend, :new_api_friend => 'N', :new_record => false}
-      end
+      login_user, friends_hash, token, key, options = get_user_friends_and_token(provider)
+      return [key, options] if key
+      login_user_id = login_user.user_id
 
       # get new google api friends
       puts "token = #{token}"
@@ -688,6 +693,8 @@ class UtilController < ApplicationController
     end
   end # post_login_google_oauth2
 
+
+
   # post login ajax task for linkedIn - get connections
   # using linked gem
   # called from do_ajax_tasks - ajax requests after login
@@ -696,54 +703,45 @@ class UtilController < ApplicationController
   def post_login_linkedin
     begin
 
-      # todo: refactor ==>
+      # get linkedin user, friends and api token
       provider = "linkedin"
-      puts "post_login_#{provider}"
+      login_user, friends_hash, token, key, options = get_user_friends_and_token(provider)
+      return [key, options] if key
+      login_user_id = login_user.user_id
 
-      # find user id and token for linkedin user
-      login_user_id = (session[:user_ids] || []).find { |user_id2| user_id2.split('/').last == provider }
-      return ['.post_login_user_id_not_found', {:provider => provider}] unless login_user_id
-      login_user = User.find_by_user_id(login_user_id)
-      return ['.post_login_unknown_user_id', {:provider => provider, :user_id => login_user_id}] unless login_user
-      token = (session[:tokens] || {})[provider]
-      return ['.post_login_token_not_found', {:provider => provider}] if token.to_s == ""
-      puts "token = #{token}"
-
-      # old google api friends
-      old_friends_list = Friend.where('user_id_giver = ?', login_user_id).includes(:friend)
-      friends_hash = {}
-      (0..(old_friends_list.size-1)).each do |i|
-        old_friend = old_friends_list[i]
-        old_friend.friend.user_name = old_friend.friend.user_name.force_encoding('UTF-8')
-        login_user_id = old_friend.user_id_receiver
-        friends_hash[login_user_id] = {:user => old_friend.friend, :old_name => old_friend.friend.user_name, :new_name => old_friend.friend.user_name, :old_api_friend => old_friend.api_friend, :new_api_friend => 'N', :new_record => false}
-      end
-      # todo: <== refactor
-
+      # create client for linkedin api requests
       client = LinkedIn::Client.new ENV['GOFREEREV_LI_APP_ID'], ENV['GOFREEREV_LI_APP_SECRET']
-      client.authorize_from_access token[0], token[1]
+      client.authorize_from_access token[0], token[1] # token and secret
 
-      client.connections.all.each do |connection|
-        # copy friend to friends_hash
-        friend_user_id = "#{connection.id}/#{provider}"
-        friend_name = "#{connection.first_name} #{connection.last_name}".force_encoding('UTF-8')
-        if friends_hash.has_key?(friend_user_id)
-          # OK - user already in hash
-          nil
-        else
-          # new google friend
-          if !(friend_user = User.where("user_id = ?", friend_user_id).first)
-            # create unknown user - create user with minimal user information (user id and name)
-            friend_user = User.new
-            friend_user.user_id = friend_user_id
-            friend_user.user_name = friend_name
-            friend_user.save!
+      # todo: count number of connections retured from linkedin
+      # todo: handle nil array returned from linkedin (r_network missing in scope)
+
+      begin
+        client.connections.all.each do |connection|
+          # copy friend to friends_hash
+          friend_user_id = "#{connection.id}/#{provider}"
+          friend_name = "#{connection.first_name} #{connection.last_name}".force_encoding('UTF-8')
+          if friends_hash.has_key?(friend_user_id)
+            # OK - user already in hash
+            nil
+          else
+            # new google friend
+            if !(friend_user = User.where("user_id = ?", friend_user_id).first)
+              # create unknown user - create user with minimal user information (user id and name)
+              friend_user = User.new
+              friend_user.user_id = friend_user_id
+              friend_user.user_name = friend_name
+              friend_user.save!
+            end
+            friends_hash[friend_user_id] = {:user => friend_user, :old_name => friend_user.user_name, :old_api_friend => 'N', :new_record => true}
           end
-          friends_hash[friend_user_id] = {:user => friend_user, :old_name => friend_user.user_name, :old_api_friend => 'N', :new_record => true}
-        end
-        friends_hash[friend_user_id][:new_name] = friend_name
-        friends_hash[friend_user_id][:new_api_friend] = 'Y'
-      end # connection loop
+          friends_hash[friend_user_id][:new_name] = friend_name
+          friends_hash[friend_user_id][:new_api_friend] = 'Y'
+        end # connection loop
+      rescue LinkedIn::Errors::AccessDeniedError => e
+        return ['.linkedin_access_denied', {:provider => provider}] if e.message.to_s =~ /Access to connections denied/
+        raise
+      end
 
       # update linkedin connections
       Friend.update_friends_from_hash(login_user_id, friends_hash, false)
@@ -755,9 +753,8 @@ class UtilController < ApplicationController
       # ok
       nil
 
-
     rescue Exception => e
-      puts "Exception: #{e.message.to_s}"
+      puts "Exception: #{e.message.to_s} (#{e.class})"
       puts "Backtrace: " + e.backtrace.join("\n")
       raise
     end
