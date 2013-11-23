@@ -31,7 +31,7 @@ end # OmniAuth
 Rails.application.config.middleware.use OmniAuth::Builder do
   provider :facebook,      ENV['GOFREEREV_FB_APP_ID'], ENV['GOFREEREV_FB_APP_SECRET'], :scope => "", :image_size => :normal, :info_fields => "name,permissions,friends,picture,timezone"
   provider :google_oauth2, ENV['GOFREEREV_GP_APP_ID'], ENV['GOFREEREV_GP_APP_SECRET'], :scope => "plus.login userinfo.profile"
-  provider :linkedin,      ENV['GOFREEREV_LI_APP_ID'], ENV['GOFREEREV_LI_APP_SECRET'], :scope => "r_basicprofile", :fields => ['id', 'first-name', 'last-name', 'picture-url', 'public-profile-url', 'location']
+  provider :linkedin,      ENV['GOFREEREV_LI_APP_ID'], ENV['GOFREEREV_LI_APP_SECRET'], :scope => "r_basicprofile r_network", :fields => ['id', 'first-name', 'last-name', 'picture-url', 'public-profile-url', 'location']
   provider :twitter,       ENV['GOFREEREV_TW_APP_ID'], ENV['GOFREEREV_TW_APP_SECRET']
 end
 

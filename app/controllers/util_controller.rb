@@ -760,4 +760,71 @@ class UtilController < ApplicationController
     end
   end # post_login_linkedin
 
+
+  # post login ajax task for twitter - get friends
+  # using twitter gem
+  # called from do_ajax_tasks - ajax requests after login
+  # must return nil or a valid input to translate  private
+  private
+  def post_login_twitter
+    begin
+
+      # get twitter user, friends and api token
+      provider = "twitter"
+      login_user, friends_hash, token, key, options = get_user_friends_and_token(provider)
+      return [key, options] if key
+      login_user_id = login_user.user_id
+      puts "token = #{token.join(', ')}"
+
+      # create client for twitter api requests
+      client = Twitter::REST::Client.new do |config|
+        config.consumer_key        = ENV['GOFREEREV_TW_APP_ID']
+        config.consumer_secret     = ENV['GOFREEREV_TW_APP_SECRET']
+        config.access_token        = token[0]
+        config.access_token_secret = token[1]
+      end
+
+      begin
+        client.friends.to_a.each do |friend|
+          # copy friend to friends_hash
+          friend_user_id = "#{friend.id}/#{provider}"
+          friend_name = friend.name.dup.force_encoding('UTF-8')
+          if friends_hash.has_key?(friend_user_id)
+            # OK - user already in hash
+            nil
+          else
+            # new google friend
+            if !(friend_user = User.where("user_id = ?", friend_user_id).first)
+              # create unknown user - create user with minimal user information (user id and name)
+              friend_user = User.new
+              friend_user.user_id = friend_user_id
+              friend_user.user_name = friend_name
+              friend_user.save!
+            end
+            friends_hash[friend_user_id] = {:user => friend_user, :old_name => friend_user.user_name, :old_api_friend => 'N', :new_record => true}
+          end
+          friends_hash[friend_user_id][:new_name] = friend_name
+          friends_hash[friend_user_id][:new_api_friend] = 'Y'
+        end # connection loop
+      # todo: add rescue for missing privs
+      end
+
+      # update twitter friends
+      Friend.update_friends_from_hash(login_user_id, friends_hash, false)
+      # twitter friends updated
+
+      # 3) update balance
+      login_user.recalculate_balance if login_user.balance_at != Date.today
+
+      # ok
+      nil
+
+    rescue Exception => e
+      puts "Exception: #{e.message.to_s} (#{e.class})"
+      puts "Backtrace: " + e.backtrace.join("\n")
+      raise
+    end
+  end # post_login_twitter
+  
+  
 end # UtilController

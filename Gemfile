@@ -4,18 +4,18 @@ source 'https://rubygems.org'
 gem 'rails', '4.0.0'
 
 # use omniauth for authorization / login
-# See list of supported stategies: https://github.com/intridea/omniauth/wiki/List-of-Strategies
 gem 'omniauth'
+# See list of supported stategies: https://github.com/intridea/omniauth/wiki/List-of-Strategies
 gem 'omniauth-facebook'      # https://github.com/mkdynamic/omniauth-facebook
 gem "omniauth-google-oauth2" # https://github.com/zquestz/omniauth-google-oauth2
-# gem 'omniauth-linkedin-oauth2' # only token no secret is returned from omniauth-linkedin-oauth2
-gem 'omniauth-linkedin'
-gem 'omniauth-twitter'
+gem 'omniauth-linkedin'      # https://github.com/skorks/omniauth-linkedin
+gem 'omniauth-twitter'       # https://github.com/arunagw/omniauth-twitter
 
-# gems for post login API access - get friend list, update status, etc
-gem 'koala', '1.7.0rc1' # facebook API calls
+# one gem for each omniauth-xxxx gem - post login API requests - get friend list, update status, notifications etc
+gem 'koala', '1.7.0rc1' # facebook API calls - https://github.com/arsduo/koala/wiki/Koala-on-Rails
 gem 'google-api-client' # google+ API calls - https://github.com/google/google-api-ruby-client & https://developers.google.com/api-client-library/ruby/
 gem 'linkedin'          # LinkedIn API calls - https://rubygems.org/gems/linkedin
+gem 'twitter'           # twitter API calls - http://sferik.github.io/twitter/
 
 # Use sqlite3 as the database for Active Record
 gem 'sqlite3'

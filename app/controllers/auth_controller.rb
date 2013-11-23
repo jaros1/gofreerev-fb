@@ -29,7 +29,11 @@ class AuthController < ApplicationController
       post_login_task_provider = "post_login_#{provider}" # private method in UtilController
       add_ajax_task "User.update_timezone('#{user.user_id}', params[:timezone])" # timezone from client/javascript
       add_ajax_task "User.download_profile_image('#{user.user_id}', '#{image}')"
-      add_ajax_task post_login_task_provider if UtilController.new.private_methods.index(post_login_task_provider.to_sym)
+      if UtilController.new.private_methods.index(post_login_task_provider.to_sym)
+        add_ajax_task post_login_task_provider
+      else
+        puts "Warning. No post login task was found for #{provider}. No #{provider} friend information will be downloaded"
+      end
     else
       # login failed
       key, options = user

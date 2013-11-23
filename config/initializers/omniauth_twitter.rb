@@ -1,0 +1,9 @@
+class OmniAuth::AuthHash
+  # return array with token AND secret for twitter - token AND secret are required for twitter gem -
+  def get_token_twitter
+    token = self[:credentials][:token] if self[:credentials]
+    secret = self[:credentials][:secret] if self[:credentials]
+    return nil unless token.to_s != "" and secret.to_s != ""
+    [ token, secret]
+  end # get_token_linkedin
+end
