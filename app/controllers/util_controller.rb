@@ -716,8 +716,10 @@ class UtilController < ApplicationController
       # todo: count number of connections retured from linkedin
       # todo: handle nil array returned from linkedin (r_network missing in scope)
 
+      no_linkedin_connections = 0
       begin
         client.connections.all.each do |connection|
+          no_linkedin_connections += 1
           # copy friend to friends_hash
           friend_user_id = "#{connection.id}/#{provider}"
           friend_name = "#{connection.first_name} #{connection.last_name}".force_encoding('UTF-8')
@@ -784,8 +786,10 @@ class UtilController < ApplicationController
         config.access_token_secret = token[1]
       end
 
+      no_twitter_friends = 0
       begin
         client.friends.to_a.each do |friend|
+          no_twitter_friends += 1
           # copy friend to friends_hash
           friend_user_id = "#{friend.id}/#{provider}"
           friend_name = friend.name.dup.force_encoding('UTF-8')
@@ -808,6 +812,8 @@ class UtilController < ApplicationController
         end # connection loop
       # todo: add rescue for missing privs
       end
+
+
 
       # update twitter friends
       Friend.update_friends_from_hash(login_user_id, friends_hash, false)

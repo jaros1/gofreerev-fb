@@ -198,3 +198,18 @@
     facebook & linkedin friends are mutual friends
     google+ and twitter friends are not mutual friends
     how to handle not mutual friends in gofreerev?
+
+66) invite friends to user gofreerev.
+    faceboke (ok)
+    google+ (todo)
+    linkedin (todo)
+    twitter (todo)
+
+ 67) show auth/index page for not logged in users
+
+ 68) menu should always have a login and a log out link
+     link to provider specific function if only one relevant provider
+     link to auth/index page otherwise
+
+ 69) change header line på responsive design.
+     Only picture +

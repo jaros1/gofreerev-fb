@@ -11,11 +11,11 @@ gem "omniauth-google-oauth2" # https://github.com/zquestz/omniauth-google-oauth2
 gem 'omniauth-linkedin'      # https://github.com/skorks/omniauth-linkedin
 gem 'omniauth-twitter'       # https://github.com/arunagw/omniauth-twitter
 
-# one gem for each omniauth-xxxx gem - post login API requests - get friend list, update status, notifications etc
+# one gem for each omniauth-xxxx gem - post login API requests - get friends, update status, send notifications etc
 gem 'koala', '1.7.0rc1' # facebook API calls - https://github.com/arsduo/koala/wiki/Koala-on-Rails
-gem 'google-api-client' # google+ API calls - https://github.com/google/google-api-ruby-client & https://developers.google.com/api-client-library/ruby/
+gem 'google-api-client' # google+ API calls  - https://github.com/google/google-api-ruby-client & https://developers.google.com/api-client-library/ruby/
 gem 'linkedin'          # LinkedIn API calls - https://rubygems.org/gems/linkedin
-gem 'twitter'           # twitter API calls - http://sferik.github.io/twitter/
+gem 'twitter'           # twitter API calls  - http://sferik.github.io/twitter/
 
 # Use sqlite3 as the database for Active Record
 gem 'sqlite3'
