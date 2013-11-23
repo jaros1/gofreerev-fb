@@ -429,6 +429,10 @@ class UtilController < ApplicationController
     end
   end # accept_new_deal
 
+  def currencies
+    puts "return currencies to client on onfocus event"
+  end
+
   # process ajax tasks from session[:ajax_tasks] queue
   # that is tasks that could slow request/response cycle or information that is not available on server (timezone)
   # tasks:

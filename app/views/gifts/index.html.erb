@@ -1,6 +1,7 @@
 <%= hidden_field_tag :newest_gift_id, @newest_gift_id, :id => "newest-gift-id" %>
 <%= hidden_field_tag :newest_status_update_at, @newest_status_update_at, :id => "newest-status-update-at" %>
 
+
 <script>
   last_user_ajax_comment_at = null ;
 <%=
@@ -85,3 +86,6 @@
     csv_comment_comment_required = '<%= t '.comment_comment_required_text' %>' ;
     csv_comment_price_invalid = '<%= t '.comment_price_invalid_text' %>' ;
 </script>
+
+
+

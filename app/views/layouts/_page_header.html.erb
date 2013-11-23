@@ -10,57 +10,61 @@
 </div>
 <%= link_to "check-new-messages", '/util/new_messages_count?request_fullpath=' + CGI::escape(@request_fullpath) + '&newest_gift_id=0&newest_status_update_at=0', :remote => true, :id => "check-new-messages-link", :style => "display: none" %>
 
+<header>
+  <nav>
+    <table>
+      <tr style="white-space: nowrap">
+        <td>
+          <%= @page_header = true ; @size = '50x50' ; render '/shared/user_div', :user_div => @user %>
+        </td>
+        <td>&nbsp;&nbsp;&nbsp;</td>
+        <td title="<%= t '.header_currency_title' %>">
+          <table height="100%">
+            <tr>
+              <td><%= t '.header_balance_prompt' %> <%= format_price ExchangeRate.exchange(@user.balance[BALANCE_KEY], 'USD', @user.currency) %> <%= t '.header_balance_free' %> <%= @user.currency %></td>
+            </tr>
+            <tr>
+              <td>
+                <%= hidden_field_tag :user_currency_old, @user.currency %>
+                <%= select_tag :user_currency_new, options_for_select(selected_currency, [@user.currency]), :onchange => 'update_currency()' %>
+              </td>
+            </tr>
+          </table>
+        </td>
+        <td>&nbsp;&nbsp;&nbsp;</td>
+        <td>
+          <table>
+            <tr>
+              <td style="vertical-align: baseline" title="<%= t '.header_home_link_title', :appname => APP_NAME %>">
+                <%= link_to t('.header_home_link_text'), gifts_path %>
+              </td>
+              <td>&nbsp;&nbsp;</td>
+              <td style="vertical-align: baseline" title="<%= t '.header_inbox_link_title', :appname => APP_NAME %>">
+                <%= link_to t('.header_inbox_link_text'), inbox_index_path %>
+                <b>
+                  <sup>
+                    <span id="new_messages_count" style="background-color:red; color:white; font-size:x-small"><%= @user.inbox_new_notifications if @user and @user.inbox_new_notifications > 0 %></span>
+                  </sup>
+                </b>
+              </td>
+              <td>&nbsp;&nbsp;</td>
+              <td style="vertical-align: baseline" title="<%= t '.header_friends_link_title', :appname => APP_NAME %>">
+                <%= link_to t('.header_friends_link_text'), users_path(:friends => true) %>
+              </td>
 
-<table>
-  <tr style="white-space: nowrap">
-    <td>
-      <%= @page_header = true ; @size = '50x50' ; render '/shared/user_div', :user_div => @user %>
-    </td>
-    <td>&nbsp;&nbsp;&nbsp;</td>
-    <td title="<%= t '.header_currency_title' %>">
-      <table height="100%">
-        <tr><td><%= t '.header_balance_prompt' %> <%= format_price ExchangeRate.exchange(@user.balance[BALANCE_KEY], 'USD', @user.currency) %> <%= t '.header_balance_free' %> <%= @user.currency %></td></tr>
-        <tr>
-          <td>
-            <%= hidden_field_tag :user_currency_old, @user.currency %>
-            <%= select_tag :user_currency_new, options_for_select(currencies, [@user.currency]), :onchange=> 'update_currency()' %>
-          </td>
-        </tr>
-      </table>
-    </td>
-    <td>&nbsp;&nbsp;&nbsp;</td>
-    <td>
-      <table>
-        <tr>
-            <td style="vertical-align: baseline" title="<%= t '.header_home_link_title', :appname => APP_NAME %>">
-              <%= link_to t('.header_home_link_text'), gifts_path %>
-            </td>
-            <td>&nbsp;&nbsp;</td>
-            <td style="vertical-align: baseline" title="<%= t '.header_inbox_link_title', :appname => APP_NAME %>">
-              <%= link_to t('.header_inbox_link_text'), inbox_index_path %>
-              <b>
-                <sup>
-                  <span id="new_messages_count" style="background-color:red; color:white; font-size:x-small"><%= @user.inbox_new_notifications if @user and @user.inbox_new_notifications > 0 %></span>
-                </sup>
-              </b>
-            </td>
-            <td>&nbsp;&nbsp;</td>
-            <td style="vertical-align: baseline" title="<%= t '.header_friends_link_title', :appname => APP_NAME %>">
-              <%= link_to t('.header_friends_link_text'), users_path(:friends => true) %>
-            </td>
+              <td>&nbsp;&nbsp;</td>
+              <td style="vertical-align: baseline" title="<%= t '.header_api_link_title', :apiname => @user.api_name_without_brackets, :appname => APP_NAME %>">
+                <%= link_to_api %>
+              </td>
 
-            <td>&nbsp;&nbsp;</td>
-            <td style="vertical-align: baseline" title="<%= t '.header_api_link_title', :apiname => @user.api_name_without_brackets, :appname => APP_NAME %>">
-              <%= link_to_api %>
-            </td>
-
-            <td>&nbsp;&nbsp;</td>
-            <td style="vertical-align: baseline" title="<%= t '.header_log_out_link_title', :appname => APP_NAME, :apiname => @user.api_name_without_brackets %>">
-              <%= link_to t('.header_log_out_link_text'), header_log_out_link_url, :method => 'delete' %>
-            </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-
+              <td>&nbsp;&nbsp;</td>
+              <td style="vertical-align: baseline" title="<%= t '.header_log_out_link_title', :appname => APP_NAME, :apiname => @user.api_name_without_brackets %>">
+                <%= link_to t('.header_log_out_link_text'), header_log_out_link_url, :method => 'delete' %>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </nav>
+</header>

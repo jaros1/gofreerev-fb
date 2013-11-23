@@ -651,3 +651,40 @@ function check_uncheck_new_deal_checkbox(checkbox, giftid)
     // alert(checkbox);
 } // check_uncheck_new_deal_checkbox
 
+
+// only current currency is in currency LOV at response time
+// download all currencies when user clicks on currency LOV
+// for smaller page and faster startup time
+function add_user_currency_new_event() {
+    $("#user_currency_new").focus(function () {
+        var id_select = document.getElementById("user_currency_new");
+        if (id_select.length > 1) {
+            // list of currencies is already initialised
+            $("#user_currency_new").unbind('focus');
+        }
+        else {
+            // get full list of currencies from server
+            $.ajax({
+                type: 'GET',
+                url: '/util/currencies.js',
+                dataType: "text",
+                success: function (msg) {
+                    $("#user_currency_new").unbind('focus');
+                    if (msg == 0) {
+                        // Query returned empty.
+                        alert('Did not get any currencies from server');  // todo: or just ignore error!
+                    } else {
+                        // Query Has values.
+                        $('#user_currency_new').replaceWith(msg);
+                        $("#user_currency_new").click;
+                    }
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    $("#user_currency_new").unbind('focus');
+                    alert('error: jqXHR = ' + jqXHR + ', textStatus = ' + textStatus + ', errorThrown = ' + errorThrown);
+                }
+            });
+
+        }
+    });
+}

@@ -211,5 +211,12 @@
      link to provider specific function if only one relevant provider
      link to auth/index page otherwise
 
- 69) change header line på responsive design.
-     Only picture +
+ 69) change header line for responsive design.
+     picture without name and api if width <= nnn
+     no balance and currency LOV if width <= nnn - change currency in users/show page for login user
+     one or two lines nav links in header line
+     show dummy header line for not logged in users
+
+ 70) do not long list of currencies in page header in all pages. options:
+     a) ajax get list of currencies onFocus
+     b) only show currency LOV in user/show page if user == login user

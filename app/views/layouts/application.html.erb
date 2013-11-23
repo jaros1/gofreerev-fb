@@ -20,7 +20,7 @@
   <script>
   </script>
 </head>
-<body>
+<body onload="{add_user_currency_new_event()}">
 <% if  session[:user_id] and @user -%>
     <!-- show page header for logged in users -->
     <%# Hidden form to update currency => post to /users/:id/ => return to this page after currency has been changed -%>
