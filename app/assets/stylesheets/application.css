@@ -9,5 +9,41 @@
  * compiled file, but it's generally better to create a new file per style scope.
  *
  *= require_self
- *= require_tree .
+ *= require_tree
+
+ tested with max/min-width breakpoints: 320, 360, 480, 533, 600, 640, 768, 800, 1024 and 1280.
+
  */
+
+div {
+    float: left;
+}
+
+.wrapper {
+    width: 100%;
+}
+header { width: 100% }
+.cookie_note {
+    width: 100%;
+}
+
+.small_profile_picture {
+    width: 50px;
+    height: 50px;
+}
+
+.big_profile_picture {
+    width: 100px;
+    height: 100px;
+}
+
+@media screen and (max-width: 320px) {
+
+    .user_div_name_and_api {
+        display: none;
+    }
+
+    .balance_and_currency_lov {
+        display: none;
+    }
+}

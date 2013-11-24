@@ -3,63 +3,61 @@
 <head>
   <title><%= title %></title>
   <%= stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track' => true %>
-  <link data-turbolinks-track="true" href="/assets/-320.css?body=1" media="all and (max-width: 320px)" rel="stylesheet" />
-  <link data-turbolinks-track="true" href="/assets/321-360.css?body=1" media="all and  (min-width: 321px) and (max-width: 360px)" rel="stylesheet" />
-  <link data-turbolinks-track="true" href="/assets/361-480.css?body=1" media="all and  (min-width: 361px) and (max-width: 480px)" rel="stylesheet" />
-  <link data-turbolinks-track="true" href="/assets/481-533.css?body=1" media="all and  (min-width: 481px) and (max-width: 533px)" rel="stylesheet" />
-  <link data-turbolinks-track="true" href="/assets/534-600.css?body=1" media="all and  (min-width: 534px) and (max-width: 600px)" rel="stylesheet" />
-  <link data-turbolinks-track="true" href="/assets/601-640.css?body=1" media="all and  (min-width: 601px) and (max-width: 640px)" rel="stylesheet" />
-  <link data-turbolinks-track="true" href="/assets/641-768.css?body=1" media="all and  (min-width: 641px) and (max-width: 768px)" rel="stylesheet" />
-  <link data-turbolinks-track="true" href="/assets/769-800.css?body=1" media="all and  (min-width: 769px) and (max-width: 800px)" rel="stylesheet" />
-  <link data-turbolinks-track="true" href="/assets/801-1024.css?body=1" media="all and  (min-width: 801px) and (max-width: 1024px)" rel="stylesheet" />
-  <link data-turbolinks-track="true" href="/assets/1025-1280.css?body=1" media="all and  (min-width: 1025px) and (max-width: 1280px)" rel="stylesheet" />
-  <link data-turbolinks-track="true" href="/assets/1281-.css?body=1" media="all and  (min-width: 1281px)" rel="stylesheet" />
   <%= javascript_include_tag 'application', 'data-turbolinks-track' => true %>
   <script src="/javascripts/my.js"></script>
   <%= csrf_meta_tags %>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0, user-scalable=no">
   <script>
   </script>
 </head>
 <body onload="{add_user_currency_new_event()}">
-<% if  session[:user_id] and @user -%>
-    <!-- show page header for logged in users -->
-    <%# Hidden form to update currency => post to /users/:id/ => return to this page after currency has been changed -%>
-    <div id="update_currency_div" style="display:none">
-      <%= form_for @user, :class => 'update_currency_form' do |f| %>
-          <%= hidden_field_tag :return_to, @request_fullpath %>
-          <%= f.text_field :new_currency %>
-      <% end %>
-    </div>
-    <% if ajax_tasks? -%>
-        <%# Hidden form for post login processing (for example downloading profile image -%>
-        <div id="ajax_tasks_div" style="display:none">
-          <%= form_tag url_for(:controller => :util, :action => :do_ajax_tasks), :remote => true, :id => 'ajax_tasks_form' do %>
-              <%= hidden_field_tag :timezone, "" %>
+<div id="wrapper" style="width: 100%">
+  <header>
+    <% if @cookie_note -%>
+      <div id="cookie_note" style="width: 100%"><%= t '.cookie_note_text', :appname => APP_NAME %></div>
+    <% end -%>
+    <% if  session[:user_id] and @user -%>
+        <!-- show page header for logged in users -->
+        <%# Hidden form to update currency => post to /users/:id/ => return to this page after currency has been changed -%>
+        <div id="update_currency_div" style="display:none">
+          <%= form_for @user, :class => 'update_currency_form' do |f| %>
+              <%= hidden_field_tag :return_to, @request_fullpath %>
+              <%= f.text_field :new_currency %>
           <% end %>
         </div>
+        <% if ajax_tasks? -%>
+            <%# Hidden form for post login processing (for example downloading profile image -%>
+            <div id="ajax_tasks_div" style="display:none">
+              <%= form_tag url_for(:controller => :util, :action => :do_ajax_tasks), :remote => true, :id => 'ajax_tasks_form' do %>
+                  <%= hidden_field_tag :timezone, "" %>
+              <% end %>
+            </div>
+        <% end -%>
+        <!-- page header -->
+        <%= render :partial => 'layouts/page_header' %>
+        <div style="width: 100%"><hr></div>
     <% end -%>
-    <!-- page header -->
-    <%= render :partial => 'layouts/page_header' %>
-    <hr/>
-<% end -%>
-<!-- todo: better flash/error handling -->
-<% if flash[:notice] -%>
-    <br/>
+    <!-- todo: better flash/error handling -->
+    <% if flash[:notice] -%>
+        <br/>
 
-    <div id="notification"><%= h flash[:notice] %></div>
-    <br/>
-<% end -%>
-<table id="ajax_tasks_errors"></table>
-<!-- the page -->
-<%= yield %>
-<!-- page footer -->
-<%= render :partial => 'layouts/page_footer/page_footer' -%>
-<% if ajax_tasks? -%>
-    <%# trigger hidden form for some ajax processing - for example downloading profile image from login provider -%>
-    <script>
-        document.getElementById("timezone").value = (new Date().getTimezoneOffset()) / 60.0 ;
-        $('#ajax_tasks_form').trigger('submit.rails');
-    </script>
-<% end -%>
+        <div id="notification"><%= h flash[:notice] %></div>
+        <br/>
+    <% end -%>
+    <table id="ajax_tasks_errors"></table>
+  </header>
+  <!-- the page -->
+  <%= yield %>
+  <footer>
+    <%= render :partial => 'layouts/page_footer/page_footer' -%>
+    <% if ajax_tasks? -%>
+        <%# trigger hidden form for some ajax processing - for example downloading profile image from login provider -%>
+        <script>
+            document.getElementById("timezone").value = (new Date().getTimezoneOffset()) / 60.0;
+            $('#ajax_tasks_form').trigger('submit.rails');
+        </script>
+    <% end -%>
+  </footer>
+</div>
 </body>
 </html>

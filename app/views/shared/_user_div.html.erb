@@ -5,19 +5,17 @@
 -%>
 <div title="<%= t div_title, :username => username, :balance => balance %>"
      onclick="top.location.href = '<%= url_for(user_div) %>'">
-<% if @page_header -%>
-      <table>
-        <tr>
-          <td rowspan="2">
-<% end -%>
-  <%= image_tag(user_div.profile_picture_url, :size => @size, :alt => nil)  %>
-<% if @page_header -%>
-          </td>
-          <td><%= h @user.short_user_name %></td>
-        </tr>
-        <tr>
-          <td><%= @user.api_name_with_brackets %></td>
-        </tr>
-      </table>
-<% end -%>
+  <div><%= image_tag(user_div.profile_picture_url, :size => @size, :alt => nil) %></div>
+  <% if @page_header -%>
+      <div class="user_div_name_and_api">
+        <table>
+          <tr>
+            <td><%= h @user.short_user_name %></td>
+          </tr>
+          <tr>
+            <td><%= @user.api_name_with_brackets %></td>
+          </tr>
+        </table>
+      </div>
+  <% end -%>
 </div>

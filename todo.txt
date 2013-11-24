@@ -69,7 +69,7 @@
 
 18) wrap fb api into an generic exception handler with dump of request and exception after error
 
-19) add accept conditions for new users
+19) add accept conditions for new users?
 
 20) add disclaimer
 
@@ -217,6 +217,7 @@
      one or two lines nav links in header line
      show dummy header line for not logged in users
 
- 70) do not long list of currencies in page header in all pages. options:
-     a) ajax get list of currencies onFocus
-     b) only show currency LOV in user/show page if user == login user
+ 70) minor problem with ajax util/currencies to get full list of currencies onfocus
+     user has to click twice on currency LOV to change currency.
+
+ 71) user_div. replace @size = '50x50' with @size = 'small' or 'big' and use css

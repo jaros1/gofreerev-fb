@@ -27,6 +27,7 @@
           <%= link_to t('.request_read_stream_priv_link_text', :appname => APP_NAME), "javascript: {top.location.href='#{auth_read_stream_url}'}" %>
         </p>
     <% end -%>
+    <div style="width: 100%">
     <%= form_for @gift, :multipart => true, :html => { :enctype => 'multipart/form-data' } do |f| -%>
         <table>
           <tr>
@@ -54,7 +55,8 @@
           </tr>
         </table>
     <% end # form -%>
-    <hr/>
+    </div>
+    <div style="width: 100%"><hr></div>
 
     <% if @gifts.size == 0 -%>
         <p>

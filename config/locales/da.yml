@@ -57,6 +57,8 @@ da:
 
   # application layout with page header and footer
   layouts:
+     application:
+        cookie_note_text: "%{appname} anvender cookies som en del af tjenesten. Cookies slettes når browseren lukkes. Se mere under om menupunkt \"%{appname}\""
      page_header:
         header_currency_title: "Saldo. Brug valuta valg-liste hvis du ønsker din saldo vist i en anden valuta. Ens saldo i frie penge viser hvor meget man har investeret i venner og fællesskab og er et mål for taknemmelighedsgæld. Hvem har givet/modtaget mest? Hvis tur er det til at modtage/give? En positiv saldo betyder at man er god til at hjælpe andre og at ens hjælp er blevet værdsat. En negativ saldo betyder at man er god til at tage imod hjælp og at man har sat pris på hjælpen. Der er ingen sammenhæng imellem hvem der er rige/fattige i frie penge herinde og hvem der er rige/fattige i den virkelige verden."
         header_balance_prompt: "Saldo:"

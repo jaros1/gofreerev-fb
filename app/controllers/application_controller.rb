@@ -63,6 +63,10 @@ class ApplicationController < ActionController::Base
     # puts "fetch_user: start. sessionid = #{request.session_options[:id]}"
     I18n.locale = session[:language] if session[:language]
     puts "I18n.locale = #{I18n.locale}"
+    # cookie note in page header for the first 30 seconds for a new session
+    session[:created] = Time.new unless session[:created]
+    @cookie_note = true if Time.new - session[:created] < 30
+    @cookie_note = true
     # Cross-site Request Forgery check
     if params[:state] != session[:state] and params[:code].to_s != ''
       # Possible Cross-site Request Forgery - ignore code from facebook

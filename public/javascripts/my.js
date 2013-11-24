@@ -655,6 +655,7 @@ function check_uncheck_new_deal_checkbox(checkbox, giftid)
 // only current currency is in currency LOV at response time
 // download all currencies when user clicks on currency LOV
 // for smaller page and faster startup time
+// todo: minor problem. User has to click twice on currency LOV to change currency. First to get full currency list and second to change currency
 function add_user_currency_new_event() {
     $("#user_currency_new").focus(function () {
         var id_select = document.getElementById("user_currency_new");
