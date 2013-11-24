@@ -22,28 +22,50 @@ div {
 .wrapper {
     width: 100%;
 }
-header { width: 100% }
+
+header {
+    width: 100%
+}
+
 .cookie_note {
     width: 100%;
 }
+
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
 
 .small_profile_picture {
     width: 50px;
     height: 50px;
 }
-
 .big_profile_picture {
     width: 100px;
     height: 100px;
 }
 
-@media screen and (max-width: 320px) {
+@media screen and (max-width: 440px) {
 
     .user_div_name_and_api {
         display: none;
     }
+}
+
+@media screen and (max-width: 533px) {
 
     .balance_and_currency_lov {
         display: none;
     }
+}
+
+@media screen and (max-width: 440px) {
+    .menu-3-cols { display: inline; width: 83%; }
+    .menu-6-cols { display: none}
+}
+@media screen and (min-width: 441px) and (max-width: 480px) {
+    .menu-3-cols { display: inline; width: 67%; }
+    .menu-6-cols { display: none}
 }

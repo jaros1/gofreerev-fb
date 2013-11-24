@@ -27,50 +27,81 @@
     </table>
   </div>
 
-  <nav>
+    <div class="menu-3-cols">
+      <table>
+        <tr>
+          <td title="<%= t '.header_home_link_title', :appname => APP_NAME %>">
+            <%= link_to t('.header_home_link_text'), gifts_path %></td>
+          <td title="<%= t '.header_inbox_link_title', :appname => APP_NAME %>">
+            <%= link_to t('.header_inbox_link_text'), inbox_index_path %>
+            <b>
+              <sup>
+                <span id="new_messages_count" style="background-color:red; color:white; font-size:x-small"><%= @user.inbox_new_notifications if @user and @user.inbox_new_notifications > 0 %></span>
+              </sup>
+            </b></td>
+          <td title="<%= t '.header_friends_link_title', :appname => APP_NAME %>">
+            <%= link_to t('.header_friends_link_text'), users_path(:friends => true) %></td>
+        </tr>
+        <tr>
+          <td title="<%= t '.header_log_out_link_title', :appname => APP_NAME, :apiname => @user.api_name_without_brackets %>">
+            <%= link_to t('.header_log_out_link_text'), header_log_out_link_url, :method => 'delete' %></td>
+          <td title="<%= t '.header_log_out_link_title', :appname => APP_NAME, :apiname => @user.api_name_without_brackets %>">
+            <%= link_to t('.header_log_out_link_text'), header_log_out_link_url, :method => 'delete' %></td>
+          <td>Gofreerev</td>
+        </tr>
+      </table>
+    </div>
 
+    <div class="menu-6-cols">
+      <table>
+        <tr>
+          <td title="<%= t '.header_home_link_title', :appname => APP_NAME %>">
+            <%= link_to t('.header_home_link_text'), gifts_path %></td>
+          <td title="<%= t '.header_inbox_link_title', :appname => APP_NAME %>">
+            <%= link_to t('.header_inbox_link_text'), inbox_index_path %>
+            <b>
+              <sup>
+                <span id="new_messages_count" style="background-color:red; color:white; font-size:x-small"><%= @user.inbox_new_notifications if @user and @user.inbox_new_notifications > 0 %></span>
+              </sup>
+            </b></td>
+          <td title="<%= t '.header_friends_link_title', :appname => APP_NAME %>">
+            <%= link_to t('.header_friends_link_text'), users_path(:friends => true) %></td>
+          <td title="<%= t '.header_log_out_link_title', :appname => APP_NAME, :apiname => @user.api_name_without_brackets %>">
+            <%= link_to t('.header_log_out_link_text'), header_log_out_link_url, :method => 'delete' %></td>
+          <td title="<%= t '.header_log_out_link_title', :appname => APP_NAME, :apiname => @user.api_name_without_brackets %>">
+            <%= link_to t('.header_log_out_link_text'), header_log_out_link_url, :method => 'delete' %></td>
+          <td>Gofreerev</td>
+        </tr>
+      </table>
+    </div>
+
+<!--
     <ul>
 
+      <li title="<%= t '.header_home_link_title', :appname => APP_NAME %>">
+        <%= link_to t('.header_home_link_text'), gifts_path %>
+      </li>
+      <li title="<%= t '.header_inbox_link_title', :appname => APP_NAME %>">
+        <%= link_to t('.header_inbox_link_text'), inbox_index_path %>
+        <b>
+          <sup>
+            <span id="new_messages_count" style="background-color:red; color:white; font-size:x-small"><%= @user.inbox_new_notifications if @user and @user.inbox_new_notifications > 0 %></span>
+          </sup>
+        </b>
+      </li>
+      <li title="<%= t '.header_friends_link_title', :appname => APP_NAME %>">
+        <%= link_to t('.header_friends_link_text'), users_path(:friends => true) %>
+      </li>
+      <li title="<%= t '.header_api_link_title', :apiname => @user.api_name_without_brackets, :appname => APP_NAME %>">
+        <%= link_to_api %>
+      </li>
+      <li title="<%= t '.header_log_out_link_title', :appname => APP_NAME, :apiname => @user.api_name_without_brackets %>">
+        <%= link_to t('.header_log_out_link_text'), header_log_out_link_url, :method => 'delete' %>
+      </li>
+
     </ul>
+-->
 
-    <table>
-      <tr style="white-space: nowrap">
-
-        <td>
-          <table>
-            <tr>
-              <td style="vertical-align: baseline" title="<%= t '.header_home_link_title', :appname => APP_NAME %>">
-                <%= link_to t('.header_home_link_text'), gifts_path %>
-              </td>
-              <td>&nbsp;&nbsp;</td>
-              <td style="vertical-align: baseline" title="<%= t '.header_inbox_link_title', :appname => APP_NAME %>">
-                <%= link_to t('.header_inbox_link_text'), inbox_index_path %>
-                <b>
-                  <sup>
-                    <span id="new_messages_count" style="background-color:red; color:white; font-size:x-small"><%= @user.inbox_new_notifications if @user and @user.inbox_new_notifications > 0 %></span>
-                  </sup>
-                </b>
-              </td>
-              <td>&nbsp;&nbsp;</td>
-              <td style="vertical-align: baseline" title="<%= t '.header_friends_link_title', :appname => APP_NAME %>">
-                <%= link_to t('.header_friends_link_text'), users_path(:friends => true) %>
-              </td>
-
-              <td>&nbsp;&nbsp;</td>
-              <td style="vertical-align: baseline" title="<%= t '.header_api_link_title', :apiname => @user.api_name_without_brackets, :appname => APP_NAME %>">
-                <%= link_to_api %>
-              </td>
-
-              <td>&nbsp;&nbsp;</td>
-              <td style="vertical-align: baseline" title="<%= t '.header_log_out_link_title', :appname => APP_NAME, :apiname => @user.api_name_without_brackets %>">
-                <%= link_to t('.header_log_out_link_text'), header_log_out_link_url, :method => 'delete' %>
-              </td>
-            </tr>
-          </table>
-        </td>
-
-      </tr>
-    </table>
   </nav>
 
 </div>
