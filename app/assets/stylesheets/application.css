@@ -11,7 +11,7 @@
  *= require_self
  *= require_tree
 
- tested with max/min-width breakpoints: 320, 360, 480, 533, 600, 640, 768, 800, 1024 and 1280.
+ max/min-width breakpoints: 320, 360, 480, 533, 600, 640, 768, 800, 1024 and 1280.
 
  */
 
@@ -54,7 +54,7 @@ ul {
     }
 }
 
-@media screen and (max-width: 533px) {
+@media screen and (max-width: 599px) {
 
     .balance_and_currency_lov {
         display: none;
@@ -65,7 +65,15 @@ ul {
     .menu-3-cols { display: inline; width: 83%; }
     .menu-6-cols { display: none}
 }
-@media screen and (min-width: 441px) and (max-width: 480px) {
+@media screen and (min-width: 441px) and (max-width: 599px) {
     .menu-3-cols { display: inline; width: 67%; }
     .menu-6-cols { display: none}
+}
+@media screen and (min-width: 600px) and (max-width: 799px) {
+    .menu-3-cols { display: inline; width: 40%; }
+    .menu-6-cols { display: none}
+}
+@media screen and (min-width: 800px) {
+    .menu-3-cols { display: none }
+    .menu-6-cols { display: inline; width:56%; }
 }
