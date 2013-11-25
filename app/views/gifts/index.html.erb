@@ -3,11 +3,11 @@
 
 
 <script>
-  last_user_ajax_comment_at = null ;
-<%=
-  # recheck invalid picture urls with owner permissions
-  @missing_api_picture_urls
-%>
+    last_user_ajax_comment_at = null;
+    <%=
+      # recheck invalid picture urls with owner permissions
+      @missing_api_picture_urls
+    %>
 </script>
 
 <% #noinspection RubyResolve
@@ -18,45 +18,48 @@
 <% else -%>
     <% if !@user.post_gift_allowed? -%>
         <p title="<%= t '.post_gift_not_allowed_title', :appname => APP_NAME, :apiname => @user.api_name_without_brackets %>">
-          <%= t '.post_gift_not_allowed_text', :appname => APP_NAME, :apiname => @user.api_name_without_brackets %><br />
+          <%= t '.post_gift_not_allowed_text', :appname => APP_NAME, :apiname => @user.api_name_without_brackets %><br/>
           <%= link_to t('.request_post_gift_priv_link_text', :appname => APP_NAME), "javascript: {top.location.href='#{auth_post_gift_url}'}" %>
         </p>
     <% elsif flash[:read_stream] -%>
         <p title="<%= t '.read_stream_not_allowed_title', :appname => APP_NAME, :apiname => @user.api_name_without_brackets %>">
-          <%= t '.read_stream_not_allowed_text', :appname => APP_NAME, :apiname => @user.api_name_without_brackets %><br />
+          <%= t '.read_stream_not_allowed_text', :appname => APP_NAME, :apiname => @user.api_name_without_brackets %>
+          <br/>
           <%= link_to t('.request_read_stream_priv_link_text', :appname => APP_NAME), "javascript: {top.location.href='#{auth_read_stream_url}'}" %>
         </p>
     <% end -%>
     <div style="width: 100%">
-    <%= form_for @gift, :multipart => true, :html => { :enctype => 'multipart/form-data' } do |f| -%>
-        <table>
-          <tr>
-            <td colspan="3"><%= t '.create_gift_header_line' %></td>
-          </tr>
-          <tr title="<%= t '.price_title', :min_interest => NEG_INT_POS_BALANCE_PER_YEAR, :max_interest => NEG_INT_NEG_BALANCE_PER_YEAR %>">
-            <td><%= t '.price_prompt' %></td>
-            <td colspan="2">
-              <%= f.text_field(:price, :size=>10, :maxlength=>10) %>
-              <%= t '.price_free' %>
-              <%= @user.currency %>
-              &nbsp;&nbsp;&nbsp;
-              <%= t '.direction_giver_prompt' %> <%= f.radio_button :direction, 'giver' %>
-              <%= t '.direction_receiver_prompt' %> <%= f.radio_button :direction, 'receiver' %>
-            </td>
-          </tr>
-          <tr title="<%= t '.description_title' %>">
-            <td style="vertical-align: top"><%= t '.description_prompt' %></td>
-            <td><%= f.text_area :description, :size => '60x2', :placeholder => 'Enter Comments', :onfocus => 'autoresize_text_field(this)' %></td>
-            <td><%= f.submit t('.gift_submit_button_text'), :onclick => '{return csv_gift()}' %></td>
-          </tr>
-          <tr title="<%= t ".file_title_#{@user.post_gift_allowed?}", :appname => APP_NAME, :apiname => @user.api_name_without_brackets %>">
-            <td><%= t '.file_prompt' %></td>
-            <td colspan="2"><%= file_field_tag(:gift_file, :disabled => !@user.post_gift_allowed?) %></td>
-          </tr>
-        </table>
-    <% end # form -%>
+      <%= form_for @gift, :multipart => true, :html => {:enctype => 'multipart/form-data'} do |f| -%>
+          <table style="width: 100%">
+            <tr>
+              <td colspan="2"><%= t '.create_gift_header_line' %></td>
+            </tr>
+            <tr title="<%= t '.price_title', :min_interest => NEG_INT_POS_BALANCE_PER_YEAR, :max_interest => NEG_INT_NEG_BALANCE_PER_YEAR %>">
+              <td><%= t '.price_prompt' %></td>
+              <td>
+                <%= f.text_field(:price, :size => 10, :maxlength => 10) %>
+                <%= t '.price_free' %>
+                <%= @user.currency %>
+                &nbsp;&nbsp;&nbsp;
+                <%= t '.direction_giver_prompt' %> <%= f.radio_button :direction, 'giver' %>
+                <%= t '.direction_receiver_prompt' %> <%= f.radio_button :direction, 'receiver' %>
+              </td>
+            </tr>
+            <tr title="<%= t '.description_title' %>">
+              <td style="vertical-align: top"><%= t '.description_prompt' %></td>
+              <td><%= f.text_area :description, :size => '60x2', :placeholder => 'Enter Comments', :onfocus => 'autoresize_text_field(this)', :class => 'new_gift_text' %>
+                  <%= f.submit t('.gift_submit_button_text'), :onclick => '{return csv_gift()}' %></td>
+            </tr>
+            <tr title="<%= t ".file_title_#{@user.post_gift_allowed?}", :appname => APP_NAME, :apiname => @user.api_name_without_brackets %>">
+              <td><%= t '.file_prompt' %></td>
+              <td><%= file_field_tag(:gift_file, :disabled => !@user.post_gift_allowed?) %></td>
+            </tr>
+          </table>
+      <% end # form  -%>
     </div>
-    <div style="width: 100%"><hr></div>
+    <div style="width: 100%">
+      <hr>
+    </div>
 
     <% if @gifts.size == 0 -%>
         <p>
@@ -72,21 +75,21 @@
 
 <% end -%>
 
-<br />
+<br/>
 <%= link_to "show-more-rows", "/gifts?last_row_id=#{@last_row_id}", :remote => true, :id => "show-more-rows-link", :style => "display: none" %>
-<%= render :partial => 'shared/show_more_rows', :locals =>  { :show_more_rows => 'gifts' } %>
+<%= render :partial => 'shared/show_more_rows', :locals => {:show_more_rows => 'gifts'} %>
 
 <script>
     // add page specific version of pre_update_currency function.
     // That is confirm popup before leaving page with unsaved data.
-    pending_gift_msg = '<%= t '.pending_gift_popup_msg' %>' ;
-    pre_update_currency = gifts_pre_update_currency ;
+    pending_gift_msg = '<%= t '.pending_gift_popup_msg' %>';
+    pre_update_currency = gifts_pre_update_currency;
 
     // Translate texts used in client side validations.
-    csv_gift_description_required = '<%= t '.description_required_text' %>' ;
-    csv_gift_price_invalid = '<%= t '.price_invalid_text' %>' ;
-    csv_comment_comment_required = '<%= t '.comment_comment_required_text' %>' ;
-    csv_comment_price_invalid = '<%= t '.comment_price_invalid_text' %>' ;
+    csv_gift_description_required = '<%= t '.description_required_text' %>';
+    csv_gift_price_invalid = '<%= t '.price_invalid_text' %>';
+    csv_comment_comment_required = '<%= t '.comment_comment_required_text' %>';
+    csv_comment_price_invalid = '<%= t '.comment_price_invalid_text' %>';
 </script>
 
 
