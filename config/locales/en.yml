@@ -57,7 +57,7 @@ en:
   # application layout with page header and footer
   layouts:
      application:
-        cookie_note_text: ""
+        cookie_note_text: "%{appname} uses cookies as part of the service. The cookies are deleted when the browser is closed. More information available under menu item \"%{appname}\""
      page_header:
         header_currency_title: "Balance. Use currency selection list if you want your balance shown in a different currency. Your balance of free money show how much you have invested in community and friends and is a measure of gratitude. Who has given / received most? Whose turn is it to receive / give? A positive balance means that you are good to help others and to one's help has been appreciated. A negative balance means that you are good to accept help and that you have appreciated the help. There is no correlation between who is rich / poor in free money here and who are rich / poor in the real world."
         header_balance_prompt: "Balance:"

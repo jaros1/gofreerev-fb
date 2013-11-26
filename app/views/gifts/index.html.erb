@@ -41,8 +41,10 @@
                 <%= t '.price_free' %>
                 <%= @user.currency %>
                 &nbsp;&nbsp;&nbsp;
-                <%= t '.direction_giver_prompt' %> <%= f.radio_button :direction, 'giver' %>
+                <div style="text-wrap: none">
+                <%= t '.direction_giver_prompt' %> <%= f.radio_button :direction, 'giver' %>&nbsp;&nbsp;
                 <%= t '.direction_receiver_prompt' %> <%= f.radio_button :direction, 'receiver' %>
+                </div>
               </td>
             </tr>
             <tr title="<%= t '.description_title' %>">
@@ -65,17 +67,19 @@
       <hr>
     </div>
 
+    <div style="width: 100%">
     <% if @gifts.size == 0 -%>
         <p>
           <%= t '.no_gifts_was_found_html', :appname => APP_NAME, :apiname => @user.api_name_without_brackets %>
         </p>
         <%= t 'shared.invite_friends.invite_api_friends_link_prompt1', :apiname => @user.api_name_without_brackets %> <%= invite_friends_link1 %>
     <% else -%>
-        <table id="gifts" style="border-spacing: 0;">
+        <table id="gifts" style="border-spacing: 0; width: 100%">
           <%= render :partial => 'table_header_row' %>
           <%= render :partial => 'gifts' %>
         </table>
     <% end -%>
+    </div>
 
 <% end -%>
 

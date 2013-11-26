@@ -15,8 +15,14 @@
 
  */
 
+html {
+    overflow-x: hidden;
+}
+
 div {
     float: left;
+    margin-left: 0px;
+    margin-left: 0px;
 }
 
 .wrapper {
@@ -122,7 +128,7 @@ ul {
 /* responsive new gift */
 @media screen and (max-width: 320px) {
     .new_gift_text {
-        width: 85%;
+        width: 75%;
     }
 }
 
@@ -171,8 +177,6 @@ ul {
 }
 
 /* responsive comments */
-
-
 
 @media screen and (max-width: 512px) {
     .new_com_text {
