@@ -220,11 +220,6 @@
  70) minor problem with ajax util/currencies to get full list of currencies onfocus
      user has to click twice on currency LOV to change currency.
 
- 71) check responsive design in major browsers.
-     - problem with chrone and wi 320.
-       create gift header create_gift_header_line text word wraps after wi 320
-       looks like a problem with too wide menu-3-cols menu
-
  72) problem with responsive design and gift file upload for wi 320.
      check out http://geniuscarrier.com/how-to-style-a-html-file-upload-button-in-pure-css/
      move upload button to left side with field prompts
