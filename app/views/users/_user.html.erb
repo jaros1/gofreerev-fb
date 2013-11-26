@@ -1,5 +1,5 @@
 <tr>
-  <td rowspan="4"><%= @size = '100x100' ; render '/shared/user_div', :user_div => user %></td>
+  <td rowspan="4"><%= @size = 'large' ; render '/shared/user_div', :user_div => user %></td>
   <td><%= t '.user_name_prompt' %></td>
   <td>:</td>
   <td title="<%= t '.user_name_title', :username => user.short_or_full_user_name(@user), :apiname => user.api_name_without_brackets %>">

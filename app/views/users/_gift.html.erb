@@ -6,12 +6,12 @@
     <tr style="vertical-align: top" id="<%= "gift-#{gift.id}" %>-header">
       <td>
         <% if gift.giver -%>
-            <%= @size = '50x50' ; render '/shared/user_div', :user_div => gift.giver %>
+            <%= @size = 'small' ; render '/shared/user_div', :user_div => gift.giver %>
         <% end -%>
       </td>
       <td>
         <% if gift.receiver -%>
-            <%= @size = '50x50' ; render '/shared/user_div', :user_div => gift.receiver %>
+            <%= @size = 'small' ; render '/shared/user_div', :user_div => gift.receiver %>
         <% end -%>
       </td>
       <td>

@@ -274,6 +274,8 @@ class GiftsController < ApplicationController
       @newest_status_update_at = newest_status_update_at if newest_gift
       # empty AjaxComment buffer for current user - comments created after page load will be ajax inserted in gifts/index page
       AjaxComment.destroy_all(:user_id => @user.user_id)
+      # insert dummy profile pictures in first row - force fixed size for empty from or to columns
+      @first_gift = true
     end
 
     @gifts, @last_row_id = get_next_set_of_rows(gifts, last_row_id)

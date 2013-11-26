@@ -55,7 +55,7 @@
               <td><%= file_field_tag(:gift_file, :disabled => !@user.post_gift_allowed?) %></td>
             </tr>
             <tr class="submit_gift_small">
-              <td>&nbsp;</td>
+              <td></td>
               <td><%= f.submit t('.gift_submit_button_text'), :onclick => '{return csv_gift()}' %></td>
             </tr>
           </table>
