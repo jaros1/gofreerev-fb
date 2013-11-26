@@ -24,7 +24,7 @@
             <% @first_gift = false -%>
         <% end -%>
       </td>
-      <td colspan="2" style="height: 52px; vertical-align: top">
+      <td colspan="2" class="wrapword" style="vertical-align: top;">
         <%= link_to t('.gift_link_text', format_gift_param(gift)), url_for(gift), :title => (t '.gift_link_title') %>
         <%= t('.gift_text_html', format_gift_param(gift)) %>
         <% if gift.picture == 'Y' and !gift.api_picture_url_on_error_at -%>
@@ -67,7 +67,10 @@
                 </td>
               </tr>
               <tr>
-                <td><%= f.text_area :comment, :size => '60x1', :placeholder => t('.enter_comment'), :onfocus => 'autoresize_text_field(this)', :id => "gift-#{gift.id}-comment-new-textarea" %></td>
+                <td><%= f.text_area :comment, :size => '60x1', :placeholder => t('.enter_comment'), :onfocus => 'autoresize_text_field(this)', :id => "gift-#{gift.id}-comment-new-textarea", :class => "new_com_text" %></td>
+                <td><%= f.submit 'Gem', :onclick => "return csv_comment(#{gift.id})", :class => "submit_comment_large" %></td>
+              </tr>
+              <tr colspan="2" class="submit_comment_small">
                 <td><%= f.submit 'Gem', :onclick => "return csv_comment(#{gift.id})" %></td>
               </tr>
             </table>

@@ -47,6 +47,16 @@ ul {
     height: 100px;
 }
 
+.wrapword{
+    white-space: -moz-pre-wrap !important;  /* Mozilla, since 1999 */
+    white-space: -o-pre-wrap;    /* Opera 7 */
+    white-space: pre-wrap;       /* css-3 */
+    word-wrap: break-word;       /* Internet Explorer 5.5+ */
+    word-break: break-all;
+    white-space: normal;
+}
+
+
 /* responsive header. show/hide username/api and/or balance/currency information in page header */
 @media screen and (max-width: 440px) {
 
@@ -61,6 +71,8 @@ ul {
         display: none;
     }
 }
+
+
 
 /* responsive menu line. 1*6 (big screens) or 2*3 (small screens) */
 @media screen and (max-width: 440px) {
@@ -154,6 +166,36 @@ ul {
     }
 
     .submit_gift_large {
+        display: inline;
+    }
+}
+
+/* responsive comments */
+
+
+
+@media screen and (max-width: 512px) {
+    .new_com_text {
+        width: 100%;
+    }
+}
+
+@media screen and (max-width: 639px) {
+    .submit_comment_small {
+        display: table-row;
+    }
+
+    .submit_comment_large {
+        display: none
+    }
+}
+
+@media screen and (min-width: 640px) {
+    .submit_comment_small {
+        display: none;
+    }
+
+    .submit_comment_large {
         display: inline;
     }
 }
