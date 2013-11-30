@@ -8,6 +8,6 @@
         <%= @comment = comment ; render 'comments/comment_status' %>
       </td>
       <td style="vertical-align: top;"><%= render '/shared/user_div', :user_div => comment.user %></td>
-      <td><%= my_sanitize comment.comment %></td>
+      <td style="text-align: left; vertical-align: top"><%= my_sanitize comment.comment %></td>
     </tr>
 <% end -%>

@@ -16,7 +16,7 @@ class InboxController < ApplicationController
       puts url
       if url =~ /^\/gifts\/([0-9]+)$/
         # gift/comment notification
-        gift = Gift.find($1)
+        gift = Gift.find_by_id($1)
         # todo: delete notification for delete marked gift?
         gift and !gift.deleted_at
       else

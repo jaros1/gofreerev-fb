@@ -20,7 +20,7 @@ class UtilController < ApplicationController
     # gift was marked as deleted in util/delete_gift request
     # gift has been ajax removed from  gifts pages for other sessions in previous util/new_message_count requests
     # now is the time to destroy old delete marked gifts
-    Gift.where("? in (user_id_giver, user_id_received) and deleted_at is not null and deleted_at < ?", @user.user_id, 10.minutes.ago) do |g|
+    Gift.where("? in (user_id_giver, user_id_received) and deleted_at is not null and deleted_at < ?", @user.user_id, 10.minutes.ago).each do |g|
       g.destroy
     end
     # get params

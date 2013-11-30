@@ -220,9 +220,27 @@
  70) minor problem with ajax util/currencies to get full list of currencies onfocus
      user has to click twice on currency LOV to change currency.
 
- 72) problem with responsive design and gift file upload for wi 320.
-     check out http://geniuscarrier.com/how-to-style-a-html-file-upload-button-in-pure-css/
-     move upload button to left side with field prompts
+ 71) gift post - change to ajax - do not reload page
+     ajax insert gift in page
+     add ajax task to post on api wall
+     ajax replace gift with picture when picture url has been received from api
 
+ 72) delete gift - JS confirm dialog to big on 320 width screen
+
+ 73) delete gift - must press confirm ok twice
+
+ 74) delete marked gifts are not removed from database
+     minor problem as gift are deleted from database within 10 minutes
+     but the problem can be fixed in application controller get_next_set_of_rows
+     must not return delete marked gifts when called from gifts/index page at startup
+     must not return delete marked gifts when called from "show-more-lines"
+     must returned deleted marked gifts when called from util.new_message_count to ajax remove deleted gifts
+
+ 75) comment gift. make more rome for comment if screen width < xxx
+     Should use all three columns to enter new comment.
+
+ 76) problem with missing "images/invisible-picture.gif" in first gifts/index row
+     only after many delete marked gifts + page refresh.
+     No rows are returned from first gifts/index http request. Same problem as in 74)
 
 
