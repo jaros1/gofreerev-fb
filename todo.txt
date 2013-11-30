@@ -243,4 +243,7 @@
      only after many delete marked gifts + page refresh.
      No rows are returned from first gifts/index http request. Same problem as in 74)
 
+ 78) header. do not download not used jquery modules
+     removed "//= require jquery.ui.all" from changed application.js
+
 

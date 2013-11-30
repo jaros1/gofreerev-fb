@@ -5,7 +5,6 @@
   <%= stylesheet_link_tag 'normalize', media: 'all', 'data-turbolinks-track' => true %>
   <%= stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track' => true %>
   <%= javascript_include_tag 'application', 'data-turbolinks-track' => true %>
-  <%= javascript_include_tag 'application', 'data-turbolinks-track' => true %>
   <script src="/javascripts/my.js"></script>
   <%= csrf_meta_tags %>
   <meta name="viewport" content="width=device-width,initial-scale=1.0, user-scalable=no">
@@ -13,10 +12,10 @@
   </script>
 </head>
 <body onload="{add_user_currency_new_event()}">
-<div id="wrapper" style="width: 100%">
+<div id="wrapper" style="width: 100%;">
   <header>
     <% if @cookie_note -%>
-      <div id="cookie_note" style="width: 100%"><%= t '.cookie_note_text', :appname => APP_NAME %></div>
+      <div id="cookie_note" style="width: 100%"><%= t '.cookie_note_text', :appname => APP_NAME %> <%= button_tag 'Ok', :onclick => "{document.getElementById('cookie_note').style.display = 'none'}" %><hr></div>
     <% end -%>
     <% if  session[:user_id] and @user -%>
         <!-- show page header for logged in users -->
