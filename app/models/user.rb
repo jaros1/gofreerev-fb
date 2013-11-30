@@ -927,7 +927,7 @@ class User < ActiveRecord::Base
       giftid = noti.noti_options[:giftid]
       if giftid
         # gift/comment notification. Check if gift has been deleted or delete marked.
-        gift = Gift.find(giftid)
+        gift = Gift.find_by_id(giftid)
         gift and !gift.deleted_at
       else
         # other notifications

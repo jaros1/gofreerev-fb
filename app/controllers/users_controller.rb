@@ -134,7 +134,7 @@ class UsersController < ApplicationController
   def show
     # check user.id
     id = params[:id]
-    @user2 = User.find(id)
+    @user2 = User.find_by_id(id)
     if !@user2
       puts "invalid request. User with id #{id} was not found"
       flash[:notice] = t '.invalid_request'
@@ -286,7 +286,7 @@ class UsersController < ApplicationController
   # see users.friend_status_actions for full list
   def friend_actions
     id2 = params[:friend_id]
-    user2 = User.find(id2)
+    user2 = User.find_by_id(id2)
     if !user2
       puts "invalid request. Friend with id #{id2} was not found"
       flash[:notice] = t '.invalid_request'

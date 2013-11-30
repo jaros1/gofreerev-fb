@@ -113,7 +113,6 @@ class UtilController < ApplicationController
     return unless params[:gifts].has_key?(:ids)
     return if  params[:gifts][:ids] == ''
     ids = params[:gifts][:ids].split(',')
-    gs = Gift.find(ids)
     puts "ids = #{ids}"
     gifts = Gift.where("id in (?)", ids)
 
