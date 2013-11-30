@@ -19,7 +19,9 @@ class GiftsController < ApplicationController
       @gift.user_id_receiver = session[:user_id]
     end
     gift_file = params[:gift_file]
-    @gift.picture = gift_file.class.name == 'ActionDispatch::Http::UploadedFile' ? 'Y' : 'N'
+    picture = (gift_file.class.name == 'ActionDispatch::Http::UploadedFile')
+    @gift.picture = 'N' # first validate without picture
+    # puts "picture = #{@gift.picture}"
     # price= accepts only float and model can not return invalid price errors
     @gift.valid?
     @gift.errors.add :price, :invalid if invalid_price?(params[:gift][:price])
@@ -30,7 +32,7 @@ class GiftsController < ApplicationController
     end
 
     # check for file upload
-    if gift_file.class.name == 'ActionDispatch::Http::UploadedFile' and @user.post_gift_allowed?
+    if picture and @user.post_gift_allowed?
       # puts "gift_file = #{gift_file} (#{gift_file.class.name})"
       # puts "gift_file.methods = " + gift_file.methods.sort.join(', ')
       if !@user.post_gift_allowed?
@@ -146,13 +148,14 @@ class GiftsController < ApplicationController
       # save picture posted message
       messages = [ t(".gift_posted_#{gift_posted_on_wall_api_wall}", :apiname => @user.api_name_without_brackets, :error => error) ]
       # get url for picture
-      if @gift.picture == 'Y'
-        # todo: gets only small picture url from fb - is should be possible to get url for a larger picture from fb
+      if picture
+        @gift.picture = 'Y'
+        # todo: fb pictures too small - it should be possible to get url for a larger picture from fb
         # get temporary picture url - may change - url change is catched in onerror in img in html page
-        api_request = "#{@gift.api_gift_id}?fields=full_picture"
+        # api_request = "#{@gift.api_gift_id}?fields=full_picture"
         # api_request = @gift.api_gift_id.split('_').join('/picture/') + '?type=normal' # still small picture
         # api_request = @gift.api_gift_id.split('_').join('/picture/')  + '?fields=full_picture' # empty response (302 redirect) with profile picture
-        puts "api_request = #{api_request}"
+        # puts "api_request = #{api_request}"
         begin
           @gift.api_picture_url = @gift.get_api_picture_url(session[:access_token])
           if @gift.api_picture_url
@@ -189,7 +192,7 @@ class GiftsController < ApplicationController
         end # rescue
       end
     end
-
+    # puts "messages = #{messages}"
     flash[:notice] = messages.join('. ')
     redirect_to :action => 'index'
 

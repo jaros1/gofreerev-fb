@@ -515,8 +515,14 @@ class Gift < ActiveRecord::Base
 =end
 
   def get_api_picture_url (access_token)
-    return nil unless picture == 'Y'
-    return nil if deleted_at_api == 'Y'
+    if picture != 'Y'
+      puts "gift.get_api_picture_url. picture = \"#{picture}\""
+      return nil
+    end
+    if deleted_at_api == 'Y'
+      puts "deleted picture"
+      return nil
+    end
     raise NoApiAccessTokenException unless access_token
     api = Koala::Facebook::API.new(access_token)
     api_request = "#{api_gift_id}?fields=full_picture"

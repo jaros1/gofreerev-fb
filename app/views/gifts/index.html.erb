@@ -50,10 +50,30 @@
               <td><%= f.text_area :description, :size => '60x2', :placeholder => 'Enter Comments', :onfocus => 'autoresize_text_field(this)', :class => 'new_gift_text' %>
                   <%= f.submit t('.gift_submit_button_text'), :onclick => '{return csv_gift()}', :class => 'submit_gift_large' %></td>
             </tr>
+
+
+<% if false -%>
+            <%# old not responsive version -%>
             <tr title="<%= t ".file_title_#{@user.post_gift_allowed?}", :appname => APP_NAME, :apiname => @user.api_name_without_brackets %>">
               <td><%= t '.file_prompt' %></td>
               <td><%= file_field_tag(:gift_file, :disabled => !@user.post_gift_allowed?) %></td>
             </tr>
+<% end -%>
+
+            <%# new responsive version (static) -%>
+            <tr title="<%= t ".file_title_#{@user.post_gift_allowed?}", :appname => APP_NAME, :apiname => @user.api_name_without_brackets %>">
+              <td>
+                <div class="fileupload bottom">
+                  <%= t '.file_prompt' %>
+                  <%= file_field_tag :gift_file, :disabled => !@user.post_gift_allowed?, :id => "uploadBtn", :class => "upload",
+                                     :onchange => '{document.getElementById("uploadFile").value = this.value}' %>
+                </div>
+              </td>
+              <td>
+                <%= text_field_tag '', '', :id => "uploadFile", :placeholder => "Choose File", :disabled => "disabled", :style =>"line-height:16px;" %>
+              </td>
+            </tr>
+
             <tr class="submit_gift_small">
               <td></td>
               <td><%= f.submit t('.gift_submit_button_text'), :onclick => '{return csv_gift()}' %></td>

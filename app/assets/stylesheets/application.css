@@ -183,7 +183,6 @@ form {
 }
 
 /* responsive comments */
-
 @media screen and (max-width: 512px) {
     .new_com_text {
         width: 100%;
@@ -208,4 +207,31 @@ form {
     .submit_comment_large {
         display: inline;
     }
+}
+
+/* responsive image upload */
+.bottom {
+    display: inline-block;
+    margin-bottom: 0;
+    vertical-align: middle;
+    background-color: #e6e6e6;
+    background-repeat: repeat-x;
+    border: 1px solid #cccccc;
+}
+
+.fileupload {
+    position: relative;
+    overflow: hidden;
+    margin: 10px
+}
+
+.fileupload input.upload {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin: 0;
+    padding: 0;
+    font-size: 20px;
+    cursor: pointer;
+    opacity: 0;
 }
