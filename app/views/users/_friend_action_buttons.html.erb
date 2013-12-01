@@ -2,7 +2,6 @@
     <%= link_to t('.edit_user'), edit_user_path(@user) %>
 <% else -%>
     <% for friendship_action in friend_action_buttons.friend_status_actions(@user) do-%>
-    <td>
       <%= friendship_action_downcase = friendship_action.downcase
           button_text = t ".#{friendship_action_downcase}", :apiname => @user.api_name_without_brackets, :appname => APP_NAME
           # first letter uppercase => confirm box
@@ -18,6 +17,5 @@
             target = '_blank'
           end
           button_to button_text, {:controller => :users, :action => :update, :id => @user.id, :friend_id => friend_action_buttons.id, :friend_action => friendship_action_downcase, :return_to => @request_fullpath } , { :form => { :target => target }, :method=>:put, :data => { :confirm => confirm } } %>
-    </td>
     <% end -%>
 <% end -%>

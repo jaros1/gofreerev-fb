@@ -242,3 +242,12 @@
  76) problem with missing "images/invisible-picture.gif" in first gifts/index row
      only after many delete marked gifts + page refresh.
      No rows are returned from first gifts/index http request. Same problem as in 74)
+
+ 77) missing opera plugin to set screen width.
+
+ 78) responsive testing tools: http://www.gonzoblog.nl/2012/03/21/10-testing-tools-for-responsive-web-design/
+     http://mattkersley.com/responsive/ can be used. Not working for localhost / gofreerev
+     http://responsivepx.com can be used. Not working for localhost / gofreerev.
+     Many other tools not working for localhost / gofreerev
+
+

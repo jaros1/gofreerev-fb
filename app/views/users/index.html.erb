@@ -7,55 +7,61 @@
 
 <%# t '.page_header_text_html' %>
 
-<br />
-<table>
-  <tr>
-    <td><%= t '.friends_filter_prompt', :appname => APP_NAME, :appname_camelized => APP_NAME.camelize %></td>
-<% if @friends_filter == true -%>
-        <td style="text-decoration:underline;"><%= t('.app_friends_link_text') %></td>
-<% else -%>
-        <td><%= link_to t('.app_friends_link_text'), users_path(:friends => true) %></td>
-<% end -%>
-<% if @friends_filter == false -%>
-        <td style="text-decoration:underline;"><%= t('.not_app_friends_link_text') %></td>
-<% else -%>
-        <td><%= link_to t('.not_app_friends_link_text'), users_path(:friends => false) %></td>
-<% end -%>
-<% if @friends_filter == nil -%>
-        <td style="text-decoration:underline;"><%= t('.all_app_users_link_text') %></td>
-<% else -%>
-        <td><%= link_to t('.all_app_users_link_text'), users_path %></td>
-<% end -%>
-    <td>&nbsp;&nbsp;|&nbsp;&nbsp;</td>
-    <td><%= t '.invite_api_friends_link_prompt2', :apiname => @user.api_name_without_brackets, :apiname_camelized => @user.api_name_without_brackets.camelize %></td>
-    <td title="<%= t '.invite_api_friends_link_title2', :appname => APP_NAME, :apiname => @user.api_name_without_brackets %>">
-      <%= link_to t('.invite_api_friends_link_text2', :apiname => @user.api_name_without_brackets), invite_friends_url %>
-    </td>
-  </tr>
-</table>
-<br />
+<br/>
+<div style="width: 100%">
+  <table>
+    <tr>
+      <td><%= t '.friends_filter_prompt', :appname => APP_NAME, :appname_camelized => APP_NAME.camelize %></td>
+      <% if @friends_filter == true -%>
+          <td style="text-decoration:underline;"><%= t('.app_friends_link_text') %></td>
+      <% else -%>
+          <td><%= link_to t('.app_friends_link_text'), users_path(:friends => true) %></td>
+      <% end -%>
+      <% if @friends_filter == false -%>
+          <td style="text-decoration:underline;"><%= t('.not_app_friends_link_text') %></td>
+      <% else -%>
+          <td><%= link_to t('.not_app_friends_link_text'), users_path(:friends => false) %></td>
+      <% end -%>
+      <% if @friends_filter == nil -%>
+          <td style="text-decoration:underline;"><%= t('.all_app_users_link_text') %></td>
+      <% else -%>
+          <td><%= link_to t('.all_app_users_link_text'), users_path %></td>
+      <% end -%>
+
+      <td>&nbsp;&nbsp;|&nbsp;&nbsp;</td>
+
+      <td><%= t '.invite_api_friends_link_prompt2', :apiname => @user.api_name_without_brackets, :apiname_camelized => @user.api_name_without_brackets.camelize %></td>
+      <td title="<%= t '.invite_api_friends_link_title2', :appname => APP_NAME, :apiname => @user.api_name_without_brackets %>">
+        <%= link_to t('.invite_api_friends_link_text2', :apiname => @user.api_name_without_brackets), invite_friends_url %>
+      </td>
+    </tr>
+  </table>
+</div>
+<br/>
 
 <% if @users.size == 0 -%>
     <p>
       <%= t '.no_users_was_found_html', :appname => APP_NAME, :apiname => @user.api_name_without_brackets %>
     </p>
     <%= t 'shared.invite_friends.invite_api_friends_link_prompt1', :apiname => @user.api_name_without_brackets %> <%= invite_friends_link1 %>
-    <br />
+    <br/>
 <% else -%>
-    <table id="users">
-    <% for user in @users do -%>
-        <%= render :partial => 'user', :locals => { :user => user } %>
-    <% end -%>
-    </table>
+    <div style="width: 100%">
+      <table id="users" style="width: 100%">
+        <% for user in @users do -%>
+            <%= render :partial => 'user', :locals => {:user => user} %>
+        <% end -%>
+      </table>
+    </div>
 <% end -%>
 
-<br />
+<br/>
 <%= link_to "show-more-lines", "/users?last_row_id=#{@last_row_id}", :remote => true, :id => "show-more-rows-link", :style => "display: none" %>
-<%= render :partial => 'shared/show_more_rows', :locals => { :show_more_rows => 'users' } %>
+<%= render :partial => 'shared/show_more_rows', :locals => {:show_more_rows => 'users'} %>
 
 <hr>
 
 <script>
     // no client side checks before changing currency in this page
-    pre_update_currency = default_pre_update_currency ;
+    pre_update_currency = default_pre_update_currency;
 </script>

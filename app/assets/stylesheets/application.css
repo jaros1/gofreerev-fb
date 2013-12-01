@@ -90,52 +90,52 @@ form {
 
 
 
-/* responsive menu line. 1*6 (big screens) or 2*3 (small screens) */
+/* responsive main menu in page header. 1*6 (big screens) or 2*3 (small screens) */
 @media screen and (max-width: 440px) {
-    .menu-3-cols {
+    .main-menu-3-cols {
         display: inline;
         width: 83%;
     }
 
-    .menu-6-cols {
+    .main-menu-6-cols {
         display: none
     }
 }
 
 @media screen and (min-width: 441px) and (max-width: 599px) {
-    .menu-3-cols {
+    .main-menu-3-cols {
         display: inline;
         width: 67%;
     }
 
-    .menu-6-cols {
+    .main-menu-6-cols {
         display: none
     }
 }
 
 @media screen and (min-width: 600px) and (max-width: 799px) {
-    .menu-3-cols {
+    .main-menu-3-cols {
         display: inline;
         width: 40%;
     }
 
-    .menu-6-cols {
+    .main-menu-6-cols {
         display: none
     }
 }
 
 @media screen and (min-width: 800px) {
-    .menu-3-cols {
+    .main-menu-3-cols {
         display: none
     }
 
-    .menu-6-cols {
+    .main-menu-6-cols {
         display: inline;
         width: 56%;
     }
 }
 
-/* responsive image upload (used in new gift) */
+/* gifts/index: image upload used in new gift form */
 .bottom {
     display: inline-block;
     margin-bottom: 0;
@@ -162,7 +162,7 @@ form {
     opacity: 0;
 }
 
-/* responsive new gift */
+/* gifts/index: responsive new gift */
 @media screen and (max-width: 320px) {
     .new_gift_text {
         width: 75%;
@@ -213,7 +213,7 @@ form {
     }
 }
 
-/* responsive comments */
+/* gifts/index: responsive comments */
 @media screen and (max-width: 512px) {
     .new_com_text {
         width: 100%;
@@ -240,3 +240,4 @@ form {
     }
 }
 
+/* users/index */
