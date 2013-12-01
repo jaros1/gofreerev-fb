@@ -8,32 +8,32 @@
 <%# t '.page_header_text_html' %>
 
 <br/>
-<div style="width: 100%">
+<div style="width: 100%" class="friends-filter-1-line">
   <table>
     <tr>
-      <td><%= t '.friends_filter_prompt', :appname => APP_NAME, :appname_camelized => APP_NAME.camelize %></td>
-      <% if @friends_filter == true -%>
-          <td style="text-decoration:underline;"><%= t('.app_friends_link_text') %></td>
-      <% else -%>
-          <td><%= link_to t('.app_friends_link_text'), users_path(:friends => true) %></td>
-      <% end -%>
-      <% if @friends_filter == false -%>
-          <td style="text-decoration:underline;"><%= t('.not_app_friends_link_text') %></td>
-      <% else -%>
-          <td><%= link_to t('.not_app_friends_link_text'), users_path(:friends => false) %></td>
-      <% end -%>
-      <% if @friends_filter == nil -%>
-          <td style="text-decoration:underline;"><%= t('.all_app_users_link_text') %></td>
-      <% else -%>
-          <td><%= link_to t('.all_app_users_link_text'), users_path %></td>
-      <% end -%>
-
+      <td><%= friends_filter_text %></td>
+      <td><u><%= app_friends_link(@friends_filter) %></u></td>
+      <td><u><%= not_app_friends_link(@friends_filter) %></u></td>
+      <td><u><%= app_friends_friends_link(@friends_filter) %></u></td>
       <td>&nbsp;&nbsp;|&nbsp;&nbsp;</td>
-
-      <td><%= t '.invite_api_friends_link_prompt2', :apiname => @user.api_name_without_brackets, :apiname_camelized => @user.api_name_without_brackets.camelize %></td>
-      <td title="<%= t '.invite_api_friends_link_title2', :appname => APP_NAME, :apiname => @user.api_name_without_brackets %>">
-        <%= link_to t('.invite_api_friends_link_text2', :apiname => @user.api_name_without_brackets), invite_friends_url %>
+      <td><%= invite_api_friends_text %></td>
+      <td><%= invite_api_friends_link %></td>
+    </tr>
+  </table>
+</div>
+<div style="width: 100%" class="friends-filter-2-lines">
+  <table>
+    <tr>
+      <td><%= friends_filter_text %></td>
+      <td>
+        <u><%= app_friends_link(@friends_filter) %></u>
+        <u><%= not_app_friends_link(@friends_filter) %></u>
+        <u><%= app_friends_friends_link(@friends_filter) %></u>
       </td>
+    </tr>
+    <tr>
+      <td><%= invite_api_friends_text %></td>
+      <td><%= invite_api_friends_link %></td>
     </tr>
   </table>
 </div>

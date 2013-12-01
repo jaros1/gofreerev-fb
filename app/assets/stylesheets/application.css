@@ -92,44 +92,44 @@ form {
 
 /* responsive main menu in page header. 1*6 (big screens) or 2*3 (small screens) */
 @media screen and (max-width: 440px) {
-    .main-menu-3-cols {
+    .main-menu-2-lines {
         display: inline;
         width: 83%;
     }
 
-    .main-menu-6-cols {
+    .main-menu-1-line {
         display: none
     }
 }
 
 @media screen and (min-width: 441px) and (max-width: 599px) {
-    .main-menu-3-cols {
+    .main-menu-2-lines {
         display: inline;
         width: 67%;
     }
 
-    .main-menu-6-cols {
+    .main-menu-1-line {
         display: none
     }
 }
 
 @media screen and (min-width: 600px) and (max-width: 799px) {
-    .main-menu-3-cols {
+    .main-menu-2-lines {
         display: inline;
         width: 40%;
     }
 
-    .main-menu-6-cols {
+    .main-menu-1-line {
         display: none
     }
 }
 
 @media screen and (min-width: 800px) {
-    .main-menu-3-cols {
+    .main-menu-2-lines {
         display: none
     }
 
-    .main-menu-6-cols {
+    .main-menu-1-line {
         display: inline;
         width: 56%;
     }
@@ -241,3 +241,21 @@ form {
 }
 
 /* users/index */
+
+/* friends filter: 2 lines on small display - 1 line on big display */
+@media screen and (max-width: 479px) {
+    .friends-filter-2-lines {
+        display: inline;
+    }
+    .friends-filter-1-line {
+        display: none;
+    }
+}
+@media screen and (min-width: 480px) {
+    .friends-filter-2-lines {
+        display: none;
+    }
+    .friends-filter-1-line {
+        display: inline;
+    }
+}

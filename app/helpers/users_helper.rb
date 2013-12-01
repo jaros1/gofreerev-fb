@@ -80,4 +80,41 @@ module UsersHelper
                         :number_of_days => number_of_days
   end # gift_balance_calculation_doc
 
+  # helpers for friends filter - one or two lines in users/index page
+  def friends_filter_text
+    t '.friends_filter_prompt', :appname => APP_NAME, :appname_camelized => APP_NAME.camelize
+  end # app_friends_tex
+
+  def app_friends_link (friends_filter)
+    if friends_filter == true
+      t('.app_friends_link_text')
+    else
+      link_to t('.app_friends_link_text'), users_path(:friends => true)
+    end
+  end # show_app_friends_link
+
+  def not_app_friends_link (friends_filter)
+    if friends_filter == false
+      t('.not_app_friends_link_text')
+    else
+      link_to t('.not_app_friends_link_text'), users_path(:friends => false)
+    end
+  end # not_app_friends_link
+
+  def app_friends_friends_link (friends_filter)
+    if friends_filter == nil
+      t('.all_app_users_link_text')
+    else
+      link_to t('.all_app_users_link_text'), users_path
+    end
+  end # all_friends_friends_link
+
+  def invite_api_friends_text
+    t '.invite_api_friends_link_prompt2', :apiname => @user.api_name_without_brackets, :apiname_camelized => @user.api_name_without_brackets.camelize
+  end # invite_friends_text
+
+  def invite_api_friends_link
+    link_to t('.invite_api_friends_link_text2', :apiname => @user.api_name_without_brackets), invite_friends_url, :title => t('.invite_api_friends_link_title2', :appname => APP_NAME, :apiname => @user.api_name_without_brackets)
+  end
+
 end
