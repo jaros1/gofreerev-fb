@@ -20,7 +20,7 @@
 </p>
 <% end -%>
 
-<%= render :partial => 'show_tabs' %>
+<%= render :partial => 'user_nav_menu' %>
 
 <% if !@tab or @tab == 'friends' or !@user2.friend?(@user) -%>
     <%= render :partial => 'show_friends' %>

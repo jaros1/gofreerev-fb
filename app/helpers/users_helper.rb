@@ -80,7 +80,8 @@ module UsersHelper
                         :number_of_days => number_of_days
   end # gift_balance_calculation_doc
 
-  # helpers for friends filter - one or two lines in users/index page
+  # helpers for friends filter and invide friends link
+  # shown in one or 2 lines depending on screen width
   def friends_filter_text
     t '.friends_filter_prompt', :appname => APP_NAME, :appname_camelized => APP_NAME.camelize
   end # app_friends_tex
@@ -116,5 +117,35 @@ module UsersHelper
   def invite_api_friends_link
     link_to t('.invite_api_friends_link_text2', :apiname => @user.api_name_without_brackets), invite_friends_url, :title => t('.invite_api_friends_link_title2', :appname => APP_NAME, :apiname => @user.api_name_without_brackets)
   end
+
+  # user_nav_link is used in users/show nav links.
+  # nav links displayed in 1, 2 or 3 lines in users/show page depending on screen width
+  # prefix must match prefix for entries in users/user_nav_links in locals
+  def user_nav_link (options)
+    # puts "users_helper.user_nav_link: input options = #{options}"
+    prefix = options.delete(:prefix)
+    symbol = case prefix
+               when 'tabs' then :tab
+               when 'deal_status' then :status
+               when 'deal_direction' then :direction
+               else
+                 puts "error in users/_user_nav_links. user_nav_link must be called with prefix tabs, deal_status or deal_direction"
+             end
+    page_values = options.delete(:page_values)
+    page_value = page_values[symbol]
+    array_value = options.delete(:array_value)
+    options.delete(:array_values)
+    if array_value == page_value
+      # inactive link - current tab or current filter value
+      t ".#{prefix}_#{page_value}"
+    else
+      # active link - link to new tab or new filter value
+      options[:id] = @user2.id
+      options[symbol] = array_value
+      key = ".#{prefix}_#{array_value}"
+      # puts "users_helper.user_nav_link: link key = #{key}, link options = #{options}"
+      link_to (t key), user_path(options)
+    end
+  end # user_nav_link
 
 end

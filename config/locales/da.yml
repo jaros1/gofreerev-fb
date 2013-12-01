@@ -428,11 +428,11 @@ da:
         top_text_friend_html: "%{username} saldo oplysninger."
         top_text_non_friend_html: "Detaljerede brugeroplysninger vises kun for dine venner. Brugeroplysninger for %{username} kan ikke vises. Brug ovenstående knapper hvis du ønsker at tilføje %{username} som ven."
         api_profile_link_text: "profile"
-     show_tabs:
+     user_nav_links:
         tabs_prompt: "Vælg faneblad:"
-        friends_tab_text: "Venner"
-        balance_tab_text: "Saldo"
-        gifts_tab_text: "Delt"
+        tabs_friends: "Venner"
+        tabs_balance: "Saldo"
+        tabs_gifts: "Delt"
         deal_status_prompt: "Vælg status:"
         deal_status_open: "Åbne"
         deal_status_closed: "Lukkede"

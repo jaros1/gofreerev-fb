@@ -250,4 +250,9 @@
      http://responsivepx.com can be used. Not working for localhost / gofreerev.
      Many other tools not working for localhost / gofreerev
 
+ 79) users/show friends tab
+     do not show friends for not friends
+     only show friends for app or api friends
+
+
 

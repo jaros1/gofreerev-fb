@@ -1,0 +1,17 @@
+<% page_values = {:tab => @tab, :status => @status, :direction => @direction} -%>
+<table>
+  <tr>
+    <% if @tabs.size > 1 -%>
+        <%= render :partial => 'user_nav_links', :object => {:prefix => 'tabs', :array_values => @tabs, :page_values => page_values } %>
+    <% end -%>
+    <% if %w(gifts balance).index(@tab) -%>
+        <% if @tabs.size > 1 -%>
+            <td>&nbsp;&nbsp;|&nbsp;&nbsp;</td>
+        <% end -%>
+        <%= render :partial => 'user_nav_links', :object => {:prefix => 'deal_status', :array_values => @statuses, :page_values => page_values } %>
+        <td>&nbsp;&nbsp;|&nbsp;&nbsp;</td>
+        <%= render :partial => 'user_nav_links', :object => {:prefix => 'deal_direction', :array_values => @directions, :page_values => page_values } %>
+    <% end -%>
+  </tr>
+</table>
+<br/>
