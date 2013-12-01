@@ -1,17 +1,40 @@
-<% page_values = {:tab => @tab, :status => @status, :direction => @direction} -%>
+<% # current page values for users_path links
+   page_values = {:tab => @tab, :status => @status, :direction => @direction}
+   # array with user nav link sections - one with tabs - one with deal status and one with deal direction
+   user_nav_link_sections = []
+   user_nav_link_sections << ["tabs", @tabs] if @tabs.size > 1
+   if %w(gifts balance).index(@tab)
+     user_nav_link_sections << ["deal_status", @statuses]
+     user_nav_link_sections << ["deal_direction", @directions]
+   end
+   menu_size = user_nav_link_sections.length
+   # class names for user links for big. medium and small screen width
+   case menu_size
+     when 0 then
+       # no user nav links - do not table user nav table
+       small = medium = large = ""
+     when 1 then
+       # only tabs - always only one line. Show for all screen sizes
+       small = medium = large = "user-links-1-line user-links-2-lines user-links-3-lines"
+     when 2 then
+       # only filters - display in one or two lines
+       nil
+     when 3 then
+       nil
+   end # case
+-%>
+
 <table>
   <tr>
-    <% if @tabs.size > 1 -%>
-        <%= render :partial => 'user_nav_links', :object => {:prefix => 'tabs', :array_values => @tabs, :page_values => page_values } %>
-    <% end -%>
-    <% if %w(gifts balance).index(@tab) -%>
-        <% if @tabs.size > 1 -%>
-            <td>&nbsp;&nbsp;|&nbsp;&nbsp;</td>
+    <% 0.upto(user_nav_link_sections.size-1) do |i|
+       prefix, array_values = user_nav_link_sections[i]
+    -%>
+        <% if user_nav_link_sections.size > 1 and i > 0 -%>
+           <td>&nbsp;&nbsp;|&nbsp;&nbsp;</td>
         <% end -%>
-        <%= render :partial => 'user_nav_links', :object => {:prefix => 'deal_status', :array_values => @statuses, :page_values => page_values } %>
-        <td>&nbsp;&nbsp;|&nbsp;&nbsp;</td>
-        <%= render :partial => 'user_nav_links', :object => {:prefix => 'deal_direction', :array_values => @directions, :page_values => page_values } %>
+        <%= render :partial => 'user_nav_links', :object => {:prefix => prefix, :array_values => array_values, :page_values => page_values} %>
     <% end -%>
   </tr>
 </table>
+
 <br/>
