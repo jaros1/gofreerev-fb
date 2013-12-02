@@ -12,17 +12,9 @@
 </table>
 <br />
 
-<% if false -%>
-<p>
-  <%= t (@user2.friend?(@user) ? '.top_text_friend_html' : '.top_text_non_friend_html'),
-           :username => @user2.short_or_full_user_name(@user),
-           :apiname => @user.api_name_without_brackets %>
-</p>
-<% end -%>
-
 <%= render :partial => 'user_nav_menu' %>
 
-<% if !@page_values[:tab] or @page_values[:tab] == 'friends' or !@user2.friend?(@user) -%>
+<% if @page_values[:tab] == 'friends' -%>
     <%= render :partial => 'show_friends' %>
 <% elsif @page_values[:tab] == 'balance' -%>
     <%= render :partial => 'show_balance' %>
@@ -30,7 +22,7 @@
     <%= render :partial => 'show_gifts' %>
 <% end -%>
 
-<br />
+<%# add remote link to get more rows and call javascript to setup end of page event and post ajax handling of the new rows -%>
 <%= link_to "show-more-rows", user_path(:id => @user2.id, :last_row_id => @last_row_id, :tab => @page_values[:tab]), :remote => true, :id => "show-more-rows-link", :style => "display: none" if @last_row_id %>
 <%= render :partial => 'shared/show_more_rows', :locals => { :show_more_rows => (@page_values[:tab] == 'friends' ? 'users' : 'gifts') } %>
 

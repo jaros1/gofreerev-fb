@@ -1,48 +1,59 @@
 <script>
+<%#
     // report any invalid api picture urls - url has changed or picture has been deleted
     // array with gift ids is initialized in img onload="check_api_picture_url ..."
     // submitted in 2 seconds to allow pictures in page to load
     // api_picture_url_on_error_at is setted for pictures with invalid urls
+-%>
     setTimeout(report_missing_api_picture_urls, 2000) ;
-
+<%#
+    // end_of_page - true or false
     // true when user is near end of page (get more rows)
+    // true under an active get more rows ajax request
     // is set in $(window).scroll
-    // is unset in $(document).ready
+    // is unset in $(document).ready when new rows has been received
+-%>
     var end_of_page = <%= @last_row_id ? "false" : "true" %> ;
-
+<%#
+    // check number of rows in table (gifts or users) before and after get more rows ajax event
+    // Do not fire any more get more rows ajax events if no new rows has been received (server side error)
+-%>
+    var old_number_of_rows ;
+<%#
     // add post ajax event handler for "show-more-rows-link" link
     // change url with new last_row_id or hide url when all rows has been returned to page
+    // error handling:
+    //  1 - link does not longer exists - link is removed after last get more rows response
+    //  2 - table with id gifts or users was not found in html page - not gifts/index, users/index or users/show pages
+    //  3 - server error - ajax success but no new rows was added to gifts/users table. Must be a server error
+    //  4 - invalid id format for last row returned be ajax request
+-%>
     $(document).ready(function(){
         $('#show-more-rows-link')
                 .bind("ajax:success", function(evt, data, status, xhr){
                     // find id for last row (nil or id for last row in table)
+                    var pgm = "#show-more-rows-link.ajax:success: " ;
                     var link = document.getElementById("show-more-rows-link") ;
-                    if (!link) return ; // link has already been removed
-                    // alert("show_more_rows = <%= show_more_rows %>") ;
-                    var table = document.getElementById("<%= show_more_rows %>") ; // param - table name - gifts or users
+                    if (!link) {<% if debug_ajax? -%> alert(pgm + "show-more-rows-link has already been removed");<% end -%> return } // 1
+                    var table = document.getElementById("<%= show_more_rows %>") ;
+                    if (!table) {<% if debug_ajax? -%> alert(pgm + 'error - gifts or users table was not found') ;<% end -%> return } // 2
+                    var new_number_of_rows = table.rows.length ;
+                    if (new_number_of_rows == old_number_of_rows) {<% if debug_ajax? -%> alert(pgm + 'error - no new rows was returned from get more rows ajax request') ;<% end -%> return } // 3
                     var trs = table.getElementsByTagName('tr') ;
                     var tr = trs[trs.length-1] ;
                     var tr_id = tr.id ;
-                    // alert('tr_id = ' + tr_id) ;
                     if (tr_id == "") {
-                        // alert('no more rows - remove link') ;
-                        link.parentNode.removeChild(link);
+                        <% if debug_ajax? -%>alert('no more rows - remove link') ; <% end -%>link.parentNode.removeChild(link);
                     }
                     else {
                         // change last_row_id in link
                         var reg = new RegExp("^last-row-id-[0-9]+$") ;
-                        if (!tr_id.match(reg)) {
-                            // alert('row with format last-row-id-<n> was not found. id = ' + tr_id) ;
-                            // no more ajax requests - end_of_page is still true
-                            return ;
-                        }
+                        if (!tr_id.match(reg)) {<% if debug_ajax? -%> alert(pgm + 'row with format last-row-id-<n> was not found. id = ' + tr_id);<% end -%> return } // 4
                         var tr_id_a = tr_id.split("-") ;
                         var last_row_id = tr_id_a[tr_id_a.length-1] ;
-                        // alert('last_row_id = ' + last_row_id) ;
                         var href = link.href ;
                         // alert('ref before = ' + href) ;
                         href = href.replace(/last_row_id=[0-9]+/, 'last_row_id=' + last_row_id) ;
-                        // alert('ref after = ' + href) ;
                         // alert('ref after = ' + href) ;
                         link.href = href ;
                         end_of_page = false ;
@@ -58,8 +69,14 @@
             // alert("We're at the end_of_page of the page!!");
             var link = document.getElementById("show-more-rows-link") ;
             if (!link) return ; // no more rows - unregister this function
+            // check that table to received new rows exists
+            var table = document.getElementById("<%= show_more_rows %>") ; // table id - gifts or users
+            if (!table) return ; // not gifts/index, users/index or users/show pages
+            old_number_of_rows = table.rows.length ;
             // get more gifts from server
             link.click() ;
+            // todo: disable scroll event until new rows have been received
+
             // report any invalid api picture urls - url has changed or picture has been deleted
             // array with gift ids is initialized in img onload="check_api_picture_url ..."
             // submitted in 2 seconds to allow pictures in page to load

@@ -55,3 +55,5 @@ FACTOR_POS_BALANCE_PER_DAY = (Math::E) ** (Math.log(FACTOR_POS_BALANCE_PER_YEAR,
 BASE_CURRENCY = 'USD' # store exchange rates and internal balances in this currency
 BASE_COUNTRY = 'us' # default country if user country is unknown.
 BASE_LANGUAGE = 'en' # default language if user language is unknown
+
+DEBUG_AJAX = false # default false - set to true to get more ajax debug information - JS alerts, extra log messages etc

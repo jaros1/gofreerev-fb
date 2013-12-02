@@ -297,7 +297,7 @@ form {
     }
 }
 
-/* user balance - hide giver and receiver profile pictures on small screens */
+/* user balance - hide giver and receiver pictures on small screens */
 @media screen and (max-width: 479px) {
     .user-balance-col-1 {
         display: none;

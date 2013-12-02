@@ -689,3 +689,5 @@ function add_user_currency_new_event() {
         }
     });
 }
+
+

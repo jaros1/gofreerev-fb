@@ -383,7 +383,7 @@ class ApplicationController < ActionController::Base
     else
       last_row_id = nil # last row - no more ajax requests
     end
-    puts "returning next #{rows.size} of #{total_no_rows} rows . last_row_id = #{last_row_id}"
+    puts "get_next_set_of_rows: returning next #{rows.size} of #{total_no_rows} rows . last_row_id = #{last_row_id}"
     [ rows, last_row_id]
   end # get_next_set_of_rows
 
@@ -416,5 +416,11 @@ class ApplicationController < ActionController::Base
   def add_ajax_task (task, priority=5)
     AjaxTask.add_task(session[:session_id], task, priority)
   end
+
+  private
+  def debug_ajax?
+    DEBUG_AJAX
+  end
+  helper_method "debug_ajax?"
 
 end # ApplicationController

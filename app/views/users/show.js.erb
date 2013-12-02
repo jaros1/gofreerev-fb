@@ -1,10 +1,9 @@
-<% puts "@tab = #{@tab}"
-  if @tab == 'friends' -%>
-$('#users').append('<%= j render("users/users", :users => @users, :id => @user2.id, :tab => @tab, :last_row_id => @last_row_id) %>');
-<% end -%>
-<% if @tab == 'balance' -%>
-$('#gifts').append('<%= j render("users/gifts", :gifts => @gifts, :id => @user2.id, :tab => @tab, :last_row_id => @last_row_id) %>');
-<% end -%>
-<% if @tab == 'gifts' -%>
-$('#gifts').append('<%= j render("gifts/gifts", :gifts => @gifts, :id => @user2.id, :tab => @tab, :last_row_id => @last_row_id) %>');
-<% end -%>
+<% if @page_values[:tab] == 'friends' -%>
+$('#users').append('<%= j render("users/users", :users => @users, :id => @user2.id, :tab => @page_values[:tab], :last_row_id => @last_row_id) %>');
+<% elsif @page_values[:tab] == 'balance' -%>
+$('#gifts').append('<%= j render("users/gifts", :gifts => @gifts, :id => @user2.id, :tab => @page_values[:tab], :last_row_id => @last_row_id) %>');
+<% elsif @page_values[:tab] == 'gifts' -%>
+$('#gifts').append('<%= j render("gifts/gifts", :gifts => @gifts, :id => @user2.id, :tab => @page_values[:tab], :last_row_id => @last_row_id) %>');
+<% else
+     raise "unknown tab #{@page_values[:tab]}"
+   end -%>

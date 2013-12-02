@@ -167,9 +167,9 @@ class UsersController < ApplicationController
         tabs = %w(friends gifts balance) # friend - friend and balance information are allowed
       end
     else
-      tabs = %w(friends) # non friend - balance and gifts information not allowed
+      tabs = [] # non friend - do not display any information (friends, balance and gifts information not allowed)
     end
-    if tabs.size == 1
+    if tabs.size <= 1
       tab = tabs.first
     else
       tab = params[:tab].to_s || tabs.first
@@ -235,7 +235,7 @@ class UsersController < ApplicationController
       end # sort
       # return next 10 gifts - first 10 for http request - next 10 for ajax request
       @gifts, @last_row_id = get_next_set_of_rows(gifts, last_row_id)
-
+      puts "@gifts.size = #{@gifts.size}, @last_row_id = #{@last_row_id}" if debug_ajax?
     end
 
     if tab == 'friends'
@@ -244,6 +244,7 @@ class UsersController < ApplicationController
       # users = User.all # uncomment to test ajax
       # return next 10 users - first 10 for http request - next 10 for ajax request
       @users, @last_row_id = get_next_set_of_rows(users, last_row_id)
+      puts "@users.size = #{@users.size}, @last_row_id = #{@last_row_id}" if debug_ajax?
     end # friends
 
     if tab == 'gifts'
