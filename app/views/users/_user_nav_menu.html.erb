@@ -1,13 +1,5 @@
 <% # current page values for users_path links
-   page_values = {:tab => @tab, :status => @status, :direction => @direction}
-   # array with user nav link sections - one with tabs - one with deal status and one with deal direction
-   user_nav_link_sections = []
-   user_nav_link_sections << ["tabs", @tabs] if @tabs.size > 1
-   if %w(gifts balance).index(@tab)
-     user_nav_link_sections << ["deal_status", @statuses]
-     user_nav_link_sections << ["deal_direction", @directions]
-   end
-   menu_size = user_nav_link_sections.length
+   menu_size = @user_nav_links.length
    # class names for user links for big. medium and small screen width
    case menu_size
      when 0 then
@@ -26,13 +18,13 @@
 
 <table>
   <tr>
-    <% 0.upto(user_nav_link_sections.size-1) do |i|
-       prefix, array_values = user_nav_link_sections[i]
+    <% 0.upto(@user_nav_links.size-1) do |i|
+       prefix, array_values = @user_nav_links[i]
     -%>
-        <% if user_nav_link_sections.size > 1 and i > 0 -%>
+        <% if @user_nav_links.size > 1 and i > 0 -%>
            <td>&nbsp;&nbsp;|&nbsp;&nbsp;</td>
         <% end -%>
-        <%= render :partial => 'user_nav_links', :object => {:prefix => prefix, :array_values => array_values, :page_values => page_values} %>
+        <%= render :partial => 'user_nav_links', :object => {:prefix => prefix, :array_values => array_values, :page_values => @page_values} %>
     <% end -%>
   </tr>
 </table>

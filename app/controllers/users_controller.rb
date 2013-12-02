@@ -162,20 +162,20 @@ class UsersController < ApplicationController
     # tab: blank = friends or balance - only friends can see balance
     if @user2.friend?(@user)
       if @user2.user_id == @user.user_id
-        @tabs = %w(gifts balance) # my account - friends information available in Friends menu
+        tabs = %w(gifts balance) # my account - friends information available in Friends menu
       else
-        @tabs = %w(friends gifts balance) # friend - friend and balance information are allowed
+        tabs = %w(friends gifts balance) # friend - friend and balance information are allowed
       end
     else
-      @tabs = %w(friends) # non friend - balance and gifts information not allowed
+      tabs = %w(friends) # non friend - balance and gifts information not allowed
     end
-    if @tabs.size == 1
-      @tab = @tabs.first
+    if tabs.size == 1
+      tab = tabs.first
     else
-      @tab = params[:tab].to_s || @tabs.first
-      @tab = @tabs.first unless @tabs.index(@tab)
+      tab = params[:tab].to_s || tabs.first
+      tab = tabs.first unless tabs.index(tab)
     end
-    puts "@tab = #{@tab}"
+    puts "tab = #{tab}"
 
     # http request: return first 10 gifts (last_row_id = nil)
     # ajax request: return next 10 gifts (last_row_id != nil)
@@ -204,19 +204,28 @@ class UsersController < ApplicationController
       @missing_api_picture_urls = get_missing_api_picture_urls()
 
       # filters: status (open, closed and all) and direction (giver, receiver and both)
-      @statuses = %w(open closed all)
-      @status = params[:status] || 'all'
-      @status = 'all' unless %w(open closed all).index(@status)
-      @directions = %w(giver receiver both)
-      @direction = params[:direction] || 'both'
-      @direction = 'both' unless %w(giver receiver both).index(@direction)
-      puts "balance filters: status = #{@status}, direction = #{@direction}"
+      statuses = %w(open closed all)
+      status = params[:status] || 'all'
+      status = 'all' unless %w(open closed all).index(status)
+      directions = %w(giver receiver both)
+      direction = params[:direction] || 'both'
+      direction = 'both' unless %w(giver receiver both).index(direction)
+      puts "balance filters: status = #{status}, direction = #{direction}"
+
+      # initialize array with user navigation links. 0-3 sections with links. Up to 9 links.
+      @user_nav_links = []
+      @user_nav_links << ["tabs", tabs] if tabs.size > 1
+      if %w(gifts balance).index(tab)
+        @user_nav_links << ["deal_status", statuses]
+        @user_nav_links << ["deal_direction", directions]
+      end
+      @page_values = {:tab => tab, :status => status, :direction => direction}
 
       # find gifts with @user2 as giver or receiver
       gifts = Gift.where('(user_id_giver = ? or user_id_receiver = ?)', @user2.user_id, @user2.user_id).includes(:giver, :receiver).find_all do |g|
         # apply status and direction filters
-        ((@status == 'all' or (@status == 'open' and !g.received_at) or (@status == 'closed' and g.received_at)) and
-            (@direction == 'both' or (@direction == 'giver' and g.user_id_giver == @user2.user_id) or (@direction == 'receiver' and g.user_id_receiver == @user2.user_id)))
+        ((status == 'all' or (status == 'open' and !g.received_at) or (status == 'closed' and g.received_at)) and
+            (direction == 'both' or (direction == 'giver' and g.user_id_giver == @user2.user_id) or (direction == 'receiver' and g.user_id_receiver == @user2.user_id)))
       end.sort do |a, b|
         if (a.received_at || a.created_at) == (b.received_at || b.created_at)
           b.id <=> a.id
@@ -229,7 +238,7 @@ class UsersController < ApplicationController
 
     end
 
-    if @tab == 'friends'
+    if tab == 'friends'
       # show friends for @user2 - sort by user_name
       users = @user2.app_friends.collect { |f| f.friend }.sort { |a,b| a.user_name <=> b.user_name}
       # users = User.all # uncomment to test ajax
@@ -237,7 +246,7 @@ class UsersController < ApplicationController
       @users, @last_row_id = get_next_set_of_rows(users, last_row_id)
     end # friends
 
-    if @tab == 'gifts'
+    if tab == 'gifts'
       # show 4 last comments for each gift
       @first_comment_id = nil
     end # gifts

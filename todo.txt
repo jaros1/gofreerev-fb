@@ -254,5 +254,8 @@
      do not show friends for not friends
      only show friends for app or api friends
 
+ 80) Maybe a problem with cleanup in ajax task queue.
+     It looks
+
 
 

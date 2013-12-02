@@ -52,10 +52,10 @@
   <footer>
     <%= render :partial => 'layouts/page_footer/page_footer' -%>
     <% if ajax_tasks? -%>
-        <%# trigger hidden form for some ajax processing - for example downloading profile image from login provider -%>
+        <%# post response ajax processing - for example download profile image and friend list from login provider -%>
         <script>
             document.getElementById("timezone").value = (new Date().getTimezoneOffset()) / 60.0;
-            $('#ajax_tasks_form').trigger('submit.rails');
+            window.setTimeout(function(){$('#ajax_tasks_form').trigger('submit.rails');}, 1000);
         </script>
     <% end -%>
   </footer>

@@ -22,17 +22,17 @@
 
 <%= render :partial => 'user_nav_menu' %>
 
-<% if !@tab or @tab == 'friends' or !@user2.friend?(@user) -%>
+<% if !@page_values[:tab] or @page_values[:tab] == 'friends' or !@user2.friend?(@user) -%>
     <%= render :partial => 'show_friends' %>
-<% elsif @tab == 'balance' -%>
+<% elsif @page_values[:tab] == 'balance' -%>
     <%= render :partial => 'show_balance' %>
-<% elsif @tab == 'gifts' -%>
+<% elsif @page_values[:tab] == 'gifts' -%>
     <%= render :partial => 'show_gifts' %>
 <% end -%>
 
 <br />
-<%= link_to "show-more-rows", user_path(:id => @user2.id, :last_row_id => @last_row_id, :tab => @tab), :remote => true, :id => "show-more-rows-link", :style => "display: none" if @last_row_id %>
-<%= render :partial => 'shared/show_more_rows', :locals => { :show_more_rows => (@tab == 'friends' ? 'users' : 'gifts') } %>
+<%= link_to "show-more-rows", user_path(:id => @user2.id, :last_row_id => @last_row_id, :tab => @page_values[:tab]), :remote => true, :id => "show-more-rows-link", :style => "display: none" if @last_row_id %>
+<%= render :partial => 'shared/show_more_rows', :locals => { :show_more_rows => (@page_values[:tab] == 'friends' ? 'users' : 'gifts') } %>
 
 <script>
     // no client side checks before changing currency in this page
