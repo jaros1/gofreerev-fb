@@ -1,32 +1,50 @@
-<% # current page values for users_path links
-   menu_size = @user_nav_links.length
-   # class names for user links for big. medium and small screen width
-   case menu_size
-     when 0 then
-       # no user nav links - do not table user nav table
-       small = medium = large = ""
-     when 1 then
-       # only tabs - always only one line. Show for all screen sizes
-       small = medium = large = "user-links-1-line user-links-2-lines user-links-3-lines"
-     when 2 then
-       # only filters - display in one or two lines
-       nil
-     when 3 then
-       nil
-   end # case
--%>
+<div class="user-menu-1-line" style="width: 100%">
+  <table>
+    <tr>
+      <% 0.upto(@user_nav_links.size-1) do |i|
+        prefix, array_values = @user_nav_links[i]
+      -%>
+          <% if @user_nav_links.size > 1 and i > 0 -%>
+              <td>&nbsp;&nbsp;|&nbsp;&nbsp;</td>
+          <% end -%>
+          <%= render :partial => 'user_nav_links', :object => {:prefix => prefix, :array_values => array_values, :page_values => @page_values} %>
+      <% end -%>
+    </tr>
+  </table>
+</div>
 
-<table>
-  <tr>
-    <% 0.upto(@user_nav_links.size-1) do |i|
-       prefix, array_values = @user_nav_links[i]
-    -%>
-        <% if @user_nav_links.size > 1 and i > 0 -%>
-           <td>&nbsp;&nbsp;|&nbsp;&nbsp;</td>
-        <% end -%>
-        <%= render :partial => 'user_nav_links', :object => {:prefix => prefix, :array_values => array_values, :page_values => @page_values} %>
+<div class="user-menu-2-lines" style="width: 100%">
+  <table>
+    <% if @user_nav_links.size > 0
+         prefix, array_values = @user_nav_links[0] -%>
+        <tr>
+          <%= render :partial => 'user_nav_links', :object => {:prefix => prefix, :array_values => array_values, :page_values => @page_values} %>
+        </tr>
     <% end -%>
-  </tr>
-</table>
+    <% if @user_nav_links.size > 1 -%>
+        <% 1.upto(@user_nav_links.size-1) do |i|
+          prefix, array_values = @user_nav_links[i]
+        -%>
+            <% if @user_nav_links.size > 2 and i > 1 -%>
+                <td>&nbsp;&nbsp;|&nbsp;&nbsp;</td>
+            <% end -%>
+            <%= render :partial => 'user_nav_links', :object => {:prefix => prefix, :array_values => array_values, :page_values => @page_values} %>
+        <% end -%>
+    <% end -%>
+  </table>
+</div>
 
+<div class="user-menu-3-lines" style="width: 100%">
+  <table>
+    <% 0.upto(@user_nav_links.size-1) do |i|
+      prefix, array_values = @user_nav_links[i]
+    -%>
+        <tr>
+          <%= render :partial => 'user_nav_links', :object => {:prefix => prefix, :array_values => array_values, :page_values => @page_values} %>
+        </tr>
+    <% end -%>
+  </table>
+</div>
+
+<br/>
 <br/>

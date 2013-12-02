@@ -263,18 +263,36 @@ form {
 /* users/show */
 
 /* user tabs - 1, 2 or 3 rows with links - select tab, select deal status, select deal direction - from 0 to 9 links */
-@media screen and (max-width: 320px) {
+@media screen and (max-width: 479px) {
+    .user-menu-1-line {
+        display: none;
+    }
+    .user-menu-2-lines {
+        display: none;
+    }
     .user-menu-3-lines {
         display: inline;
     }
 }
-@media screen and (min-width: 321px) and (max-width: 480px) {
+@media screen and (min-width: 480px) and (max-width: 639px) {
+    .user-menu-1-line {
+        display: none;
+    }
     .user-menu-2-lines {
         display: inline;
     }
+    .user-menu-3-lines {
+        display: none;
+    }
 }
-@media screen and (min-width: 481px) {
+@media screen and (min-width: 640px) {
     .user-menu-1-line {
         display: inline;
+    }
+    .user-menu-2-lines {
+        display: none;
+    }
+    .user-menu-3-lines {
+        display: none;
     }
 }
