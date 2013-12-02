@@ -359,7 +359,10 @@ class ApplicationController < ActionController::Base
     puts "last_row_id = #{last_row_id}"
     total_no_rows = rows.size
     if last_row_id
-      # ajax request - check if last_row_id still is valid
+      # ajax request
+      # check that last_row_id is as expected
+      raise "get_next_set_of_rows: last_row_id. expected #{session[:last_row_id]}. found #{last_row_id}" unless last_row_id == session[:last_row_id]
+      # check if last_row_id is valid - row could have been deleted between two requests
       # puts "ajax request - check if last_row_id still is valid"
       from = rows.index { |u| u.id == last_row_id }
       if !from
@@ -384,6 +387,7 @@ class ApplicationController < ActionController::Base
       last_row_id = nil # last row - no more ajax requests
     end
     puts "get_next_set_of_rows: returning next #{rows.size} of #{total_no_rows} rows . last_row_id = #{last_row_id}"
+    session[:last_row_id] = last_row_id # control - is checked in next ajax request
     [ rows, last_row_id]
   end # get_next_set_of_rows
 

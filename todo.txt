@@ -236,9 +236,6 @@
      must not return delete marked gifts when called from "show-more-lines"
      must returned deleted marked gifts when called from util.new_message_count to ajax remove deleted gifts
 
- 75) comment gift. make more rome for comment if screen width < xxx
-     Should use all three columns to enter new comment.
-
  76) problem with missing "images/invisible-picture.gif" in first gifts/index row
      only after many delete marked gifts + page refresh.
      No rows are returned from first gifts/index http request. Same problem as in 74)
@@ -250,30 +247,16 @@
      http://responsivepx.com can be used. Not working for localhost / gofreerev.
      Many other tools not working for localhost / gofreerev
 
- 79) users/show friends tab
-     do not show friends for not friends
-     only show friends for app or api friends
-
  80) Maybe a problem with cleanup in ajax task queue.
      It looks like the page is handing while waiting for cleanup in ajax task queue
      Added a delay for 1 second in page footer before requesting execution of ajax tasks
 
- 81) users/show ajax get more rows not working for gifts tab
+ 81) users/show ajax get more rows not working for gifts tab. ok now. keep item for 82)
 
- 82) problem with too many get more rows ajax requests in 81).
-     Should only try once and set a new last_row_id
-     Move "last_row_id" from hidden field / javascript variable to session variable to prevent multiple calls with identical last_row_id
-
- 83) http://api.jquery.com/ready/
+ 83) <body onload="xx"> is being used in application layout to set onfocus event to get list of currencies in page header
+     http://api.jquery.com/ready/
      The .ready() method is generally incompatible with the <body onload=""> attribute.
      If load must be used, either do not use .ready() or use jQuery's .load() method to
      attach load event handlers to the window or to more specific items, like images.
-     <body onload="xx"> is being used in application layout to set onfocus avent to get list of currencies in page header
-
- 84) add more <%# %> documentation to show-more-rows html code
 
  85) move documentation in html pages to <%# -%> tags for smaller pages and intact documentation
-
-
-
-

@@ -46,15 +46,12 @@
                         <% if debug_ajax? -%>alert('no more rows - remove link') ; <% end -%>link.parentNode.removeChild(link);
                     }
                     else {
-                        // change last_row_id in link
                         var reg = new RegExp("^last-row-id-[0-9]+$") ;
                         if (!tr_id.match(reg)) {<% if debug_ajax? -%> alert(pgm + 'row with format last-row-id-<n> was not found. id = ' + tr_id);<% end -%> return } // 4
                         var tr_id_a = tr_id.split("-") ;
                         var last_row_id = tr_id_a[tr_id_a.length-1] ;
                         var href = link.href ;
-                        // alert('ref before = ' + href) ;
                         href = href.replace(/last_row_id=[0-9]+/, 'last_row_id=' + last_row_id) ;
-                        // alert('ref after = ' + href) ;
                         link.href = href ;
                         end_of_page = false ;
                     }
@@ -66,27 +63,25 @@
         if (end_of_page) return ;
         if (($(document).height() - $(window).height()) - $(window).scrollTop() < 600){
             end_of_page = true ;
-            // alert("We're at the end_of_page of the page!!");
             var link = document.getElementById("show-more-rows-link") ;
-            if (!link) return ; // no more rows - unregister this function
-            // check that table to received new rows exists
-            var table = document.getElementById("<%= show_more_rows %>") ; // table id - gifts or users
-            if (!table) return ; // not gifts/index, users/index or users/show pages
+            if (!link) return ;
+            var table = document.getElementById("<%= show_more_rows %>") ;
+            if (!table) return ;
             old_number_of_rows = table.rows.length ;
-            // get more gifts from server
             link.click() ;
-            // todo: disable scroll event until new rows have been received
-
+<%#
             // report any invalid api picture urls - url has changed or picture has been deleted
             // array with gift ids is initialized in img onload="check_api_picture_url ..."
             // submitted in 2 seconds to allow pictures in page to load
             // api_picture_url_on_error_at is set for pictures with invalid urls
             // picture urls are checked with api calls by current user and if necessary by picture owner at a later time
+-%>
             setTimeout(report_missing_api_picture_urls, 2000) ;
         }
-    }); // $(window).scroll
-
+    }); //
+<%#
     // scroll to top of page after reload - only fetch newest 10 gifts after reload
+-%>
     $(document).ready(function(){
         $(this).scrollTop(0);
     });
