@@ -296,3 +296,21 @@ form {
         display: none;
     }
 }
+
+/* user balance - hide giver and receiver profile pictures on small screens */
+@media screen and (max-width: 479px) {
+    .user-balance-col-1 {
+        display: none;
+    }
+    .user-balance-col-2 {
+        display: none;
+    }
+}
+@media screen and (min-width: 480px) {
+    .user-balance-col-1 {
+        display: table-cell;
+    }
+    .user-balance-col-2 {
+        display: table-cell;
+    }
+}

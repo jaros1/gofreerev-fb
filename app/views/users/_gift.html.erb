@@ -4,12 +4,12 @@
     </tr>
 <% else -%>
     <tr style="vertical-align: top" id="<%= "gift-#{gift.id}" %>-header">
-      <td>
+      <td class="user-balance-col-1">
         <% if gift.giver -%>
             <%= @size = 'small' ; render '/shared/user_div', :user_div => gift.giver %>
         <% end -%>
       </td>
-      <td>
+      <td class="user-balance-col-2">
         <% if gift.receiver -%>
             <%= @size = 'small' ; render '/shared/user_div', :user_div => gift.receiver %>
         <% end -%>

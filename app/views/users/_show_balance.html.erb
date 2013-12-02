@@ -1,8 +1,10 @@
 <%= t ".balance_tab_header_text_html", :username => @user2.short_or_full_user_name(@user) %>
-<br />
+<br/>
 <% if @user2.friend?(@user) and @gifts.size > 0 -%>
-    <table id="gifts" style="border-spacing: 0;">
-      <%= render :partial => 'show_balance_header' %>
-      <%= render :partial => 'gifts' %>
-    </table>
+    <div style="width: 100%">
+      <table id="gifts" style="border-spacing: 0;">
+        <%= render :partial => 'show_balance_header' %>
+        <%= render :partial => 'gifts' %>
+      </table>
 <% end -%>
+</div>
