@@ -370,7 +370,7 @@ class ApplicationController < ActionController::Base
       else
         puts msg
       end
-      # return dummy row with correct last_row_id to client
+      # return dummy row with correct last_row_id to client x
       return true
     elsif dif < GET_MORE_ROWS_INTERVAL - 1
       # client should only send get-more-rows once every GET_MORE_ROWS_INTERVAL seconds. Must be an javascript/ajax error.
