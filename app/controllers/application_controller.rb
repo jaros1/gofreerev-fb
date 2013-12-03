@@ -1,9 +1,6 @@
 # encoding: utf-8
 require 'money/bank/google_currency'
 
-LAST_ROW_AT_OFFSET = 1386052146
-
-
 #noinspection RubyResolve
 class ApplicationController < ActionController::Base
 
@@ -357,12 +354,13 @@ class ApplicationController < ActionController::Base
 
   # check get-more-rows ajax request for errors before fetching users or gifts
   # called in start of gifts/index, users/index and users/show and before calling get_next_set_of_rows
+  # last_low_id must be correct - max one get-more-rows ajax request every GET_MORE_ROWS_INTERVAL seconds
   private
   def get_next_set_of_rows_error?(last_row_id)
     raise "get_next_set_of_rows: session[:last_row_id] was not found" unless  session[:last_row_id]
     raise "get_next_set_of_rows: session[:last_row_at] was not found" unless  session[:last_row_at]
-    # max one get-more-rows request once every 3 seconds
-    new_last_row_at = Time.new.to_i - LAST_ROW_AT_OFFSET
+    # max one get-more-rows request once every GET_MORE_ROWS_INTERVAL seconds
+    new_last_row_at = Time.new.to_f
     dif = new_last_row_at - session[:last_row_at]
     if last_row_id != session[:last_row_id]
       # wrong last_row_id received in get-more-rows ajax request. Must be an error a javascript/ajax error
@@ -374,15 +372,20 @@ class ApplicationController < ActionController::Base
       end
       # return dummy row with correct last_row_id to client
       return true
-    elsif dif < 3
-      # client should only send get-more-rows once every 3 seconds. Must be an javascript/ajax error.
+    elsif dif < GET_MORE_ROWS_INTERVAL - 1
+      # client should only send get-more-rows once every GET_MORE_ROWS_INTERVAL seconds. Must be an javascript/ajax error.
       # it should be client that waits between get-more-rows ajax requests - not server
-      max = "get_next_set_of_rows. Max one get-more-rows ajax request every 3 seconds."
+      # todo: problem with GET_MORE_ROWS_INTERVAL delay in javascript and in rails.
+      #       dif < GET_MORE_ROWS_INTERVAL gives too many "Max one get-more-rows ajax request" errors
+      #       javascript code in /shared/show_more_rows partial. 3 seconds wait in JS and in rails should work
+      msg = "get_next_set_of_rows. Max one get-more-rows ajax request every #{GET_MORE_ROWS_INTERVAL} seconds. session[:last_row_at_debug] = #{session[:last_row_at_debug]}. Time.new = #{Time.new}. Wait for #{GET_MORE_ROWS_INTERVAL-dif} seconds"
       if debug_ajax?
-        raise msg
+        puts msg
+        puts msg
+        puts msg
       else
-        puts "#{max} Wait for #{3-dif} seconds"
-        sleep(3-dif) # there mst be error in javascript wait between get-more-rows ajax requests
+        puts msg
+        sleep(GET_MORE_ROWS_INTERVAL-dif) # there mst be error in javascript wait between get-more-rows ajax requests
       end
       # return dummy row with correct last_row_id to client
       return true
@@ -426,7 +429,9 @@ class ApplicationController < ActionController::Base
     puts "get_next_set_of_rows: returning next #{rows.size} of #{total_no_rows} rows . last_row_id = #{last_row_id}"
     # keep last_row_id and timestamp - checked in get_next_set_of_rows_error? before calling this method
     session[:last_row_id] = last_row_id # control - is checked in next ajax request
-    session[:last_row_at] = Time.new.to_i - LAST_ROW_AT_OFFSET
+    session[:last_row_at] = Time.new.to_f
+    session[:last_row_at_debug] = Time.new
+    puts "last_row_at_debug = #{session[:last_row_at_debug]}"
     [ rows, last_row_id]
   end # get_next_set_of_rows
 

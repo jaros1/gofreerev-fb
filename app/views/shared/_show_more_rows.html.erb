@@ -3,7 +3,8 @@
     // report any invalid api picture urls - url has changed or picture has been deleted
     // array with gift ids is initialized in img onload="check_api_picture_url ..."
     // submitted in 2 seconds to allow pictures in page to load
-    // api_picture_url_on_error_at is setted for pictures with invalid urls
+    // api_picture_url_on_error_at is set for pictures with invalid urls
+    // picture urls are rechecked in gifts/index and users/show gifts tab
 -%>
     setTimeout(report_missing_api_picture_urls, 2000) ;
 <%#
@@ -16,9 +17,14 @@
     var end_of_page = <%= @last_row_id ? "false" : "true" %> ;
 <%#
     // check number of rows in table (gifts or users) before and after get more rows ajax event
-    // Do not fire any more get more rows ajax events if no new rows has been received (server side error)
+    // do not fire any more get more rows ajax events if no new rows has been received (server side error)
 -%>
     var old_number_of_rows ;
+<%#
+    // remember timestamp in milliseconds for last show-more-rows ajax request
+    // should only request more rows once every 3 seconds
+-%>
+    var old_show_more_rows_request_at = 0 ;
 <%#
     // add post ajax event handler for "show-more-rows-link" link
     // change url with new last_row_id or hide url when all rows has been returned to page
@@ -68,7 +74,22 @@
             var table = document.getElementById("<%= show_more_rows %>") ;
             if (!table) return ;
             old_number_of_rows = table.rows.length ;
-            link.click() ;
+            var now = (new Date()).getTime();
+            var sleep ;
+            if (old_show_more_rows_request_at) {
+                sleep = <%= (GET_MORE_ROWS_INTERVAL*1000).round %> - (now-old_show_more_rows_request_at) ;
+                if (sleep < 0) sleep = 0 ;
+            }
+            else sleep = 0 ;
+<% if debug_ajax? -%>
+            var log = document.getElementById('ajax_debug_log') ;
+            log.innerHTML = log.innerHTML + 'Sleep ' + (sleep/1000.0) + ' seconds' +
+                                            '. old timestamp ' + old_show_more_rows_request_at +
+                                            ', new timestamp ' + now + '<br>' ;
+<% end -%>
+            old_show_more_rows_request_at = now + sleep ;
+            if (sleep == 0) link.click() ;
+            else setTimeout(function(){link.click()},sleep) ;
 <%#
             // report any invalid api picture urls - url has changed or picture has been deleted
             // array with gift ids is initialized in img onload="check_api_picture_url ..."
