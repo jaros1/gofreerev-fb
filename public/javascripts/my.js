@@ -690,4 +690,18 @@ function add_user_currency_new_event() {
     });
 }
 
+// for client side debugging - writes JS messages to debug_log div - only used if DEBUG_AJAX = true
+function add_to_debug_log (text) {
+    var log = document.getElementById('debug_log') ;
+    if (!log) return ;
+    log.innerHTML = log.innerHTML + text + '<br>' ;
+} // add_to_debug_log
+
+// show-more-rows click. used in gifts/index, users/index and users/show for ajax expanding page
+function show_more_rows()
+{
+    var link = document.getElementById("show-more-rows-link") ;
+    if (!link) return ;
+    link.click() ;
+} // show_more_rows()
 

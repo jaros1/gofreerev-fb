@@ -259,9 +259,6 @@
 
  85) move documentation in html pages to <%# -%> tags for smaller pages and intact documentation
 
- 86) add a timer in get-more-rows ajax requests. Fx max one request each n seconds.
-     for example loop error in client javascript or user that keeps pressing "end" key on keyboard
-
  87) shorten inline javascript code in html pages
      add helper JS functions
      for example /shared/show_more_rows

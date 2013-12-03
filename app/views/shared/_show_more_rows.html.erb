@@ -40,20 +40,20 @@
                     // find id for last row (nil or id for last row in table)
                     var pgm = "#show-more-rows-link.ajax:success: " ;
                     var link = document.getElementById("show-more-rows-link") ;
-                    if (!link) {<% if debug_ajax? -%> alert(pgm + "show-more-rows-link has already been removed");<% end -%> return } // 1
+                    if (!link) {<% if debug_ajax? -%> add_to_debug_log(pgm + "show-more-rows-link has already been removed");<% end -%> return } // 1
                     var table = document.getElementById("<%= show_more_rows %>") ;
-                    if (!table) {<% if debug_ajax? -%> alert(pgm + 'error - gifts or users table was not found') ;<% end -%> return } // 2
+                    if (!table) {<% if debug_ajax? -%> add_to_debug_log(pgm + 'error - gifts or users table was not found') ;<% end -%> return } // 2
                     var new_number_of_rows = table.rows.length ;
-                    if (new_number_of_rows == old_number_of_rows) {<% if debug_ajax? -%> alert(pgm + 'error - no new rows was returned from get more rows ajax request') ;<% end -%> return } // 3
+                    if (new_number_of_rows == old_number_of_rows) {<% if debug_ajax? -%> add_to_debug_log(pgm + 'error - no new rows was returned from get more rows ajax request') ;<% end -%> return } // 3
                     var trs = table.getElementsByTagName('tr') ;
                     var tr = trs[trs.length-1] ;
                     var tr_id = tr.id ;
                     if (tr_id == "") {
-                        <% if debug_ajax? -%>alert('no more rows - remove link') ; <% end -%>link.parentNode.removeChild(link);
+                        <% if debug_ajax? -%>add_to_debug_log(pgm + 'no more rows - remove link') ; <% end -%>link.parentNode.removeChild(link);
                     }
                     else {
                         var reg = new RegExp("^last-row-id-[0-9]+$") ;
-                        if (!tr_id.match(reg)) {<% if debug_ajax? -%> alert(pgm + 'row with format last-row-id-<n> was not found. id = ' + tr_id);<% end -%> return } // 4
+                        if (!tr_id.match(reg)) {<% if debug_ajax? -%> add_to_debug_log(pgm + 'row with format last-row-id-<n> was not found. id = ' + tr_id);<% end -%> return } // 4
                         var tr_id_a = tr_id.split("-") ;
                         var last_row_id = tr_id_a[tr_id_a.length-1] ;
                         var href = link.href ;
@@ -69,27 +69,24 @@
         if (end_of_page) return ;
         if (($(document).height() - $(window).height()) - $(window).scrollTop() < 600){
             end_of_page = true ;
-            var link = document.getElementById("show-more-rows-link") ;
-            if (!link) return ;
+            if (!document.getElementById("show-more-rows-link")) return ;
             var table = document.getElementById("<%= show_more_rows %>") ;
             if (!table) return ;
             old_number_of_rows = table.rows.length ;
             var now = (new Date()).getTime();
-            var sleep ;
-            if (old_show_more_rows_request_at) {
-                sleep = <%= (GET_MORE_ROWS_INTERVAL*1000).round %> - (now-old_show_more_rows_request_at) ;
-                if (sleep < 0) sleep = 0 ;
-            }
-            else sleep = 0 ;
+<%#
+  There is a minor problem with wait between show-more-rows request
+  Implemented here and implemented in get_next_set_of_rows_error? and get_next_set_of_rows methods in application controller
+  For now the check is for 3 seconds in javascript and for 2 seconds in rails
+-%>
+            var sleep = <%= (GET_MORE_ROWS_INTERVAL*1000).round %> - (now-old_show_more_rows_request_at) ;
+            if (sleep < 0) sleep = 0 ;
 <% if debug_ajax? -%>
-            var log = document.getElementById('ajax_debug_log') ;
-            log.innerHTML = log.innerHTML + 'Sleep ' + (sleep/1000.0) + ' seconds' +
-                                            '. old timestamp ' + old_show_more_rows_request_at +
-                                            ', new timestamp ' + now + '<br>' ;
+            add_to_debug_log('Sleep ' + (sleep/1000.0) + ' seconds' + '. old timestamp ' + old_show_more_rows_request_at + ', new timestamp ' + now) ;
 <% end -%>
             old_show_more_rows_request_at = now + sleep ;
-            if (sleep == 0) link.click() ;
-            else setTimeout(function(){link.click()},sleep) ;
+            if (sleep == 0) show_more_rows() ;
+            else setTimeout("show_more_rows()",sleep) ;
 <%#
             // report any invalid api picture urls - url has changed or picture has been deleted
             // array with gift ids is initialized in img onload="check_api_picture_url ..."
