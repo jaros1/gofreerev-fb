@@ -1,6 +1,9 @@
 # encoding: utf-8
 require 'money/bank/google_currency'
 
+LAST_ROW_AT_OFFSET = 1386052146
+
+
 #noinspection RubyResolve
 class ApplicationController < ActionController::Base
 
@@ -352,16 +355,50 @@ class ApplicationController < ActionController::Base
     end
   end # get_missing_api_picture_urls
 
+  # check get-more-rows ajax request for errors before fetching users or gifts
+  # called in start of gifts/index, users/index and users/show and before calling get_next_set_of_rows
+  private
+  def get_next_set_of_rows_error?(last_row_id)
+    raise "get_next_set_of_rows: session[:last_row_id] was not found" unless  session[:last_row_id]
+    raise "get_next_set_of_rows: session[:last_row_at] was not found" unless  session[:last_row_at]
+    # max one get-more-rows request once every 3 seconds
+    new_last_row_at = Time.new.to_i - LAST_ROW_AT_OFFSET
+    dif = new_last_row_at - session[:last_row_at]
+    if last_row_id != session[:last_row_id]
+      # wrong last_row_id received in get-more-rows ajax request. Must be an error a javascript/ajax error
+      msg = "get_next_set_of_rows. problem with get-more-rows ajax request. expected #{session[:last_row_id]}. found #{last_row_id}."
+      if debug_ajax?
+        raise msg
+      else
+        puts msg
+      end
+      # return dummy row with correct last_row_id to client
+      return true
+    elsif dif < 3
+      # client should only send get-more-rows once every 3 seconds. Must be an javascript/ajax error.
+      # it should be client that waits between get-more-rows ajax requests - not server
+      max = "get_next_set_of_rows. Max one get-more-rows ajax request every 3 seconds."
+      if debug_ajax?
+        raise msg
+      else
+        puts "#{max} Wait for #{3-dif} seconds"
+        sleep(3-dif) # there mst be error in javascript wait between get-more-rows ajax requests
+      end
+      # return dummy row with correct last_row_id to client
+      return true
+    else
+      # normal ajax response with next set of gifts or users
+      return false
+    end
+  end # get_next_set_of_rows_error?
+
   # used in ajax expanding pages (gifts/index, users/index and users/show pages)
-  # used with partial todo
   private
   def get_next_set_of_rows (rows, last_row_id, no_rows=10)
     puts "last_row_id = #{last_row_id}"
     total_no_rows = rows.size
     if last_row_id
       # ajax request
-      # check that last_row_id is as expected
-      raise "get_next_set_of_rows: last_row_id. expected #{session[:last_row_id]}. found #{last_row_id}" unless last_row_id == session[:last_row_id]
       # check if last_row_id is valid - row could have been deleted between two requests
       # puts "ajax request - check if last_row_id still is valid"
       from = rows.index { |u| u.id == last_row_id }
@@ -387,7 +424,9 @@ class ApplicationController < ActionController::Base
       last_row_id = nil # last row - no more ajax requests
     end
     puts "get_next_set_of_rows: returning next #{rows.size} of #{total_no_rows} rows . last_row_id = #{last_row_id}"
+    # keep last_row_id and timestamp - checked in get_next_set_of_rows_error? before calling this method
     session[:last_row_id] = last_row_id # control - is checked in next ajax request
+    session[:last_row_at] = Time.new.to_i - LAST_ROW_AT_OFFSET
     [ rows, last_row_id]
   end # get_next_set_of_rows
 

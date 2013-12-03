@@ -211,6 +211,28 @@ class GiftsController < ApplicationController
     # test if flash object can be used
     puts "flash[:read_stream] = #{flash[:read_stream]}"
 
+    # http request: return first 10 gifts (last_row_id = nil)
+    # ajax request: return next 10 gifts (last_row_id != nil)
+    last_row_id = params[:last_row_id].to_s
+    last_row_id = nil if last_row_id == ''
+    if last_row_id =~ /^[0-9]+$/
+      last_row_id = last_row_id.to_i
+    else
+      last_row_id = nil
+    end
+    if last_row_id and get_next_set_of_rows_error?(last_row_id)
+      # problem with ajax request.
+      # can be invalid last_row_id - can be too many get-more-rows ajax requests - max one request every 3 seconds - more info in log
+      # return "empty" ajax response with dummy row with correct last_row_id to client
+      puts "return empty ajax response with dummy row with correct last_row_id to client"
+      @gifts = []
+      @last_row_id = session[:last_row_id]
+      respond_to do |format|
+        format.js {}
+      end
+      return
+    end
+
     # get any pictures with invalid picture urls
     # that is gifts where picture url are marked as invalid and where url lookup in /util/missing_api_picture_urls failed
     # most possible explanation is that the pictures has been deleted in api
@@ -256,16 +278,6 @@ class GiftsController < ApplicationController
 
     # use this gifts select for ajax debug - returns all gifts
     # gifts = Gift.where('user_id_giver is not null or user_id_receiver is not null').order('id desc') # uncomment to test ajax
-
-    # http request: return first 10 gifts (last_row_id = nil)
-    # ajax request: return next 10 gifts (last_row_id != nil)
-    last_row_id = params[:last_row_id].to_s
-    last_row_id = nil if last_row_id == ''
-    if last_row_id =~ /^[0-9]+$/
-      last_row_id = last_row_id.to_i
-    else
-      last_row_id = nil
-    end
 
     # last_row_id != nil. ajax request from end of gifts/index page - return next 10 rows to gifts/index page
     # puts "last_row_id = #{params[:last_row_id]}, gifts.length = #{@gifts.length}"

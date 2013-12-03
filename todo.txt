@@ -251,8 +251,6 @@
      It looks like the page is handing while waiting for cleanup in ajax task queue
      Added a delay for 1 second in page footer before requesting execution of ajax tasks
 
- 81) users/show ajax get more rows not working for gifts tab. ok now. keep item for 82)
-
  83) <body onload="xx"> is being used in application layout to set onfocus event to get list of currencies in page header
      http://api.jquery.com/ready/
      The .ready() method is generally incompatible with the <body onload=""> attribute.
@@ -260,3 +258,6 @@
      attach load event handlers to the window or to more specific items, like images.
 
  85) move documentation in html pages to <%# -%> tags for smaller pages and intact documentation
+
+ 86) add a timer in get-more-rows ajax requests. Fx max one request each n seconds.
+     for example loop error in client javascript or user that keeps pressing "end" key on keyboard

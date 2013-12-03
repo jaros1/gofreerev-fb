@@ -67,6 +67,18 @@ class UsersController < ApplicationController
       last_row_id = nil
     end
     # puts "last_row_id = #{last_row_id}"
+    if last_row_id and get_next_set_of_rows_error?(last_row_id)
+      # problem with ajax request.
+      # can be invalid last_row_id - can be too many get-more-rows ajax requests - max one request every 3 seconds - more info in log
+      # return "empty" ajax response with dummy row with correct last_row_id to client
+      puts "return empty ajax response with dummy row with correct last_row_id to client"
+      @gifts = @users = []
+      @last_row_id = session[:last_row_id]
+      respond_to do |format|
+        format.js {}
+      end
+      return
+    end
 
     # always use users friends as basic (friends_filter = true)
     user_friends = @user.friends.includes(:friend).find_all do |f|
@@ -185,6 +197,19 @@ class UsersController < ApplicationController
       last_row_id = last_row_id.to_i
     else
       last_row_id = nil
+    end
+    if last_row_id and get_next_set_of_rows_error?(last_row_id)
+      # problem with ajax request.
+      # can be invalid last_row_id - can be too many get-more-rows ajax requests - max one request every 3 seconds - more info in log
+      # return "empty" ajax response with dummy row with correct last_row_id to client
+      puts "return empty ajax response with dummy row with correct last_row_id to client"
+      @page_values = {:tab => tab }
+      @gifts = @users = []
+      @last_row_id = session[:last_row_id]
+      respond_to do |format|
+        format.js {}
+      end
+      return
     end
 
     if %w(gifts balance)
