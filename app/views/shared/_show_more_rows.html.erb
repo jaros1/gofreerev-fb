@@ -64,42 +64,10 @@
                 });
     }); // $(document).ready
 
-    // check if user scrolls to end of page and get more gifts from server before user reaches end of page
     $(window).scroll(function(){
-        if (end_of_page) return ;
-        if (($(document).height() - $(window).height()) - $(window).scrollTop() < 600){
-            end_of_page = true ;
-            if (!document.getElementById("show-more-rows-link")) return ;
-            var table = document.getElementById("<%= show_more_rows %>") ;
-            if (!table) return ;
-            old_number_of_rows = table.rows.length ;
-            var now = (new Date()).getTime();
-<%#
-  There is a minor problem with wait between show-more-rows request
-  Implemented here and implemented in get_next_set_of_rows_error? and get_next_set_of_rows methods in application controller
-  For now the check is for 3 seconds in javascript and for 2 seconds in rails
--%>
-            var sleep = <%= (GET_MORE_ROWS_INTERVAL*1000).round %> - (now-old_show_more_rows_request_at) ;
-            if (sleep < 0) sleep = 0 ;
-<% if debug_ajax? -%>
-            add_to_debug_log('Sleep ' + (sleep/1000.0) + ' seconds' + '. old timestamp ' + old_show_more_rows_request_at + ', new timestamp ' + now) ;
-<% end -%>
-            old_show_more_rows_request_at = now + sleep ;
-            if (sleep == 0) show_more_rows() ;
-            else setTimeout("show_more_rows()",sleep) ;
-<%#
-            // report any invalid api picture urls - url has changed or picture has been deleted
-            // array with gift ids is initialized in img onload="check_api_picture_url ..."
-            // submitted in 2 seconds to allow pictures in page to load
-            // api_picture_url_on_error_at is set for pictures with invalid urls
-            // picture urls are checked with api calls by current user and if necessary by picture owner at a later time
--%>
-            setTimeout(report_missing_api_picture_urls, 2000) ;
-        }
+        show_more_rows_scroll("<%= show_more_rows %>", <%= (GET_MORE_ROWS_INTERVAL*1000).round %>,<%= debug_ajax? ? "true" : "false" %>) ;
     }); //
-<%#
-    // scroll to top of page after reload - only fetch newest 10 gifts after reload
--%>
+
     $(document).ready(function(){
         $(this).scrollTop(0);
     });

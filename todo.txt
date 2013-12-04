@@ -232,9 +232,9 @@
  74) delete marked gifts are not removed from database
      minor problem as gift are deleted from database within 10 minutes
      but the problem can be fixed in application controller get_next_set_of_rows
-     must not return delete marked gifts when called from gifts/index page at startup
-     must not return delete marked gifts when called from "show-more-lines"
-     must returned deleted marked gifts when called from util.new_message_count to ajax remove deleted gifts
+     must not return delete marked gifts when called from gifts/index page at startup (html request)
+     must not return delete marked gifts when called from "show-more-lines" (ajax request)
+     must returned deleted marked gifts when called from util.new_message_count to ajax remove deleted gifts (ajax request)
 
  76) problem with missing "images/invisible-picture.gif" in first gifts/index row
      only after many delete marked gifts + page refresh.

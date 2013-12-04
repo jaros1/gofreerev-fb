@@ -697,6 +697,9 @@ function add_to_debug_log (text) {
     log.innerHTML = log.innerHTML + text + '<br>' ;
 } // add_to_debug_log
 
+
+// implementing show-more-rows ajax / endless expanding page
+
 // show-more-rows click. used in gifts/index, users/index and users/show for ajax expanding page
 function show_more_rows()
 {
@@ -704,4 +707,53 @@ function show_more_rows()
     if (!link) return ;
     link.click() ;
 } // show_more_rows()
+
+// end_of_page - true or false
+// true when user is near end of page (get more rows)
+// true under an active get more rows ajax request
+// is set in $(window).scroll
+// is unset in $(document).ready when new rows has been received
+// default not active. end_of_page = true. will be overwritten in gifts/index, users/index and users/show pages
+var end_of_page = true ;
+
+// check number of rows in table (gifts or users) before and after get more rows ajax event
+// do not fire any more get more rows ajax events if no new rows has been received (server side error)
+var old_number_of_rows ;
+
+// remember timestamp in milliseconds for last show-more-rows ajax request
+// should only request more rows once every 3 seconds
+var old_show_more_rows_request_at = 0 ;
+
+// scroll event - click show_more_rows when user scrolls to end of page
+// table_name should be gifts or users
+// interval should be 3000 = 3 seconds between each show-more-rows request
+// debug true - display messages for ajax debugging in button of page
+function show_more_rows_scroll(table_name, interval, debug) {
+    if (end_of_page) return; // no more rows or not an ajax expanding page
+    if (($(document).height() - $(window).height()) - $(window).scrollTop() < 600) {
+        end_of_page = true;
+        if (!document.getElementById("show-more-rows-link")) return;
+        var table = document.getElementById(table_name);
+        if (!table) return; // not
+        old_number_of_rows = table.rows.length;
+        var now = (new Date()).getTime();
+        // There is a minor problem with wait between show-more-rows request
+        // Implemented here and implemented in get_next_set_of_rows_error? and get_next_set_of_rows methods in application controller
+        // For now the check is for 3 seconds in javascript and for 2 seconds in rails
+        var sleep = interval - (now - old_show_more_rows_request_at);
+        if (sleep < 0) sleep = 0;
+        if (debug) add_to_debug_log('Sleep ' + (sleep / 1000.0) + ' seconds' + '. old timestamp ' + old_show_more_rows_request_at + ', new timestamp ' + now);
+        old_show_more_rows_request_at = now + sleep;
+        if (sleep == 0) show_more_rows();
+        else setTimeout("show_more_rows()", sleep);
+        if (table_name == 'gifts') {
+            // report any invalid api picture urls - url has changed or picture has been deleted
+            // array with gift ids is initialized in img onload="check_api_picture_url ..."
+            // submitted in 2 seconds to allow pictures in page to load
+            // api_picture_url_on_error_at is set for pictures with invalid urls
+            // picture urls are checked with api calls by current user and if necessary by picture owner at a later time
+            setTimeout(report_missing_api_picture_urls, 2000);
+        }
+    }
+} // show_more_rows_scroll
 
