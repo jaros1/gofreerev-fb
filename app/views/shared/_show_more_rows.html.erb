@@ -14,6 +14,7 @@
     // is set in $(window).scroll
     // is unset in $(document).ready when new rows has been received
 -%>
+    // setup ajax expanding page
     var end_of_page = <%= @last_row_id ? "false" : "true" %> ;
 <%#
     // check number of rows in table (gifts or users) before and after get more rows ajax event
@@ -26,48 +27,23 @@
 -%>
     var old_show_more_rows_request_at = 0 ;
 <%#
-    // add post ajax event handler for "show-more-rows-link" link
-    // change url with new last_row_id or hide url when all rows has been returned to page
-    // error handling:
-    //  1 - link does not longer exists - link is removed after last get more rows response
-    //  2 - table with id gifts or users was not found in html page - not gifts/index, users/index or users/show pages
-    //  3 - server error - ajax success but no new rows was added to gifts/users table. Must be a server error
-    //  4 - invalid id format for last row returned be ajax request
+    // ajax post processing show-row-rows. Check number of new rows. Change link for next show-more-rows ajax request
 -%>
     $(document).ready(function(){
         $('#show-more-rows-link')
                 .bind("ajax:success", function(evt, data, status, xhr){
-                    // find id for last row (nil or id for last row in table)
-                    var pgm = "#show-more-rows-link.ajax:success: " ;
-                    var link = document.getElementById("show-more-rows-link") ;
-                    if (!link) {<% if debug_ajax? -%> add_to_debug_log(pgm + "show-more-rows-link has already been removed");<% end -%> return } // 1
-                    var table = document.getElementById("<%= show_more_rows %>") ;
-                    if (!table) {<% if debug_ajax? -%> add_to_debug_log(pgm + 'error - gifts or users table was not found') ;<% end -%> return } // 2
-                    var new_number_of_rows = table.rows.length ;
-                    if (new_number_of_rows == old_number_of_rows) {<% if debug_ajax? -%> add_to_debug_log(pgm + 'error - no new rows was returned from get more rows ajax request') ;<% end -%> return } // 3
-                    var trs = table.getElementsByTagName('tr') ;
-                    var tr = trs[trs.length-1] ;
-                    var tr_id = tr.id ;
-                    if (tr_id == "") {
-                        <% if debug_ajax? -%>add_to_debug_log(pgm + 'no more rows - remove link') ; <% end -%>link.parentNode.removeChild(link);
-                    }
-                    else {
-                        var reg = new RegExp("^last-row-id-[0-9]+$") ;
-                        if (!tr_id.match(reg)) {<% if debug_ajax? -%> add_to_debug_log(pgm + 'row with format last-row-id-<n> was not found. id = ' + tr_id);<% end -%> return } // 4
-                        var tr_id_a = tr_id.split("-") ;
-                        var last_row_id = tr_id_a[tr_id_a.length-1] ;
-                        var href = link.href ;
-                        href = href.replace(/last_row_id=[0-9]+/, 'last_row_id=' + last_row_id) ;
-                        link.href = href ;
-                        end_of_page = false ;
-                    }
+                    show_more_rows_post_ajax("<%= show_more_rows %>", <%= debug_ajax? ? "true" : "false" %>) ;
                 });
     }); // $(document).ready
-
+<%#
+    // trigger show-more-rows event when user scrolls to end-of-page
+-%>
     $(window).scroll(function(){
         show_more_rows_scroll("<%= show_more_rows %>", <%= (GET_MORE_ROWS_INTERVAL*1000).round %>,<%= debug_ajax? ? "true" : "false" %>) ;
     }); //
-
+<%#
+    // scroll to top of page after reload - prevent multiple show-more-rows requests
+-%>
     $(document).ready(function(){
         $(this).scrollTop(0);
     });

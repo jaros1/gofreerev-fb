@@ -757,3 +757,44 @@ function show_more_rows_scroll(table_name, interval, debug) {
     }
 } // show_more_rows_scroll
 
+function show_more_rows_post_ajax (table_name, debug)
+{
+    // find id for last row (nil or id for last row in table)
+    var pgm = "#show-more-rows-link.ajax:success: " ;
+    var link = document.getElementById("show-more-rows-link") ;
+    if (!link) {
+        if (debug) add_to_debug_log(pgm + "show-more-rows-link has already been removed");
+        return
+    }
+    var table = document.getElementById(table_name) ;
+    if (!table) {
+        if (debug) add_to_debug_log(pgm + 'error - gifts or users table was not found') ;
+        return
+    }
+    var new_number_of_rows = table.rows.length ;
+    if (new_number_of_rows == old_number_of_rows) {
+        if (debug) add_to_debug_log(pgm + 'error - no new rows was returned from get more rows ajax request') ;
+        return
+    }
+    var trs = table.getElementsByTagName('tr') ;
+    var tr = trs[trs.length-1] ;
+    var tr_id = tr.id ;
+    if (tr_id == "") {
+        if (debug) add_to_debug_log(pgm + 'no more rows - remove link') ;
+        link.parentNode.removeChild(link);
+    }
+    else {
+        var reg = new RegExp("^last-row-id-[0-9]+$") ;
+        if (!tr_id.match(reg)) {
+            if (debug) add_to_debug_log(pgm + 'row with format last-row-id-<n> was not found. id = ' + tr_id);
+            return
+        }
+        var tr_id_a = tr_id.split("-") ;
+        var last_row_id = tr_id_a[tr_id_a.length-1] ;
+        var href = link.href ;
+        href = href.replace(/last_row_id=[0-9]+/, 'last_row_id=' + last_row_id) ;
+        link.href = href ;
+        end_of_page = false ;
+    }
+} // show_more_rows_post_ajax
+
