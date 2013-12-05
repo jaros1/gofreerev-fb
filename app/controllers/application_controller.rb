@@ -397,10 +397,12 @@ class ApplicationController < ActionController::Base
 
   # used in ajax expanding pages (gifts/index, users/index and users/show pages)
   private
-  def get_next_set_of_rows (rows, last_row_id, no_rows=10)
+  def get_next_set_of_rows (rows, last_row_id, no_rows=nil)
     puts "last_row_id = #{last_row_id}"
+    ajax_request = (last_row_id != nil)
+    no_rows = ajax_request ? 10 : 1 unless no_rows # default - return 1 row in first http request - return 10 rows in ajax requests
     total_no_rows = rows.size
-    if last_row_id
+    if ajax_request
       # ajax request
       # check if last_row_id is valid - row could have been deleted between two requests
       # puts "ajax request - check if last_row_id still is valid"
@@ -409,19 +411,11 @@ class ApplicationController < ActionController::Base
         puts "invalid last_row_id - or row is no longer in rows - ignore error and return first 10 rows"
         last_row_id = nil
       end
-      last_row_id = nil unless from # invalid last_row_id - or user is no longer a friend - ignore error and return first 10 rows
+      last_row_id = nil unless from # invalid last_row_id - deleted row or changed permissions - ignore error and return first 10 rows
     end
-    if !last_row_id
-      # first http get - return first 10 rows
-      puts "first http get - return first 10 of #{total_no_rows} rows"
-      nil
-    else
-      # ajax request - return next 10 rows
-      # puts "ajax request - return next 10 rows"
-      rows = rows[from+1..-1]
-    end
-    if rows.size > 10
-      rows = rows.first(10)
+    rows = rows[from+1..-1] if from # valid ajax request - ignore first from rows - already in client page
+    if rows.size > no_rows
+      rows = rows.first(no_rows)
       last_row_id = rows.last.id # return next 10 rows in next ajax request
     else
       last_row_id = nil # last row - no more ajax requests
@@ -432,6 +426,7 @@ class ApplicationController < ActionController::Base
     session[:last_row_at] = Time.new.to_f
     session[:last_row_at_debug] = Time.new
     puts "last_row_at_debug = #{session[:last_row_at_debug]}"
+    session[:last_row_at] = GET_MORE_ROWS_INTERVAL.seconds.ago.to_f unless ajax_request # first http request at startup - ajax request for the next 10 rows in a split second
     [ rows, last_row_id]
   end # get_next_set_of_rows
 

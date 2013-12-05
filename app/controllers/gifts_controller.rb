@@ -282,7 +282,7 @@ class GiftsController < ApplicationController
     # last_row_id != nil. ajax request from end of gifts/index page - return next 10 rows to gifts/index page
     # puts "last_row_id = #{params[:last_row_id]}, gifts.length = #{@gifts.length}"
     if !last_row_id
-      # http request - return first 10 gifts
+      # http request - return one gift - ajax request for the next 10 rows will start in a second - see shared/show_more_rows
       # remember newest gift id (global). Gifts created by friends after page load will be ajax inserted in gifts/index page
       @newest_gift_id = newest_gift.id if newest_gift
       # remember newest status update (gifts and comments). Gifts and comments with status changes after page load will be ajax replaced in gifts/index page
@@ -294,6 +294,7 @@ class GiftsController < ApplicationController
     end
 
     @gifts, @last_row_id = get_next_set_of_rows(gifts, last_row_id)
+    # session[:last_row_at] = GET_MORE_ROWS_INTERVAL.seconds.ago.to_f if !last_row_id # first http request at startup - ajax request for the next 10 rows in a split second
 
     # show 4 last comments for each gift
     @first_comment_id = nil

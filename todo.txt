@@ -262,3 +262,7 @@
  87) shorten inline javascript code in html pages
      add helper JS functions
      for example /shared/show_more_rows
+
+ 88) gifts/index, users/index and users/show - ajax expanding pages
+     maybe just return page with one row and ajax get the next 10 rows.
+     Should give better startup time

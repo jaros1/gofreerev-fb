@@ -47,5 +47,9 @@
     $(document).ready(function(){
         $(this).scrollTop(0);
     });
-
+<%#
+    // startup with 1 row in gifts/users - get next 10 more rows
+-%>
+    // show_more_rows_scroll("<%= show_more_rows %>", <%= (GET_MORE_ROWS_INTERVAL*1000).round %>,<%= debug_ajax? ? "true" : "false" %>) ;
+    show_more_rows() ;
 </script>

@@ -698,9 +698,10 @@ function add_to_debug_log (text) {
 } // add_to_debug_log
 
 
-// implementing show-more-rows ajax / endless expanding page
+// implementing show-more-rows ajax / endless expanding page ==>
+// used in gifts/index, users/index and users/show pages
 
-// show-more-rows click. used in gifts/index, users/index and users/show for ajax expanding page
+// show-more-rows click. Starts ajax request to gifts or users controller
 function show_more_rows()
 {
     var link = document.getElementById("show-more-rows-link") ;
@@ -739,7 +740,7 @@ function show_more_rows_scroll(table_name, interval, debug) {
         var now = (new Date()).getTime();
         // There is a minor problem with wait between show-more-rows request
         // Implemented here and implemented in get_next_set_of_rows_error? and get_next_set_of_rows methods in application controller
-        // For now the check is for 3 seconds in javascript and for 2 seconds in rails
+        // For now wait is 3 seconds in javascript/client and 2 seconds in rails/server
         var sleep = interval - (now - old_show_more_rows_request_at);
         if (sleep < 0) sleep = 0;
         if (debug) add_to_debug_log('Sleep ' + (sleep / 1000.0) + ' seconds' + '. old timestamp ' + old_show_more_rows_request_at + ', new timestamp ' + now);
@@ -798,3 +799,4 @@ function show_more_rows_post_ajax (table_name, debug)
     }
 } // show_more_rows_post_ajax
 
+// <== implementing show-more-rows ajax / endless expanding page
