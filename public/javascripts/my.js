@@ -122,8 +122,36 @@ function csv_gift() {
         return false;
     }
     // gift is ok. ready for submit
+
+    if (!Modernizr.meter) return true; // process bar not supported
+
+    // start upload gift process bar
+    // http://www.hongkiat.com/blog/html5-progress-bar/
+    document.getElementById('progressbar-div').style.display = 'block';
+    var progressbar = $('#progressbar'),
+        max = progressbar.attr('max'),
+        time = (1000 / max) * 5,
+        value = 0;
+
+    var loading = function () {
+        value += 3;
+        addValue = progressbar.val(value);
+
+        $('.progress-value').html(value + '%');
+
+        if (value >= max) {
+            clearInterval(animate);
+            document.getElementById('progressbar-div').style.display = 'none';
+        }
+    };
+
+    var animate = setInterval(function () {
+        loading();
+    }, time);
+
     return true;
 } // csv_gift
+
 
 // Client side validation for new comment
 // These error texts are replaced with language-specific texts in gifts/index page
@@ -802,7 +830,7 @@ function show_more_rows_post_ajax (table_name, debug)
 // <== implementing show-more-rows ajax / endless expanding page
 
 
-// custom confirm box
+// custom confirm box - for styling
 // http://lesseverything.com/blog/archives/2012/07/18/customizing-confirmation-dialog-in-rails/
 // http://www.pjmccormick.com/nicer-rails-confirm-dialogs-and-not-just-delete-methods
 // tried with coffee script. Tried with javascript. not working.

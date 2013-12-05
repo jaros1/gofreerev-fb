@@ -30,7 +30,7 @@
     <% end -%>
     <div style="width: 100%"><%= t '.create_gift_header_line' %></div>
     <div style="width: 100%">
-      <%= form_for @gift, :multipart => true, :html => {:enctype => 'multipart/form-data'} do |f| -%>
+      <%= form_for @gift, :html => {:enctype => 'multipart/form-data', :id => 'new_gift' } do |f| -%>
           <table>
             <tr title="<%= t '.price_title', :min_interest => NEG_INT_POS_BALANCE_PER_YEAR, :max_interest => NEG_INT_NEG_BALANCE_PER_YEAR %>">
               <td><%= t '.price_prompt' %></td>
@@ -69,6 +69,12 @@
           </table>
       <% end # form  -%>
     </div>
+    <div class="demo-wrapper html5-progress-bar" id="progressbar-div" style="display: none">
+      <div class="progress-bar-wrapper">
+        <progress id="progressbar" value="0" max="100"></progress>
+        <span class="progress-value">0%</span>
+      </div>
+    </div>
     <div style="width: 100%">
       <hr>
     </div>
@@ -90,6 +96,68 @@
 <% end -%>
 
 <br/>
+
+<%#
+    submit new gift with file upload
+-%>
+<script>
+    document.getElementById('new_gift').action = '/gifts.js' ;
+    $(document).ready(function() {
+        // bind 'myForm' and provide a simple callback function
+        $('#new_gift').ajaxForm(function() {
+            alert("Thank you for your comment!");
+        });
+    });
+</script>
+
+<%#
+    process bar for file upload
+    http://www.hongkiat.com/blog/html5-progress-bar/
+-%>
+<script>
+
+    function csv_gift() {
+        // check required description
+        if (csv_empty_field('gift_description')) {
+            alert(csv_gift_description_required);
+            return false;
+        }
+        // check optional price. Allow decimal comma/point, max 2 decimals. Thousands separators not allowed
+        if (csv_invalid_price('gift_price')) {
+            alert(csv_gift_price_invalid);
+            return false;
+        }
+        // gift is ok. ready for submit
+
+        if (!Modernizr.meter) return true; // process bar not supported
+
+        // start upload gift process bar
+        document.getElementById('progressbar-div').style.display = 'block';
+        var progressbar = $('#progressbar'),
+                max = progressbar.attr('max'),
+                time = (1000 / max) * 5,
+                value = 0;
+
+        var loading = function () {
+            value += 3;
+            addValue = progressbar.val(value);
+
+            $('.progress-value').html(value + '%');
+
+            if (value >= max) {
+                clearInterval(animate);
+                document.getElementById('progressbar-div').style.display = 'none';
+            }
+        };
+
+        var animate = setInterval(function () {
+            loading();
+        }, time);
+
+        return true;
+    } // csv_gift
+
+</script>
 
 <%# add remote link to get more rows and call javascript to setup end of page event and post ajax handling of the new rows. set DEBUG_AJAX to true in initializers/constraints.rb to get more ajax debug information -%>
 <%= link_to "show-more-rows", "/gifts?last_row_id=#{@last_row_id}", :remote => true, :id => "show-more-rows-link", :style => "display: none" %>

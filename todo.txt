@@ -224,12 +224,14 @@
      ajax insert gift in page
      add ajax task to post on api wall
      ajax replace gift with picture when picture url has been received from api
+     http://malsup.com/jquery/form/
+     http://www.hongkiat.com/blog/html5-progress-bar/
 
  72) delete gift - JS confirm dialog to big on 320 width screen
      JS confirm dialog can not be styled. Needs a custom dialog box
      http://lesseverything.com/blog/archives/2012/07/18/customizing-confirmation-dialog-in-rails/
      http://www.pjmccormick.com/nicer-rails-confirm-dialogs-and-not-just-delete-methods
-     Not working in rails 4 or I am must be doing some ting wrong
+     Not working in rails 4 or I am must be doing some ting wrong - tried with JS - tried with coffee script
 
  73) delete gift - must press confirm ok twice
 
