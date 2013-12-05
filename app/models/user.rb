@@ -970,8 +970,7 @@ class User < ActiveRecord::Base
   # find gifts user can see. user friends must be giver or receiver of gifts
   # params newest_gift_id and newest_status_update_at are normally 0 (for example when called from gifts/index)
   # but is newest gift_id and status_update_at when called from util/new_messages_count (that is - ajax - get only new, updated or deleted gifts)
-  # note that delete marked rows is returned. Is rendered in views as an invisible row. Used for ajax removal of deleted gifts
-  def gifts (newest_gift_id=0, newest_status_update_at=0)
+  def gifts (newest_gift_id=0, newest_status_update_at=0, include_delete_marked_gifts=false)
     # initialize list of gifts
     # list of gifts with @user as giver or receiver + list of gifts med @user.friends as giver or receiver
     # where clause is used for non encrypted fields. find_all is used for encrypted fields
@@ -979,10 +978,19 @@ class User < ActiveRecord::Base
     # find gifts
     friends = app_friends.collect { |u| u.user_id_receiver }
     friends.push(user_id)
-    if newest_gift_id == 0 and newest_status_update_at == 0
-      gs = Gift.where('(user_id_giver in (?) or user_id_receiver in (?))', friends, friends).includes(:giver, :receiver)
+    if include_delete_marked_gifts
+      # called from util.new_messages_count - include delete marked gifts in response - will be ajax replaced with invisible rows
+      deleted = ""
     else
-      gs = Gift.where('(id > ? or status_update_at > ?) and (user_id_giver in (?) or user_id_receiver in (?))', newest_gift_id, newest_status_update_at, friends, friends).includes(:giver, :receiver)
+      # called from users or gifts controller - to not return delete mark gifts in response
+      deleted = ' and deleted_at is null'
+    end
+    if newest_gift_id == 0 and newest_status_update_at == 0
+      gs = Gift.where('(user_id_giver in (?) or user_id_receiver in (?))' + deleted,
+                      friends, friends).includes(:giver, :receiver)
+    else
+      gs = Gift.where('(id > ? or status_update_at > ?) and (user_id_giver in (?) or user_id_receiver in (?))' + deleted,
+                      newest_gift_id, newest_status_update_at, friends, friends).includes(:giver, :receiver)
     end
     # sort
     gs = gs.sort do |a,b|

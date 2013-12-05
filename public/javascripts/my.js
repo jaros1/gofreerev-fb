@@ -730,7 +730,7 @@ var old_show_more_rows_request_at = 0 ;
 // interval should be 3000 = 3 seconds between each show-more-rows request
 // debug true - display messages for ajax debugging in button of page
 function show_more_rows_scroll(table_name, interval, debug) {
-    if (end_of_page) return; // no more rows or not an ajax expanding page
+    if (end_of_page) return; // no more rows, not an ajax expanding page or ajax request already in progress
     if (($(document).height() - $(window).height()) - $(window).scrollTop() < 600) {
         end_of_page = true;
         if (!document.getElementById("show-more-rows-link")) return;
@@ -800,3 +800,41 @@ function show_more_rows_post_ajax (table_name, debug)
 } // show_more_rows_post_ajax
 
 // <== implementing show-more-rows ajax / endless expanding page
+
+
+// custom confirm box
+// http://lesseverything.com/blog/archives/2012/07/18/customizing-confirmation-dialog-in-rails/
+// http://www.pjmccormick.com/nicer-rails-confirm-dialogs-and-not-just-delete-methods
+// tried with coffee script. Tried with javascript. not working.
+/*
+$.rails.allowAction = function(link) {
+    if (!link.attr('data-confirm')) {
+        return true;
+    }
+    $.rails.showConfirmDialog(link);
+    return false;
+};
+
+$.rails.confirmed = function(link) {
+    link.removeAttr('data-confirm');
+    return link.trigger('click.rails');
+};
+
+$.rails.showConfirmDialog = function(link) {
+    var html;
+    html = "<div id=\"dialog-confirm\" title=\"Are you sure you want to delete?\">\n  <p>These item will be permanently deleted and cannot be recovered. Are you sure?</p>\n</div>";
+    return $(html).dialog({
+        resizable: false,
+        modal: true,
+        buttons: {
+            OK: function() {
+                $.rails.confirmed(link);
+                return $(this).dialog("close");
+            },
+            Cancel: function() {
+                return $(this).dialog("close");
+            }
+        }
+    });
+};
+*/

@@ -226,15 +226,12 @@
      ajax replace gift with picture when picture url has been received from api
 
  72) delete gift - JS confirm dialog to big on 320 width screen
+     JS confirm dialog can not be styled. Needs a custom dialog box
+     http://lesseverything.com/blog/archives/2012/07/18/customizing-confirmation-dialog-in-rails/
+     http://www.pjmccormick.com/nicer-rails-confirm-dialogs-and-not-just-delete-methods
+     Not working in rails 4 or I am must be doing some ting wrong
 
  73) delete gift - must press confirm ok twice
-
- 74) delete marked gifts are not removed from database
-     minor problem as gift are deleted from database within 10 minutes
-     but the problem can be fixed in application controller get_next_set_of_rows
-     must not return delete marked gifts when called from gifts/index page at startup (html request)
-     must not return delete marked gifts when called from "show-more-lines" (ajax request)
-     must returned deleted marked gifts when called from util.new_message_count to ajax remove deleted gifts (ajax request)
 
  76) problem with missing "images/invisible-picture.gif" in first gifts/index row
      only after many delete marked gifts + page refresh.
@@ -250,6 +247,7 @@
  80) Maybe a problem with cleanup in ajax task queue.
      It looks like the page is handing while waiting for cleanup in ajax task queue
      Added a delay for 1 second in page footer before requesting execution of ajax tasks
+     still a problem with first request every day (ajax task cleanup + fetch currencies)
 
  83) <body onload="xx"> is being used in application layout to set onfocus event to get list of currencies in page header
      http://api.jquery.com/ready/
@@ -263,6 +261,4 @@
      add helper JS functions
      for example /shared/show_more_rows
 
- 88) gifts/index, users/index and users/show - ajax expanding pages
-     maybe just return page with one row and ajax get the next 10 rows.
-     Should give better startup time
+ 88) check html source to see if anything can be removed or shorten

@@ -82,7 +82,7 @@ class UtilController < ApplicationController
       # return new newest_gift_id value and any new gifts visible to user
       @new_newest_gift_id = new_newest_gift_id
       @new_newest_status_update_at = new_newest_status_update_at
-      @gifts = @user.gifts(old_newest_gift_id, old_newest_status_update_at)
+      @gifts = @user.gifts(old_newest_gift_id, old_newest_status_update_at, true) # include delete marked gifts
       @gifts = nil if @gifts.length == 0
     end
     # remove any ajax comments for gifts in gifts array - that is gifts that will be ajax inserted or replaced in gifts html table
