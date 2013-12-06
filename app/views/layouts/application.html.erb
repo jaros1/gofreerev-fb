@@ -44,10 +44,12 @@
     <% if flash[:notice] -%>
         <br/>
 
-        <div id="notification"><%= h flash[:notice] %></div>
+        <div id="notification" style="width: 100%"><%= h flash[:notice] %></div>
         <br/>
     <% end -%>
-    <table id="ajax_tasks_errors"></table>
+    <div style="width: 100%">
+      <table id="ajax_tasks_errors"></table>
+    </div>
   </header>
   <!-- the page -->
   <%= yield %>

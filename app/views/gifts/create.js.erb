@@ -1,0 +1,8 @@
+<% puts "@errors.size = #{@errors.size}, @gifts.size = #{@gifts.size}" -%>
+<% if @errors.size > 0 -%>
+$('#ajax_tasks_errors').append('<%= j render("ajax_errors") %>');
+<% end -%>
+<% if @gifts.size > 0 -%>
+document.getElementById('new_messages_buffer_div').innerHTML = '<%= j render("create") %>';
+ajax_insert_update_gifts() ;
+<% end -%>

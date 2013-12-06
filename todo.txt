@@ -226,6 +226,7 @@
      ajax replace gift with picture when picture url has been received from api
      http://malsup.com/jquery/form/
      http://www.hongkiat.com/blog/html5-progress-bar/
+     http://malsup.com/jquery/form/#options-object
 
  72) delete gift - JS confirm dialog to big on 320 width screen
      JS confirm dialog can not be styled. Needs a custom dialog box
@@ -264,3 +265,8 @@
      for example /shared/show_more_rows
 
  88) check html source to see if anything can be removed or shorten
+
+ 89) ajax insert messages in ajax_tasks_errors in page header
+     util/do_ajax_tasks.html.erb - @errors is an array with key and options for translation
+     gifts/ajax_errors.html.erb - @errors is an array with translated messages
+     maybe move to shared with better partial names

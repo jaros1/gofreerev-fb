@@ -5,11 +5,16 @@ class GiftsController < ApplicationController
   def new
   end
 
-  # todo: ajax create new gift? How to handle picture upload, missing api privs. show/hide link i gifts/index page?
+  # ajax request - called from gifts/index page
+  # return gift in new_messages_buffer_div and return any messages in ajax_tasks_errors
+  # both divs in page header
   def create
-    flash.now[:notice] = nil
+    # start with empty ajax response
+    @errors = []
+    @gifts = []
+    # initialize gift
     @gift = Gift.new
-    @gift.price = params[:gift][:price].gsub(',','.').to_f unless invalid_price?(params[:gift][:price])
+    @gift.price = params[:gift][:price].gsub(',', '.').to_f unless invalid_price?(params[:gift][:price])
     @gift.direction = 'giver' if @gift.direction.to_s == ''
     @gift.currency = @user.currency
     @gift.description = params[:gift][:description]
@@ -25,36 +30,20 @@ class GiftsController < ApplicationController
     # price= accepts only float and model can not return invalid price errors
     @gift.valid?
     @gift.errors.add :price, :invalid if invalid_price?(params[:gift][:price])
-    if @gift.errors.size > 0
-      flash.now[:notice] = @gift.errors.full_messages.join(', ')
-      index
-      return
-    end
+    return add_error_and_format_ajax_resp(@gift.errors.full_messages.join(', ')) if @gift.errors.size > 0
 
     # check for file upload
     if picture and @user.post_gift_allowed?
       # puts "gift_file = #{gift_file} (#{gift_file.class.name})"
       # puts "gift_file.methods = " + gift_file.methods.sort.join(', ')
-      if !@user.post_gift_allowed?
-        flash.now[:notice] = t '.file_upload_not_allowed', :appname => APP_NAME, :apiname => @user.api_name_without_brackets
-        index
-        return
-      end
+      return add_error_and_format_ajax_resp(t('.file_upload_not_allowed', :appname => APP_NAME, :apiname => @user.api_name_without_brackets)) if !@user.post_gift_allowed?
       original_filename = gift_file.original_filename
       # puts "gift_file.original_filename = #{gift_file.original_filename}"
       # puts "size = #{gift_file.size}"
       # todo: should not get image type from file extension. Should check image type from file content
       filetype = gift_file.original_filename.split('.').last
-      if !%w(jpg gif png bmp).index(filetype)
-        flash.now[:notice] = t '.unsupported_filetype', :filetype => filetype
-        index
-        return
-      end
-      if gift_file.size > 2.megabytes
-        flash.now[:notice] = t '.file_is_too_big', :maxsize => '2 Mb'
-        index
-        return
-      end
+      return add_error_and_format_ajax_resp(t('.unsupported_filetype', :filetype => filetype)) if !%w(jpg gif png bmp).index(filetype)
+      return add_error_and_format_ajax_resp(t('.file_is_too_big', :maxsize => '2 Mb')) if gift_file.size > 2.megabytes
     end # if
 
     # puts "create: description = #{@gift.description}"
@@ -139,14 +128,12 @@ class GiftsController < ApplicationController
 
     if !@gift.save
       # @gift.save should not fail. @gift was validated a moment ago before posting on api wall
-      messages = [ t(".gift_not_posted_#{gift_posted_on_wall_api_wall}", :apiname => @user.api_name_without_brackets, :error => error) ]
-      messages = messages + @gift.errors.full_messages
-      flash.now[:notice] = messages.join('. ')
-      index
-      return
+      @errors << t(".gift_not_posted_#{gift_posted_on_wall_api_wall}", :apiname => @user.api_name_without_brackets, :error => error)
+      @errors << @gift.errors.full_messages
+      return format_ajax_response
     else
       # save picture posted message
-      messages = [ t(".gift_posted_#{gift_posted_on_wall_api_wall}", :apiname => @user.api_name_without_brackets, :error => error) ]
+      @errors << t(".gift_posted_#{gift_posted_on_wall_api_wall}", :apiname => @user.api_name_without_brackets, :error => error)
       # get url for picture
       if picture
         @gift.picture = 'Y'
@@ -165,7 +152,7 @@ class GiftsController < ApplicationController
             @gift.save!
           else
             puts "Did not get a picture url from api. Must be problem with missing access token, picture != Y or deleted_at_api == Y"
-            messages << t('.no_api_picture_url', :apiname => @user.api_name_without_brackets)
+            @errors << t('.no_api_picture_url', :apiname => @user.api_name_without_brackets)
           end
         rescue ApiPostNotFoundException => e
           # problem with picture uploads and permissions
@@ -181,22 +168,25 @@ class GiftsController < ApplicationController
           end
           if @user.read_gifts_allowed?
             # error - this should not happen.
-            messages << t('.picture_upload_unknown_problem', :appname => APP_NAME, :apiname => @user.api_name_without_brackets)
+            @errors << t('.picture_upload_unknown_problem', :appname => APP_NAME, :apiname => @user.api_name_without_brackets)
           else
             # flash with request for read stream privs
-            messages << t('.picture_upload_missing_permission', :appname => APP_NAME, :apiname => @user.api_name_without_brackets)
+            @errors << t('.picture_upload_missing_permission', :appname => APP_NAME, :apiname => @user.api_name_without_brackets)
+            # todo: ajax show/inject link to grant read_stream permission in gifts/index page
             flash[:read_stream] = 'Missing read_stream permission' # display link to grant read_stream permission in gifts/index page
           end
           @gift.picture = 'N'
           @gift.save!
+          @gifts << @gift
         end # rescue
       end
     end
     # puts "messages = #{messages}"
-    flash[:notice] = messages.join('. ')
-    redirect_to :action => 'index'
+    format_ajax_response
 
-  end # create
+  end
+
+  # create
 
   def update
   end
@@ -305,7 +295,9 @@ class GiftsController < ApplicationController
       format.js {}
     end
 
-  end # index
+  end
+
+  # index
 
   def show
     # check gift id
@@ -331,6 +323,21 @@ class GiftsController < ApplicationController
       # format.json { render json: @comment, status: :created, location: @comment }
       format.js {}
     end
-  end # show
+  end
+
+  # show
+
+  private
+  def format_ajax_response
+    respond_to do |format|
+      format.js {}
+    end
+    nil
+  end
+
+  def add_error_and_format_ajax_resp (error)
+    @errors << error
+    format_ajax_response
+  end
 
 end # GiftsController
