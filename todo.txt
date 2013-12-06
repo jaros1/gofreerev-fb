@@ -270,3 +270,7 @@
      util/do_ajax_tasks.html.erb - @errors is an array with key and options for translation
      gifts/ajax_errors.html.erb - @errors is an array with translated messages
      maybe move to shared with better partial names
+
+ 90) add effect when ajax adding lines to ajax_tasks_errors div in page header
+     that is util/do_ajax_tasks and gifts/create
+     maybe there is an add table row event to hog effect to

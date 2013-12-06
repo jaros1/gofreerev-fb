@@ -177,8 +177,8 @@ class GiftsController < ApplicationController
           end
           @gift.picture = 'N'
           @gift.save!
-          @gifts << @gift
         end # rescue
+        @gifts << @gift
       end
     end
     # puts "messages = #{messages}"

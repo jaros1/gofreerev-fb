@@ -56,5 +56,5 @@ BASE_CURRENCY = 'USD' # store exchange rates and internal balances in this curre
 BASE_COUNTRY = 'us' # default country if user country is unknown.
 BASE_LANGUAGE = 'en' # default language if user language is unknown
 
-DEBUG_AJAX = false # default false - set to true to get more ajax debug information - JS alerts, extra log messages etc
+DEBUG_AJAX = true # default false - set to true to get more ajax debug information - JS alerts, extra log messages etc
 GET_MORE_ROWS_INTERVAL = 3.0 # max one show-more-rows ajax request every 3 seconds. # todo: minor problem with 3 seconds delay in JS and rails. See shared/show_more_rows and get_next_set_of_rows_error? and get_next_set_of_rows methods in application controller

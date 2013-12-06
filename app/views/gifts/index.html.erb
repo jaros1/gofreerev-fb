@@ -106,57 +106,12 @@
         // bind 'myForm' and provide a simple callback function
         // http://malsup.com/jquery/form/#options-object
         $('#new_gift').ajaxForm(function() {
-            alert("Thank you for your comment!");
+            add_to_debug_log('#new_gift.ajax_form: start') ;
+            document.getElementById('progressbar-div').style.display = 'none';
+            // alert("Thank you for your comment!");
         });
     });
-</script>
 
-<%#
-    process bar for file upload
-    http://www.hongkiat.com/blog/html5-progress-bar/
--%>
-<script>
-
-    function csv_gift() {
-        // check required description
-        if (csv_empty_field('gift_description')) {
-            alert(csv_gift_description_required);
-            return false;
-        }
-        // check optional price. Allow decimal comma/point, max 2 decimals. Thousands separators not allowed
-        if (csv_invalid_price('gift_price')) {
-            alert(csv_gift_price_invalid);
-            return false;
-        }
-        // gift is ok. ready for submit
-
-        if (!Modernizr.meter) return true; // process bar not supported
-
-        // start upload gift process bar
-        document.getElementById('progressbar-div').style.display = 'block';
-        var progressbar = $('#progressbar'),
-                max = progressbar.attr('max'),
-                time = (1000 / max) * 5,
-                value = 0;
-
-        var loading = function () {
-            value += 3;
-            addValue = progressbar.val(value);
-
-            $('.progress-value').html(value + '%');
-
-            if (value >= max) {
-                clearInterval(animate);
-                document.getElementById('progressbar-div').style.display = 'none';
-            }
-        };
-
-        var animate = setInterval(function () {
-            loading();
-        }, time);
-
-        return true;
-    } // csv_gift
 
 </script>
 
