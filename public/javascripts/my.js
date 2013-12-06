@@ -123,11 +123,16 @@ function csv_gift() {
     }
     // gift is ok. ready for submit
 
-    if (!Modernizr.meter) return true; // process bar not supported
+    // clear any old (error) messages in page header
+    clear_flash_and_ajax_errors() ;
 
-    // start upload gift process bar
+    if (!Modernizr.meter) return true; // process bar not supported
+    var progressbar_div = document.getElementById('progressbar-div') ;
+    if (!progressbar_div) return true ; // no progressbar found in page
+
+    progressbar_div.style.display = 'block';
+    // start upload process bar
     // http://www.hongkiat.com/blog/html5-progress-bar/
-    document.getElementById('progressbar-div').style.display = 'block';
     var progressbar = $('#progressbar'),
         max = progressbar.attr('max'),
         time = (1000 / max) * 5,
@@ -141,7 +146,7 @@ function csv_gift() {
 
         if (value >= max) {
             clearInterval(animate);
-            document.getElementById('progressbar-div').style.display = 'none';
+            progressbar_div.style.display = 'none';
         }
     };
 
@@ -830,6 +835,23 @@ function show_more_rows_post_ajax (table_name, debug)
 // <== implementing show-more-rows ajax / endless expanding page
 
 
+// clear error messages in page header before ajax request. For example before submitting new gift
+function clear_flash_and_ajax_errors() {
+    // clear old flash message if any
+    var notification = document.getElementById('notification');
+    if (notification) notification.innerHTML = '' ;
+    // empty table with ajax task messages if any
+    var ajax_tasks_errors = document.getElementById('ajax_tasks_errors') ;
+    if (!ajax_tasks_errors) return ;
+    var rows = ajax_tasks_errors.rows ;
+    var row ;
+    for (var i=rows.length-1 ; i>= 0 ; i--) {
+        row = rows[i] ;
+        row.parentNode.removeChild(row) ;
+
+    } // for
+} // clear_flash_and_ajax_errors
+
 // custom confirm box - for styling
 // http://lesseverything.com/blog/archives/2012/07/18/customizing-confirmation-dialog-in-rails/
 // http://www.pjmccormick.com/nicer-rails-confirm-dialogs-and-not-just-delete-methods
@@ -866,3 +888,5 @@ $.rails.showConfirmDialog = function(link) {
     });
 };
 */
+
+
