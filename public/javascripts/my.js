@@ -187,6 +187,21 @@ function ajax_flash (id)
     $('#' + id).css({'background-color':'green'}).animate({'background-color':'white'}, 2000) ;
 } // ajax_flash
 
+// ajax flash for row table rows - for example new rows in ajax_task_errors table
+function ajax_flash_new_table_rows (tablename, number_of_rows)
+{
+    add_to_debug_log('ajax_flash_new_table_rows: start. tablename = ' + tablename + ', number_of_rows = ' + number_of_rows);
+    var table = document.getElementById(tablename) ;
+    if (!table) return ;
+    var rows = table.rows ;
+    if (rows.length < number_of_rows) number_of_rows = rows.length ;
+    add_to_debug_log('ajax_flash_new_table_rows: start = ' + (rows.length-number_of_rows) + ', end = ' + ( rows.length-1)) ;
+    for (i=rows.length-number_of_rows ; i < rows.length ; i++) {
+        add_to_debug_log('ajax_flash_new_table_rows: i = ' + i) ;
+        rows[i].css({'background-color':'green'}).animate({'background-color':'white'}, 2000) ;
+    } // for
+} // ajax_flash_new_table_rows
+
 
 // check for new messages once every 15, 60 or 300 seconds
 // once every 15 seconds for active users - once every 5 minutes for inactive users

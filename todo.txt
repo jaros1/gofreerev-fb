@@ -274,3 +274,7 @@
  90) add effect when ajax adding lines to ajax_tasks_errors div in page header
      that is util/do_ajax_tasks and gifts/create
      maybe there is an add table row event to hog effect to
+
+ 91) flash for new rows in ajax_task_errors table is not working
+     See my.js ajax_flash_new_table_rows
+     maybe add unique id to table row and call ajax_flash
