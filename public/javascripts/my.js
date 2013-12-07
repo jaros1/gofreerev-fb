@@ -190,15 +190,16 @@ function ajax_flash (id)
 // ajax flash for row table rows - for example new rows in ajax_task_errors table
 function ajax_flash_new_table_rows (tablename, number_of_rows)
 {
-    add_to_debug_log('ajax_flash_new_table_rows: start. tablename = ' + tablename + ', number_of_rows = ' + number_of_rows);
     var table = document.getElementById(tablename) ;
     if (!table) return ;
     var rows = table.rows ;
     if (rows.length < number_of_rows) number_of_rows = rows.length ;
-    add_to_debug_log('ajax_flash_new_table_rows: start = ' + (rows.length-number_of_rows) + ', end = ' + ( rows.length-1)) ;
+    var now = (new Date()).getTime() ;
+    var id ;
     for (i=rows.length-number_of_rows ; i < rows.length ; i++) {
-        add_to_debug_log('ajax_flash_new_table_rows: i = ' + i) ;
-        rows[i].css({'background-color':'green'}).animate({'background-color':'white'}, 2000) ;
+        id = 'afe-' + now + '-' + i ;
+        rows[i].id = id
+        ajax_flash(id) ;
     } // for
 } // ajax_flash_new_table_rows
 
@@ -858,6 +859,7 @@ function clear_flash_and_ajax_errors() {
     // empty table with ajax task messages if any
     var ajax_tasks_errors = document.getElementById('ajax_tasks_errors') ;
     if (!ajax_tasks_errors) return ;
+    var now = (new Date()).getTime();
     var rows = ajax_tasks_errors.rows ;
     var row ;
     for (var i=rows.length-1 ; i>= 0 ; i--) {
