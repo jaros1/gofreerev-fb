@@ -589,6 +589,13 @@ class Gift < ActiveRecord::Base
   end # show_new_deal_checkbox?
 
 
+  def temp_picture_url
+    "temp/#{temp_picture_filename}"
+  end
+  def temp_picture_path
+    Rails.root.join('public', 'images', 'temp', temp_picture_filename)
+  end
+
 
   # psydo attributea
   attr_accessor :file, :direction

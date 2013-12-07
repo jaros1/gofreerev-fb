@@ -277,3 +277,7 @@
      that is util/do_ajax_tasks and gifts/create
      maybe there is an add table row event to hog effect to
 
+ 91) picture size problem when ajax adding new gift with big picture
+     First added with full size and then resized to normal size
+     takes only a split second but is ugly
+

@@ -25,12 +25,46 @@ class GiftsController < ApplicationController
     end
     gift_file = params[:gift_file]
     picture = (gift_file.class.name == 'ActionDispatch::Http::UploadedFile')
-    @gift.picture = 'N' # first validate without picture
-    # puts "picture = #{@gift.picture}"
-    # price= accepts only float and model can not return invalid price errors
+    if picture and !@user.post_gift_allowed?
+      @errors << t('.file_upload_not_allowed', :appname => APP_NAME, :apiname => @user.api_name_without_brackets)
+      picture = false
+    end
+    if picture
+      filetype = FastImage.type(gift_file.path).to_s
+      if !%w(jpg jpeg gif png bmp).index(filetype)
+        @errors << t('.unsupported_filetype', :filetype => filetype)
+        picture = false
+      end
+    end
+    if picture and gift_file.size > 2.megabytes
+      @errors << t('.file_is_too_big', :maxsize => '2 Mb')
+      picture = false
+    end
+    if picture
+      @gift.picture = 'Y'
+      @gift.temp_picture_filename = "#{String.generate_random_string(20)}.#{filetype}".last(20)
+      @gift.api_picture_url = @gift.temp_picture_url
+    else
+      @gift.picture = 'N'
+    end
     @gift.valid?
-    @gift.errors.add :price, :invalid if invalid_price?(params[:gift][:price])
+    @gift.errors.add :price, :invalid if invalid_price?(params[:gift][:price]) # price= accepts only float and model can not return invalid price error
     return add_error_and_format_ajax_resp(@gift.errors.full_messages.join(', ')) if @gift.errors.size > 0
+
+    # save
+    @gift.save!
+    User.open4("mv #{gift_file.path} #{@gift.temp_picture_path}") if picture
+
+    # schedule ajax task to post on api wall(s)
+    tokens = session[:tokens] || {}
+    tokens.keys.each do |provider|
+      task_name = "post_on_#{provider}"
+      add_ajax_task "#{task_name}(#{@gift.id})" if UtilController.new.private_methods.index(task_name.to_sym)
+    end
+
+    @gifts = [ @gift]
+    format_ajax_response
+    return
 
     # check for file upload
     if picture and @user.post_gift_allowed?

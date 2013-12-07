@@ -425,7 +425,7 @@ function insert_new_comments() {
     if (debug) alert(summary) ;
 } // insert_new_comments
 
-function ajax_insert_update_gifts ()
+function ajax_insert_update_gifts (ajax_tasks_sleep)
 {
     // process ajax response received from new_messages_count ajax request
     // response has been inserted in new_messages_buffer_div in page header
@@ -513,6 +513,12 @@ function ajax_insert_update_gifts ()
         } // if
     } // for
     // that's it
+
+    if (!ajax_tasks_sleep) return ;
+    // execute some more ajax tasks - for example post status on api wall(s)
+    trigger_ajax_tasks_form(ajax_tasks_sleep);
+    // document.getElementById("timezone").value = (new Date().getTimezoneOffset()) / 60.0;
+    // window.setTimeout(function(){$('#ajax_tasks_form').trigger('submit.rails');}, ajax_tasks_sleep);
 } //  ajax_insert_update_gifts
 
 // catch load errors  for api pictures. Gift could have been deleted. url could have been changed
@@ -868,6 +874,14 @@ function clear_flash_and_ajax_errors() {
 
     } // for
 } // clear_flash_and_ajax_errors
+
+// ajax server to execute any ajax task in ajax task queue
+// called from bottom of application layout and after gift create (posting on api wall)
+function trigger_ajax_tasks_form (sleep) {
+    if (!sleep) sleep=1000 ;
+    document.getElementById("timezone").value = (new Date().getTimezoneOffset()) / 60.0;
+    window.setTimeout(function(){$('#ajax_tasks_form').trigger('submit.rails');}, sleep);
+} // trigger_ajax_tasks_form
 
 // custom confirm box - for styling
 // http://lesseverything.com/blog/archives/2012/07/18/customizing-confirmation-dialog-in-rails/

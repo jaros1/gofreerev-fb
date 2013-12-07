@@ -55,13 +55,8 @@
   <%= yield %>
   <footer>
     <%= render :partial => 'layouts/page_footer/page_footer' -%>
-    <% if ajax_tasks? -%>
-        <%# post response ajax processing - for example download profile image and friend list from login provider -%>
-        <script>
-            document.getElementById("timezone").value = (new Date().getTimezoneOffset()) / 60.0;
-            window.setTimeout(function(){$('#ajax_tasks_form').trigger('submit.rails');}, 1000);
-        </script>
-    <% end -%>
+    <%# post ajax processing - for example get currency rates, download profile image and friend list from login provider -%>
+    <% if ajax_tasks? -%><script>trigger_ajax_tasks_form(1000);</script><% end -%>
   </footer>
 </div>
 <% if debug_ajax? -%>
