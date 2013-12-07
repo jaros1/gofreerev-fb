@@ -40,9 +40,8 @@ class GiftsController < ApplicationController
       original_filename = gift_file.original_filename
       # puts "gift_file.original_filename = #{gift_file.original_filename}"
       # puts "size = #{gift_file.size}"
-      # todo: should not get image type from file extension. Should check image type from file content
-      filetype = gift_file.original_filename.split('.').last
-      return add_error_and_format_ajax_resp(t('.unsupported_filetype', :filetype => filetype)) if !%w(jpg gif png bmp).index(filetype)
+      filetype = FastImage.type(gift_file.path).to_s
+      return add_error_and_format_ajax_resp(t('.unsupported_filetype', :filetype => filetype)) if !%w(jpg jpeg gif png bmp).index(filetype)
       return add_error_and_format_ajax_resp(t('.file_is_too_big', :maxsize => '2 Mb')) if gift_file.size > 2.megabytes
     end # if
 
@@ -64,7 +63,7 @@ class GiftsController < ApplicationController
           # puts "access_token = #{session[:access_token]}"
           api = Koala::Facebook::API.new(session[:access_token])
           begin
-            if gift_file
+            if picture
               # post with picture
               api_response = api.put_picture(gift_file, {:message => params[:gift][:description]})
               # api_response = {"id"=>"1396226023933952", "post_id"=>"100006397022113_1396195803936974"} (Hash)
@@ -110,6 +109,26 @@ class GiftsController < ApplicationController
               gift_posted_on_wall_api_wall = 1 # unknown error. no translation
               error = e.to_s
             end
+          rescue Koala::Facebook::ServerError => e
+            puts 'Koala::Facebook::ServerError'
+            puts "e.fb_error_type = #{e.fb_error_type}"
+            puts "e.fb_error_code = #{e.fb_error_code}"
+            puts "e.fb_error_subcode = #{e.fb_error_subcode}"
+            puts "e.fb_error_message = #{e.fb_error_message}"
+            puts "e.http_status = #{e.http_status}"
+            puts "e.response_body = #{e.response_body}"
+            puts "e.fb_error_type.class.name = #{e.fb_error_type.class.name}"
+            puts "e.fb_error_code.class.name = #{e.fb_error_code.class.name}"
+            # e.fb_error_type = Exception
+            # e.fb_error_code = 1366046
+            # e.fb_error_subcode =
+            # e.fb_error_message = There was a problem with the image file.
+            # e.http_status = 500
+            # e.response_body = {"error":{"type":"Exception","message":"There was a problem with the image file.","code":1366046}}
+            # e.fb_error_type.class.name = String
+            # e.fb_error_code.class.name = Fixnum
+            gift_posted_on_wall_api_wall = 1 # unknown error. no translation
+            error = fb_error_message.to_s
           end # rescue
         when @user.google_plus?
           # todo: post message on google+ wall
@@ -183,10 +202,7 @@ class GiftsController < ApplicationController
     end
     # puts "messages = #{messages}"
     format_ajax_response
-
-  end
-
-  # create
+  end # create
 
   def update
   end

@@ -834,6 +834,14 @@ class UtilController < ApplicationController
       raise
     end
   end # post_login_twitter
+
+  # post on facebook wall - with or without picture
+  # picture is temporary saved local, but is deleted when the picture has been posted in wall(s)
+  # ajax task is inserted in gifts/create ajax
+  private
+  def post_on_facebook (gift_id)
+
+  end
   
   
 end # UtilController

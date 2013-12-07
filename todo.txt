@@ -221,12 +221,18 @@
      user has to click twice on currency LOV to change currency.
 
  71) gift post - change to ajax - do not reload page
-     ajax insert gift in page
+     ajax insert gift in page with temporary local url
      add ajax task to post on api wall
-     ajax replace gift with picture when picture url has been received from api
+     ajax replace gift picture url when picture has been received from api
      http://malsup.com/jquery/form/
      http://www.hongkiat.com/blog/html5-progress-bar/
      http://malsup.com/jquery/form/#options-object
+     test all errors after changing gift post to ajax
+     must support multiple login apis
+     check how to post on google+, linkedin and twitter
+     move 4 api fields from gifts to an new api_gifts table with one row for each api
+     add temp_picture_filename to gifts - gift.id + random string
+     add temp_picture helper methods - temp_picture_os_filename - temp_picture_url
 
  72) delete gift - JS confirm dialog to big on 320 width screen
      JS confirm dialog can not be styled. Needs a custom dialog box
@@ -236,10 +242,6 @@
 
  73) delete gift - must press confirm ok twice
 
- 76) problem with missing "images/invisible-picture.gif" in first gifts/index row
-     only after many delete marked gifts + page refresh.
-     No rows are returned from first gifts/index http request. Same problem as in 74)
-
  77) missing opera plugin to set screen width.
 
  78) responsive testing tools: http://www.gonzoblog.nl/2012/03/21/10-testing-tools-for-responsive-web-design/
@@ -247,7 +249,7 @@
      http://responsivepx.com can be used. Not working for localhost / gofreerev.
      Many other tools not working for localhost / gofreerev
 
- 80) Maybe a problem with cleanup in ajax task queue.
+ 80) Problem with cleanup in ajax task queue.
      It looks like the page is handing while waiting for cleanup in ajax task queue
      Added a delay for 1 second in page footer before requesting execution of ajax tasks
      still a problem with first request every day (ajax task cleanup + fetch currencies)
@@ -275,6 +277,3 @@
      that is util/do_ajax_tasks and gifts/create
      maybe there is an add table row event to hog effect to
 
- 91) flash for new rows in ajax_task_errors table is not working
-     See my.js ajax_flash_new_table_rows
-     maybe add unique id to table row and call ajax_flash
