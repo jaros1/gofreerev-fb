@@ -140,12 +140,6 @@ en:
         file_is_too_big: "File is too big. Max allowed picture size is %{maxsize}."
         picture_upload_unknown_problem: "Gift was posted in here and on your %{apiname} wall. Picture was uploaded to your %{apiname} wall but %{appname} did not have permission to read the picture on your %{apiname} wall and can not display the picture in here. Maybe you have changed permissions for %{appname}."
         picture_upload_missing_permission: "Gift was posted in here and on your %{apiname} wall. Picture was uploaded to your %{apiname} wall but %{appname} did not have permission to read the picture on your wall and can not display the picture in here. You can solve this problem either by changing visibility of app and posts for %{appname} to public or by granting %{appname} permission to read posts in your wall."
-        # gift_posted_<n> is used if gift was saved in gifts table
-        gift_posted_1: "Gift posted in here but not on your %{apiname} wall (%{error})" # unhandled error message
-        gift_posted_2: "Gift posted in here and on your %{apiname} wall"
-        gift_posted_3: "Gift posted in here but not on your %{apiname} wall" # missing privileges
-        gift_posted_4: "Gift posted in here but not on your %{apiname} wall. Duplicate status message on %{apiname} wall"
-        gift_posted_5: "Gift posted in here but not on your %{apiname} wall. Posting on %{apiname} has not yet been implemented"
         # gift_not_posted_<n> is used if gift was not saved in gifts table - should never happen
         gift_not_posted_1: "Gift was not posted on your %{apiname} wall (%{error})" # unhandled error message
         gift_not_posted_2: "Gift was posted on your %{apiname} wall"
@@ -512,8 +506,9 @@ en:
   # util controller - used for ajax requests
   util:
      do_ajax_tasks:
-        ajax_task_exception: "System error \"%{exception}\" for ajax task \"%{task}\"."
+        ajax_task_exception: "System error \"%{exception}\" for ajax task \"%{task}\". Check server log for more information."
         ajax_task_invalid_response: "System error. Invalid response from ajax task \"%{task}\". Must be Nil or a valid input to translate." # task, response and exception. response is invalid response from ajax task and exception is exception from translate
+        ajax_task_missing_translate_key: "System error. Missing translation key \"%{key}\" for ajax task \"%{task}\""
         update_timezone_invalid_user_id: "System error. Invalid user id %{user_id} when updating timezone information"
         update_timezone_timezone_missing: "System error. Did not receive timezone information from browser/javascript"
         update_timezone_save_error: "System error. Could not update user timezone information: \"%{errors}\""
@@ -530,3 +525,11 @@ en:
         google_insufficient_permission: "Error when fetching friend list from Google+ API. API. Insufficient Permission. Check list: 1) scope plus.login maybe is missing in provider setup for google+"
         google_other_errors: "Error when fetching friend list from Google+ API. %{error}"
         linkedin_access_denied: "Error when fetching connections from LinkedIn API. Access to connections denied. Check list: 1) scope r_network mangler maybe is missing in provider setup for LinkedIn"
+        post_on_api_unknown_gift_id: "Unknown id %{id} when posting on %{provider} wall"
+        post_on_api_invalid_gift_id: "Invalid id %{id} when posting on %{provider} wall"
+        post_on_api_old_gift: "Old id %{id} when posting on %{provider} wall"
+        gift_posted_1: "Gift posted in here but not on your %{apiname} wall (%{error})" # unhandled error message
+        gift_posted_2: "Gift posted in here and on your %{apiname} wall"
+        gift_posted_3: "Gift posted in here but not on your %{apiname} wall" # missing privileges
+        gift_posted_4: "Gift posted in here but not on your %{apiname} wall. Duplicate status message on %{apiname} wall"
+        gift_posted_5: "Gift posted in here but not on your %{apiname} wall. Posting on %{apiname} has not yet been implemented"

@@ -456,16 +456,21 @@ class UtilController < ApplicationController
         puts "Backtrace: " + e.backtrace.join("\n")
         res = [ '.ajax_task_exception', { :task => at.task, :exception => e.message.to_s }]
       end
-      # puts "ajax task #{at.task}, response = #{res}, no tasks = #{session[:ajax_tasks].size}"
+      puts "ajax task #{at.task}, response = #{res}"
       next unless res
       # check response from ajax task. Must be a valid input to translate
       begin
         key, options = res
-        t key, options
+        options = {} unless options
+        options[:raise] = I18n::MissingTranslationData
+        x = t key, options
+      rescue I18n::MissingTranslationData => e
+        res = [ '.ajax_task_missing_translate_key', { :key => key, :task => at.task, :response => res, :exception => e.message.to_s } ]
       rescue Exception => e
         puts "invalid response from ajax task #{at.task}. Must be nil or a valid input to translate. Response: #{res}"
         res = [ '.ajax_task_invalid_response', { :task => at.task, :response => res, :exception => e.message.to_s }]
       end
+      puts "task = #{at.task}, res = #{res}"
       @errors << res
     end
     if @errors.size == 0
@@ -474,18 +479,33 @@ class UtilController < ApplicationController
     end
   end # do_ajax_tasks
 
+  private
+  def get_login_user_and_token (provider)
+    login_user = token = nil
+    # find user id and token for provider
+    login_user_id = (session[:user_ids] || []).find { |user_id2| user_id2.split('/').last == provider }
+    return [login_user, token, '.post_login_user_id_not_found', {:provider => provider}] unless login_user_id
+    login_user = User.find_by_user_id(login_user_id)
+    return [login_user, token, '.post_login_unknown_user_id', {:provider => provider, :user_id => login_user_id}] unless login_user
+    # get token for api requests
+    token = (session[:tokens] || {})[provider]
+    return [login_user, token, '.post_login_token_not_found', {:provider => provider}] if token.to_s == ""
+    puts "token = #{token}"
+    # ok
+    return [login_user, token]
+  end
+
 
   # helper to get information to be used in post_login_<provider> methods
   # return array with login_user, friends_hash, token, key and options - key and options only if error
   private
   def get_user_friends_and_token(provider)
     puts "post_login_#{provider}"
-    login_user = friends_hash = token = nil
-    # find user id and token for provider
-    login_user_id = (session[:user_ids] || []).find { |user_id2| user_id2.split('/').last == provider }
-    return [login_user, friends_hash, token, '.post_login_user_id_not_found', {:provider => provider}] unless login_user_id
-    login_user = User.find_by_user_id(login_user_id)
-    return [login_user, friends_hash, token, '.post_login_unknown_user_id', {:provider => provider, :user_id => login_user_id}] unless login_user
+    # get user and token
+    friends_hash = nil
+    login_user, token, key, options = get_login_user_and_token(provider)
+    return [login_user, friends_hash, token, key, options] if key
+    login_user_id = login_user.user_id
     # initialize hash with old friends
     old_friends_list = Friend.where('user_id_giver = ?', login_user_id).includes(:friend)
     friends_hash = {}
@@ -495,10 +515,6 @@ class UtilController < ApplicationController
       login_user_id = old_friend.user_id_receiver
       friends_hash[login_user_id] = {:user => old_friend.friend, :old_name => old_friend.friend.user_name, :new_name => old_friend.friend.user_name, :old_api_friend => old_friend.api_friend, :new_api_friend => 'N', :new_record => false}
     end
-    # get token for api requests
-    token = (session[:tokens] || {})[provider]
-    return [login_user, friends_hash, token, '.post_login_token_not_found', {:provider => provider}] if token.to_s == ""
-    puts "token = #{token}"
     # ok
     return [login_user, friends_hash, token]
   end # get_user_friends_and_token
@@ -840,8 +856,164 @@ class UtilController < ApplicationController
   # ajax task is inserted in gifts/create ajax
   private
   def post_on_facebook (id)
-    raise "post_on_facebook not implemented"
-  end
+    begin
+      # get login user and api access token
+      provider = "facebook"
+      login_user, token, key, options = get_login_user_and_token(provider)
+      return [key, options] if key
+
+      # get and check gift
+      gift = Gift.find_by_id(id)
+      return ['.post_on_api_unknown_gift_id', { :provider => provider, :id => id }] unless gift
+      return ['.post_on_api_invalid_gift_id', { :provider => provider, :id => gift.id }] unless [gift.user_id_giver, gift.user_id_receiver].index(login_user.user_id)
+      return ['.post_on_api_old_gift', { :provider => provider, :id => gift.id }] unless gift.created_at > 1.minute.ago
+
+      # gift_posted_on_wall_api_wall. values:
+      #  1: "Gift posted in here but not on your %{apiname} wall. #{error}" # unhandled error message
+      #  2: "Gift posted in here and on your %{apiname} wall"
+      #  3: "Gift posted in here but not on your %{apiname} wall." # missing privileges
+      #  4: "Gift posted in here but not on your %{apiname} wall. Duplicate status message on #{apiname} wall."
+      #  5: "Gift posted in here but not on your %{apiname} wall. Post on #{apiname} wall not implemented."
+      gift_posted_on_wall_api_wall = 1
+      error = 'unknown error'
+
+      if login_user.post_gift_allowed?
+        # puts "access_token = #{session[:access_token]}"
+        api = Koala::Facebook::API.new(session[:access_token])
+        begin
+          if gift.picture == 'Y'
+            # status post with picture
+            filetype = gift.temp_picture_path.split('.').last
+            content_type = "image/#{filetype}"
+            api_response = api.put_picture(gift.temp_picture_path, content_type, {:message => gift.description})
+            # api_response = {"id"=>"1396226023933952", "post_id"=>"100006397022113_1396195803936974"} (Hash)
+            gift.api_gift_id = api_response['post_id']
+            picture_id = api_response['id']
+          else
+            # status post without picture
+            api_response = api.put_connections('me', 'feed', :message => gift.description)
+            # api_response = {"id"=>"100006397022113_1396235850599636"}
+            gift.api_gift_id = api_response['id']
+          end
+          puts "api_response = #{api_response} (#{api_response.class.name})"
+          gift_posted_on_wall_api_wall = 2 # Gift posted in here and on your facebook wall
+        rescue Koala::Facebook::ClientError => e
+          puts 'Koala::Facebook::ClientError'
+          puts "e.fb_error_type = #{e.fb_error_type}"
+          puts "e.fb_error_code = #{e.fb_error_code}"
+          puts "e.fb_error_subcode = #{e.fb_error_subcode}"
+          puts "e.fb_error_message = #{e.fb_error_message}"
+          puts "e.http_status = #{e.http_status}"
+          puts "e.response_body = #{e.response_body}"
+          puts "e.fb_error_type.class.name = #{e.fb_error_type.class.name}"
+          puts "e.fb_error_code.class.name = #{e.fb_error_code.class.name}"
+          if e.fb_error_type == 'OAuthException' && e.fb_error_code == 506
+            # delete gift and ignore error OAuthException, code: 506, message: (#506) Duplicate status message [HTTP 400]
+            gift_posted_on_wall_api_wall = 4 # Gift posted in here but not on your facebook wall. Duplicate status message on facebook wall.
+          elsif e.fb_error_type == 'OAuthException' && e.fb_error_code == 200
+            # e.response_body = {"error":{"message":"(#200) The user hasn't authorized the application to perform this action","type":"OAuthException","code":200}}
+            # check if permission to post i api wall has been removed
+            error = e.to_s
+            login_user.get_api_permissions(session[:access_token])
+            if !login_user.post_gift_allowed?
+              # permission to post on api wall has been removed.
+              # show request_post_gift_priv_link link in gifts/index page
+              gift_posted_on_wall_api_wall = 3
+              error = nil
+            else
+              # permission to post on api wall has NOT been removed. Unknown error
+              gift_posted_on_wall_api_wall = 1 # unknown error. no translation
+            end
+          else
+            # unhandled exceptions
+            gift_posted_on_wall_api_wall = 1 # unknown error. no translation
+            error = e.to_s
+          end
+        rescue Koala::Facebook::ServerError => e
+          puts 'Koala::Facebook::ServerError'
+          puts "e.fb_error_type = #{e.fb_error_type}"
+          puts "e.fb_error_code = #{e.fb_error_code}"
+          puts "e.fb_error_subcode = #{e.fb_error_subcode}"
+          puts "e.fb_error_message = #{e.fb_error_message}"
+          puts "e.http_status = #{e.http_status}"
+          puts "e.response_body = #{e.response_body}"
+          puts "e.fb_error_type.class.name = #{e.fb_error_type.class.name}"
+          puts "e.fb_error_code.class.name = #{e.fb_error_code.class.name}"
+          # e.fb_error_type = Exception
+          # e.fb_error_code = 1366046
+          # e.fb_error_subcode =
+          # e.fb_error_message = There was a problem with the image file.
+          # e.http_status = 500
+          # e.response_body = {"error":{"type":"Exception","message":"There was a problem with the image file.","code":1366046}}
+          # e.fb_error_type.class.name = String
+          # e.fb_error_code.class.name = Fixnum
+          gift_posted_on_wall_api_wall = 1 # unknown error. no translation
+          error = fb_error_message.to_s
+        end # rescue
+      else
+        gift_posted_on_wall_api_wall = 3
+      end # if
+
+      if gift_posted_on_wall_api_wall != 2
+        gift.picture = 'N'
+        gift.save!
+        return ".gift_not_posted_#{gift_posted_on_wall_api_wall}", {:apiname => login_user.api_name_without_brackets, :error => error}
+      else
+        # get url for picture
+        if gift.picture == 'Y'
+          # todo: fb pictures too small - it should be possible to get url for a larger picture from fb
+          # get temporary picture url - may change - url change is catched in onerror in img in html page
+          # api_request = "#{gift.api_gift_id}?fields=full_picture"
+          # api_request = gift.api_gift_id.split('_').join('/picture/') + '?type=normal' # still small picture
+          # api_request = gift.api_gift_id.split('_').join('/picture/')  + '?fields=full_picture' # empty response (302 redirect) with profile picture
+          # puts "api_request = #{api_request}"
+          begin
+            gift.api_picture_url = gift.get_api_picture_url(session[:access_token])
+            if gift.api_picture_url
+              # valid picture url received from apii
+              gift.api_picture_url_updated_at = Time.now
+              gift.api_picture_url_on_error_at = nil
+              gift.save!
+            else
+              puts "Did not get a picture url from api. Must be problem with missing access token, picture != Y or deleted_at_api == Y"
+              return ['.no_api_picture_url', :apiname => login_user.api_name_without_brackets]
+            end
+          rescue ApiPostNotFoundException => e
+            # problem with picture uploads and permissions
+            # could not get full_picture url for an uploaded picture with visibility friends
+            # the problem appeared after changing app visibility from public to friends
+            # that is - app is not allowed to get info about the uploaded picture!!
+            # there must be more to it - changed visibility to only me and did get picture url
+            # changed visibility to friends and did get the picture url
+            # just display a warning and continue. Request read_stream permission from user if read_stream priv. is missing
+            if login_user.read_gifts_allowed?
+              # check if user has removed read stream priv.
+              login_user.get_api_permissions(session[:access_token])
+            end
+            if login_user.read_gifts_allowed?
+              # error - this should not happen.
+              return ['.picture_upload_unknown_problem', :appname => APP_NAME, :apiname => login_user.api_name_without_brackets]
+            else
+              # flash with request for read stream privs
+              return ['.picture_upload_missing_permission', :appname => APP_NAME, :apiname => login_user.api_name_without_brackets]
+              # todo: add ajax show/inject link to grant read_stream permission in gifts/index page
+              flash[:read_stream] = 'Missing read_stream permission' # display link to grant read_stream permission in gifts/index page
+            end
+            gift.picture = 'N'
+            gift.save!
+          end # rescue
+
+        end # picture == 'Y'
+        # no errors - return posted message
+        return [".gift_posted_#{gift_posted_on_wall_api_wall}", :apiname => login_user.api_name_without_brackets, :error => error]
+      end
+
+    rescue Exception => e
+      puts "Exception: #{e.message.to_s} (#{e.class})"
+      puts "Backtrace: " + e.backtrace.join("\n")
+      raise
+    end
+  end # post_on_facebook
   
   
 end # UtilController

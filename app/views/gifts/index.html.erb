@@ -105,13 +105,24 @@
     $(document).ready(function() {
         // bind 'myForm' and provide a simple callback function
         // http://malsup.com/jquery/form/#options-object
-        $('#new_gift').ajaxForm(function() {
-            add_to_debug_log('#new_gift.ajax_form: start') ;
-            document.getElementById('progressbar-div').style.display = 'none';
-            // alert("Thank you for your comment!");
+        $('#new_gift').ajaxForm({
+                beforeSubmit: function(formData, jqForm, options) {
+                    <% if debug_ajax? -%>add_to_debug_log('#new_gift.beforeSubmit');<% end -%>
+                },
+                success: function(responseText, statusText, xhr, $form) {
+                    <% if debug_ajax? -%>add_to_debug_log('#new_gift.success');<% end -%>
+                    document.getElementById('progressbar-div').style.display = 'none';
+                },
+                error: function(jqxhr, textStatus, errorThrown ) {
+                    document.getElementById('progressbar-div').style.display = 'none';
+                    <% if debug_ajax? -%>add_to_debug_log('#new_gift.error');<% end -%>
+                    <% if debug_ajax? -%>add_to_debug_log('jqxhr = ' + jqxhr);<% end -%>
+                    <% if debug_ajax? -%>add_to_debug_log('textStatus = ' + textStatus);<% end -%>
+                    <% if debug_ajax? -%>add_to_debug_log('errorThrown = ' + errorThrown);<% end -%>
+                    add_to_ajax_tasks_errors('new_form.ajaxform.error: ' + errorThrown) ;
+                }
         });
     });
-
 
 </script>
 

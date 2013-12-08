@@ -5,6 +5,5 @@ ajax_flash_new_table_rows('ajax_tasks_errors',<%= @errors.size %>);
 <% end -%>
 <% if @gifts.size > 0 -%>
 document.getElementById('new_messages_buffer_div').innerHTML = '<%= j render("create") %>';
-ajax_insert_update_gifts() ; <%# move new gift from buffer to gifts table -%>
-trigger_ajax_tasks_form(100); <%# post status on api walls -%>
+ajax_insert_update_gifts(100) ; <%# move new gift from buffer to gifts table -%>
 <% end -%>

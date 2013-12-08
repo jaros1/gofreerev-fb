@@ -66,19 +66,6 @@ class GiftsController < ApplicationController
     format_ajax_response
     return
 
-    # check for file upload
-    if picture and @user.post_gift_allowed?
-      # puts "gift_file = #{gift_file} (#{gift_file.class.name})"
-      # puts "gift_file.methods = " + gift_file.methods.sort.join(', ')
-      return add_error_and_format_ajax_resp(t('.file_upload_not_allowed', :appname => APP_NAME, :apiname => @user.api_name_without_brackets)) if !@user.post_gift_allowed?
-      original_filename = gift_file.original_filename
-      # puts "gift_file.original_filename = #{gift_file.original_filename}"
-      # puts "size = #{gift_file.size}"
-      filetype = FastImage.type(gift_file.path).to_s
-      return add_error_and_format_ajax_resp(t('.unsupported_filetype', :filetype => filetype)) if !%w(jpg jpeg gif png bmp).index(filetype)
-      return add_error_and_format_ajax_resp(t('.file_is_too_big', :maxsize => '2 Mb')) if gift_file.size > 2.megabytes
-    end # if
-
     # puts "create: description = #{@gift.description}"
 
     # gift_posted_on_wall_api_wall. values:

@@ -281,3 +281,20 @@
      First added with full size and then resized to normal size
      takes only a split second but is ugly
 
+ 92) logout should be logout of all APIs to prevent "mixed" user login
+     for example if users are sharing the same public computer and user forgets to close browser window
+
+ 93) cookies notification does not close after 30 seconds
+
+ 94) picture size problem. First gifts/index request for a new day
+     charlie gift 383. picture not resizing to width 100px.
+     picture was resized to normal size after 2 minutes (looks like the next new_messages_count solved the problem)
+     Only a problem with temporary local pictures.
+
+ 96) client side cache error from do_ajax_tasks request.
+     for example 500 Internal Server Error
+     should add line "500 Internal Server Error. See server log for more information" to ajax_tasks_errors table in page header
+
+ 97) add timestamp to lines in ajax_tasks_errors for easier test & debugging
+     timestamp - server timestamp or client timestamp?
+     Maybe only timestamp if DEBUG_AJAX = true

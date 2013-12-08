@@ -141,12 +141,6 @@ da:
         file_is_too_big: "Fil er for stor. Højst tilladte størrelse på billede er %{maxsize}."
         picture_upload_unknown_problem: "Opslag opretter herinde og på din %{apiname} væg. Foto blev uploaded til din %{apiname} væg, men %{appname} mangler rettigheder til at se billedet på din %{apiname} væg og kan derfor ikke vise foto herinde. Måske du har ændret rettighedsindstillinger for %{appname}."
         picture_upload_missing_permission: "Opslag opretter herinde og på din %{apiname} væg. Foto blev uploaded til din %{apiname} væg, men %{appname} mangler rettigheder til at se billedet på din %{apiname} og kan derfor ikke vise foto herinde. Du kan løse dette problem ved enten at ændre synlighed for %{appname} opslag til offentlig eller ved at give %{appname} lov til at læse opslag på din %{apiname} væg."
-        # gift_posted_<n> is used if gift was saved in gifts table
-        gift_posted_1: "Opslag opretter herinde, men ikke på din %{apiname} væg (%{error})" # unhandled error message
-        gift_posted_2: "Opslag opretter herinde og på din %{apiname} væg"
-        gift_posted_3: "Opslag opretter herinde, men ikke på din %{apiname} væg" # missing privileges
-        gift_posted_4: "Opslag opretter herinde, men ikke på din %{apiname} væg. Opslag fandes allerede på %{apiname} væg"
-        gift_posted_5: "Opslag opretter herinde, men ikke på din %{apiname} væg. Opslag på %{apiname} væg er endnu ikke implementeret"
         # gift_not_posted_<n> is used if gift was not saved in gifts table - should never happen
         gift_not_posted_1: "Opslag blev ikke oprettet på din %{apiname} væg (%{error})" # unhandled error message
         gift_not_posted_2: "Opslag blev oprettet på din %{apiname} væg"
@@ -516,8 +510,9 @@ da:
   # util controller - used for ajax requests
   util:
      do_ajax_tasks:
-        ajax_task_exception: "Systemfejl \"%{exception}\" for ajax task \"%{task}\"." # task, exception
+        ajax_task_exception: "Systemfejl \"%{exception}\" for ajax task \"%{task}\". Tjek server log for mere information." # task, exception
         ajax_task_invalid_response: "Systemfejl. Ugyldigt svar fra ajax task %{task}. Skal være Nil eller gyldigt input til translate." # task, response and exception. response is invalid response from ajax task and exception is ruby exception from translate
+        ajax_task_missing_translate_key: "System error. Oversættelse mangler for \"%{key}\" for ajax task \"%{task}\"."
         update_timezone_invalid_user_id: "Systemfejl. Ugyldigt user_id %{user_id} ved opdatering af tidszone information" # user_id
         update_timezone_timezone_missing: "Systemfejl. Modtag ikke tidszone information fra browser/javascript"
         update_timezone_save_error: "Systemfejl. Kunne ikke opdatere bruger information om tidszone: \"%{errors}\"" # error = user errors.
@@ -536,3 +531,11 @@ da:
         google_insufficient_permission: "Fejl ved hentning af venneliste fra Google+ API. Insufficient Permission. Tjek liste ved API opsætning: 1) scope plus.login mangler i provider opsætning for google"
         google_other_errors: "Fejl ved hentning af venneliste fra Google+ API. %{error}"
         linkedin_access_denied: "Fejl ved hentning af connections fra LinkedIn API. Access to connections denied. Tjek liste ved API opsætning. 1) scope r_network mangler i provider opsætning for linkedin"
+        post_on_api_unknown_gift_id: "Ukendt id %{id} ved opslag på %{provider} væg"
+        post_on_api_invalid_gift_id: "Ugyldigt id %{id} ved opslag på %{provider} væg"
+        post_on_api_old_gift: "Gammelt id %{id} ved opslag på %{provider} væg"
+        gift_posted_1: "Opslag opretter herinde, men ikke på din %{apiname} væg (%{error})" # unhandled error message
+        gift_posted_2: "Opslag opretter herinde og på din %{apiname} væg"
+        gift_posted_3: "Opslag opretter herinde, men ikke på din %{apiname} væg" # missing privileges
+        gift_posted_4: "Opslag opretter herinde, men ikke på din %{apiname} væg. Opslag fandes allerede på %{apiname} væg"
+        gift_posted_5: "Opslag opretter herinde, men ikke på din %{apiname} væg. Opslag på %{apiname} væg er endnu ikke implementeret"

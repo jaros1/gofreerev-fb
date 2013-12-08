@@ -593,7 +593,7 @@ class Gift < ActiveRecord::Base
     "temp/#{temp_picture_filename}"
   end
   def temp_picture_path
-    Rails.root.join('public', 'images', 'temp', temp_picture_filename)
+    Rails.root.join('public', 'images', 'temp', temp_picture_filename).to_s
   end
 
 

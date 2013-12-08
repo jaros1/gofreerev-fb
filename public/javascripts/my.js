@@ -425,6 +425,7 @@ function insert_new_comments() {
     if (debug) alert(summary) ;
 } // insert_new_comments
 
+// ajax_tasks_sleep: missing: no ajax tasks - number: sleep before executing ajax tasks - for example post status on api walls
 function ajax_insert_update_gifts (ajax_tasks_sleep)
 {
     // process ajax response received from new_messages_count ajax request
@@ -517,8 +518,6 @@ function ajax_insert_update_gifts (ajax_tasks_sleep)
     if (!ajax_tasks_sleep) return ;
     // execute some more ajax tasks - for example post status on api wall(s)
     trigger_ajax_tasks_form(ajax_tasks_sleep);
-    // document.getElementById("timezone").value = (new Date().getTimezoneOffset()) / 60.0;
-    // window.setTimeout(function(){$('#ajax_tasks_form').trigger('submit.rails');}, ajax_tasks_sleep);
 } //  ajax_insert_update_gifts
 
 // catch load errors  for api pictures. Gift could have been deleted. url could have been changed
@@ -876,12 +875,45 @@ function clear_flash_and_ajax_errors() {
 } // clear_flash_and_ajax_errors
 
 // ajax server to execute any ajax task in ajax task queue
-// called from bottom of application layout and after gift create (posting on api wall)
+// called from bottom of application layout and from  ajax_insert_update_gifts after gift create (posting on api wall)
+// tasks: get currency rates, download api information (picture, permissions, friend list), post on api walls
 function trigger_ajax_tasks_form (sleep) {
     if (!sleep) sleep=1000 ;
-    document.getElementById("timezone").value = (new Date().getTimezoneOffset()) / 60.0;
+    var timezone = document.getElementById("timezone") ;
+    if (!timezone) {
+        add_to_debug_log('trigger_ajax_tasks_form. hidden field with id timezone was not found') ;
+        return ;
+    }
+    timezone.value = (new Date().getTimezoneOffset()) / 60.0;
     window.setTimeout(function(){$('#ajax_tasks_form').trigger('submit.rails');}, sleep);
 } // trigger_ajax_tasks_form
+
+// catch error when executing ajax tasks
+$(document).ready(function() {
+    $("#ajax_tasks_form").bind("ajax:error", function(jqxhr, textStatus, errorThrown){
+        add_to_debug_log('#ajax_tasks_form.error');
+        add_to_debug_log('jqxhr = ' + jqxhr);
+        add_to_debug_log('textStatus = ' + textStatus);
+        add_to_debug_log('errorThrown = ' + errorThrown);
+        add_to_ajax_tasks_errors('ajax_tasks_form.error: ' + errorThrown + '. check server log for more information.') ;
+    })
+})
+
+// normally ajax tasks errors and messages are injected from server
+// this function is used for client side ajax errors - for example from ajax error callback functions
+function add_to_ajax_tasks_errors (error) {
+    var table = document.getElementById('ajax_tasks_errors') ;
+    if (!table) {
+        add_to_debug_log('add_to_ajax_tasks_errors: ajax_tasks_errors table was not found.') ;
+        add_to_debug_log('add_to_ajax_tasks_errors: error was ' + error + '') ;
+        return ;
+    }
+    var length = table.length ;
+    var row = table.insertRow(length) ;
+    var cell = row.insertCell(0) ;
+    cell.innerHTML = error ;
+    ajax_flash_new_table_rows('ajax_tasks_errors', 1);
+}
 
 // custom confirm box - for styling
 // http://lesseverything.com/blog/archives/2012/07/18/customizing-confirmation-dialog-in-rails/

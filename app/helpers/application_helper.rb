@@ -142,6 +142,7 @@ module ApplicationHelper
 
   # todo: translate value for key provider.
   def my_sanitize_hash (hash)
+    return hash unless hash.class == Hash
     hash.each do |name, value|
       if name.to_s == 'provider'
         hash[name] = my_provider(value)
