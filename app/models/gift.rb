@@ -590,9 +590,11 @@ class Gift < ActiveRecord::Base
 
 
   def temp_picture_url
+    return nil unless temp_picture_filename
     "temp/#{temp_picture_filename}"
   end
   def temp_picture_path
+    return nil unless temp_picture_filename
     Rails.root.join('public', 'images', 'temp', temp_picture_filename).to_s
   end
 

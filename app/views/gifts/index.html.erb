@@ -112,6 +112,14 @@
                 success: function(responseText, statusText, xhr, $form) {
                     <% if debug_ajax? -%>add_to_debug_log('#new_gift.success');<% end -%>
                     document.getElementById('progressbar-div').style.display = 'none';
+                    var gift_price = document.getElementById('gift_price') ;
+                    if (gift_price) gift_price.value = '' ;
+                    var gift_description = document.getElementById('gift_description') ;
+                    if (gift_description) gift_description.value = '' ;
+                    var gift_file = document.getElementById('gift_file');
+                    if (gift_file) gift_file.value = '' ;
+                    var uploadFile = document.getElementById('uploadFile') ;
+                    if (uploadFile) uploadFile.value = '' ;
                 },
                 error: function(jqxhr, textStatus, errorThrown ) {
                     document.getElementById('progressbar-div').style.display = 'none';

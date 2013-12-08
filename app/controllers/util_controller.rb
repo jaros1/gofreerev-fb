@@ -448,6 +448,7 @@ class UtilController < ApplicationController
     AjaxTask.where("session_id = ?", session[:session_id]).order('priority desc, id').each do |at|
       at.destroy
       # all ajax tasks should have exception handlers with backtrace. Exception handler for eval will not dump backtrace in at.task
+      res = nil
       begin
         res = eval(at.task)
       rescue Exception => e
@@ -456,21 +457,21 @@ class UtilController < ApplicationController
         puts "Backtrace: " + e.backtrace.join("\n")
         res = [ '.ajax_task_exception', { :task => at.task, :exception => e.message.to_s }]
       end
-      puts "ajax task #{at.task}, response = #{res}"
+      # puts "ajax task #{at.task}, response = #{res}"
       next unless res
       # check response from ajax task. Must be a valid input to translate
       begin
         key, options = res
         options = {} unless options
         options[:raise] = I18n::MissingTranslationData
-        x = t key, options
+        t key, options
       rescue I18n::MissingTranslationData => e
         res = [ '.ajax_task_missing_translate_key', { :key => key, :task => at.task, :response => res, :exception => e.message.to_s } ]
       rescue Exception => e
         puts "invalid response from ajax task #{at.task}. Must be nil or a valid input to translate. Response: #{res}"
         res = [ '.ajax_task_invalid_response', { :task => at.task, :response => res, :exception => e.message.to_s }]
       end
-      puts "task = #{at.task}, res = #{res}"
+      # puts "task = #{at.task}, res = #{res}"
       @errors << res
     end
     if @errors.size == 0
@@ -866,7 +867,7 @@ class UtilController < ApplicationController
       gift = Gift.find_by_id(id)
       return ['.post_on_api_unknown_gift_id', { :provider => provider, :id => id }] unless gift
       return ['.post_on_api_invalid_gift_id', { :provider => provider, :id => gift.id }] unless [gift.user_id_giver, gift.user_id_receiver].index(login_user.user_id)
-      return ['.post_on_api_old_gift', { :provider => provider, :id => gift.id }] unless gift.created_at > 1.minute.ago
+      return ['.post_on_api_old_gift', { :provider => provider, :id => gift.id }] unless gift.created_at > 5.minute.ago
 
       # gift_posted_on_wall_api_wall. values:
       #  1: "Gift posted in here but not on your %{apiname} wall. #{error}" # unhandled error message
@@ -1009,11 +1010,83 @@ class UtilController < ApplicationController
       end
 
     rescue Exception => e
+      puts "post_on_facebook:"
       puts "Exception: #{e.message.to_s} (#{e.class})"
       puts "Backtrace: " + e.backtrace.join("\n")
       raise
     end
   end # post_on_facebook
+
+  # post on google+ not implemented. The Google+ API is still a read only API
+  # private
+  # def post_on_google_oauth2 (id)
+  # end
+
+  def post_on_linkedin (id)
+    begin
+      # get login user and api access token
+      provider = "linkedin"
+      login_user, token, key, options = get_login_user_and_token(provider)
+      return [key, options] if key
+
+      # get and check gift
+      gift = Gift.find_by_id(id)
+      return ['.post_on_api_unknown_gift_id', { :provider => provider, :id => id }] unless gift
+      return ['.post_on_api_invalid_gift_id', { :provider => provider, :id => gift.id }] unless [gift.user_id_giver, gift.user_id_receiver].index(login_user.user_id)
+      return ['.post_on_api_old_gift', { :provider => provider, :id => gift.id }] unless gift.created_at > 5.minute.ago
+
+      # create client for linkedin api requests
+      client = LinkedIn::Client.new ENV['GOFREEREV_LI_APP_ID'], ENV['GOFREEREV_LI_APP_SECRET']
+      client.authorize_from_access token[0], token[1] # token and secret
+      puts "GOFREEREV_LI_APP_ID = #{ENV['GOFREEREV_LI_APP_ID']}"
+      puts "GOFREEREV_LI_APP_SECRET = #{ENV['GOFREEREV_LI_APP_SECRET']}"
+      puts "token = #{token[0]}"
+      puts "secret = #{token[1]}"
+
+      x = client.add_share(:comment => gift.description)
+      puts "x = #{x}"
+
+      nil
+
+    rescue Exception => e
+      puts "post_on_linkedin:"
+      puts "Exception: #{e.message.to_s} (#{e.class})"
+      puts "Backtrace: " + e.backtrace.join("\n")
+      raise
+    end
+  end # post_on_linkedin
+
+  # delete local picture file that was used when posting picture in api wall(s) - see post_on_facebook etc.
+  def delete_local_picture (id)
+    begin
+      # get login user and api access token
+      provider = "facebook"
+      login_user, token, key, options = get_login_user_and_token(provider)
+      return [key, options] if key
+
+      # get and check gift
+      gift = Gift.find_by_id(id)
+      return ['.post_on_api_unknown_gift_id', { :provider => provider, :id => id }] unless gift
+      return ['.post_on_api_invalid_gift_id', { :provider => provider, :id => gift.id }] unless [gift.user_id_giver, gift.user_id_receiver].index(login_user.user_id)
+      return ['.post_on_api_old_gift', { :provider => provider, :id => gift.id }] unless gift.created_at > 5.minute.ago
+
+      # check local picture file
+      return ['.no_local_picture', { :provider => provider, :id => id }] unless gift.temp_picture_filename
+      return ['.local_picture_not_found', { :provider => provider, :id => id }] unless File.exist?(gift.temp_picture_path)
+
+      # delete file
+      File.delete(gift.temp_picture_path)
+      gift.temp_picture_filename = nil
+      gift.save!
+      nil
+
+    rescue Exception => e
+      puts "delete_local_picture:"
+      puts "Exception: #{e.message.to_s} (#{e.class})"
+      puts "Backtrace: " + e.backtrace.join("\n")
+      raise
+    end
+  end # delete_local_picture
   
   
 end # UtilController

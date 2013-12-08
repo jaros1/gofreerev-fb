@@ -888,7 +888,7 @@ function trigger_ajax_tasks_form (sleep) {
     window.setTimeout(function(){$('#ajax_tasks_form').trigger('submit.rails');}, sleep);
 } // trigger_ajax_tasks_form
 
-// catch error when executing ajax tasks
+// error callback for executing ajax tasks - write to debug log + page header
 $(document).ready(function() {
     $("#ajax_tasks_form").bind("ajax:error", function(jqxhr, textStatus, errorThrown){
         add_to_debug_log('#ajax_tasks_form.error');
@@ -912,7 +912,7 @@ function add_to_ajax_tasks_errors (error) {
     var row = table.insertRow(length) ;
     var cell = row.insertCell(0) ;
     cell.innerHTML = error ;
-    ajax_flash_new_table_rows('ajax_tasks_errors', 1);
+    ajax_flash_new_table_rows('ajax_tasks_errors', 100);
 }
 
 // custom confirm box - for styling

@@ -221,12 +221,9 @@
      user has to click twice on currency LOV to change currency.
 
  71) gift post - change to ajax - do not reload page
-     ajax insert gift in page with temporary local url
-     add ajax task to post on api wall
+     ajax insert gift in page with temporary local url (ok)
+     add ajax task to post on api wall (ok for facebook)
      ajax replace gift picture url when picture has been received from api
-     http://malsup.com/jquery/form/
-     http://www.hongkiat.com/blog/html5-progress-bar/
-     http://malsup.com/jquery/form/#options-object
      test all errors after changing gift post to ajax
      must support multiple login apis
      check how to post on google+, linkedin and twitter
@@ -239,8 +236,6 @@
      http://lesseverything.com/blog/archives/2012/07/18/customizing-confirmation-dialog-in-rails/
      http://www.pjmccormick.com/nicer-rails-confirm-dialogs-and-not-just-delete-methods
      Not working in rails 4 or I am must be doing some ting wrong - tried with JS - tried with coffee script
-
- 73) delete gift - must press confirm ok twice
 
  77) missing opera plugin to set screen width.
 
@@ -273,10 +268,6 @@
      gifts/ajax_errors.html.erb - @errors is an array with translated messages
      maybe move to shared with better partial names
 
- 90) add effect when ajax adding lines to ajax_tasks_errors div in page header
-     that is util/do_ajax_tasks and gifts/create
-     maybe there is an add table row event to hog effect to
-
  91) picture size problem when ajax adding new gift with big picture
      First added with full size and then resized to normal size
      takes only a split second but is ugly
@@ -291,10 +282,21 @@
      picture was resized to normal size after 2 minutes (looks like the next new_messages_count solved the problem)
      Only a problem with temporary local pictures.
 
- 96) client side cache error from do_ajax_tasks request.
-     for example 500 Internal Server Error
-     should add line "500 Internal Server Error. See server log for more information" to ajax_tasks_errors table in page header
-
  97) add timestamp to lines in ajax_tasks_errors for easier test & debugging
      timestamp - server timestamp or client timestamp?
      Maybe only timestamp if DEBUG_AJAX = true
+
+ 98) rename uploadFile to gift_file_display (file upload input display field)
+
+ 99) how does browse file look like on a mobile device?
+
+ 100) add picture direct from camera - google html media capture - http://mobilehtml5.org/
+
+ 101) posting on multiple api's can take some time to complete
+      maybe execute ajax tasks one by one to give a more responsive gift index page
+      maybe use a flag or special priority for this effect in ajax task queue
+
+ 102) gift and api.
+      gift creator is logged with 2 api's facebook and linkedin
+      gift should be visible for users facebook friends and linkedin connections
+      some logged in with FB, some logged in with linked and some logged in with both
