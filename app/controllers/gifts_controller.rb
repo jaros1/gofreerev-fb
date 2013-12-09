@@ -122,16 +122,11 @@ class GiftsController < ApplicationController
     @missing_api_picture_urls = get_missing_api_picture_urls()
 
     # initialize gift form in top of gifts/index page
+    #
     puts "user_name = #{@user.user_name}" if @user
     # puts "access_token = #{session[:access_token]}"
     @gift = Gift.new
-    if params[:gift]
-      # returned from create - error in save or error in api request - gift not saved
-      @gift.price = params[:gift][:price].to_f if params[:gift][:price].to_s != ''
-      @gift.direction = params[:gift][:direction]
-      @gift.description = params[:gift][:description]
-    end
-    @gift.direction = 'giver' if @gift.direction.to_s == ''
+    @gift.direction = 'giver'
     unless @user
       @gifts = []
       render_with_language __method__
@@ -139,17 +134,16 @@ class GiftsController < ApplicationController
     end
     if @user
       @gift.currency = @user.currency unless @gift.currency
-      @gift.user_id_giver = session[:user_id]
     end
     # puts "index: description = #{@gift.description}"
 
     # initialize list of gifts
     # list of gifts with @user as giver or receiver + gifts med @user.friends as giver or receiver
-    if @user then
+    if @users.size > 0 then
       newest_status_update_at = Sequence.status_update_at
       newest_gift = Gift.last
       # get list with gifts
-      gifts = @user.gifts
+      gifts = User.gifts(@users)
     end
 
     # use this gifts select for ajax debug - returns all gifts

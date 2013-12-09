@@ -1,37 +1,5 @@
 class Gift < ActiveRecord::Base
 
-=begin
-  create_table "gifts", force: true do |t|
-    t.string   "gift_id",                     limit: 20
-    t.text     "description",                            null: false
-    t.text     "currency",                               null: false
-    t.text     "price"
-    t.string   "user_id_giver",               limit: 20
-    t.string   "user_id_receiver",            limit: 20
-    t.text     "received_at"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.text     "api_gift_id"
-    t.text     "balance_giver"
-    t.text     "balance_receiver"
-    t.string   "picture",                     limit: 1
-    t.text     "api_picture_url"
-    t.text     "api_picture_url_updated_at"
-    t.text     "api_picture_url_on_error_at"
-    t.string   "deleted_at_api",              limit: 1
-    t.integer  "status_update_at",                       null: false
-    t.text     "balance_doc_giver"
-    t.text     "balance_doc_receiver"
-  end
-
-  add_index "gifts", ["gift_id"], name: "index_gifts_on_gift_id", unique: true
-  add_index "gifts", ["user_id_giver"], name: "index_gifts_on_giver"
-  add_index "gifts", ["user_id_receiver"], name: "index_gifts_on_receiver"
-=end
-
-
-  belongs_to :giver, :class_name => 'User', :primary_key => :user_id, :foreign_key => :user_id_giver
-  belongs_to :receiver, :class_name => 'User', :primary_key => :user_id, :foreign_key => :user_id_receiver
   has_many :comments, :class_name => 'Comment', :primary_key => :gift_id, :foreign_key => :gift_id, :dependent => :destroy
   has_many :likes, :class_name => 'GiftLike', :primary_key => :gift_id, :foreign_key => :gift_id, :dependent => :destroy
 
@@ -146,32 +114,6 @@ class Gift < ActiveRecord::Base
     str_to_float_or_nil encrypt_remove_pre_and_postfix(temp_extended_price, 'price', 4)
   end # price_was
 
-  # 5) user_id_giver - FK - not encrypted.
-  # validates_presence_of :user_id_giver, :if => Proc.new {|g| (g.received_at or !g.user_id_receiver) }
-  validates_each :user_id_giver do |record, attr, value|
-    if record.new_record?
-      record.errors.add :base, :giver_or_receiver_must_be_blank if value and record.user_id_receiver
-      record.errors.add :base, :giver_or_receiver_is_required if !value and !record.user_id_receiver
-    elsif record.user_id_giver_was and record.user_id_giver_was != value
-      record.errors.add attr, :readonly
-    elsif record.received_at and !value
-      record.errors.add attr, :empty
-    end
-  end
-
-  # 6) user_id_receiver - FK - not encrypted. Gift must have a giver or an receiver when created. Must have giver and receiver when closed
-  # validates_presence_of :user_id_receiver, :if => Proc.new {|g| (g.received_at or !g.user_id_giver) }
-  validates_each :user_id_receiver do |record, attr, value|
-    if record.new_record?
-      nil if value and record.user_id_giver # error already reported for user_id_giver
-      nil if !value and !record.user_id_giver # # error already reported for user_id_giver
-    elsif record.user_id_receiver_was and record.user_id_receiver_was != value
-      record.errors.add attr, :readonly
-    elsif record.received_at and !value
-      record.errors.add attr, :empty
-    end
-  end
-
   # 7) received_at. Date in model - encrypted text in db - set once when the deal is closed together with user_id_receiver
   def received_at
     return nil unless (temp_extended_received_at = read_attribute(:received_at))
@@ -199,46 +141,6 @@ class Gift < ActiveRecord::Base
   end # received_at_was
 
   # 8) new_price_at - date - not encrypted - almost always = today
-
-  ## 10) negative_interest_pos_balance - Float in model - encrypted text in db - recalculated once every day for closed deals with a price and a receiver
-  #def negative_interest_pos_balance
-  #  return nil unless (tmp_extended_negative_interest_pos_balance = read_attribute(:negative_interest_pos_balance))
-  #  str_to_float_or_nil encrypt_remove_pre_and_postfix(tmp_extended_negative_interest_pos_balance, 'negative_interest_pos_balance', 7)
-  #end # negative_interest_pos_balance
-  #def negative_interest_pos_balance=(new_neg_int)
-  #  if new_neg_int.to_s != ''
-  #    check_type('negative_interest_pos_balance', new_neg_int, 'Float')
-  #    write_attribute :negative_interest_pos_balance, encrypt_add_pre_and_postfix(new_neg_int.to_s, 'negative_interest_pos_balance', 7)
-  #  else
-  #    write_attribute :negative_interest_pos_balance, nil
-  #  end
-  #end # negative_interest_pos_balance=
-  #alias_method :negative_interest_pos_balance_before_type_cast, :negative_interest_pos_balance
-  #def negative_interest_pos_balance_was
-  #  return negative_interest_pos_balance unless negative_interest_pos_balance_changed?
-  #  return nil unless (tmp_extended_negative_interest_pos_balance = attribute_was(:negative_interest_pos_balance))
-  #  str_to_float_or_nil encrypt_remove_pre_and_postfix(tmp_extended_negative_interest_pos_balance, 'negative_interest_pos_balance', 7)
-  #end # negative_interest_pos_balance_was
-  #
-  ## 11) negative_interest_neg_balance - Float in model - encrypted text in db - recalculated once every day for closed deals with a price
-  #def negative_interest_neg_balance
-  #  return nil unless (temp_extended_negative_interest_neg_balance = read_attribute(:negative_interest_neg_balance))
-  #  str_to_float_or_nil encrypt_remove_pre_and_postfix(temp_extended_negative_interest_neg_balance, 'negative_interest_neg_balance', 8)
-  #end # negative_interest
-  #def negative_interest_neg_balance=(new_negative_interest_neg_balance)
-  #  if new_negative_interest_neg_balance.to_s != ''
-  #    check_type('negative_interest_neg_balance', new_negative_interest_neg_balance, 'Float')
-  #    write_attribute :negative_interest_neg_balance, encrypt_add_pre_and_postfix(new_negative_interest_neg_balance.to_s, 'negative_interest_neg_balance', 8)
-  #  else
-  #    write_attribute :negative_interest_neg_balance, nil
-  #  end
-  #end # negative_interest_neg_balance=
-  #alias_method :negative_interest_neg_balance_before_type_cast, :negative_interest_neg_balance
-  #def negative_interest_neg_balance_was
-  #  return negative_interest_neg_balance unless negative_interest_neg_balance_changed?
-  #  return nil unless (temp_extended_negative_interest_neg_balance = attribute_was(:negative_interest_neg_balance))
-  #  str_to_float_or_nil encrypt_remove_pre_and_postfix(temp_extended_negative_interest_neg_balance, 'negative_interest_neg_balance', 8)
-  #end # negative_interest_neg_balance_was
 
   # 12) api_gift_id - String in model - encrypted text in db - api id for the gift / status update on the wall
   attr_readonly :api_gift_id
@@ -428,12 +330,22 @@ class Gift < ActiveRecord::Base
 
   # 27) updated_at - timestamp - not encrypted
 
+  # placeholders for giver and receiver from api gifts - from user.gifts methods
+  attr_accessor :giver, :receiver, :picture
 
 
   #
   # helper methods
   #
 
+  def user_id_giver
+    return nil unless giver
+    giver.user_id
+  end
+  def user_id_receiver
+    return nil unless receiver
+    receiver.user_id
+  end
 
   # get/set balance for actual user. Used in user.recalculate_balance and in /gifts/index page
   def balance (current_user, login_user)

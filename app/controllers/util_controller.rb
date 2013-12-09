@@ -852,6 +852,19 @@ class UtilController < ApplicationController
     end
   end # post_login_twitter
 
+  # fix problem with different currencies for logged in users - for example USD in facebook and GBP in linkedin
+  private
+  def post_login_fix_currency
+    begin
+      raise "not implemented"
+    rescue Exception => e
+      puts "post_login_fix_currency:"
+      puts "Exception: #{e.message.to_s} (#{e.class})"
+      puts "Backtrace: " + e.backtrace.join("\n")
+      raise
+    end
+  end # post_login_fix_currency
+
   # post on facebook wall - with or without picture
   # picture is temporary saved local, but is deleted when the picture has been posted in wall(s)
   # ajax task is inserted in gifts/create ajax

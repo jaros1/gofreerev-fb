@@ -557,7 +557,10 @@ class Comment < ActiveRecord::Base
         noti_key_2 = 1
       when gift.receiver then
         noti_key_2 = 2
+      else
+        raise "system error: gift without giver or receiver"
     end
+    puts "noti_key_1 = #{noti_key_1}, noti_key_2 = #{noti_key_2}"
     noti_key_prefix = NOTI_KEY_1[noti_key_1] + '_' + NOTI_KEY_2[noti_key_2]
     puts "noti_key_prefix = #{noti_key_prefix}" if debug_notifications
     # send notifications

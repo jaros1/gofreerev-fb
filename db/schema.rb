@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20131207141536) do
+ActiveRecord::Schema.define(version: 20131209150202) do
 
   create_table "ajax_comments", force: true do |t|
     t.string   "user_id",    limit: 40, null: false
@@ -31,6 +31,29 @@ ActiveRecord::Schema.define(version: 20131207141536) do
   end
 
   add_index "ajax_tasks", ["session_id"], name: "index_ajax_tasks_on_session_id"
+
+  create_table "api_gifts", force: true do |t|
+    t.string   "gift_id",                     limit: 20
+    t.string   "provider",                    limit: 20
+    t.string   "user_id_giver",               limit: 40
+    t.string   "user_id_receiver",            limit: 40
+    t.string   "picture",                     limit: 1
+    t.text     "api_gift_id"
+    t.text     "api_picture_url"
+    t.text     "api_picture_url_updated_at"
+    t.text     "api_picture_url_on_error_at"
+    t.string   "deleted_at_api",              limit: 1
+    t.text     "balance_giver"
+    t.text     "balance_receiver"
+    t.text     "balance_doc_giver"
+    t.text     "balance_doc_receiver"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "api_gifts", ["gift_id", "provider"], name: "index_api_gifts_on_gift_id", unique: true
+  add_index "api_gifts", ["user_id_giver"], name: "index_api_gifts_on_giver"
+  add_index "api_gifts", ["user_id_receiver"], name: "index_api_gifts_on_receiver"
 
   create_table "comments", force: true do |t|
     t.string   "comment_id",       limit: 20, null: false
@@ -99,34 +122,19 @@ ActiveRecord::Schema.define(version: 20131207141536) do
   add_index "gift_likes", ["user_id"], name: "index_gift_lines_on_user_id"
 
   create_table "gifts", force: true do |t|
-    t.string   "gift_id",                     limit: 20
-    t.text     "description",                            null: false
-    t.text     "currency",                               null: false
+    t.string   "gift_id",               limit: 20
+    t.text     "description",                      null: false
+    t.text     "currency",                         null: false
     t.text     "price"
-    t.string   "user_id_giver",               limit: 40
-    t.string   "user_id_receiver",            limit: 40
     t.text     "received_at"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.text     "api_gift_id"
-    t.text     "balance_giver"
-    t.text     "balance_receiver"
-    t.string   "picture",                     limit: 1
-    t.text     "api_picture_url"
-    t.text     "api_picture_url_updated_at"
-    t.text     "api_picture_url_on_error_at"
-    t.string   "deleted_at_api",              limit: 1
-    t.integer  "status_update_at",                       null: false
-    t.text     "balance_doc_giver"
-    t.text     "balance_doc_receiver"
-    t.text     "social_dividend_doc"
+    t.integer  "status_update_at",                 null: false
     t.datetime "deleted_at"
-    t.string   "temp_picture_filename",       limit: 20
+    t.string   "temp_picture_filename", limit: 20
   end
 
   add_index "gifts", ["gift_id"], name: "index_gifts_on_gift_id", unique: true
-  add_index "gifts", ["user_id_giver"], name: "index_gifts_on_giver"
-  add_index "gifts", ["user_id_receiver"], name: "index_gifts_on_receiver"
 
   create_table "notifications", force: true do |t|
     t.string   "noti_id",      limit: 20, null: false
@@ -165,8 +173,10 @@ ActiveRecord::Schema.define(version: 20131207141536) do
     t.integer  "timezone"
     t.text     "no_api_friends"
     t.text     "negative_interest"
+    t.integer  "user_combination"
   end
 
+  add_index "users", ["user_combination"], name: "index_users_user_combination"
   add_index "users", ["user_id"], name: "index_users_on_user_id", unique: true
 
 end

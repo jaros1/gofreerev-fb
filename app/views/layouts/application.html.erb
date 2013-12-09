@@ -6,8 +6,6 @@
   <%= stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track' => true %>
   <%= javascript_include_tag 'application', 'data-turbolinks-track' => true %>
   <script src="/javascripts/my.js"></script>
-  <script src="/javascripts/jquery.form.js"></script>
-  <script src="/javascripts/modernizr.js"></script>
   <%= csrf_meta_tags %>
   <meta name="viewport" content="width=device-width,initial-scale=1.0, user-scalable=no">
   <script>
@@ -19,21 +17,23 @@
     <% if @cookie_note -%>
       <div id="cookie_note" style="width: 100%"><%= t '.cookie_note_text', :appname => APP_NAME %> <%= button_tag 'Ok', :onclick => "{document.getElementById('cookie_note').style.display = 'none'}" %><hr></div>
     <% end -%>
-    <% if  session[:user_id] and @user -%>
+    <% if  session[:user_ids] and @users.length > 0 -%>
         <!-- show page header for logged in users -->
         <%# Hidden form to update currency => post to /users/:id/ => return to this page after currency has been changed -%>
         <div id="update_currency_div" style="display:none">
-          <%= form_for @user, :class => 'update_currency_form' do |f| %>
+          <%= form_for @users.first, :class => 'update_currency_form' do |f| %>
               <%= hidden_field_tag :return_to, @request_fullpath %>
               <%= f.text_field :new_currency %>
           <% end %>
         </div>
-        <%# Hidden form for post login processing (for example downloading profile image -%>
-        <div id="ajax_tasks_div" style="display:none">
-          <%= form_tag url_for(:controller => :util, :action => :do_ajax_tasks), :remote => true, :id => 'ajax_tasks_form' do %>
-              <%= hidden_field_tag :timezone, "" %>
-          <% end %>
-        </div>
+        <% if ajax_tasks? -%>
+            <%# Hidden form for post login processing (for example downloading profile image -%>
+            <div id="ajax_tasks_div" style="display:none">
+              <%= form_tag url_for(:controller => :util, :action => :do_ajax_tasks), :remote => true, :id => 'ajax_tasks_form' do %>
+                  <%= hidden_field_tag :timezone, "" %>
+              <% end %>
+            </div>
+        <% end -%>
         <!-- page header -->
         <%= render :partial => 'layouts/page_header' %>
         <div style="width: 100%"><hr></div>
@@ -45,16 +45,19 @@
         <div id="notification" style="width: 100%"><%= h flash[:notice] %></div>
         <br/>
     <% end -%>
-    <div style="width: 100%">
-      <table id="ajax_tasks_errors"></table>
-    </div>
+    <div style="width: 100%"><table id="ajax_tasks_errors"></table></div>
   </header>
   <!-- the page -->
   <%= yield %>
   <footer>
     <%= render :partial => 'layouts/page_footer/page_footer' -%>
-    <%# post ajax processing - for example get currency rates, download profile image and friend list from login provider -%>
-    <% if ajax_tasks? -%><script>trigger_ajax_tasks_form(1000);</script><% end -%>
+    <% if ajax_tasks? -%>
+        <%# post response ajax processing - for example download profile image and friend list from login provider -%>
+        <script>
+            document.getElementById("timezone").value = (new Date().getTimezoneOffset()) / 60.0;
+            window.setTimeout(function(){$('#ajax_tasks_form').trigger('submit.rails');}, 1000);
+        </script>
+    <% end -%>
   </footer>
 </div>
 <% if debug_ajax? -%>

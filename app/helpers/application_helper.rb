@@ -93,17 +93,26 @@ module ApplicationHelper
     number_with_precision(price, :precision => 2, :separator => @user_currency_separator, :delimiter => @user_currency_delimiter)
   end
 
-  def format_user_balance (user, login_user)
-    return nil unless user and login_user
-    balance = user.balance
-    return nil unless user.balance
+  def format_user_balance (user, login_users)
+    return nil unless user.class == User and login_users.class == Array
+    return nil if login_users.length == 0
+    if user.user_combination
+      # combined user accounts - sum balance for combined user accounts
+      raise "todo: sum balance for combined user accounts not implemented"
+    else
+      # standalone user account
+      balance = user.balance
+    end
+    return nil unless balance
     return nil unless balance.size > 1
     from_amount = balance[BALANCE_KEY]
     from_currency = 'USD'
-    to_currency = login_user.currency
-    if balance.size == 2 and user.currency == login_user.currency
+    to_currencies = login_users.collect { |login_user| login_user.currency }.uniq
+    return nil if to_currencies.length > 1 # error, but is ok a short moment after login - ajax task post_login_fix_currency should fix this problem in a moment
+    to_currency = currencies.first
+    if balance.size == 2 and user.currency == login_users.currency
       # short format. only one currency in balance hash. Return this without any conversion if login user currency
-      return format_price(from_amount) if user.currency == login_user.currency
+      return format_price(from_amount) if user.currency == login_users.currency
     end # æøå
     # exchange from_amount
     if from_currency == to_currency
@@ -142,7 +151,6 @@ module ApplicationHelper
 
   # todo: translate value for key provider.
   def my_sanitize_hash (hash)
-    return hash unless hash.class == Hash
     hash.each do |name, value|
       if name.to_s == 'provider'
         hash[name] = my_provider(value)

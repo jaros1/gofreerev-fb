@@ -1,7 +1,7 @@
-<% friend = user_div.friend?(@user)
+<% friend = user_div.friend?(@users)
    div_title = '.title' + (friend ? '' : '_non') + '_friend'
-   username = user_div.short_or_full_user_name(@user)
-   balance = friend ? format_user_balance(user_div, @user) : nil
+   username = user_div.short_or_full_user_name(@users)
+   balance = friend ? format_user_balance(user_div, @users) : nil
 -%>
 <div title="<%= t div_title, :username => username, :balance => balance %>"
      onclick="top.location.href = '<%= url_for(user_div) %>'">

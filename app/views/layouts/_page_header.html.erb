@@ -14,7 +14,7 @@
   <%= @page_header = true ; @size = 'small' ; render '/shared/user_div', :user_div => @user %>
 
   <div class="balance_and_currency_lov">
-    <table height="100%">
+    <table height="100%" title="<%= t '.header_currency_title' %>">
       <tr>
         <td><%= t '.header_balance_prompt' %> <%= format_price ExchangeRate.exchange(@user.balance[BALANCE_KEY], 'USD', @user.currency) %> <%= t '.header_balance_free' %> <%= @user.currency %></td>
       </tr>

@@ -16,8 +16,8 @@ class User < ActiveRecord::Base
 =end
 
   # relations
-  has_many :offers, :class_name => 'Gift', :primary_key => :user_id, :foreign_key => :user_id_giver, :dependent => :destroy
-  has_many :wishes, :class_name => 'Gift', :primary_key => :user_id, :foreign_key => :user_id_receiver, :dependent => :destroy
+  has_many :offers, :class_name => 'ApiGift', :primary_key => :user_id, :foreign_key => :user_id_giver, :dependent => :destroy
+  has_many :wishes, :class_name => 'ApiGift', :primary_key => :user_id, :foreign_key => :user_id_receiver, :dependent => :destroy
   has_many :friends, :class_name => 'Friend', :primary_key => :user_id, :foreign_key => :user_id_giver, :dependent => :destroy
   has_many :sent_notifications, :class_name => 'Notification', :primary_key => :user_id, :foreign_key => :from_user_id, :dependent => :destroy
   has_many :received_notifications, :class_name => 'Notification', :primary_key => :user_id, :foreign_key => :to_user_id, :dependent => :destroy
@@ -410,8 +410,8 @@ class User < ActiveRecord::Base
     a = user_name.split(' ')
     "#{a.first} #{a.last.first(1)}"
   end
-  def short_or_full_user_name (login_user)
-    friend?(login_user) ? short_user_name : user_name
+  def short_or_full_user_name (login_users)
+    friend?(login_users) ? short_user_name : user_name
   end # short_or_full_user_name
 
   def api_name_without_brackets
@@ -678,14 +678,17 @@ class User < ActiveRecord::Base
   end
 
   # simple friend check - true or false without any details
-  def friend? (login_user)
-    return false unless login_user # not logged in
+  def friend? (login_users)
+    return false unless login_users.class == Array # not logged in
+    return false unless login_users.size == 0 # not logged in
+    login_user = login_users.find { |user| user.provider == self.provider }
+    return false unless login_user
     return true if login_user.user_id == self.user_id
     f = get_friend(login_user)
     return false unless f
     app_friend = f.app_friend || f.api_friend
     (app_friend == 'Y')
-  end
+  end # friend?
 
   # friend status code. "this" is friend. login_user is login user.
   #   Y - friends
@@ -975,27 +978,37 @@ class User < ActiveRecord::Base
     # list of gifts with @user as giver or receiver + list of gifts med @user.friends as giver or receiver
     # where clause is used for non encrypted fields. find_all is used for encrypted fields
 
-    # find gifts
+    # find friends
     friends = app_friends.collect { |u| u.user_id_receiver }
     friends.push(user_id)
+    # find api gifts
     if include_delete_marked_gifts
       # called from util.new_messages_count - include delete marked gifts in response - will be ajax replaced with invisible rows
       deleted = ""
     else
       # called from users or gifts controller - to not return delete mark gifts in response
-      deleted = ' and deleted_at is null'
+      deleted = ' and "gifts".deleted_at is null'
     end
     if newest_gift_id == 0 and newest_status_update_at == 0
-      gs = Gift.where('(user_id_giver in (?) or user_id_receiver in (?))' + deleted,
-                      friends, friends).includes(:giver, :receiver)
+      ags = ApiGift.where('(user_id_giver in (?) or user_id_receiver in (?))' + deleted,
+                      friends, friends).includes(:gift, :giver, :receiver)
     else
-      gs = Gift.where('(id > ? or status_update_at > ?) and (user_id_giver in (?) or user_id_receiver in (?))' + deleted,
-                      newest_gift_id, newest_status_update_at, friends, friends).includes(:giver, :receiver)
+      ags = ApiGift.where('(id > ? or status_update_at > ?) and (user_id_giver in (?) or user_id_receiver in (?))' + deleted,
+                      newest_gift_id, newest_status_update_at, friends, friends).includes(:gift, :giver, :receiver)
     end
-    # sort
+    # find gifts
+    gs = ags.collect do |ag|
+      g = ag.gift
+      # copy attributes from ApiGift to placeholders in Gift
+      g.giver = ag.giver
+      g.receiver = ag.receiver
+      g.picture = ag.picture
+      g
+    end.uniq
+    # sort gifts
     gs = gs.sort do |a,b|
       if (a.received_at || a.created_at) ==  (b.received_at || b.created_at)
-        b.id <=> a.id
+        b.id <=> a2.id
       else
         (b.received_at || b.created_at) <=>  (a.received_at || a.created_at)
       end
@@ -1003,9 +1016,9 @@ class User < ActiveRecord::Base
     return gs if gs.length == 0
 
     # remove any hidden gifts (show=N) from gifts list
-    giftids = gs.collect { |g| g.gift_id }
+    giftids = ags.collect { |g| g.gift_id }
     hide_giftids = GiftLike.where("user_id = ? and gift_id in (?)", user_id, giftids).find_all { |gl| gl.show == 'N'}.collect { |gl| gl.gift_id }
-    return gs if hide_giftids.length == 0
+    return ags if hide_giftids.length == 0
 
     # remove hidden gifts
     gs = gs.find_all { |g| !hide_giftids.index(g.gift_id) }
@@ -1013,6 +1026,27 @@ class User < ActiveRecord::Base
     gs
 
   end # gifts
+
+
+  # as instance method gifts, but extended to be used for multiple provider logins
+  def self.gifts (login_users, newest_gift_id=0, newest_status_update_at=0, include_delete_marked_gifts=false)
+    return nil unless login_users.class == Array and login_users.length > 0
+    gs = []
+    login_users.each do |login_user|
+      gs = gs + login_user.gifts(newest_gift_id, newest_status_update_at, include_delete_marked_gifts)
+    end
+    return gs if login_users.size == 1
+    gs = gs.uniq
+    # sort gifts
+    gs = gs.sort do |a,b|
+      if (a.received_at || a.created_at) ==  (b.received_at || b.created_at)
+        b.id <=> a2.id
+      else
+        (b.received_at || b.created_at) <=>  (a.received_at || a.created_at)
+      end
+    end
+    gs
+  end # self.gifts
 
 
   # cache mutual friends lookup in @mutual_friends hash index by login_user.id

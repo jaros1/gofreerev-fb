@@ -300,3 +300,34 @@
       gift creator is logged with 2 api's facebook and linkedin
       gift should be visible for users facebook friends and linkedin connections
       some logged in with FB, some logged in with linked and some logged in with both
+
+  gifts:
+    t.string   "gift_id",                     limit: 20
+    t.text     "currency",                               null: false
+    t.text     "price"
+    t.text     "description",                            null: false
+    t.string   "temp_picture_filename",       limit: 20
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.integer  "status_update_at",                       null: false
+    t.text     "received_at"
+    t.datetime "deleted_at"
+
+  api_gifts:
+    t.string   "gift_id",                     limit: 20
+    t.string   "provider",                    limit: 20
+    t.string   "user_id_giver",               limit: 40
+    t.string   "user_id_receiver",            limit: 40
+    t.string   "picture",                     limit: 1
+    t.text     "api_gift_id"
+    t.text     "api_picture_url"
+    t.text     "api_picture_url_updated_at"
+    t.text     "api_picture_url_on_error_at"
+    t.string   "deleted_at_api",              limit: 1
+    t.text     "balance_giver"
+    t.text     "balance_receiver"
+    t.text     "balance_doc_giver"
+    t.text     "balance_doc_receiver"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+

@@ -34,6 +34,11 @@ class AuthController < ApplicationController
       else
         puts "Warning. No post login task was found for #{provider}. No #{provider} friend information will be downloaded"
       end
+      # currencies for logged in users must be identical
+      if user_ids.length > 1
+        currencies = User.where('user_id in (?)', user_ids).collect { |user2| user2.currency }.uniq
+        add_ajax_task 'post_login_fix_currency' if currencies.length > 1
+      end
     else
       # login failed
       key, options = user
