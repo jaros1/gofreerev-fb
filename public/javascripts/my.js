@@ -175,6 +175,7 @@ function csv_comment(giftid)
         return false;
     }
     // comment is ok - add post ajax handler and submit
+    clear_flash_and_ajax_errors() ;
     post_ajax_add_new_comment_handler(giftid) ;
     return true ;
 } // csv_comment
@@ -596,42 +597,47 @@ function autoresize_text_field(text) {
 // clear comment text area and reset frequency for new message check
 function post_ajax_add_new_comment_handler(giftid) {
     var id = '#gift-' + giftid + '-new-comment-form';
-    $(document).ready(function () {
-        $(id)
-            .bind("ajax:success", function (evt, data, status, xhr) {
-                var checkbox, gifts, trs, re, i, new_comment_tr, id2, add_new_comment_tr, tbody ;
-                // reset new comment line
-                document.getElementById('gift-' + giftid + '-comment-new-price').value = '' ;
-                document.getElementById('gift-' + giftid + '-comment-new-textarea').value = '';
-                document.getElementById('gift-' + giftid + '-comment-new-price-tr').style.display = 'none' ;
-                checkbox = document.getElementById('gift-' + giftid + '-new-deal-check-box') ;
-                if (checkbox) checkbox.checked = false ;
-                // find new comment table row last in gifts table
-                gifts = document.getElementById("gifts") ;
-                trs = gifts.rows ;
-                re = new RegExp("^gift-" + giftid + "-comment-[0-9]+$") ;
-                i = trs.length-1 ;
-                for (i=trs.length-1 ; ((i>= 0) && !new_comment_tr) ; i--) {
-                    id2 = trs[i].id ;
-                    if (id2 && id2.match(re)) new_comment_tr = trs[i] ;
-                } // for
-                if (!new_comment_tr) {
-                    alert("new comment row with format " + re + " was not found") ;
-                    return ;
-                }
-                add_new_comment_tr = document.getElementById("gift-" + giftid + "-comment-new") ;
-                if (!add_new_comment_tr) {
-                    alert("post_ajax_add_new_comment_handler: gift-" + giftid + "-comment-new was not found") ;
-                    return ;
-                }
-                // move new table row up before add new comment table row
-                new_comment_tr.parentNode.removeChild(new_comment_tr) ;
-                add_new_comment_tr.parentNode.insertBefore(new_comment_tr, add_new_comment_tr) ; // error: Node was not found
-                // save timestamp for last new ajax comment
-                last_user_ajax_comment_at = new Date() ;
-                restart_check_new_messages() ;
-            });
-
+    $(id).unbind("ajax:success");
+    $(id).bind("ajax:success", function (evt, data, status, xhr) {
+        var checkbox, gifts, trs, re, i, new_comment_tr, id2, add_new_comment_tr, tbody;
+        // reset new comment line
+        document.getElementById('gift-' + giftid + '-comment-new-price').value = '';
+        document.getElementById('gift-' + giftid + '-comment-new-textarea').value = '';
+        document.getElementById('gift-' + giftid + '-comment-new-price-tr').style.display = 'none';
+        checkbox = document.getElementById('gift-' + giftid + '-new-deal-check-box');
+        if (checkbox) checkbox.checked = false;
+        // find new comment table row last in gifts table
+        gifts = document.getElementById("gifts");
+        trs = gifts.rows;
+        re = new RegExp("^gift-" + giftid + "-comment-[0-9]+$");
+        i = trs.length - 1;
+        for (i = trs.length - 1; ((i >= 0) && !new_comment_tr); i--) {
+            id2 = trs[i].id;
+            if (id2 && id2.match(re)) new_comment_tr = trs[i];
+        } // for
+        if (!new_comment_tr) {
+            alert("new comment row with format " + re + " was not found");
+            return;
+        }
+        add_new_comment_tr = document.getElementById("gift-" + giftid + "-comment-new");
+        if (!add_new_comment_tr) {
+            alert("post_ajax_add_new_comment_handler: gift-" + giftid + "-comment-new was not found");
+            return;
+        }
+        // move new table row up before add new comment table row
+        new_comment_tr.parentNode.removeChild(new_comment_tr);
+        add_new_comment_tr.parentNode.insertBefore(new_comment_tr, add_new_comment_tr); // error: Node was not found
+        // save timestamp for last new ajax comment
+        last_user_ajax_comment_at = new Date();
+        restart_check_new_messages();
+    });
+    $(id).unbind("ajax:error");
+    $(id).bind("ajax:error", function(jqxhr, textStatus, errorThrown){
+        add_to_debug_log('new_comment.ajax.error');
+        add_to_debug_log('jqxhr = ' + jqxhr);
+        add_to_debug_log('textStatus = ' + textStatus);
+        add_to_debug_log('errorThrown = ' + errorThrown);
+        add_to_ajax_tasks_errors('new_comment.ajax.error: ' + errorThrown + '. check server log for more information.') ;
     });
 } // post_ajax_add_new_comment_handler
 
@@ -864,13 +870,11 @@ function clear_flash_and_ajax_errors() {
     // empty table with ajax task messages if any
     var ajax_tasks_errors = document.getElementById('ajax_tasks_errors') ;
     if (!ajax_tasks_errors) return ;
-    var now = (new Date()).getTime();
     var rows = ajax_tasks_errors.rows ;
     var row ;
     for (var i=rows.length-1 ; i>= 0 ; i--) {
         row = rows[i] ;
         row.parentNode.removeChild(row) ;
-
     } // for
 } // clear_flash_and_ajax_errors
 

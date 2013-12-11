@@ -15,6 +15,7 @@ class User < ActiveRecord::Base
   end
 =end
 
+
   # relations
   has_many :offers, :class_name => 'ApiGift', :primary_key => :user_id, :foreign_key => :user_id_giver, :dependent => :destroy
   has_many :wishes, :class_name => 'ApiGift', :primary_key => :user_id, :foreign_key => :user_id_receiver, :dependent => :destroy
@@ -487,6 +488,12 @@ class User < ActiveRecord::Base
   end
 
   # relation helpers
+  def offers
+    ApiGift.where('user_id_giver = ?', user_id).includes(:gift)
+  end
+  def wishes
+    ApiGift.where('user_id_receiver = ?', user_id).includes(:gift)
+  end
   def gifts_given
     offers.find_all { |g| (g.user_id_receiver and g.price and g.price != 0.00 and !g.deleted_at) }
   end # gifts_given
@@ -942,7 +949,7 @@ class User < ActiveRecord::Base
 
   # refresh user permisssion
   # called in error handling after picture upload with ApiPostNotFoundException error
-  # see gifts/create
+  # see api_gifts/create
   def get_api_permissions(access_token)
     raise NoApiAccessTokenException unless access_token
     api = Koala::Facebook::API.new(access_token)
@@ -973,7 +980,7 @@ class User < ActiveRecord::Base
   # find gifts user can see. user friends must be giver or receiver of gifts
   # params newest_gift_id and newest_status_update_at are normally 0 (for example when called from gifts/index)
   # but is newest gift_id and status_update_at when called from util/new_messages_count (that is - ajax - get only new, updated or deleted gifts)
-  def gifts (newest_gift_id=0, newest_status_update_at=0, include_delete_marked_gifts=false)
+  def api_gifts (newest_gift_id=0, newest_status_update_at=0, include_delete_marked_gifts=false)
     # initialize list of gifts
     # list of gifts with @user as giver or receiver + list of gifts med @user.friends as giver or receiver
     # where clause is used for non encrypted fields. find_all is used for encrypted fields
@@ -991,61 +998,82 @@ class User < ActiveRecord::Base
     end
     if newest_gift_id == 0 and newest_status_update_at == 0
       ags = ApiGift.where('(user_id_giver in (?) or user_id_receiver in (?))' + deleted,
-                      friends, friends).includes(:gift, :giver, :receiver)
+                      friends, friends).references(:api_gifts).includes(:gift, :giver, :receiver)
     else
       ags = ApiGift.where('(id > ? or status_update_at > ?) and (user_id_giver in (?) or user_id_receiver in (?))' + deleted,
-                      newest_gift_id, newest_status_update_at, friends, friends).includes(:gift, :giver, :receiver)
+                      newest_gift_id, newest_status_update_at, friends, friends).references(:gifts).includes(:gift, :giver, :receiver)
     end
-    # find gifts
-    gs = ags.collect do |ag|
-      g = ag.gift
-      # copy attributes from ApiGift to placeholders in Gift
-      g.giver = ag.giver
-      g.receiver = ag.receiver
-      g.picture = ag.picture
-      g
-    end.uniq
-    # sort gifts
-    gs = gs.sort do |a,b|
-      if (a.received_at || a.created_at) ==  (b.received_at || b.created_at)
-        b.id <=> a2.id
+    # sort api gifts
+    ags = ags.sort do |a,b|
+      if (a.gift.received_at || a.created_at) ==  (b.gift.received_at || b.created_at)
+        b.id <=> a.id
       else
-        (b.received_at || b.created_at) <=>  (a.received_at || a.created_at)
+        (b.gift.received_at || b.created_at) <=>  (a.gift.received_at || a.created_at)
       end
     end
-    return gs if gs.length == 0
+    return ags if ags.length == 0
 
-    # remove any hidden gifts (show=N) from gifts list
-    giftids = ags.collect { |g| g.gift_id }
+    # remove any hidden gifts (show=N) from api gifts list
+    giftids = ags.collect { |ag| ag.gift_id }
     hide_giftids = GiftLike.where("user_id = ? and gift_id in (?)", user_id, giftids).find_all { |gl| gl.show == 'N'}.collect { |gl| gl.gift_id }
     return ags if hide_giftids.length == 0
 
     # remove hidden gifts
-    gs = gs.find_all { |g| !hide_giftids.index(g.gift_id) }
+    ags = ags.find_all { |ag| !hide_giftids.index(ag.gift_id) }
 
-    gs
+    ags
 
-  end # gifts
+  end # api_gifts
 
 
   # as instance method gifts, but extended to be used for multiple provider logins
-  def self.gifts (login_users, newest_gift_id=0, newest_status_update_at=0, include_delete_marked_gifts=false)
+  def self.api_gifts (login_users, newest_gift_id=0, newest_status_update_at=0, include_delete_marked_gifts=false)
     return nil unless login_users.class == Array and login_users.length > 0
-    gs = []
+    ags = []
     login_users.each do |login_user|
-      gs = gs + login_user.gifts(newest_gift_id, newest_status_update_at, include_delete_marked_gifts)
+      ags = ags + login_user.api_gifts(newest_gift_id, newest_status_update_at, include_delete_marked_gifts)
     end
-    return gs if login_users.size == 1
-    gs = gs.uniq
-    # sort gifts
-    gs = gs.sort do |a,b|
-      if (a.received_at || a.created_at) ==  (b.received_at || b.created_at)
+    return sgs if login_users.size == 1
+
+    # multiple logins - find and remove any doublet gifts
+    # priority:
+    # 1) sort by gift id
+    # 2) closed gift before open gift
+    # 3) api gift with picture
+    # 4) api picture url with error and creator of gift in login_users - recheck picture with login user privs.
+    # 5) api gift without picture
+    ags = ags.sort do |a, b|
+      if a.gift.id != a.gift.id
+        a.gift.id <=> b.gift.id # 1) sort by gift id
+      elsif a.status_sort != b.status_sort
+        a.status_sort <=> b.status_sort # 2) closed gift before open gift
+      else
+        a.picture_sort(login_users) <=> b.picture_sort(login_users) # 3, 4 and 5
+      end
+    end # ags sort 1
+
+    # delete doublets
+    old_gift_id = -1
+    ags.delete_if do |ag|
+      if ag.gift.id == old_gift_id
+        true
+      else
+        old_gift_id = ag.gift.id
+        false
+      end
+    end # delete_if
+
+    # sort api gifts
+    ags = ags.sort do |a,b|
+      if (a.gift.received_at || a.created_at) ==  (b.gift.received_at || b.created_at)
         b.id <=> a2.id
       else
-        (b.received_at || b.created_at) <=>  (a.received_at || a.created_at)
+        (b.gift.received_at || b.created_at) <=>  (a.gift.received_at || a.created_at)
       end
-    end
-    gs
+    end # ags sort 2
+
+    # done
+    ags
   end # self.gifts
 
 

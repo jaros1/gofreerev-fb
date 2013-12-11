@@ -143,7 +143,7 @@ class GiftsController < ApplicationController
       newest_status_update_at = Sequence.status_update_at
       newest_gift = Gift.last
       # get list with gifts
-      gifts = User.gifts(@users)
+      gifts = User.api_gifts(@users)
     end
 
     # use this gifts select for ajax debug - returns all gifts
@@ -175,9 +175,7 @@ class GiftsController < ApplicationController
       format.js {}
     end
 
-  end
-
-  # index
+  end # index
 
   def show
     # check gift id
@@ -189,7 +187,7 @@ class GiftsController < ApplicationController
       return
     end
     # check access. giver and/or receiver of gift must be a app friend
-    if !gift.visible_for(@user)
+    if !gift.visible_for(@users)
       puts "no access"
       flash[:notice] = t ('.no_access')
       redirect_to :action => :index
@@ -206,18 +204,5 @@ class GiftsController < ApplicationController
   end
 
   # show
-
-  private
-  def format_ajax_response
-    respond_to do |format|
-      format.js {}
-    end
-    nil
-  end
-
-  def add_error_and_format_ajax_resp (error)
-    @errors << error
-    format_ajax_response
-  end
 
 end # GiftsController

@@ -2,6 +2,7 @@ class Gift < ActiveRecord::Base
 
   has_many :comments, :class_name => 'Comment', :primary_key => :gift_id, :foreign_key => :gift_id, :dependent => :destroy
   has_many :likes, :class_name => 'GiftLike', :primary_key => :gift_id, :foreign_key => :gift_id, :dependent => :destroy
+  has_many :api_gifts, :class_name => 'ApiGift', :primary_key => :gift_id, :foreign_key => :gift_id, :dependent => :destroy
 
   before_create :before_create
   before_update :before_update
@@ -10,7 +11,7 @@ class Gift < ActiveRecord::Base
   # encrypt_add_pre_and_postfix/encrypt_remove_pre_and_postfix added in setters/getters for better encryption
   # this is different encrypt for each attribute and each db row
   # _before_type_cast methods are used by form helpers and are redefined
-  crypt_keeper :description, :currency, :price, :received_at, :api_gift_id, :balance_giver, :balance_receiver, :api_picture_url, :api_picture_url_updated_at, :api_picture_url_on_error_at, :balance_doc_giver, :balance_doc_receiver, :encryptor => :aes, :key => ENCRYPT_KEYS[1]
+  crypt_keeper :description, :currency, :price, :received_at, :encryptor => :aes, :key => ENCRYPT_KEYS[1]
 
 
   ##############
@@ -142,28 +143,6 @@ class Gift < ActiveRecord::Base
 
   # 8) new_price_at - date - not encrypted - almost always = today
 
-  # 12) api_gift_id - String in model - encrypted text in db - api id for the gift / status update on the wall
-  attr_readonly :api_gift_id
-  def api_gift_id
-    return nil unless (extended_api_gift_id = read_attribute(:api_gift_id))
-    encrypt_remove_pre_and_postfix(extended_api_gift_id, 'api_gift_id', 24)
-  end
-  def api_gift_id=(new_api_gift_id)
-    return api_gift_id if self.api_gift_id
-    if new_api_gift_id
-      check_type('api_gift_id', new_api_gift_id, 'String')
-      write_attribute :api_gift_id, encrypt_add_pre_and_postfix(new_api_gift_id, 'api_gift_id', 24)
-    else
-      write_attribute :api_gift_id, nil
-    end
-  end # api_gift_id=
-  alias_method :api_gift_id_before_type_cast, :api_gift_id
-  def api_gift_id_was
-    return api_gift_id unless api_gift_id_changed?
-    return nil unless (extended_api_gift_id = attribute_was(:api_gift_id))
-    encrypt_remove_pre_and_postfix(extended_api_gift_id, 'api_gift_id', 24)
-  end # api_gift_id_was
-
   # 15) balance giver - Float in Model. Encrypted text in db.
   def balance_giver
     return nil unless (extended_balance_giver = read_attribute(:balance_giver))
@@ -203,80 +182,6 @@ class Gift < ActiveRecord::Base
     return nil unless (extended_balance_receiver = attribute_was(:balance_receiver))
     str_to_float_or_nil encrypt_remove_pre_and_postfix(extended_balance_receiver, 'balance_receiver', 26)
   end # balance_receiver_was
-
-  # 17) picture Y/N - String - not encrypted
-  validates_presence_of :picture
-  validates_inclusion_of :picture, :allow_blank => true, :in => %w(Y N) ;
-  validates_each :picture, :allow_blank => true do |record, attr, value|
-    record.errors.add attr, :invalid if value == 'Y' and record.api_picture_url.to_s == ""
-  end
-  
-  # 18) api_picture_url - String in Model - encrypted text in db
-  validates_presence_of :api_picture_url, :if => Proc.new { |rec| rec.picture == 'Y' }
-  def api_picture_url
-    # puts "gift.api_picture_url: api_picture_url = #{read_attribute(:api_picture_url)} (#{read_attribute(:api_picture_url).class.name})"
-    return nil unless (extended_api_picture_url = read_attribute(:api_picture_url))
-    encrypt_remove_pre_and_postfix(extended_api_picture_url, 'api_picture_url', 23)
-  end # api_picture_url
-  def api_picture_url=(new_api_picture_url)
-    # puts "gift.api_picture_url=: api_picture_url = #{new_api_picture_url} (#{new_api_picture_url.class.name})"
-    if new_api_picture_url
-      check_type('api_picture_url', new_api_picture_url, 'String')
-      write_attribute :api_picture_url, encrypt_add_pre_and_postfix(new_api_picture_url, 'api_picture_url', 23)
-    else
-      write_attribute :api_picture_url, nil
-    end
-  end # api_picture_url=
-  alias_method :api_picture_url_before_type_cast, :api_picture_url
-  def api_picture_url_was
-    return api_picture_url unless api_picture_url_changed?
-    return nil unless (extended_api_picture_url = attribute_was(:api_picture_url))
-    encrypt_remove_pre_and_postfix(extended_api_picture_url, 'api_picture_url', 23)
-  end # api_picture_url_was
-
-  # 19) api_picture_url_updated_at - timestamp in model - encrypted text 
-  def api_picture_url_updated_at
-    return nil unless (temp_extended_api_picture_url_updated_at = read_attribute(:api_picture_url_updated_at))
-    temp_api_picture_url_updated_at = encrypt_remove_pre_and_postfix(temp_extended_api_picture_url_updated_at, 'api_picture_url_updated_at', 21)
-    YAML::load(temp_api_picture_url_updated_at)
-  end # api_picture_url_updated_at
-  def api_picture_url_updated_at=(new_api_picture_url_updated_at)
-    if new_api_picture_url_updated_at
-      check_type('api_picture_url_updated_at', new_api_picture_url_updated_at, 'Time')
-      write_attribute :api_picture_url_updated_at, encrypt_add_pre_and_postfix(new_api_picture_url_updated_at.to_yaml, 'api_picture_url_updated_at', 21)
-    else
-      write_attribute :api_picture_url_updated_at, nil
-    end
-  end # api_picture_url_updated_at=
-  alias_method :api_picture_url_updated_at_before_type_cast, :api_picture_url_updated_at
-  def api_picture_url_updated_at_was
-    return api_picture_url_updated_at unless api_picture_url_updated_at_changed?
-    return nil unless (temp_extended_api_picture_url_updated_at = attribute_was(:api_picture_url_updated_at))
-    temp_api_picture_url_updated_at = encrypt_remove_pre_and_postfix(temp_extended_api_picture_url_updated_at, 'api_picture_url_updated_at', 21)
-    YAML::load(temp_api_picture_url_updated_at)
-  end # api_picture_url_updated_at_was
-
-  # 20) api_picture_url_on_error_at - timestamp in model - encrypted text (todo) in db
-  def api_picture_url_on_error_at
-    return nil unless (temp_extended_api_picture_url_on_error_at = read_attribute(:api_picture_url_on_error_at))
-    temp_api_picture_url_on_error_at = encrypt_remove_pre_and_postfix(temp_extended_api_picture_url_on_error_at, 'api_picture_url_on_error_at', 22)
-    YAML::load(temp_api_picture_url_on_error_at)
-  end # api_picture_url_on_error_at
-  def api_picture_url_on_error_at=(new_api_picture_url_on_error_at)
-    if new_api_picture_url_on_error_at
-      check_type('api_picture_url_on_error_at', new_api_picture_url_on_error_at, 'Time')
-      write_attribute :api_picture_url_on_error_at, encrypt_add_pre_and_postfix(new_api_picture_url_on_error_at.to_yaml, 'api_picture_url_on_error_at', 22)
-    else
-      write_attribute :api_picture_url_on_error_at, nil
-    end
-  end # api_picture_url_on_error_at=
-  alias_method :api_picture_url_on_error_at_before_type_cast, :api_picture_url_on_error_at
-  def api_picture_url_on_error_at_was
-    return api_picture_url_on_error_at unless api_picture_url_on_error_at_changed?
-    return nil unless (temp_extended_api_picture_url_on_error_at = attribute_was(:api_picture_url_on_error_at))
-    temp_api_picture_url_on_error_at = encrypt_remove_pre_and_postfix(temp_extended_api_picture_url_on_error_at, 'api_picture_url_on_error_at', 22)
-    YAML::load(temp_api_picture_url_on_error_at)
-  end # api_picture_url_on_error_at_was
 
   # 21) deleted_at_api. String Y/N.
 
@@ -329,6 +234,17 @@ class Gift < ActiveRecord::Base
   # 26) created_at - timestamp - not encrypted
 
   # 27) updated_at - timestamp - not encrypted
+
+  # 28) direction - giver, receiver or both - starts with giver or receiver and is changed to both when the deal is accepted
+  validates_presence_of :direction
+  validates_inclusion_of :direction, :allow_blank => true, :in => %w(giver receiver both)
+  validates_each :direction, :allow_blank => true do |record, attr, value|
+    if record.new_record? and value == 'both'
+      record.errors.add attr, :invalid
+    elsif record.received_at and value != 'both'
+      record.errors.add attr, :invalid
+    end
+  end
 
   # placeholders for giver and receiver from api gifts - from user.gifts methods
   attr_accessor :giver, :receiver, :picture
@@ -463,17 +379,28 @@ class Gift < ActiveRecord::Base
   end # get_api_picture_url
 
 
-  def visible_for (user)
-    if !user
-      access = nil
+  def visible_for (users)
+    if users.class != Array
+      return false
+    elsif users.length == 0
+      return false
     elsif deleted_at
-      access = nil
-    elsif [user_id_receiver, user_id_giver].index(user.user_id)
-      access = 'Y'
+      return false
     else
-      access = user.app_friends.find { |f| [user_id_receiver, user_id_giver].index(f.user_id_receiver) }
+      # check if user is giver or receiver
+      api_gifts.each do |api_gift|
+        user = users.find { |user2| user2.provider == api_gift.provider }
+        next unless user
+        return true if [api_gift.user_id_receiver, api_gift.user_id_giver].index(user.user_id)
+      end
+      # check if giver or receiver is a friend
+      api_gifts.each do |api_gift|
+        user = users.find { |user2| user2.provider == api_gift.provider }
+        next unless user
+        return true if user.app_friends.find { |f| [api_gift.user_id_receiver, api_gift.user_id_giver].index(f.user_id_receiver) }
+      end
     end
-    (access != nil)
+    false
   end # visible_for
 
 
@@ -512,7 +439,7 @@ class Gift < ActiveRecord::Base
 
 
   # psydo attributea
-  attr_accessor :file, :direction
+  attr_accessor :file
 
 
 

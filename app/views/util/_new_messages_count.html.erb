@@ -15,7 +15,7 @@
           <% puts "@gifts.size = #{@gifts.size}, gifts = " + @gifts.collect { |g| g.id }.join(', ') -%>
           <table>
             <tbody id="new_gifts_tbody">
-            <%= render :partial => 'gifts/gifts' %>
+            <%= render :partial => 'gifts/api_gifts' %>
             </tbody>
           </table>
       <% end -%>

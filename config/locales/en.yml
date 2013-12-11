@@ -104,6 +104,10 @@ en:
 
   # comments controller
   comments:
+     create:
+        invalid_request_no_comment_form: "Invalid request. System error. Comment form was not found."
+        invalid_request_unknown_gift: "Invalid request. System error. Unknown id for gift."
+        invalid_request_invalid_gift: "Invalid request. You have no access to this post. Please refresh web page."
      index:
         gift_id_is_missing: "Invalid request. Gift_id is missing"
         gift_was_not_found: "Invalid request. Gift was not found"
@@ -187,8 +191,8 @@ en:
         new_price_column_heading_html: "Value<br />today:"
         balance_column_heading_html: "Balance"
         link_and_text_column_heading_html: "Text:"
-     gifts:
-     gift:
+     api_gifts:
+     api_gift:
         # 4 translate keys to format gift text with link and text.
         gift_link_title: "Click on link for more information"
         gift_picture_title: "Click on picture for more information"

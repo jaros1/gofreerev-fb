@@ -262,10 +262,36 @@ class ApiGift < ActiveRecord::Base
 
   # 16) updated_at - timestamp - not encrypted
 
+  # helper methods
+  def gift_with_placeholders
+    g = gift
+    g.giver = self.giver
+    g.receiver = self.receiver
+    g.picture = self.picture
+    g
+  end # gift_with_placeholders
 
-
-
-
+  # 1 for closed api gift - 2 for open api gift - used in sort before removing api gift doubles. Used in User.gifts
+  def status_sort
+    user_id_giver and user_id_receiver ? 1 : 2
+  end
+  # 1 for picture with error url and creator in login_users
+  # 2 for picture
+  # 3 for without picture
+  def picture_sort (login_users)
+    return 3 unless picture == 'Y'
+    return 2 unless api_picture_url_on_error_at
+    # find picture with error marked url - could be missing privs or maybe picture has been deleted on wall
+    # sort picture created by login user before other pictures
+    if user_id_giver and user_id_receiver
+      comment = gift.comments.find { |c| c.accepted_yn == 'Y' }
+      creator = comment.user_id == user_id_giver ? user_id_receiver : user_id_giver
+    else
+      creator = user_id_giver || user_id_receiver
+    end
+    return 1 if login_users.find { |user| user.user_id == creator } # picture created by login user(s)
+    2
+  end
 
   # https://github.com/jmazzi/crypt_keeper gem encrypts all attributes and all rows in db with the same key
   # this extension to use different encryption for each attribute and each row

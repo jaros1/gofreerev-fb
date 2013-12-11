@@ -105,6 +105,10 @@ da:
 
   # comments controller
   comments:
+     create:
+        invalid_request_no_comment_form: "Ugyldigt kald. System fejl. Kommentar form ej fundet."
+        invalid_request_unknown_gift: "Ugyldigt kald. Systemfejl. Ukendt id for gave."
+        invalid_request_invalid_gift: "Ugyldigt kald. Du har ikke adgang til dette opslag. Genopfrisk venligst siden."
      index:
         gift_id_is_missing: "Ugyldigt kald. Opslagsnr. mangler"
         gift_was_not_found: "Ugyldigt kald. Opslag blev ikke fundet"
@@ -185,8 +189,8 @@ da:
         new_price_column_heading_html: "Værdi<nr>nu:"
         balance_column_heading_html: "Saldo:"
         link_and_text_column_heading_html: "Tekst:"
-     gifts:
-     gift:
+     api_gifts:
+     api_gift:
         # 4 translate keys to format gift text with link and text.
         direction_giver: "%{username} tilbyder"
         direction_receiver: "%{username} søger"

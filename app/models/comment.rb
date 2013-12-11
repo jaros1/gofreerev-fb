@@ -551,11 +551,11 @@ class Comment < ActiveRecord::Base
     end
     from_user = User.find_by_user_id(from_userid)
     case
-      when gift.giver && gift.receiver then
+      when gift.direction == 'both' then
         noti_key_2 = 3
-      when gift.giver then
+      when gift.direction == 'giver' then
         noti_key_2 = 1
-      when gift.receiver then
+      when gift.direction == 'receiver' then
         noti_key_2 = 2
       else
         raise "system error: gift without giver or receiver"

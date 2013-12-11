@@ -1,6 +1,6 @@
 <% puts "@errors.size = #{@errors.size}, @gifts.size = #{@gifts.size}" -%>
 <% if @errors.size > 0 -%>
-$('#ajax_tasks_errors').append('<%= j render("ajax_errors") %>');
+$('#ajax_tasks_errors').append('<%= j render("shared/ajax_errors") %>');
 ajax_flash_new_table_rows('ajax_tasks_errors',<%= @errors.size %>);
 <% end -%>
 <% if @gifts.size > 0 -%>

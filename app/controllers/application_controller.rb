@@ -272,4 +272,19 @@ class ApplicationController < ActionController::Base
   end
   helper_method "debug_ajax?"
 
+  # helper methods to return ajax (error) messages
+  private
+  def format_ajax_response
+    respond_to do |format|
+      format.js {}
+    end
+    nil
+  end
+  private
+  def add_error_and_format_ajax_resp (error)
+    @errors << error
+    format_ajax_response
+  end
+
+
 end # ApplicationController

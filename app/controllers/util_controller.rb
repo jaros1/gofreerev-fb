@@ -47,7 +47,7 @@ class UtilController < ApplicationController
                                                     "gifts.deleted_at is null and " +
                                                     "comments.status_update_at > ?)",
                                                 com_ids,
-                                                friends, friends, old_newest_status_update_at).references(:gifts)
+                                                friends, friends, old_newest_status_update_at).references(:api_gifts)
       if @comments.size > 0 and params[:request_fullpath] =~ /^\/gifts\/([0-9]+)$/
         # gifts/show/<nnn> page - return only ajax comments for actual gift (id=<nnn>)
         # puts "new comments before gift_id filter = #{@comments.length}"
@@ -82,7 +82,7 @@ class UtilController < ApplicationController
       # return new newest_gift_id value and any new gifts visible to user
       @new_newest_gift_id = new_newest_gift_id
       @new_newest_status_update_at = new_newest_status_update_at
-      @gifts = @user.gifts(old_newest_gift_id, old_newest_status_update_at, true) # include delete marked gifts
+      @gifts = @user.api_gifts(old_newest_gift_id, old_newest_status_update_at, true) # include delete marked gifts
       @gifts = nil if @gifts.length == 0
     end
     # remove any ajax comments for gifts in gifts array - that is gifts that will be ajax inserted or replaced in gifts html table
@@ -110,9 +110,9 @@ class UtilController < ApplicationController
   def missing_api_picture_urls
     render :layout => false
     return unless params.has_key?("gifts")
-    return unless params[:gifts].has_key?(:ids)
-    return if  params[:gifts][:ids] == ''
-    ids = params[:gifts][:ids].split(',')
+    return unless params[:api_gifts].has_key?(:ids)
+    return if  params[:api_gifts][:ids] == ''
+    ids = params[:api_gifts][:ids].split(',')
     puts "ids = #{ids}"
     gifts = Gift.where("id in (?)", ids)
 
@@ -180,7 +180,7 @@ class UtilController < ApplicationController
       puts "Gift with id #{gift_id} was not found - silently ignore ajax request"
       return
     end
-    if !gift.visible_for(@user)
+    if !gift.visible_for(@users)
       puts "#{@user.short_user_name} is not allowed to see gift id #{gift_id} - silently ignore ajax request"
       return
     end
@@ -209,7 +209,7 @@ class UtilController < ApplicationController
       puts "Gift with id #{gift_id} was not found - silently ignore ajax request"
       return
     end
-    if !gift.visible_for(@user)
+    if !gift.visible_for(@users)
       puts "#{@user.short_user_name} is not allowed to see gift id #{gift_id} - silently ignore ajax request"
       return
     end
@@ -233,7 +233,7 @@ class UtilController < ApplicationController
       puts "Gift with id #{gift_id} was not found - silently ignore ajax request"
       return
     end
-    if !gift.visible_for(@user)
+    if !gift.visible_for(@users)
       puts "#{@user.short_user_name} is not allowed to see gift id #{gift_id} - silently ignore ajax request"
       return
     end
@@ -262,7 +262,7 @@ class UtilController < ApplicationController
       puts "Gift with id #{gift_id} was not found - silently ignore ajax request"
       return
     end
-    if !gift.visible_for(@user)
+    if !gift.visible_for(@users)
       puts "#{@user.short_user_name} is not allowed to see gift id #{gift_id} - silently ignore ajax request"
       return
     end
@@ -289,7 +289,7 @@ class UtilController < ApplicationController
       puts "Gift with id #{gift_id} was not found - silently ignore ajax request"
       return
     end
-    if !gift.visible_for(@user)
+    if !gift.visible_for(@users)
       puts "#{@user.short_user_name} is not allowed to see gift id #{gift_id} - silently ignore ajax request"
       return
     end
@@ -345,7 +345,7 @@ class UtilController < ApplicationController
       return
     end
     gift = comment.gift
-    if !gift.visible_for(@user)
+    if !gift.visible_for(@users)
       puts "#{@user.short_user_name} is not allowed to see gift id #{gift_id} - silently ignore ajax request"
       return
     end
@@ -368,11 +368,11 @@ class UtilController < ApplicationController
       return
     end
     gift = comment.gift
-    if !gift.visible_for(@user)
+    if !gift.visible_for(@users)
       puts "#{@user.short_user_name} is not allowed to see gift id #{gift_id} - silently ignore ajax request"
       return
     end
-    if !comment.show_reject_new_deal_link?(@user)
+    if !comment.show_reject_new_deal_link?(@users)
       puts "reject link not active for comment with id #{comment_id} - silently ignore ajax request"
       return
     end
@@ -394,7 +394,7 @@ class UtilController < ApplicationController
       return
     end
     gift = comment.gift
-    if !gift.visible_for(@user)
+    if !gift.visible_for(@users)
       puts "#{@user.short_user_name} is not allowed to see gift id #{gift_id} - silently ignore ajax request"
       return
     end
@@ -591,11 +591,20 @@ class UtilController < ApplicationController
       # facebook friend list updated
 
       # 3) update balance
-      login_user.recalculate_balance if login_user.balance_at != Date.today
+      if login_user.user_combination
+        if User.where('user_combination = ? and (balance_at is null or balance_at <> ?)',
+                      login_user.user_combination, Date.today).first
+          # todo. User.recalculate_balance class method not implemented
+          User.recalculate_balance(login_user.user_combination)
+        end
+      else
+        login_user.recalculate_balance if login_user.balance_at != Date.today
+      end
 
       # ok
       nil
     rescue Exception => e
+      puts "post_login_facebook:"
       puts "Exception: #{e.message.to_s}"
       puts "Backtrace: " + e.backtrace.join("\n")
       raise
@@ -857,6 +866,10 @@ class UtilController < ApplicationController
   def post_login_fix_currency
     begin
       raise "not implemented"
+
+      # ok
+      nil
+
     rescue Exception => e
       puts "post_login_fix_currency:"
       puts "Exception: #{e.message.to_s} (#{e.class})"

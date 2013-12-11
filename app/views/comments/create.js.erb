@@ -1,7 +1,7 @@
-<% if @comment.errors.count == 0 %>
-
-<%# post processing in my.js / add_post_ajax_comment_handler - move new comment up before add new comment table row %>
-
+<% if @comment and @comment.errors.count == 0 %>
 $('#gifts').append('<%= j render("comment", :comment => @comment) %>');
-
 <% end %>
+<% if @errors.size > 0 -%>
+$('#ajax_tasks_errors').append('<%= j render("shared/ajax_errors") %>');
+ajax_flash_new_table_rows('ajax_tasks_errors',<%= @errors.size %>);
+<% end -%>

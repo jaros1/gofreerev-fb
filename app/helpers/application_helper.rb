@@ -161,14 +161,18 @@ module ApplicationHelper
   end # my_sanitize_hash
 
 
-  def format_direction (gift)
-    if !gift.user_id_receiver
-      t '.direction_giver', :username => gift.giver.short_or_full_user_name(@user)
-    elsif !gift.user_id_giver
-      t '.direction_receiver', :username => gift.receiver.short_or_full_user_name(@user)
-    else
-      t '.direction_giver_and_receiver', :givername => gift.giver.short_user_name, :receivername => gift.receiver.short_user_name
-    end
+  def format_direction (api_gift)
+    gift = api_gift.gift
+    case gift.direction
+      when 'giver'
+        t '.direction_giver', :username => api_gift.giver.short_or_full_user_name(@user)
+      when 'receiver'
+        t '.direction_receiver', :username => api_gift.receiver.short_or_full_user_name(@user)
+      when 'both'
+        t '.direction_giver_and_receiver', :givername => api_gift.giver.short_user_name, :receivername => api_gift.receiver.short_user_name
+      else
+        raise "invalid direction for gift #{gift.id}"
+    end # case
   end # format_direction
 
   def title
@@ -179,10 +183,11 @@ module ApplicationHelper
   end # title
 
 
-  def format_gift_param (gift)
+  def format_gift_param (api_gift)
+    gift = api_gift.gift
     optional_price = gift.price ? "#{t('.optional_price', :price => format_price(gift.price))} #{gift.currency}" : nil
     { :date           => format_date(gift.received_at || gift.created_at),
-      :direction      => format_direction(gift),
+      :direction      => format_direction(api_gift),
       :optional_price => optional_price,
       :text           =>  my_sanitize(gift.description)
     }

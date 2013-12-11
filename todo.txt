@@ -86,7 +86,7 @@
     How to handle picture upload, missing api privs. show/hide link i gifts/index page?
 
 26) mark new comments with color in inbox.
-
+   app/models/comment.rb:554
 27) Model changes - user/comment - new model/table -
     like/unlike comment
 
@@ -174,7 +174,7 @@
     - linked:
     - twitter:
 
-53) allow .5 timezones. Timezone new is a Fixnum. "-1" for denmark. "-5.5" for india.
+53) alloapp/models/comment.rb:554w .5 timezones. Timezone new is a Fixnum. "-1" for denmark. "-5.5" for india.
 
 56) md5 alternatives?
 
@@ -248,6 +248,7 @@
      It looks like the page is handing while waiting for cleanup in ajax task queue
      Added a delay for 1 second in page footer before requesting execution of ajax tasks
      still a problem with first request every day (ajax task cleanup + fetch currencies)
+     maybe problem with development setup. Only one server process
 
  83) <body onload="xx"> is being used in application layout to set onfocus event to get list of currencies in page header
      http://api.jquery.com/ready/
@@ -296,38 +297,33 @@
       maybe execute ajax tasks one by one to give a more responsive gift index page
       maybe use a flag or special priority for this effect in ajax task queue
 
- 102) gift and api.
-      gift creator is logged with 2 api's facebook and linkedin
-      gift should be visible for users facebook friends and linkedin connections
-      some logged in with FB, some logged in with linked and some logged in with both
+ 102) add ajax:error for comment post. Should write an error message in ajax_tasks_errors table.
 
-  gifts:
-    t.string   "gift_id",                     limit: 20
-    t.text     "currency",                               null: false
-    t.text     "price"
-    t.text     "description",                            null: false
-    t.string   "temp_picture_filename",       limit: 20
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.integer  "status_update_at",                       null: false
-    t.text     "received_at"
-    t.datetime "deleted_at"
+ 103) how to accept deal with multiple provider logins?
+      gift created be user logged with 3 api providers
+      gift accepted with user logged in with 2 api providers.
+      how to set user_id_giver / user_id_receiver for the last api_gift?
 
-  api_gifts:
-    t.string   "gift_id",                     limit: 20
-    t.string   "provider",                    limit: 20
-    t.string   "user_id_giver",               limit: 40
-    t.string   "user_id_receiver",            limit: 40
-    t.string   "picture",                     limit: 1
-    t.text     "api_gift_id"
-    t.text     "api_picture_url"
-    t.text     "api_picture_url_updated_at"
-    t.text     "api_picture_url_on_error_at"
-    t.string   "deleted_at_api",              limit: 1
-    t.text     "balance_giver"
-    t.text     "balance_receiver"
-    t.text     "balance_doc_giver"
-    t.text     "balance_doc_receiver"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+ 104) comments. should comments be visible across providers?
+      this is comments or api_comments?
+      comments would be best if comments can be seen across login providers
 
+ 105) jquery: add unbind before bind to prevent doublet ajax event handlers
+
+ 106) check modernizr.js - where is it used - where is it loaded
+
+ 107) check rails.validations.js - where is it used - where is it loaded
+
+ 108) util.missing_api_picture_urls
+      change from gift ids to api gift ids
+
+ 109) missing_api_picture_urls
+      change javascript that catches pictures with invalid urls - should report api_gift.id
+      change form that sends array with invalid picture ids to util.missing_api_picture_urls
+
+ 110) change get_missing_api_picture_urls method in application controller
+      facebook user id in hardcoded
+
+ 111) check direction. added as field to gifts. check direction in source
+
+ 112) delete api_gifts and gifts with temp picture urls

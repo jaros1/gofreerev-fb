@@ -6,16 +6,18 @@ class CommentsController < ApplicationController
   # POST /comments.json
   # Parameters: {"utf8"=>"✓", "comment"=>{"gift_id"=>"j0N0uppxbj1nmDfsWBbk", "new_deal_yn"=>"Y", "price"=>"1", "comment"=>"25"}, "commit"=>"Gem"}
   def create
+    # start with empty ajax response
+    @errors = []
+    @comment = nil
+    return add_error_and_format_ajax_resp(t '.invalid_request_no_comment_form') unless params.has_key?(:comment)
     gift = Gift.find_by_gift_id(params[:comment][:gift_id])
-    puts "invalid request - gift with id #{params[:comment][:gift_id]} was not found" if !gift
-    if gift and !gift.visible_for(@user)
-      puts "invalid request - user #{@user.user_id} #{@user.user_name} can not comment gift id #{gift.id}"
-      gift = nil
-    end
-    # todo: error handling - return row with error message - same format as after success?
+    return add_error_and_format_ajax_resp(t '.invalid_request_unknown_gift') unless gift
+    return add_error_and_format_ajax_resp(t '.invalid_request_invalid_gift') unless gift.visible_for(@users)
+    # get user from @users. Must be giver, receiver or friend of giver or receiver.
+    user = @users.find { |user2| gift.visible_for([user2]) }
     @comment = Comment.new
     @comment.gift_id = gift.gift_id if gift
-    @comment.user_id = @user.user_id
+    @comment.user_id = user.user_id
     @comment.comment = params[:comment][:comment].to_s.force_encoding('UTF-8')
     if params[:comment][:new_deal_yn] == 'Y'
       @comment.new_deal_yn = params[:comment][:new_deal_yn]
