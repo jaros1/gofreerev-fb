@@ -924,7 +924,7 @@ class UtilController < ApplicationController
         # puts "access_token = #{session[:access_token]}"
         api = Koala::Facebook::API.new(token)
         begin
-          if gift.picture == 'Y'
+          if api_gift.picture == 'Y'
             # status post with picture
             filetype = gift.temp_picture_path.split('.').last
             content_type = "image/#{filetype}"
@@ -1010,7 +1010,7 @@ class UtilController < ApplicationController
         return ".gift_posted_#{gift_posted_on_wall_api_wall}_html", options
       else
         # get url for picture
-        if gift.picture == 'Y'
+        if api_gift.picture == 'Y'
           # todo: fb pictures too small - it should be possible to get url for a larger picture from fb
           # get temporary picture url - may change - url change is catched in onerror in img in html page
           # api_request = "#{gift.api_gift_id}?fields=full_picture"
@@ -1036,7 +1036,9 @@ class UtilController < ApplicationController
             # there must be more to it - changed visibility to only me and did get picture url
             # changed visibility to friends and did get the picture url
             # just display a warning and continue. Request read_stream permission from user if read_stream priv. is missing
-            if login_user.read_gifts_allowed?
+                       # todo: add ajax show/inject link to grant read_stream permission in gifts/index page
+              flash[:read_stream] = 'Missing read_stream permission' # display link to grant read_stream permission in gifts/index page
+   if login_user.read_gifts_allowed?
               # check if user has removed read stream priv.
               login_user.get_api_permissions(session[:access_token])
             end
@@ -1045,9 +1047,9 @@ class UtilController < ApplicationController
               return ['.picture_upload_unknown_problem', :appname => APP_NAME, :apiname => login_user.api_name_without_brackets]
             else
               # flash with request for read stream privs
-              return ['.picture_upload_missing_permission', :appname => APP_NAME, :apiname => login_user.api_name_without_brackets]
-              # todo: add ajax show/inject link to grant read_stream permission in gifts/index page
+              # todo: add ajax show/inject link to grant read_stream permission in gifts/index page. see gift_posted_3_html
               flash[:read_stream] = 'Missing read_stream permission' # display link to grant read_stream permission in gifts/index page
+              return ['.picture_upload_missing_permission', :appname => APP_NAME, :apiname => login_user.api_name_without_brackets]
             end
             api_gift.picture = 'N'
             api_gift.save!
@@ -1108,16 +1110,12 @@ class UtilController < ApplicationController
   # delete local picture file that was used when posting picture in api wall(s) - see post_on_facebook etc.
   def delete_local_picture (id)
     begin
-      # get login user and api access token
-      provider = "facebook"
-      login_user, token, key, options = get_login_user_and_token(provider)
-      return [key, options] if key
+      puts "ajax task: delete_local_picture"
 
       # get and check gift
       gift = Gift.find_by_id(id)
-      return ['.post_on_api_unknown_gift_id', { :provider => provider, :id => id }] unless gift
-      return ['.post_on_api_invalid_gift_id', { :provider => provider, :id => gift.id }] unless [gift.user_id_giver, gift.user_id_receiver].index(login_user.user_id)
-      return ['.post_on_api_old_gift', { :provider => provider, :id => gift.id }] unless gift.created_at > 5.minute.ago
+      return ['.post_on_api_unknown_gift_id', { :provider => 'API', :id => id }] unless gift
+      return ['.post_on_api_old_gift', { :provider => 'API', :id => gift.id }] unless gift.created_at > 5.minute.ago
 
       # check local picture file
       return ['.no_local_picture', { :provider => provider, :id => id }] unless gift.temp_picture_filename
@@ -1127,6 +1125,17 @@ class UtilController < ApplicationController
       File.delete(gift.temp_picture_path)
       gift.temp_picture_filename = nil
       gift.save!
+
+      # check picture setting after posting on api walls
+      gift.api_gifts.each do |api_gift|
+        if api_gift.api_picture_url =~ /^temp/
+          # temp url - picture was not uploaded to api wall
+          api_gift.api_picture_url = nil
+          api_gift.picture = 'N'
+          api_gift.save!
+        end
+      end
+
       nil
 
     rescue Exception => e

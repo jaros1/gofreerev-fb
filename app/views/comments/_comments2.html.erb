@@ -8,7 +8,7 @@
   <td colspan="2">
     <%= link_to_gift_like_unlike(@gift) %>
     - <%= link_to_gift_follow_unfollow(@gift) %>
-    <% if [@gift.user_id_giver, @gift.user_id_receiver].index(@user.user_id) -%>
+    <% if @gift.show_delete_gift_link?(@users) -%>
         - <%= link_to_delete_gift(@gift) %>
     <% else -%>
         - <%= link_to_gift_hide(@gift) %>

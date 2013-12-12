@@ -16,12 +16,7 @@
       <%= t '.not_logged_in_text' %>
     </p>
 <% else -%>
-    <% if !@user.post_gift_allowed? -%>
-        <p title="<%= t '.post_gift_not_allowed_title', :appname => APP_NAME, :apiname => @user.api_name_without_brackets %>">
-          <%= t '.post_gift_not_allowed_text', :appname => APP_NAME, :apiname => @user.api_name_without_brackets %><br/>
-          <%= link_to t('.request_post_gift_priv_link_text', :appname => APP_NAME), "javascript: {top.location.href='#{auth_post_gift_url}'}" %>
-        </p>
-    <% elsif flash[:read_stream] -%>
+    <% if flash[:read_stream] -%>
         <p title="<%= t '.read_stream_not_allowed_title', :appname => APP_NAME, :apiname => @user.api_name_without_brackets %>">
           <%= t '.read_stream_not_allowed_text', :appname => APP_NAME, :apiname => @user.api_name_without_brackets %>
           <br/>

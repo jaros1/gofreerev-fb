@@ -247,7 +247,7 @@ class Gift < ActiveRecord::Base
   end
 
   # placeholders for giver and receiver from api gifts - from user.gifts methods
-  attr_accessor :giver, :receiver, :picture
+  # attr_accessor :giver, :receiver, :picture
 
 
   #
@@ -399,6 +399,16 @@ class Gift < ActiveRecord::Base
     raise "gift #{id} without api gifts for login user(s)" unless count > 0
     true
   end # show_new_deal_checkbox?
+
+  def show_delete_gift_link? (users)
+    return false unless users.class == Array and users.length > 0
+    api_gifts.each do |api_gift|
+      user = users.find { |user2| user2.provider == api_gift.provider }
+      next unless user
+      return true if [api_gift.user_id_giver, api_gift.user_id_receiver].index(user.user_id)
+    end
+    return false
+  end # show_delete_gift_link?
 
 
   def temp_picture_url

@@ -370,4 +370,17 @@
       that is - user don't want to see message any more
       add post on wall Y/N field to user
 
+ 125) check auth_read_stream_url
+      old http gifts/create used flash[:read_stream] to signal to gifts/index page to show link
+
+ 126) new gift form. disable file upload !@user.post_gift_allowed?
+      must check @users. file upload ok if post allowed for one api.
+      add special mouse over text if file upload is disabled
+      or add css så what it is clear that bottom is disabled
+
+ 127) follow/unfollow gift:
+      user logged in as provider 1 selects to follow gift
+      user logged in as provider 2 selects to unfollow gift
+      show unfollow link when user is logging in as provider 1 and 2?
+
 

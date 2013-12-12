@@ -35,13 +35,7 @@ class GiftsController < ApplicationController
       @errors << t('.file_is_too_big', :maxsize => '2 Mb')
       picture = false
     end
-    if picture
-      gift.picture = 'Y'
-      gift.temp_picture_filename = "#{String.generate_random_string(20)}.#{filetype}".last(20)
-      gift.api_picture_url = gift.temp_picture_url
-    else
-      gift.picture = 'N'
-    end
+    gift.temp_picture_filename = "#{String.generate_random_string(20)}.#{filetype}".last(20) if picture
     gift.valid?
     gift.errors.add :price, :invalid if invalid_price?(params[:gift][:price]) # price= accepts only float and model can not return invalid price error
     return add_error_and_format_ajax_resp(gift.errors.full_messages.join(', ')) if gift.errors.size > 0
@@ -54,7 +48,8 @@ class GiftsController < ApplicationController
       api_gift.provider = user.provider
       api_gift.user_id_giver = gift.direction == 'giver' ? user.user_id : nil
       api_gift.user_id_receiver = gift.direction == 'receiver' ? user.user_id : nil
-      api_gift.picture = 'N' # can be changed if gift if posted in api wall with picture in post_on_<provider> ajax task
+      api_gift.picture = picture ? 'Y' : 'N'
+      api_gift.api_picture_url = gift.temp_picture_url if picture
       gift.api_gifts << api_gift
     end
     gift.save!

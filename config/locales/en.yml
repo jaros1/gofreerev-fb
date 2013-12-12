@@ -109,8 +109,10 @@ en:
         google_other_errors: "Error when fetching friend list from Google+ API. %{error}"
         linkedin_access_denied: "Error when fetching connections from LinkedIn API. Access to connections denied. Check list: 1) scope r_network mangler maybe is missing in provider setup for LinkedIn"
         post_on_api_unknown_gift_id: "Unknown id %{id} when posting on %{provider} wall"
-        post_on_api_invalid_gift_id: "Invalid id %{id} when posting on %{provider} wall"
+        post_on_api_invalid_gift_id: "Invalid id %{id} when posting on %{provider} wall (1)"
         post_on_api_old_gift: "Old id %{id} when posting on %{provider} wall"
+        no_local_picture: "Invalid id %{id} when posting on %{provider} wall (2)"
+        local_picture_not_found: "Invalid id %{id} when posting on %{provider} wall (3)"
         gift_posted_1_html: "Gift posted in here but not on your %{apiname} wall (%{error})" # unhandled error message
         gift_posted_2_html: "Gift posted in here and on your %{apiname} wall"
         gift_posted_3_html: "Gift posted in here but not on your %{apiname} wall" # missing privileges

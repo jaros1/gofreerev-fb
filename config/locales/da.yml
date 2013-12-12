@@ -112,8 +112,10 @@ da:
         google_other_errors: "Fejl ved hentning af venneliste fra Google+ API. %{error}"
         linkedin_access_denied: "Fejl ved hentning af connections fra LinkedIn API. Access to connections denied. Tjek liste ved API opsætning. 1) scope r_network mangler i provider opsætning for linkedin"
         post_on_api_unknown_gift_id: "Ukendt id %{id} ved opslag på %{provider} væg"
-        post_on_api_invalid_gift_id: "Ugyldigt id %{id} ved opslag på %{provider} væg"
+        post_on_api_invalid_gift_id: "Ugyldigt id %{id} ved opslag på %{provider} væg (1)"
         post_on_api_old_gift: "Gammelt id %{id} ved opslag på %{provider} væg"
+        no_local_picture: "Ugyldigt id %{id} ved opslag på %{provider} væg (2)"
+        local_picture_not_found: "Ugyldigt id %{id} ved opslag på %{provider} væg (3)"
         gift_posted_1_html: "Opslag opretter herinde, men ikke på din %{apiname} væg (%{error})" # unhandled error message
         gift_posted_2_html: "Opslag opretter herinde og på din %{apiname} væg"
         gift_posted_3_html: "Opslag opretter herinde, men ikke på din %{apiname} væg. Gofreerev mangler adgang til at skrive på din facebook væg. <a href=\"javascript: {top.location.href='%{url}'}\">Giv Gofreerev lov til at skrive på min væg!</a>" # missing privileges

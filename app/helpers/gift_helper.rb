@@ -55,17 +55,34 @@ module GiftHelper
   # show follow/do not follow link for gift under gift text and picture
   # default is to follow gift as giver, receiver or commenter
   def link_to_gift_follow_unfollow (gift)
-    # check like status
-    gl = GiftLike.where("user_id = ? and gift_id = ?", @user.user_id, gift.gift_id).first
-    follow = gl.follow if gl
-    if !follow
-      if [gift.user_id_giver, gift.user_id_receiver].index(@user.user_id)
-        follow = 'Y'
-      else
-        c = Comment.where("user_id = ? and gift_id = ?", @user.user_id, gift.gift_id).first
-        follow = c ? 'Y' : 'N'
-      end
+    # 1 - check of user has selected to follow gift
+    return nil unless @users.class == Array and @users.size > 0
+    userids = @users.collect { |user| user.user_id }
+    if GiftLike.where('gift_id = ? and user_id in (?) and follow = ?', gift.gift_id, userids, 'Y').count > 0
+      # user has selected to follow this gift
+      follow = 'Y'
+    elsif GiftLike.where('gift_id = ? and user_id in (?) and follow = ?', gift.gift_id, userids, 'N').count > 0
+      # user has selected not to follow this gift
+      follow = 'N'
+    elsif gift.api_gifts.find { |api_gift| userids.index(api_gift.user_id_giver) or userids.index(api_gift.user_id_receiver)}
+      # user is giver or receiver of this gift
+      follow = 'Y'
+    elsif gift.comments.find { |comment| userids.index(comment.user_id )}
+      follow = 'Y'
+    else
+      follow = 'N'
     end
+    ## check like status
+    #gl = GiftLike.where("user_id = ? and gift_id = ?", @user.user_id, gift.gift_id).first
+    #follow = gl.follow if gl
+    #if !follow
+    #  if [gift.user_id_giver, gift.user_id_receiver].index(@user.user_id)
+    #    follow = 'Y'
+    #  else
+    #    c = Comment.where("user_id = ? and gift_id = ?", @user.user_id, gift.gift_id).first
+    #    follow = c ? 'Y' : 'N'
+    #  end
+    #end
     if follow == 'N'
       link_to t('.follow_gift'), util_follow_gift_path(:gift_id => gift.id), :id => "gift-#{gift.id}-follow-unfollow-link", :remote => true, :method => :post
     else
@@ -85,7 +102,6 @@ module GiftHelper
   # - http://stackoverflow.com/questions/7435859/custom-rails-confirm-box-with-rails-confirm-override
   # - http://rors.org/demos/custom-confirm-in-rails
   def link_to_delete_gift (gift)
-    return nil unless [gift.user_id_giver, gift.user_id_receiver].index(@user.user_id)
     # confirm delete texts
     # - confirm_delete_gift_1 if delete gift effects user balance
     # - confirm_delete_gift_2 if delete gift does not effect user balance
