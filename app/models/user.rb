@@ -452,10 +452,18 @@ class User < ActiveRecord::Base
       when facebook?
          permissions['status_update'] == 1
       else
-        puts "post_on_wall? not implemented for #{user_id.first(2)} users"
-        false
-    end
+        raise "post_on_wall? not implemented for #{provider}"
+    end # case
   end # post_gift_allowed?
+
+  def self.post_gift_allowed? (users)
+    return false unless users.class == Array and users.length > 0
+    users.each do |user|
+      next unless API_POST_PERMITTED[user.provider]
+      return true if user.post_gift_allowed?
+    end
+    false
+  end # self.post_gift_allowed? (users)
 
   # "permissions"=>{"data"=>[{"installed"=>1, "basic_info"=>1, "read_stream"=>1, "status_update"=>1, "photo_upload"=>1, "video_upload"=>1, "create_note"=>1, "share_item"=>1, "publish_stream"=>1, "publish_actions"=>1, "bookmarked"=>1}
   def read_gifts_allowed?

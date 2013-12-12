@@ -1036,11 +1036,11 @@ class UtilController < ApplicationController
             # there must be more to it - changed visibility to only me and did get picture url
             # changed visibility to friends and did get the picture url
             # just display a warning and continue. Request read_stream permission from user if read_stream priv. is missing
-                       # todo: add ajax show/inject link to grant read_stream permission in gifts/index page
-              flash[:read_stream] = 'Missing read_stream permission' # display link to grant read_stream permission in gifts/index page
-   if login_user.read_gifts_allowed?
+            # todo: add ajax show/inject link to grant read_stream permission in gifts/index page
+            flash[:read_stream] = 'Missing read_stream permission' # display link to grant read_stream permission in gifts/index page
+            if login_user.read_gifts_allowed?
               # check if user has removed read stream priv.
-              login_user.get_api_permissions(session[:access_token])
+              login_user.get_api_permissions(token)
             end
             if login_user.read_gifts_allowed?
               # error - this should not happen.

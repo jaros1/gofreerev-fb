@@ -118,9 +118,11 @@ da:
         local_picture_not_found: "Ugyldigt id %{id} ved opslag på %{provider} væg (3)"
         gift_posted_1_html: "Opslag opretter herinde, men ikke på din %{apiname} væg (%{error})" # unhandled error message
         gift_posted_2_html: "Opslag opretter herinde og på din %{apiname} væg"
-        gift_posted_3_html: "Opslag opretter herinde, men ikke på din %{apiname} væg. Gofreerev mangler adgang til at skrive på din facebook væg. <a href=\"javascript: {top.location.href='%{url}'}\">Giv Gofreerev lov til at skrive på min væg!</a>" # missing privileges
+        gift_posted_3_html: "Opslag opretter herinde, men ikke på din %{apiname} væg. Gofreerev mangler adgang til at skrive på din facebook væg. <a href=\"javascript: {top.location.href='%{url}'}\">Giv %{apiname} lov til at skrive på min væg!</a>" # missing privileges
         gift_posted_4_html: "Opslag opretter herinde, men ikke på din %{apiname} væg. Opslag fandes allerede på %{apiname} væg"
         gift_posted_5_html: "Opslag opretter herinde, men ikke på din %{apiname} væg. Opslag på %{apiname} væg er endnu ikke implementeret"
+        picture_upload_unknown_problem: "Opslag opretter herinde og på din %{apiname} væg. Foto blev uploaded til din %{apiname} væg, men %{appname} mangler rettigheder til at se billedet på din %{apiname} væg og kan derfor ikke vise foto herinde. Måske du har ændret rettighedsindstillinger for %{appname}."
+        picture_upload_missing_permission: "Opslag opretter herinde og på din %{apiname} væg. Foto blev uploaded til din %{apiname} væg, men %{appname} mangler rettigheder til at se billedet på din %{apiname} og kan derfor ikke vise foto herinde. Du kan løse dette problem ved enten at ændre synlighed for %{appname} opslag til offentlig eller ved at give %{appname} lov til at læse opslag på din %{apiname} væg."
 
   # auth controller
   auth:
@@ -175,8 +177,6 @@ da:
         file_upload_not_allowed: "Fil upload ej tilladt. %{appname} mangler adgang til at skrive på din %{apiname} væg."
         unsupported_filetype: "Usupporteret filtype %{filetype} i fil upload. Supporterede filtyper er jpg, gif, png og bmp."
         file_is_too_big: "Fil er for stor. Højst tilladte størrelse på billede er %{maxsize}."
-        picture_upload_unknown_problem: "Opslag opretter herinde og på din %{apiname} væg. Foto blev uploaded til din %{apiname} væg, men %{appname} mangler rettigheder til at se billedet på din %{apiname} væg og kan derfor ikke vise foto herinde. Måske du har ændret rettighedsindstillinger for %{appname}."
-        picture_upload_missing_permission: "Opslag opretter herinde og på din %{apiname} væg. Foto blev uploaded til din %{apiname} væg, men %{appname} mangler rettigheder til at se billedet på din %{apiname} og kan derfor ikke vise foto herinde. Du kan løse dette problem ved enten at ændre synlighed for %{appname} opslag til offentlig eller ved at give %{appname} lov til at læse opslag på din %{apiname} væg."
         # gift_not_posted_<n> is used if gift was not saved in gifts table - should never happen
         gift_not_posted_1: "Opslag blev ikke oprettet på din %{apiname} væg (%{error})" # unhandled error message
         gift_not_posted_2: "Opslag blev oprettet på din %{apiname} væg"

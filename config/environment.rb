@@ -80,3 +80,17 @@ end
 
 # Initialize the Rails application.
 GofreerevFb::Application.initialize!
+
+# Initialize API_POST_PERMITTED hash - default true - false for google+
+api_post_permitted = {}
+OmniAuth::Builder.providers.each do |provider|
+  api_post_permitted[provider] = provider =~ /^google/ ? false : true
+end
+API_POST_PERMITTED = api_post_permitted
+
+# Initialize API_MUTUAL_FRIENDS hash - default true - false for google+ and twitter
+api_mutual_friends = {}
+OmniAuth::Builder.providers.each do |provider|
+  api_mutual_friends[provider] = (provider =~ /^google/ or %w(twitter).index(provider)) ? false : true
+end
+API_MUTUAL_FRIENDS = api_mutual_friends
