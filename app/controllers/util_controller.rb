@@ -471,9 +471,11 @@ class UtilController < ApplicationController
       # check response from ajax task. Must be a valid input to translate
       begin
         key, options = res
+        key2 = key
+        key2 = 'shared.translate_ajax_errors' + key if key2.to_s.first(1) == '.'
         options = {} unless options
         options[:raise] = I18n::MissingTranslationData
-        t key, options
+        t key2, options
       rescue I18n::MissingTranslationData => e
         res = [ '.ajax_task_missing_translate_key', { :key => key, :task => at.task, :response => res, :exception => e.message.to_s } ]
       rescue Exception => e
@@ -898,13 +900,12 @@ class UtilController < ApplicationController
       login_user, token, key, options = get_login_user_and_token(provider)
       return [key, options] if key
 
-      # debug - return link in ajax tasks errors table
-      return ['.post_on_facebook_debug_html', {}]
-
       # get and check gift
       gift = Gift.find_by_id(id)
       return ['.post_on_api_unknown_gift_id', { :provider => provider, :id => id }] unless gift
-      return ['.post_on_api_invalid_gift_id', { :provider => provider, :id => gift.id }] unless [gift.user_id_giver, gift.user_id_receiver].index(login_user.user_id)
+      api_gift = ApiGift.find_by_gift_id_and_provider(gift.gift_id, provider)
+      return ['.post_on_api_invalid_gift_id', { :provider => provider, :id => gift.id }] unless api_gift
+      return ['.post_on_api_invalid_gift_id', { :provider => provider, :id => gift.id }] unless [api_gift.user_id_giver, api_gift.user_id_receiver].index(login_user.user_id)
       return ['.post_on_api_old_gift', { :provider => provider, :id => gift.id }] unless gift.created_at > 5.minute.ago
       # get api gift for facebook post - fields are empty at this point
       api_gift = ApiGift.find_by_gift_id_and_provider(gift.gift_id, provider)
@@ -921,7 +922,7 @@ class UtilController < ApplicationController
 
       if login_user.post_gift_allowed?
         # puts "access_token = #{session[:access_token]}"
-        api = Koala::Facebook::API.new(session[:access_token])
+        api = Koala::Facebook::API.new(token)
         begin
           if gift.picture == 'Y'
             # status post with picture
@@ -955,7 +956,7 @@ class UtilController < ApplicationController
             # e.response_body = {"error":{"message":"(#200) The user hasn't authorized the application to perform this action","type":"OAuthException","code":200}}
             # check if permission to post i api wall has been removed
             error = e.to_s
-            login_user.get_api_permissions(session[:access_token])
+            login_user.get_api_permissions(token)
             if !login_user.post_gift_allowed?
               # permission to post on api wall has been removed.
               # show request_post_gift_priv_link link in gifts/index page
@@ -998,7 +999,15 @@ class UtilController < ApplicationController
       if gift_posted_on_wall_api_wall != 2
         api_gift.picture = 'N'
         api_gift.save!
-        return ".gift_not_posted_#{gift_posted_on_wall_api_wall}", {:apiname => login_user.api_name_without_brackets, :error => error}
+        options = {:apiname => login_user.api_name_without_brackets, :error => error}
+        if gift_posted_on_wall_api_wall == 3
+          # url to add missing privs. to post on facebook wall
+          oauth = session[:oauth] = Koala::Facebook::OAuth.new(api_id, api_secret, 'http://localhost/gifts/')
+          state = session[:state] = String.generate_random_string(30)
+          url = oauth.url_for_oauth_code(:permissions => 'status_update', :state => state)
+          options[:url] = url
+        end
+        return ".gift_posted_#{gift_posted_on_wall_api_wall}_html", options
       else
         # get url for picture
         if gift.picture == 'Y'
@@ -1009,7 +1018,7 @@ class UtilController < ApplicationController
           # api_request = gift.api_gift_id.split('_').join('/picture/')  + '?fields=full_picture' # empty response (302 redirect) with profile picture
           # puts "api_request = #{api_request}"
           begin
-            api_gift.api_picture_url = api_gift.get_api_picture_url(session[:access_token])
+            api_gift.api_picture_url = api_gift.get_api_picture_url(token)
             if api_gift.api_picture_url
               # valid picture url received from api
               api_gift.api_picture_url_updated_at = Time.now
@@ -1046,7 +1055,7 @@ class UtilController < ApplicationController
 
         end # picture == 'Y'
         # no errors - return posted message
-        return [".gift_posted_#{gift_posted_on_wall_api_wall}", :apiname => login_user.api_name_without_brackets, :error => error]
+        return [".gift_posted_#{gift_posted_on_wall_api_wall}_html", :apiname => login_user.api_name_without_brackets, :error => error]
       end
 
     rescue Exception => e

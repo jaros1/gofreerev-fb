@@ -28,14 +28,12 @@
               <%= f.text_field :new_currency %>
           <% end %>
         </div>
-        <% if ajax_tasks? -%>
-            <%# Hidden form for post login processing (for example downloading profile image -%>
-            <div id="ajax_tasks_div" style="display:none">
-              <%= form_tag url_for(:controller => :util, :action => :do_ajax_tasks), :remote => true, :id => 'ajax_tasks_form' do %>
-                  <%= hidden_field_tag :timezone, "" %>
-              <% end %>
-            </div>
-        <% end -%>
+        <%# Hidden form for post login processing (for example downloading profile image -%>
+        <div id="ajax_tasks_div" style="display:none">
+          <%= form_tag url_for(:controller => :util, :action => :do_ajax_tasks), :remote => true, :id => 'ajax_tasks_form' do %>
+              <%= hidden_field_tag :timezone, "" %>
+          <% end %>
+        </div>
         <!-- page header -->
         <%= render :partial => 'layouts/page_header' %>
         <div style="width: 100%"><hr></div>

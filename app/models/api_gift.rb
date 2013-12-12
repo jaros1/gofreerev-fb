@@ -58,8 +58,6 @@ class ApiGift < ActiveRecord::Base
       record.errors.add :base, :giver_or_receiver_is_required if !value and !record.user_id_receiver
     elsif record.user_id_giver_was and record.user_id_giver_was != value
       record.errors.add attr, :readonly
-    elsif record.received_at and !value
-      record.errors.add attr, :empty
     end
   end
 
@@ -71,8 +69,6 @@ class ApiGift < ActiveRecord::Base
       nil if !value and !record.user_id_giver # # error already reported for user_id_giver
     elsif record.user_id_receiver_was and record.user_id_receiver_was != value
       record.errors.add attr, :readonly
-    elsif record.received_at and !value
-      record.errors.add attr, :empty
     end
   end
 

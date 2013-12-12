@@ -46,29 +46,8 @@ class GiftsController < ApplicationController
     gift.errors.add :price, :invalid if invalid_price?(params[:gift][:price]) # price= accepts only float and model can not return invalid price error
     return add_error_and_format_ajax_resp(gift.errors.full_messages.join(', ')) if gift.errors.size > 0
 
-    # save picture
-    gift.save!
-    User.open4("mv #{gift_file.path} #{gift.temp_picture_path}") if picture
-
-    # create gift api for each provider
-    #create_table "api_gifts", force: true do |t|
-    #  t.string   "gift_id",                     limit: 20
-    #  t.string   "provider",                    limit: 20
-    #  t.string   "user_id_giver",               limit: 40
-    #  t.string   "user_id_receiver",            limit: 40
-    #  t.string   "picture",                     limit: 1
-    #  t.text     "api_gift_id"
-    #  t.text     "api_picture_url"
-    #  t.text     "api_picture_url_updated_at"
-    #  t.text     "api_picture_url_on_error_at"
-    #  t.string   "deleted_at_api",              limit: 1
-    #  t.text     "balance_giver"
-    #  t.text     "balance_receiver"
-    #  t.text     "balance_doc_giver"
-    #  t.text     "balance_doc_receiver"
-    #  t.datetime "created_at"
-    #  t.datetime "updated_at"
-    #end
+    # add api_gifts - one api_gifts for each provider
+    # api_gift_id and any picture will be added in post_on_<provider> ajax tasks
     @users.each do |user|
       api_gift = ApiGift.new
       api_gift.gift_id = gift.gift_id
@@ -76,14 +55,19 @@ class GiftsController < ApplicationController
       api_gift.user_id_giver = gift.direction == 'giver' ? user.user_id : nil
       api_gift.user_id_receiver = gift.direction == 'receiver' ? user.user_id : nil
       api_gift.picture = 'N' # can be changed if gift if posted in api wall with picture in post_on_<provider> ajax task
-      api_gift.save!
+      gift.api_gifts << api_gift
     end
+    gift.save!
+
+    # temporary save picture on disk before posting it on api walls in post_on_<provider> ajax tasks
+    User.open4("mv #{gift_file.path} #{gift.temp_picture_path}") if picture
 
     # post on api wall(s) - priority = 5
     # status:
-    # - facebook ok
-    # - google+ not implemented - The Google+ API is still a read only API
-    # - linkedin
+    # - facebook ok - todo: move grant missing priv. from gifts/index page to ajax tasks errors table
+    # - google+ not implemented - The Google+ API is at current time a read only API
+    # - linkedin - todo
+    # - twitter - todo
     tokens = session[:tokens] || {}
     tokens.keys.each do |provider|
       task_name = "post_on_#{provider}"
@@ -93,7 +77,7 @@ class GiftsController < ApplicationController
     # delete picture after posting on api wall(s) - priority = 4
     add_ajax_task "delete_local_picture(#{gift.id})", 4 if picture
 
-    gifts = [ gift]
+    @gifts = ApiGift.where("id = ?", gift.api_gifts.first.id).includes(:gift)
     format_ajax_response
     return
   end # create

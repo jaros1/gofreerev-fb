@@ -432,6 +432,7 @@ function ajax_insert_update_gifts (ajax_tasks_sleep)
     // process ajax response received from new_messages_count ajax request
     // response has been inserted in new_messages_buffer_div in page header
     // also used after util/accept_new_deal to ajax replace gift
+    add_to_debug_log('ajax_insert_update_gifts: start') ;
 
     // check/update newest_gift_id (id for latest created gift)
     var new_newest_gift_id = document.getElementById("new-newest-gift-id") ; // from new_messages_buffer_div
@@ -494,12 +495,12 @@ function ajax_insert_update_gifts (ajax_tasks_sleep)
             } // if
         } // for
     } // if
-    // alert(old_gifts_trs.length + ' gifts lines in old page') ;
+    add_to_debug_log(old_gifts_trs.length + ' gifts lines in old page') ;
     var old_gifts_index ;
     for (var i=0 ; (!old_gifts_index && (i<old_gifts_trs.length)) ; i++) {
         if (old_gifts_trs[i].id.match(re)) old_gifts_index = i ;
     } // for
-    // alert('old_gifts_index = ' + old_gifts_index) ;
+    add_to_debug_log('old_gifts_index = ' + old_gifts_index) ;
     if (!old_gifts_index) return ; // error - id with format format gift-<999>-1 was not found - ignore error silently
     var first_old_gift_tr = old_gifts_trs[old_gifts_index] ;
     var old_gifts_tbody = first_old_gift_tr.parentNode ;
@@ -516,6 +517,7 @@ function ajax_insert_update_gifts (ajax_tasks_sleep)
     } // for
     // that's it
 
+    add_to_debug_log('ajax_insert_update_gift: ajax_tasks_sleep = ' + ajax_tasks_sleep) ;
     if (!ajax_tasks_sleep) return ;
     // execute some more ajax tasks - for example post status on api wall(s)
     trigger_ajax_tasks_form(ajax_tasks_sleep);
@@ -882,6 +884,7 @@ function clear_flash_and_ajax_errors() {
 // called from bottom of application layout and from  ajax_insert_update_gifts after gift create (posting on api wall)
 // tasks: get currency rates, download api information (picture, permissions, friend list), post on api walls
 function trigger_ajax_tasks_form (sleep) {
+    add_to_debug_log("trigger_ajax_tasks_form: sleep = " + sleep) ;
     if (!sleep) sleep=1000 ;
     var timezone = document.getElementById("timezone") ;
     if (!timezone) {

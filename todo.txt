@@ -349,3 +349,25 @@
       There maybe is missing an index or two
       there maybe are some sql to rewrite
 
+ 119) gift create - ajax tasks are not executed after gifts/create ajax request
+
+ 120) some problems in user.recalculate balance after splitting gifts in gifts and api_gifts
+      check /auth/facebook and post_login error for price
+
+ 121) check facebook callback when gofreerev is started from facebook
+      maybe delete fb controller and use auth controller?!
+
+ 122) add validation for gift.received_at?
+      direction = both
+      giver and receiver in api_gifts
+
+ 123) post_login_facebook.
+      add line to ajax tasks errors with link to grant missing status_update priv.
+      See util.post_on_facebook, gift_posted_on_wall_api_wall == 3
+      translate key shared.translate_ajax_errors.gift_posted_3_html
+
+ 124) add ignore / don't show missing priv link link
+      that is - user don't want to see message any more
+      add post on wall Y/N field to user
+
+

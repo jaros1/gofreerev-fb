@@ -114,12 +114,11 @@ da:
         post_on_api_unknown_gift_id: "Ukendt id %{id} ved opslag på %{provider} væg"
         post_on_api_invalid_gift_id: "Ugyldigt id %{id} ved opslag på %{provider} væg"
         post_on_api_old_gift: "Gammelt id %{id} ved opslag på %{provider} væg"
-        gift_posted_1: "Opslag opretter herinde, men ikke på din %{apiname} væg (%{error})" # unhandled error message
-        gift_posted_2: "Opslag opretter herinde og på din %{apiname} væg"
-        gift_posted_3: "Opslag opretter herinde, men ikke på din %{apiname} væg" # missing privileges
-        gift_posted_4: "Opslag opretter herinde, men ikke på din %{apiname} væg. Opslag fandes allerede på %{apiname} væg"
-        gift_posted_5: "Opslag opretter herinde, men ikke på din %{apiname} væg. Opslag på %{apiname} væg er endnu ikke implementeret"
-        post_on_facebook_debug_html: "debug: <a href=''>test</a>"
+        gift_posted_1_html: "Opslag opretter herinde, men ikke på din %{apiname} væg (%{error})" # unhandled error message
+        gift_posted_2_html: "Opslag opretter herinde og på din %{apiname} væg"
+        gift_posted_3_html: "Opslag opretter herinde, men ikke på din %{apiname} væg. Gofreerev mangler adgang til at skrive på din facebook væg. <a href=\"javascript: {top.location.href='%{url}'}\">Giv Gofreerev lov til at skrive på min væg!</a>" # missing privileges
+        gift_posted_4_html: "Opslag opretter herinde, men ikke på din %{apiname} væg. Opslag fandes allerede på %{apiname} væg"
+        gift_posted_5_html: "Opslag opretter herinde, men ikke på din %{apiname} væg. Opslag på %{apiname} væg er endnu ikke implementeret"
 
   # auth controller
   auth:

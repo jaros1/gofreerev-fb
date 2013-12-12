@@ -111,11 +111,11 @@ en:
         post_on_api_unknown_gift_id: "Unknown id %{id} when posting on %{provider} wall"
         post_on_api_invalid_gift_id: "Invalid id %{id} when posting on %{provider} wall"
         post_on_api_old_gift: "Old id %{id} when posting on %{provider} wall"
-        gift_posted_1: "Gift posted in here but not on your %{apiname} wall (%{error})" # unhandled error message
-        gift_posted_2: "Gift posted in here and on your %{apiname} wall"
-        gift_posted_3: "Gift posted in here but not on your %{apiname} wall" # missing privileges
-        gift_posted_4: "Gift posted in here but not on your %{apiname} wall. Duplicate status message on %{apiname} wall"
-        gift_posted_5: "Gift posted in here but not on your %{apiname} wall. Posting on %{apiname} has not yet been implemented"
+        gift_posted_1_html: "Gift posted in here but not on your %{apiname} wall (%{error})" # unhandled error message
+        gift_posted_2_html: "Gift posted in here and on your %{apiname} wall"
+        gift_posted_3_html: "Gift posted in here but not on your %{apiname} wall" # missing privileges
+        gift_posted_4_html: "Gift posted in here but not on your %{apiname} wall. Duplicate status message on %{apiname} wall"
+        gift_posted_5_html: "Gift posted in here but not on your %{apiname} wall. Posting on %{apiname} has not yet been implemented"
 
   # auth controller
   auth:
