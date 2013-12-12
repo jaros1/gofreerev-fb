@@ -89,6 +89,37 @@ da:
         google_oauth2: "google+"
         linkedin: "linkedin"
         twitter: "twitter"
+     translate_ajax_errors:
+        ajax_task_exception: "Systemfejl \"%{exception}\" for ajax task \"%{task}\". Tjek server log for mere information." # task, exception
+        ajax_task_invalid_response: "Systemfejl. Ugyldigt svar fra ajax task %{task}. Skal være Nil eller gyldigt input til translate." # task, response and exception. response is invalid response from ajax task and exception is ruby exception from translate
+        ajax_task_missing_translate_key: "System error. Oversættelse mangler for \"%{key}\" for ajax task \"%{task}\"."
+        update_timezone_invalid_user_id: "Systemfejl. Ugyldigt user_id %{user_id} ved opdatering af tidszone information" # user_id
+        update_timezone_timezone_missing: "Systemfejl. Modtag ikke tidszone information fra browser/javascript"
+        update_timezone_save_error: "Systemfejl. Kunne ikke opdatere bruger information om tidszone: \"%{errors}\"" # error = user errors.
+        profile_image_invalid_user: "Systemfejl. Ugyldigt bruger id. %{user_id} ved download af profil billede" # user_id
+        profile_image_blank: "Intet profil billede modtaget fra %{provider}" # provider
+        profile_image_invalid_url: "Ugyldig profil billede url \"%{image}\" modtaget fra %{provider}" # image and provider - image must be an url (http or https)
+        profile_image_invalid_type: "Advarsel. Profil billede type %{image_type} modtaget fra %{provider} er ikke understøttet. Url til profil billede var \"%{image}\""
+        profile_image_wget_failed: "Download af profil billede fra %{provider} fejlede: %{error}. Url til profil billede var \"%{image}\""
+        profile_image_count_failed: "Systemfejl. Download af profil billede fra %{provider} fejlede. Forventede et profil billede. Fandt %{count} profil billeder. Url var \"%{image}\""
+        profile_image_mv_failed: "Systemfejl. Kunne ikke indsætte nyt profil billede modtaget fra %{provider}: %{error}"
+        too_few_exchange_rates: "Advarsel. Opslag af dagens valuta kurser fra %{bank} fejlede. Forventede >= %{expected} kurser. Modtag %{found} kurser"
+        post_login_user_id_not_found: "Advarsel. Fandt ikke bruger id. Kunne ikke hente venneliste fra %{provider}"
+        post_login_unknown_user_id: "Systemfejl. Fandt ikke bruger. Kunne ikke hente venneliste fra %{provider}"
+        post_login_token_not_found: "Advarsel. Fandt ikke adgangs \"billet\". Kunne ikke hente venneliste fra %{provider}"
+        google_access_not_configured: "Fejl ved hentning af venneliste fra Google+ API. Access Not Configured. Tjek liste ved API opsætning: 1) Tjek log for mere information, 2) At application_name og application_version sættes når Google::APIClient initialiseres, 3) Status er ON for Google+ API i Google Cloud Console"
+        google_insufficient_permission: "Fejl ved hentning af venneliste fra Google+ API. Insufficient Permission. Tjek liste ved API opsætning: 1) scope plus.login mangler i provider opsætning for google"
+        google_other_errors: "Fejl ved hentning af venneliste fra Google+ API. %{error}"
+        linkedin_access_denied: "Fejl ved hentning af connections fra LinkedIn API. Access to connections denied. Tjek liste ved API opsætning. 1) scope r_network mangler i provider opsætning for linkedin"
+        post_on_api_unknown_gift_id: "Ukendt id %{id} ved opslag på %{provider} væg"
+        post_on_api_invalid_gift_id: "Ugyldigt id %{id} ved opslag på %{provider} væg"
+        post_on_api_old_gift: "Gammelt id %{id} ved opslag på %{provider} væg"
+        gift_posted_1: "Opslag opretter herinde, men ikke på din %{apiname} væg (%{error})" # unhandled error message
+        gift_posted_2: "Opslag opretter herinde og på din %{apiname} væg"
+        gift_posted_3: "Opslag opretter herinde, men ikke på din %{apiname} væg" # missing privileges
+        gift_posted_4: "Opslag opretter herinde, men ikke på din %{apiname} væg. Opslag fandes allerede på %{apiname} væg"
+        gift_posted_5: "Opslag opretter herinde, men ikke på din %{apiname} væg. Opslag på %{apiname} væg er endnu ikke implementeret"
+        post_on_facebook_debug_html: "debug: <a href=''>test</a>"
 
   # auth controller
   auth:
@@ -511,35 +542,3 @@ da:
         invite_api_friends_link_text2: "Inviter venner"
         no_users_was_found_html: "Der blev ikke fundet nogle andre %{appname} brugere. For at komme igang bør du nu<br />oprette et par opslag med noget du gerne vil dele med dine venner eller med noget<br />du søger eller mangler, og som du tror dine venner måske kan hjælpe dig med.<br /><br />Dernæst skal du invitere en eller flere af dine gode venner til at bruge %{appname}.<br />Enten ved at sende et personlig besked med nedenstående link eller ved at bruge<br />nedenstående link til at inviterer dine %{apiname} venner til at bruge %{appname}. <br />En personlig besked er det bedste da mange mennesker vil afvise uopfordrede<br />spil invitationer."
 
-  # util controller - used for ajax requests
-  util:
-     do_ajax_tasks:
-        ajax_task_exception: "Systemfejl \"%{exception}\" for ajax task \"%{task}\". Tjek server log for mere information." # task, exception
-        ajax_task_invalid_response: "Systemfejl. Ugyldigt svar fra ajax task %{task}. Skal være Nil eller gyldigt input til translate." # task, response and exception. response is invalid response from ajax task and exception is ruby exception from translate
-        ajax_task_missing_translate_key: "System error. Oversættelse mangler for \"%{key}\" for ajax task \"%{task}\"."
-        update_timezone_invalid_user_id: "Systemfejl. Ugyldigt user_id %{user_id} ved opdatering af tidszone information" # user_id
-        update_timezone_timezone_missing: "Systemfejl. Modtag ikke tidszone information fra browser/javascript"
-        update_timezone_save_error: "Systemfejl. Kunne ikke opdatere bruger information om tidszone: \"%{errors}\"" # error = user errors.
-        profile_image_invalid_user: "Systemfejl. Ugyldigt bruger id. %{user_id} ved download af profil billede" # user_id
-        profile_image_blank: "Intet profil billede modtaget fra %{provider}" # provider
-        profile_image_invalid_url: "Ugyldig profil billede url \"%{image}\" modtaget fra %{provider}" # image and provider - image must be an url (http or https)
-        profile_image_invalid_type: "Advarsel. Profil billede type %{image_type} modtaget fra %{provider} er ikke understøttet. Url til profil billede var \"%{image}\""
-        profile_image_wget_failed: "Download af profil billede fra %{provider} fejlede: %{error}. Url til profil billede var \"%{image}\""
-        profile_image_count_failed: "Systemfejl. Download af profil billede fra %{provider} fejlede. Forventede et profil billede. Fandt %{count} profil billeder. Url var \"%{image}\""
-        profile_image_mv_failed: "Systemfejl. Kunne ikke indsætte nyt profil billede modtaget fra %{provider}: %{error}"
-        too_few_exchange_rates: "Advarsel. Opslag af dagens valuta kurser fra %{bank} fejlede. Forventede >= %{expected} kurser. Modtag %{found} kurser"
-        post_login_user_id_not_found: "Advarsel. Fandt ikke bruger id. Kunne ikke hente venneliste fra %{provider}"
-        post_login_unknown_user_id: "Systemfejl. Fandt ikke bruger. Kunne ikke hente venneliste fra %{provider}"
-        post_login_token_not_found: "Advarsel. Fandt ikke adgangs \"billet\". Kunne ikke hente venneliste fra %{provider}"
-        google_access_not_configured: "Fejl ved hentning af venneliste fra Google+ API. Access Not Configured. Tjek liste ved API opsætning: 1) Tjek log for mere information, 2) At application_name og application_version sættes når Google::APIClient initialiseres, 3) Status er ON for Google+ API i Google Cloud Console"
-        google_insufficient_permission: "Fejl ved hentning af venneliste fra Google+ API. Insufficient Permission. Tjek liste ved API opsætning: 1) scope plus.login mangler i provider opsætning for google"
-        google_other_errors: "Fejl ved hentning af venneliste fra Google+ API. %{error}"
-        linkedin_access_denied: "Fejl ved hentning af connections fra LinkedIn API. Access to connections denied. Tjek liste ved API opsætning. 1) scope r_network mangler i provider opsætning for linkedin"
-        post_on_api_unknown_gift_id: "Ukendt id %{id} ved opslag på %{provider} væg"
-        post_on_api_invalid_gift_id: "Ugyldigt id %{id} ved opslag på %{provider} væg"
-        post_on_api_old_gift: "Gammelt id %{id} ved opslag på %{provider} væg"
-        gift_posted_1: "Opslag opretter herinde, men ikke på din %{apiname} væg (%{error})" # unhandled error message
-        gift_posted_2: "Opslag opretter herinde og på din %{apiname} væg"
-        gift_posted_3: "Opslag opretter herinde, men ikke på din %{apiname} væg" # missing privileges
-        gift_posted_4: "Opslag opretter herinde, men ikke på din %{apiname} væg. Opslag fandes allerede på %{apiname} væg"
-        gift_posted_5: "Opslag opretter herinde, men ikke på din %{apiname} væg. Opslag på %{apiname} væg er endnu ikke implementeret"

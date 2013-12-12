@@ -11,7 +11,7 @@ class UtilController < ApplicationController
   # - newest_gift_id is newest gift id when page was loaded or newest gift id in last new_messages_count request for this session
   # - newest_status_update_at is newest status_update_at when page was loaded or newest status_update_at in last new_message_count request for this session
   def new_messages_count
-    if !@user
+    if !@users or @users.length == 0
       puts "ignoring not logged in user"
       render :nothing => true
       return
@@ -20,7 +20,9 @@ class UtilController < ApplicationController
     # gift was marked as deleted in util/delete_gift request
     # gift has been ajax removed from  gifts pages for other sessions in previous util/new_message_count requests
     # now is the time to destroy old delete marked gifts
-    Gift.where("? in (user_id_giver, user_id_receiver) and deleted_at is not null and deleted_at < ?", @user.user_id, 10.minutes.ago).each do |g|
+    userids = @users.collect { |user| user.user_id }
+    Gift.where('("api_gifts".user_id_giver in (?) or "api_gifts".user_id_receiver in (?)) and deleted_at is not null and deleted_at < ?',
+               userids, userids, 10.minutes.ago).includes(:api_gifts).references(:api_gifts).each do |g|
       g.destroy
     end
     # get params
@@ -39,15 +41,22 @@ class UtilController < ApplicationController
       com_ids = AjaxComment.where("user_id = ?", @user.user_id).collect { |ac| ac.comment_id }
       com_ids.push('x') if com_ids.size == 0
       # puts "com_ids.length = #{com_ids.length}"
+      comments1 = Comment.includes(:gift).where('comment_id in (?)',com_ids)
       # source 2 - all visible gifts, but only comments with status_update_at > :newest_status_update_at
-      friends = @user.app_friends.collect { |u| u.user_id_receiver }
-      friends.push(@user.user_id)
-      @comments = Comment.includes(:gift).where("(comment_id in (?)) or " +
-                                                    "((gifts.user_id_giver in (?) or gifts.user_id_receiver in (?)) and " +
-                                                    "gifts.deleted_at is null and " +
-                                                    "comments.status_update_at > ?)",
-                                                com_ids,
-                                                friends, friends, old_newest_status_update_at).references(:api_gifts)
+      friends = []
+      @users.each do |user|
+        friends = friends + user.app_friends.collect { |u| u.user_id_receiver }
+        friends.push(@user.user_id)
+      end
+      gifts2 = Gift.where('(api_gifts.user_id_giver in (?) or api_gifts.user_id_receiver in (?)) and ' +
+                           'gifts.deleted_at is null and ' +
+                           'comments.status_update_at > ?',
+                             friends, friends, old_newest_status_update_at).includes(:comments, :api_gifts).references(:api_gifts)
+      comments2 = []
+      gifts2.each do |gift|
+        comments2 = comments2 + gift.comments.find_all { |comment| comment.status_update_at > old_newest_status_update_at}
+      end
+      @comments = (comments1 + comments2).uniq
       if @comments.size > 0 and params[:request_fullpath] =~ /^\/gifts\/([0-9]+)$/
         # gifts/show/<nnn> page - return only ajax comments for actual gift (id=<nnn>)
         # puts "new comments before gift_id filter = #{@comments.length}"
@@ -82,7 +91,7 @@ class UtilController < ApplicationController
       # return new newest_gift_id value and any new gifts visible to user
       @new_newest_gift_id = new_newest_gift_id
       @new_newest_status_update_at = new_newest_status_update_at
-      @gifts = @user.api_gifts(old_newest_gift_id, old_newest_status_update_at, true) # include delete marked gifts
+      @gifts = User.api_gifts(@users, old_newest_gift_id, old_newest_status_update_at, true) # include delete marked gifts
       @gifts = nil if @gifts.length == 0
     end
     # remove any ajax comments for gifts in gifts array - that is gifts that will be ajax inserted or replaced in gifts html table
@@ -889,11 +898,17 @@ class UtilController < ApplicationController
       login_user, token, key, options = get_login_user_and_token(provider)
       return [key, options] if key
 
+      # debug - return link in ajax tasks errors table
+      return ['.post_on_facebook_debug_html', {}]
+
       # get and check gift
       gift = Gift.find_by_id(id)
       return ['.post_on_api_unknown_gift_id', { :provider => provider, :id => id }] unless gift
       return ['.post_on_api_invalid_gift_id', { :provider => provider, :id => gift.id }] unless [gift.user_id_giver, gift.user_id_receiver].index(login_user.user_id)
       return ['.post_on_api_old_gift', { :provider => provider, :id => gift.id }] unless gift.created_at > 5.minute.ago
+      # get api gift for facebook post - fields are empty at this point
+      api_gift = ApiGift.find_by_gift_id_and_provider(gift.gift_id, provider)
+      return [ '.post_on_api_no_api_gift', { :provider => provider, :id => id }] unless api_gift
 
       # gift_posted_on_wall_api_wall. values:
       #  1: "Gift posted in here but not on your %{apiname} wall. #{error}" # unhandled error message
@@ -914,13 +929,12 @@ class UtilController < ApplicationController
             content_type = "image/#{filetype}"
             api_response = api.put_picture(gift.temp_picture_path, content_type, {:message => gift.description})
             # api_response = {"id"=>"1396226023933952", "post_id"=>"100006397022113_1396195803936974"} (Hash)
-            gift.api_gift_id = api_response['post_id']
-            picture_id = api_response['id']
+            api_gift.api_gift_id = api_response['post_id']
           else
             # status post without picture
             api_response = api.put_connections('me', 'feed', :message => gift.description)
             # api_response = {"id"=>"100006397022113_1396235850599636"}
-            gift.api_gift_id = api_response['id']
+            api_gift.api_gift_id = api_response['id']
           end
           puts "api_response = #{api_response} (#{api_response.class.name})"
           gift_posted_on_wall_api_wall = 2 # Gift posted in here and on your facebook wall
@@ -982,8 +996,8 @@ class UtilController < ApplicationController
       end # if
 
       if gift_posted_on_wall_api_wall != 2
-        gift.picture = 'N'
-        gift.save!
+        api_gift.picture = 'N'
+        api_gift.save!
         return ".gift_not_posted_#{gift_posted_on_wall_api_wall}", {:apiname => login_user.api_name_without_brackets, :error => error}
       else
         # get url for picture
@@ -995,12 +1009,12 @@ class UtilController < ApplicationController
           # api_request = gift.api_gift_id.split('_').join('/picture/')  + '?fields=full_picture' # empty response (302 redirect) with profile picture
           # puts "api_request = #{api_request}"
           begin
-            gift.api_picture_url = gift.get_api_picture_url(session[:access_token])
-            if gift.api_picture_url
-              # valid picture url received from apii
-              gift.api_picture_url_updated_at = Time.now
-              gift.api_picture_url_on_error_at = nil
-              gift.save!
+            api_gift.api_picture_url = api_gift.get_api_picture_url(session[:access_token])
+            if api_gift.api_picture_url
+              # valid picture url received from api
+              api_gift.api_picture_url_updated_at = Time.now
+              api_gift.api_picture_url_on_error_at = nil
+              api_gift.save!
             else
               puts "Did not get a picture url from api. Must be problem with missing access token, picture != Y or deleted_at_api == Y"
               return ['.no_api_picture_url', :apiname => login_user.api_name_without_brackets]
@@ -1026,8 +1040,8 @@ class UtilController < ApplicationController
               # todo: add ajax show/inject link to grant read_stream permission in gifts/index page
               flash[:read_stream] = 'Missing read_stream permission' # display link to grant read_stream permission in gifts/index page
             end
-            gift.picture = 'N'
-            gift.save!
+            api_gift.picture = 'N'
+            api_gift.save!
           end # rescue
 
         end # picture == 'Y'

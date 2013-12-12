@@ -212,7 +212,7 @@ class ApplicationController < ActionController::Base
       # ajax request
       # check if last_row_id is valid - row could have been deleted between two requests
       # puts "ajax request - check if last_row_id still is valid"
-      from = rows.index { |u| u.id == last_row_id }
+      from = rows.index { |u| u.last_row_id == last_row_id }
       if !from
         puts "invalid last_row_id - or row is no longer in rows - ignore error and return first 10 rows"
         last_row_id = nil
@@ -222,7 +222,7 @@ class ApplicationController < ActionController::Base
     rows = rows[from+1..-1] if from # valid ajax request - ignore first from rows - already in client page
     if rows.size > no_rows
       rows = rows.first(no_rows)
-      last_row_id = rows.last.id # return next 10 rows in next ajax request
+      last_row_id = rows.last.last_row_id # return next 10 rows in next ajax request
     else
       last_row_id = nil # last row - no more ajax requests
     end

@@ -327,3 +327,25 @@
  111) check direction. added as field to gifts. check direction in source
 
  112) delete api_gifts and gifts with temp picture urls
+
+ 113) accept deal: must add giver/receiver for all api gift rows
+      match login users with comment user
+      check user_combination for comment user to test if other user also uses multiple logins
+      map api gifts provider for provider (login users <=>
+      use dummy user if no provider match between login user(s) and comment user(s)
+
+ 114) create a dummy user for each provider
+      for example gofreerev/facebook, gofreerev/google, gofreerev/linkedin etc.
+
+ 115) reject login with user id for dummy user
+
+ 116) where to send notifications for a user with multiple logins?
+
+ 117) dont send notification when charlie comments his own gift
+      notification is from charlie/facebook to charlie/linkedin
+      and from charlie/linkedin to charlie/facebook
+
+ 118) stress test. make a db with really many rows and test performance.
+      There maybe is missing an index or two
+      there maybe are some sql to rewrite
+

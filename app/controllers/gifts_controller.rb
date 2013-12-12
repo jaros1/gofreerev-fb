@@ -13,16 +13,11 @@ class GiftsController < ApplicationController
     @errors = []
     @gifts = []
     # initialize gift
-    @gift = Gift.new
-    @gift.price = params[:gift][:price].gsub(',', '.').to_f unless invalid_price?(params[:gift][:price])
-    @gift.direction = 'giver' if @gift.direction.to_s == ''
-    @gift.currency = @user.currency
-    @gift.description = params[:gift][:description]
-    if params[:gift][:direction].to_s != 'receiver'
-      @gift.user_id_giver = session[:user_id]
-    else
-      @gift.user_id_receiver = session[:user_id]
-    end
+    gift = Gift.new
+    gift.price = params[:gift][:price].gsub(',', '.').to_f unless invalid_price?(params[:gift][:price])
+    gift.direction = 'giver' if gift.direction.to_s == ''
+    gift.currency = @user.currency
+    gift.description = params[:gift][:description]
     gift_file = params[:gift_file]
     picture = (gift_file.class.name == 'ActionDispatch::Http::UploadedFile')
     if picture and !@user.post_gift_allowed?
@@ -41,19 +36,48 @@ class GiftsController < ApplicationController
       picture = false
     end
     if picture
-      @gift.picture = 'Y'
-      @gift.temp_picture_filename = "#{String.generate_random_string(20)}.#{filetype}".last(20)
-      @gift.api_picture_url = @gift.temp_picture_url
+      gift.picture = 'Y'
+      gift.temp_picture_filename = "#{String.generate_random_string(20)}.#{filetype}".last(20)
+      gift.api_picture_url = gift.temp_picture_url
     else
-      @gift.picture = 'N'
+      gift.picture = 'N'
     end
-    @gift.valid?
-    @gift.errors.add :price, :invalid if invalid_price?(params[:gift][:price]) # price= accepts only float and model can not return invalid price error
-    return add_error_and_format_ajax_resp(@gift.errors.full_messages.join(', ')) if @gift.errors.size > 0
+    gift.valid?
+    gift.errors.add :price, :invalid if invalid_price?(params[:gift][:price]) # price= accepts only float and model can not return invalid price error
+    return add_error_and_format_ajax_resp(gift.errors.full_messages.join(', ')) if gift.errors.size > 0
 
     # save picture
-    @gift.save!
-    User.open4("mv #{gift_file.path} #{@gift.temp_picture_path}") if picture
+    gift.save!
+    User.open4("mv #{gift_file.path} #{gift.temp_picture_path}") if picture
+
+    # create gift api for each provider
+    #create_table "api_gifts", force: true do |t|
+    #  t.string   "gift_id",                     limit: 20
+    #  t.string   "provider",                    limit: 20
+    #  t.string   "user_id_giver",               limit: 40
+    #  t.string   "user_id_receiver",            limit: 40
+    #  t.string   "picture",                     limit: 1
+    #  t.text     "api_gift_id"
+    #  t.text     "api_picture_url"
+    #  t.text     "api_picture_url_updated_at"
+    #  t.text     "api_picture_url_on_error_at"
+    #  t.string   "deleted_at_api",              limit: 1
+    #  t.text     "balance_giver"
+    #  t.text     "balance_receiver"
+    #  t.text     "balance_doc_giver"
+    #  t.text     "balance_doc_receiver"
+    #  t.datetime "created_at"
+    #  t.datetime "updated_at"
+    #end
+    @users.each do |user|
+      api_gift = ApiGift.new
+      api_gift.gift_id = gift.gift_id
+      api_gift.provider = user.provider
+      api_gift.user_id_giver = gift.direction == 'giver' ? user.user_id : nil
+      api_gift.user_id_receiver = gift.direction == 'receiver' ? user.user_id : nil
+      api_gift.picture = 'N' # can be changed if gift if posted in api wall with picture in post_on_<provider> ajax task
+      api_gift.save!
+    end
 
     # post on api wall(s) - priority = 5
     # status:
@@ -63,13 +87,13 @@ class GiftsController < ApplicationController
     tokens = session[:tokens] || {}
     tokens.keys.each do |provider|
       task_name = "post_on_#{provider}"
-      add_ajax_task "#{task_name}(#{@gift.id})" if UtilController.new.private_methods.index(task_name.to_sym)
+      add_ajax_task "#{task_name}(#{gift.id})" if UtilController.new.private_methods.index(task_name.to_sym)
     end
 
     # delete picture after posting on api wall(s) - priority = 4
-    add_ajax_task "delete_local_picture(#{@gift.id})", 4 if picture
+    add_ajax_task "delete_local_picture(#{gift.id})", 4 if picture
 
-    @gifts = [ @gift]
+    gifts = [ gift]
     format_ajax_response
     return
   end # create

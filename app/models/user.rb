@@ -229,6 +229,12 @@ class User < ActiveRecord::Base
   #  "#{prefix}#{uid}"
   #end # self.new_user_i
 
+  # for ajax show-more-rows functionality
+  public
+  def last_row_id
+    id
+  end
+
 
   public
   def self.open4 (command, dir = nil)
@@ -998,9 +1004,9 @@ class User < ActiveRecord::Base
     end
     if newest_gift_id == 0 and newest_status_update_at == 0
       ags = ApiGift.where('(user_id_giver in (?) or user_id_receiver in (?))' + deleted,
-                      friends, friends).references(:api_gifts).includes(:gift, :giver, :receiver)
+                      friends, friends).references(:gifts).includes(:gift, :giver, :receiver)
     else
-      ags = ApiGift.where('(id > ? or status_update_at > ?) and (user_id_giver in (?) or user_id_receiver in (?))' + deleted,
+      ags = ApiGift.where('("gifts".id > ? or status_update_at > ?) and (user_id_giver in (?) or user_id_receiver in (?))' + deleted,
                       newest_gift_id, newest_status_update_at, friends, friends).references(:gifts).includes(:gift, :giver, :receiver)
     end
     # sort api gifts
@@ -1028,12 +1034,16 @@ class User < ActiveRecord::Base
 
   # as instance method gifts, but extended to be used for multiple provider logins
   def self.api_gifts (login_users, newest_gift_id=0, newest_status_update_at=0, include_delete_marked_gifts=false)
-    return nil unless login_users.class == Array and login_users.length > 0
+    puts "User.api_gifts: login_users.size            = #{login_users.size}"
+    puts "User.api_gifts: newest_gift_id              = #{newest_gift_id}"
+    puts "User.api_gifts: newest_status_update_at     = #{newest_status_update_at}"
+    puts "User.api_gifts: include_delete_marked_gifts = #{include_delete_marked_gifts}"
+    return nil unless [Array, ActiveRecord::Relation::ActiveRecord_Relation_User].index(login_users.class) and login_users.length > 0
     ags = []
     login_users.each do |login_user|
       ags = ags + login_user.api_gifts(newest_gift_id, newest_status_update_at, include_delete_marked_gifts)
     end
-    return sgs if login_users.size == 1
+    return ags if login_users.size == 1
 
     # multiple logins - find and remove any doublet gifts
     # priority:
@@ -1043,7 +1053,7 @@ class User < ActiveRecord::Base
     # 4) api picture url with error and creator of gift in login_users - recheck picture with login user privs.
     # 5) api gift without picture
     ags = ags.sort do |a, b|
-      if a.gift.id != a.gift.id
+      if a.gift.id != b.gift.id
         a.gift.id <=> b.gift.id # 1) sort by gift id
       elsif a.status_sort != b.status_sort
         a.status_sort <=> b.status_sort # 2) closed gift before open gift
@@ -1054,7 +1064,7 @@ class User < ActiveRecord::Base
 
     # delete doublets
     old_gift_id = -1
-    ags.delete_if do |ag|
+    ags = ags.delete_if do |ag|
       if ag.gift.id == old_gift_id
         true
       else
@@ -1066,7 +1076,7 @@ class User < ActiveRecord::Base
     # sort api gifts
     ags = ags.sort do |a,b|
       if (a.gift.received_at || a.created_at) ==  (b.gift.received_at || b.created_at)
-        b.id <=> a2.id
+        b.id <=> a.id
       else
         (b.gift.received_at || b.created_at) <=>  (a.gift.received_at || a.created_at)
       end

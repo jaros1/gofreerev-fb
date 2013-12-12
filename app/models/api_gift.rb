@@ -271,13 +271,15 @@ class ApiGift < ActiveRecord::Base
     g
   end # gift_with_placeholders
 
-  # 1 for closed api gift - 2 for open api gift - used in sort before removing api gift doubles. Used in User.gifts
+  # 1 for closed api gift - 2 for open api gift - used in sort before removing api gift doubles. Used in User.api_gifts sort
   def status_sort
     user_id_giver and user_id_receiver ? 1 : 2
-  end
+  end # status_sort
+
   # 1 for picture with error url and creator in login_users
   # 2 for picture
   # 3 for without picture
+  # used in sort before removing api gift doubles. Used in User.api_gifts sort
   def picture_sort (login_users)
     return 3 unless picture == 'Y'
     return 2 unless api_picture_url_on_error_at
@@ -291,7 +293,51 @@ class ApiGift < ActiveRecord::Base
     end
     return 1 if login_users.find { |user| user.user_id == creator } # picture created by login user(s)
     2
+  end # picture_sort
+
+  # for ajax show-more-rows functionality
+  # api_gift can be a little random for users with multi provider login (see User.api_gift)
+  # use api_gift.gift.id for last_row_id in ajax expanding pages (gifts/index and users/show balance tab)
+  def last_row_id
+    gift.id
   end
+
+  def get_api_picture_url (access_token)
+    if picture != 'Y'
+      puts "api_gift.get_api_picture_url: picture = \"#{picture}\""
+      return nil
+    end
+    if deleted_at_api == 'Y'
+      puts "api_gift.get_api_picture_url: deleted picture"
+      return nil
+    end
+    raise NoApiAccessTokenException unless access_token
+    api = Koala::Facebook::API.new(access_token)
+    api_request = "#{api_gift_id}?fields=full_picture"
+    begin
+      api_response = api.get_object(api_request)
+    rescue Koala::Facebook::ClientError => e
+      puts 'Koala::Facebook::ClientError'
+      puts "e.fb_error_type = #{e.fb_error_type}"
+      puts "e.fb_error_code = #{e.fb_error_code}"
+      puts "e.fb_error_subcode = #{e.fb_error_subcode}"
+      puts "e.fb_error_message = #{e.fb_error_message}"
+      puts "e.http_status = #{e.http_status}"
+      puts "e.response_body = #{e.response_body}"
+      puts "e.fb_error_type.class.name = #{e.fb_error_type.class.name}"
+      puts "e.fb_error_code.class.name = #{e.fb_error_code.class.name}"
+      if e.fb_error_type == 'GraphMethodException' and e.fb_error_code == 100
+        # identical error response if picture is deleted or if user is not allowed to see picture
+        # picture not found - maybe picture has been deleted - maybe a permission problem
+        raise ApiPostNotFoundException
+      else
+        raise
+      end
+    end
+    puts "get_api_picture_url: api_response = #{api_response}"
+    return api_response["full_picture"]
+  end # get_api_picture_url
+
 
   # https://github.com/jmazzi/crypt_keeper gem encrypts all attributes and all rows in db with the same key
   # this extension to use different encryption for each attribute and each row

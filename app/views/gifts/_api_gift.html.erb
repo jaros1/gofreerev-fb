@@ -39,7 +39,7 @@
 
     <tr id='<%= "gift-#{gift.id}-comment-new" %>'>
       <td colspan="2" style="text-align: right; vertical-align: top">
-        <% if gift.show_new_deal_checkbox?(@user) -%>
+        <% if gift.show_new_deal_checkbox?(@users) -%>
             <div id="<%= "gift-#{gift.id}-comment-new-status" %>">
               <table>
                 <tr>

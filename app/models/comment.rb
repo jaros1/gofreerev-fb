@@ -145,7 +145,7 @@ class Comment < ActiveRecord::Base
   attr_accessor :no_older_comments
 
   def debug_notifications
-    false
+    true
   end # debug_notifications
 
   def table_row_id
@@ -154,34 +154,39 @@ class Comment < ActiveRecord::Base
 
   # display cancel new deal check box?
   # only for new not accepted/rejected agreement proposals
-  def show_cancel_new_deal_link? (user)
+  def show_cancel_new_deal_link? (users)
     return false unless new_deal_yn == 'Y'
     return false if accepted_yn
-    return false unless user_id == user.user_id
-    return false if gift.user_id_receiver and gift.user_id_giver
+    return false unless users.find { |user| user_id == user.user_id }
+    return false if gift.direction == 'both'
     true
   end # show_cancel_new_deal_link?
 
-  def show_accept_new_deal_link? (user)
+  def show_accept_new_deal_link? (users)
     return false unless new_deal_yn == 'Y'
     return false if accepted_yn
-    return false if user_id == user.user_id
-    return false if gift.user_id_receiver and gift.user_id_giver
-    return false if ![gift.user_id_receiver, gift.user_id_giver].index(user.user_id)
-    true
+    return false if users.find { |user| user_id == user.user_id }
+    return false if gift.direction == 'both'
+    gift.api_gifts.each do |api_gift|
+      user = users.find { |user2| user2.provider == api_gift.provider }
+      return true if [api_gift.user_id_receiver, api_gift.user_id_giver].index(user.user_id)
+    end
+    false
   end # show_accept_new_deal_link?
 
-  def show_reject_new_deal_link? (user)
-    show_accept_new_deal_link?(user)
+  def show_reject_new_deal_link? (users)
+    show_accept_new_deal_link?(users)
   end # show_reject_new_deal_link?
 
-  def show_delete_comment_link?(user)
-    return true if [gift.user_id_receiver, gift.user_id_giver].index(user.user_id)
-    (user_id == user.user_id)
+  def show_delete_comment_link?(users)
+    return false unless users.class == Array and users.length > 0
+    gift.api_gifts.each do |api_gift|
+      user = users.find { |user2| user2.provider == api_gift.provider }
+      next unless user
+      return true if [api_gift.user_id_receiver, api_gift.user_id_giver].index(user.user_id)
+    end
+    false
   end # show_delete_comment_link?
-
-
-
 
   def cancelled_proposal?
     noti_type = 3 if (new_deal_yn_was == 'Y' and !new_deal_yn and !accepted_yn)

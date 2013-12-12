@@ -342,41 +342,6 @@ class Gift < ActiveRecord::Base
   end # get_api_picture_url
 =end
 
-  def get_api_picture_url (access_token)
-    if picture != 'Y'
-      puts "gift.get_api_picture_url. picture = \"#{picture}\""
-      return nil
-    end
-    if deleted_at_api == 'Y'
-      puts "deleted picture"
-      return nil
-    end
-    raise NoApiAccessTokenException unless access_token
-    api = Koala::Facebook::API.new(access_token)
-    api_request = "#{api_gift_id}?fields=full_picture"
-    begin
-      api_response = api.get_object(api_request)
-    rescue Koala::Facebook::ClientError => e
-      puts 'Koala::Facebook::ClientError'
-      puts "e.fb_error_type = #{e.fb_error_type}"
-      puts "e.fb_error_code = #{e.fb_error_code}"
-      puts "e.fb_error_subcode = #{e.fb_error_subcode}"
-      puts "e.fb_error_message = #{e.fb_error_message}"
-      puts "e.http_status = #{e.http_status}"
-      puts "e.response_body = #{e.response_body}"
-      puts "e.fb_error_type.class.name = #{e.fb_error_type.class.name}"
-      puts "e.fb_error_code.class.name = #{e.fb_error_code.class.name}"
-      if e.fb_error_type == 'GraphMethodException' and e.fb_error_code == 100
-        # identical error response if picture is deleted or if user is not allowed to see picture
-        # picture not found - maybe picture has been deleted - maybe a permission problem
-        raise ApiPostNotFoundException
-      else
-        raise
-      end
-    end
-    puts "api_response = #{api_response}"
-    return api_response["full_picture"]
-  end # get_api_picture_url
 
 
   def visible_for (users)
@@ -419,11 +384,19 @@ class Gift < ActiveRecord::Base
 
 
   # display new deal check box?
-  # only for open deals - and not for users deals
-  def show_new_deal_checkbox? (user)
-    return false if user_id_giver and user_id_receiver # close deal
-    return false if user_id_giver == user.user_id
-    return false if user_id_receiver == user.user_id
+  # only for open deals - and not for users deals (user is giver or receiver)
+  def show_new_deal_checkbox? (users)
+    return false unless users.class == Array and users.size > 0
+    return false if direction == 'both' # closed deal
+    count = 0
+    api_gifts.each do |api_gift|
+      user = users.find { |user2| user2.provider == api_gift.provider }
+      next unless user
+      count += 1
+      return false if api_gift.user_id_giver == user.user_id
+      return false if api_gift.user_id_receiver == user.user_id
+    end # each
+    raise "gift #{id} without api gifts for login user(s)" unless count > 0
     true
   end # show_new_deal_checkbox?
 

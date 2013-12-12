@@ -88,6 +88,34 @@ en:
         google_oauth2: "google+"
         linkedin: "linkedin"
         twitter: "twitter"
+     translate_ajax_errors:
+        ajax_task_exception: "System error \"%{exception}\" for ajax task \"%{task}\". Check server log for more information."
+        ajax_task_invalid_response: "System error. Invalid response from ajax task \"%{task}\". Must be Nil or a valid input to translate." # task, response and exception. response is invalid response from ajax task and exception is exception from translate
+        ajax_task_missing_translate_key: "System error. Missing translation key \"%{key}\" for ajax task \"%{task}\""
+        update_timezone_invalid_user_id: "System error. Invalid user id %{user_id} when updating timezone information"
+        update_timezone_timezone_missing: "System error. Did not receive timezone information from browser/javascript"
+        update_timezone_save_error: "System error. Could not update user timezone information: \"%{errors}\""
+        profile_image_invalid_user: "System error. Invalid user id. %{user_id} when downloading profile picture"
+        profile_image_invalid_url: "Invalid profile picture url \"%{image}\" received from %{provider}" # image and provider - image must be an url (http or https)
+        profile_image_invalid_type: "Warning. Profile picture type %{image_type} from %{provider} is not supported. Url to profile picture was \"%{image}\""
+        profile_image_wget_failed: "Profile picture download from %{provider} failed: %{error}. Url was \"%{image}\""
+        profile_image_count_failed: "Profile picture download from %{provider} failed. Expected one profile picture. Found %{count} profile pictures. Url was \"%{image}\""
+        profile_image_mv_failed: "System error. Could not insert new profile picture received from %{provider}: %{error}"
+        post_login_user_id_not_found: "Warning. Did not find user id. Could not get friend list from %{provider}"
+        post_login_unknown_user_id: "System error. Did not find user. Could not get friend list from %{provider}"
+        post_login_token_not_found: "Warning. Did not find access token. Could not get friend list from %{provider}"
+        google_access_not_configured: "Error when fetching friend list from Google+ API. Access Not Configured. Check list: 1) Status is ON for Google+ API in Google Cloud Console"
+        google_insufficient_permission: "Error when fetching friend list from Google+ API. API. Insufficient Permission. Check list: 1) scope plus.login maybe is missing in provider setup for google+"
+        google_other_errors: "Error when fetching friend list from Google+ API. %{error}"
+        linkedin_access_denied: "Error when fetching connections from LinkedIn API. Access to connections denied. Check list: 1) scope r_network mangler maybe is missing in provider setup for LinkedIn"
+        post_on_api_unknown_gift_id: "Unknown id %{id} when posting on %{provider} wall"
+        post_on_api_invalid_gift_id: "Invalid id %{id} when posting on %{provider} wall"
+        post_on_api_old_gift: "Old id %{id} when posting on %{provider} wall"
+        gift_posted_1: "Gift posted in here but not on your %{apiname} wall (%{error})" # unhandled error message
+        gift_posted_2: "Gift posted in here and on your %{apiname} wall"
+        gift_posted_3: "Gift posted in here but not on your %{apiname} wall" # missing privileges
+        gift_posted_4: "Gift posted in here but not on your %{apiname} wall. Duplicate status message on %{apiname} wall"
+        gift_posted_5: "Gift posted in here but not on your %{apiname} wall. Posting on %{apiname} has not yet been implemented"
 
   # auth controller
   auth:
@@ -507,33 +535,4 @@ en:
         invite_api_friends_link_text2: "Invite friends"
         no_users_was_found_html: "There was not any other %{appname} users. To get started, you should create a few posts<br />with anything you want to share with your friends or with something you are looking<br />for or are missing, and that you think your friends might be able to help you.<br /><br />Invite one or more of your good %{apiname} friends to use %{appname}.<br />Either by sending a personal message with the link below or by using<br />the link below to invite your friends to use Gofreerev. a personal<br />message is the best since many people will reject game invitations."
 
-  # util controller - used for ajax requests
-  util:
-     do_ajax_tasks:
-        ajax_task_exception: "System error \"%{exception}\" for ajax task \"%{task}\". Check server log for more information."
-        ajax_task_invalid_response: "System error. Invalid response from ajax task \"%{task}\". Must be Nil or a valid input to translate." # task, response and exception. response is invalid response from ajax task and exception is exception from translate
-        ajax_task_missing_translate_key: "System error. Missing translation key \"%{key}\" for ajax task \"%{task}\""
-        update_timezone_invalid_user_id: "System error. Invalid user id %{user_id} when updating timezone information"
-        update_timezone_timezone_missing: "System error. Did not receive timezone information from browser/javascript"
-        update_timezone_save_error: "System error. Could not update user timezone information: \"%{errors}\""
-        profile_image_invalid_user: "System error. Invalid user id. %{user_id} when downloading profile picture"
-        profile_image_invalid_url: "Invalid profile picture url \"%{image}\" received from %{provider}" # image and provider - image must be an url (http or https)
-        profile_image_invalid_type: "Warning. Profile picture type %{image_type} from %{provider} is not supported. Url to profile picture was \"%{image}\""
-        profile_image_wget_failed: "Profile picture download from %{provider} failed: %{error}. Url was \"%{image}\""
-        profile_image_count_failed: "Profile picture download from %{provider} failed. Expected one profile picture. Found %{count} profile pictures. Url was \"%{image}\""
-        profile_image_mv_failed: "System error. Could not insert new profile picture received from %{provider}: %{error}"
-        post_login_user_id_not_found: "Warning. Did not find user id. Could not get friend list from %{provider}"
-        post_login_unknown_user_id: "System error. Did not find user. Could not get friend list from %{provider}"
-        post_login_token_not_found: "Warning. Did not find access token. Could not get friend list from %{provider}"
-        google_access_not_configured: "Error when fetching friend list from Google+ API. Access Not Configured. Check list: 1) Status is ON for Google+ API in Google Cloud Console"
-        google_insufficient_permission: "Error when fetching friend list from Google+ API. API. Insufficient Permission. Check list: 1) scope plus.login maybe is missing in provider setup for google+"
-        google_other_errors: "Error when fetching friend list from Google+ API. %{error}"
-        linkedin_access_denied: "Error when fetching connections from LinkedIn API. Access to connections denied. Check list: 1) scope r_network mangler maybe is missing in provider setup for LinkedIn"
-        post_on_api_unknown_gift_id: "Unknown id %{id} when posting on %{provider} wall"
-        post_on_api_invalid_gift_id: "Invalid id %{id} when posting on %{provider} wall"
-        post_on_api_old_gift: "Old id %{id} when posting on %{provider} wall"
-        gift_posted_1: "Gift posted in here but not on your %{apiname} wall (%{error})" # unhandled error message
-        gift_posted_2: "Gift posted in here and on your %{apiname} wall"
-        gift_posted_3: "Gift posted in here but not on your %{apiname} wall" # missing privileges
-        gift_posted_4: "Gift posted in here but not on your %{apiname} wall. Duplicate status message on %{apiname} wall"
-        gift_posted_5: "Gift posted in here but not on your %{apiname} wall. Posting on %{apiname} has not yet been implemented"
+

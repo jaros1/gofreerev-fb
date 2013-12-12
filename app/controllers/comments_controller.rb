@@ -99,7 +99,7 @@ class CommentsController < ApplicationController
       render :nothing => true
       return
     end
-    if !comment.show_delete_comment_link?(@user)
+    if !comment.show_delete_comment_link?(@users)
       puts "User can not delete comment with #{id} - silently ignore ajax request"
       render :nothing => true
       return
