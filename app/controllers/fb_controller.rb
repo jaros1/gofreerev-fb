@@ -65,7 +65,14 @@ class FbController < ApplicationController
     # add to api_response hash - is used for user.currency
     # api_response["country"] = session[:country]
     # api_response["language"] = session[:language]
-    user = User.find_create_from_facebook_hash(api_response)
+    user = User.find_or_create_user :provider => 'facebook',
+                                    :token => access_token,
+                                    :uid => api_response["id"],
+                                    :name => api_response['name'],
+                                    :image => (api_response['picture']['data']['url'] if api_response['picture'] and api_response['picture']['data']),
+                                    :country => api_response['locale'].to_s.last(2),
+                                    :language => api_response['locale'].to_s.first(2)
+
     puts "user = #{user}"
     if user.class == User
       # login ok - insert user_id and token in session
@@ -184,25 +191,6 @@ class FbController < ApplicationController
     # show_friend page with an introduction and a authorize link - use create-<language>.html.erb if the view exists
     render_with_language viewname
   end # create
-
-  # logout
-  def destroy
-    # fetch user for language support in logout page
-    @user = User.find_by_user_id(session[:user_id]) if session[:user_id]
-    # empty session - keep language for language support in pages
-    session.keys.each do |name|
-      session.delete(name) unless %w(_csrf_token).index(name.to_s)
-    end
-    case
-      when @user.facebook? then
-        redirect_to 'http://facebook.com/'
-      when @user.google_plus? then
-        redirect_to 'https://plus.google.com/'
-      else
-        # unknown login API
-        render_with_language __method__
-    end
-  end
 
 
   # fix blank canvas in facebook - https://coderwall.com/p/toddiq

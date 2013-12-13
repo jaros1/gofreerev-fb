@@ -78,8 +78,13 @@ module ApplicationHelper
     [ [ "#{a[1][:iso_code]} #{a[1][:name]}".first(25), a[1][:iso_code] ]]
   end
 
+
+
+  def header_log_in_link_url
+    url_for :controller => :auth, :action => :index
+  end
   def header_log_out_link_url
-    fb_path(@user.id)
+    url_for :controller => :auth, :action => :destroy, :id => 42
   end
   def render_page_footer
     render_partial_with_language('layouts', 'page_footer')

@@ -22,6 +22,7 @@ GofreerevFb::Application.routes.draw do
   post 'util/reject_new_deal'
   post 'util/do_ajax_tasks'
   get "util/currencies"
+  delete 'auth/destroy'
 
   # get "fb/index"
   # The priority is based upon order of creation: first created -> highest priority.

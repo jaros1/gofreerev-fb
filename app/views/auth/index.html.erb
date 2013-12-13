@@ -1,4 +1,5 @@
-<br />
+<div style="width: 100%"><br /></div>
+
 <% for provider in @providers do %>
     <% if @logged_in_providers.index(provider) -%>
         <%= log_out_link(provider) %>
@@ -18,3 +19,5 @@
 <% for key in session.keys do -%>
     <% "session[:#{key}] = #{debug session[key]}" %><br />
 <% end -%>
+
+<div style="width: 100%"><hr></div>

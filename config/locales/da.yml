@@ -70,8 +70,10 @@ da:
         header_friends_link_title: ''
         header_friends_link_text: 'Venner'
         header_api_link_title: "Returner til %{apiname} UDEN at logge ud af %{appname}"
+        header_log_in_link_text: 'Log in'
+        header_log_in_link_title: 'Log in'
         header_log_out_link_text: 'Log ud'
-        header_log_out_link_title: "Log ud af %{appname} og returner til %{apiname}."
+        header_log_out_link_title: "Log ud af %{appname}"
 
   # shared partials
   shared:
@@ -137,6 +139,8 @@ da:
         callback_user_name_missing_google: "Login fejlede. Modtog ikke brugernavn fra google. Evt. mangler scope userinfo.profile for provider"
         callback_user_name_missing: "Login fejlede. Modtag ikke brugernavn fra %{provider}"
         find_or_create_from_auth_hash: "System fejl. Ugyldigt svar fra bruger opdatering efter login."
+     destroy:
+        logged_off: "Log ud ok. Tak for besøget. Brug nedenstående link til at logge ind igen eller vende tilbage til login API. Luk browser for at fjerne session cookie"
 
   # comments controller
   comments:

@@ -396,5 +396,7 @@
 
   133) ActionController::RoutingError (No route matches [GET] "/gifts/images/invisible-picture.gif"):
 
-  134) page header. two log out links - no log in link
+  134) page header. log out link. different title for one and more than one logged in user
+
+  136) refactor post login code in auth_controller and fb_controller to one method
 

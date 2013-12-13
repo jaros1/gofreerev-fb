@@ -16,7 +16,13 @@ class AuthController < ApplicationController
     @auth_hash = auth_hash
     puts "ENV = #{ENV}"
     puts "auth_hash = #{auth_hash}"
-    user = User.find_create_from_omniauth_hash(auth_hash)
+    user = User.find_or_create_user :provider => auth_hash.get_provider,
+                                    :token => auth_hash.get_token,
+                                    :uid => auth_hash.get_uid,
+                                    :name => auth_hash.get_user_name,
+                                    :image => auth_hash.get_image,
+                                    :country => auth_hash.get_country,
+                                    :language => auth_hash.get_language
     if user.class == User
       # login ok - insert user_id and token in session
       provider = auth_hash.get_provider
@@ -27,6 +33,8 @@ class AuthController < ApplicationController
       tokens[provider] = auth_hash.get_token
       session[:user_ids] = user_ids
       session[:tokens] = tokens
+      language = auth_hash.get_language
+      session[:language] = language if language
       # add tasks to be ajax processed after login
       # todo: add helper add_ajax_task
       image = auth_hash.get_image
@@ -90,35 +98,41 @@ class AuthController < ApplicationController
   end # oauth_failure
 
 
-  # alias for /
-  # check any parameters and redirect to relevant method
-  # 1) empty request - redirect to gifts/index (logged in user) or auth/index (not logged in user)
-  def check
-    puts "params.size = #{params.size}"
-    puts "params.keys = #{params.keys.join(', ')}"
-    signature = params.keys
-    signature.delete_if { |key| %w(controller action).index(key) or params[key].to_s == ""}
-    signature.sort!
-    puts "signature = #{signature.join(', ')}"
-
-    if signature.size == 0
-      # 1) - empty request - redirect to gifts/index (logged in user) or auth/index (not logged in user)
-      if @users.size == 0
-        redirect_to :controller => :auth
-      else
-        redirect_to :controller => :gifts
-      end
+  # logout
+  def destroy
+    # fetch user for language support in logout page
+    if @users.length == 0
+      flash[:notice] = t '.already_logged_off'
+      redirect_to :action => :index
       return
     end
-
-    if signature == %w(fb_locale signed_request)
-      # 2) - login from facebook - FB_APP_URL
-
+    # empty session
+    # language is kept for post log out language support
+    # created is kept so that cookie note is not displayed after log out
+    session.keys.each do |name|
+      session.delete(name) unless %w(_csrf_token language created).index(name.to_s)
     end
+    flash[:notice] = t '.logged_off', :appname => APP_NAME
+    if @users.length > 1
+      redirect_to :action => :index
+      return
+    end
+    @user = @users.first
+    case @user.provider
+      when 'facebook'
+        redirect_to 'https://facebook.com/'
+      when 'google_oauth2'
+        redirect_to 'https://plus.google.com/'
+      when 'linkedin'
+        redirect_to 'https://www.linkedin.com/'
+      when 'twitter'
+        redirect_to 'https://twitter.com/'
+      else
+        redirect_to :action => :index
+    end
+  end # destroy
 
 
-    raise "not implemented"
-  end
 
   protected
   def auth_hash
