@@ -1009,10 +1009,11 @@ class UtilController < ApplicationController
         options = {:apiname => login_user.api_name_without_brackets, :error => error}
         if gift_posted_on_wall_api_wall == 3
           # url to add missing status update priv. to post on facebook wall
-          oauth = session[:oauth] = Koala::Facebook::OAuth.new(api_id, api_secret, 'http://localhost/gifts/')
+          oauth = session[:oauth] = Koala::Facebook::OAuth.new(api_id, api_secret, 'http://localhost/giftsx/')
           state = session[:state] = String.generate_random_string(30)
           url = oauth.url_for_oauth_code(:permissions => 'status_update', :state => state)
           options[:url] = url
+          options[:appname] = APP_NAME
         end
         return ".gift_posted_#{gift_posted_on_wall_api_wall}_html", options
       else
@@ -1055,8 +1056,7 @@ class UtilController < ApplicationController
               # error - this should not happen.
               return ['.picture_upload_unknown_problem', {:appname => APP_NAME, :apiname => login_user.api_name_without_brackets}]
             else
-              # flash with request for read stream privs
-              # todo: add ajax show/inject link to grant read_stream permission in gifts/index page. see gift_posted_3_html
+              # message with link to grant missing read stream priv.
               oauth = session[:oauth] = Koala::Facebook::OAuth.new(api_id, api_secret, SITE_URL + 'gifts/')
               state = session[:state] = String.generate_random_string(30)
               url = oauth.url_for_oauth_code(:permissions => 'read_stream', :state => state)

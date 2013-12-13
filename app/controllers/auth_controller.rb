@@ -1,5 +1,8 @@
 class AuthController < ApplicationController
 
+  skip_before_filter :verify_authenticity_token, :only => [:check] # no crsf token when facebook starts the App with post /fb
+  after_filter :allow_iframe
+
   def index
     @providers = OmniAuth::Builder.providers
     # find logged in providers - userid and token
@@ -8,11 +11,12 @@ class AuthController < ApplicationController
     @logged_in_providers = user_ids.collect { |user_id| user_id.split('/').last }.find_all { |provider| tokens[provider].to_s != "" }
   end
 
+  # omniauth callback on success
   def create
     @auth_hash = auth_hash
     puts "ENV = #{ENV}"
     puts "auth_hash = #{auth_hash}"
-    user = User.find_or_create_from_auth_hash(auth_hash)
+    user = User.find_create_from_omniauth_hash(auth_hash)
     if user.class == User
       # login ok - insert user_id and token in session
       provider = auth_hash.get_provider
@@ -52,6 +56,7 @@ class AuthController < ApplicationController
     redirect_to '/auth'
   end # create
 
+  # omniauth callback on failure
   def oauth_failure
     env = request.env
     # puts "env.keys = #{env.keys.sort.join(', ')}"
@@ -84,10 +89,46 @@ class AuthController < ApplicationController
     redirect_to '/auth'
   end # oauth_failure
 
-  protected
 
+  # alias for /
+  # check any parameters and redirect to relevant method
+  # 1) empty request - redirect to gifts/index (logged in user) or auth/index (not logged in user)
+  def check
+    puts "params.size = #{params.size}"
+    puts "params.keys = #{params.keys.join(', ')}"
+    signature = params.keys
+    signature.delete_if { |key| %w(controller action).index(key) or params[key].to_s == ""}
+    signature.sort!
+    puts "signature = #{signature.join(', ')}"
+
+    if signature.size == 0
+      # 1) - empty request - redirect to gifts/index (logged in user) or auth/index (not logged in user)
+      if @users.size == 0
+        redirect_to :controller => :auth
+      else
+        redirect_to :controller => :gifts
+      end
+      return
+    end
+
+    if signature == %w(fb_locale signed_request)
+      # 2) - login from facebook - FB_APP_URL
+
+    end
+
+
+    raise "not implemented"
+  end
+
+  protected
   def auth_hash
     request.env['omniauth.auth']
+  end
+
+  # fix blank canvas in facebook - https://coderwall.com/p/toddiq
+  private
+  def allow_iframe
+    response.headers['X-Frame-Options'] = 'GOFORIT'
   end
 
 end

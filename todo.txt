@@ -385,4 +385,16 @@
 
   129) gift_file is not cleared after successful post
 
-  130) gift_posted_3_html - shorten text and add div with title
+  131) "old" facebook callbacks not working
+       1) login from FB app
+       2) return from grant status update priv
+       3) return from grant read stream priv
+       Use auth controller or use fbcontroller?
+       Check old applicationController.fetch user
+
+  132) search app source for @user. @users should be used if possible.
+
+  133) ActionController::RoutingError (No route matches [GET] "/gifts/images/invisible-picture.gif"):
+
+  134) page header. two log out links - no log in link
+

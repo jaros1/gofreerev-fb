@@ -116,7 +116,7 @@ en:
         local_picture_not_found: "Invalid id %{id} when posting on %{provider} wall (3)"
         gift_posted_1_html: "Gift posted in here but not on your %{apiname} wall (%{error})" # unhandled error message
         gift_posted_2_html: "Gift posted in here and on your %{apiname} wall"
-        gift_posted_3_html: "Gift posted in here but not on your %{apiname} wall. %{appname} lack access to write on your %{apiname} wall. <a href=\"javascript: {top.location.href='%{url}'}\">Allow %{appname} to post on my behalf!</a>" # missing privileges
+        gift_posted_3_html: "<div title=''>Gift posted in here but not on your %{apiname} wall. %{appname} lack access to write on your %{apiname} wall. <a href=\"javascript: {top.location.href='%{url}'}\">Allow %{appname} to post on my behalf!</a></div>" # missing privileges
         gift_posted_4_html: "Gift posted in here but not on your %{apiname} wall. Duplicate status message on %{apiname} wall"
         gift_posted_5_html: "Gift posted in here but not on your %{apiname} wall. Posting on %{apiname} has not yet been implemented"
         picture_upload_unknown_problem: "Gift was posted in here and on your %{apiname} wall. Picture was uploaded to your %{apiname} wall but %{appname} did not have permission to read the picture on your %{apiname} wall and can not display the picture in here. Maybe you have changed permissions for %{appname}."
@@ -186,11 +186,6 @@ en:
         not_logged_in_flash: "Invalid request. Not logged in."
         not_logged_in_text: "You are not logged in and you can not create wall postings."
         welcome_msg_after_login: "Welcome %{username} to %{appname}"
-
-        post_gift_not_allowed_title: "%{appname} lack access to write on your %{apiname} wall. You can share your resources with your friends in here, but postings will only appear here and not on your %{apiname} wall. This means your message is likely to be seen by few friends. You should therefore allow %{appname} permission to write on your wall. %{appname} will only make the postings you ask for. Pictures are uploaded to %{apiname}. Pictures can not be uploaded without permission to write on your %{apiname} wall."
-        post_gift_not_allowed_text: "%{appname} lack access to write on your %{apiname} wall."
-        request_post_gift_priv_link_text: "Allow %{appname} to post on my behalf!"
-
         create_gift_header_line: "Help each other and the environment. Share your resources. Give loan / rent out, sell etc."
         price_title: "Price in virtual free money. Optional. Can be set now or later. Best set be buyer / receiver so that the price becomes a measure of how much the thing / help was appreciated. There is used free virtual national money in here with a negative interest. %{min_interest}% per year with a positive balance and %{max_interest}% per year for a negative balance. One goal of the negative rate is to ensure that money and resources circulates. The negative interest rate makes it possible with a society without growth, overconsumption and with plenty of leisure to all."
         price_prompt: "Price:"

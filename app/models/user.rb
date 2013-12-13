@@ -247,10 +247,12 @@ class User < ActiveRecord::Base
   end # open4
 
 
-  # find and create or update user from amniauth auth_hash information
+  # find and create or update user from omniauth auth_hash information
+  # used when login starts from gofreerev
+  # called from authController.create
   # return user if ok
   # return key or key + options if not ok (for translate)
-  def self.find_or_create_from_auth_hash (auth_hash)
+  def self.find_create_from_omniauth_hash (auth_hash)
     # missing provider, unknown provider, missing token, uid or user_name are fatal errors.
     provider = auth_hash.get_provider
     return '.callback_provider_missing' unless provider
@@ -305,6 +307,53 @@ class User < ActiveRecord::Base
     user.save!
     user
   end # find_or_create_from_auth_hash
+
+  # find and create or update user from koala response
+  # used when login starts from facebook
+  # called from fbController.index
+  # return user if ok
+  # return key or key + options if not ok (for translate)
+  def self.find_create_from_facebook_hash (auth_hash)
+    puts "User.find_create_from_facebook_hash: auth_hash = #{auth_hash}"
+    # auth_hash = {"name"=>"Charlie Amfcigjbbaac Sharpewitz", "locale"=>"da_DK", "id"=>"100006397022113",
+    #              "picture"=>{"data"=>{"url"=>"https://fbcdn-profile-a.akamaihd.net/hprofile-ak-ash3/573991_100006397022113_893030592_q.jpg",
+    #                                   "is_silhouette"=>false}}}
+
+    # missing provider, unknown provider, missing token, uid or user_name are fatal errors.
+    provider = 'facebook'
+    return ['.callback_unknown_provider', { :provider => provider } ] unless OmniAuth::Builder.providers.index(provider.to_s)
+    uid = auth_hash["id"]
+    return ['.callback_uid_missing', { :provider => provider }] unless uid
+    puts "auth_hash = #{auth_hash}"
+    puts "user_name = #{auth_hash['name']}"
+    user_name = auth_hash['name'] # todo: should escape username - ERB::Util.html_escape(user_name) does not work from activemodel
+    return ['.callback_user_name_missing',  { :provider => provider } ] unless user_name
+    # missing image is a minor problem
+    image = auth_hash['picture']['data']['url'] if auth_hash['picture'] and auth_hash['picture']['data']
+    puts "image = #{image}"
+    user_id = "#{uid}/#{provider}"
+    user = User.find_by_user_id(user_id)
+    user = User.new unless user
+    user.user_id = user_id
+    user.user_name = user_name
+    if user.new_record?
+      # initialize currency from country - for example google and twitter
+      country_code = auth_hash['locale'].last(2)
+      country_code = BASE_COUNTRY if !country_code
+      c = Country[country_code]
+      if !c
+        currency = BASE_CURRENCY
+      else
+        currency = c.currency.code
+      end
+      active_currencies = ExchangeRate.active_currencies
+      currency = BASE_CURRENCY if active_currencies.size > 0 and !active_currencies.index(currency)
+      user.currency = currency
+    end # outer if
+
+    user.save!
+    user
+  end # self.find_create_from_facebook_hash
 
   # task from ajax task queue session[:ajax_tasks]- download and save profile picture from provider after login
   # called from util.do_ajax_tasks after login process has completed

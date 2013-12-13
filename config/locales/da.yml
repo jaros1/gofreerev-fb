@@ -119,7 +119,7 @@ da:
         local_picture_not_found: "Ugyldigt id %{id} ved opslag på %{provider} væg (3)"
         gift_posted_1_html: "Opslag opretter her, men ikke på din %{apiname} væg (%{error})" # unhandled error message
         gift_posted_2_html: "Opslag opretter her og på din %{apiname} væg"
-        gift_posted_3_html: "Opslag opretter her, men ikke på din %{apiname} væg. Gofreerev mangler adgang til at skrive på din facebook væg. <a href=\"javascript: {top.location.href='%{url}'}\">Giv %{apiname} lov til at skrive på min væg!</a>" # missing privileges
+        gift_posted_3_html: "<div title='%{appname} mangler adgang til at skrive på din %{apiname} væg. Du kan godt dele dine resourcer med dine venner herinde, men opslag vil kun blive vist her og ikke på din %{apiname} væg. Dvs. dine opslag vil sandsynligvis kun blive set af få venner. Du bør derfor give %{appname} tilladelse til at skrive på din væg. %{appname} laver kun de opslag du selv beder om. Billeder gemmes kun i %{apiname}. Uden adgang til at skrive på din %{apiname} væg kan der derfor ikke uploades billeder i forbindelse med opslag herinde.'>Opslag opretter her, men ikke på din %{apiname} væg. <a href=\"javascript: {top.location.href='%{url}'}\">Giv %{apiname} lov til at skrive på min væg!</a></div>" # missing privileges
         gift_posted_4_html: "Opslag opretter her, men ikke på din %{apiname} væg. Opslag fandes allerede på %{apiname} væg"
         gift_posted_5_html: "Opslag opretter her, men ikke på din %{apiname} væg. Opslag på %{apiname} væg er endnu ikke implementeret"
         picture_upload_unknown_problem: "Opslag opretter her og på din %{apiname} væg. Foto blev uploaded til din %{apiname} væg, men %{appname} mangler rettigheder til at se billedet på din %{apiname} væg og kan derfor ikke vise foto herinde. Måske du har ændret rettighedsindstillinger for %{appname}."
@@ -189,11 +189,6 @@ da:
         not_logged_in_flash: "Ugyldigt kald. Du er ikke logget på."
         not_logged_in_text: "Du er ikke logget ind og der kan ikke oprettes opslag."
         welcome_msg_after_login: "Velkommen %{username} til %{appname}"
-
-        post_gift_not_allowed_title: "%{appname} mangler adgang til at skrive på din %{apiname} væg. Du kan godt dele dine resourcer med dine venner herinde, men opslag vil kun blive vist her og ikke på din %{apiname} væg. Dvs. dine opslag vil sandsynligvis kun blive set af få venner. Du bør derfor give %{appname} tilladelse til at skrive på din væg. %{appname} laver kun de opslag du selv beder om. Billeder gemmes kun i %{apiname}. Uden adgang til at skrive på din %{apiname} væg kan der derfor ikke uploades billeder i forbindelse med opslag herinde."
-        post_gift_not_allowed_text: "%{appname} mangler adgang til at skrive på din %{apiname} væg."
-        request_post_gift_priv_link_text: "Giv %{appname} lov til at skrive på min væg!"
-
         create_gift_header_line: "Hjælp hinanden og miljøet. Del jeres resourcer. Giv, lån/lej ud, sælg etc."
         price_title: "Pris i virtuelle frie penge. Valgfri. Kan sættes nu eller senere. Bedst hvis køber/modtager sætter pris der så bliver et mål for hvor meget pris vedkommende satte på den modtagne ting/hjælp. Der anvendes frie virtuelle nationale penge herinde med en negativ rente. %{min_interest}% om året for en positiv saldo og %{max_interest}% om året for en negativ saldo. Et formål med den negative rente er at sikre at penge og resourcer cirkulerer. Den negative rente gør det muligt med et samfund uden vækst, uden overforbrug og med mere fritid."
         price_prompt: "Pris:"

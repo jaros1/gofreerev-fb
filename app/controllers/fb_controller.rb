@@ -27,7 +27,7 @@ class FbController < ApplicationController
         # exchange code for an access token
         # todo: error handling?!
         puts "code = #{params[:code]}"
-        access_token = session[:access_token] = session[:oauth].get_access_token(params[:code])
+        access_token = session[:oauth].get_access_token(params[:code])
         # puts "access_token = #{access_token}"
         # login completed. access token is saved.
         session.delete(:oauth)
@@ -45,7 +45,7 @@ class FbController < ApplicationController
       end
     end
 
-    unless session[:access_token]
+    unless access_token
       # access token was not found. Eg if FB app login page not was used
       render_with_language 'cross_site_forgery'
       return
@@ -54,41 +54,63 @@ class FbController < ApplicationController
     # FB login completed
     puts 'index: login completed'
 
-    unless (user_id = session[:user_id])
-      # get user id and name
-      puts 'get user id and name'
-      api = Koala::Facebook::API.new(session[:access_token])
-      api_request = 'me?fields=name,permissions'
-      puts "api_request = #{api_request}"
-      api_response = api.get_object api_request
-      puts "api_response = #{api_response.to_s}"
-      user_id = "{api_response['id']}/facebook"
-      user_name = api_response['name']
-      u = User.find_by_user_id(user_id)
-      u = User.new unless u
-      u.user_id = user_id
-      u.user_name = user_name
-      if u.new_record?
-        # set currency and balance for new user.
-        puts 'new user'
-        country = session[:country] || 'US' #  Default USD
-        u.currency = Country[country].currency.code
-        u.balance = 0.0
-        u.balance_at = Date.today
+    # get user information
+    puts 'get user id and name'
+    api = Koala::Facebook::API.new(access_token)
+    api_request = 'me?fields=name,picture,locale'
+    puts "api_request = #{api_request}"
+    api_response = api.get_object api_request
+    puts "api_response = #{api_response.to_s}"
+    # fb_locale was received in fbController.create post request from facebook
+    # add to api_response hash - is used for user.currency
+    # api_response["country"] = session[:country]
+    # api_response["language"] = session[:language]
+    user = User.find_create_from_facebook_hash(api_response)
+    puts "user = #{user}"
+    if user.class == User
+      # login ok - insert user_id and token in session
+      provider = 'facebook'
+      user_ids = session[:user_ids] || []
+      user_ids.delete_if { |user_id| user_id.split('/').last == provider }
+      user_ids << user.user_id
+      tokens = session[:tokens] || {}
+      tokens[provider] = access_token
+      session[:user_ids] = user_ids
+      session[:tokens] = tokens
+      # add tasks to be ajax processed after login
+      # todo: add helper add_ajax_task
+      image = api_response['picture']['data']['url'] if api_response['picture'] and api_response['picture']['data']
+      post_login_task_provider = "post_login_#{provider}" # private method in UtilController
+      # todo: check if timezone is available from client or from facebook api
+      # add_ajax_task "User.update_timezone('#{user.user_id}', params[:timezone])" # timezone from client/javascript
+      add_ajax_task "User.download_profile_image('#{user.user_id}', '#{image}')" if image
+      if UtilController.new.private_methods.index(post_login_task_provider.to_sym)
+        add_ajax_task post_login_task_provider
+      else
+        puts "Warning. No post login task was found for #{provider}. No #{provider} friend information will be downloaded"
       end
-      u.permissions = api_response['permissions']['data'][0]
-      u.save!
-      # login ok
-      puts "login ok: user_id = #{session[:user_id]}"
-      session[:user_id] = user_id
-    end # if
+      # currencies for logged in users must be identical
+      if user_ids.length > 1
+        currencies = User.where('user_id in (?)', user_ids).collect { |user2| user2.currency }.uniq
+        add_ajax_task 'post_login_fix_currency' if currencies.length > 1
+      end
+      redirect_to :controller => :gifts
+    else
+      # login failed
+      key, options = user
+      begin
+        flash[:notice] = t key, options
+      rescue Exception => e
+        puts "invalid response from User.find_or_create_from_auth_hash. Must be nil or a valid input to translate. Response: #{user}"
+        flash[:notice] = t '.find_or_create_from_auth_hash', :response => user, :exception => e.message.to_s
+      end
+      redirect_to :controller => :auth
+    end
 
-    # redirect to gifts page
-    redirect_to '/gifts'
-    # debug_session(__method__.to_s + ' - end') # debug. dump session variables
   end # index
 
   # post /fb = fb/create is called when FB starts the APP.
+  # / will route to this method if :fb_locale and :signed_request are in params (see routes.rb root and /lib/role_constraints.rb)
   # Signatur 1: when an unauthorized user starts the app from facebook
   #   input: signed_request encoded JSON hash with (user, issued_at and algorithm)
   #          1) user 	      A JSON array containing the locale string, country string and the age object (containing the min and max numbers of the age range) for the current person using the app.
@@ -109,9 +131,6 @@ class FbController < ApplicationController
   #                     "user_id"=>"1705481075"}
   #   action:
   def create
-    # new rails session every time FB starts the rails app
-    reset_session
-
     signed_request = params[:signed_request]
     puts "signed_request = #{signed_request}"
     # signed_request = 9m_Xew0oojeuzMjIZFqwx9lI_UI4AqC-vMWXL9o45g4.eyJhbGdvcml0aG0iOiJITUFDLVNIQTI1NiIsImlzc3VlZF9hdCI6MTM3MzI4NDA4OCwidXNlciI6eyJjb3VudHJ5IjoiZGsiLCJsb2NhbGUiOiJkYV9ESyIsImFnZSI6eyJtaW4iOjIxfX19

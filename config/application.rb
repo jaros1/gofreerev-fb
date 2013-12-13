@@ -21,6 +21,7 @@ module GofreerevFb
     # config.i18n.default_locale = :de
 
     # Custom directories with classes and modules you want to be autoloadable.
+    config.autoload_paths += %W(#{config.root}/lib)
     config.autoload_paths += %W(#{config.root}/lib/custom_exceptions)
   end
 end
