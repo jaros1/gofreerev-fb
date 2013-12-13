@@ -525,7 +525,7 @@ function ajax_insert_update_gifts (ajax_tasks_sleep)
 
 // catch load errors  for api pictures. Gift could have been deleted. url could have been changed
 // gift ids with invalid picture urls are collected in a global javascript array and submitted to server in 2 seconds
-// on error gift.api_picture_url_on_error_at is setted and a new picture url is looked up if possible
+// on error gift.api_picture_url_on_error_at is set and a new picture url is looked up if possible
 // JS array with gift ids
 var missing_api_picture_urls = [];
 // function used in onload for img tags

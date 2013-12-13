@@ -90,9 +90,10 @@ da:
         linkedin: "linkedin"
         twitter: "twitter"
      translate_ajax_errors:
-        ajax_task_exception: "Systemfejl \"%{exception}\" for ajax task \"%{task}\". Tjek server log for mere information." # task, exception
-        ajax_task_invalid_response: "Systemfejl. Ugyldigt svar fra ajax task %{task}. Skal være Nil eller gyldigt input til translate." # task, response and exception. response is invalid response from ajax task and exception is ruby exception from translate
+        ajax_task_exception: "Systemfejl \"%{exception}\" for ajax task \"%{task}\". Tjek backtrace i server log for mere information." # task, exception
+        ajax_task_invalid_response: "Systemfejl. Ugyldigt svar fra ajax task \"%{task}\". Skal være Nil eller gyldigt input til translate." # task, response and exception. response is invalid response from ajax task and exception is ruby exception from translate
         ajax_task_missing_translate_key: "System error. Oversættelse mangler for \"%{key}\" for ajax task \"%{task}\"."
+        ajax_task_missing_translate_arg: "System error. Variabel %{argument} mangler i oversættelse af \"%{key}\" for ajax task \"%{task}\"."
         update_timezone_invalid_user_id: "Systemfejl. Ugyldigt user_id %{user_id} ved opdatering af tidszone information" # user_id
         update_timezone_timezone_missing: "Systemfejl. Modtag ikke tidszone information fra browser/javascript"
         update_timezone_save_error: "Systemfejl. Kunne ikke opdatere bruger information om tidszone: \"%{errors}\"" # error = user errors.
@@ -100,29 +101,29 @@ da:
         profile_image_blank: "Intet profil billede modtaget fra %{provider}" # provider
         profile_image_invalid_url: "Ugyldig profil billede url \"%{image}\" modtaget fra %{provider}" # image and provider - image must be an url (http or https)
         profile_image_invalid_type: "Advarsel. Profil billede type %{image_type} modtaget fra %{provider} er ikke understøttet. Url til profil billede var \"%{image}\""
-        profile_image_wget_failed: "Download af profil billede fra %{provider} fejlede: %{error}. Url til profil billede var \"%{image}\""
+        profile_image_wget_failed: "Download af profil billede fra %{provider} fejlede: \"%{error}\". Url til profil billede var \"%{image}\""
         profile_image_count_failed: "Systemfejl. Download af profil billede fra %{provider} fejlede. Forventede et profil billede. Fandt %{count} profil billeder. Url var \"%{image}\""
-        profile_image_mv_failed: "Systemfejl. Kunne ikke indsætte nyt profil billede modtaget fra %{provider}: %{error}"
+        profile_image_mv_failed: "Systemfejl. Kunne ikke indsætte nyt profil billede modtaget fra %{provider}: \"%{error}\""
         too_few_exchange_rates: "Advarsel. Opslag af dagens valuta kurser fra %{bank} fejlede. Forventede >= %{expected} kurser. Modtag %{found} kurser"
         post_login_user_id_not_found: "Advarsel. Fandt ikke bruger id. Kunne ikke hente venneliste fra %{provider}"
         post_login_unknown_user_id: "Systemfejl. Fandt ikke bruger. Kunne ikke hente venneliste fra %{provider}"
         post_login_token_not_found: "Advarsel. Fandt ikke adgangs \"billet\". Kunne ikke hente venneliste fra %{provider}"
         google_access_not_configured: "Fejl ved hentning af venneliste fra Google+ API. Access Not Configured. Tjek liste ved API opsætning: 1) Tjek log for mere information, 2) At application_name og application_version sættes når Google::APIClient initialiseres, 3) Status er ON for Google+ API i Google Cloud Console"
         google_insufficient_permission: "Fejl ved hentning af venneliste fra Google+ API. Insufficient Permission. Tjek liste ved API opsætning: 1) scope plus.login mangler i provider opsætning for google"
-        google_other_errors: "Fejl ved hentning af venneliste fra Google+ API. %{error}"
+        google_other_errors: "Fejl ved hentning af venneliste fra Google+ API. \"%{error}\""
         linkedin_access_denied: "Fejl ved hentning af connections fra LinkedIn API. Access to connections denied. Tjek liste ved API opsætning. 1) scope r_network mangler i provider opsætning for linkedin"
         post_on_api_unknown_gift_id: "Ukendt id %{id} ved opslag på %{provider} væg"
         post_on_api_invalid_gift_id: "Ugyldigt id %{id} ved opslag på %{provider} væg (1)"
         post_on_api_old_gift: "Gammelt id %{id} ved opslag på %{provider} væg"
         no_local_picture: "Ugyldigt id %{id} ved opslag på %{provider} væg (2)"
         local_picture_not_found: "Ugyldigt id %{id} ved opslag på %{provider} væg (3)"
-        gift_posted_1_html: "Opslag opretter herinde, men ikke på din %{apiname} væg (%{error})" # unhandled error message
-        gift_posted_2_html: "Opslag opretter herinde og på din %{apiname} væg"
-        gift_posted_3_html: "Opslag opretter herinde, men ikke på din %{apiname} væg. Gofreerev mangler adgang til at skrive på din facebook væg. <a href=\"javascript: {top.location.href='%{url}'}\">Giv %{apiname} lov til at skrive på min væg!</a>" # missing privileges
-        gift_posted_4_html: "Opslag opretter herinde, men ikke på din %{apiname} væg. Opslag fandes allerede på %{apiname} væg"
-        gift_posted_5_html: "Opslag opretter herinde, men ikke på din %{apiname} væg. Opslag på %{apiname} væg er endnu ikke implementeret"
-        picture_upload_unknown_problem: "Opslag opretter herinde og på din %{apiname} væg. Foto blev uploaded til din %{apiname} væg, men %{appname} mangler rettigheder til at se billedet på din %{apiname} væg og kan derfor ikke vise foto herinde. Måske du har ændret rettighedsindstillinger for %{appname}."
-        picture_upload_missing_permission: "Opslag opretter herinde og på din %{apiname} væg. Foto blev uploaded til din %{apiname} væg, men %{appname} mangler rettigheder til at se billedet på din %{apiname} og kan derfor ikke vise foto herinde. Du kan løse dette problem ved enten at ændre synlighed for %{appname} opslag til offentlig eller ved at give %{appname} lov til at læse opslag på din %{apiname} væg."
+        gift_posted_1_html: "Opslag opretter her, men ikke på din %{apiname} væg (%{error})" # unhandled error message
+        gift_posted_2_html: "Opslag opretter her og på din %{apiname} væg"
+        gift_posted_3_html: "Opslag opretter her, men ikke på din %{apiname} væg. Gofreerev mangler adgang til at skrive på din facebook væg. <a href=\"javascript: {top.location.href='%{url}'}\">Giv %{apiname} lov til at skrive på min væg!</a>" # missing privileges
+        gift_posted_4_html: "Opslag opretter her, men ikke på din %{apiname} væg. Opslag fandes allerede på %{apiname} væg"
+        gift_posted_5_html: "Opslag opretter her, men ikke på din %{apiname} væg. Opslag på %{apiname} væg er endnu ikke implementeret"
+        picture_upload_unknown_problem: "Opslag opretter her og på din %{apiname} væg. Foto blev uploaded til din %{apiname} væg, men %{appname} mangler rettigheder til at se billedet på din %{apiname} væg og kan derfor ikke vise foto herinde. Måske du har ændret rettighedsindstillinger for %{appname}."
+        picture_upload_missing_permission_html: "<div title='Foto blev uploaded til din %{apiname} væg, men %{appname} mangler rettigheder til at se billedet på din %{apiname} væg og kan derfor ikke vise foto herinde. Du kan løse dette problem ved enten at ændre synlighed for %{appname} opslag til offentlig eller ved at give %{appname} lov til at læse opslag på din %{apiname} væg.'>Opslag opretter herinde og på din %{apiname} væg, men foto kan ikke vises her. <a href=\"javascript: {top.location.href='%{url}'}\">Giv Gofreerev lov til at læse opslag på min væg!</a></div>"
 
   # auth controller
   auth:
@@ -188,12 +189,11 @@ da:
         not_logged_in_flash: "Ugyldigt kald. Du er ikke logget på."
         not_logged_in_text: "Du er ikke logget ind og der kan ikke oprettes opslag."
         welcome_msg_after_login: "Velkommen %{username} til %{appname}"
+
         post_gift_not_allowed_title: "%{appname} mangler adgang til at skrive på din %{apiname} væg. Du kan godt dele dine resourcer med dine venner herinde, men opslag vil kun blive vist her og ikke på din %{apiname} væg. Dvs. dine opslag vil sandsynligvis kun blive set af få venner. Du bør derfor give %{appname} tilladelse til at skrive på din væg. %{appname} laver kun de opslag du selv beder om. Billeder gemmes kun i %{apiname}. Uden adgang til at skrive på din %{apiname} væg kan der derfor ikke uploades billeder i forbindelse med opslag herinde."
         post_gift_not_allowed_text: "%{appname} mangler adgang til at skrive på din %{apiname} væg."
         request_post_gift_priv_link_text: "Giv %{appname} lov til at skrive på min væg!"
-        read_stream_not_allowed_title: "%{appname} mangler adgang til at læse opslag på din %{apiname} væg. Du kan herinde fra lave opslag med foto på din %{apiname} væg, men billeder kan ikke blive vist i %{appname}. Du kan løse problemet ved at ændre synlighed for %{appname}'s opslag til offentligt eller du kan give %{appname} lov til at læse opslag på din %{apiname} væg. %{appname} vil udelukkende bruge adgangen til at vise de uploadede billeder her."
-        read_stream_not_allowed_text: "%{appname} mangler adgang til at læse opslag på din %{apiname} væg."
-        request_read_stream_priv_link_text: "Giv %{appname} lov til at læse opslag på min væg!"
+
         create_gift_header_line: "Hjælp hinanden og miljøet. Del jeres resourcer. Giv, lån/lej ud, sælg etc."
         price_title: "Pris i virtuelle frie penge. Valgfri. Kan sættes nu eller senere. Bedst hvis køber/modtager sætter pris der så bliver et mål for hvor meget pris vedkommende satte på den modtagne ting/hjælp. Der anvendes frie virtuelle nationale penge herinde med en negativ rente. %{min_interest}% om året for en positiv saldo og %{max_interest}% om året for en negativ saldo. Et formål med den negative rente er at sikre at penge og resourcer cirkulerer. Den negative rente gør det muligt med et samfund uden vækst, uden overforbrug og med mere fritid."
         price_prompt: "Pris:"

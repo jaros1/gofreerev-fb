@@ -16,13 +16,6 @@
       <%= t '.not_logged_in_text' %>
     </p>
 <% else -%>
-    <% if flash[:read_stream] -%>
-        <p title="<%= t '.read_stream_not_allowed_title', :appname => APP_NAME, :apiname => @user.api_name_without_brackets %>">
-          <%= t '.read_stream_not_allowed_text', :appname => APP_NAME, :apiname => @user.api_name_without_brackets %>
-          <br/>
-          <%= link_to t('.request_read_stream_priv_link_text', :appname => APP_NAME), "javascript: {top.location.href='#{auth_read_stream_url}'}" %>
-        </p>
-    <% end -%>
     <div style="width: 100%"><%= t '.create_gift_header_line' %></div>
     <div style="width: 100%">
       <%= form_for @gift, :html => {:enctype => 'multipart/form-data', :id => 'new_gift' } do |f| -%>

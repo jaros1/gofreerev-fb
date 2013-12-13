@@ -383,4 +383,6 @@
       user logged in as provider 2 selects to unfollow gift
       show unfollow link when user is logging in as provider 1 and 2?
 
+  129) gift_file is not cleared after successful post
 
+  130) gift_posted_3_html - shorten text and add div with title

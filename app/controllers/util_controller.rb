@@ -478,6 +478,12 @@ class UtilController < ApplicationController
         t key2, options
       rescue I18n::MissingTranslationData => e
         res = [ '.ajax_task_missing_translate_key', { :key => key, :task => at.task, :response => res, :exception => e.message.to_s } ]
+      rescue I18n::MissingInterpolationArgument => e
+        puts "exception = #{e.message.to_s}"
+        puts "response = #{res}"
+        argument = $1 if e.message.to_s =~ /:(.+?)\s/
+        puts "argument = #{argument}"
+        res = [ '.ajax_task_missing_translate_arg', { :key => key, :task => at.task, :argument => argument, :response => res, :exception => e.message.to_s } ]
       rescue Exception => e
         puts "invalid response from ajax task #{at.task}. Must be nil or a valid input to translate. Response: #{res}"
         res = [ '.ajax_task_invalid_response', { :task => at.task, :response => res, :exception => e.message.to_s }]
@@ -997,11 +1003,12 @@ class UtilController < ApplicationController
       end # if
 
       if gift_posted_on_wall_api_wall != 2
+        # error or warning
         api_gift.picture = 'N'
         api_gift.save!
         options = {:apiname => login_user.api_name_without_brackets, :error => error}
         if gift_posted_on_wall_api_wall == 3
-          # url to add missing privs. to post on facebook wall
+          # url to add missing status update priv. to post on facebook wall
           oauth = session[:oauth] = Koala::Facebook::OAuth.new(api_id, api_secret, 'http://localhost/gifts/')
           state = session[:state] = String.generate_random_string(30)
           url = oauth.url_for_oauth_code(:permissions => 'status_update', :state => state)
@@ -1009,10 +1016,12 @@ class UtilController < ApplicationController
         end
         return ".gift_posted_#{gift_posted_on_wall_api_wall}_html", options
       else
-        # get url for picture
+        # post ok
         if api_gift.picture == 'Y'
+          # get temporary url for picture on api wall to be used in gifts/index page
           # todo: fb pictures too small - it should be possible to get url for a larger picture from fb
-          # get temporary picture url - may change - url change is catched in onerror in img in html page
+          # url may change - url changes is catched in onload event in img in html page
+          # see JS check_api_picture_url and report_missing_api_picture_urls and rails /util/missing_api_picture_urls
           # api_request = "#{gift.api_gift_id}?fields=full_picture"
           # api_request = gift.api_gift_id.split('_').join('/picture/') + '?type=normal' # still small picture
           # api_request = gift.api_gift_id.split('_').join('/picture/')  + '?fields=full_picture' # empty response (302 redirect) with profile picture
@@ -1026,7 +1035,7 @@ class UtilController < ApplicationController
               api_gift.save!
             else
               puts "Did not get a picture url from api. Must be problem with missing access token, picture != Y or deleted_at_api == Y"
-              return ['.no_api_picture_url', :apiname => login_user.api_name_without_brackets]
+              return ['.no_api_picture_url', {:apiname => login_user.api_name_without_brackets}]
             end
           rescue ApiPostNotFoundException => e
             # problem with picture uploads and permissions
@@ -1044,12 +1053,14 @@ class UtilController < ApplicationController
             end
             if login_user.read_gifts_allowed?
               # error - this should not happen.
-              return ['.picture_upload_unknown_problem', :appname => APP_NAME, :apiname => login_user.api_name_without_brackets]
+              return ['.picture_upload_unknown_problem', {:appname => APP_NAME, :apiname => login_user.api_name_without_brackets}]
             else
               # flash with request for read stream privs
               # todo: add ajax show/inject link to grant read_stream permission in gifts/index page. see gift_posted_3_html
-              flash[:read_stream] = 'Missing read_stream permission' # display link to grant read_stream permission in gifts/index page
-              return ['.picture_upload_missing_permission', :appname => APP_NAME, :apiname => login_user.api_name_without_brackets]
+              oauth = session[:oauth] = Koala::Facebook::OAuth.new(api_id, api_secret, SITE_URL + 'gifts/')
+              state = session[:state] = String.generate_random_string(30)
+              url = oauth.url_for_oauth_code(:permissions => 'read_stream', :state => state)
+              return ['.picture_upload_missing_permission_html', {:appname => APP_NAME, :apiname => login_user.api_name_without_brackets, :url => url}]
             end
             api_gift.picture = 'N'
             api_gift.save!
