@@ -92,10 +92,10 @@ da:
         linkedin: "linkedin"
         twitter: "twitter"
      translate_ajax_errors:
-        ajax_task_exception: "Systemfejl \"%{exception}\" for ajax task \"%{task}\". Tjek backtrace i server log for mere information." # task, exception
-        ajax_task_invalid_response: "Systemfejl. Ugyldigt svar fra ajax task \"%{task}\". Skal være Nil eller gyldigt input til translate." # task, response and exception. response is invalid response from ajax task and exception is ruby exception from translate
-        ajax_task_missing_translate_key: "System error. Oversættelse mangler for \"%{key}\" for ajax task \"%{task}\"."
-        ajax_task_missing_translate_arg: "System error. Variabel %{argument} mangler i oversættelse af \"%{key}\" for ajax task \"%{task}\"."
+        ajax_task_exception: "Systemfejl \"%{exception}\" for opgave \"%{task}\". Tjek backtrace i server log for mere information." # task, exception
+        ajax_task_invalid_response: "Systemfejl. Ugyldigt svar fra opgave \"%{task}\". Skal være Nil eller gyldigt input til translate." # task, response and exception. response is invalid response from opgave and exception is ruby exception from translate
+        ajax_task_missing_translate_key: "System error. Oversættelse mangler for \"%{key}\" for opgave \"%{task}\"."
+        ajax_task_missing_translate_arg: "System error. Variabel %{argument} mangler i oversættelse af \"%{key}\" for opgave \"%{task}\"."
         update_timezone_invalid_user_id: "Systemfejl. Ugyldigt user_id %{user_id} ved opdatering af tidszone information" # user_id
         update_timezone_timezone_missing: "Systemfejl. Modtag ikke tidszone information fra browser/javascript"
         update_timezone_save_error: "Systemfejl. Kunne ikke opdatere bruger information om tidszone: \"%{errors}\"" # error = user errors.

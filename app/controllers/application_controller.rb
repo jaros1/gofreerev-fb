@@ -615,7 +615,6 @@ class ApplicationController < ActionController::Base
     session.delete(:state)
   end
   def invalid_state?
-    return true
     state = params[:state].to_s
     return true unless state =~ /^[a-zA-Z0-9]{30}-/
     return true unless state.length > 31

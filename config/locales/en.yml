@@ -89,10 +89,10 @@ en:
         linkedin: "linkedin"
         twitter: "twitter"
      translate_ajax_errors:
-        ajax_task_exception: "System error \"%{exception}\" for ajax task \"%{task}\". Check backtrace in server log for more information."
-        ajax_task_invalid_response: "System error. Invalid response from ajax task \"%{task}\". Must be Nil or a valid input to translate." # task, response and exception. response is invalid response from ajax task and exception is exception from translate
-        ajax_task_missing_translate_key: "System error. Missing translation key \"%{key}\" for ajax task \"%{task}\""
-        ajax_task_missing_translate_arg: "System error. Argument %{argument} is missing for translation key \"%{key}\" for ajax task \"%{task}\""
+        ajax_task_exception: "System error \"%{exception}\" for task \"%{task}\". Check backtrace in server log for more information."
+        ajax_task_invalid_response: "System error. Invalid response from task \"%{task}\". Must be Nil or a valid input to translate." # task, response and exception. response is invalid response from task and exception is exception from translate
+        ajax_task_missing_translate_key: "System error. Missing translation key \"%{key}\" for task \"%{task}\""
+        ajax_task_missing_translate_arg: "System error. Argument %{argument} is missing for translation key \"%{key}\" for task \"%{task}\""
         update_timezone_invalid_user_id: "System error. Invalid user id %{user_id} when updating timezone information"
         update_timezone_timezone_missing: "System error. Did not receive timezone information from browser/javascript"
         update_timezone_save_error: "System error. Could not update user timezone information: \"%{errors}\""
