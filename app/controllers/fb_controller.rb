@@ -83,76 +83,45 @@ class FbController < ApplicationController
   # rejected: Parameters: {"error_reason"=>"user_denied", "error"=>"access_denied", "error_description"=>"The user denied your request."}
   # accepted: Parameters: {"code"=>"AQA6165EwuVn3EVKkzy2TOocej1wBb_t-9jEuhJQFFK7GH2PDkDbbSOOd9lhoqIYibusDfPpWOwaUg6XYiR2lcmP2tLgG0RPgRxL6qwFBZalg0j6wXSO8bZmjKn-yf9O_GOH9wm5ugMKLUihU7mjfLAbR58FrJ8wdgnej2aG9KLQvKNenb16Hf_ULI016u3DGHM-zGvmyb8xAgAAabOHkDQNT5C3lIO0eXTGMwo66zLrnn0jkENguAnAUuZrVym9OMiBV1f9ocg8WfgprflPq-BHOSHdhuHgYISHxO_nTs1dT7Ku5z551ZyBq1hG15aG4"}
   def index
-    # uncomment the next line to check Cross-site Request Forgery response
-    # session[:state] = String.generate_random_string(30)
+    # where is request comming from?
+    # login - login starter from facebook - previous request was post fb/create
+    # status_update - return from status_update priv. request (link in gifts/index page - inserted from util.post_on_facebook)
+    # read_stream - return from read_stream priv. request (link in gifts/index page - inserted from util.post_on_facebook)
+    context = params[:state].to_s.from(31)
+    context = 'other' unless %w(login status_update read_stream).index(context)
+
+    # Cross-site Request Forgery check
     if invalid_state?
-      # possible Cross-site Request Forgery
-      case params[:state].to_s.from(31)
-        when 'login'
-          # from fb/create - login started from fb with invalid state
-          flash[:notice] = t '.invalid_state_login'
-          redirect_to :controller => :auth
-        when 'status_update'
-          # return from request status_update priv. with invalid state
-          flash[:notice] = t '.invalid_state_status_update'
-          redirect_to :controller => :gifts
-        when 'read_stream'
-          # return from request read_stream priv, with invalid state
-          flash[:notice] = t '.invalid_state_read_stream'
-          redirect_to :controller => :gifts
-        else
-          # invalid state - unknown start
-          flash[:notice] = t '.invalid_state_other'
-          redirect_to :controller => :auth
-      end
-      # log out any old facebook user
-      provider = 'facebook'
-      user_ids = session[:user_ids] || []
-      user_ids.delete_if { |user_id| user_id.split('/').last == provider}
-      tokens = session[:tokens]
-      tokens.delete(provider)
+      flash[:notice] = t ".invalid_state_#{context}", :appname => APP_NAME
+      redirect_to :controller => (%w(login other).index(context) ? :auth : :gifts)
+      logout('facebook')
+      clear_state
       return
     end # if invalid_state?
-
-    debug_session(__method__.to_s + ' - start') # debug. dump session variables
+    clear_state
 
     if params[:error_reason] == 'user_denied'
-      # todo: this error message is returned in three different situations.
-      # 1) First login from rails to facebook - user reject authorisation
-      puts 'used denied access to basic information'
-      session.delete(:state)
-      render_with_language 'user_denied'
-      # debug_session(__method__.to_s + ' - end') # debug. dump session variables
+      # user cancelled or denied api request
+      flash[:notice] = t ".user_denied_#{context}", :appname => APP_NAME
+      redirect_to :controller => (%w(login other).index(context) ? :auth : :gifts)
+      logout('facebook') if context == 'login'
       return
     end
 
     if params[:code]
       # code received from FB - login in progress - exchange code for an access token
-      if session[:state] == params[:state].to_s.split('-').first
-        # exchange code for an access token
-        # todo: error handling?!
-        puts "code = #{params[:code]}"
-        api_callback_url = SITE_URL + 'fb/'
-        oauth = Koala::Facebook::OAuth.new(api_id, api_secret, api_callback_url)
-        access_token = oauth.get_access_token(params[:code])
-        # puts "access_token = #{access_token}"
-        # login completed. access token is saved.
-        session.delete(:state)
-      else
-        # possible Cross-site Request Forgery
-        puts 'state missing or does not match - could be Cross-site Request Forgery'
-        puts "state: session[:state] = #{session[:state]}, params[:state] = #{params[:state]}"
-        session.delete(:state)
-        session.delete(:user_ids)
-        render_with_language 'cross_site_forgery'
-        # debug_session(__method__.to_s + ' - end') # debug. dump session variables
-        return
-      end
+      # todo: error handling?!
+      puts "code = #{params[:code]}"
+      api_callback_url = SITE_URL + 'fb/'
+      oauth = Koala::Facebook::OAuth.new(api_id, api_secret, api_callback_url)
+      access_token = oauth.get_access_token(params[:code])
+      # puts "access_token = #{access_token}"
+      # login completed. access token is saved.
     end
-    session.delete(:state)
 
     unless access_token
       # access token was not found. Eg if FB app login page not was used
+      # todo: change to flash message
       render_with_language 'cross_site_forgery'
       return
     end
@@ -160,7 +129,12 @@ class FbController < ApplicationController
     # FB login completed
     puts 'index: login completed'
 
-    # get user information
+    # get some basic user information
+    # todo: what to do with permissions?
+    #       permissions are updated in post_login_facebook ajax task and after that page has been written
+    #       as result file upload is disabled after ok status_update request
+    #       could refresh permissions here
+    #       or could add ajax to post_on_facebook to enable/disable file upload button?
     puts 'get user id and name'
     api = Koala::Facebook::API.new(access_token)
     api_request = 'me?fields=name,picture,locale'
@@ -180,6 +154,7 @@ class FbController < ApplicationController
                 :language => api_response['locale'].to_s.first(2)
     if !res
       # login ok
+      flash[:notice] = t ".ok_#{context}", :appname => APP_NAME
       redirect_to :controller => :gifts
     else
       # login failed

@@ -1,4 +1,7 @@
 class InboxController < ApplicationController
+
+  before_filter :clear_state
+
   def index
     # get messages - new messages are shown first in page - max 20 notifications - no need for paginate or ajax expanding page
     @notifications = Notification.where("to_user_id = ?", @user.user_id).order("noti_read, created_at desc")

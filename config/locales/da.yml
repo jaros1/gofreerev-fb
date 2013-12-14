@@ -134,6 +134,14 @@ da:
         invalid_state_status_update: "Muligt \"Cross-site Request Forgery\" problem ved anmodning om skriveadgang til facebook væg."
         invalid_state_read_stream: "Muligt \"Cross-site Request Forgery\" problem ved anmodning om læseadgang til facebook væg."
         invalid_state_other: "Muligt \"Cross-site Request Forgery\" problem."
+        user_denied_login: "Systemfejl. Login fra facebook fejlede."
+        user_denied_status_update: "%{appname} fik ikke tilladelse til at lave opslag på din facebook væg."
+        user_denied_read_stream: "%{appname} fik ikke tilladelse til at læse opslag på din facebook væg."
+        user_denied_other: "Systemfejl. Ukendt facebook anmodning blev afvist."
+        ok_login: "Facebook login ok."
+        ok_status_update: "%{appname} fik tilladelse til at lave opslag på din facebook væg."
+        ok_read_stream: "%{appname} fik tilladelse til at læse opslag på din facebook væg."
+        ok_other: "Ukendt facebook anmodning ok."
 
   # auth controller
   auth:

@@ -600,7 +600,21 @@ class ApplicationController < ActionController::Base
       add_ajax_task 'post_login_fix_currency' if currencies.length > 1
     end
     nil
-  end # post_login_tasks
+  end # login
+
+  def logout (provider=nil)
+    if !provider
+      session.delete(:user_ids)
+      session.delete(:tokens)
+      return
+    end
+    user_ids = session[:user_ids] || []
+    user_ids.delete_if { |user_id| user_id.split('/').last == provider}
+    tokens = session[:tokens]
+    tokens.delete(provider)
+    session[:user_ids] = user_ids
+    session[:tokens] = tokens
+  end # logout
 
 
   # protection from Cross-site Request Forgery

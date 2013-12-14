@@ -1,6 +1,7 @@
 # encoding: utf-8
 class GiftsController < ApplicationController
 
+  before_filter :clear_state, :if => lambda {|c| !request.xhr?}
 
   def new
   end
