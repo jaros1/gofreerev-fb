@@ -11,60 +11,37 @@ class AuthController < ApplicationController
     @logged_in_providers = user_ids.collect { |user_id| user_id.split('/').last }.find_all { |provider| tokens[provider].to_s != "" }
   end
 
-  # omniauth callback on success
+  # omniauth callback on success (login was started from rails)
   def create
     @auth_hash = auth_hash
-    puts "ENV = #{ENV}"
-    puts "auth_hash = #{auth_hash}"
-    user = User.find_or_create_user :provider => auth_hash.get_provider,
-                                    :token => auth_hash.get_token,
-                                    :uid => auth_hash.get_uid,
-                                    :name => auth_hash.get_user_name,
-                                    :image => auth_hash.get_image,
-                                    :country => auth_hash.get_country,
-                                    :language => auth_hash.get_language
-    if user.class == User
-      # login ok - insert user_id and token in session
-      provider = auth_hash.get_provider
-      user_ids = session[:user_ids] || []
-      user_ids.delete_if { |user_id| user_id.split('/').last == provider }
-      user_ids << user.user_id
-      tokens = session[:tokens] || {}
-      tokens[provider] = auth_hash.get_token
-      session[:user_ids] = user_ids
-      session[:tokens] = tokens
-      language = auth_hash.get_language
-      session[:language] = language if language
-      # add tasks to be ajax processed after login
-      # todo: add helper add_ajax_task
-      image = auth_hash.get_image
-      post_login_task_provider = "post_login_#{provider}" # private method in UtilController
-      add_ajax_task "User.update_timezone('#{user.user_id}', params[:timezone])" # timezone from client/javascript
-      add_ajax_task "User.download_profile_image('#{user.user_id}', '#{image}')"
-      if UtilController.new.private_methods.index(post_login_task_provider.to_sym)
-        add_ajax_task post_login_task_provider
-      else
-        puts "Warning. No post login task was found for #{provider}. No #{provider} friend information will be downloaded"
-      end
-      # currencies for logged in users must be identical
-      if user_ids.length > 1
-        currencies = User.where('user_id in (?)', user_ids).collect { |user2| user2.currency }.uniq
-        add_ajax_task 'post_login_fix_currency' if currencies.length > 1
-      end
+    # puts "auth_hash = #{auth_hash}"
+    # login - return nil (ok) or array with translate key and options for error message
+    # auth_hash.get_xxx methods are defined in initializers/omniauth*.rb
+    res = login :provider => auth_hash.get_provider,
+                :token => auth_hash.get_token,
+                :uid => auth_hash.get_uid,
+                :name => auth_hash.get_user_name,
+                :image => auth_hash.get_image,
+                :country => auth_hash.get_country,
+                :language => auth_hash.get_language
+    if !res
+      # login ok
+      redirect_to :controller => :gifts, :action => :index
     else
       # login failed
-      key, options = user
+      # todo: copy translate error handling from util.do_ajax_tasks
+      key, options = res
       begin
         flash[:notice] = t key, options
       rescue Exception => e
         puts "invalid response from User.find_or_create_from_auth_hash. Must be nil or a valid input to translate. Response: #{user}"
         flash[:notice] = t '.find_or_create_from_auth_hash', :response => user, :exception => e.message.to_s
       end
+      redirect_to :controller => :auth, :action => :index
     end
-    redirect_to '/auth'
   end # create
 
-  # omniauth callback on failure
+  # omniauth callback on failure (login was started from rails)
   def oauth_failure
     env = request.env
     # puts "env.keys = #{env.keys.sort.join(', ')}"

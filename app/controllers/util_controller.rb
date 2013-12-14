@@ -1009,9 +1009,11 @@ class UtilController < ApplicationController
         options = {:apiname => login_user.api_name_without_brackets, :error => error}
         if gift_posted_on_wall_api_wall == 3
           # url to add missing status update priv. to post on facebook wall
-          oauth = session[:oauth] = Koala::Facebook::OAuth.new(api_id, api_secret, 'http://localhost/giftsx/')
-          state = session[:state] = String.generate_random_string(30)
-          url = oauth.url_for_oauth_code(:permissions => 'status_update', :state => state)
+          # todo: Should not save oauth in session
+          # todo: problem with String.generate_random_string(30) if more than one api link in page
+          # todo: return link should be a link to auth or fb controller to verify state and return response from FB
+          oauth = Koala::Facebook::OAuth.new(api_id, api_secret, SITE_URL + 'fb/')
+          url = oauth.url_for_oauth_code(:permissions => 'status_update', :state => set_state('status_update'))
           options[:url] = url
           options[:appname] = APP_NAME
         end
@@ -1046,8 +1048,6 @@ class UtilController < ApplicationController
             # there must be more to it - changed visibility to only me and did get picture url
             # changed visibility to friends and did get the picture url
             # just display a warning and continue. Request read_stream permission from user if read_stream priv. is missing
-            # todo: add ajax show/inject link to grant read_stream permission in gifts/index page
-            flash[:read_stream] = 'Missing read_stream permission' # display link to grant read_stream permission in gifts/index page
             if login_user.read_gifts_allowed?
               # check if user has removed read stream priv.
               login_user.get_api_permissions(token)
@@ -1057,9 +1057,8 @@ class UtilController < ApplicationController
               return ['.picture_upload_unknown_problem', {:appname => APP_NAME, :apiname => login_user.api_name_without_brackets}]
             else
               # message with link to grant missing read stream priv.
-              oauth = session[:oauth] = Koala::Facebook::OAuth.new(api_id, api_secret, SITE_URL + 'gifts/')
-              state = session[:state] = String.generate_random_string(30)
-              url = oauth.url_for_oauth_code(:permissions => 'read_stream', :state => state)
+              oauth = Koala::Facebook::OAuth.new(api_id, api_secret, SITE_URL + 'fb/')
+              url = oauth.url_for_oauth_code(:permissions => 'read_stream', :state => set_state('read_stream'))
               return ['.picture_upload_missing_permission_html', {:appname => APP_NAME, :apiname => login_user.api_name_without_brackets, :url => url}]
             end
             api_gift.picture = 'N'

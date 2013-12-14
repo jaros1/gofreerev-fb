@@ -547,5 +547,81 @@ class ApplicationController < ActionController::Base
     format_ajax_response
   end
 
+  # do same post login tasks - save user and token in session hash and schedule ajax tasks
+
+
+
+
+  private
+  def login (options)
+    # get params
+    provider = options[:provider]
+    token = options[:token]
+    uid = options[:uid]
+    name = options[:name]
+    image = options[:image]
+    country = options[:country]
+    language = options[:language]
+    # create/update user from information received from login provider
+    # returns user (ok) or an array with translate key and options for error message
+    user = User.find_or_create_user :provider => provider,
+                                    :token => token,
+                                    :uid => uid,
+                                    :name => name,
+                                    :image => image,
+                                    :country => country,
+                                    :language => language
+    return user unless user.class == User
+    # user login ok
+    # save user and access token - multiple login allows - one for each login provider
+    timezone = params[:timezone]
+    user_ids = session[:user_ids] || []
+    user_ids.delete_if { |user_id2| user_id2.split('/').last == provider }
+    user_ids << user.user_id
+    tokens = session[:tokens] || {}
+    tokens[provider] = token
+    session[:user_ids] = user_ids
+    session[:tokens] = tokens
+    # save language for translate
+    session[:language] = language if language
+    # schedule post login ajax tasks
+    # todo: validate timezone. Must be a valid number between ...
+    add_ajax_task "User.update_timezone('#{user.user_id}', #{timezone})" if timezone # timezone from client/javascript
+    add_ajax_task "User.download_profile_image('#{user.user_id}', '#{image}')" if image =~ /^http/ and !image.index("''")
+    post_login_task_provider = "post_login_#{provider}" # private method in UtilController
+    if UtilController.new.private_methods.index(post_login_task_provider.to_sym)
+      add_ajax_task post_login_task_provider
+    else
+      puts "Warning. No post login task was found for #{provider}. No #{provider} friend information will be downloaded"
+    end
+    # currencies for logged in users must be identical
+    if user_ids.length > 1
+      currencies = User.where('user_id in (?)', user_ids).collect { |user2| user2.currency }.uniq
+      add_ajax_task 'post_login_fix_currency' if currencies.length > 1
+    end
+    nil
+  end # post_login_tasks
+
+
+  # protection from Cross-site Request Forgery
+  # state is set before calling login provider
+  # state is checked when returning from login provider
+  def set_state (context)
+    state = session[:state].to_s
+    state = session[:state] = String.generate_random_string(30) unless state.length == 30
+    "#{state}-#{context}"
+  end
+  def clear_state
+    session.delete(:state)
+  end
+  def invalid_state?
+    return true
+    state = params[:state].to_s
+    return true unless state =~ /^[a-zA-Z0-9]{30}-/
+    return true unless state.length > 31
+    return true unless session[:state].to_s == state.first(30)
+    false
+  end
+
 
 end # ApplicationController

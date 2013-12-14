@@ -127,6 +127,14 @@ da:
         picture_upload_unknown_problem: "Opslag opretter her og på din %{apiname} væg. Foto blev uploaded til din %{apiname} væg, men %{appname} mangler rettigheder til at se billedet på din %{apiname} væg og kan derfor ikke vise foto herinde. Måske du har ændret rettighedsindstillinger for %{appname}."
         picture_upload_missing_permission_html: "<div title='Foto blev uploaded til din %{apiname} væg, men %{appname} mangler rettigheder til at se billedet på din %{apiname} væg og kan derfor ikke vise foto herinde. Du kan løse dette problem ved enten at ændre synlighed for %{appname} opslag til offentlig eller ved at give %{appname} lov til at læse opslag på din %{apiname} væg.'>Opslag opretter herinde og på din %{apiname} væg, men foto kan ikke vises her. <a href=\"javascript: {top.location.href='%{url}'}\">Giv Gofreerev lov til at læse opslag på min væg!</a></div>"
 
+  # fb controller - login started from facebook and asking for more privs.
+  fb:
+     index:
+        invalid_state_login: "Login fra facebook fejlede. Muligt \"Cross-site Request Forgery\" problem."
+        invalid_state_status_update: "Muligt \"Cross-site Request Forgery\" problem ved anmodning om skriveadgang til facebook væg."
+        invalid_state_read_stream: "Muligt \"Cross-site Request Forgery\" problem ved anmodning om læseadgang til facebook væg."
+        invalid_state_other: "Muligt \"Cross-site Request Forgery\" problem."
+
   # auth controller
   auth:
      oauth_failure:

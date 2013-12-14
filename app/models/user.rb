@@ -250,8 +250,8 @@ class User < ActiveRecord::Base
   # find and create or update user from hash
   # options: :provider, :token, :uid, :name, :image, :country, :language
   # called from login methods (authController.create, FbController.index, etc)
-  # return user if ok
-  # return key or key + options if not ok (for translate)
+  # returns user if ok
+  # returns key or key + options if not ok (for translate)
   def self.find_or_create_user (options)
     # missing provider, unknown provider, missing token, uid or user_name are fatal errors.
     provider = options[:provider].to_s
@@ -453,7 +453,8 @@ class User < ActiveRecord::Base
       when facebook?
          permissions['status_update'] == 1
       else
-        raise "post_on_wall? not implemented for #{provider}"
+        puts "todo: post_on_wall? not implemented for #{provider}"
+        false
     end # case
   end # post_gift_allowed?
 
