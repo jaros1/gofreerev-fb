@@ -116,7 +116,7 @@ class ApplicationController < ActionController::Base
     puts "fetch_user: @user_currency_separator = #{@user_currency_separator}, @user_currency_delimiter = #{@user_currency_delimiter}"
 
     # get new exchange rates? send to ajax task queue
-    add_ajax_task 'ExchangeRate.fetch_exchange_rates', 0 if ExchangeRate.fetch_exchange_rates?
+    add_ajax_task 'ExchangeRate.fetch_exchange_rates', 10 if ExchangeRate.fetch_exchange_rates?
   end # fetch_user
 
 
@@ -376,7 +376,7 @@ class ApplicationController < ActionController::Base
     puts "fetch_user: @user_currency_separator = #{@user_currency_separator}, @user_currency_delimiter = #{@user_currency_delimiter}"
 
     # get new exchange rates? send to ajax task queue
-    add_ajax_task 'ExchangeRate.fetch_exchange_rates', 0 if ExchangeRate.fetch_exchange_rates?
+    add_ajax_task 'ExchangeRate.fetch_exchange_rates', 10 if ExchangeRate.fetch_exchange_rates?
   end # old_fetch_user
 
 
@@ -547,10 +547,6 @@ class ApplicationController < ActionController::Base
     format_ajax_response
   end
 
-  # do same post login tasks - save user and token in session hash and schedule ajax tasks
-
-
-
 
   private
   def login (options)
@@ -584,21 +580,28 @@ class ApplicationController < ActionController::Base
     session[:tokens] = tokens
     # save language for translate
     session[:language] = language if language
-    # schedule post login ajax tasks
+    # check currency after new login - keep current currency
+    @users = User.where('user_id in (?)', user_ids)
+    if @users.collect { |user2| user2.currency }.uniq.length > 1
+      old_user = @users.find { |user2| user2.user_id != user.user_id }
+      user.currency = old_user.currency
+      user.save!
+    end
+    # schedule post login ajax tasks.
     # todo: validate timezone. Must be a valid number between ...
-    add_ajax_task "User.update_timezone('#{user.user_id}', #{timezone})" if timezone # timezone from client/javascript
-    add_ajax_task "User.download_profile_image('#{user.user_id}', '#{image}')" if image =~ /^http/ and !image.index("''")
+    add_ajax_task "User.update_timezone('#{user.user_id}', #{timezone})", 5 if timezone # timezone from client/javascript
+    add_ajax_task "User.download_profile_image('#{user.user_id}', '#{image}')", 5 if image =~ /^http/ and !image.index("''")
     post_login_task_provider = "post_login_#{provider}" # private method in UtilController
     if UtilController.new.private_methods.index(post_login_task_provider.to_sym)
-      add_ajax_task post_login_task_provider
+      add_ajax_task post_login_task_provider, 5
     else
       puts "Warning. No post login task was found for #{provider}. No #{provider} friend information will be downloaded"
     end
-    # currencies for logged in users must be identical
-    if user_ids.length > 1
-      currencies = User.where('user_id in (?)', user_ids).collect { |user2| user2.currency }.uniq
-      add_ajax_task 'post_login_fix_currency' if currencies.length > 1
+    today = Date.parse(Sequence.get_last_exchange_rate_date)
+    if !user.balance_at or user.balance_at != today
+      add_ajax_task "recalculate_user_balance(#{user.id})", 5
     end
+    # ok
     nil
   end # login
 

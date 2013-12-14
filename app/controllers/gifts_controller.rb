@@ -67,11 +67,11 @@ class GiftsController < ApplicationController
     tokens = session[:tokens] || {}
     tokens.keys.each do |provider|
       task_name = "post_on_#{provider}"
-      add_ajax_task "#{task_name}(#{gift.id})" if UtilController.new.private_methods.index(task_name.to_sym)
+      add_ajax_task "#{task_name}(#{gift.id})", 5 if UtilController.new.private_methods.index(task_name.to_sym)
     end
 
-    # delete picture after posting on api wall(s) - priority = 4
-    add_ajax_task "delete_local_picture(#{gift.id})", 4 if picture
+    # delete picture after posting on api wall(s) - priority = 10
+    add_ajax_task "delete_local_picture(#{gift.id})", 10 if picture
 
     @gifts = ApiGift.where("id = ?", gift.api_gifts.first.id).includes(:gift)
     format_ajax_response

@@ -422,4 +422,4 @@
        set state with ajax before calling api
        In that way the link will work even if user has used back bottom in browser
 
-
+  142) permissions are not refreshed after fb login

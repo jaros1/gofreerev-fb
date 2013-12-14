@@ -454,7 +454,7 @@ class UtilController < ApplicationController
     # delete old ajax tasks
     AjaxTask.where("created_at < ?", 2.minute.ago).destroy_all
     @errors = []
-    AjaxTask.where("session_id = ?", session[:session_id]).order('priority desc, id').each do |at|
+    AjaxTask.where("session_id = ?", session[:session_id]).order('priority, id').each do |at|
       at.destroy
       # all ajax tasks should have exception handlers with backtrace. Exception handler for eval will not dump backtrace in at.task
       res = nil
@@ -606,17 +606,6 @@ class UtilController < ApplicationController
       # update facebook friends
       Friend.update_friends_from_hash(login_user_id, friends_hash, true)
       # facebook friend list updated
-
-      # 3) update balance
-      if login_user.user_combination
-        if User.where('user_combination = ? and (balance_at is null or balance_at <> ?)',
-                      login_user.user_combination, Date.today).first
-          # todo. User.recalculate_balance class method not implemented
-          User.recalculate_balance(login_user.user_combination)
-        end
-      else
-        login_user.recalculate_balance if login_user.balance_at != Date.today
-      end
 
       # ok
       nil
@@ -878,23 +867,6 @@ class UtilController < ApplicationController
     end
   end # post_login_twitter
 
-  # fix problem with different currencies for logged in users - for example USD in facebook and GBP in linkedin
-  private
-  def post_login_fix_currency
-    begin
-      raise "not implemented"
-
-      # ok
-      nil
-
-    rescue Exception => e
-      puts "post_login_fix_currency:"
-      puts "Exception: #{e.message.to_s} (#{e.class})"
-      puts "Backtrace: " + e.backtrace.join("\n")
-      raise
-    end
-  end # post_login_fix_currency
-
   # post on facebook wall - with or without picture
   # picture is temporary saved local, but is deleted when the picture has been posted in wall(s)
   # ajax task is inserted in gifts/create ajax
@@ -1077,6 +1049,43 @@ class UtilController < ApplicationController
       raise
     end
   end # post_on_facebook
+
+
+  # recalculate user balance
+  # use after login, at new day, after new deal, after deleted deal etc
+  def recalculate_user_balance (id)
+    begin
+      # check id
+      user = User.find_by_id(id)
+      return ['.recal_user_bal_unknown_id',{}] unless user
+      user_ids = session[:user_ids]
+      return ['.recal_user_bal_invalid_id',{}] unless user_ids.index(user.user_id)
+
+      # recalculate balance for user or for user combination
+      today = Date.parse(Sequence.get_last_exchange_rate_date)
+      if user.user_combination
+        if User.where('user_combination = ? and (balance_at is null or balance_at <> ?)',
+                       user.user_combination, today).first
+          # todo. User.recalculate_balance class method not implemented
+          res = User.recalculate_balance(user.user_combination)
+        end
+      else
+        res = user.recalculate_balance if !user.balance_at or user.balance_at != today
+      end
+      ['.recal_user_cal_pending',{}] unless res
+
+      nil
+
+    rescue Exception => e
+      puts "post_on_facebook:"
+      puts "Exception: #{e.message.to_s} (#{e.class})"
+      puts "Backtrace: " + e.backtrace.join("\n")
+      raise
+    end
+  end # recalculate_user_balance
+
+
+  # recalculate_user_balance
 
   # post on google+ not implemented. The Google+ API is still a read only API
   # private
