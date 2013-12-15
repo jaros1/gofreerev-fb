@@ -43,6 +43,7 @@ class AuthController < ApplicationController
   end # create
 
   # omniauth callback on failure (login was started from rails)
+  # oauth_failure is also used if user cancels authorization/login
   def oauth_failure
     env = request.env
     # puts "env.keys = #{env.keys.sort.join(', ')}"
@@ -53,6 +54,11 @@ class AuthController < ApplicationController
     puts "error = #{error} (#{error.class})"
     puts "error.methods = #{error.methods.sort.join(', ')}"
     puts "error.message = #{error.message} (#{error.message.class})"
+
+    # todo: check cancelled facebook login
+
+    # todo: check cancelled google+ login
+    # no cancel button in google+ - use have to use back button
 
     # check for cancelled linkedin login
     # that is first logon with scope r_basicprofile r_network
@@ -75,9 +81,27 @@ class AuthController < ApplicationController
       return
     end
 
-    # todo: check cancelled facebook login
-    # todo: check cancelled google+ login
     # todo: check cancelled twitter login
+    # twitter login fejlede! invalid_credentials: 401 Unauthorized
+    puts "request_uri = #{request_uri}"
+    puts "type = #{type} (#{type.class})"
+    puts "error.class = #{error.class}"
+    puts "error.message = #{error.message}"
+    # request_uri = http://localhost/auth/twitter/callback?denied=2ddtp3zYx5CdldwXCOshMuFVC3QEiAMyAJpKUbO4Fc
+    # type = invalid_credentials (Symbol)
+    # error.class = OAuth::Unauthorized
+    # error.message = 401 Unauthorized
+    # Parameters: {"denied"=>"2ddtp3zYx5CdldwXCOshMuFVC3QEiAMyAJpKUbO4Fc"}
+    uri_prefix = "#{SITE_URL}auth/twitter/callback?denied="
+    if request_uri.first(uri_prefix.length) == uri_prefix and
+        type == :invalid_credentials and
+        error.class == OAuth::Unauthorized and
+        error.message == '401 Unauthorized'
+      puts "twitter login was cancelled"
+      flash[:notice] = t ".login_cancelled", :provider => 'twitter', :appname => APP_NAME
+      redirect_to :controller => :auth
+      return
+    end
 
     # puts "type = #{type}"
     # puts "strategy = #{strategy}"

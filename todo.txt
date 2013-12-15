@@ -382,18 +382,13 @@
 
   129) gift_file is not cleared after successful post
 
-  131) "old" facebook callbacks not working
-       1) login from FB app
-       2) return from grant status update priv
-       3) return from grant read stream priv
-       Use auth controller or use fbcontroller?
-
-
   132) search app source for @user. @users should be used if possible.
 
   133) ActionController::RoutingError (No route matches [GET] "/gifts/images/invisible-picture.gif"):
 
   134) page header. log out link. different title for one and more than one logged in user
+       returns to login provider if only one login provider
+       returns to auth/index page if more than one login provider
 
   138) post_on_wall? not implemented for linkedin
        app/models/user.rb:456:in `post_gift_allowed?'
@@ -407,10 +402,17 @@
 
   144) rename fb controller to facebook controller
 
-  145) callback problem when user cancels linkedin request
-       - login
-       - request for rw_nus
-       omniauth.error.type"=>:invalid_credentials
-       error = parameter_absent (OAuth::Problem)
-       "REQUEST_PATH"=>"/auth/linkedin/callback"
-       "ORIGINAL_FULLPATH"=>"/auth/linkedin/callback"
+  145) twitter returns to  127.0.0.1 - not to localhost
+       127.0.0.1 should redirect to localhost
+       or change app setup on twitter
+
+  146) post on linkedin
+       add url to gift
+       add offers/seeks prefix in description
+       upload picture
+
+  147) check text when asking user to grant write access to api wall.
+       picture can be uploaded if there is write access to one api wall.
+       but picture can only be seen for friends for that api wall.
+       gift_posted_3_html
+

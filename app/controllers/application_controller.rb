@@ -633,6 +633,7 @@ class ApplicationController < ActionController::Base
   end
   def clear_state
     session.delete(:state)
+    session.delete(:linkedin_oauth)
   end
   def invalid_state?
     state = params[:state].to_s
