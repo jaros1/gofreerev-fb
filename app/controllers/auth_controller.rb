@@ -53,6 +53,32 @@ class AuthController < ApplicationController
     puts "error = #{error} (#{error.class})"
     puts "error.methods = #{error.methods.sort.join(', ')}"
     puts "error.message = #{error.message} (#{error.message.class})"
+
+    # check for cancelled linkedin login
+    # that is first logon with scope r_basicprofile r_network
+    # and additional authorisation with scope r_basicprofile r_network rw_nus.)
+    request_uri = env['REQUEST_URI']
+    type = env['omniauth.error.type']
+    if request_uri == "#{SITE_URL}auth/linkedin/callback" and
+        type == :invalid_credentials and
+        error.class == OAuth::Problem and
+        error.message == 'parameter_absent'
+      if session[:linkedin_oauth]
+        puts "request for linked rw_nus priv. was cancelled"
+        flash[:notice] = t ".linkedin_rw_nus_cancelled", :appname => APP_NAME
+        redirect_to :controller => :gifts
+      else
+        puts "linkedin login was cancelled"
+        flash[:notice] = t ".login_cancelled", :provider => 'linkedin', :appname => APP_NAME
+        redirect_to :controller => :auth
+      end
+      return
+    end
+
+    # todo: check cancelled facebook login
+    # todo: check cancelled google+ login
+    # todo: check cancelled twitter login
+
     # puts "type = #{type}"
     # puts "strategy = #{strategy}"
     # puts "strategy.methods = #{strategy.methods.sort.join(', ')}"

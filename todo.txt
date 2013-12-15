@@ -406,3 +406,11 @@
        now client is waiting very long time at first request every day (fetch exchange rates)
 
   144) rename fb controller to facebook controller
+
+  145) callback problem when user cancels linkedin request
+       - login
+       - request for rw_nus
+       omniauth.error.type"=>:invalid_credentials
+       error = parameter_absent (OAuth::Problem)
+       "REQUEST_PATH"=>"/auth/linkedin/callback"
+       "ORIGINAL_FULLPATH"=>"/auth/linkedin/callback"

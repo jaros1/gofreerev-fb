@@ -1122,6 +1122,8 @@ class UtilController < ApplicationController
       puts "util.post_on_linkedin: secret = #{token[1]}"
 
       # todo: add offers/seeks to description
+      # todo: add picture
+      # todo: add url for gift
       begin
         x = client.add_share(:comment => gift.description)
       rescue LinkedIn::Errors::AccessDeniedError => e
@@ -1153,7 +1155,8 @@ class UtilController < ApplicationController
       puts "util.post_on_linkedin: x = #{x} (#{x.class})"
       puts "util.post_on_linkedin: x.methods = #{x.methods.sort.join(', ')}"
 
-      nil
+      # no errors - return posted message
+      return [".gift_posted_2_html", :apiname => provider, :error => nil]
 
     rescue Exception => e
       puts "util.post_on_linkedin: "

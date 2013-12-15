@@ -121,11 +121,28 @@ da:
         local_picture_not_found: "Ugyldigt id %{id} ved opslag på %{provider} væg (3)"
         gift_posted_1_html: "Opslag opretter her, men ikke på din %{apiname} væg (%{error})" # unhandled error message
         gift_posted_2_html: "Opslag opretter her og på din %{apiname} væg"
-        gift_posted_3_html: "<div title='%{appname} mangler adgang til at skrive på din %{apiname} væg. Du kan godt dele dine resourcer med dine venner herinde, men opslag vil kun blive vist her og ikke på din %{apiname} væg. Dvs. dine opslag vil sandsynligvis kun blive set af få venner. Du kan give %{appname} tilladelse til at skrive på din væg. %{appname} laver kun de opslag du selv beder om. Billeder gemmes kun i %{apiname}. Uden adgang til at skrive på din %{apiname} væg kan der derfor ikke uploades billeder i forbindelse med opslag herinde.'>Opslag opretter her, men ikke på din %{apiname} væg. <a href=\"javascript: {top.location.href='%{url}'}\">Giv %{apiname} lov til at skrive på min væg!</a></div>" # missing privileges
+        gift_posted_3_html: "<div title='%{appname} mangler adgang til at skrive på din %{apiname} væg. Du kan godt dele dine resourcer med dine venner herinde, men opslag vil kun blive vist her og ikke på din %{apiname} væg. Dvs. dine opslag vil sandsynligvis kun blive set af få venner. Du kan give %{appname} tilladelse til at skrive på din væg. %{appname} laver kun de opslag du selv beder om. Billeder gemmes kun i %{apiname}. Uden adgang til at skrive på din %{apiname} væg kan der derfor ikke uploades billeder i forbindelse med opslag herinde.'>Opslag opretter her, men ikke på din %{apiname} væg. <a href=\"javascript: {top.location.href='%{url}'}\">Giv %{appname} lov til at lave opslag på min %{apiname} væg!</a></div>" # missing privileges
         gift_posted_4_html: "Opslag opretter her, men ikke på din %{apiname} væg. Opslag fandes allerede på %{apiname} væg"
         gift_posted_5_html: "Opslag opretter her, men ikke på din %{apiname} væg. Opslag på %{apiname} væg er endnu ikke implementeret"
         picture_upload_unknown_problem: "Opslag opretter her og på din %{apiname} væg. Foto blev uploaded til din %{apiname} væg, men %{appname} mangler rettigheder til at se billedet på din %{apiname} væg og kan derfor ikke vise foto herinde. Måske du har ændret rettighedsindstillinger for %{appname}."
         picture_upload_missing_permission_html: "<div title='Foto blev uploaded til din %{apiname} væg, men %{appname} mangler rettigheder til at se billedet på din %{apiname} væg og kan derfor ikke vise foto herinde. Du kan løse dette problem ved enten at ændre synlighed for %{appname} opslag til offentlig eller ved at give %{appname} lov til at læse opslag på din %{apiname} væg.'>Opslag opretter herinde og på din %{apiname} væg, men foto kan ikke vises her. <a href=\"javascript: {top.location.href='%{url}'}\">Giv Gofreerev lov til at læse opslag på min væg!</a></div>"
+
+  # auth controller
+  auth:
+     oauth_failure:
+        authentication_failure: "%{provider} login fejlede! %{type}: %{message}"
+        login_cancelled: '%{provider} login blev afbrudt'
+        linkedin_rw_nus_cancelled: '%{appname} fik ikke lov til at opslag på din linkedin væg'
+     create:
+        callback_provider_missing: "Login fejlede. Modtog ikke navn på login provider"
+        callback_unknown_provider: "Login fejlede. Modtag ukendt login provider %{provider}"
+        callback_token_missing: "Login fejlede. Modtag ikke adgangs billet til %{provider}"
+        callback_uid_missing: "Login fejlede. Modtog ikke bruger id fra %{provider}"
+        callback_user_name_missing_google: "Login fejlede. Modtog ikke brugernavn fra google. Evt. mangler scope userinfo.profile for provider"
+        callback_user_name_missing: "Login fejlede. Modtag ikke brugernavn fra %{provider}"
+        find_or_create_from_auth_hash: "System fejl. Ugyldigt svar fra bruger opdatering efter login."
+     destroy:
+        logged_off: "Log ud ok. Tak for besøget. Brug nedenstående link til at logge ind igen eller vende tilbage til login API. Luk browser for at fjerne session cookie"
 
   # fb controller - login started from facebook and asking for more privs.
   fb:
@@ -142,21 +159,6 @@ da:
         ok_status_update: "%{appname} fik tilladelse til at lave opslag på din facebook væg."
         ok_read_stream: "%{appname} fik tilladelse til at læse opslag på din facebook væg."
         ok_other: "Ukendt facebook anmodning ok."
-
-  # auth controller
-  auth:
-     oauth_failure:
-        authentication_failure: "%{provider} login fejlede! %{type}: %{message}"
-     create:
-        callback_provider_missing: "Login fejlede. Modtog ikke navn på login provider"
-        callback_unknown_provider: "Login fejlede. Modtag ukendt login provider %{provider}"
-        callback_token_missing: "Login fejlede. Modtag ikke adgangs billet til %{provider}"
-        callback_uid_missing: "Login fejlede. Modtog ikke bruger id fra %{provider}"
-        callback_user_name_missing_google: "Login fejlede. Modtog ikke brugernavn fra google. Evt. mangler scope userinfo.profile for provider"
-        callback_user_name_missing: "Login fejlede. Modtag ikke brugernavn fra %{provider}"
-        find_or_create_from_auth_hash: "System fejl. Ugyldigt svar fra bruger opdatering efter login."
-     destroy:
-        logged_off: "Log ud ok. Tak for besøget. Brug nedenstående link til at logge ind igen eller vende tilbage til login API. Luk browser for at fjerne session cookie"
 
   # comments controller
   comments:
@@ -446,8 +448,11 @@ da:
         accepted_proposal_receiver_1_v1_to_url: "/gifts/%{giftid}"
         accepted_proposal_receiver_1_v1_to_msg: '%{receivername} accepterede dit bud på sit ønske "%{gifttext} ..."'
 
-  # user controller
+  linkedin:
+     index:
+        ok_rw_nus: "%{appname} fik tilladelse til at lave opslag på din linkedin væg."
 
+  # user controller
   users:
      update:
         invalid_request: "Ugyldigt kald. Bruger indstillinger blev ikke ændret."

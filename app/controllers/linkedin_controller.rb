@@ -3,10 +3,12 @@ require 'linkedin'
 class LinkedinController < ApplicationController
 
   # reauthorize linkedin user with scope r_basicprofile r_network rw_nus
-  # that is - allow gofreerev to post on linkedin wall if user allows it
+  # that is - allow gofreerev to post on linkedin wall if user wants it
   # http://developer.linkedin.com/documents/authentication
-  # Parameters: {"code"=>"AQS__ODMSihloboRVKmw5YL1YaSkq8JhWimzySl9Unf3FEF78pJbg853M2-guvrb09dSsgEPSr2j0qDyLmQu3QuGWVUx1JggD7yo3wyNddHbx0lap38", "state"=>"t7McTKIOSodWjxvVFyKdSKwYAv1PEt-rw_nus"}
-  # Parameters: {"oauth_token"=>"75--62450be1-6396-45a9-b26f-050a2b471a9d", "oauth_verifier"=>"15521"}
+  # http://railscarma.com/blog/rails-3/how-to-use-linkedin-api-in-rails-applications/
+  # signatures:
+  # 1) callback with rw_nus:
+  #    Parameters: {"oauth_token"=>"75--62450be1-6396-45a9-b26f-050a2b471a9d", "oauth_verifier"=>"15521"}
   def index
 
     client = session[:linkedin_oauth].clone

@@ -120,7 +120,24 @@ en:
         gift_posted_4_html: "Gift posted in here but not on your %{apiname} wall. Duplicate status message on %{apiname} wall"
         gift_posted_5_html: "Gift posted in here but not on your %{apiname} wall. Posting on %{apiname} has not yet been implemented"
         picture_upload_unknown_problem: "Gift was posted in here and on your %{apiname} wall. Picture was uploaded to your %{apiname} wall but %{appname} did not have permission to read the picture on your %{apiname} wall and can not display the picture in here. Maybe you have changed permissions for %{appname}."
-        picture_upload_missing_permission_html: "<div title='%{appname} lack access to read posts on your %{apiname} wall. You can upload gift with pictures to %{apiname} but pictures can not be displayed in %{appname}. You can change visibility for %{appname} posts to public or you could grant %{appname} permissiong to read posts on your wall. %{appname} will only use read posts permission to display pictures witin %{appname}.'>Gift was posted in here and on your %{apiname} wall but picture can not be displayed. <a href=\"javascript: {top.location.href='%{url}'}\">Allow %{appname} to read posts on my wall!</a></p>"
+        picture_upload_missing_permission_html: "<div title='%{appname} lack access to read posts on your %{apiname} wall. You can upload gift with pictures to %{apiname} but pictures can not be displayed in %{appname}. You can change visibility for %{appname} posts to public or you could grant %{appname} permissiong to read posts on your wall. %{appname} will only use read posts permission to display pictures witin %{appname}.'>Gift was posted in here and on your %{apiname} wall but picture can not be displayed. <a href=\"javascript: {top.location.href='%{url}'}\">Allow %{appname} to read posts on my %{apiname} wall!</a></p>"
+
+  # auth controller
+  auth:
+     oauth_failure:
+        authentication_failure: "%{provider} authentication failure! %{type}: %{message}"
+        login_cancelled: '%{provider} was cancelled'
+        linkedin_rw_nus_cancelled: '%{appname} was not granted permission to post on your LinkedIn wall'
+     create:
+        callback_provider_missing: "Login failed. Did not receive name for login provider"
+        callback_unknown_provider: "Login failed. Received unknown login provider %{provider}"
+        callback_token_missing: "Login failed. Did not receive access token from %{provider}"
+        callback_uid_missing: "Login failed. Did not receive user id from %{provider}"
+        callback_user_name_missing_google: "Login failed. Did not receive username from google. Maybe scope userinfo.profile is missing for provider"
+        callback_user_name_missing: "Login failed. Did not receive username from %{provider}"
+        find_or_create_from_auth_hash: "System error. Invalid response from user update after login"
+     destroy:
+        logged_off: "Log out ok. Thanks for visiting %{appname}. Use links on this page to log in or to return to login API. Close browser to remove session cookie."
 
   fb:
      index:
@@ -136,21 +153,6 @@ en:
         ok_status_update: "%{appname} was granted access to write on your facebook wall."
         ok_read_stream: "%{appname} was granted access to read posts on your facebook wall."
         ok_other: "System error. Unknown facebook request was accepted."
-
-  # auth controller
-  auth:
-     oauth_failure:
-        authentication_failure: "%{provider} authentication failure! %{type}: %{message}"
-     create:
-        callback_provider_missing: "Login failed. Did not receive name for login provider"
-        callback_unknown_provider: "Login failed. Received unknown login provider %{provider}"
-        callback_token_missing: "Login failed. Did not receive access token from %{provider}"
-        callback_uid_missing: "Login failed. Did not receive user id from %{provider}"
-        callback_user_name_missing_google: "Login failed. Did not receive username from google. Maybe scope userinfo.profile is missing for provider"
-        callback_user_name_missing: "Login failed. Did not receive username from %{provider}"
-        find_or_create_from_auth_hash: "System error. Invalid response from user update after login"
-     destroy:
-        logged_off: "Log out ok. Thanks for visiting %{appname}. Use links on this page to log in or to return to login API. Close browser to remove session cookie."
 
   # comments controller
   comments:
@@ -434,6 +436,10 @@ en:
         accepted_proposal_giver_other_1_v1_to_msg: '%{givername} accepted %{receivername}-s bid on his/her offer "%{gifttext} ..."'
         accepted_proposal_receiver_1_v1_to_url: "/gifts/%{giftid}"
         accepted_proposal_receiver_1_v1_to_msg: '%{receivername} accepted your bid on his/her wish "%{gifttext} ..."'
+
+  linkedin:
+     index:
+        ok_rw_nus: "%{appname} was granted access to write on your linkedin wall."
 
   # user controller
   users:
