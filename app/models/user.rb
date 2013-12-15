@@ -451,7 +451,9 @@ class User < ActiveRecord::Base
     permissions = self.permissions
     case
       when facebook?
-         permissions['status_update'] == 1
+         # looks like permission status_update has been replaced with publish_actions
+         # publish_actions is added when requesting status_update priv.
+         permissions['status_update'] == 1 or permissions["publish_actions"] == 1
       else
         puts "todo: post_on_wall? not implemented for #{provider}"
         false

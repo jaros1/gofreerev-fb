@@ -87,6 +87,8 @@ class FbController < ApplicationController
     # login - login starter from facebook - previous request was post fb/create
     # status_update - return from status_update priv. request (link in gifts/index page - inserted from util.post_on_facebook)
     # read_stream - return from read_stream priv. request (link in gifts/index page - inserted from util.post_on_facebook)
+    # looks like permission status_update has been replaced with publish_actions
+    # publish_actions is added when requesting status_update priv.
     context = params[:state].to_s.from(31)
     context = 'other' unless %w(login status_update read_stream).index(context)
 

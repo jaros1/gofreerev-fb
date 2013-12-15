@@ -90,8 +90,8 @@ class AuthController < ApplicationController
     session.keys.each do |name|
       session.delete(name) unless %w(_csrf_token language created).index(name.to_s)
     end
-    flash[:notice] = t '.logged_off', :appname => APP_NAME
     if @users.length > 1
+      flash[:notice] = t '.logged_off', :appname => APP_NAME
       redirect_to :action => :index
       return
     end

@@ -12,7 +12,7 @@ class UtilController < ApplicationController
   # - newest_status_update_at is newest status_update_at when page was loaded or newest status_update_at in last new_message_count request for this session
   def new_messages_count
     if !@users or @users.length == 0
-      puts "ignoring not logged in user"
+      puts "util.new_messages_count: ignoring not logged in user"
       render :nothing => true
       return
     end
@@ -35,12 +35,12 @@ class UtilController < ApplicationController
     # return new comments and comments with changed status (new deal proposal cancelled or rejected or deleted comment)
     if  params[:request_fullpath] == '/gifts' or params[:request_fullpath] =~ /^\/gifts\/([0-9]+)$/
       # find comments to ajax insert in gifts/index or gifts/show pages
-      # puts "find comments to ajax insert in gifts/index or gifts/show pages"
+      # puts "util.new_messages_count: find comments to ajax insert in gifts/index or gifts/show pages"
       # two sources for comments to ajax insert into gifts table
       # source 1 - comments selected to be ajax inserted for this user - todo: check where AjaxCommment is initialized
       com_ids = AjaxComment.where("user_id = ?", @user.user_id).collect { |ac| ac.comment_id }
       com_ids.push('x') if com_ids.size == 0
-      # puts "com_ids.length = #{com_ids.length}"
+      # puts "util.new_messages_count: com_ids.length = #{com_ids.length}"
       comments1 = Comment.includes(:gift).where('comment_id in (?)',com_ids)
       # source 2 - all visible gifts, but only comments with status_update_at > :newest_status_update_at
       friends = []
@@ -59,9 +59,9 @@ class UtilController < ApplicationController
       @comments = (comments1 + comments2).uniq
       if @comments.size > 0 and params[:request_fullpath] =~ /^\/gifts\/([0-9]+)$/
         # gifts/show/<nnn> page - return only ajax comments for actual gift (id=<nnn>)
-        # puts "new comments before gift_id filter = #{@comments.length}"
+        # puts "util.new_messages_count: new comments before gift_id filter = #{@comments.length}"
         @comments = @comments.find_all { |c| c.gift.id.to_s == $1 }
-        # puts "new comments after gift_id filter = #{@comments.length}"
+        # puts "util.new_messages_count: new comments after gift_id filter = #{@comments.length}"
       end
       # do not return comment just created by current user (problem with extra flash for new comments)
       @comments = @comments.delete_if do |c|
@@ -75,7 +75,7 @@ class UtilController < ApplicationController
         # remove comments for hidden gifts
         @comments = @comments.find_all { |c| !hide_giftids.index(c.gift_id) } if hide_giftids.length > 0
         new_size = @comments.size
-        # puts "#{old_size-new_size} comments for hidden gifts was removed" if old_size != new_size
+        # puts "util.new_messages_count: #{old_size-new_size} comments for hidden gifts was removed" if old_size != new_size
       end
       @comments = nil if @comments.size == 0
       # empty AjaxComment buffer - only return ajax comments once
@@ -96,16 +96,16 @@ class UtilController < ApplicationController
     end
     # remove any ajax comments for gifts in gifts array - that is gifts that will be ajax inserted or replaced in gifts html table
     if @comments and @gifts and @comments.size > 0 and @gifts.size > 0
-      # puts "remove any comments that is included in gifts"
-      # puts "old @comments.size = #{@comments.size}, comments = " + @comments.collect { |c| c.id }.join(', ') if @comments
+      # puts "util.new_messages_count: remove any comments that is included in gifts"
+      # puts "util.new_messages_count: old @comments.size = #{@comments.size}, comments = " + @comments.collect { |c| c.id }.join(', ') if @comments
       @comments = @comments.delete_if { |c| @gifts.find_all { |g| c.gift_id == g.gift_id }.first }
       @comments = nil if @comments.size == 0
-      # puts "new @comments.size = #{@comments.size}, comments = " + @comments.collect { |c| c.id }.join(', ') if @comments
+      # puts "util.new_messages_count: new @comments.size = #{@comments.size}, comments = " + @comments.collect { |c| c.id }.join(', ') if @comments
     end
-    puts "@gifts.size = #{@gifts.size}, gifts = " + @gifts.collect { |g| g.id }.join(', ') if @gifts
-    puts "@comments.size = #{@comments.size}, comments = " + @comments.collect { |c| c.id }.join(', ') if @comments
-    puts "@new_newest_gift_id = #{@new_newest_gift_id}"
-    puts "@new_newest_status_update_at = #{@new_newest_status_update_at}"
+    puts "util.new_messages_count: @gifts.size = #{@gifts.size}, gifts = " + @gifts.collect { |g| g.id }.join(', ') if @gifts
+    puts "util.new_messages_count: @comments.size = #{@comments.size}, comments = " + @comments.collect { |c| c.id }.join(', ') if @comments
+    puts "util.new_messages_count: @new_newest_gift_id = #{@new_newest_gift_id}"
+    puts "util.new_messages_count: @new_newest_status_update_at = #{@new_newest_status_update_at}"
     respond_to do |format|
       format.html {}
       format.json { render json: @comment, status: :created, location: @comment }
@@ -122,12 +122,12 @@ class UtilController < ApplicationController
     return unless params[:api_gifts].has_key?(:ids)
     return if  params[:api_gifts][:ids] == ''
     ids = params[:api_gifts][:ids].split(',')
-    puts "ids = #{ids}"
+    puts "missing_api_picture_urls: ids = #{ids}"
     gifts = Gift.where("id in (?)", ids)
 
     # set error timestamp
     gifts.each do |gift|
-      puts gift.api_picture_url
+      puts "missing_api_picture_urls: url = #{gift.api_picture_url}"
       gift.api_picture_url_on_error_at = Time.now
       gift.save!
     end # each
@@ -153,7 +153,7 @@ class UtilController < ApplicationController
           # current user may not have permission to read picture on wall
           # keep api_picture_url_on_error_at timestamp and continue
           # the picture url will be checked by picture owner at a later time
-          puts "Could not get new picture url. Could be deleted picture. Could be api permission problem. Keep error and let owner check picture url at a later time"
+          puts "missing_api_picture_urls: Could not get new picture url. Could be deleted picture. Could be api permission problem. Keep error and let owner check picture url at a later time"
           next
         end # if
             # picture was not found with picture owner login
@@ -161,7 +161,7 @@ class UtilController < ApplicationController
             # keep api_picture_url_on_error_at so that we known about when the picture was been deleted
             # gifts in app is not deleted automatically. Could affect the balance. Could be connected with other gifts.
             # this allow users to cleanup their FB profile without destroying data in app
-        puts "Gift has been deleted on #{@user.api_name_without_brackets}. Keep in #{APP_NAME} as the gift could have been used in balance and in connected gifts (todo)"
+        puts "missing_api_picture_urls: Gift has been deleted on #{@user.api_name_without_brackets}. Keep in #{APP_NAME} as the gift could have been used in balance and in connected gifts (todo)"
         gift.picture = 'N'
         gift.api_picture_url = nil
         gift.api_picture_url_updated_at = nil
@@ -186,11 +186,11 @@ class UtilController < ApplicationController
     gift_id = params[:gift_id]
     gift = Gift.find_by_id(gift_id)
     if !gift
-      puts "Gift with id #{gift_id} was not found - silently ignore ajax request"
+      puts "util.like_gift: Gift with id #{gift_id} was not found - silently ignore ajax request"
       return
     end
     if !gift.visible_for(@users)
-      puts "#{@user.short_user_name} is not allowed to see gift id #{gift_id} - silently ignore ajax request"
+      puts "util.like_gift: #{@user.short_user_name} is not allowed to see gift id #{gift_id} - silently ignore ajax request"
       return
     end
     gl = GiftLike.where("user_id = ? and gift_id = ?", @user.user_id, gift.gift_id).first
@@ -215,16 +215,16 @@ class UtilController < ApplicationController
     gift_id = params[:gift_id]
     gift = Gift.find_by_id(gift_id)
     if !gift
-      puts "Gift with id #{gift_id} was not found - silently ignore ajax request"
+      puts "util.unlike_gift: Gift with id #{gift_id} was not found - silently ignore ajax request"
       return
     end
     if !gift.visible_for(@users)
-      puts "#{@user.short_user_name} is not allowed to see gift id #{gift_id} - silently ignore ajax request"
+      puts "util.unlike_gift: #{@user.short_user_name} is not allowed to see gift id #{gift_id} - silently ignore ajax request"
       return
     end
     gl = GiftLike.where("user_id = ? and gift_id = ?", @user.user_id, gift.gift_id).first
     if !gl or gl.like != 'Y'
-      puts "Non previous like was found for user #{@user.short_user_name} and gift id #{gift_id}"
+      puts "util.unlike_gift: Non previous like was found for user #{@user.short_user_name} and gift id #{gift_id}"
       return
     end
     gl.like = 'N' ;
@@ -239,11 +239,11 @@ class UtilController < ApplicationController
     gift_id = params[:gift_id]
     gift = Gift.find_by_id(gift_id)
     if !gift
-      puts "Gift with id #{gift_id} was not found - silently ignore ajax request"
+      puts "util.follow_gift: Gift with id #{gift_id} was not found - silently ignore ajax request"
       return
     end
     if !gift.visible_for(@users)
-      puts "#{@user.short_user_name} is not allowed to see gift id #{gift_id} - silently ignore ajax request"
+      puts "util.follow_gift: #{@user.short_user_name} is not allowed to see gift id #{gift_id} - silently ignore ajax request"
       return
     end
     gl = GiftLike.where("user_id = ? and gift_id = ?", @user.user_id, gift.gift_id).first
@@ -268,11 +268,11 @@ class UtilController < ApplicationController
     gift_id = params[:gift_id]
     gift = Gift.find_by_id(gift_id)
     if !gift
-      puts "Gift with id #{gift_id} was not found - silently ignore ajax request"
+      puts "util.unfollow_gift: Gift with id #{gift_id} was not found - silently ignore ajax request"
       return
     end
     if !gift.visible_for(@users)
-      puts "#{@user.short_user_name} is not allowed to see gift id #{gift_id} - silently ignore ajax request"
+      puts "util.unfollow_gift: #{@user.short_user_name} is not allowed to see gift id #{gift_id} - silently ignore ajax request"
       return
     end
     gl = GiftLike.where("user_id = ? and gift_id = ?", @user.user_id, gift.gift_id).first
@@ -295,11 +295,11 @@ class UtilController < ApplicationController
     gift_id = params[:gift_id]
     gift = Gift.find_by_id(gift_id)
     if !gift
-      puts "Gift with id #{gift_id} was not found - silently ignore ajax request"
+      puts "util.hide_gift: Gift with id #{gift_id} was not found - silently ignore ajax request"
       return
     end
     if !gift.visible_for(@users)
-      puts "#{@user.short_user_name} is not allowed to see gift id #{gift_id} - silently ignore ajax request"
+      puts "util.hide_gift: #{@user.short_user_name} is not allowed to see gift id #{gift_id} - silently ignore ajax request"
       return
     end
     gl = GiftLike.where("user_id = ? and gift_id = ?", @user.user_id, gift.gift_id).first
@@ -322,11 +322,11 @@ class UtilController < ApplicationController
     gift_id = params[:gift_id]
     gift = Gift.find_by_id(gift_id)
     if !gift
-      puts "Gift with id #{gift_id} was not found - silently ignore ajax request"
+      puts "util.delete_gift: Gift with id #{gift_id} was not found - silently ignore ajax request"
       return
     end
     if ![gift.user_id_giver, gift.user_id_receiver].index(@user.user_id)
-      puts "#{@user.short_user_name} is not allowed to delete gift id #{gift_id} - silently ignore ajax request"
+      puts "util.delete_gift: #{@user.short_user_name} is not allowed to delete gift id #{gift_id} - silently ignore ajax request"
       return
     end
     # delete mark gift. Delete marked gifts will be ajax removed from other sessions within the next 5 minutes and will be physical deleted after 5 minutes
@@ -350,16 +350,16 @@ class UtilController < ApplicationController
     comment_id = params[:comment_id]
     comment = Comment.find_by_id(comment_id)
     if !comment
-      puts "Comment with id #{comment_id} was not found - silently ignore ajax request"
+      puts "util.cancel_new_deal: Comment with id #{comment_id} was not found - silently ignore ajax request"
       return
     end
     gift = comment.gift
     if !gift.visible_for(@users)
-      puts "#{@user.short_user_name} is not allowed to see gift id #{gift_id} - silently ignore ajax request"
+      puts "util.cancel_new_deal: #{@user.short_user_name} is not allowed to see gift id #{gift_id} - silently ignore ajax request"
       return
     end
     if !comment.show_cancel_new_deal_link?(@user)
-      puts "cancel link no longer active for comment with id #{comment_id} - silently ignore ajax request"
+      puts "util.cancel_new_deal: cancel link no longer active for comment with id #{comment_id} - silently ignore ajax request"
     else
       # cancel agreement proposal
       comment.new_deal_yn = nil
@@ -373,16 +373,16 @@ class UtilController < ApplicationController
     comment_id = params[:comment_id]
     comment = Comment.find_by_id(comment_id)
     if !comment
-      puts "Comment with id #{comment_id} was not found - silently ignore ajax request"
+      puts "util.reject_new_deal: Comment with id #{comment_id} was not found - silently ignore ajax request"
       return
     end
     gift = comment.gift
     if !gift.visible_for(@users)
-      puts "#{@user.short_user_name} is not allowed to see gift id #{gift_id} - silently ignore ajax request"
+      puts "util.reject_new_deal: #{@user.short_user_name} is not allowed to see gift id #{gift_id} - silently ignore ajax request"
       return
     end
     if !comment.show_reject_new_deal_link?(@users)
-      puts "reject link not active for comment with id #{comment_id} - silently ignore ajax request"
+      puts "util.reject_new_deal: reject link not active for comment with id #{comment_id} - silently ignore ajax request"
       return
     end
     # reject agreement proposal
@@ -392,23 +392,23 @@ class UtilController < ApplicationController
     # todo: other comment changes? Maybe an other layout, style, color for accepted gift/comments
     # todo: change gift and comment for other users after reject (new messages count ajax)?
     @link_id = "gift-#{gift.id}-comment-#{comment.id}-reject-link"
-    puts "link_id = #{@link_id}"
+    puts "util.reject_new_deal: link_id = #{@link_id}"
   end # reject_new_deal
 
   def accept_new_deal
     comment_id = params[:comment_id]
     comment = Comment.find_by_id(comment_id)
     if !comment
-      puts "Comment with id #{comment_id} was not found - silently ignore ajax request"
+      puts "util.accept_new_deal: Comment with id #{comment_id} was not found - silently ignore ajax request"
       return
     end
     gift = comment.gift
     if !gift.visible_for(@users)
-      puts "#{@user.short_user_name} is not allowed to see gift id #{gift_id} - silently ignore ajax request"
+      puts "util.accept_new_deal: #{@user.short_user_name} is not allowed to see gift id #{gift_id} - silently ignore ajax request"
       return
     end
     if !comment.show_accept_new_deal_link?(@user)
-      puts "accept link not active for comment with id #{comment_id} - silently ignore ajax request"
+      puts "util.accept_new_deal: accept link not active for comment with id #{comment_id} - silently ignore ajax request"
       return
     end
     # accept agreement proposal - mark proposal as accepted - callbacks sent notifications and updates gift
@@ -438,7 +438,7 @@ class UtilController < ApplicationController
   end # accept_new_deal
 
   def currencies
-    puts "return currencies to client on onfocus event"
+    puts "util.currencies: return currencies to client on onfocus event"
   end
 
   # process ajax tasks from session[:ajax_tasks] queue
@@ -461,12 +461,12 @@ class UtilController < ApplicationController
       begin
         res = eval(at.task)
       rescue Exception => e
-        puts "error when processing ajax task #{at.task}"
-        puts "Exception: #{e.message.to_s}"
-        puts "Backtrace: " + e.backtrace.join("\n")
+        puts "util.do_ajax_tasks: error when processing ajax task #{at.task}"
+        puts "util.do_ajax_tasks: Exception: #{e.message.to_s}"
+        puts "util.do_ajax_tasks: Backtrace: " + e.backtrace.join("\n")
         res = [ '.ajax_task_exception', { :task => at.task, :exception => e.message.to_s }]
       end
-      # puts "ajax task #{at.task}, response = #{res}"
+      # puts "util.do_ajax_tasks: ajax task #{at.task}, response = #{res}"
       next unless res
       # check response from ajax task. Must be a valid input to translate
       begin
@@ -479,16 +479,16 @@ class UtilController < ApplicationController
       rescue I18n::MissingTranslationData => e
         res = [ '.ajax_task_missing_translate_key', { :key => key, :task => at.task, :response => res, :exception => e.message.to_s } ]
       rescue I18n::MissingInterpolationArgument => e
-        puts "exception = #{e.message.to_s}"
-        puts "response = #{res}"
+        puts "util.do_ajax_tasks: exception = #{e.message.to_s}"
+        puts "util.do_ajax_tasks: response = #{res}"
         argument = $1 if e.message.to_s =~ /:(.+?)\s/
-        puts "argument = #{argument}"
+        puts "util.do_ajax_tasks: argument = #{argument}"
         res = [ '.ajax_task_missing_translate_arg', { :key => key, :task => at.task, :argument => argument, :response => res, :exception => e.message.to_s } ]
       rescue Exception => e
-        puts "invalid response from ajax task #{at.task}. Must be nil or a valid input to translate. Response: #{res}"
+        puts "util.do_ajax_tasks: invalid response from ajax task #{at.task}. Must be nil or a valid input to translate. Response: #{res}"
         res = [ '.ajax_task_invalid_response', { :task => at.task, :response => res, :exception => e.message.to_s }]
       end
-      # puts "task = #{at.task}, res = #{res}"
+      # puts "util.do_ajax_tasks: task = #{at.task}, res = #{res}"
       @errors << res
     end
     if @errors.size == 0
@@ -508,7 +508,7 @@ class UtilController < ApplicationController
     # get token for api requests
     token = (session[:tokens] || {})[provider]
     return [login_user, token, '.post_login_token_not_found', {:provider => provider}] if token.to_s == ""
-    puts "token = #{token}"
+    puts "util.get_login_user_and_token: token = #{token}"
     # ok
     return [login_user, token]
   end
@@ -518,7 +518,7 @@ class UtilController < ApplicationController
   # return array with login_user, friends_hash, token, key and options - key and options only if error
   private
   def get_user_friends_and_token(provider)
-    puts "post_login_#{provider}"
+    puts "util.get_user_friends_and_token: post_login_#{provider}"
     # get user and token
     friends_hash = nil
     login_user, token, key, options = get_login_user_and_token(provider)
@@ -553,12 +553,12 @@ class UtilController < ApplicationController
       # setup facebook api client - get permissions and friends
 
       # get user information - permissions and friends  - use koala gem for this
-      # puts 'fetch_user: get user id and name'
+      # puts 'util.post_login_facebook: get user id and name'
       api = Koala::Facebook::API.new(token)
       api_request = 'me?fields=permissions,friends'
-      # puts "fetch_user: api_request = #{api_request}"
+      # puts "util.post_login_facebook: api_request = #{api_request}"
       api_response = api.get_object api_request
-      # puts "fetch_user: api_response = #{api_response.to_s}"
+      puts "util.post_login_facebook: api_response = #{api_response.to_s}"
       #fetch_user: api_response = {"id"=>"100006397022113", "friends"=>{"data"=>[{"name"=>"David Amfcdabcjbif Martinazzisen", "id"=>"100006341230296"}, {"name"=>"Dick Amfceacglc Bushakson", "id"=>"100006351370003"}, {"name"=>"Karen Amfchcebfhjf Smithescu", "id"=>"100006383526806"}, {"name"=>"Sandra Amfciidbbaee Qinsen", "id"=>"100006399422155"}], "paging"=>{"next"=>"https://graph.facebook.com/100006397022113/friends?access_token=CAAFjZBGzzOkcBAFgvgvY7DmLBrzbKFuOiULN248i3AWlSNWqzzTLLINmRjDSM2djyQriVkcKnVJ80pRz3TiJ1koCNcOPU1ioy40aHHuAZCSXovba3pz74db08a6obnrABFZCgEMwX8cKStw25hwvyqkF1YHiV8d2yV5YoFytaI9hGYyCgk3&limit=5000&offset=5000&__after_id=100006399422155"}}, "permissions"=>{"data"=>[{"installed"=>1, "basic_info"=>1, "status_update"=>1, "photo_upload"=>1, "video_upload"=>1, "email"=>1, "create_note"=>1, "share_item"=>1, "publish_stream"=>1, "publish_actions"=>1, "user_friends"=>1, "bookmarked"=>1}], "paging"=>{"next"=>"https://graph.facebook.com/100006397022113/permissions?access_token=CAAFjZBGzzOkcBAFgvgvY7DmLBrzbKFuOiULN248i3AWlSNWqzzTLLINmRjDSM2djyQriVkcKnVJ80pRz3TiJ1koCNcOPU1ioy40aHHuAZCSXovba3pz74db08a6obnrABFZCgEMwX8cKStw25hwvyqkF1YHiV8d2yV5YoFytaI9hGYyCgk3&limit=5000&offset=5000"}}}
 
       # 1) update number of friends and permissions
@@ -610,9 +610,9 @@ class UtilController < ApplicationController
       # ok
       nil
     rescue Exception => e
-      puts "post_login_facebook:"
-      puts "Exception: #{e.message.to_s}"
-      puts "Backtrace: " + e.backtrace.join("\n")
+      puts "util.post_login_facebook:"
+      puts "util.post_login_facebook: Exception: #{e.message.to_s}"
+      puts "util.post_login_facebook: Backtrace: " + e.backtrace.join("\n")
       raise
     end
   end # post_login_facebook
@@ -632,7 +632,7 @@ class UtilController < ApplicationController
       login_user_id = login_user.user_id
 
       # get new google api friends
-      puts "token = #{token}"
+      puts "util.post_login_google_oauth2: token = #{token}"
       client = Google::APIClient.new(
           :application_name => 'Gofreerev',
           :application_version => '0.1'
@@ -652,9 +652,9 @@ class UtilController < ApplicationController
       loop do
 
         result = client.execute(request)
-        # puts "result = #{result}"
-        # puts "result.error_message.class = #{result.error_message.class}"
-        # puts "result.error_message = #{result.error_message}"
+        # puts "util.post_login_google_oauth2: result = #{result}"
+        # puts "util.post_login_google_oauth2: result.error_message.class = #{result.error_message.class}"
+        # puts "util.post_login_google_oauth2: result.error_message = #{result.error_message}"
         #result.error_message = {
         #    "kind": "plus#peopleFeed",
         #    "etag": "\"QR7ccvNi-CeX9lFTHRm3szTVkpo/lZDO4-dFZ0NFLfhR92UMMY8uQCc\"",
@@ -674,9 +674,9 @@ class UtilController < ApplicationController
         #},
         #    {
         #    .....
-        # puts "result.data.class = #{result.data.class}"
-        # puts "result.data = #{result.data}"
-        # puts "result.data.total_items = #{result.data.total_items}"
+        # puts "util.post_login_google_oauth2: result.data.class = #{result.data.class}"
+        # puts "util.post_login_google_oauth2: result.data = #{result.data}"
+        # puts "util.post_login_google_oauth2: result.data.total_items = #{result.data.total_items}"
 
         # known errors from Google API
         return ['.google_access_not_configured', {:provider => provider}] if result.error_message.to_s == 'Access Not Configured'
@@ -685,9 +685,9 @@ class UtilController < ApplicationController
         return ['.google_other_errors', {:provider => provider, :error => result.error_message}] if !result.data.total_items
 
         # copy friends to hash.
-        # puts "result.data.items = #{result.data.items}"
+        # puts "util.post_login_google_oauth2: result.data.items = #{result.data.items}"
         for friend in result.data.items do
-          # puts "friend = #{friend} (#{friend.class})"
+          # puts "util.post_login_google_oauth2: friend = #{friend} (#{friend.class})"
           # copy friend to friends_hash
           friend_user_id = "#{friend.id}/#{provider}"
           if friends_hash.has_key?(friend_user_id)
@@ -722,8 +722,8 @@ class UtilController < ApplicationController
       # ok
       nil
     rescue Exception => e
-      puts "Exception: #{e.message.to_s}"
-      puts "Backtrace: " + e.backtrace.join("\n")
+      puts "util.post_login_google_oauth2: Exception: #{e.message.to_s}"
+      puts "util.post_login_google_oauth2: Backtrace: " + e.backtrace.join("\n")
       raise
     end
   end # post_login_google_oauth2
@@ -791,8 +791,8 @@ class UtilController < ApplicationController
       nil
 
     rescue Exception => e
-      puts "Exception: #{e.message.to_s} (#{e.class})"
-      puts "Backtrace: " + e.backtrace.join("\n")
+      puts "util.post_login_linkedin: Exception: #{e.message.to_s} (#{e.class})"
+      puts "util.post_login_linkedin: Backtrace: " + e.backtrace.join("\n")
       raise
     end
   end # post_login_linkedin
@@ -811,7 +811,7 @@ class UtilController < ApplicationController
       login_user, friends_hash, token, key, options = get_user_friends_and_token(provider)
       return [key, options] if key
       login_user_id = login_user.user_id
-      puts "token = #{token.join(', ')}"
+      puts "util.post_login_twitter: token = #{token.join(', ')}"
 
       # create client for twitter api requests
       client = Twitter::REST::Client.new do |config|
@@ -861,8 +861,8 @@ class UtilController < ApplicationController
       nil
 
     rescue Exception => e
-      puts "Exception: #{e.message.to_s} (#{e.class})"
-      puts "Backtrace: " + e.backtrace.join("\n")
+      puts "util.post_login_twitter: Exception: #{e.message.to_s} (#{e.class})"
+      puts "util.post_login_twitter: Backtrace: " + e.backtrace.join("\n")
       raise
     end
   end # post_login_twitter
@@ -899,7 +899,7 @@ class UtilController < ApplicationController
       error = 'unknown error'
 
       if login_user.post_gift_allowed?
-        # puts "access_token = #{session[:access_token]}"
+        # puts "util.post_on_facebook: access_token = #{session[:access_token]}"
         api = Koala::Facebook::API.new(token)
         begin
           if api_gift.picture == 'Y'
@@ -915,18 +915,18 @@ class UtilController < ApplicationController
             # api_response = {"id"=>"100006397022113_1396235850599636"}
             api_gift.api_gift_id = api_response['id']
           end
-          puts "api_response = #{api_response} (#{api_response.class.name})"
+          puts "util.post_on_facebook: api_response = #{api_response} (#{api_response.class.name})"
           gift_posted_on_wall_api_wall = 2 # Gift posted in here and on your facebook wall
         rescue Koala::Facebook::ClientError => e
-          puts 'Koala::Facebook::ClientError'
-          puts "e.fb_error_type = #{e.fb_error_type}"
-          puts "e.fb_error_code = #{e.fb_error_code}"
-          puts "e.fb_error_subcode = #{e.fb_error_subcode}"
-          puts "e.fb_error_message = #{e.fb_error_message}"
+          puts 'util.post_on_facebook: Koala::Facebook::ClientError'
+          puts "util.post_on_facebook: e.fb_error_type = #{e.fb_error_type}"
+          puts "util.post_on_facebook: e.fb_error_code = #{e.fb_error_code}"
+          puts "util.post_on_facebook: e.fb_error_subcode = #{e.fb_error_subcode}"
+          puts "util.post_on_facebook: e.fb_error_message = #{e.fb_error_message}"
           puts "e.http_status = #{e.http_status}"
-          puts "e.response_body = #{e.response_body}"
-          puts "e.fb_error_type.class.name = #{e.fb_error_type.class.name}"
-          puts "e.fb_error_code.class.name = #{e.fb_error_code.class.name}"
+          puts "util.post_on_facebook: e.response_body = #{e.response_body}"
+          puts "util.post_on_facebook: e.fb_error_type.class.name = #{e.fb_error_type.class.name}"
+          puts "util.post_on_facebook: e.fb_error_code.class.name = #{e.fb_error_code.class.name}"
           if e.fb_error_type == 'OAuthException' && e.fb_error_code == 506
             # delete gift and ignore error OAuthException, code: 506, message: (#506) Duplicate status message [HTTP 400]
             gift_posted_on_wall_api_wall = 4 # Gift posted in here but not on your facebook wall. Duplicate status message on facebook wall.
@@ -950,15 +950,15 @@ class UtilController < ApplicationController
             error = e.to_s
           end
         rescue Koala::Facebook::ServerError => e
-          puts 'Koala::Facebook::ServerError'
-          puts "e.fb_error_type = #{e.fb_error_type}"
-          puts "e.fb_error_code = #{e.fb_error_code}"
-          puts "e.fb_error_subcode = #{e.fb_error_subcode}"
-          puts "e.fb_error_message = #{e.fb_error_message}"
-          puts "e.http_status = #{e.http_status}"
-          puts "e.response_body = #{e.response_body}"
-          puts "e.fb_error_type.class.name = #{e.fb_error_type.class.name}"
-          puts "e.fb_error_code.class.name = #{e.fb_error_code.class.name}"
+          puts 'util.post_on_facebook: Koala::Facebook::ServerError'
+          puts "util.post_on_facebook: e.fb_error_type = #{e.fb_error_type}"
+          puts "util.post_on_facebook: e.fb_error_code = #{e.fb_error_code}"
+          puts "util.post_on_facebook: e.fb_error_subcode = #{e.fb_error_subcode}"
+          puts "util.post_on_facebook: e.fb_error_message = #{e.fb_error_message}"
+          puts "util.post_on_facebook: e.http_status = #{e.http_status}"
+          puts "util.post_on_facebook: e.response_body = #{e.response_body}"
+          puts "util.post_on_facebook: e.fb_error_type.class.name = #{e.fb_error_type.class.name}"
+          puts "util.post_on_facebook: e.fb_error_code.class.name = #{e.fb_error_code.class.name}"
           # e.fb_error_type = Exception
           # e.fb_error_code = 1366046
           # e.fb_error_subcode =
@@ -981,6 +981,8 @@ class UtilController < ApplicationController
         options = {:apiname => login_user.api_name_without_brackets, :error => error}
         if gift_posted_on_wall_api_wall == 3
           # url to add missing status update priv. to post on facebook wall
+          # looks like permission status_update has been replaced with publish_actions
+          # publish_actions is added when requesting status_update priv.
           # todo: Should not save oauth in session
           # todo: problem with String.generate_random_string(30) if more than one api link in page
           # todo: return link should be a link to auth or fb controller to verify state and return response from FB
@@ -1000,7 +1002,7 @@ class UtilController < ApplicationController
           # api_request = "#{gift.api_gift_id}?fields=full_picture"
           # api_request = gift.api_gift_id.split('_').join('/picture/') + '?type=normal' # still small picture
           # api_request = gift.api_gift_id.split('_').join('/picture/')  + '?fields=full_picture' # empty response (302 redirect) with profile picture
-          # puts "api_request = #{api_request}"
+          # puts "util.post_on_facebook: api_request = #{api_request}"
           begin
             api_gift.api_picture_url = api_gift.get_api_picture_url(token)
             if api_gift.api_picture_url
@@ -1009,7 +1011,7 @@ class UtilController < ApplicationController
               api_gift.api_picture_url_on_error_at = nil
               api_gift.save!
             else
-              puts "Did not get a picture url from api. Must be problem with missing access token, picture != Y or deleted_at_api == Y"
+              puts "util.post_on_facebook: Did not get a picture url from api. Must be problem with missing access token, picture != Y or deleted_at_api == Y"
               return ['.no_api_picture_url', {:apiname => login_user.api_name_without_brackets}]
             end
           rescue ApiPostNotFoundException => e
@@ -1043,9 +1045,9 @@ class UtilController < ApplicationController
       end
 
     rescue Exception => e
-      puts "post_on_facebook:"
-      puts "Exception: #{e.message.to_s} (#{e.class})"
-      puts "Backtrace: " + e.backtrace.join("\n")
+      puts "util.post_on_facebook:"
+      puts "util.post_on_facebook: Exception: #{e.message.to_s} (#{e.class})"
+      puts "util.post_on_facebook: Backtrace: " + e.backtrace.join("\n")
       raise
     end
   end # post_on_facebook
@@ -1077,9 +1079,9 @@ class UtilController < ApplicationController
       nil
 
     rescue Exception => e
-      puts "post_on_facebook:"
-      puts "Exception: #{e.message.to_s} (#{e.class})"
-      puts "Backtrace: " + e.backtrace.join("\n")
+      puts "util.recalculate_user_balance: recalculate_user_balance:"
+      puts "util.recalculate_user_balance: Exception: #{e.message.to_s} (#{e.class})"
+      puts "util.recalculate_user_balance: Backtrace: " + e.backtrace.join("\n")
       raise
     end
   end # recalculate_user_balance
@@ -1108,20 +1110,20 @@ class UtilController < ApplicationController
       # create client for linkedin api requests
       client = LinkedIn::Client.new ENV['GOFREEREV_LI_APP_ID'], ENV['GOFREEREV_LI_APP_SECRET']
       client.authorize_from_access token[0], token[1] # token and secret
-      puts "GOFREEREV_LI_APP_ID = #{ENV['GOFREEREV_LI_APP_ID']}"
-      puts "GOFREEREV_LI_APP_SECRET = #{ENV['GOFREEREV_LI_APP_SECRET']}"
-      puts "token = #{token[0]}"
-      puts "secret = #{token[1]}"
+      puts "util.post_on_linkedin: GOFREEREV_LI_APP_ID = #{ENV['GOFREEREV_LI_APP_ID']}"
+      puts "util.post_on_linkedin: GOFREEREV_LI_APP_SECRET = #{ENV['GOFREEREV_LI_APP_SECRET']}"
+      puts "util.post_on_linkedin: token = #{token[0]}"
+      puts "util.post_on_linkedin: secret = #{token[1]}"
 
       x = client.add_share(:comment => gift.description)
-      puts "x = #{x}"
+      puts "util.post_on_linkedin: x = #{x}"
 
       nil
 
     rescue Exception => e
-      puts "post_on_linkedin:"
-      puts "Exception: #{e.message.to_s} (#{e.class})"
-      puts "Backtrace: " + e.backtrace.join("\n")
+      puts "util.post_on_linkedin: "
+      puts "util.post_on_linkedin: Exception: #{e.message.to_s} (#{e.class})"
+      puts "util.post_on_linkedin: Backtrace: " + e.backtrace.join("\n")
       raise
     end
   end # post_on_linkedin
@@ -1129,7 +1131,7 @@ class UtilController < ApplicationController
   # delete local picture file that was used when posting picture in api wall(s) - see post_on_facebook etc.
   def delete_local_picture (id)
     begin
-      puts "ajax task: delete_local_picture"
+      puts "util.delete_local_picture"
 
       # get and check gift
       gift = Gift.find_by_id(id)
@@ -1158,9 +1160,9 @@ class UtilController < ApplicationController
       nil
 
     rescue Exception => e
-      puts "delete_local_picture:"
-      puts "Exception: #{e.message.to_s} (#{e.class})"
-      puts "Backtrace: " + e.backtrace.join("\n")
+      puts "util.delete_local_picture:"
+      puts "util.delete_local_picture: Exception: #{e.message.to_s} (#{e.class})"
+      puts "util.delete_local_picture: Backtrace: " + e.backtrace.join("\n")
       raise
     end
   end # delete_local_picture
