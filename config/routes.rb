@@ -1,5 +1,6 @@
 GofreerevFb::Application.routes.draw do
 
+  get "linkedin/index"
   get '/auth/:provider/callback', :to => 'auth#create'
   post '/auth/:provider/callback', :to => 'auth#create'
   get '/auth/failure' do

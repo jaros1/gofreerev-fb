@@ -867,6 +867,41 @@ class UtilController < ApplicationController
     end
   end # post_login_twitter
 
+
+  # recalculate user balance
+  # use after login, at new day, after new deal, after deleted deal etc
+  def recalculate_user_balance (id)
+    begin
+      # check id
+      user = User.find_by_id(id)
+      return ['.recal_user_bal_unknown_id',{}] unless user
+      user_ids = session[:user_ids]
+      return ['.recal_user_bal_invalid_id',{}] unless user_ids.index(user.user_id)
+
+      # recalculate balance for user or for user combination
+      today = Date.parse(Sequence.get_last_exchange_rate_date)
+      if user.user_combination
+        if User.where('user_combination = ? and (balance_at is null or balance_at <> ?)',
+                      user.user_combination, today).first
+          # todo. User.recalculate_balance class method not implemented
+          res = User.recalculate_balance(user.user_combination)
+        end
+      else
+        res = user.recalculate_balance if !user.balance_at or user.balance_at != today
+      end
+      ['.recal_user_cal_pending',{}] unless res
+
+      nil
+
+    rescue Exception => e
+      puts "util.recalculate_user_balance: recalculate_user_balance:"
+      puts "util.recalculate_user_balance: Exception: #{e.message.to_s} (#{e.class})"
+      puts "util.recalculate_user_balance: Backtrace: " + e.backtrace.join("\n")
+      raise
+    end
+  end # recalculate_user_balance
+
+
   # post on facebook wall - with or without picture
   # picture is temporary saved local, but is deleted when the picture has been posted in wall(s)
   # ajax task is inserted in gifts/create ajax
@@ -1053,38 +1088,7 @@ class UtilController < ApplicationController
   end # post_on_facebook
 
 
-  # recalculate user balance
-  # use after login, at new day, after new deal, after deleted deal etc
-  def recalculate_user_balance (id)
-    begin
-      # check id
-      user = User.find_by_id(id)
-      return ['.recal_user_bal_unknown_id',{}] unless user
-      user_ids = session[:user_ids]
-      return ['.recal_user_bal_invalid_id',{}] unless user_ids.index(user.user_id)
 
-      # recalculate balance for user or for user combination
-      today = Date.parse(Sequence.get_last_exchange_rate_date)
-      if user.user_combination
-        if User.where('user_combination = ? and (balance_at is null or balance_at <> ?)',
-                       user.user_combination, today).first
-          # todo. User.recalculate_balance class method not implemented
-          res = User.recalculate_balance(user.user_combination)
-        end
-      else
-        res = user.recalculate_balance if !user.balance_at or user.balance_at != today
-      end
-      ['.recal_user_cal_pending',{}] unless res
-
-      nil
-
-    rescue Exception => e
-      puts "util.recalculate_user_balance: recalculate_user_balance:"
-      puts "util.recalculate_user_balance: Exception: #{e.message.to_s} (#{e.class})"
-      puts "util.recalculate_user_balance: Backtrace: " + e.backtrace.join("\n")
-      raise
-    end
-  end # recalculate_user_balance
 
 
   # recalculate_user_balance
@@ -1104,7 +1108,9 @@ class UtilController < ApplicationController
       # get and check gift
       gift = Gift.find_by_id(id)
       return ['.post_on_api_unknown_gift_id', { :provider => provider, :id => id }] unless gift
-      return ['.post_on_api_invalid_gift_id', { :provider => provider, :id => gift.id }] unless [gift.user_id_giver, gift.user_id_receiver].index(login_user.user_id)
+      api_gift = ApiGift.find_by_gift_id_and_provider(gift.gift_id, provider)
+      return ['.post_on_api_invalid_gift_id', { :provider => provider, :id => gift.id }] unless api_gift
+      return ['.post_on_api_invalid_gift_id', { :provider => provider, :id => gift.id }] unless [api_gift.user_id_giver, api_gift.user_id_receiver].index(login_user.user_id)
       return ['.post_on_api_old_gift', { :provider => provider, :id => gift.id }] unless gift.created_at > 5.minute.ago
 
       # create client for linkedin api requests
@@ -1115,8 +1121,37 @@ class UtilController < ApplicationController
       puts "util.post_on_linkedin: token = #{token[0]}"
       puts "util.post_on_linkedin: secret = #{token[1]}"
 
-      x = client.add_share(:comment => gift.description)
-      puts "util.post_on_linkedin: x = #{x}"
+      # todo: add offers/seeks to description
+      begin
+        x = client.add_share(:comment => gift.description)
+      rescue LinkedIn::Errors::AccessDeniedError => e
+        puts "util.post_on_linkedin: LinkedIn::Errors::AccessDeniedError"
+        puts "util.post_on_linkedin: e.message = #{e.message}"
+        if e.message.to_s =~ /^\(403\)/
+          # e.message = (403): Access to posting shares denied
+          # linkedin permission problem - post in linkedin wall not allowed as default
+          # default linkedin scope is "r_basicprofile r_network" - see config//initializers/omniauth.rb
+          # inject link in @errors so that user can authorize with request scope => "r_basicprofile r_network rw_nus"
+          # that is - user can permit post on linked wall
+
+          # http://railscarma.com/blog/rails-3/how-to-use-linkedin-api-in-rails-applications/
+          scope = 'r_basicprofile r_network rw_nus'
+          redirect_uri = "#{SITE_URL}linkedin/index"
+          client = LinkedIn::Client.new ENV['GOFREEREV_LI_APP_ID'], ENV['GOFREEREV_LI_APP_SECRET']
+          request_token = client.request_token({:oauth_callback => redirect_uri}, :scope => scope)
+          client.authorize_from_access(request_token.token, request_token.secret)
+          url = client.request_token.authorize_url
+
+          session[:linkedin_oauth] = client
+          return ['.gift_posted_3_html', { :appname => APP_NAME, :apiname => provider, :url => url}]
+
+        end
+        raise
+      end
+
+      # post on linkedin ok
+      puts "util.post_on_linkedin: x = #{x} (#{x.class})"
+      puts "util.post_on_linkedin: x.methods = #{x.methods.sort.join(', ')}"
 
       nil
 

@@ -404,3 +404,5 @@
 
   143) rails server with multiple instances?
        now client is waiting very long time at first request every day (fetch exchange rates)
+
+  144) rename fb controller to facebook controller
