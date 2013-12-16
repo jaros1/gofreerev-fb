@@ -19,14 +19,14 @@ class LinkedinController < ApplicationController
       # get basic user information from linkedin before new login with write permission to linkedin wall
       client = LinkedIn::Client.new ENV['GOFREEREV_LI_APP_ID'], ENV['GOFREEREV_LI_APP_SECRET']
       client.authorize_from_access x[0], x[1] # token and secret
-      res1 = client.profile(:fields => %w(id,first-name,last-name,picture-url,location:(country:(code))))
+      res1 = client.profile(:fields => %w(id,first-name,last-name,picture-url))
       # new login with write permission to linkedin wall
       res2 = login :provider => 'linkedin',
                   :token => x,
                   :uid => res1.id,
                   :name => "#{res1.first_name} #{res1.last_name}",
                   :image => res1.picture_url,
-                  :country => res1.location.country.code,
+                  :country => nil,
                   :language => nil
       puts "res2 = #{res2}"
       if !res2

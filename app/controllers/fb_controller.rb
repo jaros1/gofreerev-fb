@@ -156,6 +156,17 @@ class FbController < ApplicationController
                 :language => api_response['locale'].to_s.first(2)
     if !res
       # login ok
+      user_id = "#{api_response['id']}/facebook"
+      user = User.find_by_user_id(user_id)
+      if context == 'status_update'
+        # add publish_actions to facebook user before redirecting to gifts/index page
+        # permissions will be updated in post_login_facebook task, but that is to late for this redirect
+        # adding publish_actions enables file upload in gifts/index page now
+        permissions = user.permissions
+        permissions["publish_actions"] = 1
+        user.permissions = permissions
+        user.save!
+      end
       flash[:notice] = t ".ok_#{context}", :appname => APP_NAME
       redirect_to :controller => :gifts
     else

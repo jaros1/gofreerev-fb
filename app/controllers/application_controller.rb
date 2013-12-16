@@ -450,6 +450,9 @@ class ApplicationController < ActionController::Base
     else
       puts "Warning. No post login task was found for #{provider}. No #{provider} friend information will be downloaded"
     end
+    # enable file upload button if new user can write on api wall
+    add_task "disable_enable_file_upload", 5
+    # refresh user(s) balance
     today = Date.parse(Sequence.get_last_exchange_rate_date)
     if !user.balance_at or user.balance_at != today
       add_task "recalculate_user_balance(#{user.id})", 5
@@ -470,6 +473,8 @@ class ApplicationController < ActionController::Base
     tokens.delete(provider)
     session[:user_ids] = user_ids
     session[:tokens] = tokens
+    # check if file upload button should be disabled - last user with write access to api wall logs out
+    add_task "disable_enable_file_upload", 5
   end # logout
 
 
@@ -508,6 +513,7 @@ class ApplicationController < ActionController::Base
     t.session_id = session[:session_id]
     t.task = task_name
     t.priority = 5
+    t.ajax = 'N'
     t.task_data = client.to_yaml
     t.save!
   end # save_linkedin_client

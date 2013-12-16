@@ -393,15 +393,20 @@
        add offers/seeks prefix in description
        upload picture
 
-  147) check text when asking user to grant write access to api wall.
-       picture can be uploaded if there is write access to one api wall.
-       but picture can only be seen for friends for that api wall.
-       gift_posted_3_html
-
-  148) check login
-       country/language information should only be used for new users
-       old users should keep old currency choice
-
   149) check session variables
        should be used from accessor methods in app. controller
        gives a better overview and easier to maintain code
+
+  151) add deep public link for gift posted on api(s)
+       add a public controller without login
+       generate a long random access token for gift
+       use link direct in post without picture
+       post picture without link and add public deep link in first comment
+       or post picture + comment in one post and add an extra post with deep link to gift
+       add public link to gift should work for all apis
+       maybe just normal gift link with an ?access_token=xxxx parameter what works only for this gift
+
+  152) gifts/index. Rename id uploadBtn to gift_file? name is already gift_file!
+
+  153) maybe use transactions in util.do_tasks
+       maybe failure in a later task rollbacks previous ok tasks?

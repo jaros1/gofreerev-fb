@@ -923,6 +923,18 @@ function add_to_tasks_errors (error) {
     ajax_flash_new_table_rows('tasks_errors', 100);
 }
 
+// ajax enable/disable gift file field in gifts/index page
+// enable after granting write permission to aåi wall
+// disable after revoking last write permission to api wall
+function disable_enable_file_upload (gift_file_enabled) {
+   add_to_debug_log('disable_enable_file_upload: gift_file_enabled = ' + gift_file_enabled) ;
+   if (gift_file_enabled === undefined) return;
+   var gift_file = document.getElementById('uploadBtn');
+   if (!gift_file) { add_to_debug_log('gift_file was not found'); return }
+   gift_file.disabled = !gift_file_enabled ;
+   add_to_debug_log('gift_file.disabled = ' + gift_file.disabled) ;
+} // disable_enable_file_upload
+
 // custom confirm box - for styling
 // http://lesseverything.com/blog/archives/2012/07/18/customizing-confirmation-dialog-in-rails/
 // http://www.pjmccormick.com/nicer-rails-confirm-dialogs-and-not-just-delete-methods

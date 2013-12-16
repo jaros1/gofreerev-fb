@@ -72,6 +72,10 @@ class GiftsController < ApplicationController
       add_task "#{task_name}(#{gift.id})", 5 if UtilController.new.private_methods.index(task_name.to_sym)
     end
 
+    # disable file upload button if post on provider wall was rejected for all apis
+    # enable file upload button if post on wall was allowed for one provider
+    add_task "disable_enable_file_upload", 5
+
     # delete picture after posting on api wall(s) - priority = 10
     add_task "delete_local_picture(#{gift.id})", 10 if picture
 

@@ -16,6 +16,7 @@
       <%= t '.not_logged_in_text' %>
     </p>
 <% else -%>
+
     <div style="width: 100%"><%= t '.create_gift_header_line' %></div>
     <div style="width: 100%">
       <%= form_for @gift, :html => {:enctype => 'multipart/form-data', :id => 'new_gift' } do |f| -%>
@@ -63,6 +64,8 @@
         <span class="progress-value">0%</span>
       </div>
     </div>
+
+
     <div style="width: 100%">
       <hr>
     </div>

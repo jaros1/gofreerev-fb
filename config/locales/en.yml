@@ -69,8 +69,10 @@ en:
         header_friends_link_title: ''
         header_friends_link_text: 'Friends'
         header_api_link_title: "Retur to %{apiname} WITHOUT logging out of %{appname}"
+        header_log_in_link_text: 'Log in'
+        header_log_in_link_title: 'Log in'
         header_log_out_link_text: 'Log out'
-        header_log_out_link_title: "Log out of %{appname} and return to %{apiname}."
+        header_log_out_link_title: "Log out of %{appname}."
 
   # shared partials
   shared:
@@ -116,7 +118,7 @@ en:
         local_picture_not_found: "Invalid id %{id} when posting on %{provider} wall (3)"
         gift_posted_1_html: "Gift posted in here but not on your %{apiname} wall (%{error})" # unhandled error message
         gift_posted_2_html: "Gift posted in here and on your %{apiname} wall"
-        gift_posted_3_html: "<div title=''>Gift posted in here but not on your %{apiname} wall. %{appname} lack access to write on your %{apiname} wall. <a href=\"javascript: {top.location.href='%{url}'}\">Allow %{appname} to post on my behalf!</a></div>" # missing privileges
+        gift_posted_3_html: "<div title='%{appname} lack access to write on your %{apiname} wall. You can share your resources with your friends in here, but postings will only appear here and not on your %{apiname} wall. This means your message is likely to be seen by few friends. You should therefore allow %{appname} permission to write on your wall. %{appname} will only make the postings you ask for. Pictures are uploaded to %{apiname}. Pictures can not be uploaded without permission to write on your %{apiname} wall.'>Gift not posted on your %{apiname} wall. <a href=\"javascript: {top.location.href='%{url}'}\">Allow %{appname} to post on my behalf!</a></div>" # missing privileges
         gift_posted_4_html: "Gift posted in here but not on your %{apiname} wall. Duplicate status message on %{apiname} wall"
         gift_posted_5_html: "Gift posted in here but not on your %{apiname} wall. Posting on %{apiname} has not yet been implemented"
         picture_upload_unknown_problem: "Gift was posted in here and on your %{apiname} wall. Picture was uploaded to your %{apiname} wall but %{appname} did not have permission to read the picture on your %{apiname} wall and can not display the picture in here. Maybe you have changed permissions for %{appname}."
@@ -214,7 +216,7 @@ en:
         description_title: "Text. Required. Describe what you offer or what you are looking for whether it is things or help. You decide whether you want to sell, buy, rent, lend or give things away for free. We are trading in virtuel free money. Since we are trading in virtuel money you are in practive always giving you give ting or receiving help for free. But your balance in free money changes. Posts are make on your wall and displayed to your friends or whom you have selected to view posts by this app. Your friends can comment on your post on your wall. The agreement should be finalized in here so your balance in free cash being updated."
         description_prompt: "Text:"
         file_title_true: "Optional picture. Photos are an effective way to be seen by your friends. Picture upload takes some time as the picture is uploaded in 2 steps. First upload to %{appname} and than upload to %{apiname}. Please wait."
-        file_title_false: "Sorry. Picture upload is not possible. Pictures are uploaded to your %{apiname} wall and %{appname} lack permission to write on your wall. Photos are an effective way to be seen by your friends. Your can use link in top of this page if you wish to give %{appname} access to write on your %{apiname} wall."
+        file_title_false: "Sorry. Picture upload is not possible. Pictures are uploaded to your login provider wall (for example %{apiname}) and %{appname} lack permission to write on your wall. Photos are an effective way to be seen by your friends. Your can use link in top of this page if you wish to give %{appname} access to write on your wall. Link is displayed after creation a new post"
         file_prompt: "Picture:"
         gift_submit_button_text: "Create post"
         pending_gift_popup_msg: "Change currency? Select Cancel if you wish to complete your wall posting. Select OK to ship the not saved posting and change currency."

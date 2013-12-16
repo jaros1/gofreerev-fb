@@ -459,6 +459,7 @@ class UtilController < ApplicationController
       at.destroy
       # all tasks must have exception handlers with backtrace.
       # Exception handler for eval will not display backtrace within the called task
+      puts "\ndo_tasks: executing task #{at.task}\n"
       res = nil
       begin
         res = eval(at.task)
@@ -572,6 +573,8 @@ class UtilController < ApplicationController
       login_user.permissions = api_response['permissions']['data'][0]
       login_user.permissions = {} if login_user.permissions == []
       login_user.save!
+      puts "post_login_facebook. permissions = #{login_user.permissions}"
+      puts "post_login_facebook. post_gift_allowed? = #{login_user.post_gift_allowed?}"
 
       # 2) update friends (insert/delete Friend)
       # compare Friend model data with friends array from API
@@ -922,7 +925,7 @@ class UtilController < ApplicationController
       return ['.post_on_api_invalid_gift_id', { :provider => provider, :id => gift.id }] unless api_gift
       return ['.post_on_api_invalid_gift_id', { :provider => provider, :id => gift.id }] unless [api_gift.user_id_giver, api_gift.user_id_receiver].index(login_user.user_id)
       return ['.post_on_api_old_gift', { :provider => provider, :id => gift.id }] unless gift.created_at > 5.minute.ago
-      # get api gift for facebook post - fields are empty at this point
+      # get api gift for facebook post - api fields are empty at this point
       api_gift = ApiGift.find_by_gift_id_and_provider(gift.gift_id, provider)
       return [ '.post_on_api_no_api_gift', { :provider => provider, :id => id }] unless api_gift
 
@@ -943,12 +946,25 @@ class UtilController < ApplicationController
             # status post with picture
             filetype = gift.temp_picture_path.split('.').last
             content_type = "image/#{filetype}"
-            api_response = api.put_picture(gift.temp_picture_path, content_type, {:message => gift.description})
+            link =  "http://www.dr.dk/" # link is ignored
+            api_response = api.put_picture(gift.temp_picture_path,
+                                           content_type,
+                                           {:message => gift.description ,
+                                            :link => link
+                                           })
             # api_response = {"id"=>"1396226023933952", "post_id"=>"100006397022113_1396195803936974"} (Hash)
             api_gift.api_gift_id = api_response['post_id']
           else
             # status post without picture
-            api_response = api.put_connections('me', 'feed', :message => gift.description)
+            link = "http://www.dr.dk/"  # ok - was created with link (public link)
+            link = "#{SITE_URL}gifts/#{gift.id}" # error 500 - error":{"message":"An unknown error has occurred.","type":"OAuthException","code":1}}
+            # gift.description = "#{gift.description} - #{link}" # link only as text
+            # gift.description = "<a href='#{link}'>#{gift.description}</a>" # html code as text
+            link = "http://localhost/images/profiles/b8/c7/5a/ef/d7/e0/0e/29/1b/6f/2b/1e/15/1f/56/e0/dodpg.jpeg" # # error 500 - error":{"message":"An unknown error has occurred.","type":"OAuthException","code":1}}
+            link = nil
+            api_response = api.put_connections('me', 'feed',
+                                               :message => gift.description,
+                                               :link => link)
             # api_response = {"id"=>"100006397022113_1396235850599636"}
             api_gift.api_gift_id = api_response['id']
           end
@@ -1005,7 +1021,7 @@ class UtilController < ApplicationController
           # e.fb_error_type.class.name = String
           # e.fb_error_code.class.name = Fixnum
           gift_posted_on_wall_api_wall = 1 # unknown error. no translation
-          error = fb_error_message.to_s
+          error = e.fb_error_message.to_s
         end # rescue
       else
         gift_posted_on_wall_api_wall = 3
@@ -1171,6 +1187,26 @@ class UtilController < ApplicationController
       raise
     end
   end # post_on_linkedin
+
+  # check after post_on_<provider>'s' if user have write access to any api wall
+  # disable if user does not have granted write permission to any api wall
+  # enable if user have granted write permission to one api wall
+  # todo: should also change title ......
+  def disable_enable_file_upload
+    begin
+      # reload @users - permissions can have changed in post_in_<provider> tasks
+      @users = @users.collect { |user| user.reload }
+      # disabled = !@gift_file. See do_tasks.js.erb
+      @gift_file = User.post_gift_allowed?(@users)
+      puts "util.disable_enable_file_upload: @gift_file = #{@gift_file}"
+      nil
+    rescue Exception => e
+      puts "util.post_on_linkedin: "
+      puts "util.post_on_linkedin: Exception: #{e.message.to_s} (#{e.class})"
+      puts "util.post_on_linkedin: Backtrace: " + e.backtrace.join("\n")
+      raise
+    end
+  end # disable_file_upload
 
   # delete local picture file that was used when posting picture in api wall(s) - see post_on_facebook etc.
   def delete_local_picture (id)
