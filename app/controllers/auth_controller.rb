@@ -69,7 +69,8 @@ class AuthController < ApplicationController
         type == :invalid_credentials and
         error.class == OAuth::Problem and
         error.message == 'parameter_absent'
-      if session[:linkedin_oauth]
+      client = get_linkedin_client()
+      if client
         puts "request for linked rw_nus priv. was cancelled"
         flash[:notice] = t ".linkedin_rw_nus_cancelled", :appname => APP_NAME
         redirect_to :controller => :gifts

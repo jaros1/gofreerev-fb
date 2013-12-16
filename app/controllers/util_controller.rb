@@ -451,10 +451,11 @@ class UtilController < ApplicationController
   # - get currency rates for a new date (ok)
   # - upload post and optional picture to login provider (todo)
   def do_tasks
-    # delete old tasks
-    Task.where("created_at < ?", 2.minute.ago).destroy_all
+    # cleanup old tasks
+    Task.where("created_at < ? and ajax = ?", 2.minute.ago, 'Y').destroy_all
+    Task.where("created_at < ? and ajax = ?", 10.minute.ago, 'N').destroy_all
     @errors = []
-    Task.where("session_id = ?", session[:session_id]).order('priority, id').each do |at|
+    Task.where("session_id = ? and ajax = ?", session[:session_id], 'Y').order('priority, id').each do |at|
       at.destroy
       # all tasks must have exception handlers with backtrace.
       # Exception handler for eval will not display backtrace within the called task
@@ -1145,7 +1146,11 @@ class UtilController < ApplicationController
           client.authorize_from_access(request_token.token, request_token.secret)
           url = client.request_token.authorize_url
 
-          session[:linkedin_oauth] = client
+          # save client - client object is used for authorization when/if user returns from linkedin with write permission to linkedin wall
+          # too big for session cookie - to saved in task_data
+          save_linkedin_client(client)
+
+          # ajax inject link in gifts/index page
           return ['.gift_posted_3_html', { :appname => APP_NAME, :apiname => provider, :url => url}]
 
         end

@@ -10,9 +10,8 @@ class LinkedinController < ApplicationController
   # 1) callback with rw_nus:
   #    Parameters: {"oauth_token"=>"75--62450be1-6396-45a9-b26f-050a2b471a9d", "oauth_verifier"=>"15521"}
   def index
-
-    client = session[:linkedin_oauth].clone
-    session.delete(:linkedin_oauth)
+    # linkedin oauth client was saved in util.post_on_linkedin after "(403): Access to posting shares denied" error
+    client = get_linkedin_client
     x = client.authorize_from_request(client.request_token.token, client.request_token.secret, params[:oauth_verifier])
     puts "x = #{x} (#{x.class})"
     if x.class == Array and x.length == 2 and x[0].class == String and x[1].class == String and x[0] != "" and x[1] != ''

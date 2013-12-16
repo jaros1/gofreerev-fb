@@ -486,7 +486,7 @@ class ApplicationController < ActionController::Base
   end
   def clear_state
     session.delete(:state)
-    session.delete(:linkedin_oauth)
+    get_linkedin_client()
   end
   def invalid_state?
     state = params[:state].to_s
@@ -495,6 +495,32 @@ class ApplicationController < ActionController::Base
     return true unless session[:state].to_s == state.first(30)
     false
   end
+
+  # save/get linkedin oauth client
+  # save is called after gifts/create and LinkedIn::Errors::AccessDeniedError from linkedin - post in linkedin wall not allowed
+  # get is called from linkedin/index when user returns from linkedin after allowing write access to linkedin wall
+  private
+  def save_linkedin_client (client)
+    task_name = 'linkedin_rw_nus'
+    t = Task.find_by_session_id_and_task(session[:session_id], task_name)
+    t.destroy if t
+    t = Task.new
+    t.session_id = session[:session_id]
+    t.task = task_name
+    t.priority = 5
+    t.task_data = client.to_yaml
+    t.save!
+  end # save_linkedin_client
+  def get_linkedin_client
+    task_name = 'linkedin_rw_nus'
+    t = Task.where("session_id = ? and task = ? and created_at > ?", session[:session_id], task_name, 10.minutes.ago).first
+    return nil unless t
+    client = YAML::load(t.task_data)
+    t.destroy
+    client
+  end # get_linkedin_client
+
+
 
 
 end # ApplicationController

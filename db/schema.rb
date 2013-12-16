@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20131216065107) do
+ActiveRecord::Schema.define(version: 20131216082825) do
 
   create_table "ajax_comments", force: true do |t|
     t.string   "user_id",    limit: 40, null: false
@@ -152,11 +152,13 @@ ActiveRecord::Schema.define(version: 20131216065107) do
   add_index "sequences", ["name"], name: "index_sequences_on_name", unique: true
 
   create_table "tasks", force: true do |t|
-    t.string   "session_id", limit: 32,             null: false
-    t.text     "task",                              null: false
+    t.string   "session_id", limit: 32,               null: false
+    t.text     "task",                                null: false
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "priority",              default: 5
+    t.string   "ajax",       limit: 1,  default: "Y"
+    t.text     "task_data"
   end
 
   add_index "tasks", ["session_id"], name: "index_tasks_on_session_id"
