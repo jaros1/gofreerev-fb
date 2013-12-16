@@ -402,3 +402,6 @@
        country/language information should only be used for new users
        old users should keep old currency choice
 
+  149) check session variables
+       should be used from accessor methods in app. controller
+       gives a better overview and easier to maintain code

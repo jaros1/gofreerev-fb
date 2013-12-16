@@ -55,7 +55,26 @@ class AuthController < ApplicationController
     puts "error.methods = #{error.methods.sort.join(', ')}"
     puts "error.message = #{error.message} (#{error.message.class})"
 
-    # todo: check cancelled facebook login
+    # check cancelled facebook login
+    # Parameters: {"error_reason"=>"user_denied",
+    #              "error"=>"access_denied",
+    #              "error_description"=>"The user denied your request.", "state"=>"480ee4d402ad5b940d6b48
+    # error.message = OmniAuth::Strategies::OAuth2::CallbackError (String)
+    # request_uri = http://localhost/auth/facebook/callback?error_reason=user_denied&error=access_denied&error_description=The+user+denied+your+request.&state=480ee4d402ad5b940d6b48805c6ec91ac70f840d400ac998
+    # type = invalid_credentials (Symbol)
+    # error.class = OmniAuth::Strategies::OAuth2::CallbackError
+    # error.message = OmniAuth::Strategies::OAuth2::CallbackError
+    request_uri = env['REQUEST_URI']
+    uri_prefix = "#{SITE_URL}auth/facebook/callback?error"
+    if request_uri.first(uri_prefix.length) == uri_prefix and
+        type == :invalid_credentials and
+        error.class == OmniAuth::Strategies::OAuth2::CallbackError and
+        params[:error] == 'access_denied'
+      puts "facebook login was cancelled"
+      flash[:notice] = t ".login_cancelled", :provider => 'facebook', :appname => APP_NAME
+      redirect_to :controller => :auth
+      return
+    end
 
     # todo: check cancelled google+ login
     # no cancel button in google+ - use have to use back button
@@ -63,7 +82,6 @@ class AuthController < ApplicationController
     # check for cancelled linkedin login
     # that is first logon with scope r_basicprofile r_network
     # and additional authorisation with scope r_basicprofile r_network rw_nus.)
-    request_uri = env['REQUEST_URI']
     type = env['omniauth.error.type']
     if request_uri == "#{SITE_URL}auth/linkedin/callback" and
         type == :invalid_credentials and
