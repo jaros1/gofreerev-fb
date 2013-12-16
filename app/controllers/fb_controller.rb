@@ -133,7 +133,7 @@ class FbController < ApplicationController
 
     # get some basic user information
     # todo: what to do with permissions?
-    #       permissions are updated in post_login_facebook ajax task and after that page has been written
+    #       permissions are updated in post_login_facebook task and after that page has been written
     #       as result file upload is disabled after ok status_update request
     #       could refresh permissions here
     #       or could add ajax to post_on_facebook to enable/disable file upload button?

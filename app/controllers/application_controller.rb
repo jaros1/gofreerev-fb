@@ -115,8 +115,8 @@ class ApplicationController < ActionController::Base
     end
     puts "fetch_user: @user_currency_separator = #{@user_currency_separator}, @user_currency_delimiter = #{@user_currency_delimiter}"
 
-    # get new exchange rates? send to ajax task queue
-    add_ajax_task 'ExchangeRate.fetch_exchange_rates', 10 if ExchangeRate.fetch_exchange_rates?
+    # get new exchange rates? add to task queue
+    add_task 'ExchangeRate.fetch_exchange_rates', 10 if ExchangeRate.fetch_exchange_rates?
   end # fetch_user
 
 
@@ -212,155 +212,10 @@ class ApplicationController < ActionController::Base
   #      u.profile_picture_name = (String.generate_random_string(10) + '.' + api_profile_picture_url.split('.').last).last(10).downcase
   #      u.save!
   #
-  #      # login ok - user created/updated - set session[:user_id]
-  #      puts "fetch_user: login ok: user_id = #{session[:user_id]}"
-  #      session[:user_id] = user_id
-  #      flash[:notice] = t 'gifts.index.welcome_msg_after_login', :appname => APP_NAME, :username => u.short_user_name
-  #
-  #      # do not cache friends info - friends info. are sync. after login has finished
-  #      includes_friends = false
-  #
-  #      # sync friend information and profile picture download takes some time and is done batch
-  #      # long sync friend is a problem for new gofreerev users with many friends
-  #      User.fork_with_new_connection do
-  #
-  #        begin
-  #          # sync friend information after login so that new users with many friends don't have to wait
-  #          sleep(2)
-  #
-  #          #necessary to manage activerecord connections since we are forking
-  #          ActiveRecord::Base.connection.reconnect!
-  #
-  #          # 2) update friends (insert/delete Friend)
-  #          # compare Friend model data with friends array from API
-  #          # only friends using Gofreerev are relevant
-  #          # friends not using Gofreerev are ignored
-  #          old_friends_list = Friend.where('user_id_giver = ?', u.user_id).includes(:friend)
-  #          if api_response.has_key?('friends')
-  #            api_friends_list = api_response['friends']['data']
-  #          else
-  #            api_friends_list = [] # no api friends
-  #          end
-  #          # merge friend info from db and fb before db update
-  #          friends_hash = {}
-  #          (0..(old_friends_list.size-1)).each do |i|
-  #            old_friend = old_friends_list[i]
-  #            old_friend.friend.user_name = old_friend.friend.user_name.force_encoding('UTF-8')
-  #            user_id = old_friend.user_id_receiver
-  #            friends_hash[user_id] = { :user => old_friend.friend, :old_name => old_friend.friend.user_name, :new_name => old_friend.friend.user_name, :old_api_friend => old_friend.api_friend, :new_api_friend => 'N', :new_record => false }
-  #          end
-  #          api_friends_list.each do |friend|
-  #            user_id = friend["id"] + '/facebook'
-  #            friend["name"] = friend["name"].force_encoding('UTF-8')
-  #            if friends_hash.has_key?(user_id)
-  #              # OK - user already in hash
-  #              nil
-  #            else
-  #              # new facebook friend
-  #              if !(user = User.where("user_id = ?", user_id).first)
-  #                # create unknown user - create user with minimal user information (user id and name)
-  #                user = User.new
-  #                user.user_id = user_id
-  #                user.user_name = friend["name"]
-  #                user.save!
-  #              end
-  #              friends_hash[user_id] = { :user => user, :old_name => user.user_name, :old_api_friend => 'N', :new_record => true }
-  #            end
-  #            friends_hash[user_id][:new_name] = friend["name"]
-  #            friends_hash[user_id][:new_api_friend] = 'Y'
-  #          end # each
-  #          # update user names
-  #          friends_hash.each do |user_id, hash|
-  #            next if hash[:old_name] == hash[:new_name]
-  #            # puts "fetch_user: update user names: old name = #{hash[:old_name]}, new name = #{hash[:new_name]}"
-  #            user = hash[:user]
-  #            user.user_name = hash[:new_name].force_encoding('UTF-8')
-  #            user.save!
-  #          end # each
-  #          # update api_fiend
-  #          friends_hash.each do |user_id, hash|
-  #            if hash[:new_record]
-  #              # new friend entries
-  #              # puts "new friend entries"
-  #              Friend.add_friend(session[:user_id], user_id)
-  #            else
-  #              # old friend entry
-  #              # puts "old friend entry, name = #{hash[:new_name]}, old api friend = #{hash[:old_api_friend]}, new api friend = #{hash[:new_api_friend]}"
-  #              next if hash[:old_api_friend] == hash[:new_api_friend] # no change in api friend status
-  #                                                                     # api friend status changed
-  #              f1 = Friend.where("user_id_giver = ? and user_id_receiver = ?", session[:user_id], user_id).first
-  #              f2 = Friend.where("user_id_giver = ? and user_id_receiver = ?", user_id, session[:user_id]).first
-  #              if (f1 == nil or f1.app_friend == nil) and (f2 == nil or f2.app_friend == nil)
-  #                # Default app_friend status - just delete
-  #                # puts "Default app_friend status - just delete"
-  #                Friend.remove_friend(session[:user_id], user_id)
-  #                next
-  #              end
-  #                                                                     # non default app_friend status - update - do not delete
-  #              if !f1
-  #                # create missing friend (error)
-  #                f1 = Friend.new
-  #                f1.user_id_giver = session[:user_id]
-  #                f1.user_id_receiver = user_id
-  #                f1.app_friend = nil
-  #              end
-  #              if !f2
-  #                # create missing friend (error)
-  #                f2 = Friend.new
-  #                f1.user_id_giver = user_id
-  #                f1.user_id_receiver = session[:user_id]
-  #                f2.app_friend = nil
-  #              end
-  #              f1.api_friend = f2.api_friend = hash[:new_api_friend]
-  #                                                                     # puts "before save"
-  #                                                                     # puts "update f1: giver = #{f1.user_id_giver}, receiver = #{f1.user_id_receiver}, api = #{f1.api_friend}, app = #{f1.app_friend}"
-  #                                                                     # puts "update f2: giver = #{f2.user_id_giver}, receiver = #{f2.user_id_receiver}, api = #{f2.api_friend}, app = #{f2.app_friend}"
-  #              f1.save!
-  #              f2.save!
-  #                                                                     # puts "after save"
-  #              f1.reload
-  #              f2.reload
-  #                                                                     # puts "update f1: giver = #{f1.user_id_giver}, receiver = #{f1.user_id_receiver}, api = #{f1.api_friend}, app = #{f1.app_friend}"
-  #                                                                     # puts "update f2: giver = #{f2.user_id_giver}, receiver = #{f2.user_id_receiver}, api = #{f2.api_friend}, app = #{f2.app_friend}"
-  #              raise "api_friend status was not updated" unless f1.api_friend == hash[:new_api_friend] and f2.api_friend == hash[:new_api_friend]
-  #            end # if
-  #          end # each
-  #          # update balance
-  #          u.recalculate_balance if u.balance_at != Date.today
-  #        rescue Exception => e
-  #          puts "application_controller: User.fork_with_new_connection"
-  #          puts "Error when post login processing api user info for #{u.user_id} #{u.user_name}"
-  #          puts "Exception: #{e.message.to_s}"
-  #          puts "Backtrace: " + e.backtrace.join("\n")
-  #        end # begin
-  #
-  #      end # fork_with_new_connection
-  #
-  #      # puts "fetch_user: after fork"
-  #
-  #      # 3) download profile picture
-  #      FileUtils.mkdir_p u.profile_picture_os_folder
-  #      system("wget #{api_profile_picture_url} -O #{u.profile_picture_os_filename}")
   #
   #    end
   #    params[:code] = nil
   #    session.delete(:oauth)
-  #  end
-  #
-  #  # fetch user after create/update
-  #  if session[:user_id]
-  #    if includes_friends
-  #      @user = User.where("user_id = ?", session[:user_id]).includes(:friends).first
-  #    else
-  #      # new login - sync friend info can take some time
-  #      @user = User.where("user_id = ?", session[:user_id]).first
-  #    end
-  #  end
-  #
-  #  if @user
-  #    puts "fetch_user: user_id = #{@user.user_id}, user_name = #{@user.user_name}"
-  #  else
-  #    puts "fetch_user: user with user_id #{session[:user_id]} was not found"
   #  end
   #
   #  # add some instance variables
@@ -375,8 +230,6 @@ class ApplicationController < ActionController::Base
   #  end
   #  puts "fetch_user: @user_currency_separator = #{@user_currency_separator}, @user_currency_delimiter = #{@user_currency_delimiter}"
   #
-  #  # get new exchange rates? send to ajax task queue
-  #  add_ajax_task 'ExchangeRate.fetch_exchange_rates', 10 if ExchangeRate.fetch_exchange_rates?
   #end # old_fetch_user
 
 
@@ -523,8 +376,8 @@ class ApplicationController < ActionController::Base
   helper_method :my_provider
 
   private
-  def add_ajax_task (task, priority=5)
-    AjaxTask.add_task(session[:session_id], task, priority)
+  def add_task (task, priority=5)
+    Task.add_task(session[:session_id], task, priority)
   end
 
   private
@@ -587,19 +440,19 @@ class ApplicationController < ActionController::Base
       user.currency = old_user.currency
       user.save!
     end
-    # schedule post login ajax tasks.
+    # schedule post login tasks.
     # todo: validate timezone. Must be a valid number between ...
-    add_ajax_task "User.update_timezone('#{user.user_id}', #{timezone})", 5 if timezone # timezone from client/javascript
-    add_ajax_task "User.download_profile_image('#{user.user_id}', '#{image}')", 5 if image =~ /^http/ and !image.index("''")
+    add_task "User.update_timezone('#{user.user_id}', #{timezone})", 5 if timezone # timezone from client/javascript
+    add_task "User.download_profile_image('#{user.user_id}', '#{image}')", 5 if image =~ /^http/ and !image.index("''")
     post_login_task_provider = "post_login_#{provider}" # private method in UtilController
     if UtilController.new.private_methods.index(post_login_task_provider.to_sym)
-      add_ajax_task post_login_task_provider, 5
+      add_task post_login_task_provider, 5
     else
       puts "Warning. No post login task was found for #{provider}. No #{provider} friend information will be downloaded"
     end
     today = Date.parse(Sequence.get_last_exchange_rate_date)
     if !user.balance_at or user.balance_at != today
-      add_ajax_task "recalculate_user_balance(#{user.id})", 5
+      add_task "recalculate_user_balance(#{user.id})", 5
     end
     # ok
     nil

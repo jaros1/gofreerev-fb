@@ -426,7 +426,7 @@ class UtilController < ApplicationController
 
     # use a discount version af new_messages_count to ajax replace accepted deal in gifts/index page for current user
     # that is without @new_messages_count, @comments, only with this accepted gift and without new values for new-newest-gift-id andnew-newest-status-update-at
-    # only client ajax_insert_update_gifts JS function is called
+    # only client insert_update_gifts JS function is called
     # next new_mesage_count request will ajax replace this gift once more, but that is a minor problem
     gift.reload
     @gifts = [gift]
@@ -441,7 +441,7 @@ class UtilController < ApplicationController
     puts "util.currencies: return currencies to client on onfocus event"
   end
 
-  # process ajax tasks from session[:ajax_tasks] queue
+  # process tasks from queue
   # that is tasks that could slow request/response cycle or information that is not available on server (timezone)
   # tasks:
   # - update user timezone from client/javascript after login (ok)
@@ -450,25 +450,26 @@ class UtilController < ApplicationController
   # - get friend lists from login provider after login (todo)
   # - get currency rates for a new date (ok)
   # - upload post and optional picture to login provider (todo)
-  def do_ajax_tasks
-    # delete old ajax tasks
-    AjaxTask.where("created_at < ?", 2.minute.ago).destroy_all
+  def do_tasks
+    # delete old tasks
+    Task.where("created_at < ?", 2.minute.ago).destroy_all
     @errors = []
-    AjaxTask.where("session_id = ?", session[:session_id]).order('priority, id').each do |at|
+    Task.where("session_id = ?", session[:session_id]).order('priority, id').each do |at|
       at.destroy
-      # all ajax tasks should have exception handlers with backtrace. Exception handler for eval will not dump backtrace in at.task
+      # all tasks must have exception handlers with backtrace.
+      # Exception handler for eval will not display backtrace within the called task
       res = nil
       begin
         res = eval(at.task)
       rescue Exception => e
-        puts "util.do_ajax_tasks: error when processing ajax task #{at.task}"
-        puts "util.do_ajax_tasks: Exception: #{e.message.to_s}"
-        puts "util.do_ajax_tasks: Backtrace: " + e.backtrace.join("\n")
+        puts "util.do_tasks: error when processing task #{at.task}"
+        puts "util.do_tasks: Exception: #{e.message.to_s}"
+        puts "util.do_tasks: Backtrace: " + e.backtrace.join("\n")
         res = [ '.ajax_task_exception', { :task => at.task, :exception => e.message.to_s }]
       end
-      # puts "util.do_ajax_tasks: ajax task #{at.task}, response = #{res}"
+      # puts "util.do_tasks: task #{at.task}, response = #{res}"
       next unless res
-      # check response from ajax task. Must be a valid input to translate
+      # check response from task. Must be a valid input to translate
       begin
         key, options = res
         key2 = key
@@ -479,23 +480,23 @@ class UtilController < ApplicationController
       rescue I18n::MissingTranslationData => e
         res = [ '.ajax_task_missing_translate_key', { :key => key, :task => at.task, :response => res, :exception => e.message.to_s } ]
       rescue I18n::MissingInterpolationArgument => e
-        puts "util.do_ajax_tasks: exception = #{e.message.to_s}"
-        puts "util.do_ajax_tasks: response = #{res}"
+        puts "util.do_tasks: exception = #{e.message.to_s}"
+        puts "util.do_tasks: response = #{res}"
         argument = $1 if e.message.to_s =~ /:(.+?)\s/
-        puts "util.do_ajax_tasks: argument = #{argument}"
+        puts "util.do_tasks: argument = #{argument}"
         res = [ '.ajax_task_missing_translate_arg', { :key => key, :task => at.task, :argument => argument, :response => res, :exception => e.message.to_s } ]
       rescue Exception => e
-        puts "util.do_ajax_tasks: invalid response from ajax task #{at.task}. Must be nil or a valid input to translate. Response: #{res}"
+        puts "util.do_tasks: invalid response from task #{at.task}. Must be nil or a valid input to translate. Response: #{res}"
         res = [ '.ajax_task_invalid_response', { :task => at.task, :response => res, :exception => e.message.to_s }]
       end
-      # puts "util.do_ajax_tasks: task = #{at.task}, res = #{res}"
+      # puts "util.do_tasks: task = #{at.task}, res = #{res}"
       @errors << res
     end
     if @errors.size == 0
       render :nothing => true
       return
     end
-  end # do_ajax_tasks
+  end # do_tasks
 
   private
   def get_login_user_and_token (provider)
@@ -538,8 +539,8 @@ class UtilController < ApplicationController
   end # get_user_friends_and_token
 
 
-  # post login ajax task for facebook - get permissions and friends - using koala gem
-  # called from do_ajax_tasks - ajax requests after login
+  # post login task for facebook - get permissions and friends - using koala gem
+  # called from do_tasks - ajax requests after login
   # must return nil or a valid input to translate
   private
   def post_login_facebook
@@ -618,9 +619,9 @@ class UtilController < ApplicationController
   end # post_login_facebook
 
 
-  # post login ajax task for google+ - todo: use for .....
+  # post login task for google+ - todo: use for .....
   # using google-api-client
-  # called from do_ajax_tasks - ajax requests after login
+  # called from do_tasks - ajax requests after login
   # must return nil or a valid input to translate
   private
   def post_login_google_oauth2
@@ -730,9 +731,9 @@ class UtilController < ApplicationController
 
 
 
-  # post login ajax task for linkedIn - get connections
+  # post login task for linkedIn - get connections
   # using linked gem
-  # called from do_ajax_tasks - ajax requests after login
+  # called from do_tasks - ajax requests after login
   # must return nil or a valid input to translate  private
   private
   def post_login_linkedin
@@ -798,9 +799,9 @@ class UtilController < ApplicationController
   end # post_login_linkedin
 
 
-  # post login ajax task for twitter - get friends
+  # post login task for twitter - get friends
   # using twitter gem
-  # called from do_ajax_tasks - ajax requests after login
+  # called from do_tasks - ajax requests after login
   # must return nil or a valid input to translate  private
   private
   def post_login_twitter
@@ -904,7 +905,7 @@ class UtilController < ApplicationController
 
   # post on facebook wall - with or without picture
   # picture is temporary saved local, but is deleted when the picture has been posted in wall(s)
-  # ajax task is inserted in gifts/create ajax
+  # task was inserted in gifts/create
   private
   def post_on_facebook (id)
     begin

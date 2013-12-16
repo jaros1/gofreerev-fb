@@ -30,7 +30,7 @@ class AuthController < ApplicationController
       redirect_to :controller => :gifts, :action => :index
     else
       # login failed
-      # todo: copy translate error handling from util.do_ajax_tasks
+      # todo: copy translate error handling from util.do_tasks
       key, options = res
       begin
         flash[:notice] = t key, options

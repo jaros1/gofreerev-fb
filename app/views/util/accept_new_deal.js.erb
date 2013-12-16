@@ -1,6 +1,6 @@
 <%# insert accepted gift in new_messages_buffer_div buffer in page header
-    post ajax processing is done by JS function ajax_insert_update_gifts (my.js)
+    post ajax processing is done by JS function insert_update_gifts (my.js)
     old not accepted gift is ajax replaced with accepted gift
 -%>
 document.getElementById('new_messages_buffer_div').innerHTML = '<%= j render("new_messages_count") %>' ;
-ajax_insert_update_gifts() ;
+insert_update_gifts() ;

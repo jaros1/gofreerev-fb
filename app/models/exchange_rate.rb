@@ -107,7 +107,7 @@ class ExchangeRate < ActiveRecord::Base
   end # self.fetch_exchange_rates?
 
 
-  # called from ajax task queue
+  # called from task queue (util.do_tasks)
   # about 90 new exchange rates each day
   def self.fetch_exchange_rates
     begin

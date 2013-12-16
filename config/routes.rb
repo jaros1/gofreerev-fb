@@ -21,7 +21,7 @@ GofreerevFb::Application.routes.draw do
   post 'util/cancel_new_deal'
   post 'util/accept_new_deal'
   post 'util/reject_new_deal'
-  post 'util/do_ajax_tasks'
+  post 'util/do_tasks'
   get "util/currencies"
   delete 'auth/destroy'
 

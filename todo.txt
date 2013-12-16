@@ -178,21 +178,14 @@
 
 56) md5 alternatives?
 
-57) ajax task for each provider.
-
-58) ajax post login - add welcome message?
-
-60) must have stack dump for all ajax tasks called with eval
-    add exception to all ajax tasks and check log
-
-61) add priority to ajax task queue. fetch echange rates should be executed after post_login ajax tasks
-
-62) don't insert same ajax task twice in ajax task queue
+62) don't insert same task twice in task queue
 
 63) check for special api setup error messages and return translate with some hints
     for example google+ : Access Not Configured
 
-64) add no post login ajax task error message with hint how to fix this problem
+64) add no post login task error message with hint how to fix this problem
+    that is no post_login_<provider> method.
+    no friend information from provider.
 
 65) difference between facegook & linkedin friends and google+ & twitter friends
     facebook & linkedin friends are mutual friends
@@ -222,7 +215,7 @@
 
  71) gift post - change to ajax - do not reload page
      ajax insert gift in page with temporary local url (ok)
-     add ajax task to post on api wall (ok for facebook)
+     add task to post on api wall (ok for facebook)
      ajax replace gift picture url when picture has been received from api
      test all errors after changing gift post to ajax
      must support multiple login apis
@@ -244,11 +237,9 @@
      http://responsivepx.com can be used. Not working for localhost / gofreerev.
      Many other tools not working for localhost / gofreerev
 
- 80) Problem with cleanup in ajax task queue.
-     It looks like the page is handing while waiting for cleanup in ajax task queue
-     Added a delay for 1 second in page footer before requesting execution of ajax tasks
-     still a problem with first request every day (ajax task cleanup + fetch currencies)
-     maybe problem with development setup. Only one server process
+ 80) Problem with cleanup in task queue.
+     It looks like the page is handing while waiting for cleanup in task queue
+     maybe problem with development setup. Only one server process.
 
  83) <body onload="xx"> is being used in application layout to set onfocus event to get list of currencies in page header
      http://api.jquery.com/ready/
@@ -264,8 +255,8 @@
 
  88) check html source to see if anything can be removed or shorten
 
- 89) ajax insert messages in ajax_tasks_errors in page header
-     util/do_ajax_tasks.html.erb - @errors is an array with key and options for translation
+ 89) insert messages in tasks_errors in page header
+     util/do_tasks.html.erb - @errors is an array with key and options for translation
      gifts/ajax_errors.html.erb - @errors is an array with translated messages
      maybe move to shared with better partial names
 
@@ -283,7 +274,7 @@
      picture was resized to normal size after 2 minutes (looks like the next new_messages_count solved the problem)
      Only a problem with temporary local pictures.
 
- 97) add timestamp to lines in ajax_tasks_errors for easier test & debugging
+ 97) add timestamp to lines in tasks_errors for easier test & debugging
      timestamp - server timestamp or client timestamp?
      Maybe only timestamp if DEBUG_AJAX = true
 
@@ -293,11 +284,9 @@
 
  100) add picture direct from camera - google html media capture - http://mobilehtml5.org/
 
- 101) posting on multiple api's can take some time to complete
-      maybe execute ajax tasks one by one to give a more responsive gift index page
-      maybe use a flag or special priority for this effect in ajax task queue
-
- 102) add ajax:error for comment post. Should write an error message in ajax_tasks_errors table.
+ 102) add ajax:error for comment post. Should write an error message in tasks_errors table.
+      or better as a comment line
+      tasks error table is in top of page and user may not see error message
 
  103) how to accept deal with multiple provider logins?
       gift created be user logged with 3 api providers
@@ -349,8 +338,6 @@
       There maybe is missing an index or two
       there maybe are some sql to rewrite
 
- 119) gift create - ajax tasks are not executed after gifts/create ajax request
-
  120) some problems in user.recalculate balance after splitting gifts in gifts and api_gifts
       check /auth/facebook and post_login error for price
 
@@ -360,11 +347,6 @@
  122) add validation for gift.received_at?
       direction = both
       giver and receiver in api_gifts
-
- 123) post_login_facebook.
-      add line to ajax tasks errors with link to grant missing status_update priv.
-      See util.post_on_facebook, gift_posted_on_wall_api_wall == 3
-      translate key shared.translate_ajax_errors.gift_posted_3_html
 
  124) add ignore / don't show missing priv link link
       that is - user don't want to see message any more
@@ -415,4 +397,8 @@
        picture can be uploaded if there is write access to one api wall.
        but picture can only be seen for friends for that api wall.
        gift_posted_3_html
+
+  148) check login
+       country/language information should only be used for new users
+       old users should keep old currency choice
 

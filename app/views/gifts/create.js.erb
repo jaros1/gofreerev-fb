@@ -2,10 +2,10 @@
    raise "empty response from gifts/create" if @errors.size == 0 and @gifts.size == 0
 -%>
 <% if @errors.size > 0 -%>
-$('#ajax_tasks_errors').append('<%= j render("shared/ajax_errors") %>');
-ajax_flash_new_table_rows('ajax_tasks_errors',<%= @errors.size %>);
+$('#tasks_errors').append('<%= j render("shared/ajax_errors") %>');
+ajax_flash_new_table_rows('tasks_errors',<%= @errors.size %>);
 <% end -%>
 <% if @gifts.size > 0 -%>
 document.getElementById('new_messages_buffer_div').innerHTML = '<%= j render("create") %>';
-ajax_insert_update_gifts(100) ; <%# move new gift from buffer to gifts table -%>
+insert_update_gifts(100) ; <%# move new gift from buffer to gifts table -%>
 <% end -%>

@@ -113,7 +113,9 @@ module ApplicationHelper
     from_amount = balance[BALANCE_KEY]
     from_currency = 'USD'
     to_currencies = login_users.collect { |login_user| login_user.currency }.uniq
-    return nil if to_currencies.length > 1 # error, but is ok a short moment after login - ajax task post_login_fix_currency should fix this problem in a moment
+    if to_currencies.length > 1
+      puts "todo: error, login procedure should ensure one and only one currency for logged in users"
+    end
     to_currency = currencies.first
     if balance.size == 2 and user.currency == login_users.currency
       # short format. only one currency in balance hash. Return this without any conversion if login user currency
@@ -228,7 +230,7 @@ module ApplicationHelper
   end
 
   def ajax_tasks?
-    AjaxTask.where("session_id = ?", session[:session_id]).count > 0
+    Task.where("session_id = ?", session[:session_id]).count > 0
   end
 
 end # ApplicationHelper

@@ -426,13 +426,13 @@ function insert_new_comments() {
     if (debug) alert(summary) ;
 } // insert_new_comments
 
-// ajax_tasks_sleep: missing: no ajax tasks - number: sleep before executing ajax tasks - for example post status on api walls
-function ajax_insert_update_gifts (ajax_tasks_sleep)
+// tasks_sleep: missing: no tasks - number: sleep (milliseconds) before executing tasks - for example post status on api walls
+function insert_update_gifts (tasks_sleep)
 {
     // process ajax response received from new_messages_count ajax request
     // response has been inserted in new_messages_buffer_div in page header
     // also used after util/accept_new_deal to ajax replace gift
-    add_to_debug_log('ajax_insert_update_gifts: start') ;
+    add_to_debug_log('insert_update_gifts: start') ;
 
     // check/update newest_gift_id (id for latest created gift)
     var new_newest_gift_id = document.getElementById("new-newest-gift-id") ; // from new_messages_buffer_div
@@ -517,11 +517,11 @@ function ajax_insert_update_gifts (ajax_tasks_sleep)
     } // for
     // that's it
 
-    add_to_debug_log('ajax_insert_update_gift: ajax_tasks_sleep = ' + ajax_tasks_sleep) ;
-    if (!ajax_tasks_sleep) return ;
-    // execute some more ajax tasks - for example post status on api wall(s)
-    trigger_ajax_tasks_form(ajax_tasks_sleep);
-} //  ajax_insert_update_gifts
+    add_to_debug_log('ajax_insert_update_gift: ajax_tasks_sleep = ' + tasks_sleep) ;
+    if (!tasks_sleep) return ;
+    // execute some more tasks - for example post status on api wall(s)
+    trigger_tasks_form(tasks_sleep);
+} //  insert_update_gifts
 
 // catch load errors  for api pictures. Gift could have been deleted. url could have been changed
 // gift ids with invalid picture urls are collected in a global javascript array and submitted to server in 2 seconds
@@ -639,7 +639,7 @@ function post_ajax_add_new_comment_handler(giftid) {
         add_to_debug_log('jqxhr = ' + jqxhr);
         add_to_debug_log('textStatus = ' + textStatus);
         add_to_debug_log('errorThrown = ' + errorThrown);
-        add_to_ajax_tasks_errors('new_comment.ajax.error: ' + errorThrown + '. check server log for more information.') ;
+        add_to_tasks_errors('new_comment.ajax.error: ' + errorThrown + '. check server log for more information.') ;
     });
 } // post_ajax_add_new_comment_handler
 
@@ -869,10 +869,10 @@ function clear_flash_and_ajax_errors() {
     // clear old flash message if any
     var notification = document.getElementById('notification');
     if (notification) notification.innerHTML = '' ;
-    // empty table with ajax task messages if any
-    var ajax_tasks_errors = document.getElementById('ajax_tasks_errors') ;
-    if (!ajax_tasks_errors) return ;
-    var rows = ajax_tasks_errors.rows ;
+    // empty table with task (error) messages if any
+    var tasks_errors = document.getElementById('tasks_errors') ;
+    if (!tasks_errors) return ;
+    var rows = tasks_errors.rows ;
     var row ;
     for (var i=rows.length-1 ; i>= 0 ; i--) {
         row = rows[i] ;
@@ -880,46 +880,47 @@ function clear_flash_and_ajax_errors() {
     } // for
 } // clear_flash_and_ajax_errors
 
-// ajax server to execute any ajax task in ajax task queue
-// called from bottom of application layout and from  ajax_insert_update_gifts after gift create (posting on api wall)
+// request server to execute any task in task queue
+// called from bottom of application layout and from  insert_update_gifts after gift create (posting on api wall)
 // tasks: get currency rates, download api information (picture, permissions, friend list), post on api walls
-function trigger_ajax_tasks_form (sleep) {
-    add_to_debug_log("trigger_ajax_tasks_form: sleep = " + sleep) ;
+function trigger_tasks_form (sleep) {
+    add_to_debug_log("trigger_tasks_form: sleep = " + sleep) ;
     if (!sleep) sleep=1000 ;
     var timezone = document.getElementById("timezone") ;
     if (!timezone) {
-        add_to_debug_log('trigger_ajax_tasks_form. hidden field with id timezone was not found') ;
+        add_to_debug_log('trigger_tasks_form. hidden field with id timezone was not found') ;
         return ;
     }
     timezone.value = (new Date().getTimezoneOffset()) / 60.0;
-    window.setTimeout(function(){$('#ajax_tasks_form').trigger('submit.rails');}, sleep);
-} // trigger_ajax_tasks_form
+    window.setTimeout(function(){$('#tasks_form').trigger('submit.rails');}, sleep);
+} // trigger_tasks_form
 
-// error callback for executing ajax tasks - write to debug log + page header
+// error callback for executing tasks - write to debug log + page header
+// debug log in bottom of page is shown if DEBUG_AJAX = true (constants.rb)
 $(document).ready(function() {
-    $("#ajax_tasks_form").bind("ajax:error", function(jqxhr, textStatus, errorThrown){
-        add_to_debug_log('#ajax_tasks_form.error');
+    $("#tasks_form").bind("ajax:error", function(jqxhr, textStatus, errorThrown){
+        add_to_debug_log('#tasks_form.error');
         add_to_debug_log('jqxhr = ' + jqxhr);
         add_to_debug_log('textStatus = ' + textStatus);
         add_to_debug_log('errorThrown = ' + errorThrown);
-        add_to_ajax_tasks_errors('ajax_tasks_form.error: ' + errorThrown + '. check server log for more information.') ;
+        add_to_tasks_errors('tasks_form.error: ' + errorThrown + '. check server log for more information.') ;
     })
 })
 
-// normally ajax tasks errors and messages are injected from server
-// this function is used for client side ajax errors - for example from ajax error callback functions
-function add_to_ajax_tasks_errors (error) {
-    var table = document.getElementById('ajax_tasks_errors') ;
+// normally tasks errors and messages are injected from server
+// this function is used for client side errors - for example from error in callback functions (ajax:error)
+function add_to_tasks_errors (error) {
+    var table = document.getElementById('tasks_errors') ;
     if (!table) {
-        add_to_debug_log('add_to_ajax_tasks_errors: ajax_tasks_errors table was not found.') ;
-        add_to_debug_log('add_to_ajax_tasks_errors: error was ' + error + '') ;
+        add_to_debug_log('add_to_tasks_errors: tasks_errors table was not found.') ;
+        add_to_debug_log('add_to_tasks_errors: error was ' + error + '') ;
         return ;
     }
     var length = table.length ;
     var row = table.insertRow(length) ;
     var cell = row.insertCell(0) ;
     cell.innerHTML = error ;
-    ajax_flash_new_table_rows('ajax_tasks_errors', 100);
+    ajax_flash_new_table_rows('tasks_errors', 100);
 }
 
 // custom confirm box - for styling

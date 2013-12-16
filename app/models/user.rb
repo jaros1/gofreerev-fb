@@ -307,8 +307,8 @@ class User < ActiveRecord::Base
   end # find_or_create_user
 
 
-  # task from ajax task queue session[:ajax_tasks]- download and save profile picture from provider after login
-  # called from util.do_ajax_tasks after login process has completed
+  # task from task queue - download and save profile picture from provider after login
+  # called from util.do_tasks after login process has completed
   # return nil if ok
   # return array with translate key and options if warning or error
   def self.download_profile_image (user_id, url)
@@ -372,8 +372,8 @@ class User < ActiveRecord::Base
     nil
   end # self.download_profile_image
 
-  # task from ajax task queue session[:ajax_tasks]- update timezone from client/javascript after login
-  # called from util.do_ajax_tasks - timezone is from params[:timezone]
+  # task from task queue - update timezone from client/javascript after login
+  # called from util.do_tasks - timezone is from params[:timezone]
   def self.update_timezone(user_id, timezone)
     user = User.find_by_user_id(user_id)
     if !user

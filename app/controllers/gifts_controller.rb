@@ -7,8 +7,9 @@ class GiftsController < ApplicationController
   end
 
   # ajax request - called from gifts/index page
-  # return gift in new_messages_buffer_div and return any messages in ajax_tasks_errors
-  # both divs in page header
+  # return gift in new_messages_buffer_div and return any error messages in tasks_errors table
+  # both in page header
+  # JS function insert_update_gifts will move new gift from div buffer to gifts table in html page
   def create
     # start with empty ajax response
     @errors = []
@@ -42,7 +43,7 @@ class GiftsController < ApplicationController
     return add_error_and_format_ajax_resp(gift.errors.full_messages.join(', ')) if gift.errors.size > 0
 
     # add api_gifts - one api_gifts for each provider
-    # api_gift_id and any picture will be added in post_on_<provider> ajax tasks
+    # api_gift_id and any picture will be added in post_on_<provider> tasks
     @users.each do |user|
       api_gift = ApiGift.new
       api_gift.gift_id = gift.gift_id
@@ -55,23 +56,24 @@ class GiftsController < ApplicationController
     end
     gift.save!
 
-    # temporary save picture on disk before posting it on api walls in post_on_<provider> ajax tasks
+    # temporary save picture on server before posting it on api walls in post_on_<provider> tasks
+    # picture will be deleted from server when posting on api walls are done
     User.open4("mv #{gift_file.path} #{gift.temp_picture_path}") if picture
 
     # post on api wall(s) - priority = 5
     # status:
-    # - facebook ok - todo: move grant missing priv. from gifts/index page to ajax tasks errors table
+    # - facebook ok -
     # - google+ not implemented - The Google+ API is at current time a read only API
-    # - linkedin - todo
+    # - linkedin - todo - post without picture ok
     # - twitter - todo
     tokens = session[:tokens] || {}
     tokens.keys.each do |provider|
       task_name = "post_on_#{provider}"
-      add_ajax_task "#{task_name}(#{gift.id})", 5 if UtilController.new.private_methods.index(task_name.to_sym)
+      add_task "#{task_name}(#{gift.id})", 5 if UtilController.new.private_methods.index(task_name.to_sym)
     end
 
     # delete picture after posting on api wall(s) - priority = 10
-    add_ajax_task "delete_local_picture(#{gift.id})", 10 if picture
+    add_task "delete_local_picture(#{gift.id})", 10 if picture
 
     @gifts = ApiGift.where("id = ?", gift.api_gifts.first.id).includes(:gift)
     format_ajax_response

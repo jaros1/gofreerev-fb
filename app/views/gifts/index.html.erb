@@ -115,7 +115,7 @@
                     <% if debug_ajax? -%>add_to_debug_log('jqxhr = ' + jqxhr);<% end -%>
                     <% if debug_ajax? -%>add_to_debug_log('textStatus = ' + textStatus);<% end -%>
                     <% if debug_ajax? -%>add_to_debug_log('errorThrown = ' + errorThrown);<% end -%>
-                    add_to_ajax_tasks_errors('new_form.ajaxform.error: ' + errorThrown + '. check server log for more information.') ;
+                    add_to_tasks_errors('new_form.ajaxform.error: ' + errorThrown + '. check server log for more information.') ;
                 }
         });
     });
