@@ -36,7 +36,7 @@ class User < ActiveRecord::Base
   # attributes #
   ##############
 
-  # 1) user_id. required unique USER id, fx. fb-1234567890. Not encrypted. PK and user in encryption
+  # 1) user_id. required unique USER id, fx. 1234567890/facebook. Not encrypted. PK and user in encryption
   validates_presence_of :user_id
   attr_readonly :user_id
   def user_id=(new_user_id)
@@ -119,9 +119,11 @@ class User < ActiveRecord::Base
   # validates_presence_of :balance_at # todo: only required for gofreerev users / not required for friends not using gofreerev
 
   # 6) permissions. Optional. Any Ruby type in model (hash with privs. for facebook users). Encrypted text in db
-  # for fb users a hash with grants privs {"installed"=>1, "basic_info"=>1, "bookmarked"=>1}
-  # for google+ todo:
-  # permissions is fetched at login and checked before operations
+  # facebook: hash with grants privs {"installed"=>1, "basic_info"=>1, "bookmarked"=>1}
+  # google+: empty - readonly api - any priv. error will be reported at login
+  # linkedin: r_basicprofile,r_network (default/first login) or r_basicprofile,r_network,rw_nus (second login with rw_nus priv)
+  # google+: todo
+  # permissions is fetched at login and checked before operations (post to api wall)
   def permissions
     return nil unless (extended_permissions = read_attribute(:permissions))
     YAML::load(encrypt_remove_pre_and_postfix(extended_permissions, 'permissions', 12))

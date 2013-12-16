@@ -122,7 +122,7 @@ en:
         gift_posted_4_html: "Gift posted in here but not on your %{apiname} wall. Duplicate status message on %{apiname} wall"
         gift_posted_5_html: "Gift posted in here but not on your %{apiname} wall. Posting on %{apiname} has not yet been implemented"
         picture_upload_unknown_problem: "Gift was posted in here and on your %{apiname} wall. Picture was uploaded to your %{apiname} wall but %{appname} did not have permission to read the picture on your %{apiname} wall and can not display the picture in here. Maybe you have changed permissions for %{appname}."
-        picture_upload_missing_permission_html: "<div title='%{appname} lack access to read posts on your %{apiname} wall. You can upload gift with pictures to %{apiname} but pictures can not be displayed in %{appname}. You can change visibility for %{appname} posts to public or you could grant %{appname} permissiong to read posts on your wall. %{appname} will only use read posts permission to display pictures witin %{appname}.'>Gift was posted in here and on your %{apiname} wall but picture can not be displayed. <a href=\"javascript: {top.location.href='%{url}'}\">Allow %{appname} to read posts on my %{apiname} wall!</a></p>"
+        picture_upload_missing_permission_html: "<div title='%{appname} lack access to read posts on your %{apiname} wall. You can upload gift with pictures to %{apiname} but pictures can not be displayed in %{appname}. You can change visibility for %{appname} posts to public or you could grant %{appname} permission to read posts on your wall. %{appname} will only use read posts permission to display pictures witin %{appname}.'>Gift was posted in here and on your %{apiname} wall but picture can not be displayed. <a href=\"javascript: {top.location.href='%{url}'}\">Allow %{appname} to read posts on my %{apiname} wall!</a></p>"
 
   # auth controller
   auth:
@@ -141,7 +141,7 @@ en:
      destroy:
         logged_off: "Log out ok. Thanks for visiting %{appname}. Use links on this page to log in or to return to login API. Close browser to remove session cookie."
 
-  fb:
+  facebook:
      index:
         invalid_state_login: "Login from facebook failed. Possible \"Cross-site Request Forgery\" problem."
         invalid_state_status_update: "Possible \"Cross-site Request Forgery\" problem when asking for write access to facebook wall."

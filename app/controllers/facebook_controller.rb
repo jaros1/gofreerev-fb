@@ -1,10 +1,10 @@
-class FbController < ApplicationController
+class FacebookController < ApplicationController
 
-  skip_before_filter :verify_authenticity_token, :only => [:create] # no crsf token when facebook starts the App with post /fb
+  skip_before_filter :verify_authenticity_token, :only => [:create] # no crsf token when facebook starts the App with post /facebook
   after_filter :allow_iframe
 
 
-  # post /fb = fb/create is called when FB starts the APP.
+  # post /facebook = facebook/create is called when facebook starts the APP.
   # / will route to this method if :fb_locale and :signed_request are in params (see routes.rb root and /lib/role_constraints.rb)
   # Signatur 1: when an unauthorized user starts the app from facebook
   #   input: signed_request encoded JSON hash with (user, issued_at and algorithm)
@@ -37,7 +37,7 @@ class FbController < ApplicationController
     end
 
     # unpack unsigned request
-    api_callback_url = SITE_URL + 'fb/'
+    api_callback_url = FB_CALLBACK_URL
     puts "Koala::Facebook::OAuth.new: api_callback_url = #{api_callback_url}"
     oauth = Koala::Facebook::OAuth.new(api_id, api_secret, api_callback_url)
     hash = oauth.parse_signed_request(signed_request)
@@ -79,12 +79,12 @@ class FbController < ApplicationController
   end # create
 
 
-  # get /fb - is called after authorization (create)
+  # get /facebook - is called after authorization (create)
   # rejected: Parameters: {"error_reason"=>"user_denied", "error"=>"access_denied", "error_description"=>"The user denied your request."}
   # accepted: Parameters: {"code"=>"AQA6165EwuVn3EVKkzy2TOocej1wBb_t-9jEuhJQFFK7GH2PDkDbbSOOd9lhoqIYibusDfPpWOwaUg6XYiR2lcmP2tLgG0RPgRxL6qwFBZalg0j6wXSO8bZmjKn-yf9O_GOH9wm5ugMKLUihU7mjfLAbR58FrJ8wdgnej2aG9KLQvKNenb16Hf_ULI016u3DGHM-zGvmyb8xAgAAabOHkDQNT5C3lIO0eXTGMwo66zLrnn0jkENguAnAUuZrVym9OMiBV1f9ocg8WfgprflPq-BHOSHdhuHgYISHxO_nTs1dT7Ku5z551ZyBq1hG15aG4"}
   def index
     # where is request comming from?
-    # login - login starter from facebook - previous request was post fb/create
+    # login - login starter from facebook - previous request was post facebook/create
     # status_update - return from status_update priv. request (link in gifts/index page - inserted from util.post_on_facebook)
     # read_stream - return from read_stream priv. request (link in gifts/index page - inserted from util.post_on_facebook)
     # looks like permission status_update has been replaced with publish_actions
@@ -114,7 +114,7 @@ class FbController < ApplicationController
       # code received from FB - login in progress - exchange code for an access token
       # todo: error handling?!
       puts "code = #{params[:code]}"
-      api_callback_url = SITE_URL + 'fb/'
+      api_callback_url = FB_CALLBACK_URL
       oauth = Koala::Facebook::OAuth.new(api_id, api_secret, api_callback_url)
       access_token = oauth.get_access_token(params[:code])
       # puts "access_token = #{access_token}"
@@ -143,7 +143,7 @@ class FbController < ApplicationController
     puts "api_request = #{api_request}"
     api_response = api.get_object api_request
     puts "api_response = #{api_response.to_s}"
-    # fb_locale was received in fbController.create post request from facebook
+    # fb_locale was received in FacebookController.create post request from facebook
     # add to api_response hash - is used for user.currency
     # api_response["country"] = session[:country]
     # api_response["language"] = session[:language]

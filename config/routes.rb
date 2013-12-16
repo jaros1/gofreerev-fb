@@ -25,14 +25,13 @@ GofreerevFb::Application.routes.draw do
   get "util/currencies"
   delete 'auth/destroy'
 
-  # get "fb/index"
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 
   # You can have the root of your site routed with "root"
   root :to => 'auth#index', :via => :all, :constraints => RoleConstraint.new(:empty, :not_logged_in), :as => 'root1'
   root :to => 'gifts#index', :via => :all, :constraints => RoleConstraint.new(:empty, :logged_in), :as => 'root2'
-  root :to => 'fb#create', :via => :all, :constraints => RoleConstraint.new(:fb_locale, :signed_request), :as => 'root3'
+  root :to => 'facebook#create', :via => :all, :constraints => RoleConstraint.new(:fb_locale, :signed_request), :as => 'root3'
   root :to => 'auth#index', :via => :all, :constraints => RoleConstraint.new(:not_logged_in), :as => 'root4'
   root :to => 'gifts#index', :via => :all, :constraints => RoleConstraint.new(:logged_in), :as => 'root5'
 
@@ -43,7 +42,7 @@ GofreerevFb::Application.routes.draw do
   #   get 'products/:id/purchase' => 'catalog#purchase', as: :purchase
 
   # Example resource route (maps HTTP verbs to controller actions automatically):
-  resources :fb, :gifts, :users, :inbox, :comments
+  resources :facebook, :gifts, :users, :inbox, :comments
 
   # Example resource route with options:
   #   resources :products do

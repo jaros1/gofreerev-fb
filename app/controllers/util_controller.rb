@@ -157,7 +157,7 @@ class UtilController < ApplicationController
           next
         end # if
             # picture was not found with picture owner login
-            # it could be a fb permission problem (app priv has been removed) but most likely the picture has been deleted
+            # it could be a facebook permission problem (app priv has been removed) but most likely the picture has been deleted
             # keep api_picture_url_on_error_at so that we known about when the picture was been deleted
             # gifts in app is not deleted automatically. Could affect the balance. Could be connected with other gifts.
             # this allow users to cleanup their FB profile without destroying data in app
@@ -1039,7 +1039,7 @@ class UtilController < ApplicationController
           # todo: Should not save oauth in session
           # todo: problem with String.generate_random_string(30) if more than one api link in page
           # todo: return link should be a link to auth or fb controller to verify state and return response from FB
-          oauth = Koala::Facebook::OAuth.new(api_id, api_secret, SITE_URL + 'fb/')
+          oauth = Koala::Facebook::OAuth.new(api_id, api_secret, FB_CALLBACK_URL)
           url = oauth.url_for_oauth_code(:permissions => 'status_update', :state => set_state('status_update'))
           options[:url] = url
           options[:appname] = APP_NAME
@@ -1049,7 +1049,7 @@ class UtilController < ApplicationController
         # post ok
         if api_gift.picture == 'Y'
           # get temporary url for picture on api wall to be used in gifts/index page
-          # todo: fb pictures too small - it should be possible to get url for a larger picture from fb
+          # todo: facebook pictures too small - it should be possible to get url for a larger picture from facebook
           # url may change - url changes is catched in onload event in img in html page
           # see JS check_api_picture_url and report_missing_api_picture_urls and rails /util/missing_api_picture_urls
           # api_request = "#{gift.api_gift_id}?fields=full_picture"
@@ -1084,7 +1084,7 @@ class UtilController < ApplicationController
               return ['.picture_upload_unknown_problem', {:appname => APP_NAME, :apiname => login_user.api_name_without_brackets}]
             else
               # message with link to grant missing read stream priv.
-              oauth = Koala::Facebook::OAuth.new(api_id, api_secret, SITE_URL + 'fb/')
+              oauth = Koala::Facebook::OAuth.new(api_id, api_secret, FB_CALLBACK_URL)
               url = oauth.url_for_oauth_code(:permissions => 'read_stream', :state => set_state('read_stream'))
               return ['.picture_upload_missing_permission_html', {:appname => APP_NAME, :apiname => login_user.api_name_without_brackets, :url => url}]
             end

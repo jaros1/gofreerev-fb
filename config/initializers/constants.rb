@@ -4,6 +4,8 @@ APP_NAME = 'Gofreerev'
 FB_APP_URL = 'http://apps.facebook.com/gofreerev'
 SITE_URL = 'http://localhost/'
 
+FB_CALLBACK_URL = SITE_URL + 'facebook/' # used when requesting extra privs.
+
 # where can you find source for this open source project?
 CVS_NAME = 'GitHub'
 CVS_URL = 'https://github.com/jaros1/gofreerev-fb'

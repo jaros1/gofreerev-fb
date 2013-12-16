@@ -407,3 +407,11 @@
 
   153) maybe use transactions in util.do_tasks
        maybe failure in a later task rollbacks previous ok tasks?
+
+  154) needs new users.yml file - encryption with old userids
+
+  155) wrong flash message if user cancel request for read_stream permission
+       looks like success response from facebook to facebook controller,
+       but read_stream priv has not been granted.
+       must double check permissions after returning from facebook priv. request page
+       or old/new facebook priv. could be checked in post_login_facebook with ajax messages
