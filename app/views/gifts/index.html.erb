@@ -43,12 +43,12 @@
               <td>
                 <div class="fileupload bottom">
                   <%= t '.file_prompt' %>
-                  <%= file_field_tag :gift_file, :disabled => !User.post_gift_allowed?(@users), :id => "uploadBtn", :class => "upload",
-                                     :onchange => '{document.getElementById("uploadFile").value = this.value}' %>
+                  <%= file_field_tag :gift_file, :disabled => !User.post_gift_allowed?(@users), :id => "gift_file", :class => "upload",
+                                     :onchange => '{document.getElementById("disp_gift_file").value = this.value}' %>
                 </div>
               </td>
               <td>
-                <%= text_field_tag '', '', :id => "uploadFile", :placeholder => "Choose File", :disabled => "disabled", :style =>"line-height:16px;" %>
+                <%= text_field_tag '', '', :id => "disp_gift_file", :placeholder => "Choose File", :disabled => "disabled", :style =>"line-height:16px;" %>
               </td>
             </tr>
             <tr class="submit_gift_small">
@@ -109,8 +109,8 @@
                     if (gift_description) gift_description.value = '' ;
                     var gift_file = document.getElementById('gift_file');
                     if (gift_file) gift_file.value = '' ;
-                    var uploadFile = document.getElementById('uploadFile') ;
-                    if (uploadFile) uploadFile.value = '' ;
+                    var disp_gift_file = document.getElementById('disp_gift_file') ;
+                    if (disp_gift_file) disp_gift_file.value = '' ;
                 },
                 error: function(jqxhr, textStatus, errorThrown ) {
                     document.getElementById('progressbar-div').style.display = 'none';

@@ -929,11 +929,12 @@ function add_to_tasks_errors (error) {
 function disable_enable_file_upload (gift_file_enabled) {
    // add_to_debug_log('disable_enable_file_upload: gift_file_enabled = ' + gift_file_enabled) ;
    if (gift_file_enabled === undefined) return;
-   var gift_file = document.getElementById('uploadBtn');
+   var gift_file = document.getElementById('gift_file');
    if (!gift_file) return ;
    gift_file.disabled = !gift_file_enabled ;
    // add_to_debug_log('gift_file.disabled = ' + gift_file.disabled) ;
 } // disable_enable_file_upload
+
 
 // custom confirm box - for styling
 // http://lesseverything.com/blog/archives/2012/07/18/customizing-confirmation-dialog-in-rails/

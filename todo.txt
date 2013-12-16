@@ -278,8 +278,6 @@
      timestamp - server timestamp or client timestamp?
      Maybe only timestamp if DEBUG_AJAX = true
 
- 98) rename uploadFile to gift_file_display (file upload input display field)
-
  99) how does browse file look like on a mobile device?
 
  100) add picture direct from camera - google html media capture - http://mobilehtml5.org/
@@ -389,9 +387,10 @@
        or change app setup on twitter
 
   146) post on linkedin
-       add url to gift
+       add link to gift
        add offers/seeks prefix in description
        upload picture
+       also see 151 - there are problems with deep link from api into gofreerev
 
   149) check session variables
        should be used from accessor methods in app. controller
@@ -406,15 +405,5 @@
        add public link to gift should work for all apis
        maybe just normal gift link with an ?access_token=xxxx parameter what works only for this gift
 
-  152) gifts/index. Rename id uploadBtn to gift_file? name is already gift_file!
-
   153) maybe use transactions in util.do_tasks
        maybe failure in a later task rollbacks previous ok tasks?
-
-  154) linkedin permissions
-       set permissions to ... at first login
-       set permissions to ... after re-login with .... priv.
-       set permissions to ... if post on api wall fails
-       update post_gift_allowed? to user permission field for linkedin user
-
-
