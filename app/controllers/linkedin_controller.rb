@@ -16,7 +16,7 @@ class LinkedinController < ApplicationController
     puts "x = #{x} (#{x.class})"
     if x.class == Array and x.length == 2 and x[0].class == String and x[1].class == String and x[0] != "" and x[1] != ''
       puts "login ok. Get name, .... from linkedin"
-      # get basic user information from linkedin before new login with write permission to linkedin wall
+      # get basic user information from linkedin before 2. login with write permission (rw_nus) to linkedin wall
       client = LinkedIn::Client.new ENV['GOFREEREV_LI_APP_ID'], ENV['GOFREEREV_LI_APP_SECRET']
       client.authorize_from_access x[0], x[1] # token and secret
       res1 = client.profile(:fields => %w(id,first-name,last-name,picture-url))
@@ -30,7 +30,11 @@ class LinkedinController < ApplicationController
                   :language => nil
       puts "res2 = #{res2}"
       if !res2
-        # login ok
+        # login ok with extra rw_nus priv
+        user_id = "#{res1.id}/linkedin"
+        user = User.find_by_user_id(user_id)
+        user.permissions = "r_basicprofile,r_network,rw_nus"
+        user.save!
         flash[:notice] = t ".ok_rw_nus", :appname => APP_NAME
         redirect_to :controller => :gifts
       else

@@ -273,6 +273,7 @@ class User < ActiveRecord::Base
     user = User.new unless user
     user.user_id = user_id
     user.user_name = user_name
+    user.permissions = "r_basicprofile,r_network" if provider == 'linkedin' # default scope from initializers/omniauth.rb
     if user.new_record?
       # initialize currency from country - for example google and twitter
       country_code = options[:country].to_s
@@ -449,11 +450,13 @@ class User < ActiveRecord::Base
   # has user granted app privs wall postings?
   def post_gift_allowed?
     permissions = self.permissions
-    case
-      when facebook?
-         # looks like permission status_update has been replaced with publish_actions
-         # publish_actions is added when requesting status_update priv.
-         permissions['status_update'] == 1 or permissions["publish_actions"] == 1
+    case provider
+      when "facebook"
+        # looks like permission status_update has been replaced with publish_actions
+        # publish_actions is added when requesting status_update priv.
+        permissions['status_update'] == 1 or permissions["publish_actions"] == 1
+      when "linkedin"
+        permissions.to_s.split(',').index('rw_nus') != nil
       else
         puts "todo: post_on_wall? not implemented for #{provider}"
         false
