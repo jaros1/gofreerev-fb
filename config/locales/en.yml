@@ -105,7 +105,6 @@ en:
         profile_image_count_failed: "Profile picture download from %{provider} failed. Expected one profile picture. Found %{count} profile pictures. Url was \"%{image}\""
         profile_image_mv_failed: "System error. Could not insert new profile picture received from %{provider}: \"%{error}\""
         post_login_user_id_not_found: "Warning. Did not find user id. Could not get friend list from %{provider}"
-        post_login_unknown_user_id: "System error. Did not find user. Could not get friend list from %{provider}"
         post_login_token_not_found: "Warning. Did not find access token. Could not get friend list from %{provider}"
         google_access_not_configured: "Error when fetching friend list from Google+ API. Access Not Configured. Check list: 1) Status is ON for Google+ API in Google Cloud Console"
         google_insufficient_permission: "Error when fetching friend list from Google+ API. API. Insufficient Permission. Check list: 1) scope plus.login maybe is missing in provider setup for google+"
@@ -447,7 +446,7 @@ en:
   users:
      update:
         invalid_request: "Invalid call. User settings was not changed."
-        exchange_rates_not_ready: "Currency was not changed. Exchange rates was not ready. Try again in a moment."
+        invalid_currency: "Currency was not changed. No currency rates was found."
         send_app_friend_request_ok: "%{appname} friend request was sent to %{username}"
         send_app_friend_request_error: "Could not send %{appname} friend request to %{username}"
         cancel_app_friend_request_ok: "%{appname} friend request to %{username} was cancelled"

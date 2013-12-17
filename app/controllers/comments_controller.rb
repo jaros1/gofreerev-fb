@@ -12,9 +12,9 @@ class CommentsController < ApplicationController
     return add_error_and_format_ajax_resp(t '.invalid_request_no_comment_form') unless params.has_key?(:comment)
     gift = Gift.find_by_gift_id(params[:comment][:gift_id])
     return add_error_and_format_ajax_resp(t '.invalid_request_unknown_gift') unless gift
-    return add_error_and_format_ajax_resp(t '.invalid_request_invalid_gift') unless gift.visible_for(@users)
+    return add_error_and_format_ajax_resp(t '.invalid_request_invalid_gift') unless gift.visible_for?(@users)
     # get user from @users. Must be giver, receiver or friend of giver or receiver.
-    user = @users.find { |user2| gift.visible_for([user2]) }
+    user = @users.find { |user2| gift.visible_for?([user2]) }
     @comment = Comment.new
     @comment.gift_id = gift.gift_id if gift
     @comment.user_id = user.user_id
@@ -22,7 +22,7 @@ class CommentsController < ApplicationController
     if params[:comment][:new_deal_yn] == 'Y'
       @comment.new_deal_yn = params[:comment][:new_deal_yn]
       @comment.price = params[:comment][:price].gsub(',','.').to_f unless invalid_price?(params[:comment][:price])
-      @comment.currency = @user.currency
+      @comment.currency = @users.first.currency
     end
 
     respond_to do |format|
@@ -57,7 +57,7 @@ class CommentsController < ApplicationController
       @error = t '.gift_was_not_found' unless @gift
     end
     # check if user may see gift. Must be giver, receiver, friend with giver or friend with receiver
-    if !@error and !@gift.giver.friend?(@user) and !@gift.receiver.friend?(@user)
+    if !@gift.visible_for?(@users)
       @gift = nil
       @error = t '.gift_not_friends'
     end

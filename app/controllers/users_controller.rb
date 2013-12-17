@@ -10,8 +10,8 @@ class UsersController < ApplicationController
   end
 
   def update
-    if params[:id] != @user.id.to_s
-      puts "invalid id. params[:id] = #{params[:id]}, @user.id = #{@user.id}"
+    if !@users.find { |user| params[:id] == user.id.to_s}
+      puts "invalid id. params[:id] = #{params[:id]}"
       flash[:notice] = t '.invalid_request'
       if params[:return_to].to_s != ''
         redirect_to params[:return_to]
@@ -38,7 +38,7 @@ class UsersController < ApplicationController
       raise "invalid call / not implemented"
     end
 
-    puts 'not implemented 1'
+    raise 'not implemented 1'
   end
 
   def edit
@@ -82,8 +82,10 @@ class UsersController < ApplicationController
     end
 
     # always use users friends as basic (friends_filter = true)
-    user_friends = @user.friends.includes(:friend).find_all do |f|
-      f.friend.friend?(@user)
+    # todo: remove friend doubles - that is friends with same friend.user_combination?
+    # todo: but they maybe friend in one login provider and not friends for an other login provider
+    user_friends = Friend.where("user_id_giver in (?)", login_user_ids).includes(:friend).find_all do |f|
+      f.friend.friend?(@users)
     end.sort do |a,b|
       if a.friend.user_name <=> b.friend.user_name
         a.friend.id <=> b.friend.id
@@ -100,7 +102,7 @@ class UsersController < ApplicationController
       # friends_filter = nil (all users) or false (only non friends)
       # find friends of friends
       friends_userids = user_friends.collect { |f| f.user_id_receiver }
-      friends_userids.delete(@user.user_id)
+      friends_userids.delete_if { |user_id| login_user_ids.index(user_id) }
       # puts "friends_userids = " + friends_userids.join(', ')
       friends = User.where("user_id in (?)", friends_userids).includes(:friends)
       # puts "friends = " + friends.collect { |u| u.short_user_name }.join(', ')
@@ -108,18 +110,18 @@ class UsersController < ApplicationController
       friends.each do |u|
         friends_friends_userids = (friends_friends_userids + u.friends.collect { |f| f.user_id_receiver }).uniq
       end # each u
-      friends_friends_userids.delete(@user.user_id)
+      friends_friends_userids.delete_if { |user_id| login_user_ids.index(user_id) }
       # find relevant users
       users = []
       User.where("user_id in (?)", friends_friends_userids).each do |user|
-        next if @friends_filter == false and user.friend?(@user) # don't show friends
+        next if @friends_filter == false and User.friend?(@users) # don't show friends
         users << user
       end # each user
       # puts "users.size = #{users.size}"
       # sort: number of mutual friends desc, user name ascending, id ascending
       users = users.sort do |a, b|
-        if a.mutual_friends(@user).size != b.mutual_friends(@user).size
-          b.mutual_friends(@user).size <=> a.mutual_friends(@user).size
+        if a.mutual_friends(@users).size != b.mutual_friends(@users).size
+          b.mutual_friends(@users).size <=> a.mutual_friends(@users).size
         elsif a.user_name != b.user_name
           a.user_name <=> b.user_name
         else
@@ -154,7 +156,7 @@ class UsersController < ApplicationController
       redirect_to :action => :index
       return
     end
-    if @user2.mutual_friends(@user).size == 0
+    if @user2.mutual_friends(@users).size == 0
       puts "invalid request. No mutual friends for user with id #{id}"
       flash[:notice] = t '.invalid_request'
       redirect_to :action => :index
@@ -167,14 +169,14 @@ class UsersController < ApplicationController
     if @user2.balance_at.to_yyyymmdd != Sequence.get_last_exchange_rate_date
       @user2.recalculate_balance
       @user2.reload
-      @user.reload if @user.user_id == @user2.user_id
+      @users = @users.collect { |user| user.user_id == @user2.user_id ? user.reload : user }
     end
 
     # get params: tab, last_row_id and todo: filters
 
     # tab: blank = friends or balance - only friends can see balance
-    if @user2.friend?(@user)
-      if @user2.user_id == @user.user_id
+    if @user2.friend?(@users)
+      if @users.find { |user| user.user_id == @user2.user_id }
         tabs = %w(gifts balance) # my account - friends information available in Friends menu
       else
         tabs = %w(friends gifts balance) # friend - friend and balance information are allowed
@@ -290,7 +292,7 @@ class UsersController < ApplicationController
   private
   def update_user_currency
     # currency updated in page header - update currency and return to actual page
-    old_currency = @user.currency
+    old_currency = @users.first.currency
     new_currency = params[:user][:new_currency]
     if old_currency == new_currency
       # no change
@@ -298,15 +300,26 @@ class UsersController < ApplicationController
       return
     end
 
-    # recalculate balance in new currency
-    # currency and balance is not recalculated if exchange rates are missing
-    puts "gifts/update: new_currency = #{new_currency}"
-    if !@user.recalculate_balance(new_currency)
-      # not all exchange rates was ready yet - keep old balance and currency
-      # puts "not all exchange rates was ready yet - keep old balance and currency"
-      flash[:notice] = t '.exchange_rates_not_ready'
+    # check currency - exchange rate most exists
+    today = Sequence.get_last_exchange_rate_date
+    er = ExchangeRate.where('date = ? and from_currency = ? and to_currency = ?', today, BASE_CURRENCY, new_currency).first
+    if !er
+      flash[:notice] = t '.invalid_currency' # todo: add key - test error message
       redirect_to params[:return_to]
       return
+    end
+
+    # find all users to change currency for
+    users = @users
+    user_combinations = users.collect { |user| user.user_combination }.find_all { |user_combination| user_combination }.uniq
+    if user_combinations.length > 0
+      users = users + User.where('user_combination in (?)', user_combinations)
+      users = users.uniq
+    end
+
+    # update currency
+    users.each do |user|
+      user.update_attribute :currency, new_currency
     end
 
     # ok - all needed exchange rates was available - currency and balance was updated
@@ -329,8 +342,9 @@ class UsersController < ApplicationController
       redirect_to params[:return_to]
       return
     end
+    login_user = @users.find { |user| user.provider == user2.provider }
     friend_action = params[:friend_action]
-    allowed_friend_actions = user2.friend_status_actions(@user).collect { |fa| fa.downcase }
+    allowed_friend_actions = user2.friend_status_actions(login_user).collect { |fa| fa.downcase }
     if !allowed_friend_actions.index(friend_action)
       puts "invalid request. Friend action #{friend_action} not allowed."
       puts "allowed friend actions are " + allowed_friend_actions.join(', ')
@@ -349,7 +363,7 @@ class UsersController < ApplicationController
 
     # do app friend action
     # for example send_app_friend_request with ok response send_app_friend_request_ok and error response send_app_friend_request_error
-    postfix = user2.send(friend_action, @user) ? "_ok" : "_error"
+    postfix = user2.send(friend_action, login_user) ? "_ok" : "_error"
     flash[:notice] = t ".#{friend_action}#{postfix}", :appname => APP_NAME, :username => user2.short_user_name
     redirect_to params[:return_to]
   end # friend_actions

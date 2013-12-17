@@ -189,7 +189,7 @@ class UtilController < ApplicationController
       puts "util.like_gift: Gift with id #{gift_id} was not found - silently ignore ajax request"
       return
     end
-    if !gift.visible_for(@users)
+    if !gift.visible_for?(@users)
       puts "util.like_gift: #{@user.short_user_name} is not allowed to see gift id #{gift_id} - silently ignore ajax request"
       return
     end
@@ -218,7 +218,7 @@ class UtilController < ApplicationController
       puts "util.unlike_gift: Gift with id #{gift_id} was not found - silently ignore ajax request"
       return
     end
-    if !gift.visible_for(@users)
+    if !gift.visible_for?(@users)
       puts "util.unlike_gift: #{@user.short_user_name} is not allowed to see gift id #{gift_id} - silently ignore ajax request"
       return
     end
@@ -242,7 +242,7 @@ class UtilController < ApplicationController
       puts "util.follow_gift: Gift with id #{gift_id} was not found - silently ignore ajax request"
       return
     end
-    if !gift.visible_for(@users)
+    if !gift.visible_for?(@users)
       puts "util.follow_gift: #{@user.short_user_name} is not allowed to see gift id #{gift_id} - silently ignore ajax request"
       return
     end
@@ -271,7 +271,7 @@ class UtilController < ApplicationController
       puts "util.unfollow_gift: Gift with id #{gift_id} was not found - silently ignore ajax request"
       return
     end
-    if !gift.visible_for(@users)
+    if !gift.visible_for?(@users)
       puts "util.unfollow_gift: #{@user.short_user_name} is not allowed to see gift id #{gift_id} - silently ignore ajax request"
       return
     end
@@ -298,7 +298,7 @@ class UtilController < ApplicationController
       puts "util.hide_gift: Gift with id #{gift_id} was not found - silently ignore ajax request"
       return
     end
-    if !gift.visible_for(@users)
+    if !gift.visible_for?(@users)
       puts "util.hide_gift: #{@user.short_user_name} is not allowed to see gift id #{gift_id} - silently ignore ajax request"
       return
     end
@@ -354,7 +354,7 @@ class UtilController < ApplicationController
       return
     end
     gift = comment.gift
-    if !gift.visible_for(@users)
+    if !gift.visible_for?(@users)
       puts "util.cancel_new_deal: #{@user.short_user_name} is not allowed to see gift id #{gift_id} - silently ignore ajax request"
       return
     end
@@ -377,7 +377,7 @@ class UtilController < ApplicationController
       return
     end
     gift = comment.gift
-    if !gift.visible_for(@users)
+    if !gift.visible_for?(@users)
       puts "util.reject_new_deal: #{@user.short_user_name} is not allowed to see gift id #{gift_id} - silently ignore ajax request"
       return
     end
@@ -403,7 +403,7 @@ class UtilController < ApplicationController
       return
     end
     gift = comment.gift
-    if !gift.visible_for(@users)
+    if !gift.visible_for?(@users)
       puts "util.accept_new_deal: #{@user.short_user_name} is not allowed to see gift id #{gift_id} - silently ignore ajax request"
       return
     end
@@ -504,7 +504,8 @@ class UtilController < ApplicationController
   def get_login_user_and_token (provider)
     login_user = token = nil
     # find user id and token for provider
-    login_user_id = (session[:user_ids] || []).find { |user_id2| user_id2.split('/').last == provider }
+    login_user = @users.find { |user| user.provider == provider }
+    login_user_id = login_user.user_id if login_user
     return [login_user, token, '.post_login_user_id_not_found', {:provider => provider}] unless login_user_id
     login_user = User.find_by_user_id(login_user_id)
     return [login_user, token, '.post_login_unknown_user_id', {:provider => provider, :user_id => login_user_id}] unless login_user
@@ -880,8 +881,7 @@ class UtilController < ApplicationController
       # check id
       user = User.find_by_id(id)
       return ['.recal_user_bal_unknown_id',{}] unless user
-      user_ids = session[:user_ids]
-      return ['.recal_user_bal_invalid_id',{}] unless user_ids.index(user.user_id)
+      return ['.recal_user_bal_invalid_id',{}] unless login_user_ids.index(user.user_id)
 
       # recalculate balance for user or for user combination
       today = Date.parse(Sequence.get_last_exchange_rate_date)

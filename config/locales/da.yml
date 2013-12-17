@@ -108,7 +108,6 @@ da:
         profile_image_mv_failed: "Systemfejl. Kunne ikke indsætte nyt profil billede modtaget fra %{provider}: \"%{error}\""
         too_few_exchange_rates: "Advarsel. Opslag af dagens valuta kurser fra %{bank} fejlede. Forventede >= %{expected} kurser. Modtag %{found} kurser"
         post_login_user_id_not_found: "Advarsel. Fandt ikke bruger id. Kunne ikke hente venneliste fra %{provider}"
-        post_login_unknown_user_id: "Systemfejl. Fandt ikke bruger. Kunne ikke hente venneliste fra %{provider}"
         post_login_token_not_found: "Advarsel. Fandt ikke adgangs \"billet\". Kunne ikke hente venneliste fra %{provider}"
         google_access_not_configured: "Fejl ved hentning af venneliste fra Google+ API. Access Not Configured. Tjek liste ved API opsætning: 1) Tjek log for mere information, 2) At application_name og application_version sættes når Google::APIClient initialiseres, 3) Status er ON for Google+ API i Google Cloud Console"
         google_insufficient_permission: "Fejl ved hentning af venneliste fra Google+ API. Insufficient Permission. Tjek liste ved API opsætning: 1) scope plus.login mangler i provider opsætning for google"
@@ -456,7 +455,7 @@ da:
   users:
      update:
         invalid_request: "Ugyldigt kald. Bruger indstillinger blev ikke ændret."
-        exchange_rates_not_ready: "Valuta blev ikke ændret. Valutakurser var ikke klar. Prøv igen om et øjeblik."
+        invalid_currency: "Valuta blev ikke ændret. Ingen valuta kurser fundet."
         send_app_friend_request_ok: "%{appname} venneanmodning er blevet sendt til %{username}"
         send_app_friend_request_error: "Kunne ikke sende %{appname} venneanmodning til %{username}"
         cancel_app_friend_request_ok: "%{appname} venneanmodning til %{username} er blevet annuleret"

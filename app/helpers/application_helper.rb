@@ -182,10 +182,13 @@ module ApplicationHelper
     end # case
   end # format_direction
 
+  def inbox_new_notifications
+    User.inbox_new_notifications(@users)
+  end
+
   def title
-    return APP_NAME unless @user
-    n = @user.inbox_new_notifications
-    return APP_NAME unless n > 0
+    n = inbox_new_notifications()
+    return APP_NAME unless n
     "(#{n}) #{APP_NAME}"
   end # title
 

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20131216082825) do
+ActiveRecord::Schema.define(version: 20131217090405) do
 
   create_table "ajax_comments", force: true do |t|
     t.string   "user_id",    limit: 40, null: false
@@ -123,6 +123,7 @@ ActiveRecord::Schema.define(version: 20131216082825) do
     t.datetime "deleted_at"
     t.string   "temp_picture_filename", limit: 20
     t.string   "direction",             limit: 10
+    t.string   "created_by",            limit: 10
   end
 
   add_index "gifts", ["gift_id"], name: "index_gifts_on_gift_id", unique: true

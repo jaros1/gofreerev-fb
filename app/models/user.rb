@@ -554,8 +554,7 @@ class User < ActiveRecord::Base
   # currency and balance is not updated if one or more exchange rates are missing
   # missing exchange rates is put in queue for bank and looked up batch
   # batch job started at after returning actual page to user
-  def recalculate_balance (new_currency=nil)
-    new_currency = currency unless new_currency
+  def recalculate_balance
     gifts = gifts_given_and_received.sort do |a,b|
       if a.received_at == b.received_at
         a.id <=> b.id
@@ -679,7 +678,6 @@ class User < ActiveRecord::Base
     puts "user balance = #{user_balance_hash}"
     puts "user negative_interest #{user_negative_interest_hash}"
     # calculation ok - all needed exchange rates was found
-    self.currency = new_currency
     self.balance = user_balance_hash
     self.balance_at = today
     self.negative_interest = user_negative_interest_hash
@@ -690,6 +688,10 @@ class User < ActiveRecord::Base
     end
     true
   end # recalculate_balance
+
+  def self.recalculate_balance (login_users)
+    raise "todo: not implemented"
+  end
 
   def balance_with_2_decimals
     '%0.2f' % (balance[BALANCE_KEY] || 0)
@@ -953,7 +955,9 @@ class User < ActiveRecord::Base
 
 
   def inbox_new_notifications
+    raise "debug - maybe no longer used"
     return @new_notifications if defined?(@new_notifications)
+    return @new_notifications = 0 if @users.length == 0
     notifications = Notification.where("to_user_id = ? and noti_read = 'N'", self.user_id)
     # don't count notifications for deleted or delete marked gifts
     notifications = notifications.find_all do |noti|
@@ -967,8 +971,37 @@ class User < ActiveRecord::Base
         true
       end
     end
-    @new_notifications = notifications.size
+    if notifications.length > 0
+      @new_notifications = notifications.length
+    else
+      @new_notifications = nil
+    end
   end # inbox_new_notifications
+
+  # return nil if no notification - return number of notifications
+  def self.inbox_new_notifications (login_users)
+    return @new_notifications if defined?(@new_notifications)
+    return @new_notifications = nil if login_users.length == 0
+    login_user_ids = login_users.collect { |user| user.user_id }
+    notifications = Notification.where("to_user_id in (?) and noti_read = 'N'", login_user_ids)
+    # don't count notifications for deleted or delete marked gifts
+    notifications = notifications.find_all do |noti|
+      giftid = noti.noti_options[:giftid]
+      if giftid
+        # gift/comment notification. Check if gift has been deleted or delete marked.
+        gift = Gift.find_by_id(giftid)
+        gift and !gift.deleted_at
+      else
+        # other notifications
+        true
+      end
+    end
+    if notifications.length > 0
+      @new_notifications = notifications.length
+    else
+      @new_notifications = nil
+    end
+  end # self.inbox_new_notifications
 
   # refresh user permisssion
   # called in error handling after picture upload with ApiPostNotFoundException error
@@ -1105,7 +1138,9 @@ class User < ActiveRecord::Base
 
 
   # cache mutual friends lookup in @mutual_friends hash index by login_user.id
-  def mutual_friends (login_user)
+  def mutual_friends (login_users)
+    login_user = login_users.find { |user| self.provider == user.provider }
+    return {} unless login_user
     return @mutual_friends[login_user.id] if @mutual_friends and @mutual_friends.has_key?(login_user.id)
     @mutual_friends = {} unless @mutual_friends
     @mutual_friends[login_user.id] = (app_friends.collect { |f| f.friend } & login_user.app_friends.collect { |f| f.friend }).collect { |u| u.short_user_name }

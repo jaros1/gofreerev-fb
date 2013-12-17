@@ -38,7 +38,7 @@
             <%= link_to t('.header_inbox_link_text'), inbox_index_path %>
             <b>
               <sup>
-                <span id="new_messages_count" style="background-color:red; color:white; font-size:x-small"><%= @user.inbox_new_notifications if @user and @user.inbox_new_notifications > 0 %></span>
+                <span id="new_messages_count" style="background-color:red; color:white; font-size:x-small"><%= inbox_new_notifications %></span>
               </sup>
             </b></td>
           <td title="<%= t '.header_friends_link_title', :appname => APP_NAME %>">
@@ -63,7 +63,7 @@
             <%= link_to t('.header_inbox_link_text'), inbox_index_path %>
             <b>
               <sup>
-                <span id="new_messages_count" style="background-color:red; color:white; font-size:x-small"><%= @user.inbox_new_notifications if @user and @user.inbox_new_notifications > 0 %></span>
+                <span id="new_messages_count" style="background-color:red; color:white; font-size:x-small"><%= inbox_new_notifications %></span>
               </sup>
             </b></td>
           <td title="<%= t '.header_friends_link_title', :appname => APP_NAME %>">

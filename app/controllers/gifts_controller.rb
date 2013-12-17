@@ -18,12 +18,15 @@ class GiftsController < ApplicationController
     gift = Gift.new
     gift.price = params[:gift][:price].gsub(',', '.').to_f unless invalid_price?(params[:gift][:price])
     gift.direction = 'giver' if gift.direction.to_s == ''
-    gift.currency = @user.currency
+    gift.created_by = gift.direction
+    gift.currency = @users.first.currency
     gift.description = params[:gift][:description]
     gift_file = params[:gift_file]
     picture = (gift_file.class.name == 'ActionDispatch::Http::UploadedFile')
-    if picture and !@user.post_gift_allowed?
-      @errors << t('.file_upload_not_allowed', :appname => APP_NAME, :apiname => @user.api_name_without_brackets)
+    if picture and !User.post_gift_allowed?(@users)
+      @errors << t('.file_upload_not_allowed',
+                   :appname => APP_NAME,
+                   :apiname => (@users.length > 1 ? 'login provider' : @users..first.api_name_without_brackets))
       picture = false
     end
     if picture
@@ -133,28 +136,24 @@ class GiftsController < ApplicationController
 
     # initialize gift form in top of gifts/index page
     #
-    puts "user_name = #{@user.user_name}" if @user
+    # puts "user_name = #{@user.user_name}" if @user
     # puts "access_token = #{session[:access_token]}"
     @gift = Gift.new
     @gift.direction = 'giver'
-    unless @user
+    if @users.length == 0
       @gifts = []
       render_with_language __method__
       return
     end
-    if @user
-      @gift.currency = @user.currency unless @gift.currency
-    end
+    @gift.currency = @users.first.currency unless @gift.currency
     # puts "index: description = #{@gift.description}"
 
     # initialize list of gifts
     # list of gifts with @user as giver or receiver + gifts med @user.friends as giver or receiver
-    if @users.size > 0 then
-      newest_status_update_at = Sequence.status_update_at
-      newest_gift = Gift.last
-      # get list with gifts
-      gifts = User.api_gifts(@users)
-    end
+    newest_status_update_at = Sequence.status_update_at
+    newest_gift = Gift.last
+    # get list with gifts
+    gifts = User.api_gifts(@users)
 
     # use this gifts select for ajax debug - returns all gifts
     # gifts = Gift.where('user_id_giver is not null or user_id_receiver is not null').order('id desc') # uncomment to test ajax
@@ -168,7 +167,7 @@ class GiftsController < ApplicationController
       # remember newest status update (gifts and comments). Gifts and comments with status changes after page load will be ajax replaced in gifts/index page
       @newest_status_update_at = newest_status_update_at if newest_gift
       # empty AjaxComment buffer for current user - comments created after page load will be ajax inserted in gifts/index page
-      AjaxComment.destroy_all(:user_id => @user.user_id)
+      AjaxComment.where("user_id in (?)", login_user_ids).delete_all if login_user_ids.length > 0
       # insert dummy profile pictures in first row - force fixed size for empty from or to columns
       @first_gift = true
     end
@@ -197,7 +196,7 @@ class GiftsController < ApplicationController
       return
     end
     # check access. giver and/or receiver of gift must be a app friend
-    if !gift.visible_for(@users)
+    if !gift.visible_for?(@users)
       puts "no access"
       flash[:notice] = t ('.no_access')
       redirect_to :action => :index

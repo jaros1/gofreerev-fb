@@ -67,32 +67,23 @@ class ApplicationController < ActionController::Base
     @cookie_note = true if Time.new - session[:created] < 30
 
     # fetch user(s)
-    user_ids = session[:user_ids] || []
-    if user_ids.length > 0
-      @users = User.where("user_id in (?)", user_ids).includes(:friends).shuffle
+    if login_user_ids.length > 0
+      @users = User.where("user_id in (?)", login_user_ids).includes(:friends).shuffle
     else
       @users = []
     end
 
-    # check for deleted users
-    if user_ids.length != @users.length
-      # remove deleted users from session
-      puts "fetch_user. found #{user_ids.length} user(s) in session. found #{@users.length} user(s) in db. Must be deleted users. cleanup session"
+    # check for deleted users - user(s) deleted in an other session/browser
+    if login_user_ids.length != @users.length
+      login_user_ids = @users.collect { |user| user.user_id }
       tokens = session[:tokens] || {}
-      user_ids = user_ids.find_all do |user_id|
-        if !@users.find_all { |user| user.user_id == user_id }.first
-          # user found in session but not in database. Must be an old session with a deleted user account
-          provider = user_id.split('/').last
-          tokens.delete(provider)
-          false
-        else
-          true
-        end
-      end # find_all
-      session[:user_ids] = user_ids
-      session[:tokens] = tokens
+      new_tokens = {}
+      @users.each { |user| new_tokens[user.provider] = tokens[user.provider] }
+      session[:user_ids] = login_user_ids
+      session[:tokens] = new_tokens
     end
     # shortcut for @users.first. Random user is selected for a user with multiple provider logins
+    # todo: remove @user - should only use @users array
     @user = @users.first
 
     # debugging
@@ -104,12 +95,14 @@ class ApplicationController < ActionController::Base
       end
     end
 
-    # todo: check currencies. all logged in users must use same currency
+    # check currencies. all logged in users must use same currency
+    currencies = @users.collect { |user| user.currency }.uniq
+    puts "fetch_user: more when one currency found for logged in users: #{}" if currencies.length > 1
 
     # add some instance variables
     if @user
       Money.default_currency = Money::Currency.new(@user.currency)
-      # Money.default_bank = Money::Bank::GoogleCurrency.new # todo: move to config
+      # todo: set decimal mark and thousands separator from language - not from currency
       @user_currency_separator = Money::Currency.table[@user.currency.downcase.to_sym][:decimal_mark]
       @user_currency_delimiter = Money::Currency.table[@user.currency.downcase.to_sym][:thousands_separator]
     end
@@ -120,119 +113,6 @@ class ApplicationController < ActionController::Base
   end # fetch_user
 
 
-  # check for code from facebook - create/update user
-  # fetch user info. Used in page heading etc
-  #private
-  #def old_fetch_user
-  #  raise "todo: delete old_fetch_user"
-  #  # language support
-  #  # puts "fetch_user: start. sessionid = #{request.session_options[:id]}"
-  #  I18n.locale = session[:language] if session[:language]
-  #  puts "I18n.locale = #{I18n.locale}"
-  #  # cookie note in page header for the first 30 seconds for a new session
-  #  session[:created] = Time.new unless session[:created]
-  #  @cookie_note = true if Time.new - session[:created] < 30
-  #  # Cross-site Request Forgery check
-  #  if params[:state] != session[:state] and params[:code].to_s != ''
-  #    # Possible Cross-site Request Forgery - ignore code from facebook
-  #    puts "fetch_user: Possible csrf: params[:state] = #{params[:state]}, session[:state] = #{session[:state]}, params[:code] = #{params[:code]}"
-  #    params[:code] = nil
-  #  end
-  #
-  #  includes_friends = true
-  #  if params[:code].to_s != '' and session[:oauth]
-  #    # exchange code for access_token
-  #    current_url = "#{request.protocol}#{request.host_with_port}#{request.fullpath}/"
-  #
-  #    oauth = session[:oauth]
-  #    # todo: catch
-  #    #       Koala::Facebook::OAuthTokenRequestError in FbController#index
-  #    #       type: OAuthException, code: 100, message: This authorization code has been used. [HTTP 400]
-  #    #       should redirect to /fb/cross_site_forgery page
-  #    # todo: rename cross_site_forgery to login_error
-  #    begin
-  #      access_token = oauth.get_access_token(params[:code])
-  #    rescue Koala::Facebook::ClientError, Koala::Facebook::OAuthTokenRequestError => e
-  #      puts 'fetch_user: Koala::Facebook::ClientError'
-  #      puts "e.fb_error_type = #{e.fb_error_type}"
-  #      puts "e.fb_error_code = #{e.fb_error_code}"
-  #      puts "e.fb_error_subcode = #{e.fb_error_subcode}"
-  #      puts "e.fb_error_message = #{e.fb_error_message}"
-  #      puts "e.http_status = #{e.http_status}"
-  #      puts "e.response_body = #{e.response_body}"
-  #      puts "e.fb_error_type.class.name = #{e.fb_error_type.class.name}"
-  #      puts "e.fb_error_code.class.name = #{e.fb_error_code.class.name}"
-  #      if e.fb_error_type == 'OAuthException' && e.fb_error_code == 100
-  #        reset_session
-  #        redirect_to FB_APP_URL
-  #        return
-  #      else
-  #        raise
-  #      end
-  #    end
-  #
-  #    if access_token
-  #      session[:access_token] = access_token
-  #
-  #      # authorization ok (first login, following login or return from new priv.dialog)
-  #      # get user id, name, permissions, profile picture and friends
-  #
-  #      # 1) create/update user info (name and permissions)
-  #      puts 'fetch_user: get user id and name'
-  #      api = Koala::Facebook::API.new(session[:access_token])
-  #      api_request = 'me?fields=name,permissions,friends,picture,timezone'
-  #      puts "fetch_user: api_request = #{api_request}"
-  #      api_response = api.get_object api_request
-  #      puts "fetch_user: api_response = #{api_response.to_s}"
-  #      user_id = "#{api_response['id']}/facebook"
-  #      user_name = ERB::Util.html_escape(api_response['name'])
-  #      user_name = "#{user_name}"
-  #      puts "fetch_user: user_name = #{user_name} (#{user_name.class.name})"
-  #      u = User.find_by_user_id(user_id)
-  #      u = User.new unless u
-  #      u.user_id = user_id
-  #      u.user_name = user_name
-  #      if api_response['friends']
-  #        u.no_api_friends = api_response['friends']['data'].size
-  #      else
-  #        u.no_api_friends = 0
-  #      end
-  #      u.timezone = api_response['timezone']
-  #      if u.new_record?
-  #        # set currency and balance for new user.
-  #        puts 'fetch_user: new user'
-  #        country = session[:country] || 'US' #  Default USD
-  #        u.currency = Country[country].currency.code
-  #        u.balance = { BALANCE_KEY => 0.0 }
-  #        u.balance_at = Date.today
-  #      end
-  #      u.permissions = api_response['permissions']['data'][0]
-  #      u.permissions = {} if u.permissions == []
-  #      api_profile_picture_url = api_response['picture']['data']['url']
-  #      u.profile_picture_name = (String.generate_random_string(10) + '.' + api_profile_picture_url.split('.').last).last(10).downcase
-  #      u.save!
-  #
-  #
-  #    end
-  #    params[:code] = nil
-  #    session.delete(:oauth)
-  #  end
-  #
-  #  # add some instance variables
-  #  if @user
-  #    session[:provider] = @user.provider
-  #    Money.default_currency = Money::Currency.new(@user.currency)
-  #    # Money.default_bank = Money::Bank::GoogleCurrency.new # todo: move to config
-  #    @user_currency_separator = Money::Currency.table[@user.currency.downcase.to_sym][:decimal_mark]
-  #    @user_currency_delimiter = Money::Currency.table[@user.currency.downcase.to_sym][:thousands_separator]
-  #  else
-  #    session[:provider] = nil
-  #  end
-  #  puts "fetch_user: @user_currency_separator = #{@user_currency_separator}, @user_currency_delimiter = #{@user_currency_delimiter}"
-  #
-  #end # old_fetch_user
-
-
   private
   def set_locale
     I18n.locale = session[:language] || I18n.default_locale
@@ -240,7 +120,7 @@ class ApplicationController < ActionController::Base
 
   private
   def login_required
-    return true if session[:user_id]
+    return true if login_user_ids.length > 0
     flash[:notice] = t 'gifts.index.not_logged_in_flash'
     redirect_to :controller => :gifts, :action => :index
   end # login_required
@@ -258,12 +138,16 @@ class ApplicationController < ActionController::Base
   # see js functions check_api_picture_url and report_missing_api_picture_urls
   private
   def get_missing_api_picture_urls
-    return nil unless @user
-    api_gifts = ApiGift.where("(user_id_giver = ? or user_id_receiver = ?) and api_picture_url_on_error_at is not null and (deleted_at_api is null or deleted_at_api = 'N')",
-                       @user.user_id, @user.user_id)
+    return nil unless login_user_ids.size > 0
+    # all api gifts with @users as giver or receiver
+    api_gifts = ApiGift.where("(user_id_giver in (?) or user_id_receiver in (?)) and " +
+                                  "api_picture_url_on_error_at is not null and " +
+                                  "(deleted_at_api is null or deleted_at_api = 'N')",
+                       login_user_ids, login_user_ids).includes(:gift)
+    # remove api gift where @users are not creator of gift
     api_gifts.delete_if do |api_gift|
-      user_id_created_by = api_gift.api_gift_id.split('_')[0] + '/facebook'
-      (user_id_created_by != @user.user_id)
+      user_id_created_by = api_gift.created_by == 'giver' ? api_gift.user_id_giver : api_gift.user_id_receiver
+      !login_user_ids.index(user_id_created_by)
     end # delete_if
     if api_gifts.size == 0
       'missing_api_picture_urls = [] ;'
@@ -424,17 +308,17 @@ class ApplicationController < ActionController::Base
     # user login ok
     # save user and access token - multiple login allows - one for each login provider
     timezone = params[:timezone]
-    user_ids = session[:user_ids] || []
-    user_ids.delete_if { |user_id2| user_id2.split('/').last == provider }
-    user_ids << user.user_id
+    login_user_ids = login_user_ids().clone
+    login_user_ids.delete_if { |user_id2| user_id2.split('/').last == provider }
+    login_user_ids << user.user_id
     tokens = session[:tokens] || {}
     tokens[provider] = token
-    session[:user_ids] = user_ids
+    session[:user_ids] = login_user_ids
     session[:tokens] = tokens
     # save language for translate
     session[:language] = language if language
     # check currency after new login - keep current currency
-    @users = User.where('user_id in (?)', user_ids)
+    @users = User.where('user_id in (?)', login_user_ids)
     if @users.collect { |user2| user2.currency }.uniq.length > 1
       old_user = @users.find { |user2| user2.user_id != user.user_id }
       user.currency = old_user.currency
@@ -465,14 +349,16 @@ class ApplicationController < ActionController::Base
     if !provider
       session.delete(:user_ids)
       session.delete(:tokens)
+      @users = []
       return
     end
-    user_ids = session[:user_ids] || []
-    user_ids.delete_if { |user_id| user_id.split('/').last == provider}
+    login_user_ids = login_user_ids().clone
+    login_user_ids.delete_if { |user_id| user_id.split('/').last == provider}
     tokens = session[:tokens]
     tokens.delete(provider)
-    session[:user_ids] = user_ids
+    session[:user_ids] = login_user_ids
     session[:tokens] = tokens
+    @users = User.where('user_id in (?)', login_user_ids)
     # check if file upload button should be disabled - last user with write access to api wall logs out
     add_task "disable_enable_file_upload", 5
   end # logout
@@ -526,7 +412,10 @@ class ApplicationController < ActionController::Base
     client
   end # get_linkedin_client
 
-
-
+  private
+  def login_user_ids
+    session[:user_ids]
+  end
+  helper_method :login_user_ids
 
 end # ApplicationController

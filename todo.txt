@@ -271,9 +271,6 @@
     change javascript that catches pictures with invalid urls - should report api_gift.id
     change form that sends array with invalid picture ids to util.missing_api_picture_urls
 
-79) change get_missing_api_picture_urls method in application controller
-    facebook user id in hardcoded
-
 80) check direction. added as field to gifts. check direction in source
 
 81) delete api_gifts and gifts with temp picture urls - that is picture on server
@@ -395,3 +392,11 @@
 
 108) deep link = N : link to a public page with login and redirect to gift
      deep link = Y : direct access to gift without login.
+
+110) User.recalculate_balance(login_users) method is missing
+
+111) ajax change currency?
+     mark each user div with user ids
+     send ajax request with new currency and array with user ids in page
+     receive table with new user div title with balance information in new currency
+     use javascript to change title for user divs in page

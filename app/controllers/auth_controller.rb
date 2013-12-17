@@ -7,9 +7,7 @@ class AuthController < ApplicationController
   def index
     @providers = OmniAuth::Builder.providers
     # find logged in providers - userid and token
-    user_ids = session[:user_ids] || []
-    tokens = session[:tokens] || {}
-    @logged_in_providers = user_ids.collect { |user_id| user_id.split('/').last }.find_all { |provider| tokens[provider].to_s != "" }
+    @logged_in_providers = @users.collect { |user| user.provider }
   end
 
   # omniauth callback on success (login was started from rails)
@@ -164,8 +162,8 @@ class AuthController < ApplicationController
       redirect_to :action => :index
       return
     end
-    @user = @users.first
-    case @user.provider
+    user = @users.first
+    case user.provider
       when 'facebook'
         redirect_to 'https://facebook.com/'
       when 'google_oauth2'
