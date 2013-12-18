@@ -871,6 +871,19 @@ function show_more_rows_error(jqxhr, textStatus, errorThrown, debug) {
     add_to_tasks_errors('show_more_rows.ajax.error: ' + errorThrown + '. check server log for more information.') ;
 } // show_more_rows_error
 
+function show_more_rows_ajax(table_name, debug) {
+    var link = '#show-more-rows-link'
+    $(id).unbind("ajax:success");
+    $(id).bind("ajax:success", function (evt, data, status, xhr) {
+        show_more_rows_success(table_name, debug);
+    });
+    $(id).unbind("ajax:error");
+    $(id).bind("ajax:error", function (jqxhr, textStatus, errorThrown) {
+        show_more_rows_error(jqxhr, textStatus, errorThrown, debug);
+    });
+} // show_more_rows_ajax
+
+
 
 // <== implementing show-more-rows ajax / endless expanding page
 
