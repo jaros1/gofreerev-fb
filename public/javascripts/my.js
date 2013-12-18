@@ -970,7 +970,7 @@ $(document).ready(function() {
     var timezone = document.getElementById("timezone") ;
     if (!timezone) return ;
     timezone.value = get_js_timezone();
-    // add_to_debug_log('timezone = ' + timezone.value) ;
+    add_to_debug_log('timezone = ' + timezone.value) ;
 })
 
 // custom confirm box - for styling

@@ -442,6 +442,7 @@ class ApplicationController < ActionController::Base
   # save timezone received from JS or from login provider
   private
   def set_timezone(timezone)
+    timezone = "#{timezone}.0" unless timezone.to_s.index('.')
     timezones = ActiveSupport::TimeZone.all.collect { |tz| (tz.tzinfo.current_period.utc_offset / 60.0 / 60.0).to_s }.uniq
     if !timezones.index(timezone)
       puts "set_timezone: unknown timezome #{timezone}"

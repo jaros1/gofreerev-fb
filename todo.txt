@@ -20,6 +20,7 @@
     JS timezone is set with ajax after login
     check timezone information login providers (facebook, google+, linkedin, twitter)
     compare JS timezone with rails timezones
+    facebook/autologin - could ajax send timezone to rails before redirection to facebook
 
  6) add date format. see application_helper.format_date
 
