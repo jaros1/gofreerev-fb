@@ -154,9 +154,10 @@ class AuthController < ApplicationController
     # empty session
     # created is kept so that cookie note is not displayed after log out
     # language is kept so that correct language is used when or if user returns to gofreerev
+    # timezone is kept so that correct timezone is shown when or if user returns to gofreerev
     # session information is destroyed when user closes browser and cookies are removed
     session.keys.each do |name|
-      session.delete(name) unless %w(_csrf_token created language).index(name.to_s)
+      session.delete(name) unless %w(_csrf_token created language timezone).index(name.to_s)
     end
     session[:user_ids] = []
     session[:tokens] = {}

@@ -904,6 +904,11 @@ function clear_flash_and_ajax_errors() {
     } // for
 } // clear_flash_and_ajax_errors
 
+function get_js_timezone() {
+  return -(new Date().getTimezoneOffset()) / 60.0 ;
+}
+
+
 // request server to execute any task in task queue
 // called from bottom of application layout and from  insert_update_gifts after gift create (posting on api wall)
 // tasks: get currency rates, download api information (picture, permissions, friend list), post on api walls
@@ -915,7 +920,7 @@ function trigger_tasks_form (sleep) {
         add_to_debug_log('trigger_tasks_form. hidden field with id timezone was not found') ;
         return ;
     }
-    timezone.value = (new Date().getTimezoneOffset()) / 60.0;
+    timezone.value = get_js_timezone();
     window.setTimeout(function(){$('#tasks_form').trigger('submit.rails');}, sleep);
 } // trigger_tasks_form
 
@@ -959,6 +964,14 @@ function disable_enable_file_upload (gift_file_enabled) {
    // add_to_debug_log('gift_file.disabled = ' + gift_file.disabled) ;
 } // disable_enable_file_upload
 
+// set JS timezone in tasks form
+// send to server in util/to_tasks
+$(document).ready(function() {
+    var timezone = document.getElementById("timezone") ;
+    if (!timezone) return ;
+    timezone.value = get_js_timezone();
+    // add_to_debug_log('timezone = ' + timezone.value) ;
+})
 
 // custom confirm box - for styling
 // http://lesseverything.com/blog/archives/2012/07/18/customizing-confirmation-dialog-in-rails/

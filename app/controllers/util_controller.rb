@@ -442,15 +442,16 @@ class UtilController < ApplicationController
   end
 
   # process tasks from queue
-  # that is tasks that could slow request/response cycle or information that is not available on server (timezone)
+  # that is tasks that could slow request/response cycle or information that is not available on server (client timezone)
   # tasks:
-  # - update user timezone from client/javascript after login (ok)
   # - download user profile image from login provider after login (ok)
-  # - get permissions from login provider after login (todo)
-  # - get friend lists from login provider after login (todo)
+  # - get permissions from login provider after login (todo: twitter)
+  # - get friend lists from login provider after login (ok)
   # - get currency rates for a new date (ok)
-  # - upload post and optional picture to login provider (todo)
+  # - upload post and optional picture to login provider (ok)
   def do_tasks
+    # save timezone received from javascript
+    set_timezone(params[:timezone])
     # cleanup old tasks
     Task.where("created_at < ? and ajax = ?", 2.minute.ago, 'Y').destroy_all
     Task.where("created_at < ? and ajax = ?", 10.minute.ago, 'N').destroy_all

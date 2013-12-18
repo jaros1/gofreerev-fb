@@ -166,8 +166,6 @@ class User < ActiveRecord::Base
   # 8) profile_picture_type. String in Model and db. Not encrypted.
   # profile picture is downloaded under /public/images/profiles. profile picture name is <user_id>.<profile_picture_type>
 
-  # 9) timezone. Fixnum in model. Integer in db. Not encrypted. Used for local timestamps in views
-
   # 10) negative_interest. Required. Multi-currency Hash in model. Encrypted text in db
   # Keys is ISO code for currency USD, EUR, GBP etc.
   # Key BALANCE is sum of all currencies exchanged to users actual currency
@@ -374,26 +372,6 @@ class User < ActiveRecord::Base
     puts "rmdir: stdout = #{stdout}, stderr = #{stderr}, status = #{status} (#{status.class})" if status != 0
     nil
   end # self.download_profile_image
-
-  # task from task queue - update timezone from client/javascript after login
-  # called from util.do_tasks - timezone is from params[:timezone]
-  def self.update_timezone(user_id, timezone)
-    user = User.find_by_user_id(user_id)
-    if !user
-      puts "User with user id #{user_id} was not found"
-      return ['.update_timezone_invalid_user_id', { :user_id => user_id }]
-    end
-    if timezone.to_s == ""
-      puts "No timezone received from client/javascript (params[:timezone])"
-      return ['.update_timezone_timezone_missing', {} ]
-    end
-    user.timezone = timezone.to_s.to_i
-    if !user.save
-      puts "Could not update timezone information. errors = #{user.errors.full_messages.join('. ')}"
-      return ['.update_timezone_save_error', { :errors => user.errors.full_messages.join('. ') }]
-    end
-    nil
-  end # self.update_timezone
 
   def usertype
     return nil unless user_id
@@ -716,7 +694,7 @@ class User < ActiveRecord::Base
     # puts "user.friend?: login_users.size = #{login_users.size}"
     return false if login_users.size == 0 # not logged in
     login_user = login_users.find { |user| user.provider == self.provider }
-    # puts "user.friend?: provider = #{self.provider}, login_user = #{login_user}"
+    puts "user.friend?: provider = #{self.provider}, login_user = #{login_user}"
     return false unless login_user
     return true if login_user.user_id == self.user_id
     f = get_friend(login_user)

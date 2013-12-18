@@ -55,7 +55,6 @@
     <% if ajax_tasks? -%>
         <%# post response ajax processing - for example download profile image and friend list from login provider -%>
         <script>
-            document.getElementById("timezone").value = (new Date().getTimezoneOffset()) / 60.0;
             window.setTimeout(function(){$('#tasks_form').trigger('submit.rails');}, 1000);
         </script>
     <% end -%>

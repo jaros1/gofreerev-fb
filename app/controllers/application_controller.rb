@@ -10,6 +10,7 @@ class ApplicationController < ActionController::Base
   before_filter :request_url_for_header
   before_filter :fetch_user
   before_action :set_locale
+  before_action :get_timezone
 
   # Facebook API information is defined as OS environment variable
   private
@@ -316,7 +317,6 @@ class ApplicationController < ActionController::Base
     return user unless user.class == User
     # user login ok
     # save user and access token - multiple login allows - one for each login provider
-    timezone = params[:timezone]
     login_user_ids = login_user_ids().clone
     login_user_ids.delete_if { |user_id2| user_id2.split('/').last == provider }
     login_user_ids << user.user_id
@@ -335,8 +335,6 @@ class ApplicationController < ActionController::Base
       user.save!
     end
     # schedule post login tasks.
-    # todo: validate timezone. Must be a valid number between ...
-    add_task "User.update_timezone('#{user.user_id}', #{timezone})", 5 if timezone # timezone from client/javascript
     add_task "User.download_profile_image('#{user.user_id}', '#{image}')", 5 if image =~ /^http/ and !image.index("''")
     post_login_task_provider = "post_login_#{provider}" # private method in UtilController
     if UtilController.new.private_methods.index(post_login_task_provider.to_sym)
@@ -430,9 +428,27 @@ class ApplicationController < ActionController::Base
 
   private
   def filter_locale (locale)
-    locale = locale.to_s
-    return nil unless %w(en da).index(locale)
+    available_locales = Rails.application.config.i18n.available_locales.collect { |locale| locale.to_s }
+    return nil unless available_locales.index(locale.to_s)
     locale
+  end
+
+  # set timezone used in views
+  private
+  def get_timezone
+    Time.zone = session[:timezone] if session[:timezone]
+  end
+
+  # save timezone received from JS or from login provider
+  private
+  def set_timezone(timezone)
+    timezones = ActiveSupport::TimeZone.all.collect { |tz| (tz.tzinfo.current_period.utc_offset / 60.0 / 60.0).to_s }.uniq
+    if !timezones.index(timezone)
+      puts "set_timezone: unknown timezome #{timezone}"
+      return
+    end
+    puts "set_timezone: timezone = #{timezone}"
+    Time.zone = session[:timezone] = timezone.to_f
   end
 
 end # ApplicationController

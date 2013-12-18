@@ -1,4 +1,4 @@
- 1) post comments on APIs?
+ 1) post comments on API walls?
 
  2) how much information to se about deals between friends and friends friends?
     facebook: Shows status from friends on wall - do not show status from friends friends on wall
@@ -16,11 +16,12 @@
  4) link stories. Insert link for one story in an other story.
     how to handle security? Should only see gifts from/to friends
 
- 5) Use timezone in views.
+ 5) check that timezone offset is used in views.
+    JS timezone is set with ajax after login
+    check timezone information login providers (facebook, google+, linkedin, twitter)
+    compare JS timezone with rails timezones
 
  6) add date format. see application_helper.format_date
-
- 7) add time format. Use timezone in time format in views
 
  8) add a counter to a gift. Normally 1 gift, but can be any number or nil. Eg. nil for a service.
     Clone a closed gift, keep the original gift and decrease counter. Close deal when counter reaches zero.
@@ -87,6 +88,8 @@
     use different encryption keys in production environment
 
 28) make script to compare language files (en, da etc). Find missing keys
+    check out https://github.com/tigrish/i18n-spec
+    could be used to verify that all keys exists
 
 29) allow new proposal for giver/receiver so that giver/receiver can change price?
     Or allow edit price for a not closed gift?
@@ -150,9 +153,9 @@
     http://en.wikipedia.org/wiki/List_of_social_networking_websites
     implement oauth for most used social networks
 
-46) add language to url and allow users to select language in app
-
-47) allow 0.5 or 0.25 timezone intervals. Timezone new is a Fixnum. "-1" for denmark. "-5.5" for india.
+46) add language to url (ok)
+    use url helpers in views so that locale is included in all links
+    allow users to select language in app
 
 48) md5 alternatives? md5 is to easy to break
 
@@ -385,8 +388,6 @@
      actual user information can be ajax injected in page
      after response - check if user is logged in and refresh specific user information
 
-106) allow language specific deep links - add language code to url
-
 107) user y/n to deep links
      show note about deep link when granting write access to api wall
      should default be Y or N?
@@ -405,7 +406,3 @@
 111) format price
      use currency or use language to format prices?
      we are using currency now. See application controller.fetch_user
-
-112) validate locale files (en, da)
-     check out https://github.com/tigrish/i18n-spec
-     could be used to verify that all texts have been translated
