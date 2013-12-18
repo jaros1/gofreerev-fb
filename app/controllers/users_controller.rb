@@ -94,7 +94,7 @@ class UsersController < ApplicationController
         a.friend.user_name <=> b.friend.user_name
       end
     end
-    puts "friends_filter = #{@friends_filter}, found #{user_friends.size} friends"
+    # puts "friends_filter = #{@friends_filter}, found #{user_friends.size} friends"
 
     if @friends_filter == true
       # simple friends search - just return login users friends
@@ -104,9 +104,9 @@ class UsersController < ApplicationController
       # find friends of friends
       friends_userids = user_friends.collect { |f| f.user_id_receiver }
       friends_userids.delete_if { |user_id| login_user_ids.index(user_id) }
-      # puts "friends_userids = " + friends_userids.join(', ')
+      # puts "users/index: friends_userids = " + friends_userids.join(', ')
       friends = User.where("user_id in (?)", friends_userids).includes(:friends)
-      # puts "friends = " + friends.collect { |u| u.short_user_name }.join(', ')
+      # puts "users/index: friends = " + friends.collect { |u| u.short_user_name }.join(', ')
       friends_friends_userids = friends_userids
       friends.each do |u|
         friends_friends_userids = (friends_friends_userids + u.friends.collect { |f| f.user_id_receiver }).uniq
@@ -114,11 +114,14 @@ class UsersController < ApplicationController
       friends_friends_userids.delete_if { |user_id| login_user_ids.index(user_id) }
       # find relevant users
       users2 = []
+      # puts "users/index: friends_friends_userids = #{friends_friends_userids.join(', ')}"
       User.where("user_id in (?)", friends_friends_userids).each do |user|
-        next if @friends_filter == false and user.friend?(@users) # don't show friends
+        friend = user.friend?(@users)
+        # puts "users/index: user = #{user.user_id}, friend = #{friend}"
+        next if @friends_filter == false and friend # don't show friends
         users2 << user
       end # each user
-      # puts "users.size = #{users.size}"
+      # puts "users2.size = #{users2.size}"
       # sort: number of mutual friends desc, user name ascending, id ascending
       users2 = users2.sort do |a, b|
         if a.mutual_friends(@users).size != b.mutual_friends(@users).size

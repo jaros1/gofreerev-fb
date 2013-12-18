@@ -99,6 +99,7 @@ module ApplicationHelper
   end
 
   def format_user_balance (user, login_users)
+    # puts "format_user_balance: user = #{user.user_id}, login_users = " + login_users.collect { |user| user.user_id }.join(', ')
     return nil unless user.class == User and login_users.class == Array
     return nil if login_users.length == 0
     if user.user_combination
@@ -116,22 +117,23 @@ module ApplicationHelper
     if to_currencies.length > 1
       puts "todo: error, login procedure should ensure one and only one currency for logged in users"
     end
-    to_currency = currencies.first
+    to_currency = to_currencies.first
+    puts "format_user_balance: to_currency = #{to_currency}"
     if balance.size == 2 and user.currency == login_users.first.currency
       # short format. only one currency in balance hash. Return this without any conversion if login user currency
       return format_price(from_amount) if user.currency == login_users.first.currency
     end # æøå
     # exchange from_amount
     if from_currency == to_currency
-      puts "format_user_balance: no exchange: to_amount = from_amount = #{from_amount}"
+      # puts "format_user_balance: no exchange: to_amount = from_amount = #{from_amount}"
       to_amount = from_amount
       to_currency = ''
     elsif (to_amount = ExchangeRate.exchange(from_amount, from_currency, to_currency))
-      puts "format_user_balance: exchange ok: from_amount = #{from_amount}, from_currency = #{from_currency}, to_amount = #{to_amount}, to_currency = #{to_currency}"
+      # puts "format_user_balance: exchange ok: from_amount = #{from_amount}, from_currency = #{from_currency}, to_amount = #{to_amount}, to_currency = #{to_currency}"
       to_currency = ''
     else
       # exchange rate was not ready - show original user balance with currency - exchange rate should be ready in next request
-      puts "format_user_balance: exchange rate not ready: from_amount = #{from_amount}, from_currency = #{from_currency}"
+      # puts "format_user_balance: exchange rate not ready: from_amount = #{from_amount}, from_currency = #{from_currency}"
       to_amount = from_amount
       to_currency = ' ' + from_currency
     end
