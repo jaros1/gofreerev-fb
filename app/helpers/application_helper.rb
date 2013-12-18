@@ -117,9 +117,9 @@ module ApplicationHelper
       puts "todo: error, login procedure should ensure one and only one currency for logged in users"
     end
     to_currency = currencies.first
-    if balance.size == 2 and user.currency == login_users.currency
+    if balance.size == 2 and user.currency == login_users.first.currency
       # short format. only one currency in balance hash. Return this without any conversion if login user currency
-      return format_price(from_amount) if user.currency == login_users.currency
+      return format_price(from_amount) if user.currency == login_users.first.currency
     end # æøå
     # exchange from_amount
     if from_currency == to_currency

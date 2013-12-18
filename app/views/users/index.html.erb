@@ -39,7 +39,7 @@
 </div>
 <br/>
 
-<% if @users.size == 0 -%>
+<% if @users2.size == 0 -%>
     <p>
       <%= t '.no_users_was_found_html', :appname => APP_NAME, :apiname => @user.api_name_without_brackets %>
     </p>
@@ -53,7 +53,7 @@
             <hr>
           </td>
         </tr>
-        <% for user in @users do -%>
+        <% for user in @users2 do -%>
             <%= render :partial => 'user', :locals => {:user => user} %>
         <% end -%>
       </table>

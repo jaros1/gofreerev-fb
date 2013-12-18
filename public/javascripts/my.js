@@ -820,7 +820,7 @@ function show_more_rows_scroll(table_name, interval, debug) {
     }
 } // show_more_rows_scroll
 
-function show_more_rows_post_ajax (table_name, debug)
+function show_more_rows_success (table_name, debug)
 {
     // find id for last row (nil or id for last row in table)
     var pgm = "#show-more-rows-link.ajax:success: " ;
@@ -859,7 +859,18 @@ function show_more_rows_post_ajax (table_name, debug)
         link.href = href ;
         end_of_page = false ;
     }
-} // show_more_rows_post_ajax
+} // show_more_rows_success
+
+function show_more_rows_error(jqxhr, textStatus, errorThrown, debug) {
+    if (debug) {
+        add_to_debug_log('show_more_rows.ajax.error');
+        add_to_debug_log('jqxhr = ' + jqxhr);
+        add_to_debug_log('textStatus = ' + textStatus);
+        add_to_debug_log('errorThrown = ' + errorThrown);
+    }
+    add_to_tasks_errors('show_more_rows.ajax.error: ' + errorThrown + '. check server log for more information.') ;
+} // show_more_rows_error
+
 
 // <== implementing show-more-rows ajax / endless expanding page
 

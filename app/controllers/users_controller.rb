@@ -73,7 +73,8 @@ class UsersController < ApplicationController
       # can be invalid last_row_id - can be too many get-more-rows ajax requests - max one request every 3 seconds - more info in log
       # return "empty" ajax response with dummy row with correct last_row_id to client
       puts "return empty ajax response with dummy row with correct last_row_id to client"
-      @gifts = @users = []
+      @gifts = []
+      @users2 = []
       @last_row_id = session[:last_row_id]
       respond_to do |format|
         format.js {}
@@ -93,11 +94,11 @@ class UsersController < ApplicationController
         a.friend.user_name <=> b.friend.user_name
       end
     end
-    # puts "friends_filter = #{@friends_filter}, found #{user_friends.size} friends"
+    puts "friends_filter = #{@friends_filter}, found #{user_friends.size} friends"
 
     if @friends_filter == true
       # simple friends search - just return login users friends
-      users = user_friends.collect { |f| f.friend }
+      users2 = user_friends.collect { |f| f.friend }
     else
       # friends_filter = nil (all users) or false (only non friends)
       # find friends of friends
@@ -112,14 +113,14 @@ class UsersController < ApplicationController
       end # each u
       friends_friends_userids.delete_if { |user_id| login_user_ids.index(user_id) }
       # find relevant users
-      users = []
+      users2 = []
       User.where("user_id in (?)", friends_friends_userids).each do |user|
-        next if @friends_filter == false and User.friend?(@users) # don't show friends
-        users << user
+        next if @friends_filter == false and user.friend?(@users) # don't show friends
+        users2 << user
       end # each user
       # puts "users.size = #{users.size}"
       # sort: number of mutual friends desc, user name ascending, id ascending
-      users = users.sort do |a, b|
+      users2 = users2.sort do |a, b|
         if a.mutual_friends(@users).size != b.mutual_friends(@users).size
           b.mutual_friends(@users).size <=> a.mutual_friends(@users).size
         elsif a.user_name != b.user_name
@@ -135,7 +136,7 @@ class UsersController < ApplicationController
     # users = User.all # uncomment to test ajax
 
     # return next 10 users
-    @users, @last_row_id = get_next_set_of_rows(users, last_row_id)
+    @users2, @last_row_id = get_next_set_of_rows(users2, last_row_id)
 
     respond_to do |format|
       format.html {}

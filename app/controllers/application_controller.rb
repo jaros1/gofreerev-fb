@@ -123,7 +123,7 @@ class ApplicationController < ActionController::Base
 
   private
   def default_url_options(options={})
-    puts "default_url_options is passed options: #{options}. I18n.locale = #{I18n.locale}"
+    # puts "default_url_options is passed options: #{options}. I18n.locale = #{I18n.locale}"
     { locale: I18n.locale }
   end
 

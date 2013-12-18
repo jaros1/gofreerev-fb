@@ -30,9 +30,15 @@
     // ajax post processing show-row-rows. Check number of new rows. Change link for next show-more-rows ajax request
 -%>
     $(document).ready(function(){
+        $('#show-more-rows-link').unbind("ajax:success") ;
         $('#show-more-rows-link')
                 .bind("ajax:success", function(evt, data, status, xhr){
-                    show_more_rows_post_ajax("<%= show_more_rows %>", <%= debug_ajax? ? "true" : "false" %>) ;
+                    show_more_rows_success("<%= show_more_rows %>", <%= debug_ajax? ? "true" : "false" %>) ;
+                });
+        $('#show-more-rows-link').unbind("ajax:error") ;
+        $('#show-more-rows-link')
+                .bind("ajax:error", function(jqxhr, textStatus, errorThrown){
+                    show_more_rows_error(jqxhr, textStatus, errorThrown,<%= debug_ajax? ? "true" : "false" %>);
                 });
     }); // $(document).ready
 <%#

@@ -711,9 +711,12 @@ class User < ActiveRecord::Base
 
   # simple friend check - true or false without any details
   def friend? (login_users)
+    # puts "user.friend?: login_users.class = #{login_users.class}"
     return false unless login_users.class == Array # not logged in
-    return false unless login_users.size == 0 # not logged in
+    # puts "user.friend?: login_users.size = #{login_users.size}"
+    return false if login_users.size == 0 # not logged in
     login_user = login_users.find { |user| user.provider == self.provider }
+    # puts "user.friend?: provider = #{self.provider}, login_user = #{login_user}"
     return false unless login_user
     return true if login_user.user_id == self.user_id
     f = get_friend(login_user)
@@ -1138,6 +1141,7 @@ class User < ActiveRecord::Base
 
   # cache mutual friends lookup in @mutual_friends hash index by login_user.id
   def mutual_friends (login_users)
+    raise "invalid call" unless login_users.class == Array
     login_user = login_users.find { |user| self.provider == user.provider }
     return {} unless login_user
     return @mutual_friends[login_user.id] if @mutual_friends and @mutual_friends.has_key?(login_user.id)
