@@ -29,7 +29,7 @@ class UtilController < ApplicationController
     old_newest_gift_id = params[:newest_gift_id].to_i
     old_newest_status_update_at = params[:newest_status_update_at].to_i
     # return new messages count
-    count = @user.inbox_new_notifications
+    count = User.inbox_new_notifications(@users) || 0
     @new_messages_count = count if count > 0
     # return new comments
     # return new comments and comments with changed status (new deal proposal cancelled or rejected or deleted comment)

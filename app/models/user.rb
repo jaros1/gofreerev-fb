@@ -953,7 +953,6 @@ class User < ActiveRecord::Base
     end
   end
 
-
   def inbox_new_notifications
     raise "debug - maybe no longer used"
     return @new_notifications if defined?(@new_notifications)

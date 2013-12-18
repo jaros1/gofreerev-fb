@@ -97,9 +97,6 @@ class GiftsController < ApplicationController
   end
 
   def index
-    # test if flash object can be used
-    puts "flash[:read_stream] = #{flash[:read_stream]}"
-
     # http request: return first 10 gifts (last_row_id = nil)
     # ajax request: return next 10 gifts (last_row_id != nil)
     last_row_id = params[:last_row_id].to_s

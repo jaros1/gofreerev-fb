@@ -1,5 +1,7 @@
 GofreerevFb::Application.routes.draw do
 
+  filter :locale
+
   get "linkedin/index"
   get '/auth/:provider/callback', :to => 'auth#create'
   post '/auth/:provider/callback', :to => 'auth#create'
@@ -42,7 +44,9 @@ GofreerevFb::Application.routes.draw do
   #   get 'products/:id/purchase' => 'catalog#purchase', as: :purchase
 
   # Example resource route (maps HTTP verbs to controller actions automatically):
-  resources :facebook, :gifts, :users, :inbox, :comments
+  scope "(:locale)" do
+    resources :facebook, :gifts, :users, :inbox, :comments
+  end
 
   # Example resource route with options:
   #   resources :products do

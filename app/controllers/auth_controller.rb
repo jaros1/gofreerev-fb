@@ -152,11 +152,15 @@ class AuthController < ApplicationController
       return
     end
     # empty session
-    # language is kept for post log out language support
     # created is kept so that cookie note is not displayed after log out
+    # language is kept so that correct language is used when or if user returns to gofreerev
+    # session information is destroyed when user closes browser and cookies are removed
     session.keys.each do |name|
-      session.delete(name) unless %w(_csrf_token language created).index(name.to_s)
+      session.delete(name) unless %w(_csrf_token created language).index(name.to_s)
     end
+    session[:user_ids] = []
+    session[:tokens] = {}
+    # redirect to api or redirect to auth/index page
     if @users.length > 1
       flash[:notice] = t '.logged_off', :appname => APP_NAME
       redirect_to :action => :index

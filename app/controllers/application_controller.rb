@@ -60,8 +60,7 @@ class ApplicationController < ActionController::Base
   def fetch_user
     # language support
     # puts "fetch_user: start. sessionid = #{request.session_options[:id]}"
-    I18n.locale = session[:language] if session[:language]
-    puts "I18n.locale = #{I18n.locale}"
+    puts "fetch_user: I18n.locale = #{I18n.locale}"
     # cookie note in page header for the first 30 seconds for a new session
     session[:created] = Time.new unless session[:created]
     @cookie_note = true if Time.new - session[:created] < 30
@@ -113,9 +112,19 @@ class ApplicationController < ActionController::Base
   end # fetch_user
 
 
+  # 1. priority is locale from url - 2. priority is locale from session - 3. priority is default locale (en)
+  # locale is also saved in session for language support in api provider callbacks
   private
   def set_locale
-    I18n.locale = session[:language] || I18n.default_locale
+    session[:language] = params[:locale] if filter_locale(params[:locale])
+    I18n.locale = filter_locale(params[:locale]) || filter_locale(session[:language]) || filter_locale(I18n.default_locale) || 'en'
+    puts "set_locale: I18n.locale = #{I18n.locale}. params[:locale] = #{params[:locale]}, session[:language] = #{session[:language]}, "
+  end
+
+  private
+  def default_url_options(options={})
+    puts "default_url_options is passed options: #{options}. I18n.locale = #{I18n.locale}"
+    { locale: I18n.locale }
   end
 
   private
@@ -316,7 +325,8 @@ class ApplicationController < ActionController::Base
     session[:user_ids] = login_user_ids
     session[:tokens] = tokens
     # save language for translate
-    session[:language] = language if language
+    session[:language] = language if !filter_locale(session[:language]) and filter_locale(language)
+    set_locale
     # check currency after new login - keep current currency
     @users = User.where('user_id in (?)', login_user_ids)
     if @users.collect { |user2| user2.currency }.uniq.length > 1
@@ -414,8 +424,15 @@ class ApplicationController < ActionController::Base
 
   private
   def login_user_ids
-    session[:user_ids]
+    session[:user_ids] || []
   end
   helper_method :login_user_ids
+
+  private
+  def filter_locale (locale)
+    locale = locale.to_s
+    return nil unless %w(en da).index(locale)
+    locale
+  end
 
 end # ApplicationController

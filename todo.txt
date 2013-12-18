@@ -343,6 +343,7 @@
 
 97) rails server with multiple instances?
     now client is waiting very long time at first request every day (fetch exchange rates)
+    fetch new exchange rates takes 24 seconds
 
 98) twitter returns to  127.0.0.1 - not to localhost
     127.0.0.1 should redirect to localhost
@@ -393,10 +394,18 @@
 108) deep link = N : link to a public page with login and redirect to gift
      deep link = Y : direct access to gift without login.
 
-110) User.recalculate_balance(login_users) method is missing
+109) User.recalculate_balance(login_users) method is missing
 
-111) ajax change currency?
+110) ajax change currency?
      mark each user div with user ids
      send ajax request with new currency and array with user ids in page
      receive table with new user div title with balance information in new currency
      use javascript to change title for user divs in page
+
+111) format price
+     use currency or use language to format prices?
+     we are using currency now. See application controller.fetch_user
+
+112) validate locale files (en, da)
+     check out https://github.com/tigrish/i18n-spec
+     could be used to verify that all texts have been translated

@@ -44,10 +44,10 @@ class FacebookController < ApplicationController
     puts "hash = #{hash}"
     # hash = {"algorithm"=>"HMAC-SHA256", "issued_at"=>1373284394, "user"=>{"country"=>"dk", "locale"=>"da_DK", "age"=>{"min"=>21}}}
 
-    # save language and country
+    # save language (only if language was nil)
     locale = hash['user']['locale']
-    session[:language] = locale.first(2)
-    session[:country] = locale.last(2)
+    language = locale.to_s.first(2)
+    session[:language] = language if !filter_locale(session[:language]) and filter_locale(language)
     puts "session[:language] = #{session[:language]}"
 
     # todo: check if user already has authorized the required FB privileges
@@ -145,7 +145,6 @@ class FacebookController < ApplicationController
     puts "api_response = #{api_response.to_s}"
     # fb_locale was received in FacebookController.create post request from facebook
     # add to api_response hash - is used for user.currency
-    # api_response["country"] = session[:country]
     # api_response["language"] = session[:language]
     res = login :provider => 'facebook',
                 :token => access_token,

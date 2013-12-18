@@ -99,3 +99,6 @@ end
 gem 'open4'
 
 gem 'fastimage'
+
+# https://github.com/svenfuchs/routing-filter
+gem 'routing-filter', '~> 0.4.0.pre'

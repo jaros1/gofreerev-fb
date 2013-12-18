@@ -173,6 +173,8 @@ GEM
     rake (10.1.0)
     rdoc (3.12.2)
       json (~> 1.4)
+    routing-filter (0.4.0.pre)
+      actionpack
     sass (3.2.12)
     sass-rails (4.0.1)
       railties (>= 4.0.0, < 5.0)
@@ -218,7 +220,7 @@ GEM
       memoizable (~> 0.2.0)
       simple_oauth (~> 0.2.0)
     tzinfo (0.3.38)
-    uglifier (2.3.2)
+    uglifier (2.3.3)
       execjs (>= 0.3.0)
       json (>= 1.8.0)
     uuidtools (2.1.4)
@@ -251,6 +253,7 @@ DEPENDENCIES
   open4
   rails (= 4.0.0)
   rails-i18n (~> 4.0.0.pre)
+  routing-filter (~> 0.4.0.pre)
   sass-rails (~> 4.0.0)
   sdoc
   sqlite3
