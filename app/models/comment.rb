@@ -370,13 +370,19 @@ class Comment < ActiveRecord::Base
       n.from_user_id = from_user.user_id # set to nil if no_users > 1
       n.internal = 'Y'
       n.noti_key = "#{noti_key_prefix}_1_v#{NOTI_KEY_4}" # no_users = 1
+      if %w(giver both).index(gift.direction)
+        givername = gift.api_gifts.shuffle.first.giver.short_user_name
+      end
+      if %w(receiver both).index(gift.direction)
+        receivername = gift.api_gifts.shuffle.first.receiver.short_user_name
+      end
       noti_options = {:giftid => gift.id, :gifttext => gift.description.first(30),
-                        :no_users => 0, :no_other_users => -2,
-                        :username1 => nil,
-                        :username2 => nil,
-                        :username3 => nil,
-                        :givername => (gift.user_id_giver ? gift.giver.short_user_name : ""),
-                        :receivername => (gift.user_id_receiver ? gift.receiver.short_user_name : "")}
+                      :no_users => 0, :no_other_users => -2,
+                      :username1 => nil,
+                      :username2 => nil,
+                      :username3 => nil,
+                      :givername => givername, # (gift.user_id_giver ? gift.giver.short_user_name : ""),
+                      :receivername => receivername} # (gift.user_id_receiver ? gift.receiver.short_user_name : "")}
       puts "noti_key_1 = #{noti_key_1}, noti_key_3 = #{noti_key_3}" if debug_notifications
       if [1,2,3].index(noti_key_1) or noti_key_3 == 2
         # user array not used for rejected and accepted notification to owner of comment
@@ -568,24 +574,38 @@ class Comment < ActiveRecord::Base
     puts "noti_key_1 = #{noti_key_1}, noti_key_2 = #{noti_key_2}"
     noti_key_prefix = NOTI_KEY_1[noti_key_1] + '_' + NOTI_KEY_2[noti_key_2]
     puts "noti_key_prefix = #{noti_key_prefix}" if debug_notifications
+    # initialise helpers - arrays with giver user_id's, receiver user_id's and both
+    gift_givers = gift.api_gifts.collect { |api_gift| api_gift.user_id_giver }.find_all { |user_id2| user_id2 }
+    gift_receivers = gift.api_gifts.collect { |api_gift| api_gift.user_id_receiver }.find_all { |user_id2| user_id2 }
+    gifts_giver_and_receivers = gift_givers + gift_receivers
     # send notifications
     case
       when [1,2,5].index(noti_key_1)
         # new comment, new proposal and accepted proposal
         # 1) notifications to giver and/or receiver
+        #    do not send notification to giver if user is in api_gifts.giver
+        #    do not send notification to receiver if user is in api_gifts.receiver
         puts "send notifications to gifts giver and/or receiver" if debug_notifications
         users1 = []
-        users1.push(gift.giver) if gift.user_id_giver and from_userid != gift.user_id_giver
-        users1.push(gift.receiver) if gift.user_id_receiver and from_userid != gift.user_id_receiver
-        if [4, 5].index(noti_key_1)
+        # old: users1.push(gift.giver) if gift.user_id_giver and from_userid != gift.user_id_giver
+        if %w(giver both).index(gift.direction) and !gift_givers.index(from_userid)
+          users1 += User.where('user_id in (?)', gift_givers) if gift_givers.size > 0
+        end
+        # old: users1.push(gift.receiver) if gift.user_id_receiver and from_userid != gift.user_id_receiver
+        if %w(receiver both).index(gift.direction) and !gift_receivers.index(from_userid)
+          users1 += User.where("user_id in (?)", gift_receivers) if gift_receivers.size > 0
+        end
+        if noti_key_1 == 5
           # special rejected/accepted notification to owner of comment
           to_user_id = user_id
-          users1.push(user) if [4, 5].index(noti_key_1)
+          users1.push(user)
         end
         users1_ids = users1.collect { |u| u.user_id }
         puts "1: users1 = " + users1_ids.join(', ') if debug_notifications
         # 2) notifications to users that has commented the gift - "_other" is added to notification key!
-        users2 = gift.comments.includes(:user).collect { |c| c.user }.find_all { |user2| ![from_userid, to_user_id, gift.user_id_giver, gift.user_id_receiver].index(user2.user_id) }.uniq
+        # users2 = gift.comments.includes(:user).collect { |c| c.user }.find_all { |user2| ![from_userid, to_user_id, gift.user_id_giver, gift.user_id_receiver].index(user2.user_id) }.uniq
+        exclude_user_ids = [from_userid, to_user_id] + gifts_giver_and_receivers
+        users2 = gift.comments.includes(:user).collect { |c| c.user }.find_all { |user2| !exclude_user_ids.index(user2.user_id) }.uniq
         users2_ids = users2.collect { |u| u.user_id }
         users_ids = (users1_ids + users2_ids).uniq
         puts "2: users2 = " + users2_ids.join(', ') if debug_notifications
@@ -618,7 +638,7 @@ class Comment < ActiveRecord::Base
         puts "end: send notifications to users that follows the gift: " + users3.collect { |u| u.short_user_name }.join(', ') if debug_notifications
 
         # new comment and new proposal - add user as follower of gift - user will receive notifications until user stops following the gift
-        if noti_key_1 <= 2 and ![gift.user_id_giver, gift.user_id_receiver].index(user_id)
+        if noti_key_1 <= 2 and !gifts_giver_and_receivers.index(user_id)
           gl = GiftLike.where("user_id = ? and gift_id = ?", user_id, gift.gift_id).first
           if gl
             gl.follow = 'Y' unless gl.follow

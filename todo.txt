@@ -16,11 +16,16 @@
  4) link stories. Insert link for one story in an other story.
     how to handle security? Should only see gifts from/to friends
 
- 5) check that timezone offset is used in views.
+ 5) check that timezone offset is used in views
+    - timezone 1 = dk ok in inbox
+    - timezone -5.5 = india ok in inbox
     JS timezone is set with ajax after login
-    check timezone information login providers (facebook, google+, linkedin, twitter)
-    compare JS timezone with rails timezones
-    facebook/autologin - could ajax send timezone to rails before redirection to facebook
+    check timezone information from login providers
+    - facebook - not relevant - timezone is set with JS ajax in facebook/autologin under login process
+    - google+ - todo: check if app can be started from google+  and how to set timezone
+    - linkedin - todo: check if app can be started from linkedin and how to set timezone
+    - twitter - todo: check if app can be started from twitter and how to set timezone
+    compare JS timezone with rails timezones - that is - find differences between timezones in client and in server
 
  6) add date format. see application_helper.format_date
 

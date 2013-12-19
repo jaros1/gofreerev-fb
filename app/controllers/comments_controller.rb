@@ -15,6 +15,7 @@ class CommentsController < ApplicationController
     return add_error_and_format_ajax_resp(t '.invalid_request_invalid_gift') unless gift.visible_for?(@users)
     # get user from @users. Must be giver, receiver or friend of giver or receiver.
     user = @users.find { |user2| gift.visible_for?([user2]) }
+    puts "user_id = #{user.user_id}"
     @comment = Comment.new
     @comment.gift_id = gift.gift_id if gift
     @comment.user_id = user.user_id
