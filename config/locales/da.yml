@@ -145,6 +145,8 @@ da:
 
   # facebook controller - login started from facebook and asking for more privs.
   facebook:
+     autologin:
+        autologin_header: "Login er igang - vent venligst"
      index:
         invalid_state_login: "Login fra facebook fejlede. Muligt \"Cross-site Request Forgery\" problem."
         invalid_state_status_update: "Muligt \"Cross-site Request Forgery\" problem ved anmodning om skriveadgang til facebook væg."

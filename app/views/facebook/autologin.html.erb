@@ -1,16 +1,19 @@
 <p>
-  Login in progress - please wait a moment
+  <%= t '.autologin_header' %>
 </p>
 <script>
   // user has already authorized <%= APP_NAME %> - auto redirect to https://www.facebook.com/dialog/oauth? to get code
   $(document).ready(function() {
       // save timezone in session before redirection to facebook
-      trigger_tasks_form(500);
+      trigger_tasks_form(200);
       // redirect to facebook
       window.setTimeout(function(){
           var auth_url = '<%= @auth_url %>' ;
           auth_url = auth_url.replace(/&amp;/g,'&');
           top.location.href = auth_url;
-      }, 1000);
+      }, 500);
+      // hide tasks_errors table - empty reply from util/do_tasks = ajax:error
+      var tasks_errors = document.getElementById('tasks_errors') ;
+      if (tasks_errors) tasks_errors.style.display = 'none' ;
   })
 </script>

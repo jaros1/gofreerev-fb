@@ -927,6 +927,7 @@ function trigger_tasks_form (sleep) {
 // error callback for executing tasks - write to debug log + page header
 // debug log in bottom of page is shown if DEBUG_AJAX = true (constants.rb)
 $(document).ready(function() {
+    $("#tasks_form").unbind("ajax:error") ;
     $("#tasks_form").bind("ajax:error", function(jqxhr, textStatus, errorThrown){
         add_to_debug_log('#tasks_form.error');
         add_to_debug_log('jqxhr = ' + jqxhr);

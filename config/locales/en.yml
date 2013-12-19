@@ -141,6 +141,8 @@ en:
         logged_off: "Log out ok. Thanks for visiting %{appname}. Use links on this page to log in or to return to login API. Close browser to remove session cookie."
 
   facebook:
+     autologin:
+        autologin_header: "Login in progress - please wait"
      index:
         invalid_state_login: "Login from facebook failed. Possible \"Cross-site Request Forgery\" problem."
         invalid_state_status_update: "Possible \"Cross-site Request Forgery\" problem when asking for write access to facebook wall."
