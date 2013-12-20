@@ -435,3 +435,11 @@
 117) deep link - remember last http get - clear deep link if link has not been used for x days
 
 118) deep link - return nice error page if deep link has been removed
+
+119) deep link - cache should be expired after new comments or when status_update_at changes
+
+120) gift with picture. on click:
+     - show gift on facebook?
+     - show gift on gofreerev?
+     picture is very small in gofreerev and a redirect to facebook maybe the best option
+     deep link make it easy to return from facebook to gofreerev

@@ -186,15 +186,54 @@ class GiftsController < ApplicationController
 
   def show
     # check gift id
-    gift = Gift.find_by_id(params[:id])
+    id = params[:id].to_s
+    deep_link = (id =~ /^[a-zA-Z0-9]{30}$/) # deep link from api wall to gift in gofreerev
+    if deep_link
+      deep_link_id = id.first(20)
+      deep_link_pw = id.last(10)
+      api_gift = ApiGift.where("deep_link_id = ?", deep_link_id).includes(:gift).first
+      gift = api_gift.gift if api_gift
+    else
+      gift = Gift.find_by_id(id)
+    end
     if !gift
-      puts "invalid gift id"
-      flash[:notice] = t '.invalid_gift_id'
-      redirect_to :action => :index
+      if deep_link
+        puts "invalid deep link id"
+        if @users.size == 0
+          flash[:notice] = t '.invalid_deep_link_id_not_logged_in'
+        else
+          flash[:notice] = t '.invalid_deep_link_id_logged_in'
+        end
+      else
+        puts "invalid gift id"
+        flash[:notice] = t '.invalid_gift_id'
+      end
+      if deep_link and @users.size == 0
+        redirect_to :controller => :auth
+      else
+        redirect_to :action => :index
+      end
+      return
+    end
+    if deep_link and deep_link_pw != api_gift.deep_link_pw
+      api_gift.deep_link_errors += 1
+      api_gift.save!
+      api_gift.clear_deep_link if api_gift.deep_link_errors > 10
+      puts "invalid deep link pw"
+      if @users.size == 0
+        flash[:notice] = t '.invalid_deep_link_id_not_logged_in'
+      else
+        flash[:notice] = t '.invalid_deep_link_id_logged_in'
+      end
+      if deep_link and @users.size == 0
+        redirect_to :controller => :auth
+      else
+        redirect_to :action => :index
+      end
       return
     end
     # check access. giver and/or receiver of gift must be a app friend
-    if !gift.visible_for?(@users)
+    if !deep_link and !gift.visible_for?(@users)
       puts "no access"
       flash[:notice] = t ('.no_access')
       redirect_to :action => :index

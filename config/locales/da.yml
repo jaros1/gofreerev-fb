@@ -263,6 +263,8 @@ da:
      show:
         invalid_gift_id: "Ugyldigt kald. Ukendt opslag id"
         no_access: "Ugyldigt kald. Du har ikke adgang til at se dette opslag"
+        invalid_deep_link_id_logged_in: "Dette opslag er desværre blevet slettet."
+        invalid_deep_link_id_not_logged_in: "Dette opslag er desværre blevet slettet. Brug browserens tilbage knap eller log ind for at se andre opslag"
 
   # inbox controller
   inbox:

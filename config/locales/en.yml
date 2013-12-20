@@ -259,6 +259,8 @@ en:
      show:
         invalid_gift_id: "Invalid request. Unknown post id"
         no_access: "Invalid request. You are not allowed to see this post"
+        invalid_deep_link_id_logged_in: "Sorry. This post has been removed."
+        invalid_deep_link_id_not_logged_in: "Sorry. This post has been removed. Use back button in browser or log in to see other posts."
 
   # inbox controller
   inbox:
