@@ -412,3 +412,16 @@
 111) format price
      use currency or use language to format prices?
      we are using currency now. See application controller.fetch_user
+
+112) minor problem with double locale in url. For example /da/da/users/999 for users/show links
+     only for resource controllers :facebook, :gifts, :users, :inbox, :comments
+     not a problem for util controller
+     rails ignores the extra locale in url but is a little ugly
+
+113) util.missing_api_picture_urls
+     replace gift with api_gift
+
+114) check if there exists a translate library to be used for JS error messages
+     Could be nice if rails locales could be used
+     https://github.com/fnando/i18n-js
+

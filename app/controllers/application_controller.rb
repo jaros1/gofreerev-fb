@@ -117,6 +117,7 @@ class ApplicationController < ActionController::Base
   # locale is also saved in session for language support in api provider callbacks
   private
   def set_locale
+    params[:locale] = nil if params.has_key?(:locale) and request.xhr?
     session[:language] = params[:locale] if filter_locale(params[:locale])
     I18n.locale = filter_locale(params[:locale]) || filter_locale(session[:language]) || filter_locale(I18n.default_locale) || 'en'
     puts "set_locale: I18n.locale = #{I18n.locale}. params[:locale] = #{params[:locale]}, session[:language] = #{session[:language]}, "
@@ -124,7 +125,10 @@ class ApplicationController < ActionController::Base
 
   private
   def default_url_options(options={})
-    # puts "default_url_options is passed options: #{options}. I18n.locale = #{I18n.locale}"
+    # puts "default_url_options: options: #{options}."
+    # puts "default_url_options: I18n.locale = #{I18n.locale} (#{I18n.locale.class})"
+    # puts "default_url_options: I18n.default_locale = #{I18n.default_locale} (#{I18n.default_locale.class})"
+    # puts "default_url_options: controller = #{params[:controller]}"
     { locale: I18n.locale }
   end
 

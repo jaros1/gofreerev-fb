@@ -69,6 +69,7 @@ class GiftsController < ApplicationController
     # - google+ not implemented - The Google+ API is at current time a read only API
     # - linkedin - todo - post without picture ok
     # - twitter - todo
+    # note that post_on_<provider> is called even if post_gift_allowed? is false (inject link to grant missing permission)
     tokens = session[:tokens] || {}
     tokens.keys.each do |provider|
       task_name = "post_on_#{provider}"

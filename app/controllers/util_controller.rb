@@ -144,7 +144,8 @@ class UtilController < ApplicationController
       next if gift.picture == 'N' or gift.deleted_at_api == 'Y'
       # get new picture url from API
       begin
-        gift.api_picture_url = gift.get_api_picture_url(access_token)
+        # todo: most use api_gift, not gift
+        gift.api_picture_url = gift.get_facebook_post(:access_token => access_token, :field => 'full_picture')
       rescue ApiPostNotFoundException => e
         # identical api error response if picture is deleted or if user is not allowed to see picture
         user_id_created_by = gift.api_gift_id.split('_').first + '/facebook'
@@ -940,10 +941,10 @@ class UtilController < ApplicationController
       error = 'unknown error'
 
       if login_user.post_gift_allowed?
-        # puts "util.post_on_facebook: access_token = #{session[:access_token]}"
+        # first post without deep link - text with or without picture
         api = Koala::Facebook::API.new(token)
         begin
-          if api_gift.picture == 'Y'
+          if api_gift.picture?
             # status post with picture
             filetype = gift.temp_picture_path.split('.').last
             content_type = "image/#{filetype}"
@@ -972,15 +973,7 @@ class UtilController < ApplicationController
           puts "util.post_on_facebook: api_response = #{api_response} (#{api_response.class.name})"
           gift_posted_on_wall_api_wall = 2 # Gift posted in here and on your facebook wall
         rescue Koala::Facebook::ClientError => e
-          puts 'util.post_on_facebook: Koala::Facebook::ClientError'
-          puts "util.post_on_facebook: e.fb_error_type = #{e.fb_error_type}"
-          puts "util.post_on_facebook: e.fb_error_code = #{e.fb_error_code}"
-          puts "util.post_on_facebook: e.fb_error_subcode = #{e.fb_error_subcode}"
-          puts "util.post_on_facebook: e.fb_error_message = #{e.fb_error_message}"
-          puts "e.http_status = #{e.http_status}"
-          puts "util.post_on_facebook: e.response_body = #{e.response_body}"
-          puts "util.post_on_facebook: e.fb_error_type.class.name = #{e.fb_error_type.class.name}"
-          puts "util.post_on_facebook: e.fb_error_code.class.name = #{e.fb_error_code.class.name}"
+          e.puts_exception("#{__method__}: ")
           if e.fb_error_type == 'OAuthException' && e.fb_error_code == 506
             # delete gift and ignore error OAuthException, code: 506, message: (#506) Duplicate status message [HTTP 400]
             gift_posted_on_wall_api_wall = 4 # Gift posted in here but not on your facebook wall. Duplicate status message on facebook wall.
@@ -1004,27 +997,12 @@ class UtilController < ApplicationController
             error = e.to_s
           end
         rescue Koala::Facebook::ServerError => e
-          puts 'util.post_on_facebook: Koala::Facebook::ServerError'
-          puts "util.post_on_facebook: e.fb_error_type = #{e.fb_error_type}"
-          puts "util.post_on_facebook: e.fb_error_code = #{e.fb_error_code}"
-          puts "util.post_on_facebook: e.fb_error_subcode = #{e.fb_error_subcode}"
-          puts "util.post_on_facebook: e.fb_error_message = #{e.fb_error_message}"
-          puts "util.post_on_facebook: e.http_status = #{e.http_status}"
-          puts "util.post_on_facebook: e.response_body = #{e.response_body}"
-          puts "util.post_on_facebook: e.fb_error_type.class.name = #{e.fb_error_type.class.name}"
-          puts "util.post_on_facebook: e.fb_error_code.class.name = #{e.fb_error_code.class.name}"
-          # e.fb_error_type = Exception
-          # e.fb_error_code = 1366046
-          # e.fb_error_subcode =
-          # e.fb_error_message = There was a problem with the image file.
-          # e.http_status = 500
-          # e.response_body = {"error":{"type":"Exception","message":"There was a problem with the image file.","code":1366046}}
-          # e.fb_error_type.class.name = String
-          # e.fb_error_code.class.name = Fixnum
+          e.puts_exception("#{__method__}: ")
           gift_posted_on_wall_api_wall = 1 # unknown error. no translation
           error = e.fb_error_message.to_s
         end # rescue
       else
+        # post_gift_allowed? false - ajax inject link to grant missing permission
         gift_posted_on_wall_api_wall = 3
       end # if
 
@@ -1034,12 +1012,9 @@ class UtilController < ApplicationController
         api_gift.save!
         options = {:apiname => login_user.api_name_without_brackets, :error => error}
         if gift_posted_on_wall_api_wall == 3
-          # url to add missing status update priv. to post on facebook wall
+          # url to grant missing status update permission to post on facebook wall
           # looks like permission status_update has been replaced with publish_actions
-          # publish_actions is added when requesting status_update priv.
-          # todo: Should not save oauth in session
-          # todo: problem with String.generate_random_string(30) if more than one api link in page
-          # todo: return link should be a link to auth or fb controller to verify state and return response from FB
+          # publish_actions is added to permissions hash when granting status_update priv.
           oauth = Koala::Facebook::OAuth.new(api_id, api_secret, FB_CALLBACK_URL)
           url = oauth.url_for_oauth_code(:permissions => 'status_update', :state => set_state('status_update'))
           options[:url] = url
@@ -1047,53 +1022,57 @@ class UtilController < ApplicationController
         end
         return ".gift_posted_#{gift_posted_on_wall_api_wall}_html", options
       else
-        # post ok
-        if api_gift.picture == 'Y'
-          # get temporary url for picture on api wall to be used in gifts/index page
-          # todo: facebook pictures too small - it should be possible to get url for a larger picture from facebook
-          # url may change - url changes is catched in onload event in img in html page
-          # see JS check_api_picture_url and report_missing_api_picture_urls and rails /util/missing_api_picture_urls
-          # api_request = "#{gift.api_gift_id}?fields=full_picture"
-          # api_request = gift.api_gift_id.split('_').join('/picture/') + '?type=normal' # still small picture
-          # api_request = gift.api_gift_id.split('_').join('/picture/')  + '?fields=full_picture' # empty response (302 redirect) with profile picture
-          # puts "util.post_on_facebook: api_request = #{api_request}"
-          begin
-            api_gift.api_picture_url = api_gift.get_api_picture_url(token)
+        # post ok - gift posted in facebook wall - check read access to gift / get picture url
+        # must have read access to post on facebook wall to display picture in gofreerev
+        # must have read access to post on facebook wall to add comment with deep link to gift on gofreerev
+        field = api_gift.picture? ? 'full_picture' : 'message'
+        begin
+          res = api_gift.api_picture_url = api_gift.get_facebook_post(:access_token => token, :field => field)
+          puts "#{__method__}: #{field} = #{res}"
+          if api_gift.picture?
+            api_gift.api_picture_url = res
             if api_gift.api_picture_url
               # valid picture url received from api
               api_gift.api_picture_url_updated_at = Time.now
               api_gift.api_picture_url_on_error_at = nil
               api_gift.save!
             else
-              puts "util.post_on_facebook: Did not get a picture url from api. Must be problem with missing access token, picture != Y or deleted_at_api == Y"
+              puts "#{__method__}: Did not get a picture url from api. Must be problem with missing access token, picture != Y or deleted_at_api == Y"
               return ['.no_api_picture_url', {:apiname => login_user.api_name_without_brackets}]
             end
-          rescue ApiPostNotFoundException => e
-            # problem with picture uploads and permissions
-            # could not get full_picture url for an uploaded picture with visibility friends
-            # the problem appeared after changing app visibility from public to friends
-            # that is - app is not allowed to get info about the uploaded picture!!
-            # there must be more to it - changed visibility to only me and did get picture url
-            # changed visibility to friends and did get the picture url
-            # just display a warning and continue. Request read_stream permission from user if read_stream priv. is missing
-            if login_user.read_gifts_allowed?
-              # check if user has removed read stream priv.
-              login_user.get_api_permissions(token)
-            end
-            if login_user.read_gifts_allowed?
-              # error - this should not happen.
-              return ['.picture_upload_unknown_problem', {:appname => APP_NAME, :apiname => login_user.api_name_without_brackets}]
-            else
-              # message with link to grant missing read stream priv.
-              oauth = Koala::Facebook::OAuth.new(api_id, api_secret, FB_CALLBACK_URL)
-              url = oauth.url_for_oauth_code(:permissions => 'read_stream', :state => set_state('read_stream'))
-              return ['.picture_upload_missing_permission_html', {:appname => APP_NAME, :apiname => login_user.api_name_without_brackets, :url => url}]
-            end
+          end
+        rescue ApiPostNotFoundException => e
+          # problem with upload and permissions
+          # could not get full_picture url for an uploaded picture
+          # or could not get mesaage for an post
+          # the problem appeared after changing app visibility from public to friends
+          # that is - app is not allowed to get info about the uploaded picture!!
+          # there must be more to it - changed visibility to only me and did get picture url
+          # changed visibility to friends and did get the picture url
+          # just display a warning and continue. Request read_stream permission from user if read_stream priv. is missing
+          if api_gift.picture?
             api_gift.picture = 'N'
             api_gift.save!
-          end # rescue
+          end
+          if login_user.read_gifts_allowed?
+            # check if user has removed read stream priv.
+            login_user.get_api_permissions(token)
+          end
+          if login_user.read_gifts_allowed?
+            # error - this should not happen.
+            key = api_gift.picture? ? '.fb_pic_post_unknown_problem' : '.fb_msg_post_unknown_problem'
+            return [key, {:appname => APP_NAME, :apiname => login_user.api_name_without_brackets}]
+          else
+            # message with link to grant missing read stream priv.
+            oauth = Koala::Facebook::OAuth.new(api_id, api_secret, FB_CALLBACK_URL)
+            url = oauth.url_for_oauth_code(:permissions => 'read_stream', :state => set_state('read_stream'))
+            key = api_gift.picture? ? '.fb_pic_post_missing_permission_html' : '.fb_msg_post_missing_permission_html'
+            return [key, {:appname => APP_NAME, :apiname => login_user.api_name_without_brackets, :url => url}]
+          end
+        end # rescue
 
-        end # picture == 'Y'
+        # no problems - todo: add comment with deep link if site_url is not localhost
+
         # no errors - return posted message
         return [".gift_posted_#{gift_posted_on_wall_api_wall}_html", :apiname => login_user.api_name_without_brackets, :error => error]
       end

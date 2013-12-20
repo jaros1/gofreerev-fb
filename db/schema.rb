@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20131218162159) do
+ActiveRecord::Schema.define(version: 20131219154446) do
 
   create_table "ajax_comments", force: true do |t|
     t.string   "user_id",    limit: 40, null: false
@@ -39,6 +39,8 @@ ActiveRecord::Schema.define(version: 20131218162159) do
     t.text     "balance_doc_receiver"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "deep_link_id",                limit: 30
+    t.integer  "deep_link_errors"
   end
 
   add_index "api_gifts", ["gift_id", "provider"], name: "index_api_gifts_on_gift_id", unique: true
