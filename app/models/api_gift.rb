@@ -302,6 +302,27 @@ class ApiGift < ActiveRecord::Base
     (picture == 'Y')
   end
 
+  # helpers for deep link - that is deep link from api wall to gift on gofreerev without login
+  def self.new_deep_link_id
+    deep_link_id = nil
+    loop do
+      deep_link_id = String.generate_random_string(20)
+      break unless ApiGift.find_by_deep_link_id(deep_link_id)
+    end
+    deep_link_id
+  end
+  def init_deep_link (locale)
+    self.deep_link_id = ApiGift.new_deep_link_id
+    self.deep_link_pw = String.generate_random_string(10)
+    self.deep_link_errors = 0
+    self.save!
+    "#{SITE_URL}#{locale}/gifts/#{self.deep_link_id}#{self.deep_link_pw}"
+  end
+  def clear_deep_link
+    self.deep_link_id = self.deep_link_pw = self.deep_link_errors = nil
+    self.save!
+  end
+
   # check post/picture after post on facebook - get url for picture or get message
   # url is used for showing pictures in gofreerev
   # message is just used for permission

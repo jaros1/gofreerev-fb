@@ -427,3 +427,11 @@
 
 115) rename partial user/gift to user/api_gift
 
+116) deep link page - should be cached - without information about logged in user
+     http write page with an dummy page header and without title for user divs
+     ajax get page header for logged in user
+     ajax get user div titles for logged in user
+
+117) deep link - remember last http get - clear deep link if link has not been used for x days
+
+118) deep link - return nice error page if deep link has been removed

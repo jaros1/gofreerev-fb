@@ -941,32 +941,29 @@ class UtilController < ApplicationController
       error = 'unknown error'
 
       if login_user.post_gift_allowed?
-        # first post without deep link - text with or without picture
+        # post with or without picture - link is a deep link from facebook wall to gift in gofreerev
+        # link will be clickable if public url
+        # link will be not clickable if localhost or server behind firewall
         api = Koala::Facebook::API.new(token)
         begin
+          link = api_gift.init_deep_link(I18n.locale)
           if api_gift.picture?
             # status post with picture
             filetype = gift.temp_picture_path.split('.').last
             content_type = "image/#{filetype}"
-            link =  "http://www.dr.dk/" # link is ignored
             api_response = api.put_picture(gift.temp_picture_path,
                                            content_type,
-                                           {:message => gift.description ,
-                                            :link => link
+                                           {:message => "#{gift.description} - #{link}"
                                            })
             # api_response = {"id"=>"1396226023933952", "post_id"=>"100006397022113_1396195803936974"} (Hash)
             api_gift.api_gift_id = api_response['post_id']
           else
             # status post without picture
-            link = "http://www.dr.dk/"  # ok - was created with link (public link)
-            link = "#{SITE_URL}gifts/#{gift.id}" # error 500 - error":{"message":"An unknown error has occurred.","type":"OAuthException","code":1}}
             # gift.description = "#{gift.description} - #{link}" # link only as text
             # gift.description = "<a href='#{link}'>#{gift.description}</a>" # html code as text
-            link = "http://localhost/images/profiles/b8/c7/5a/ef/d7/e0/0e/29/1b/6f/2b/1e/15/1f/56/e0/dodpg.jpeg" # # error 500 - error":{"message":"An unknown error has occurred.","type":"OAuthException","code":1}}
-            link = nil
             api_response = api.put_connections('me', 'feed',
-                                               :message => gift.description,
-                                               :link => link)
+                                               :message => "#{gift.description} - #{link}"
+                                               )
             # api_response = {"id"=>"100006397022113_1396235850599636"}
             api_gift.api_gift_id = api_response['id']
           end
@@ -990,16 +987,19 @@ class UtilController < ApplicationController
             else
               # permission to post on api wall has NOT been removed. Unknown error
               gift_posted_on_wall_api_wall = 1 # unknown error. no translation
+              api_gift.clear_deep_link
             end
           else
             # unhandled exceptions
             gift_posted_on_wall_api_wall = 1 # unknown error. no translation
             error = e.to_s
+            api_gift.clear_deep_link
           end
         rescue Koala::Facebook::ServerError => e
           e.puts_exception("#{__method__}: ")
           gift_posted_on_wall_api_wall = 1 # unknown error. no translation
           error = e.fb_error_message.to_s
+          api_gift.clear_deep_link
         end # rescue
       else
         # post_gift_allowed? false - ajax inject link to grant missing permission
@@ -1073,23 +1073,22 @@ class UtilController < ApplicationController
 
         # post ok and no permission problems
 
-        # add comment with deep link
-        # note that deep links will not by clickable localhost or server behind firewall
-        # deep link must be a public available link to be clickable on facebook
-        api_gift.deep_link_id = String.generate_random_string(20)
-        api_gift.deep_link_pw = String.generate_random_string(10)
-        api_gift.save!
-        link = "#{SITE_URL}#{I18n.locale}/gifts/#{api_gift.deep_link_id}#{api_gift.deep_link_pw}"
-        begin
-          res = api.put_comment(api_gift.api_gift_id, link)
-        rescue Koala::Facebook::ClientError => e
-          e.puts_exception("#{__method__}: ")
-          raise
-        rescue Koala::Facebook::ServerError => e
-          e.puts_exception("#{__method__}: ")
-          raise
-        end
-        puts "#{__method__}: res = #{res}"
+        ## add comment with deep link
+        ## note that deep links will not by clickable localhost or server behind firewall
+        ## deep link must be a public available link to be clickable on facebook
+        #link = api_gift.init_deep_link(I18n.locale)
+        #begin
+        #  api.put_comment(api_gift.api_gift_id, link)
+        #rescue Koala::Facebook::ClientError => e
+        #  e.puts_exception("#{__method__}: ")
+        #  api_gift.clear_deep_link
+        #  raise
+        #rescue Koala::Facebook::ServerError => e
+        #  e.puts_exception("#{__method__}: ")
+        #  api_gift.clear_deep_link
+        #  raise
+        #end
+        ## deep link added
 
         # no errors - return posted message
         return [".gift_posted_#{gift_posted_on_wall_api_wall}_html", :apiname => login_user.api_name_without_brackets, :error => error]
