@@ -102,7 +102,7 @@ class ApiGift < ActiveRecord::Base
   end # api_gift_id_was
 
   # 7) api_picture_url - String in Model - encrypted text in db
-  validates_presence_of :api_picture_url, :if => Proc.new { |rec| rec.picture == 'Y' }
+  validates_presence_of :api_picture_url, :if => Proc.new { |rec| rec.picture? }
   def api_picture_url
     # puts "gift.api_picture_url: api_picture_url = #{read_attribute(:api_picture_url)} (#{read_attribute(:api_picture_url).class.name})"
     return nil unless (extended_api_picture_url = read_attribute(:api_picture_url))
@@ -277,7 +277,7 @@ class ApiGift < ActiveRecord::Base
   # 3 for without picture
   # used in sort before removing api gift doubles. Used in User.api_gifts sort
   def picture_sort (login_users)
-    return 3 unless picture == 'Y'
+    return 3 unless picture?
     return 2 unless api_picture_url_on_error_at
     # find picture with error marked url - could be missing privs or maybe picture has been deleted on wall
     # sort picture created by login user before other pictures
@@ -302,7 +302,7 @@ class ApiGift < ActiveRecord::Base
     (picture == 'Y')
   end
 
-  # check post/picture after post on facebook - get url for picture (picture == 'Y') or get message
+  # check post/picture after post on facebook - get url for picture or get message
   # url is used for showing pictures in gofreerev
   # message is just used for permission
   # gofreerev must have read permission to post on facebook wall

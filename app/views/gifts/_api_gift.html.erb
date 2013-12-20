@@ -28,7 +28,7 @@
       <td colspan="2" class="wrapword" style="vertical-align: top;">
         <%= link_to t('.gift_link_text', format_gift_param(api_gift)), url_for(gift), :title => (t '.gift_link_title') %>
         <%= t('.gift_text_html', format_gift_param(api_gift)) %>
-        <% if api_gift.picture == 'Y' and !api_gift.api_picture_url_on_error_at -%>
+        <% if api_gift.picture? and !api_gift.api_picture_url_on_error_at -%>
             <br/><br/>
             <%= image_tag api_gift.api_picture_url, :onload => "check_api_picture_url(#{api_gift.id}, this)" %>
         <% end -%>

@@ -422,6 +422,8 @@
      replace gift with api_gift
 
 114) check if there exists a translate library to be used for JS error messages
-     Could be nice if rails locales could be used
-     https://github.com/fnando/i18n-js
+     Could be nice if rails locales could be used for javascript messages
+     https://github.com/fnando/i18n-js (many issues - not updated for 8 months)
+
+115) rename partial user/gift to user/api_gift
 

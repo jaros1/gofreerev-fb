@@ -29,7 +29,7 @@
       <td style="height: 52px; vertical-align: top">
         <%= link_to t('.gift_link_text', format_gift_param(gift)), url_for(gift), :title => (t '.gift_link_title') %>
         <%= t('.gift_text_html', format_gift_param(gift)) %>
-        <% if gift.picture == 'Y' and !gift.api_picture_url_on_error_at -%>
+        <% if gift.picture? and !gift.api_picture_url_on_error_at -%>
             <br/><br/>
             <%= image_tag gift.api_picture_url, :onload => "check_api_picture_url(#{gift.id}, this)" %>
         <% end -%>

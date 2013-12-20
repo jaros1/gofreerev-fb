@@ -39,7 +39,8 @@ ActiveRecord::Schema.define(version: 20131219154446) do
     t.text     "balance_doc_receiver"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.string   "deep_link_id",                limit: 30
+    t.string   "deep_link_id",                limit: 20
+    t.string   "deep_link_pw",                limit: 10
     t.integer  "deep_link_errors"
   end
 
