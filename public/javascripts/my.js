@@ -714,12 +714,24 @@ function check_uncheck_new_deal_checkbox(checkbox, giftid)
 } // check_uncheck_new_deal_checkbox
 
 
+//$(document).ready(function() {
+//    $("#tasks_form").unbind("ajax:error") ;
+//    $("#tasks_form").bind("ajax:error", function(jqxhr, textStatus, errorThrown){
+//        add_to_debug_log('#tasks_form.error');
+//        add_to_debug_log('jqxhr = ' + jqxhr);
+//        add_to_debug_log('textStatus = ' + textStatus);
+//        add_to_debug_log('errorThrown = ' + errorThrown);
+//        add_to_tasks_errors('tasks_form.error: ' + errorThrown + '. check server log for more information.') ;
+//    })
+//})
+
+
 // only current currency is in currency LOV at response time
 // download all currencies when user clicks on currency LOV
 // for smaller page and faster startup time
 // todo: minor problem. User has to click twice on currency LOV to change currency. First to get full currency list and second to change currency
-function add_user_currency_new_event() {
-    $("#user_currency_new").focus(function () {
+$(document).ready(function() {
+    $("#user_currency_new").bind('focus', function () {
         var id_select = document.getElementById("user_currency_new");
         if (id_select.length > 1) {
             // list of currencies is already initialised
@@ -735,7 +747,7 @@ function add_user_currency_new_event() {
                     $("#user_currency_new").unbind('focus');
                     if (msg == 0) {
                         // Query returned empty.
-                        alert('Did not get any currencies from server');  // todo: or just ignore error!
+                        add_to_debug_log('Did not get any currencies from server');  // todo: or just ignore error!
                     } else {
                         // Query Has values.
                         $('#user_currency_new').replaceWith(msg);
@@ -744,13 +756,20 @@ function add_user_currency_new_event() {
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
                     $("#user_currency_new").unbind('focus');
-                    alert('error: jqXHR = ' + jqXHR + ', textStatus = ' + textStatus + ', errorThrown = ' + errorThrown);
+                    add_to_debug_log('error: jqXHR = ' + jqXHR + ', textStatus = ' + textStatus + ', errorThrown = ' + errorThrown);
                 }
             });
 
         }
-    });
-}
+    }); // $("#user_currency_new").bind('focus', function () {
+})
+
+// disable user_currency_new LOV for deep link for not logged in users
+function disable_user_currency_new_lov() {
+    setInterval(function() {
+        $("#user_currency_new").unbind('focus') ;
+    }, 100) ;
+} // disable_user_currency_new_lov
 
 // for client side debugging - writes JS messages to debug_log div - only used if DEBUG_AJAX = true
 function add_to_debug_log (text) {

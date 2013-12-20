@@ -373,13 +373,22 @@ class User < ActiveRecord::Base
     nil
   end # self.download_profile_image
 
-  def usertype
-    return nil unless user_id
-    user_id.first(2)
-  end
+  #def usertype
+  #  return nil unless user_id
+  #  user_id.first(2)
+  #end
+
+  # return provider part of user_id - facebook, google_oauth2, linkedin or twitter - see OmniAuth::Builder.providers
   def provider
     return nil unless user_id
     user_id.split('/').last
+  end
+
+  # true if dummy user
+  # gofreerev/gofreerev or gofreerev/<provider>
+  # dummy user is used for dummy page header, deep links and unmatched providers when closing deal between two users
+  def dummy_user?
+    user_id.split('/').first == 'gofreerev'
   end
 
   def facebook?
@@ -484,7 +493,8 @@ class User < ActiveRecord::Base
     "#{profile_picture_os_folder}/#{profile_picture_filename}"
   end
   def profile_picture_url
-    return 'no-picture.jpg' unless profile_picture_filename
+    return "profiles/#{provider}.png" if dummy_user?
+    return 'profiles/no-picture.jpg' unless profile_picture_filename
     "#{profile_picture_md5_path}/#{profile_picture_filename}"
   end
 

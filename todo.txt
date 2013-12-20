@@ -443,3 +443,9 @@
      - show gift on gofreerev?
      picture is very small in gofreerev and a redirect to facebook maybe the best option
      deep link make it easy to return from facebook to gofreerev
+
+121) add dummy header for nyt logged in users
+     use dummy user for dummy header
+     gofreerev/gofreerev and gofreerev/<provider>
+
+122) encrypt api_gifts.deep_link_pw. change to text

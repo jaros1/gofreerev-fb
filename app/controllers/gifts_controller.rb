@@ -2,6 +2,7 @@
 class GiftsController < ApplicationController
 
   before_filter :clear_state, :if => lambda {|c| !request.xhr?}
+  before_filter :login_required, :except => :show # allow deep link without login
 
   def new
   end
@@ -239,16 +240,38 @@ class GiftsController < ApplicationController
       redirect_to :action => :index
       return
     end
+
     # ok - show gift
-    @gift = gift
+    if deep_link
+      @gift = api_gift
+    elsif gift.api_gifts.length == 1
+      @gift = gift.api_gift.first
+    else
+      # same sort criteria as in user.api_gifts sort (gift.id not relevant here)
+      api_gifts = gift.api_gifts.sort do |a, b|
+        if  a.status_sort != b.status_sort
+          a.status_sort <=> b.status_sort # 2) closed gift before open gift
+        else
+          a.picture_sort(@users) <=> b.picture_sort(@users) # 3, 4 and 5
+        end
+      end # ags sort 1
+      @gift = api_gifts.first
+    end
+    if @users.size == 0
+      if deep_link
+        @user = User.find_by_user_id("gofreerev/#{api_gift.provider}")
+      else
+        @user = User.find_by_user_id('gofreerev/gofreerev')
+      end
+      puts "@user.user_id = #{@user.user_id}"
+      @users = [ @user ]
+    end
 
     respond_to do |format|
       format.html {}
       # format.json { render json: @comment, status: :created, location: @comment }
       format.js {}
     end
-  end
-
-  # show
+  end # show
 
 end # GiftsController

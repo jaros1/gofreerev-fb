@@ -136,7 +136,7 @@ class ApplicationController < ActionController::Base
   def login_required
     return true if login_user_ids.length > 0
     flash[:notice] = t 'gifts.index.not_logged_in_flash'
-    redirect_to :controller => :gifts, :action => :index
+    redirect_to :controller => :auth, :action => :index
   end # login_required
 
   # get any pictures with invalid picture urls

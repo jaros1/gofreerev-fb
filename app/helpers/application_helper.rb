@@ -18,14 +18,14 @@ module ApplicationHelper
   def link_to_linkedin
     link_to 'LinkedIn', 'https://www.linkedin.com/'
   end
-  def link_to_api
-    return nil unless session[:user_id] and @user
-    case
-      when @user.facebook? then link_to_facebook
-      when @user.google_plus? then link_to_google_plus
-      when @user.linkedin? then link_to_linkedin
-    end
-  end # link_to_api
+  #def link_to_api
+  #  return nil unless session[:user_id] and @user
+  #  case
+  #    when @user.facebook? then link_to_facebook
+  #    when @user.google_plus? then link_to_google_plus
+  #    when @user.linkedin? then link_to_linkedin
+  #  end
+  #end # link_to_api
 
 
 
