@@ -449,8 +449,12 @@
      JS alert should only be used in a few situations
      But use may not see top of page and error notifications
 
-123) save balance info in gifts or in api_gifts? User.recalculate_balance
-     t.text     "balance_giver"
-     t.text     "balance_receiver"
-     t.text     "balance_doc_giver"
-     t.text     "balance_doc_receiver"
+124) test case:
+     create deal [ a.provider1, a.provider2] as giver, [ b.provider1, b.provider2 ] as receiver, price > 0
+     login as a.provider1 and b.provider2
+     problem with user/show balance. logged users are giver and receiver at the same time
+     problem with user/show filters. logged users are giver and receiver at the same time
+     must be displayed as 0 in balance
+     check code with [ag.user_id_giver, ag.user_id_receiver].index(user_id)
+     check code with login_user_ids.index(ag.user_id_giver)
+     check code with api_gift = api_gifts.find { |ag| [ ag.user_id_giver, ag.user_id_receiver].index(???)

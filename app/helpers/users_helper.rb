@@ -2,7 +2,8 @@ module UsersHelper
 
   # document user balance calculation in users/show page (mouse over for balance)
   def gift_balance_calculation_doc(gift, current_user)
-    return nil if !gift.user_id_giver or !gift.user_id_receiver
+    api_gift = gift.api_gifts.find { |ag| [ag.user_id_giver, ag.user_id_receiver].index(current_user.user_id)}
+    return nil if !api_gift.user_id_giver or !api_gift.user_id_receiver
     return nil if !gift.price or gift.price <= 0
     # format documentation for balance.
     # one format without currency and exchange rate if exchange rate == 1

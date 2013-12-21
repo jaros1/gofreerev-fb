@@ -1,3 +1,4 @@
+<% gift = api_gift.gift -%>
 <% if gift.deleted_at -%>
     <tr style="display: none" id="<%= "gift-#{gift.id}-deleted" %>">
       <td></td>
@@ -5,13 +6,13 @@
 <% else -%>
     <tr style="vertical-align: top" id="<%= "gift-#{gift.id}" %>-header">
       <td class="user-balance-col-1">
-        <% if gift.giver -%>
-            <%= @size = 'small' ; render '/shared/user_div', :user_div => gift.giver %>
+        <% if api_gift.giver -%>
+            <%= @size = 'small' ; render '/shared/user_div', :user_div => api_gift.giver %>
         <% end -%>
       </td>
       <td class="user-balance-col-2">
-        <% if gift.receiver -%>
-            <%= @size = 'small' ; render '/shared/user_div', :user_div => gift.receiver %>
+        <% if api_gift.receiver -%>
+            <%= @size = 'small' ; render '/shared/user_div', :user_div => api_gift.receiver %>
         <% end -%>
       </td>
       <td>
@@ -23,15 +24,15 @@
       </td>
       <td></td>
       <td style="text-align: right" title="<%= gift_balance_calculation_doc(gift, @user2) %>">
-        <%= format_price gift.balance(@user2, @user) %>
+        <%= format_price gift.balance(@user2, @users) %>
       </td>
       <td></td>
       <td style="height: 52px; vertical-align: top">
-        <%= link_to t('.gift_link_text', format_gift_param(gift)), url_for(gift), :title => (t '.gift_link_title') %>
-        <%= t('.gift_text_html', format_gift_param(gift)) %>
-        <% if gift.picture? and !gift.api_picture_url_on_error_at -%>
+        <%= link_to t('.gift_link_text', format_gift_param(api_gift)), url_for(gift), :title => (t '.gift_link_title') %>
+        <%= t('.gift_text_html', format_gift_param(api_gift)) %>
+        <% if api_gift.picture? and !api_gift.api_picture_url_on_error_at -%>
             <br/><br/>
-            <%= image_tag gift.api_picture_url, :onload => "check_api_picture_url(#{gift.id}, this)" %>
+            <%= image_tag api_gift.api_picture_url, :onload => "check_api_picture_url(#{api_gift.id}, this)" %>
         <% end -%>
       </td>
     </tr>

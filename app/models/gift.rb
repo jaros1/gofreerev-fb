@@ -265,11 +265,14 @@ class Gift < ActiveRecord::Base
 
   # get/set balance for actual user. Used in user.recalculate_balance and in /gifts/index page
   def balance (current_user, login_user)
-    return nil unless user_id_receiver and user_id_giver
+    return nil unless direction == 'both'
+    api_gift = api_gifts.find { |ag| [ag.user_id_giver, ag.user_id_receiver].index(current_user.user_id)}
+    return nil unless api_gift # error
+    return nil unless api_gift.user_id_receiver and api_gift.user_id_giver # error
     balance_current_user = case current_user.user_id
-      when user_id_giver then balance_giver
-      when user_id_receiver then balance_receiver
-      else nil
+      when api_gift.user_id_giver then balance_giver
+      when api_gift.user_id_receiver then balance_receiver
+      else nil # error
     end
     return nil unless balance_current_user
     balance_login_user = ExchangeRate.exchange(balance_current_user, 'USD', login_user.currency, received_at)
