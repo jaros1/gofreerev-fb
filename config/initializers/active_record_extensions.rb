@@ -147,6 +147,10 @@ module ActiveRecordExtensions
       amount
     end
 
+    def puts2log  (text)
+      puts "#{caller_locations(1,1)[0].label}: #{text}"
+    end
+
   end # ClassMethods
 
 end

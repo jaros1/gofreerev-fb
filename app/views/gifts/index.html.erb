@@ -98,10 +98,10 @@
         // http://malsup.com/jquery/form/#options-object
         $('#new_gift').ajaxForm({
                 beforeSubmit: function(formData, jqForm, options) {
-                    <% if debug_ajax? -%>add_to_debug_log('#new_gift.beforeSubmit');<% end -%>
+                    <% if debug_ajax? -%>add2log('#new_gift.beforeSubmit');<% end -%>
                 },
                 success: function(responseText, statusText, xhr, $form) {
-                    <% if debug_ajax? -%>add_to_debug_log('#new_gift.success');<% end -%>
+                    <% if debug_ajax? -%>add2log('#new_gift.success');<% end -%>
                     document.getElementById('progressbar-div').style.display = 'none';
                     var gift_price = document.getElementById('gift_price') ;
                     if (gift_price) gift_price.value = '' ;
@@ -114,10 +114,10 @@
                 },
                 error: function(jqxhr, textStatus, errorThrown ) {
                     document.getElementById('progressbar-div').style.display = 'none';
-                    <% if debug_ajax? -%>add_to_debug_log('#new_gift.error');<% end -%>
-                    <% if debug_ajax? -%>add_to_debug_log('jqxhr = ' + jqxhr);<% end -%>
-                    <% if debug_ajax? -%>add_to_debug_log('textStatus = ' + textStatus);<% end -%>
-                    <% if debug_ajax? -%>add_to_debug_log('errorThrown = ' + errorThrown);<% end -%>
+                    <% if debug_ajax? -%>add2log('#new_gift.error');<% end -%>
+                    <% if debug_ajax? -%>add2log('jqxhr = ' + jqxhr);<% end -%>
+                    <% if debug_ajax? -%>add2log('textStatus = ' + textStatus);<% end -%>
+                    <% if debug_ajax? -%>add2log('errorThrown = ' + errorThrown);<% end -%>
                     add_to_tasks_errors('new_form.ajaxform.error: ' + errorThrown + '. check server log for more information.') ;
                 }
         });

@@ -38,9 +38,9 @@ class RoleConstraint
     signed_request = (@roles.index(:signed_request) != nil and params[:signed_request].to_s != '' or @roles.index(:signed_request) == nil)
     # puts2log  "signed_request = #{signed_request}"
     res = (empty and logged_in and not_logged_in and fb_locale and signed_request)
-    puts2log  "routes.rb / RoleConstraint:"
-    puts2log  "roles = #{@roles}, signature = #{signature(params)}, users.length = #{users.length}"
-    puts2log  "res = #{res}, empty = #{empty}, logged_in = #{logged_in}, not_logged_in = #{not_logged_in}, fb_locale = #{fb_locale}, signed_request = #{signed_request}"
+    # puts2log  "routes.rb / RoleConstraint:"
+    # puts2log  "roles = #{@roles}, signature = #{signature(params)}, users.length = #{users.length}"
+    # puts2log  "res = #{res}, empty = #{empty}, logged_in = #{logged_in}, not_logged_in = #{not_logged_in}, fb_locale = #{fb_locale}, signed_request = #{signed_request}"
     res
   end
 
@@ -53,6 +53,11 @@ class RoleConstraint
   private
   def empty? (params)
     signature(params).length == 0
+  end
+
+  private
+  def puts2log  (text)
+    puts "#{caller_locations(1,1)[0].label}: #{text}"
   end
 
 end

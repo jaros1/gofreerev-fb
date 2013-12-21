@@ -432,7 +432,7 @@ function insert_update_gifts (tasks_sleep)
     // process ajax response received from new_messages_count ajax request
     // response has been inserted in new_messages_buffer_div in page header
     // also used after util/accept_new_deal to ajax replace gift
-    add_to_debug_log('insert_update_gifts: start') ;
+    add2log('insert_update_gifts: start') ;
 
     // check/update newest_gift_id (id for latest created gift)
     var new_newest_gift_id = document.getElementById("new-newest-gift-id") ; // from new_messages_buffer_div
@@ -495,12 +495,12 @@ function insert_update_gifts (tasks_sleep)
             } // if
         } // for
     } // if
-    add_to_debug_log(old_gifts_trs.length + ' gifts lines in old page') ;
+    add2log(old_gifts_trs.length + ' gifts lines in old page') ;
     var old_gifts_index ;
     for (var i=0 ; (!old_gifts_index && (i<old_gifts_trs.length)) ; i++) {
         if (old_gifts_trs[i].id.match(re)) old_gifts_index = i ;
     } // for
-    add_to_debug_log('old_gifts_index = ' + old_gifts_index) ;
+    add2log('old_gifts_index = ' + old_gifts_index) ;
     if (!old_gifts_index) return ; // error - id with format format gift-<999>-1 was not found - ignore error silently
     var first_old_gift_tr = old_gifts_trs[old_gifts_index] ;
     var old_gifts_tbody = first_old_gift_tr.parentNode ;
@@ -517,7 +517,7 @@ function insert_update_gifts (tasks_sleep)
     } // for
     // that's it
 
-    add_to_debug_log('ajax_insert_update_gift: ajax_tasks_sleep = ' + tasks_sleep) ;
+    add2log('ajax_insert_update_gift: ajax_tasks_sleep = ' + tasks_sleep) ;
     if (!tasks_sleep) return ;
     // execute some more tasks - for example post status on api wall(s)
     trigger_tasks_form(tasks_sleep);
@@ -635,10 +635,10 @@ function post_ajax_add_new_comment_handler(giftid) {
     });
     $(id).unbind("ajax:error");
     $(id).bind("ajax:error", function(jqxhr, textStatus, errorThrown){
-        add_to_debug_log('new_comment.ajax.error');
-        add_to_debug_log('jqxhr = ' + jqxhr);
-        add_to_debug_log('textStatus = ' + textStatus);
-        add_to_debug_log('errorThrown = ' + errorThrown);
+        add2log('new_comment.ajax.error');
+        add2log('jqxhr = ' + jqxhr);
+        add2log('textStatus = ' + textStatus);
+        add2log('errorThrown = ' + errorThrown);
         add_to_tasks_errors('new_comment.ajax.error: ' + errorThrown + '. check server log for more information.') ;
     });
 } // post_ajax_add_new_comment_handler
@@ -717,10 +717,10 @@ function check_uncheck_new_deal_checkbox(checkbox, giftid)
 //$(document).ready(function() {
 //    $("#tasks_form").unbind("ajax:error") ;
 //    $("#tasks_form").bind("ajax:error", function(jqxhr, textStatus, errorThrown){
-//        add_to_debug_log('#tasks_form.error');
-//        add_to_debug_log('jqxhr = ' + jqxhr);
-//        add_to_debug_log('textStatus = ' + textStatus);
-//        add_to_debug_log('errorThrown = ' + errorThrown);
+//        add2log('#tasks_form.error');
+//        add2log('jqxhr = ' + jqxhr);
+//        add2log('textStatus = ' + textStatus);
+//        add2log('errorThrown = ' + errorThrown);
 //        add_to_tasks_errors('tasks_form.error: ' + errorThrown + '. check server log for more information.') ;
 //    })
 //})
@@ -747,7 +747,7 @@ $(document).ready(function() {
                     $("#user_currency_new").unbind('focus');
                     if (msg == 0) {
                         // Query returned empty.
-                        add_to_debug_log('Did not get any currencies from server');  // todo: or just ignore error!
+                        add2log('Did not get any currencies from server');  // todo: or just ignore error!
                     } else {
                         // Query Has values.
                         $('#user_currency_new').replaceWith(msg);
@@ -756,7 +756,7 @@ $(document).ready(function() {
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
                     $("#user_currency_new").unbind('focus');
-                    add_to_debug_log('error: jqXHR = ' + jqXHR + ', textStatus = ' + textStatus + ', errorThrown = ' + errorThrown);
+                    add2log('error: jqXHR = ' + jqXHR + ', textStatus = ' + textStatus + ', errorThrown = ' + errorThrown);
                 }
             });
 
@@ -772,11 +772,11 @@ function disable_user_currency_new_lov() {
 } // disable_user_currency_new_lov
 
 // for client side debugging - writes JS messages to debug_log div - only used if DEBUG_AJAX = true
-function add_to_debug_log (text) {
+function add2log (text) {
     var log = document.getElementById('debug_log') ;
     if (!log) return ;
     log.innerHTML = log.innerHTML + text + '<br>' ;
-} // add_to_debug_log
+} // add2log
 
 
 // implementing show-more-rows ajax / endless expanding page ==>
@@ -824,7 +824,7 @@ function show_more_rows_scroll(table_name, interval, debug) {
         // For now wait is 3 seconds in javascript/client and 2 seconds in rails/server
         var sleep = interval - (now - old_show_more_rows_request_at);
         if (sleep < 0) sleep = 0;
-        if (debug) add_to_debug_log('Sleep ' + (sleep / 1000.0) + ' seconds' + '. old timestamp ' + old_show_more_rows_request_at + ', new timestamp ' + now);
+        if (debug) add2log('Sleep ' + (sleep / 1000.0) + ' seconds' + '. old timestamp ' + old_show_more_rows_request_at + ', new timestamp ' + now);
         old_show_more_rows_request_at = now + sleep;
         if (sleep == 0) show_more_rows();
         else setTimeout("show_more_rows()", sleep);
@@ -845,30 +845,30 @@ function show_more_rows_success (table_name, debug)
     var pgm = "#show-more-rows-link.ajax:success: " ;
     var link = document.getElementById("show-more-rows-link") ;
     if (!link) {
-        if (debug) add_to_debug_log(pgm + "show-more-rows-link has already been removed");
+        if (debug) add2log(pgm + "show-more-rows-link has already been removed");
         return
     }
     var table = document.getElementById(table_name) ;
     if (!table) {
-        if (debug) add_to_debug_log(pgm + 'error - gifts or users table was not found') ;
+        if (debug) add2log(pgm + 'error - gifts or users table was not found') ;
         return
     }
     var new_number_of_rows = table.rows.length ;
     if (new_number_of_rows == old_number_of_rows) {
-        if (debug) add_to_debug_log(pgm + 'error - no new rows was returned from get more rows ajax request') ;
+        if (debug) add2log(pgm + 'error - no new rows was returned from get more rows ajax request') ;
         return
     }
     var trs = table.getElementsByTagName('tr') ;
     var tr = trs[trs.length-1] ;
     var tr_id = tr.id ;
     if (tr_id == "") {
-        if (debug) add_to_debug_log(pgm + 'no more rows - remove link') ;
+        if (debug) add2log(pgm + 'no more rows - remove link') ;
         link.parentNode.removeChild(link);
     }
     else {
         var reg = new RegExp("^last-row-id-[0-9]+$") ;
         if (!tr_id.match(reg)) {
-            if (debug) add_to_debug_log(pgm + 'row with format last-row-id-<n> was not found. id = ' + tr_id);
+            if (debug) add2log(pgm + 'row with format last-row-id-<n> was not found. id = ' + tr_id);
             return
         }
         var tr_id_a = tr_id.split("-") ;
@@ -882,22 +882,22 @@ function show_more_rows_success (table_name, debug)
 
 function show_more_rows_error(jqxhr, textStatus, errorThrown, debug) {
     if (debug) {
-        add_to_debug_log('show_more_rows.ajax.error');
-        add_to_debug_log('jqxhr = ' + jqxhr);
-        add_to_debug_log('textStatus = ' + textStatus);
-        add_to_debug_log('errorThrown = ' + errorThrown);
+        add2log('show_more_rows.ajax.error');
+        add2log('jqxhr = ' + jqxhr);
+        add2log('textStatus = ' + textStatus);
+        add2log('errorThrown = ' + errorThrown);
     }
     add_to_tasks_errors('show_more_rows.ajax.error: ' + errorThrown + '. check server log for more information.') ;
 } // show_more_rows_error
 
 function show_more_rows_ajax(table_name, debug) {
     var link = '#show-more-rows-link'
-    $(id).unbind("ajax:success");
-    $(id).bind("ajax:success", function (evt, data, status, xhr) {
+    $(link).unbind("ajax:success");
+    $(link).bind("ajax:success", function (evt, data, status, xhr) {
         show_more_rows_success(table_name, debug);
     });
-    $(id).unbind("ajax:error");
-    $(id).bind("ajax:error", function (jqxhr, textStatus, errorThrown) {
+    $(link).unbind("ajax:error");
+    $(link).bind("ajax:error", function (jqxhr, textStatus, errorThrown) {
         show_more_rows_error(jqxhr, textStatus, errorThrown, debug);
     });
 } // show_more_rows_ajax
@@ -932,11 +932,11 @@ function get_js_timezone() {
 // called from bottom of application layout and from  insert_update_gifts after gift create (posting on api wall)
 // tasks: get currency rates, download api information (picture, permissions, friend list), post on api walls
 function trigger_tasks_form (sleep) {
-    add_to_debug_log("trigger_tasks_form: sleep = " + sleep) ;
+    add2log("trigger_tasks_form: sleep = " + sleep) ;
     if (!sleep) sleep=1000 ;
     var timezone = document.getElementById("timezone") ;
     if (!timezone) {
-        add_to_debug_log('trigger_tasks_form. hidden field with id timezone was not found') ;
+        add2log('trigger_tasks_form. hidden field with id timezone was not found') ;
         return ;
     }
     timezone.value = get_js_timezone();
@@ -948,10 +948,10 @@ function trigger_tasks_form (sleep) {
 $(document).ready(function() {
     $("#tasks_form").unbind("ajax:error") ;
     $("#tasks_form").bind("ajax:error", function(jqxhr, textStatus, errorThrown){
-        add_to_debug_log('#tasks_form.error');
-        add_to_debug_log('jqxhr = ' + jqxhr);
-        add_to_debug_log('textStatus = ' + textStatus);
-        add_to_debug_log('errorThrown = ' + errorThrown);
+        add2log('#tasks_form.error');
+        add2log('jqxhr = ' + jqxhr);
+        add2log('textStatus = ' + textStatus);
+        add2log('errorThrown = ' + errorThrown);
         add_to_tasks_errors('tasks_form.error: ' + errorThrown + '. check server log for more information.') ;
     })
 })
@@ -961,8 +961,8 @@ $(document).ready(function() {
 function add_to_tasks_errors (error) {
     var table = document.getElementById('tasks_errors') ;
     if (!table) {
-        add_to_debug_log('add_to_tasks_errors: tasks_errors table was not found.') ;
-        add_to_debug_log('add_to_tasks_errors: error was ' + error + '') ;
+        add2log('add_to_tasks_errors: tasks_errors table was not found.') ;
+        add2log('add_to_tasks_errors: error was ' + error + '') ;
         return ;
     }
     var length = table.length ;
@@ -976,12 +976,12 @@ function add_to_tasks_errors (error) {
 // enable after granting write permission to aåi wall
 // disable after revoking last write permission to api wall
 function disable_enable_file_upload (gift_file_enabled) {
-   // add_to_debug_log('disable_enable_file_upload: gift_file_enabled = ' + gift_file_enabled) ;
+   // add2log('disable_enable_file_upload: gift_file_enabled = ' + gift_file_enabled) ;
    if (gift_file_enabled === undefined) return;
    var gift_file = document.getElementById('gift_file');
    if (!gift_file) return ;
    gift_file.disabled = !gift_file_enabled ;
-   // add_to_debug_log('gift_file.disabled = ' + gift_file.disabled) ;
+   // add2log('gift_file.disabled = ' + gift_file.disabled) ;
 } // disable_enable_file_upload
 
 // set JS timezone in tasks form
@@ -990,7 +990,7 @@ $(document).ready(function() {
     var timezone = document.getElementById("timezone") ;
     if (!timezone) return ;
     timezone.value = get_js_timezone();
-    add_to_debug_log('timezone = ' + timezone.value) ;
+    add2log('timezone = ' + timezone.value) ;
 })
 
 // custom confirm box - for styling

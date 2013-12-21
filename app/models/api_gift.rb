@@ -257,6 +257,31 @@ class ApiGift < ActiveRecord::Base
   # 15) created_at - timestamp - not encrypted
 
   # 16) updated_at - timestamp - not encrypted
+  
+  # 17) deep_link_id - String - not encrypted
+  
+  # 18) deep_link_errors - integer - not encrypted
+  
+  # 19) deep_link_pw - String in model - Encrypred text in db
+  def deep_link_pw
+    return nil unless (extended_deep_link_pw = read_attribute(:deep_link_pw))
+    encrypt_remove_pre_and_postfix(extended_deep_link_pw, 'deep_link_pw', 38)
+  end
+  def deep_link_pw=(new_deep_link_pw)
+    if new_deep_link_pw
+      check_type('deep_link_pw', new_deep_link_pw, 'String')
+      write_attribute :deep_link_pw, encrypt_add_pre_and_postfix(new_deep_link_pw, 'deep_link_pw', 38)
+    else
+      write_attribute :deep_link_pw, nil
+    end
+  end
+  alias_method :deep_link_pw_before_type_cast, :deep_link_pw
+  def deep_link_pw_was
+    return deep_link_pw unless deep_link_pw_changed?
+    return nil unless (extended_deep_link_pw = attribute_was(:deep_link_pw))
+    encrypt_remove_pre_and_postfix(extended_deep_link_pw, 'deep_link_pw', 38)
+  end # deep_link_pw_was
+
 
   # helper methods
   def gift_with_placeholders
