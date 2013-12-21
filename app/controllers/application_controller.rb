@@ -476,7 +476,7 @@ class ApplicationController < ActionController::Base
     Time.zone = session[:timezone] = timezone.to_f
   end
 
-  private
+  protected
   def puts2log  (text)
     puts "#{caller_locations(1,1)[0].label}: #{text}"
   end

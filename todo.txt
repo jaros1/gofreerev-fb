@@ -425,7 +425,8 @@
      Could be nice if rails locales could be used for javascript messages
      https://github.com/fnando/i18n-js (many issues - not updated for 8 months)
 
-115) rename partial user/gift to user/api_gift
+115) rename partial user/gift to user/api_gift (ok)
+     rename @gifts to @api_gifts (gifts controller and users controller)
 
 116) deep link page - should be cached - without information about logged in user
      http write page with an dummy page header and without title for user divs
@@ -447,3 +448,9 @@
 122) my.js - replace alert with add2log and add_to_tasks_errors
      JS alert should only be used in a few situations
      But use may not see top of page and error notifications
+
+123) save balance info in gifts or in api_gifts? User.recalculate_balance
+     t.text     "balance_giver"
+     t.text     "balance_receiver"
+     t.text     "balance_doc_giver"
+     t.text     "balance_doc_receiver"

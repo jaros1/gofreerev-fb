@@ -11,7 +11,7 @@ class Gift < ActiveRecord::Base
   # encrypt_add_pre_and_postfix/encrypt_remove_pre_and_postfix added in setters/getters for better encryption
   # this is different encrypt for each attribute and each db row
   # _before_type_cast methods are used by form helpers and are redefined
-  crypt_keeper :description, :currency, :price, :received_at, :encryptor => :aes, :key => ENCRYPT_KEYS[1]
+  crypt_keeper :description, :currency, :price, :received_at, :balance_giver, :balance_receiver, :balance_doc_giver, :balance_doc_receiver, :encryptor => :aes, :key => ENCRYPT_KEYS[1]
 
 
   ##############
@@ -276,24 +276,26 @@ class Gift < ActiveRecord::Base
     balance_login_user
   end # balance
   def balance_doc (current_user)
-    return nil unless user_id_receiver and user_id_giver
+    return nil unless direction == 'both'
+    api_gift = api_gifts.find { |ag| [ag.user_id_giver, ag.user_id_receiver].index(current_user.user_id)}
+    return nil unless api_gift
     case current_user.user_id
-      when user_id_giver then balance_doc_giver
-      when user_id_receiver then balance_doc_receiver
+      when api_gift.user_id_giver then balance_doc_giver
+      when api_gift.user_id_receiver then balance_doc_receiver
       else nil
     end
   end # balance_doc
-  def set_balance (user_id, new_balance, new_balance_doc)
+  def set_balance (user_ids, new_balance, new_balance_doc)
     # puts2log  "Gift.set_balance: id = #{id}, user_id = #{user_id}, new_balance = #{new_balance}, user_id_giver = #{user_id_giver}, user_id_receiver = #{user_id_receiver}"
     return new_balance unless received_at
-    case user_id
-      when user_id_giver
-        self.balance_giver = new_balance
-        self.balance_doc_giver = new_balance_doc
-      when user_id_receiver
-        self.balance_receiver = new_balance
-        self.balance_doc_receiver = new_balance_doc
-      else return new_balance # error
+    api_gift = api_gifts.find { |ag| (user_ids.index(ag.user_id_giver) or user_ids.index(ag.user_id_receiver)) }
+    return new_balance unless api_gift
+    if user_ids.index(api_gift.user_id_giver)
+      self.balance_giver = new_balance
+      self.balance_doc_giver = new_balance_doc
+    else
+      self.balance_receiver = new_balance
+      self.balance_doc_receiver = new_balance_doc
     end
     new_balance
   end # set_balance

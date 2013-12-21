@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20131221084824) do
+ActiveRecord::Schema.define(version: 20131221150501) do
 
   create_table "ajax_comments", force: true do |t|
     t.string   "user_id",    limit: 40, null: false
@@ -33,10 +33,6 @@ ActiveRecord::Schema.define(version: 20131221084824) do
     t.text     "api_picture_url_updated_at"
     t.text     "api_picture_url_on_error_at"
     t.string   "deleted_at_api",              limit: 1
-    t.text     "balance_giver"
-    t.text     "balance_receiver"
-    t.text     "balance_doc_giver"
-    t.text     "balance_doc_receiver"
     t.datetime "created_at"
     t.datetime "updated_at"
     t.string   "deep_link_id",                limit: 20
@@ -128,6 +124,10 @@ ActiveRecord::Schema.define(version: 20131221084824) do
     t.string   "temp_picture_filename", limit: 20
     t.string   "direction",             limit: 10
     t.string   "created_by",            limit: 10
+    t.text     "balance_giver"
+    t.text     "balance_receiver"
+    t.text     "balance_doc_giver"
+    t.text     "balance_doc_receiver"
   end
 
   add_index "gifts", ["gift_id"], name: "index_gifts_on_gift_id", unique: true

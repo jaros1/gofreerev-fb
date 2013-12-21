@@ -1,5 +1,5 @@
 <% for gift in @gifts do loop -%>
-  <%= render :partial => 'gift', :locals => { :gift => gift } %>
+  <%= render :partial => 'api_gift', :locals => { :gift => gift } %>
 <% end -%>
 <%# ajax: dummy row - placeholder for object id for last row in html table. Used in ajax request for next set of rows -%>
 <% if @last_row_id -%>

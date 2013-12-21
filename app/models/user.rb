@@ -239,8 +239,8 @@ class User < ActiveRecord::Base
   public
   def self.open4 (command, dir = nil)
     pid, stdin, stdout, stderr = Open4::popen4 "sh"
-    stdin.puts2log  "cd #{dir}" if dir
-    stdin.puts2log  command
+    stdin.puts  "cd #{dir}" if dir
+    stdin.puts  command
     stdin.close
     ignored, status = Process::waitpid2 pid
     return [ stdout.read, stderr.read, status.exitstatus ]
@@ -314,64 +314,70 @@ class User < ActiveRecord::Base
   # return nil if ok
   # return array with translate key and options if warning or error
   def self.download_profile_image (user_id, url)
-    user = User.find_by_user_id(user_id)
-    if !user
-      puts2log  "error: invalid user id"
-      return [ '.profile_image_invalid_user', { :user_id => user_id } ]
+    begin
+      user = User.find_by_user_id(user_id)
+      if !user
+        puts2log "error: invalid user id"
+        return ['.profile_image_invalid_user', {:user_id => user_id}]
+      end
+      if url.to_s == ""
+        puts2log "error: no image received from provider / post_login ajax request"
+        return ['.profile_image_blank', {:provider => user.provider}]
+      end
+      if url !~ /https?\:\/\//
+        puts2log "error: invalid image #{url} received from provider / post_login ajax request"
+        return ['.profile_image_invalid_url', {:provider => user.provider, :image => url}]
+      end
+      # check image type
+      image_type = FastImage.type(url).to_s
+      if !%w(gif jpeg png jpg bmp).index(image_type)
+        puts2log "warning: unsupported image type #{image_type} for #{url}"
+        return ['.profile_image_invalid_type', {:provider => user.provider, :image => url, :image_type => image_type}]
+      end
+      # prepare work dir for download
+      FileUtils.mkdir_p FileUtils.mkdir_p user.profile_picture_tmp_os_folder
+      stdout, stderr, status = User.open4('rm *', user.profile_picture_tmp_os_folder)
+      # puts2log  "rm: stdout = #{stdout}, stderr = #{stderr}, status = #{status} (#{status.class})" if status != 0
+      # download image to work dir
+      stdout, stderr, status = User.open4("wget #{url}", user.profile_picture_tmp_os_folder)
+      if status != 0
+        puts2log "image download failed: wget: stdout = #{stdout}, stderr = #{stderr}, status = #{status} (#{status.class})"
+        error = stderr.to_s.split("\n").last
+        return ['.profile_image_wget_failed', {:provider => user.provider, :image => url, :error => error}]
+      end
+      # check download
+      files = Dir.entries(user.profile_picture_tmp_os_folder).delete_if { |x| ['.', '..'].index(x) }
+      if files.size != 1
+        puts2log "image download failed. expected 1 image. found #{files.size} images"
+        return ['.profile_image_count_failed', {:provider => user.provider, :image => url, :count => files.size}]
+      end
+      # rename/move image
+      old_file_name = files.first
+      if user.profile_picture_name and user.profile_picture_name.split('.').last == image_type
+        new_file_name = user.profile_picture_name # unchanged image type - keep old picture name
+      else
+        new_file_name = (String.generate_random_string(10) + '.' + image_type).last(10).downcase # generate new picture name
+      end
+      stdout, stderr, status = User.open4("mv #{old_file_name} ../#{new_file_name}", user.profile_picture_tmp_os_folder)
+      if status != 0
+        # rename/move failed
+        puts2log "image rename/move failed: stdout = #{stdout}, stderr = #{stderr}, status = #{status} (#{status.class})"
+        error = stderr.to_s.split("\n").last
+        return ['.profile_image_mv_failed', {:provider => user.provider, :image => url, :error => error}]
+      end
+      # download, rename and move ok
+      user.reload
+      user.profile_picture_name = new_file_name
+      user.update_attribute('profile_picture_name', new_file_name) if user.profile_picture_name_changed?
+      # cleanup
+      stdout, stderr, status = User.open4("rmdir tmp", user.profile_picture_os_folder)
+      puts2log "rmdir: stdout = #{stdout}, stderr = #{stderr}, status = #{status} (#{status.class})" if status != 0
+      nil
+    rescue Exception => e
+      puts2log "Exception: #{e.message.to_s}"
+      puts2log "Backtrace: " + e.backtrace.join("\n")
+      raise
     end
-    if url.to_s == ""
-      puts2log  "error: no image received from provider / post_login ajax request"
-      return [ '.profile_image_blank', { :provider => user.provider } ]
-    end
-    if url !~ /https?\:\/\//
-      puts2log  "error: invalid image #{url} received from provider / post_login ajax request"
-      return [ '.profile_image_invalid_url', { :provider => user.provider, :image => url }]
-    end
-    # check image type
-    image_type = FastImage.type(url).to_s
-    if !%w(gif jpeg png jpg bmp).index(image_type)
-      puts2log  "warning: unsupported image type #{image_type} for #{url}"
-      return [ '.profile_image_invalid_type', { :provider => user.provider, :image => url, :image_type => image_type }]
-    end
-    # prepare work dir for download
-    FileUtils.mkdir_p FileUtils.mkdir_p user.profile_picture_tmp_os_folder
-    stdout, stderr, status = User.open4('rm *', user.profile_picture_tmp_os_folder)
-    # puts2log  "rm: stdout = #{stdout}, stderr = #{stderr}, status = #{status} (#{status.class})" if status != 0
-    # download image to work dir
-    stdout, stderr, status = User.open4("wget #{url}", user.profile_picture_tmp_os_folder)
-    if status != 0
-      puts2log  "image download failed: wget: stdout = #{stdout}, stderr = #{stderr}, status = #{status} (#{status.class})"
-      error = stderr.to_s.split("\n").last
-      return ['.profile_image_wget_failed', { :provider => user.provider, :image => url, :error => error } ]
-    end
-    # check download
-    files = Dir.entries(user.profile_picture_tmp_os_folder).delete_if { |x| ['.', '..'].index(x) }
-    if files.size != 1
-      puts2log  "image download failed. expected 1 image. found #{files.size} images"
-      return ['.profile_image_count_failed', { :provider => user.provider, :image => url, :count => files.size } ]
-    end
-    # rename/move image
-    old_file_name = files.first
-    if user.profile_picture_name and user.profile_picture_name.split('.').last == image_type
-      new_file_name = user.profile_picture_name # unchanged image type - keep old picture name
-    else
-      new_file_name = (String.generate_random_string(10) + '.' + image_type).last(10).downcase # generate new picture name
-    end
-    stdout, stderr, status = User.open4("mv #{old_file_name} ../#{new_file_name}", user.profile_picture_tmp_os_folder)
-    if status != 0
-      # rename/move failed
-      puts2log  "image rename/move failed: stdout = #{stdout}, stderr = #{stderr}, status = #{status} (#{status.class})"
-      error = stderr.to_s.split("\n").last
-      return ['.profile_image_mv_failed', { :provider => user.provider, :image => url, :error => error } ]
-    end
-    # download, rename and move ok
-    user.reload
-    user.profile_picture_name = new_file_name
-    user.update_attribute('profile_picture_name', new_file_name) if user.profile_picture_name_changed?
-    # cleanup
-    stdout, stderr, status = User.open4("rmdir tmp", user.profile_picture_os_folder)
-    puts2log  "rmdir: stdout = #{stdout}, stderr = #{stderr}, status = #{status} (#{status.class})" if status != 0
-    nil
   end # self.download_profile_image
 
   #def usertype
@@ -508,16 +514,16 @@ class User < ActiveRecord::Base
 
   # relation helpers
   def offers
-    ApiGift.where('user_id_giver = ?', user_id).includes(:gift)
+    ApiGift.where('user_id_giver = ? and provider = ?', user_id, provider).includes(:gift)
   end
   def wishes
-    ApiGift.where('user_id_receiver = ?', user_id).includes(:gift)
+    ApiGift.where('user_id_receiver = ? and provider = ?', user_id, provider).includes(:gift)
   end
   def gifts_given
-    offers.find_all { |g| (g.user_id_receiver and g.price and g.price != 0.00 and !g.deleted_at) }
+    offers.find_all { |ag| (ag.user_id_receiver and ag.gift.price and ag.gift.price != 0.00 and !ag.gift.deleted_at) }
   end # gifts_given
   def gifts_received
-    wishes.find_all { |g| (g.user_id_giver and g.price and g.price != 0.00 and !g.deleted_at) }
+    wishes.find_all { |ag| (ag.user_id_giver and ag.gift.price and ag.gift.price != 0.00 and !ag.gift.deleted_at) }
   end
   #def gifts_received_with_sign
   #  gifts_received.collect do |g|
@@ -551,21 +557,49 @@ class User < ActiveRecord::Base
   # missing exchange rates is put in queue for bank and looked up batch
   # batch job started at after returning actual page to user
   def recalculate_balance
-    gifts = gifts_given_and_received.sort do |a,b|
-      if a.received_at == b.received_at
-        a.id <=> b.id
+    # find user(s)
+    if user_combination
+      # find all closed deals for this user combination
+      user_ids = User.where('user_combination = ?', user_combination).collect { |user| user.user_id}
+    else
+      # find all closed deals for this user
+      user_ids = [ user_id ]
+    end
+    # find closed deals
+    api_gifts = ApiGift.where('user_id_giver in (?) and user_id_receiver is not null or ' +
+                              'user_id_receiver in (?) and user_id_giver is not null',
+                              user_ids, user_ids).includes(:gift)
+    # remove closed deals without a price and remove delete marked deals
+    api_gifts = api_gifts.find_all do |api_gift|
+      (api_gift.user_id_giver and api_gift.gift.price and api_gift.gift.price != 0.00 and !api_gift.gift.deleted_at)
+    end
+    # sort: 1 received_at, 2 id
+    api_gifts = api_gifts.sort do |a,b|
+      if a.gift.received_at == b.gift.received_at
+        a.gift.id <=> b.gift.id
       else
-        a.received_at <=> b.received_at
+        a.gift.received_at <=> b.gift.received_at
       end
     end # sort
+    # delete gift doublets
+    old_gift_id = -1
+    api_gifts = api_gifts.delete_if do |api_gift|
+      if api_gift.gift.id == old_gift_id
+        true
+      else
+        old_gift_id = api_gift.gift.id
+        false
+      end
+    end # delete_if
+
     user_balance_hash = { BALANCE_KEY => 0.0 } # BASE_CURRENCY
     user_negative_interest_hash = { BALANCE_KEY => 0.0 } # BASE_CURRENCY (USD)
     missing_exchange_rates = false
-    puts2log  "recalculate_balance: user #{self.short_user_name}. #{gifts.size} gifts"
+    puts2log  "user #{self.short_user_name}. #{api_gifts.size} gifts"
     previous_date = nil
     date = nil
     exchange_rates_hash = {} # used as help variables for exchange rate gains/losses calculation in view
-    gifts.each do |g|
+    api_gifts.each do |api_gift|
       # update user.balance hash and save balance in gift.balance for documentation
       # previous balance >= 0 - use FACTOR_POS_BALANCE_PER_DAY to calculate new price
       # previous balance < 0 - use FACTOR_NEG_BALANCE_PER_DAY to calculate new price
@@ -573,10 +607,10 @@ class User < ActiveRecord::Base
       # balance in BASE_CURRENCY can change between >= 0 and < 0 in period between two deals
       # but only previous balance is used when selection negative interest rate
       balance_doc_hash = {}
-      previous_date = g.received_at.to_date unless previous_date
+      previous_date = api_gift.gift.received_at.to_date unless previous_date
       previous_balance_hash = user_balance_hash.clone
       balance_doc_hash[:previous_balance] = previous_balance_hash
-      if previous_date != g.received_at.to_date
+      if previous_date != api_gift.gift.received_at.to_date
         # save old exchange rates for exchange rate difference calculation
         user_balance_hash.keys.each do |balance_hash_currency|
           next if balance_hash_currency == BALANCE_KEY
@@ -594,7 +628,7 @@ class User < ActiveRecord::Base
       # use FACTOR_NEG_BALANCE_PER_DAY for negative balance - 0.9997113827109777 per day <=> 10 % per year
       balance_sum = user_balance_hash[BALANCE_KEY] # current user balance in BASE_CURRENCY (USD)
       date = previous_date
-      while (date < g.received_at.to_date) do
+      while (date < api_gift.gift.received_at.to_date) do
         date = 1.day.since(date)
         factor = (balance_sum >= 0 ? FACTOR_POS_BALANCE_PER_DAY : FACTOR_NEG_BALANCE_PER_DAY) # 5 OR 10 % in negative interest
         balance_sum = 0.0
@@ -603,17 +637,17 @@ class User < ActiveRecord::Base
           user_balance_hash[balance_hash_currency] *= factor
           exchange_rate = ExchangeRate.exchange(1.0, balance_hash_currency, BASE_CURRENCY, date)
           balance_sum += user_balance_hash[balance_hash_currency] * exchange_rate
-          exchange_rates_hash[balance_hash_currency] = 1.0 / exchange_rate if date == g.received_at.to_date
+          exchange_rates_hash[balance_hash_currency] = 1.0 / exchange_rate if date == api_gift.gift.received_at.to_date
         end # each
       end # while
       user_balance_hash[BALANCE_KEY] = balance_sum
       # initialize negative interest hash
-      puts2log  "gift id #{g.id}: initialize and save negative interest hash"
+      puts2log  "gift id #{api_gift.id}: initialize and save negative interest hash"
       gift_negative_interest_hash = {}
       user_balance_hash.keys.each do |balance_hash_currency|
         next if balance_hash_currency == BALANCE_KEY
         gift_negative_interest = (previous_balance_hash[balance_hash_currency] - user_balance_hash[balance_hash_currency]).abs
-        puts2log  "gift id #{g.id}, currency = #{balance_hash_currency}, old = #{previous_balance_hash[balance_hash_currency]}, new = #{user_balance_hash[balance_hash_currency]}, neg.int. = #{gift_negative_interest}"
+        puts2log  "gift id #{api_gift.id}, currency = #{balance_hash_currency}, old = #{previous_balance_hash[balance_hash_currency]}, new = #{user_balance_hash[balance_hash_currency]}, neg.int. = #{gift_negative_interest}"
         gift_negative_interest_hash[balance_hash_currency] = gift_negative_interest
         user_negative_interest_hash[balance_hash_currency] = 0.0 unless user_negative_interest_hash.has_key?(balance_hash_currency)
         user_negative_interest_hash[balance_hash_currency] += gift_negative_interest
@@ -637,17 +671,17 @@ class User < ActiveRecord::Base
       #balance_doc_hash[:previous_balance_and_negative_interest] = previous_balance_neg_int_hash
 
       # step 3 - new balance with this gift
-      sign = user_id == g.user_id_giver ? 1 : -1
-      user_balance_hash[g.currency] = 0.0 unless user_balance_hash.has_key?(g.currency)
-      user_balance_hash[g.currency] += g.price * sign
-      user_balance_hash[BALANCE_KEY] += ExchangeRate.exchange((g.price*sign), g.currency, BASE_CURRENCY, date)
+      sign = user_ids.index(api_gift.user_id_giver) ? 1 : -1
+      user_balance_hash[api_gift.gift.currency] = 0.0 unless user_balance_hash.has_key?(api_gift.gift.currency)
+      user_balance_hash[api_gift.gift.currency] += api_gift.gift.price * sign
+      user_balance_hash[BALANCE_KEY] += ExchangeRate.exchange((api_gift.gift.price*sign), api_gift.gift.currency, BASE_CURRENCY, date)
       balance_doc_hash[:sign] = sign > 0 ? '+' : '-'
       balance_doc_hash[:balance] = user_balance_hash
 
       # save balance and balance documentation
-      g.set_balance(user_id, user_balance_hash[BALANCE_KEY], balance_doc_hash)
+      api_gift.gift.set_balance(user_ids, user_balance_hash[BALANCE_KEY], balance_doc_hash)
       # g.save
-      puts2log  "recalculate_balance. g.id = #{g.id}, g.received_at = #{g.received_at}, balance_hash = #{user_balance_hash.to_s}, balance_doc_hash = #{balance_doc_hash}"
+      puts2log  "recalculate_balance. gift.id = #{api_gift.gift.id}, gift.received_at = #{api_gift.gift.received_at}, balance_hash = #{user_balance_hash.to_s}, balance_doc_hash = #{balance_doc_hash}"
     end # each
     return false if missing_exchange_rates # error - one or more missing currency rates
     today = Date.parse(Sequence.get_last_exchange_rate_date)
@@ -679,7 +713,7 @@ class User < ActiveRecord::Base
     self.negative_interest = user_negative_interest_hash
     # todo: catch any exception and return false if transaction fails
     transaction do
-      gifts.each { |g| g.save! }
+      api_gifts.each { |g| g.save! }
       self.save!
     end
     true
