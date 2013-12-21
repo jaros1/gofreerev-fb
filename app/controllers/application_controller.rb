@@ -55,6 +55,14 @@ class ApplicationController < ActionController::Base
   end
 
 
+  private
+  def add_dummy_user
+    if @users.size == 0
+      @user = User.find_by_user_id('gofreerev/gofreerev')
+      @users = [ @user ]
+    end
+  end
+
 
   # fetch user info. Used in page heading etc
   private
@@ -108,6 +116,9 @@ class ApplicationController < ActionController::Base
     end
     puts2log  "@user_currency_separator = #{@user_currency_separator}, @user_currency_delimiter = #{@user_currency_delimiter}"
 
+    # add dummy user for page header
+    add_dummy_user if @users.size == 0
+
     # get new exchange rates? add to task queue
     add_task 'ExchangeRate.fetch_exchange_rates', 10 if ExchangeRate.fetch_exchange_rates?
   end # fetch_user
@@ -131,13 +142,6 @@ class ApplicationController < ActionController::Base
     # puts2log  "controller = #{params[:controller]}"
     { locale: I18n.locale }
   end
-
-  private
-  def login_required
-    return true if login_user_ids.length > 0
-    flash[:notice] = t 'gifts.index.not_logged_in_flash'
-    redirect_to :controller => :auth, :action => :index
-  end # login_required
 
   # get any pictures with invalid picture urls
   # used in gifts/index page, todo:
@@ -298,6 +302,17 @@ class ApplicationController < ActionController::Base
     format_ajax_response
   end
 
+  private
+  def logged_in?
+    (login_user_ids.length > 0)
+  end
+
+  private
+  def login_required
+    return true if logged_in?
+    flash[:notice] = t 'gifts.index.not_logged_in_flash'
+    redirect_to :controller => :auth, :action => :index
+  end # login_required
 
   private
   def login (options)
@@ -362,6 +377,7 @@ class ApplicationController < ActionController::Base
       session.delete(:user_ids)
       session.delete(:tokens)
       @users = []
+      add_dummy_user
       return
     end
     login_user_ids = login_user_ids().clone
@@ -371,9 +387,13 @@ class ApplicationController < ActionController::Base
     session[:user_ids] = login_user_ids
     session[:tokens] = tokens
     @users = User.where('user_id in (?)', login_user_ids)
+    add_dummy_user if @users.size == 0
     # check if file upload button should be disabled - last user with write access to api wall logs out
     add_task "disable_enable_file_upload", 5
   end # logout
+
+
+
 
 
   # protection from Cross-site Request Forgery

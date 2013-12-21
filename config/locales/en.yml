@@ -141,6 +141,7 @@ en:
         find_or_create_from_auth_hash: "System error. Invalid response from user update after login"
      destroy:
         logged_off: "Log out ok. Thanks for visiting %{appname}. Use links on this page to log in or to return to login API. Close browser to remove session cookie."
+        already_logged_off: "Already logged out. Use links on this page to log in or to return to login API. Close browser to remove session cookie."
 
   facebook:
      autologin:
@@ -207,7 +208,7 @@ en:
         gift_not_posted_5: "Posting on %{apiname} has not yet been implemented"
         no_api_picture_url: "Picture uploaded, but did not get a picture url from #{apiname}"
      index:
-        not_logged_in_flash: "Invalid request. Not logged in."
+        not_logged_in_flash: "Sorry. Page not available. Not logged in."
         not_logged_in_text: "You are not logged in and you can not create wall postings."
         welcome_msg_after_login: "Welcome %{username} to %{appname}"
         create_gift_header_line: "Help each other and the environment. Share your resources. Give loan / rent out, sell etc."

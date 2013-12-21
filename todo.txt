@@ -444,8 +444,6 @@
      picture is very small in gofreerev and a redirect to facebook maybe the best option
      deep link make it easy to return from facebook to gofreerev
 
-121) add dummy header for nyt logged in users
-     use dummy user for dummy header
-     gofreerev/gofreerev and gofreerev/<provider>
-
-122) encrypt api_gifts.deep_link_pw. change to text
+122) my.js - replace alert with add2log and add_to_tasks_errors
+     JS alert should only be used in a few situations
+     But use may not see top of page and error notifications

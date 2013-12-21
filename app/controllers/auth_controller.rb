@@ -146,7 +146,7 @@ class AuthController < ApplicationController
   # logout
   def destroy
     # fetch user for language support in logout page
-    if @users.length == 0
+    if User.dummy_users?(@users)
       flash[:notice] = t '.already_logged_off'
       redirect_to :action => :index
       return

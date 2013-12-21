@@ -18,7 +18,7 @@ module GiftHelper
   # default is to follow gift as giver, receiver or commenter
   def link_to_gift_follow_unfollow (gift)
     # 1 - check of user has selected to follow gift
-    return nil unless @users.class == Array and @users.size > 0
+    return nil if User.dummy_users?(@users)
     userids = @users.collect { |user| user.user_id }
     if GiftLike.where('gift_id = ? and user_id in (?) and follow = ?', gift.gift_id, userids, 'Y').count > 0
       # user has selected to follow this gift

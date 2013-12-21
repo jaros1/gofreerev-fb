@@ -11,7 +11,7 @@ class UtilController < ApplicationController
   # - newest_gift_id is newest gift id when page was loaded or newest gift id in last new_messages_count request for this session
   # - newest_status_update_at is newest status_update_at when page was loaded or newest status_update_at in last new_message_count request for this session
   def new_messages_count
-    if !@users or @users.length == 0
+    if User.dummy_users?(@users)
       puts2log  "ignoring not logged in user"
       render :nothing => true
       return
@@ -439,7 +439,7 @@ class UtilController < ApplicationController
   end # accept_new_deal
 
   def currencies
-    if @users.size == 0
+    if User.dummy_users?(@users)
       render :nothing => true
     else
       puts2log  "return currencies to client on onfocus event"

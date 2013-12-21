@@ -387,6 +387,7 @@ class Gift < ActiveRecord::Base
   # only for open deals - and not for users deals (user is giver or receiver)
   def show_new_deal_checkbox? (users)
     return false unless users.class == Array and users.size > 0
+    return false if User.dummy_users?(users)
     return false if direction == 'both' # closed deal
     count = 0
     api_gifts.each do |api_gift|
@@ -402,6 +403,7 @@ class Gift < ActiveRecord::Base
 
   def show_delete_gift_link? (users)
     return false unless users.class == Array and users.length > 0
+    return false if User.dummy_users?(users)
     api_gifts.each do |api_gift|
       user = users.find { |user2| user2.provider == api_gift.provider }
       next unless user

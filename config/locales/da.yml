@@ -143,7 +143,8 @@ da:
         callback_user_name_missing: "Login fejlede. Modtag ikke brugernavn fra %{provider}"
         find_or_create_from_auth_hash: "System fejl. Ugyldigt svar fra bruger opdatering efter login."
      destroy:
-        logged_off: "Log ud ok. Tak for besøget. Brug nedenstående link til at logge ind igen eller vende tilbage til login API. Luk browser for at fjerne session cookie"
+        logged_off: "Log ud ok. Tak for besøget. Brug nedenstående link til at logge ind igen eller vende tilbage til login API. Luk browseren for at fjerne session cookie."
+        already_logged_off: "Du var allerede logget ud. Brug nedenstående link til at logge ind igen eller vende tilbage til login API. Luk browseren for at fjerne session cookie."
 
   # facebook controller - login started from facebook and asking for more privs.
   facebook:
@@ -211,7 +212,7 @@ da:
         gift_not_posted_5: "Opslag på %{apiname} væg er endnu ikke implementeret"
         no_api_picture_url: "Foto blev uploaded, men ingen URL til foto blev modtaget fra %{apiname}"
      index:
-        not_logged_in_flash: "Ugyldigt kald. Du er ikke logget på."
+        not_logged_in_flash: "Siden kan desværre ikke vises. Du er ikke logget på."
         not_logged_in_text: "Du er ikke logget ind og der kan ikke oprettes opslag."
         welcome_msg_after_login: "Velkommen %{username} til %{appname}"
         create_gift_header_line: "Hjælp hinanden og miljøet. Del jeres resourcer. Giv, lån/lej ud, sælg etc."

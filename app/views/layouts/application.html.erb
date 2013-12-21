@@ -26,19 +26,16 @@
           <%= hidden_field_tag :timezone, "" %>
       <% end %>
     </div>
-    <% if login_user_ids and @users.length > 0 -%>
-        <!-- show page header for logged in users -->
-        <%# Hidden form to update currency => post to /users/:id/ => return to this page after currency has been changed -%>
-        <div id="update_currency_div" style="display:none">
-          <%= form_for @users.first, :class => 'update_currency_form' do |f| %>
-              <%= hidden_field_tag :return_to, @request_fullpath %>
-              <%= f.text_field :new_currency %>
-          <% end %>
-        </div>
-        <!-- page header -->
-        <%= render :partial => 'layouts/page_header' %>
-        <div style="width: 100%"><hr></div>
-    <% end -%>
+    <%# Hidden form to update currency => post to /users/:id/ => return to this page after currency has been changed -%>
+    <div id="update_currency_div" style="display:none">
+      <%= form_for @users.first, :class => 'update_currency_form' do |f| %>
+          <%= hidden_field_tag :return_to, @request_fullpath %>
+          <%= f.text_field :new_currency %>
+      <% end %>
+    </div>
+    <!-- page header -->
+    <%= render :partial => 'layouts/page_header' %>
+    <div style="width: 100%"><hr></div>
     <!-- todo: better flash/error handling -->
     <% if flash[:notice] -%>
         <br/>

@@ -27,7 +27,7 @@ class GiftsController < ApplicationController
     if picture and !User.post_gift_allowed?(@users)
       @errors << t('.file_upload_not_allowed',
                    :appname => APP_NAME,
-                   :apiname => (@users.length > 1 ? 'login provider' : @users..first.api_name_without_brackets))
+                   :apiname => (@users.length > 1 ? 'login provider' : @users.first.api_name_without_brackets))
       picture = false
     end
     if picture
@@ -139,7 +139,7 @@ class GiftsController < ApplicationController
     # puts2log  "access_token = #{session[:access_token]}"
     @gift = Gift.new
     @gift.direction = 'giver'
-    if @users.length == 0
+    if User.dummy_users?(@users)
       @gifts = []
       render_with_language __method__
       return
@@ -200,7 +200,7 @@ class GiftsController < ApplicationController
     if !gift
       if deep_link
         puts2log  "invalid deep link id"
-        if @users.size == 0
+        if User.dummy_users?(@users)
           flash[:notice] = t '.invalid_deep_link_id_not_logged_in'
         else
           flash[:notice] = t '.invalid_deep_link_id_logged_in'
@@ -209,9 +209,11 @@ class GiftsController < ApplicationController
         puts2log  "invalid gift id"
         flash[:notice] = t '.invalid_gift_id'
       end
-      if deep_link and @users.size == 0
+      if deep_link and User.dummy_users?(@users)
+        # not logged in
         redirect_to :controller => :auth
       else
+        # logged in
         redirect_to :action => :index
       end
       return
@@ -221,12 +223,12 @@ class GiftsController < ApplicationController
       api_gift.save!
       api_gift.clear_deep_link if api_gift.deep_link_errors > 10
       puts2log  "invalid deep link pw"
-      if @users.size == 0
+      if User.dummy_users?(@users)
         flash[:notice] = t '.invalid_deep_link_id_not_logged_in'
       else
         flash[:notice] = t '.invalid_deep_link_id_logged_in'
       end
-      if deep_link and @users.size == 0
+      if deep_link and User.dummy_users?(@users)
         redirect_to :controller => :auth
       else
         redirect_to :action => :index
@@ -256,15 +258,6 @@ class GiftsController < ApplicationController
         end
       end # ags sort 1
       @gift = api_gifts.first
-    end
-    if @users.size == 0
-      if deep_link
-        @user = User.find_by_user_id("gofreerev/#{api_gift.provider}")
-      else
-        @user = User.find_by_user_id('gofreerev/gofreerev')
-      end
-      puts2log  "@user.user_id = #{@user.user_id}"
-      @users = [ @user ]
     end
 
     respond_to do |format|

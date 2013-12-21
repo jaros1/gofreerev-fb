@@ -261,6 +261,7 @@ class User < ActiveRecord::Base
     return ['.callback_token_missing', { :provider => provider } ] if token == ""
     uid = options[:uid].to_s
     return ['.callback_uid_missing', { :provider => provider }] if uid == ""
+    return ['.callback_gofreerev_uid', { :provider => provider }] if uid == 'gofreerev' # reserved uid used for dummy users
     user_name = options[:name].to_s
     # todo: should escape username - ERB::Util.html_escape(user_name) does not work from activemodel
     return '.callback_user_name_missing_google' if user_name == "" and provider.first(6) == 'google'
@@ -389,6 +390,13 @@ class User < ActiveRecord::Base
   # dummy user is used for dummy page header, deep links and unmatched providers when closing deal between two users
   def dummy_user?
     user_id.split('/').first == 'gofreerev'
+  end
+  def self.dummy_users? (login_users)
+    raise "invalid call" unless login_users.class == Array and login_users.size > 0
+    login_users.each do |login_user|
+      return false unless login_user.dummy_user?
+    end
+    true
   end
 
   def facebook?
@@ -947,7 +955,7 @@ class User < ActiveRecord::Base
   def inbox_new_notifications
     raise "debug - maybe no longer used"
     return @new_notifications if defined?(@new_notifications)
-    return @new_notifications = 0 if @users.length == 0
+    return @new_notifications = nil if User.dummy_users?(@users)
     notifications = Notification.where("to_user_id = ? and noti_read = 'N'", self.user_id)
     # don't count notifications for deleted or delete marked gifts
     notifications = notifications.find_all do |noti|
