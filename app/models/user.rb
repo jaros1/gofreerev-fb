@@ -573,6 +573,10 @@ class User < ActiveRecord::Base
     api_gifts = api_gifts.find_all do |api_gift|
       (api_gift.user_id_giver and api_gift.gift.price and api_gift.gift.price != 0.00 and !api_gift.gift.deleted_at)
     end
+    # remove closed deals with user(s) as giver AND receiver
+    api_gifts = api_gifts.delete_if do |api_gift|
+      (user_ids.index(api_gift.user_id_giver) and user_ids.index(api_gift.user_id_receiver))
+    end
     # sort: 1 received_at, 2 id
     api_gifts = api_gifts.sort do |a,b|
       if a.gift.received_at == b.gift.received_at
@@ -713,7 +717,7 @@ class User < ActiveRecord::Base
     self.negative_interest = user_negative_interest_hash
     # todo: catch any exception and return false if transaction fails
     transaction do
-      api_gifts.each { |g| g.save! }
+      api_gifts.each { |api_gift| api_gift.gift.save! }
       self.save!
     end
     true
@@ -741,12 +745,12 @@ class User < ActiveRecord::Base
 
   # simple friend check - true or false without any details
   def friend? (login_users)
-    # puts2log  "user.friend?: login_users.class = #{login_users.class}"
+    # puts2log  "login_users.class = #{login_users.class}"
     return false unless login_users.class == Array # not logged in
-    # puts2log  "user.friend?: login_users.size = #{login_users.size}"
+    # puts2log  "login_users.size = #{login_users.size}"
     return false if login_users.size == 0 # not logged in
     login_user = login_users.find { |user| user.provider == self.provider }
-    puts2log  "user.friend?: provider = #{self.provider}, login_user = #{login_user}"
+    puts2log  "provider = #{self.provider}, login_user = #{login_user}"
     return false unless login_user
     return true if login_user.user_id == self.user_id
     f = get_friend(login_user)

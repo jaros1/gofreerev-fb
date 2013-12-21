@@ -501,7 +501,7 @@ en:
         new_price_column_heading_html: "Value<br />today:"
         balance_column_heading_html: "Balance"
         link_and_text_column_heading_html: "Text:"
-     gift:
+     api_gift:
         gift_link_title: "Click on link for more information"
         gift_link_text: "%{date} %{optional_price} / %{direction}"  # nested translate
         optional_price: "/ %{price}"

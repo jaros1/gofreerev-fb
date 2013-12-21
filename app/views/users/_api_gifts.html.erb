@@ -3,7 +3,7 @@
 <% end -%>
 <%# ajax: dummy row - placeholder for object id for last row in html table. Used in ajax request for next set of rows -%>
 <% if @last_row_id -%>
-    <tr style="display: none" id='<%= "last_row_id_#{@last_row_id}" %>'><td></td></tr>
+    <tr style="display: none" id='<%= "last-row-id-#{@last_row_id}" %>'><td></td></tr>
 <% else -%>
     <tr style="display: none"><td></td></tr>
 <% end -%>

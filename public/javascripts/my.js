@@ -876,6 +876,7 @@ function show_more_rows_success (table_name, debug)
         var href = link.href ;
         href = href.replace(/last_row_id=[0-9]+/, 'last_row_id=' + last_row_id) ;
         link.href = href ;
+        // add2log(pgm + 'href = ' + href) ;
         end_of_page = false ;
     }
 } // show_more_rows_success

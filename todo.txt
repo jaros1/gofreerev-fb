@@ -458,3 +458,6 @@
      check code with [ag.user_id_giver, ag.user_id_receiver].index(user_id)
      check code with login_user_ids.index(ag.user_id_giver)
      check code with api_gift = api_gifts.find { |ag| [ ag.user_id_giver, ag.user_id_receiver].index(???)
+
+125) better puts2log output
+     should display class.method: text class

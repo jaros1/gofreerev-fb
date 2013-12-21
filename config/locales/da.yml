@@ -510,7 +510,7 @@ da:
         new_price_column_heading_html: "Værdi<nr>nu:"
         balance_column_heading_html: "Saldo:"
         link_and_text_column_heading_html: "Tekst:"
-     gift:
+     api_gift:
         gift_link_title: "Klik på link for flere informationer om opslag"
         gift_link_text: "%{direction}"  # nested translate
         optional_price: "%{price}"
