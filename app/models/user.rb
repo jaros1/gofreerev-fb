@@ -52,7 +52,7 @@ class User < ActiveRecord::Base
   end # user_name
   def user_name=(new_user_name)
     if new_user_name
-      # puts "new_user_name = #{new_user_name} (#{new_user_name.class.name})"
+      # puts2log  "new_user_name = #{new_user_name} (#{new_user_name.class.name})"
       check_type('user_name', new_user_name, 'String')
       write_attribute :user_name, encrypt_add_pre_and_postfix(new_user_name, 'user_name', 9)
     else
@@ -93,7 +93,7 @@ class User < ActiveRecord::Base
   # validates_presence_of :balance # todo: only required for gofreerev users / not required for friends not using gofreerev
   def balance
     return nil unless (temp_extended_balance = read_attribute(:balance))
-    # puts "temp_extended_balance = #{temp_extended_balance}"
+    # puts2log  "temp_extended_balance = #{temp_extended_balance}"
     temp_balance = YAML::load encrypt_remove_pre_and_postfix(temp_extended_balance, 'balance', 11)
     temp_balance[BALANCE_KEY] = nil unless temp_balance.has_key?(BALANCE_KEY)
     temp_balance
@@ -172,7 +172,7 @@ class User < ActiveRecord::Base
   # validates_presence_of :negative_interest # todo: uncomment this
   def negative_interest
     return nil unless (temp_ext_neg_interest = read_attribute(:negative_interest))
-    # puts "temp_ext_neg_interest = #{temp_ext_neg_interest}"
+    # puts2log  "temp_ext_neg_interest = #{temp_ext_neg_interest}"
     temp_negative_interest = YAML::load encrypt_remove_pre_and_postfix(temp_ext_neg_interest, 'negative_interest', 14)
     temp_negative_interest[BALANCE_KEY] = nil unless temp_negative_interest.has_key?(BALANCE_KEY)
     temp_negative_interest
@@ -239,8 +239,8 @@ class User < ActiveRecord::Base
   public
   def self.open4 (command, dir = nil)
     pid, stdin, stdout, stderr = Open4::popen4 "sh"
-    stdin.puts "cd #{dir}" if dir
-    stdin.puts command
+    stdin.puts2log  "cd #{dir}" if dir
+    stdin.puts2log  command
     stdin.close
     ignored, status = Process::waitpid2 pid
     return [ stdout.read, stderr.read, status.exitstatus ]
@@ -267,7 +267,7 @@ class User < ActiveRecord::Base
     return ['.callback_user_name_missing',  { :provider => provider } ] if user_name == ""
     # missing image is a minor problem
     image = options[:image].to_s
-    puts "User.find_or_create_user: no profile picture received from login provider" if image == ""
+    puts2log  "User.find_or_create_user: no profile picture received from login provider" if image == ""
     user_id = "#{uid}/#{provider}"
     user = User.find_by_user_id(user_id)
     user = User.new unless user
@@ -315,38 +315,38 @@ class User < ActiveRecord::Base
   def self.download_profile_image (user_id, url)
     user = User.find_by_user_id(user_id)
     if !user
-      puts "error: invalid user id"
+      puts2log  "error: invalid user id"
       return [ '.profile_image_invalid_user', { :user_id => user_id } ]
     end
     if url.to_s == ""
-      puts "error: no image received from provider / post_login ajax request"
+      puts2log  "error: no image received from provider / post_login ajax request"
       return [ '.profile_image_blank', { :provider => user.provider } ]
     end
     if url !~ /https?\:\/\//
-      puts "error: invalid image #{url} received from provider / post_login ajax request"
+      puts2log  "error: invalid image #{url} received from provider / post_login ajax request"
       return [ '.profile_image_invalid_url', { :provider => user.provider, :image => url }]
     end
     # check image type
     image_type = FastImage.type(url).to_s
     if !%w(gif jpeg png jpg bmp).index(image_type)
-      puts "warning: unsupported image type #{image_type} for #{url}"
+      puts2log  "warning: unsupported image type #{image_type} for #{url}"
       return [ '.profile_image_invalid_type', { :provider => user.provider, :image => url, :image_type => image_type }]
     end
     # prepare work dir for download
     FileUtils.mkdir_p FileUtils.mkdir_p user.profile_picture_tmp_os_folder
     stdout, stderr, status = User.open4('rm *', user.profile_picture_tmp_os_folder)
-    # puts "rm: stdout = #{stdout}, stderr = #{stderr}, status = #{status} (#{status.class})" if status != 0
+    # puts2log  "rm: stdout = #{stdout}, stderr = #{stderr}, status = #{status} (#{status.class})" if status != 0
     # download image to work dir
     stdout, stderr, status = User.open4("wget #{url}", user.profile_picture_tmp_os_folder)
     if status != 0
-      puts "image download failed: wget: stdout = #{stdout}, stderr = #{stderr}, status = #{status} (#{status.class})"
+      puts2log  "image download failed: wget: stdout = #{stdout}, stderr = #{stderr}, status = #{status} (#{status.class})"
       error = stderr.to_s.split("\n").last
       return ['.profile_image_wget_failed', { :provider => user.provider, :image => url, :error => error } ]
     end
     # check download
     files = Dir.entries(user.profile_picture_tmp_os_folder).delete_if { |x| ['.', '..'].index(x) }
     if files.size != 1
-      puts "image download failed. expected 1 image. found #{files.size} images"
+      puts2log  "image download failed. expected 1 image. found #{files.size} images"
       return ['.profile_image_count_failed', { :provider => user.provider, :image => url, :count => files.size } ]
     end
     # rename/move image
@@ -359,7 +359,7 @@ class User < ActiveRecord::Base
     stdout, stderr, status = User.open4("mv #{old_file_name} ../#{new_file_name}", user.profile_picture_tmp_os_folder)
     if status != 0
       # rename/move failed
-      puts "image rename/move failed: stdout = #{stdout}, stderr = #{stderr}, status = #{status} (#{status.class})"
+      puts2log  "image rename/move failed: stdout = #{stdout}, stderr = #{stderr}, status = #{status} (#{status.class})"
       error = stderr.to_s.split("\n").last
       return ['.profile_image_mv_failed', { :provider => user.provider, :image => url, :error => error } ]
     end
@@ -369,7 +369,7 @@ class User < ActiveRecord::Base
     user.update_attribute('profile_picture_name', new_file_name) if user.profile_picture_name_changed?
     # cleanup
     stdout, stderr, status = User.open4("rmdir tmp", user.profile_picture_os_folder)
-    puts "rmdir: stdout = #{stdout}, stderr = #{stderr}, status = #{status} (#{status.class})" if status != 0
+    puts2log  "rmdir: stdout = #{stdout}, stderr = #{stderr}, status = #{status} (#{status.class})" if status != 0
     nil
   end # self.download_profile_image
 
@@ -447,7 +447,7 @@ class User < ActiveRecord::Base
       when "linkedin"
         permissions.to_s.split(',').index('rw_nus') != nil
       else
-        puts "todo: post_on_wall? not implemented for #{provider}"
+        puts2log  "todo: post_on_wall? not implemented for #{provider}"
         false
     end # case
   end # post_gift_allowed?
@@ -468,7 +468,7 @@ class User < ActiveRecord::Base
       when facebook?
         permissions['read_stream'] == 1
       else
-        puts "read_wall_allowed? not implemented for #{user_id.first(2)} users"
+        puts2log  "read_wall_allowed? not implemented for #{user_id.first(2)} users"
         false
     end
   end  # read_gifts_allowed?
@@ -523,7 +523,7 @@ class User < ActiveRecord::Base
 
   def app_friends
     Friend.where("user_id_giver = ?", user_id).includes(:friend).find_all do |f|
-      # puts "user_id_receiver = #{f.user_id_receiver}, api_friend = #{f.api_friend}, app_friend = #{f.app_friend}"
+      # puts2log  "user_id_receiver = #{f.user_id_receiver}, api_friend = #{f.api_friend}, app_friend = #{f.app_friend}"
       if f.app_friend == 'Y'
         true
       elsif f.app_friend == nil and f.api_friend == 'Y'
@@ -553,7 +553,7 @@ class User < ActiveRecord::Base
     user_balance_hash = { BALANCE_KEY => 0.0 } # BASE_CURRENCY
     user_negative_interest_hash = { BALANCE_KEY => 0.0 } # BASE_CURRENCY (USD)
     missing_exchange_rates = false
-    puts "recalculate_balance: user #{self.short_user_name}. #{gifts.size} gifts"
+    puts2log  "recalculate_balance: user #{self.short_user_name}. #{gifts.size} gifts"
     previous_date = nil
     date = nil
     exchange_rates_hash = {} # used as help variables for exchange rate gains/losses calculation in view
@@ -577,7 +577,7 @@ class User < ActiveRecord::Base
       end
       previous_exchange_rates_hash = exchange_rates_hash.clone
       balance_doc_hash[:previous_exchange_rates] = previous_exchange_rates_hash
-      # puts "balance_doc_hash[:previous_balance] = #{balance_doc_hash[:previous_balance]}"
+      # puts2log  "balance_doc_hash[:previous_balance] = #{balance_doc_hash[:previous_balance]}"
       balance_doc_hash[:previous_date] = previous_date.to_yyyymmdd
       # balance_doc_hash[:number_of_days] = (g.received_at.to_date - previous_date).to_i
 
@@ -600,12 +600,12 @@ class User < ActiveRecord::Base
       end # while
       user_balance_hash[BALANCE_KEY] = balance_sum
       # initialize negative interest hash
-      puts "gift id #{g.id}: initialize and save negative interest hash"
+      puts2log  "gift id #{g.id}: initialize and save negative interest hash"
       gift_negative_interest_hash = {}
       user_balance_hash.keys.each do |balance_hash_currency|
         next if balance_hash_currency == BALANCE_KEY
         gift_negative_interest = (previous_balance_hash[balance_hash_currency] - user_balance_hash[balance_hash_currency]).abs
-        puts "gift id #{g.id}, currency = #{balance_hash_currency}, old = #{previous_balance_hash[balance_hash_currency]}, new = #{user_balance_hash[balance_hash_currency]}, neg.int. = #{gift_negative_interest}"
+        puts2log  "gift id #{g.id}, currency = #{balance_hash_currency}, old = #{previous_balance_hash[balance_hash_currency]}, new = #{user_balance_hash[balance_hash_currency]}, neg.int. = #{gift_negative_interest}"
         gift_negative_interest_hash[balance_hash_currency] = gift_negative_interest
         user_negative_interest_hash[balance_hash_currency] = 0.0 unless user_negative_interest_hash.has_key?(balance_hash_currency)
         user_negative_interest_hash[balance_hash_currency] += gift_negative_interest
@@ -639,7 +639,7 @@ class User < ActiveRecord::Base
       # save balance and balance documentation
       g.set_balance(user_id, user_balance_hash[BALANCE_KEY], balance_doc_hash)
       # g.save
-      puts "recalculate_balance. g.id = #{g.id}, g.received_at = #{g.received_at}, balance_hash = #{user_balance_hash.to_s}, balance_doc_hash = #{balance_doc_hash}"
+      puts2log  "recalculate_balance. g.id = #{g.id}, g.received_at = #{g.received_at}, balance_hash = #{user_balance_hash.to_s}, balance_doc_hash = #{balance_doc_hash}"
     end # each
     return false if missing_exchange_rates # error - one or more missing currency rates
     today = Date.parse(Sequence.get_last_exchange_rate_date)
@@ -663,8 +663,8 @@ class User < ActiveRecord::Base
         user_negative_interest_hash[balance_hash_currency] += (previous_balance_hash[balance_hash_currency] - user_balance_hash[balance_hash_currency])
       end
     end
-    puts "user balance = #{user_balance_hash}"
-    puts "user negative_interest #{user_negative_interest_hash}"
+    puts2log  "user balance = #{user_balance_hash}"
+    puts2log  "user negative_interest #{user_negative_interest_hash}"
     # calculation ok - all needed exchange rates was found
     self.balance = user_balance_hash
     self.balance_at = today
@@ -699,12 +699,12 @@ class User < ActiveRecord::Base
 
   # simple friend check - true or false without any details
   def friend? (login_users)
-    # puts "user.friend?: login_users.class = #{login_users.class}"
+    # puts2log  "user.friend?: login_users.class = #{login_users.class}"
     return false unless login_users.class == Array # not logged in
-    # puts "user.friend?: login_users.size = #{login_users.size}"
+    # puts2log  "user.friend?: login_users.size = #{login_users.size}"
     return false if login_users.size == 0 # not logged in
     login_user = login_users.find { |user| user.provider == self.provider }
-    puts "user.friend?: provider = #{self.provider}, login_user = #{login_user}"
+    puts2log  "user.friend?: provider = #{self.provider}, login_user = #{login_user}"
     return false unless login_user
     return true if login_user.user_id == self.user_id
     f = get_friend(login_user)
@@ -777,7 +777,7 @@ class User < ActiveRecord::Base
   def allowed_friend_status_action (login_user, action)
     allowed_friend_actions = friend_status_actions(login_user).collect { |fa| fa.downcase }
     allowed = allowed_friend_actions.index(action.to_s)
-    puts "action #{action} was not allowed. Friend status code = #{friend_status_code(login_user)}, allowed actions = #{allowed_friend_actions.join(', ')}"  if  !allowed
+    puts2log  "action #{action} was not allowed. Friend status code = #{friend_status_code(login_user)}, allowed actions = #{allowed_friend_actions.join(', ')}"  if  !allowed
     allowed
   end
   def add_api_friend (login_user)
@@ -1000,22 +1000,22 @@ class User < ActiveRecord::Base
     raise NoApiAccessTokenException unless access_token
     api = Koala::Facebook::API.new(access_token)
     api_request = 'me?fields=permissions'
-    puts "api_request = #{api_request}"
+    puts2log  "api_request = #{api_request}"
     begin
       api_response = api.get_object(api_request)
     rescue Koala::Facebook::ClientError => e
-      puts 'Koala::Facebook::ClientError'
-      puts "e.fb_error_type = #{e.fb_error_type}"
-      puts "e.fb_error_code = #{e.fb_error_code}"
-      puts "e.fb_error_subcode = #{e.fb_error_subcode}"
-      puts "e.fb_error_message = #{e.fb_error_message}"
-      puts "e.http_status = #{e.http_status}"
-      puts "e.response_body = #{e.response_body}"
-      puts "e.fb_error_type.class.name = #{e.fb_error_type.class.name}"
-      puts "e.fb_error_code.class.name = #{e.fb_error_code.class.name}"
+      puts2log  'Koala::Facebook::ClientError'
+      puts2log  "e.fb_error_type = #{e.fb_error_type}"
+      puts2log  "e.fb_error_code = #{e.fb_error_code}"
+      puts2log  "e.fb_error_subcode = #{e.fb_error_subcode}"
+      puts2log  "e.fb_error_message = #{e.fb_error_message}"
+      puts2log  "e.http_status = #{e.http_status}"
+      puts2log  "e.response_body = #{e.response_body}"
+      puts2log  "e.fb_error_type.class.name = #{e.fb_error_type.class.name}"
+      puts2log  "e.fb_error_code.class.name = #{e.fb_error_code.class.name}"
       raise
     end # rescue
-    puts "api_response = #{api_response}"
+    puts2log  "api_response = #{api_response}"
     self.permissions = api_response['permissions']['data'][0]
     self.permissions = {} if self.permissions == []
     save!
@@ -1074,10 +1074,10 @@ class User < ActiveRecord::Base
 
   # as instance method gifts, but extended to be used for multiple provider logins
   def self.api_gifts (login_users, newest_gift_id=0, newest_status_update_at=0, include_delete_marked_gifts=false)
-    puts "User.api_gifts: login_users.size            = #{login_users.size}"
-    puts "User.api_gifts: newest_gift_id              = #{newest_gift_id}"
-    puts "User.api_gifts: newest_status_update_at     = #{newest_status_update_at}"
-    puts "User.api_gifts: include_delete_marked_gifts = #{include_delete_marked_gifts}"
+    puts2log  "User.api_gifts: login_users.size            = #{login_users.size}"
+    puts2log  "User.api_gifts: newest_gift_id              = #{newest_gift_id}"
+    puts2log  "User.api_gifts: newest_status_update_at     = #{newest_status_update_at}"
+    puts2log  "User.api_gifts: include_delete_marked_gifts = #{include_delete_marked_gifts}"
     return nil unless [Array, ActiveRecord::Relation::ActiveRecord_Relation_User].index(login_users.class) and login_users.length > 0
     ags = []
     login_users.each do |login_user|

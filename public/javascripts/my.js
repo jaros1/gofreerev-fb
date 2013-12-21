@@ -764,7 +764,7 @@ $(document).ready(function() {
     }); // $("#user_currency_new").bind('focus', function () {
 })
 
-// disable user_currency_new LOV for deep link for not logged in users
+// disable user_currency_new LOV for deep link for not logged in users (gifts/show/<deep_link_id>)
 function disable_user_currency_new_lov() {
     setInterval(function() {
         $("#user_currency_new").unbind('focus') ;

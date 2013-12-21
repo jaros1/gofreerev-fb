@@ -1,4 +1,4 @@
-<%= puts "@gift_file = #{@gift_file}" -%>
+<%= puts2log  "@gift_file = #{@gift_file}" -%>
 $('#tasks_errors').append('<%= j render("shared/translate_ajax_errors") %>');
 ajax_flash_new_table_rows('tasks_errors',<%= @errors.size %>);
 disable_enable_file_upload(<%= @gift_file %>) ;

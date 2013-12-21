@@ -13,9 +13,9 @@ class LinkedinController < ApplicationController
     # linkedin oauth client was saved in util.post_on_linkedin after "(403): Access to posting shares denied" error
     client = get_linkedin_client
     x = client.authorize_from_request(client.request_token.token, client.request_token.secret, params[:oauth_verifier])
-    puts "x = #{x} (#{x.class})"
+    puts2log  "x = #{x} (#{x.class})"
     if x.class == Array and x.length == 2 and x[0].class == String and x[1].class == String and x[0] != "" and x[1] != ''
-      puts "login ok. Get name, .... from linkedin"
+      puts2log  "login ok. Get name, .... from linkedin"
       # get basic user information from linkedin before 2. login with write permission (rw_nus) to linkedin wall
       client = LinkedIn::Client.new ENV['GOFREEREV_LI_APP_ID'], ENV['GOFREEREV_LI_APP_SECRET']
       client.authorize_from_access x[0], x[1] # token and secret
@@ -28,7 +28,7 @@ class LinkedinController < ApplicationController
                   :image => res1.picture_url,
                   :country => nil,
                   :language => nil
-      puts "res2 = #{res2}"
+      puts2log  "res2 = #{res2}"
       if !res2
         # login ok with extra rw_nus priv
         user_id = "#{res1.id}/linkedin"
@@ -43,14 +43,14 @@ class LinkedinController < ApplicationController
         begin
           flash[:notice] = t key, options
         rescue Exception => e
-          puts "invalid response from login. Must be nil or a valid input to translate. Response: #{res2}"
+          puts2log  "invalid response from login. Must be nil or a valid input to translate. Response: #{res2}"
           flash[:notice] = t '.find_or_create_from_auth_hash', :response => res2, :exception => e.message.to_s
         end
         redirect_to :controller => :auth
       end
 
     else
-      puts "login not ok."
+      puts2log  "login not ok."
     end
 
 

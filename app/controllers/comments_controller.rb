@@ -15,7 +15,7 @@ class CommentsController < ApplicationController
     return add_error_and_format_ajax_resp(t '.invalid_request_invalid_gift') unless gift.visible_for?(@users)
     # get user from @users. Must be giver, receiver or friend of giver or receiver.
     user = @users.find { |user2| gift.visible_for?([user2]) }
-    puts "user_id = #{user.user_id}"
+    puts2log  "user_id = #{user.user_id}"
     @comment = Comment.new
     @comment.gift_id = gift.gift_id if gift
     @comment.user_id = user.user_id
@@ -32,13 +32,13 @@ class CommentsController < ApplicationController
       @comment.errors.add :price, :invalid if params[:comment][:new_deal_yn] == 'Y' and invalid_price?(params[:comment][:price])
       if @comment.errors.size == 0
         @comment.save
-        puts "comment saved"
+        puts2log  "comment saved"
         format.html { redirect_to @comment, notice: 'Comment was successfully created.' }
         format.json { render json: @comment, status: :created, location: @comment }
         format.js
       else
-        puts "comment not saved. error = " + @comment.errors.full_messages.join(', ')
-        puts "currency = #{@comment.currency}"
+        puts2log  "comment not saved. error = " + @comment.errors.full_messages.join(', ')
+        puts2log  "currency = #{@comment.currency}"
         format.html { render action: "new" }
         format.json { render json: @comment.errors, status: :unprocessable_entity }
         format.js
@@ -96,12 +96,12 @@ class CommentsController < ApplicationController
     id = params[:id]
     comment = Comment.find_by_id(id)
     if !comment
-      puts "Comment with id #{id} was not found - silently ignore ajax request"
+      puts2log  "Comment with id #{id} was not found - silently ignore ajax request"
       render :nothing => true
       return
     end
     if !comment.show_delete_comment_link?(@users)
-      puts "User can not delete comment with #{id} - silently ignore ajax request"
+      puts2log  "User can not delete comment with #{id} - silently ignore ajax request"
       render :nothing => true
       return
     end

@@ -39,7 +39,7 @@ class CommentTest < ActiveSupport::TestCase
     # get params
     notifications = options[:notifications]
     method = options[:method]
-    puts "\ntest #{method}\n"
+    puts2log  "\ntest #{method}\n"
     # before test
     notifications_before = Notification.count
     # test setup before assert
@@ -99,7 +99,7 @@ class CommentTest < ActiveSupport::TestCase
           t_key = "inbox.index.#{noti_key}_#{postfix}_msg"
           t_text = translate t_key, found_notifications[i][:noti_options]
           t_touser = found_notifications[i][:to_user_short_user_name]
-          puts "#{language}.#{t_key} = #{t_touser}: #{t_text}" if debug_notifications
+          puts2log  "#{language}.#{t_key} = #{t_touser}: #{t_text}" if debug_notifications
           # translation key must exists
           assert !t_text.index('class="translation_missing"'), "translation #{language}.#{t_key} is missing"
           # check translation
@@ -1408,7 +1408,7 @@ class CommentTest < ActiveSupport::TestCase
       # charlie - reject proposals from u1/sandra and u2/karen
       # random sequence of rejects - the end result should be the same ...
       [c1, c2].shuffle.each do |c|
-        puts "reject proposal from #{c.user.short_user_name}" if debug_notifications
+        puts2log  "reject proposal from #{c.user.short_user_name}" if debug_notifications
         c.accepted_yn = 'N'
         assert c.save!
       end
@@ -1465,7 +1465,7 @@ class CommentTest < ActiveSupport::TestCase
       # charlie - reject proposals from u2/karen and u3/david
       # random sequence of rejects - the end result should be the same ...
       [c2, c3].shuffle.each do |c|
-        puts "reject proposal from #{c.user.short_user_name}" if debug_notifications
+        puts2log  "reject proposal from #{c.user.short_user_name}" if debug_notifications
         c.accepted_yn = 'N'
         assert c.save!
       end
@@ -1529,7 +1529,7 @@ class CommentTest < ActiveSupport::TestCase
       # charlie - rejects all three proposals
       # random sequence of rejects - the end result should be the same ...
       [c1, c2, c3].shuffle.each do |c|
-        puts "reject proposal from #{c.user.short_user_name}" if debug_notifications
+        puts2log  "reject proposal from #{c.user.short_user_name}" if debug_notifications
         c.accepted_yn = 'N'
         assert c.save!
       end

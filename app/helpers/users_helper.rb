@@ -32,13 +32,13 @@ module UsersHelper
       new_sum = 0.0
       previous_balance_hash.keys.each do |currency|
         next if currency == BALANCE_KEY
-        puts "gift id = #{gift.id}, currency = #{currency}"
+        puts2log  "gift id = #{gift.id}, currency = #{currency}"
         amount = previous_balance_hash[currency] + negative_interest_hash[currency]
         old_sum += ExchangeRate.exchange(amount / old_exchange_rates[currency], 'USD', current_user.currency, previous_date)
         new_sum += ExchangeRate.exchange(amount / new_exchange_rates[currency], 'USD', current_user.currency, gift.received_at)
       end
       gain_loss = new_sum - old_sum
-      puts "exchange rate gains/losses. gift id #{gift.id}, gain/loss #{gain_loss}"
+      puts2log  "exchange rate gains/losses. gift id #{gift.id}, gain/loss #{gain_loss}"
     else
       gain_loss = 0.0
     end
@@ -122,14 +122,14 @@ module UsersHelper
   # nav links is displayed in 1, 2 or 3 lines in users/show page depending on screen width
   # prefix must match prefix for entries in users/user_nav_links in locals
   def user_nav_link (options)
-    # puts "users_helper.user_nav_link: input options = #{options}"
+    # puts2log  "users_helper.user_nav_link: input options = #{options}"
     prefix = options.delete(:prefix)
     symbol = case prefix
                when 'tabs' then :tab
                when 'deal_status' then :status
                when 'deal_direction' then :direction
                else
-                 puts "error in users/_user_nav_links. user_nav_link must be called with prefix tabs, deal_status or deal_direction"
+                 puts2log  "error in users/_user_nav_links. user_nav_link must be called with prefix tabs, deal_status or deal_direction"
              end
     page_values = options.delete(:page_values)
     page_value = page_values[symbol]
@@ -143,7 +143,7 @@ module UsersHelper
       options[:id] = @user2.id
       options[symbol] = array_value
       key = ".#{prefix}_#{array_value}"
-      # puts "users_helper.user_nav_link: link key = #{key}, link options = #{options}"
+      # puts2log  "link key = #{key}, link options = #{options}"
       link_to (t key), user_path(options)
     end
   end # user_nav_link

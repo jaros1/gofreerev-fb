@@ -72,7 +72,7 @@
 
 // attr2 uses prop when it can but checks the return type for
 // an expected string.  this accounts for the case where a form
-// contains inputs with names like "action" or "method"; in those
+// contains inputs2log  with names like "action" or "method"; in those
 // cases "prop" returns the element
     $.fn.attr2 = function() {
         if ( ! hasProp )
@@ -221,15 +221,15 @@
 
         // [value] (issue #113), also see comment:
         // https://github.com/malsup/form/commit/588306aedba1de01388032d5f42a60159eea9228#commitcomment-2180219
-        var fileInputs = $('input[type=file]:enabled', this).filter(function() { return $(this).val() !== ''; });
+        var fileInputs2log  = $('input[type=file]:enabled', this).filter(function() { return $(this).val() !== ''; });
 
-        var hasFileInputs = fileInputs.length > 0;
+        var hasFileInputs2log  = fileInputs.length > 0;
         var mp = 'multipart/form-data';
         var multipart = ($form.attr('enctype') == mp || $form.attr('encoding') == mp);
 
         var fileAPI = feature.fileapi && feature.formdata;
         log("fileAPI :" + fileAPI);
-        var shouldUseFrame = (hasFileInputs || multipart) && !fileAPI;
+        var shouldUseFrame = (hasFileInputs2log  || multipart) && !fileAPI;
 
         var jqxhr;
 
@@ -247,7 +247,7 @@
                 jqxhr = fileUploadIframe(a);
             }
         }
-        else if ((hasFileInputs || multipart) && fileAPI) {
+        else if ((hasFileInputs2log  || multipart) && fileAPI) {
             jqxhr = fileUploadXhr(a);
         }
         else {
@@ -533,7 +533,7 @@
                 }
 
                 // add "extra" data to form if provided in options
-                var extraInputs = [];
+                var extraInputs2log  = [];
                 try {
                     if (s.extraData) {
                         for (var n in s.extraData) {
@@ -921,7 +921,7 @@
             }
 
             if (semantic && form.clk && el.type == "image") {
-                // handle image inputs on the fly when semantic == true
+                // handle image inputs2log  on the fly when semantic == true
                 if(form.clk == el) {
                     a.push({name: n, value: $(el).val(), type: el.type });
                     a.push({name: n+'.x', value: form.clk_x}, {name: n+'.y', value: form.clk_y});
@@ -1017,9 +1017,8 @@
      *  </fieldset></form>
      *
      *  var v = $('input[type=text]').fieldValue();
-     *  // if no values are entered into the text inputs
-     *  v == ['','']
-     *  // if values entered into the text inputs are 'foo' and 'bar'
+     *  // if no values are entered into the text inputs2log       *  v == ['','']
+     *  // if values entered into the text inputs2log  are 'foo' and 'bar'
      *  v == ['foo','bar']
      *
      *  var v = $('input[type=checkbox]').fieldValue();
@@ -1103,8 +1102,8 @@
      * Clears the form data.  Takes the following actions on the form's input fields:
      *  - input text fields will have their 'value' property set to the empty string
      *  - select elements will have their 'selectedIndex' property set to -1
-     *  - checkbox and radio inputs will have their 'checked' property set to false
-     *  - inputs of type submit, button, reset, and hidden will *not* be effected
+     *  - checkbox and radio inputs2log  will have their 'checked' property set to false
+     *  - inputs2log  of type submit, button, reset, and hidden will *not* be effected
      *  - button elements will *not* be effected
      */
     $.fn.clearForm = function(includeHidden) {
@@ -1116,7 +1115,7 @@
     /**
      * Clears the selected form elements.
      */
-    $.fn.clearFields = $.fn.clearInputs = function(includeHidden) {
+    $.fn.clearFields = $.fn.clearInputs2log  = function(includeHidden) {
         var re = /^(?:color|date|datetime|email|month|number|password|range|search|tel|text|time|url|week)$/i; // 'hidden' is not in this list
         return this.each(function() {
             var t = this.type, tag = this.tagName.toLowerCase();
@@ -1140,7 +1139,7 @@
                 // includeHidden can be the value true, or it can be a selector string
                 // indicating a special test; for example:
                 //  $('#myForm').clearForm('.special:hidden')
-                // the above would clean hidden inputs that have the class of 'special'
+                // the above would clean hidden inputs2log  that have the class of 'special'
                 if ( (includeHidden === true && /hidden/.test(t)) ||
                     (typeof includeHidden == 'string' && $(this).is(includeHidden)) )
                     this.value = '';

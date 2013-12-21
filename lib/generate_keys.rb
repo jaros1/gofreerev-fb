@@ -30,25 +30,25 @@ keys = []
 1.upto(NO_KEYS) { |i| keys[i] = generate_random_string(KEY_LNG) }
 
 # output bash script
-puts ''
-puts '# you could store your secret keys in linux/bash:''
+puts2log  ''
+puts2log  '# you could store your secret keys in linux/bash:''
 1.upto(NO_KEYS) do |i|
-  puts "#{PREFIX}#{i}=#{keys[i]}"
-  puts "export #{PREFIX}#{i}"
+  puts2log  "#{PREFIX}#{i}=#{keys[i]}"
+  puts2log  "export #{PREFIX}#{i}"
 end
 
 # todo: output keys in other formats, linux shell, windows dos etc
 
 # output rails constraint to be inserted in /config/initializers/constraints.rb
-puts ""
-puts "insert this ruby constant in /config/initializers/constraints.rb"
+puts2log  ""
+puts2log  "insert this ruby constant in /config/initializers/constraints.rb"
 line = 'ENCRYPT_KEYS = [ '
 1.upto(NO_KEYS) do |i|
   next_item = "ENV['#{PREFIX}#{i}']" + (i==50 ? ' ]' : ', ')
   if (line+next_item).size > RUBY_MAX_LINE_SIZE
-    puts line
+    puts2log  line
     line = '                 '
   end
   line = line + next_item
 end
-puts line
+puts2log  line

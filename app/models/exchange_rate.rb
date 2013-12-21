@@ -51,15 +51,15 @@ class ExchangeRate < ActiveRecord::Base
     end
     ExchangeRate.cache_exchange_rates if cache
     date = @@today unless date
-    # puts "date = #{date}, @@today = #{@@today}"
+    # puts2log  "date = #{date}, @@today = #{@@today}"
     raise "invalid date" unless date.to_s.yyyymmdd? and date <= @@today
 
     # check for zero or identical currencies
     from_amount = from_amount.to_f
     if from_amount == 0 or from_currency. == to_currency
-      # puts 'exchange: zero amount or identical currencies'
+      # puts2log  'exchange: zero amount or identical currencies'
       to_amount = from_amount
-      # puts "exchange: from_amount = #{from_amount}, from_currency = #{from_currency}, to_amount = #{to_amount}, to_currency = #{to_currency}"
+      # puts2log  "exchange: from_amount = #{from_amount}, from_currency = #{from_currency}, to_amount = #{to_amount}, to_currency = #{to_currency}"
       return to_amount
     end
 
@@ -122,9 +122,9 @@ class ExchangeRate < ActiveRecord::Base
       from = BASE_CURRENCY
       usd_rates = ExchangeRate.get_all_exchange_rates(from)
       if usd_rates.size < 50
-        puts "Error: found less than 50 exchange rates from default money bank"
-        puts "rates = #{usd_rates}"
-        puts "next currency request in 6 hours"
+        puts2log  "Error: found less than 50 exchange rates from default money bank"
+        puts2log  "rates = #{usd_rates}"
+        puts2log  "next currency request in 6 hours"
         # ExchangeRate.set_last_money_bank_request(Time.current_hour_no) # already set
         return ['.too_few_exchange_rates', {:bank => Money.default_bank.class.name.split('::').last, :expected => 50, :found => usd_rates.size}]
       end
@@ -146,8 +146,8 @@ class ExchangeRate < ActiveRecord::Base
 
       nil
     rescue Exception => e
-      puts "Exception: #{e.message.to_s}"
-      puts "Backtrace: " + e.backtrace.join("\n")
+      puts2log  "Exception: #{e.message.to_s}"
+      puts2log  "Backtrace: " + e.backtrace.join("\n")
       raise
     end
   end # fetch_exchange_rates

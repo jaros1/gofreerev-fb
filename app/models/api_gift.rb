@@ -104,12 +104,12 @@ class ApiGift < ActiveRecord::Base
   # 7) api_picture_url - String in Model - encrypted text in db
   validates_presence_of :api_picture_url, :if => Proc.new { |rec| rec.picture? }
   def api_picture_url
-    # puts "gift.api_picture_url: api_picture_url = #{read_attribute(:api_picture_url)} (#{read_attribute(:api_picture_url).class.name})"
+    # puts2log  "api_picture_url = #{read_attribute(:api_picture_url)} (#{read_attribute(:api_picture_url).class.name})"
     return nil unless (extended_api_picture_url = read_attribute(:api_picture_url))
     encrypt_remove_pre_and_postfix(extended_api_picture_url, 'api_picture_url', 23)
   end # api_picture_url
   def api_picture_url=(new_api_picture_url)
-    # puts "gift.api_picture_url=: api_picture_url = #{new_api_picture_url} (#{new_api_picture_url.class.name})"
+    # puts2log  "api_picture_url = #{new_api_picture_url} (#{new_api_picture_url.class.name})"
     if new_api_picture_url
       check_type('api_picture_url', new_api_picture_url, 'String')
       write_attribute :api_picture_url, encrypt_add_pre_and_postfix(new_api_picture_url, 'api_picture_url', 23)
@@ -214,7 +214,7 @@ class ApiGift < ActiveRecord::Base
   # Hash in model, encrypted text in db
   def balance_doc_giver
     return nil unless (temp_extended_balance_doc_giver = read_attribute(:balance_doc_giver))
-    # puts "temp_extended_balance_doc_giver = #{temp_extended_balance_doc_giver}"
+    # puts2log  "temp_extended_balance_doc_giver = #{temp_extended_balance_doc_giver}"
     YAML::load encrypt_remove_pre_and_postfix(temp_extended_balance_doc_giver, 'balance_doc_giver', 34)
   end # balance_doc_giver
   def balance_doc_giver=(new_balance_doc_giver)
@@ -236,7 +236,7 @@ class ApiGift < ActiveRecord::Base
   # Hash in model, encrypted text in db
   def balance_doc_receiver
     return nil unless (temp_extended_balance_doc_receiver = read_attribute(:balance_doc_receiver))
-    # puts "temp_extended_balance_doc_receiver = #{temp_extended_balance_doc_receiver}"
+    # puts2log  "temp_extended_balance_doc_receiver = #{temp_extended_balance_doc_receiver}"
     YAML::load encrypt_remove_pre_and_postfix(temp_extended_balance_doc_receiver, 'balance_doc_receiver', 35)
   end # balance_doc_receiver
   def balance_doc_receiver=(new_balance_doc_receiver)
@@ -334,11 +334,11 @@ class ApiGift < ActiveRecord::Base
     field = options[:field]
     raise "#{__method__}: invalid call" unless %w(full_picture message).index(field)
     #if picture != 'Y'
-    #  puts "api_gift.get_api_picture_url: picture = \"#{picture}\""
+    #  puts2log  "api_gift.get_api_picture_url: picture = \"#{picture}\""
     #  return nil
     #end
     if deleted_at_api == 'Y'
-      puts "#{__method__}: deleted picture"
+      puts2log  "deleted picture"
       return nil
     end
     raise NoApiAccessTokenException unless access_token
@@ -363,7 +363,7 @@ class ApiGift < ActiveRecord::Base
       raise
     end
     # ok request - return picture url or message text
-    puts "#{__method__}: api_response = #{api_response}"
+    puts2log  "api_response = #{api_response}"
     return api_response[field]
   end # get_api_picture_url
 

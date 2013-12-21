@@ -37,12 +37,12 @@ class GiftLike < ActiveRecord::Base
 
   # 4) like - Y/N - default N - like/unlike gift - String in model - encrypted text in db
   def like
-    # puts "Giftlike: like = #{read_attribute(:like)} (#{read_attribute(:like).class.name})"
+    # puts2log  "Giftlike: like = #{read_attribute(:like)} (#{read_attribute(:like).class.name})"
     return nil unless (extended_like = read_attribute(:like))
     encrypt_remove_pre_and_postfix(extended_like, 'like', 29)
   end # like
   def like=(new_like)
-    # puts "gift.like=: like = #{new_like} (#{new_like.class.name})"
+    # puts2log  "gift.like=: like = #{new_like} (#{new_like.class.name})"
     if new_like
       check_type('like', new_like, 'String')
       write_attribute :like, encrypt_add_pre_and_postfix(new_like, 'like', 29)
@@ -59,12 +59,12 @@ class GiftLike < ActiveRecord::Base
 
   # 5) show - Y/N - default Y - show/hide gift
   def show
-    # puts "Giftshow: show = #{read_attribute(:show)} (#{read_attribute(:show).class.name})"
+    # puts2log  "Giftshow: show = #{read_attribute(:show)} (#{read_attribute(:show).class.name})"
     return nil unless (extended_show = read_attribute(:show))
     encrypt_remove_pre_and_postfix(extended_show, 'show', 30)
   end # show
   def show=(new_show)
-    # puts "gift.show=: show = #{new_show} (#{new_show.class.name})"
+    # puts2log  "gift.show=: show = #{new_show} (#{new_show.class.name})"
     if new_show
       check_type('show', new_show, 'String')
       write_attribute :show, encrypt_add_pre_and_postfix(new_show, 'show', 30)
@@ -81,12 +81,12 @@ class GiftLike < ActiveRecord::Base
   
   # 6) follow - Y/N - default nil - Y/N to explicit follow or ignore gift comments
   def follow
-    # puts "Giftfollow: follow = #{read_attribute(:follow)} (#{read_attribute(:follow).class.name})"
+    # puts2log  "Giftfollow: follow = #{read_attribute(:follow)} (#{read_attribute(:follow).class.name})"
     return nil unless (extended_follow = read_attribute(:follow))
     encrypt_remove_pre_and_postfix(extended_follow, 'follow', 31)
   end # follow
   def follow=(new_follow)
-    # puts "gift.follow=: follow = #{new_follow} (#{new_follow.class.name})"
+    # puts2log  "gift.follow=: follow = #{new_follow} (#{new_follow.class.name})"
     if new_follow
       check_type('follow', new_follow, 'String')
       write_attribute :follow, encrypt_add_pre_and_postfix(new_follow, 'follow', 31)

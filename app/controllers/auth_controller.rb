@@ -13,7 +13,7 @@ class AuthController < ApplicationController
   # omniauth callback on success (login was started from rails)
   def create
     @auth_hash = auth_hash
-    # puts "auth_hash = #{auth_hash}"
+    # puts2log  "auth_hash = #{auth_hash}"
     # login - return nil (ok) or array with translate key and options for error message
     # auth_hash.get_xxx methods are defined in initializers/omniauth*.rb
     res = login :provider => auth_hash.get_provider,
@@ -33,7 +33,7 @@ class AuthController < ApplicationController
       begin
         flash[:notice] = t key, options
       rescue Exception => e
-        puts "invalid response from User.find_or_create_from_auth_hash. Must be nil or a valid input to translate. Response: #{user}"
+        puts2log  "invalid response from User.find_or_create_from_auth_hash. Must be nil or a valid input to translate. Response: #{user}"
         flash[:notice] = t '.find_or_create_from_auth_hash', :response => user, :exception => e.message.to_s
       end
       redirect_to :controller => :auth, :action => :index
@@ -44,14 +44,14 @@ class AuthController < ApplicationController
   # oauth_failure is also used if user cancels authorization/login
   def oauth_failure
     env = request.env
-    # puts "env.keys = #{env.keys.sort.join(', ')}"
-    # puts "env = #{env} (#{env.class})"
+    # puts2log  "env.keys = #{env.keys.sort.join(', ')}"
+    # puts2log  "env = #{env} (#{env.class})"
     error = env['omniauth.error']
     type = env['omniauth.error.type']
     strategy = env['omniauth.error.strategy']
-    puts "error = #{error} (#{error.class})"
-    puts "error.methods = #{error.methods.sort.join(', ')}"
-    puts "error.message = #{error.message} (#{error.message.class})"
+    puts2log  "error = #{error} (#{error.class})"
+    puts2log  "error.methods = #{error.methods.sort.join(', ')}"
+    puts2log  "error.message = #{error.message} (#{error.message.class})"
 
     # check cancelled facebook login
     # Parameters: {"error_reason"=>"user_denied",
@@ -68,7 +68,7 @@ class AuthController < ApplicationController
         type == :invalid_credentials and
         error.class == OmniAuth::Strategies::OAuth2::CallbackError and
         params[:error] == 'access_denied'
-      puts "facebook login was cancelled"
+      puts2log  "facebook login was cancelled"
       flash[:notice] = t ".login_cancelled", :provider => 'facebook', :appname => APP_NAME
       redirect_to :controller => :auth
       return
@@ -87,11 +87,11 @@ class AuthController < ApplicationController
         error.message == 'parameter_absent'
       client = get_linkedin_client()
       if client
-        puts "request for linked rw_nus priv. was cancelled"
+        puts2log  "request for linked rw_nus priv. was cancelled"
         flash[:notice] = t ".linkedin_rw_nus_cancelled", :appname => APP_NAME
         redirect_to :controller => :gifts
       else
-        puts "linkedin login was cancelled"
+        puts2log  "linkedin login was cancelled"
         flash[:notice] = t ".login_cancelled", :provider => 'linkedin', :appname => APP_NAME
         redirect_to :controller => :auth
       end
@@ -100,10 +100,10 @@ class AuthController < ApplicationController
 
     # todo: check cancelled twitter login
     # twitter login fejlede! invalid_credentials: 401 Unauthorized
-    puts "request_uri = #{request_uri}"
-    puts "type = #{type} (#{type.class})"
-    puts "error.class = #{error.class}"
-    puts "error.message = #{error.message}"
+    puts2log  "request_uri = #{request_uri}"
+    puts2log  "type = #{type} (#{type.class})"
+    puts2log  "error.class = #{error.class}"
+    puts2log  "error.message = #{error.message}"
     # request_uri = http://localhost/auth/twitter/callback?denied=2ddtp3zYx5CdldwXCOshMuFVC3QEiAMyAJpKUbO4Fc
     # type = invalid_credentials (Symbol)
     # error.class = OAuth::Unauthorized
@@ -114,16 +114,16 @@ class AuthController < ApplicationController
         type == :invalid_credentials and
         error.class == OAuth::Unauthorized and
         error.message == '401 Unauthorized'
-      puts "twitter login was cancelled"
+      puts2log  "twitter login was cancelled"
       flash[:notice] = t ".login_cancelled", :provider => 'twitter', :appname => APP_NAME
       redirect_to :controller => :auth
       return
     end
 
-    # puts "type = #{type}"
-    # puts "strategy = #{strategy}"
-    # puts "strategy.methods = #{strategy.methods.sort.join(', ')}"
-    # puts "strategy.name = #{strategy.name}"
+    # puts2log  "type = #{type}"
+    # puts2log  "strategy = #{strategy}"
+    # puts2log  "strategy.methods = #{strategy.methods.sort.join(', ')}"
+    # puts2log  "strategy.name = #{strategy.name}"
     #error = :
     #    {
     #        "errorCode": 0,

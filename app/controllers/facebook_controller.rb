@@ -27,37 +27,37 @@ class FacebookController < ApplicationController
   #   action:
   def create
     signed_request = params[:signed_request]
-    puts "signed_request = #{signed_request}"
+    puts2log  "signed_request = #{signed_request}"
     # signed_request = 9m_Xew0oojeuzMjIZFqwx9lI_UI4AqC-vMWXL9o45g4.eyJhbGdvcml0aG0iOiJITUFDLVNIQTI1NiIsImlzc3VlZF9hdCI6MTM3MzI4NDA4OCwidXNlciI6eyJjb3VudHJ5IjoiZGsiLCJsb2NhbGUiOiJkYV9ESyIsImFnZSI6eyJtaW4iOjIxfX19
     if signed_request.to_s == ''
       # fatal error - signed_request parameter was missing in request
-      puts 'fatal error - signed_request parameter was missing in request'
+      puts2log  'fatal error - signed_request parameter was missing in request'
       render_with_language('cross_site_forgery')
       return
     end
 
     # unpack unsigned request
     api_callback_url = FB_CALLBACK_URL
-    puts "Koala::Facebook::OAuth.new: api_callback_url = #{api_callback_url}"
+    puts2log  "Koala::Facebook::OAuth.new: api_callback_url = #{api_callback_url}"
     oauth = Koala::Facebook::OAuth.new(api_id, api_secret, api_callback_url)
     hash = oauth.parse_signed_request(signed_request)
-    puts "hash = #{hash}"
+    puts2log  "hash = #{hash}"
     # hash = {"algorithm"=>"HMAC-SHA256", "issued_at"=>1373284394, "user"=>{"country"=>"dk", "locale"=>"da_DK", "age"=>{"min"=>21}}}
 
     # save language (only if language was nil)
     locale = hash['user']['locale']
     language = locale.to_s.first(2)
     session[:language] = language if !filter_locale(session[:language]) and filter_locale(language)
-    puts "session[:language] = #{session[:language]}"
+    puts2log  "session[:language] = #{session[:language]}"
 
     # todo: check if user already has authorized the required FB privileges
     # hash: hash = {"algorithm"=>"HMAC-SHA256", "expires"=>1373374800, "issued_at"=>1373370798,
     #               "oauth_token"=>"CAAFjZBGzzOkcBAM3vNXbvDtDm3qcV7RQ3HwSRZAC9PRUiSvA8zLAnFFUwEmuV5t6fWohIPn8ZCDUrTZCUFtlUdOK1aSPhL1nvobmEBNucZBu9KLWqb4wRcB6jZBy6K49pZCQOaXRl0C8cj4ZCAYfdZC9tZCLC8wZAFhs9GWJMGIkO91AwZDZD",
     #               "user"=>{"country"=>"dk", "locale"=>"da_DK", "age"=>{"min"=>21}}, "user_id"=>"1705481075"}
     if hash.has_key?('oauth_token') && hash.has_key?('user_id')
-      puts 'user has already authorized gofreerev'
-      puts "oauth_token = #{hash['oauth_token']}"
-      puts "user_id #{hash['user_id']}"
+      puts2log  'user has already authorized gofreerev'
+      puts2log  "oauth_token = #{hash['oauth_token']}"
+      puts2log  "user_id #{hash['user_id']}"
       # oauth_token = CAAFjZBGzzOkcBAB0GGUE4i4O9ZAT6FJ1N3U3mhl7S1TELLRl514fdEZAMuyMY4iUmFt74bBUWRH9WM4LYafsxs6osDzJc0ARo1yhRZCbAeQo0A9RXh5yEEW9cC3SjKC4LqbeO8x2Qy6JINJGO1pSkTllmQp5jPMZD
       # user_id  = 1705481075
       # autologin redirect to https://www.facebook.com/dialog/oauth? to get code without showing create.html erb page
@@ -70,9 +70,9 @@ class FacebookController < ApplicationController
     # FB authorization with minimal permissions (information already public)
     # More permissions will be requested later when they are needed and the user can understand why
     # @auth_url =  oauth.url_for_oauth_code(:permissions=>"read_stream")
-    puts "session[:state] = #{session[:state]}"
+    puts2log  "session[:state] = #{session[:state]}"
     @auth_url =  oauth.url_for_oauth_code :state => set_state('login')
-    puts "@auth_url = #{@auth_url}"
+    puts2log  "@auth_url = #{@auth_url}"
 
     # show_friend page with an introduction and a authorize link - use create-<language>.html.erb if the view exists
     render_with_language viewname
@@ -113,11 +113,11 @@ class FacebookController < ApplicationController
     if params[:code]
       # code received from FB - login in progress - exchange code for an access token
       # todo: error handling?!
-      puts "code = #{params[:code]}"
+      puts2log  "code = #{params[:code]}"
       api_callback_url = FB_CALLBACK_URL
       oauth = Koala::Facebook::OAuth.new(api_id, api_secret, api_callback_url)
       access_token = oauth.get_access_token(params[:code])
-      # puts "access_token = #{access_token}"
+      # puts2log  "access_token = #{access_token}"
       # login completed. access token is saved.
     end
 
@@ -129,7 +129,7 @@ class FacebookController < ApplicationController
     end
 
     # FB login completed
-    puts 'index: login completed'
+    puts2log  'login completed'
 
     # get some basic user information
     # todo: what to do with permissions?
@@ -137,12 +137,12 @@ class FacebookController < ApplicationController
     #       as result file upload is disabled after ok status_update request
     #       could refresh permissions here
     #       or could add ajax to post_on_facebook to enable/disable file upload button?
-    puts 'get user id and name'
+    puts2log  'get user id and name'
     api = Koala::Facebook::API.new(access_token)
     api_request = 'me?fields=name,picture,locale'
-    puts "api_request = #{api_request}"
+    puts2log  "api_request = #{api_request}"
     api_response = api.get_object api_request
-    puts "api_response = #{api_response.to_s}"
+    puts2log  "api_response = #{api_response.to_s}"
     # fb_locale was received in FacebookController.create post request from facebook
     # add to api_response hash - is used for user.currency
     # api_response["language"] = session[:language]
@@ -174,7 +174,7 @@ class FacebookController < ApplicationController
       begin
         flash[:notice] = t key, options
       rescue Exception => e
-        puts "invalid response from User.find_or_create_from_auth_hash. Must be nil or a valid input to translate. Response: #{user}"
+        puts2log  "invalid response from User.find_or_create_from_auth_hash. Must be nil or a valid input to translate. Response: #{user}"
         flash[:notice] = t '.find_or_create_from_auth_hash', :response => user, :exception => e.message.to_s
       end
       redirect_to :controller => :auth

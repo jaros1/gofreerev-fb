@@ -59,7 +59,7 @@ module ActiveRecordExtensions
     r = Random.new encrypt_rand_seed(attributename, secret_key_no)
     o = "#{encrypt_prefix(r, attributename, secret_key_no)}#{value}#{encrypt_postfix(r, attributename, secret_key_no)}"
     if debug_attributes.index(attributename)
-      puts "encrypt_add_pre_and_postfix: input = \"#{value}\" (#{value.class.name}), output = \"#{o}\" (#{o.class.name})"
+      puts2log  "encrypt_add_pre_and_postfix: input = \"#{value}\" (#{value.class.name}), output = \"#{o}\" (#{o.class.name})"
     end
     o
   end # encrypt_add_pre_and_postfix
@@ -71,10 +71,10 @@ module ActiveRecordExtensions
   def encrypt_remove_pre_and_postfix(value, attributename, secret_key_no)
     debug_attributes = %w()
     if debug_attributes.index(attributename)
-      puts "encrypt_remove_pre_and_postfix: class = #{self.class}, id = #{id} (#{id.class})"
-      puts "encrypt_remove_pre_and_postfix: value = #{value} (#{value.class})"
-      puts "encrypt_remove_pre_and_postfix: attributename = #{attributename} (#{attributename.class})"
-      puts "encrypt_remove_pre_and_postfix: secret_key_no = #{secret_key_no} (#{secret_key_no.class})"
+      puts2log  "encrypt_remove_pre_and_postfix: class = #{self.class}, id = #{id} (#{id.class})"
+      puts2log  "encrypt_remove_pre_and_postfix: value = #{value} (#{value.class})"
+      puts2log  "encrypt_remove_pre_and_postfix: attributename = #{attributename} (#{attributename.class})"
+      puts2log  "encrypt_remove_pre_and_postfix: secret_key_no = #{secret_key_no} (#{secret_key_no.class})"
     end
     raise "debug" if id == 540 and value =~ /^OdkKkag2CZu8/
     r = Random.new encrypt_rand_seed(attributename, secret_key_no)
@@ -85,7 +85,7 @@ module ActiveRecordExtensions
     to = value_lng - postfix_lng - 1
     o = value[from..to]
     if debug_attributes.index(attributename)
-      puts "encrypt_remove_pre_and_postfix: attribute = #{attributename}, input = \"#{value}\" (#{value.class.name}), output = \"#{o}\" (#{o.class.name})"
+      puts2log  "encrypt_remove_pre_and_postfix: attribute = #{attributename}, input = \"#{value}\" (#{value.class.name}), output = \"#{o}\" (#{o.class.name})"
     end
     return nil unless o
     o.force_encoding('UTF-8')
@@ -94,6 +94,10 @@ module ActiveRecordExtensions
   def str_to_float_or_nil (str)
     return nil if str.to_s == ''
     str.to_f
+  end
+
+  def puts2log  (text)
+    puts "#{caller_locations(1,1)[0].label}: #{text}"
   end
 
   module ClassMethods
@@ -118,7 +122,7 @@ module ActiveRecordExtensions
           yield
 
         rescue Exception => exception
-          puts ('Forked operation failed with exception: ' + exception)
+          puts2log  ('Forked operation failed with exception: ' + exception)
           # the op failed, so note it for the Process exit
           success = false
 

@@ -29,14 +29,14 @@ class ApplicationController < ActionController::Base
   def render_with_language(viewname)
     language = session[:language]
     # language = BASE_LANGUAGE # todo: remove this line
-    puts "render_with_language: language = #{language}"
+    puts2log  "language = #{language}"
     if !language or language == BASE_LANGUAGE
       render :action => viewname
       return
     end
     viewname2 = "#{viewname}_#{language}"
     filename = Rails.root.join('app', 'views', controller_name, "#{viewname2}.html.erb").to_s
-    puts "render_with_language: filename = #{filename}"
+    puts2log  "filename = #{filename}"
     viewname2 = viewname unless File.exists?(filename)
     render :action => viewname2
   end # render_with_language
@@ -44,7 +44,7 @@ class ApplicationController < ActionController::Base
   private
   def debug_session (msg)
     [:oauth, :language, :country, :state, :access_token, :user_id].each do |name|
-      puts "#{msg}: session[:#{name}] = #{session[name]}"
+      puts2log  "#{msg}: session[:#{name}] = #{session[name]}"
     end
   end
 
@@ -60,8 +60,8 @@ class ApplicationController < ActionController::Base
   private
   def fetch_user
     # language support
-    # puts "fetch_user: start. sessionid = #{request.session_options[:id]}"
-    puts "fetch_user: I18n.locale = #{I18n.locale}"
+    # puts2log  "start. sessionid = #{request.session_options[:id]}"
+    puts2log  "I18n.locale = #{I18n.locale}"
     # cookie note in page header for the first 30 seconds for a new session
     session[:created] = Time.new unless session[:created]
     @cookie_note = true if Time.new - session[:created] < 30
@@ -88,16 +88,16 @@ class ApplicationController < ActionController::Base
 
     # debugging
     if @users.length == 0
-      puts "fetch_user: found none logged in users"
+      puts2log  "found none logged in users"
     else
       @users.each do |user|
-        puts "fetch_user: user_id = #{user.user_id}, user_name = #{user.user_name}, currency = #{user.currency}"
+        puts2log  "user_id = #{user.user_id}, user_name = #{user.user_name}, currency = #{user.currency}"
       end
     end
 
     # check currencies. all logged in users must use same currency
     currencies = @users.collect { |user| user.currency }.uniq
-    puts "fetch_user: more when one currency found for logged in users: #{}" if currencies.length > 1
+    puts2log  "more when one currency found for logged in users: #{}" if currencies.length > 1
 
     # add some instance variables
     if @user
@@ -106,7 +106,7 @@ class ApplicationController < ActionController::Base
       @user_currency_separator = Money::Currency.table[@user.currency.downcase.to_sym][:decimal_mark]
       @user_currency_delimiter = Money::Currency.table[@user.currency.downcase.to_sym][:thousands_separator]
     end
-    puts "fetch_user: @user_currency_separator = #{@user_currency_separator}, @user_currency_delimiter = #{@user_currency_delimiter}"
+    puts2log  "@user_currency_separator = #{@user_currency_separator}, @user_currency_delimiter = #{@user_currency_delimiter}"
 
     # get new exchange rates? add to task queue
     add_task 'ExchangeRate.fetch_exchange_rates', 10 if ExchangeRate.fetch_exchange_rates?
@@ -120,15 +120,15 @@ class ApplicationController < ActionController::Base
     params[:locale] = nil if params.has_key?(:locale) and request.xhr?
     session[:language] = params[:locale] if filter_locale(params[:locale])
     I18n.locale = filter_locale(params[:locale]) || filter_locale(session[:language]) || filter_locale(I18n.default_locale) || 'en'
-    puts "set_locale: I18n.locale = #{I18n.locale}. params[:locale] = #{params[:locale]}, session[:language] = #{session[:language]}, "
+    puts2log  "I18n.locale = #{I18n.locale}. params[:locale] = #{params[:locale]}, session[:language] = #{session[:language]}, "
   end
 
   private
   def default_url_options(options={})
-    # puts "default_url_options: options: #{options}."
-    # puts "default_url_options: I18n.locale = #{I18n.locale} (#{I18n.locale.class})"
-    # puts "default_url_options: I18n.default_locale = #{I18n.default_locale} (#{I18n.default_locale.class})"
-    # puts "default_url_options: controller = #{params[:controller]}"
+    # puts2log  "options: #{options}."
+    # puts2log  "I18n.locale = #{I18n.locale} (#{I18n.locale.class})"
+    # puts2log  "I18n.default_locale = #{I18n.default_locale} (#{I18n.default_locale.class})"
+    # puts2log  "controller = #{params[:controller]}"
     { locale: I18n.locale }
   end
 
@@ -182,11 +182,11 @@ class ApplicationController < ActionController::Base
     dif = new_last_row_at - session[:last_row_at]
     if last_row_id != session[:last_row_id]
       # wrong last_row_id received in get-more-rows ajax request. Must be an error a javascript/ajax error
-      msg = "get_next_set_of_rows. problem with get-more-rows ajax request. expected #{session[:last_row_id]}. found #{last_row_id}."
+      msg = "problem with get-more-rows ajax request. expected #{session[:last_row_id]}. found #{last_row_id}."
       if debug_ajax?
         raise msg
       else
-        puts msg
+        puts2log  msg
       end
       # return dummy row with correct last_row_id to client x
       return true
@@ -196,13 +196,13 @@ class ApplicationController < ActionController::Base
       # todo: problem with GET_MORE_ROWS_INTERVAL delay in javascript and in rails.
       #       dif < GET_MORE_ROWS_INTERVAL gives too many "Max one get-more-rows ajax request" errors
       #       javascript code in /shared/show_more_rows partial. 3 seconds wait in JS and in rails should work
-      msg = "get_next_set_of_rows. Max one get-more-rows ajax request every #{GET_MORE_ROWS_INTERVAL} seconds. session[:last_row_at_debug] = #{session[:last_row_at_debug]}. Time.new = #{Time.new}. Wait for #{GET_MORE_ROWS_INTERVAL-dif} seconds"
+      msg = "Max one get-more-rows ajax request every #{GET_MORE_ROWS_INTERVAL} seconds. session[:last_row_at_debug] = #{session[:last_row_at_debug]}. Time.new = #{Time.new}. Wait for #{GET_MORE_ROWS_INTERVAL-dif} seconds"
       if debug_ajax?
-        puts msg
-        puts msg
-        puts msg
+        puts2log  msg
+        puts2log  msg
+        puts2log  msg
       else
-        puts msg
+        puts2log  msg
         sleep(GET_MORE_ROWS_INTERVAL-dif) # there mst be error in javascript wait between get-more-rows ajax requests
       end
       # return dummy row with correct last_row_id to client
@@ -216,17 +216,17 @@ class ApplicationController < ActionController::Base
   # used in ajax expanding pages (gifts/index, users/index and users/show pages)
   private
   def get_next_set_of_rows (rows, last_row_id, no_rows=nil)
-    puts "last_row_id = #{last_row_id}"
+    puts2log  "last_row_id = #{last_row_id}"
     ajax_request = (last_row_id != nil)
     no_rows = ajax_request ? 10 : 1 unless no_rows # default - return 1 row in first http request - return 10 rows in ajax requests
     total_no_rows = rows.size
     if ajax_request
       # ajax request
       # check if last_row_id is valid - row could have been deleted between two requests
-      # puts "ajax request - check if last_row_id still is valid"
+      # puts2log  "ajax request - check if last_row_id still is valid"
       from = rows.index { |u| u.last_row_id == last_row_id }
       if !from
-        puts "invalid last_row_id - or row is no longer in rows - ignore error and return first 10 rows"
+        puts2log  "invalid last_row_id - or row is no longer in rows - ignore error and return first 10 rows"
         last_row_id = nil
       end
       last_row_id = nil unless from # invalid last_row_id - deleted row or changed permissions - ignore error and return first 10 rows
@@ -238,12 +238,12 @@ class ApplicationController < ActionController::Base
     else
       last_row_id = nil # last row - no more ajax requests
     end
-    puts "get_next_set_of_rows: returning next #{rows.size} of #{total_no_rows} rows . last_row_id = #{last_row_id}"
+    puts2log  "returning next #{rows.size} of #{total_no_rows} rows . last_row_id = #{last_row_id}"
     # keep last_row_id and timestamp - checked in get_next_set_of_rows_error? before calling this method
     session[:last_row_id] = last_row_id # control - is checked in next ajax request
     session[:last_row_at] = Time.new.to_f
     session[:last_row_at_debug] = Time.new
-    puts "last_row_at_debug = #{session[:last_row_at_debug]}"
+    puts2log  "last_row_at_debug = #{session[:last_row_at_debug]}"
     session[:last_row_at] = GET_MORE_ROWS_INTERVAL.seconds.ago.to_f unless ajax_request # first http request at startup - ajax request for the next 10 rows in a split second
     [ rows, last_row_id]
   end # get_next_set_of_rows
@@ -344,7 +344,7 @@ class ApplicationController < ActionController::Base
     if UtilController.new.private_methods.index(post_login_task_provider.to_sym)
       add_task post_login_task_provider, 5
     else
-      puts "Warning. No post login task was found for #{provider}. No #{provider} friend information will be downloaded"
+      puts2log  "Warning. No post login task was found for #{provider}. No #{provider} friend information will be downloaded"
     end
     # enable file upload button if new user can write on api wall
     add_task "disable_enable_file_upload", 5
@@ -449,11 +449,17 @@ class ApplicationController < ActionController::Base
     timezone = "#{timezone}.0" unless timezone.to_s.index('.')
     timezones = ActiveSupport::TimeZone.all.collect { |tz| (tz.tzinfo.current_period.utc_offset / 60.0 / 60.0).to_s }.uniq
     if !timezones.index(timezone)
-      puts "set_timezone: unknown timezome #{timezone}"
+      puts2log  "unknown timezome #{timezone}"
       return
     end
-    puts "set_timezone: timezone = #{timezone}"
+    puts2log  "timezone = #{timezone}"
     Time.zone = session[:timezone] = timezone.to_f
   end
+
+  private
+  def puts2log  (text)
+    puts "#{caller_locations(1,1)[0].label}: #{text}"
+  end
+  helper_method :puts2log
 
 end # ApplicationController
