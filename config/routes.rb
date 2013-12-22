@@ -2,6 +2,8 @@ GofreerevFb::Application.routes.draw do
 
   filter :locale
 
+  get 'cookie/decline_cookies'
+
   get "linkedin/index"
   get '/auth/:provider/callback', :to => 'auth#create'
   post '/auth/:provider/callback', :to => 'auth#create'

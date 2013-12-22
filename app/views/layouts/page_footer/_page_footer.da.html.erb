@@ -1,13 +1,11 @@
 <div style="width: 100%">
-<br />
+
 <% if !@user or @user.facebook? -%>
 Retur til <%= link_to_app_on_facebook %> applikationen på <%= link_to_facebook %>.<br />
 <% end -%>
 <% if !@user or @user.google_plus? -%>
 Retur til <%= link_to_google_plus %><br />
 <% end -%>
-
-<br />
 
 <p>
   <%= APP_NAME %> er et open source projekt.

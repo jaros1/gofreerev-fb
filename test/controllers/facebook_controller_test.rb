@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class FbControllerTest < ActionController::TestCase
+class FacebookControllerTest < ActionController::TestCase
 
 =begin
   test "should get index" do
