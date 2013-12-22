@@ -19,7 +19,7 @@
 <div id="wrapper" style="width: 100%;">
   <header>
     <% if @cookie_note -%>
-      <div id="cookie_note" style="width: 100%">
+      <div id="cookie_note" title="<%= t '.cookie_note_title', :appname => APP_NAME %>" style="width: 100%">
         <%= t '.cookie_note_text_html', :appname => APP_NAME %>
         <%= button_tag t('.cookie_accept_text'), :onclick => "{$.cookie('cookies','accepted',{expires:3650});document.getElementById('cookie_note').style.display = 'none'}" %>
         <%= button_tag t('.cookie_reject_text'), :onclick => "{top.location.href='" + cookie_decline_cookies_path + "'}" %>

@@ -57,7 +57,7 @@ en:
   # application layout with page header and footer
   layouts:
      application:
-        cookie_note_text_title: "todo: add text"
+        cookie_note_title: "%{appname} uses temporary cookies for log in. In temporary session cookie are stored information about start time, login API authorization, language, timezone. Temporary cookies are removed at log out and when the browser is closed. Cookie acceptance is the only information stored in a permanent cookie."
         cookie_note_text_html: "%{appname} uses cookies as part of the service. See menu item \"%{appname}\""
         cookie_accept_text: "Accept"
         cookie_reject_text: "Reject"
@@ -183,7 +183,7 @@ en:
 
   cookie:
      decline_cookies:
-        page_header_html: "You have rejected to use cookies for this web site. All cookies have been removed and you can leave this web site. Thank you for visiting %{appname}.<br><br>%{appname} uses cookies for log in. In session cookie are stored information about start time, login API authorization, language, timezone. Cookies are removed at log out and when the browser is closed."
+        page_header_html: "%{appname} uses temporary cookies for log in. In temporary session cookie are stored information about start time, login API authorization, language, timezone. Temporary cookies are removed at log out and when the browser is closed. Cookie acceptance is the only information stored in a resident cookie.<br><br>You have rejected to use cookies for this web site. All cookies have been removed and you can leave this web site. Thank you for visiting %{appname}."
 
   facebook:
      autologin:

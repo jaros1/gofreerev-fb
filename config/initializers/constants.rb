@@ -64,4 +64,5 @@ GET_MORE_ROWS_INTERVAL = 3.0 # max one show-more-rows ajax request every 3 secon
 # show cookie note in top of page (EU cookie law / Directive on Privacy and Electronic Communications)
 # keep time and text small - cookie note is intruding and irritating - but even a stupid law is law
 # text is set in locale key application.layouts.cookie_note_text_html
-SHOW_COOKIE_NOTE = 999999999 # nil or number of seconds to display cookie note
+# user can select to accept, reject or ignore cookie note
+SHOW_COOKIE_NOTE = 60 # nil or number of seconds to display cookie note

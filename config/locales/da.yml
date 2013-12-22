@@ -58,7 +58,7 @@ da:
   # application layout with page header and footer
   layouts:
      application:
-        cookie_note_text_title: "todo: add text"
+        cookie_note_title: "%{appname} anvender temporære cookies i forbindelse med log in. I temporær session cookie gemmes information om start tidspunkt, login API adgangsoplysninger, sprog, tidszone. Temporære cookies slettes ved log ud og når browseren lukkes. Eneste cookie der gemmes blivende er accept af anvendelse af cookies."
         cookie_note_text_html: "%{appname} anvender cookies som en del af tjenesten. Se menupunkt \"%{appname}\""
         cookie_accept_text: "Ok"
         cookie_reject_text: "Afvis"
@@ -186,7 +186,7 @@ da:
 
   cookie:
      decline_cookies:
-        page_header_html: "Du har valgt at sige nej tak til cookies. Alle cookies er blevet slettet og du kan forlade siden. Tak for besøget.<br><br>%{appname} anvender cookies i forbindelse med log in. I session cookie gemmes information om start tidspunkt, login API adgangsoplysninger, sprog, tidszone. Cookies slettes ved log ud og når browseren lukkes."
+        page_header_html: "%{appname} anvender temporære cookies i forbindelse med log in. I temporær session cookie gemmes information om start tidspunkt, login API adgangsoplysninger, sprog, tidszone. Temporære cookies slettes ved log ud og når browseren lukkes. Eneste cookie der gemmes permament er accept af anvendelse af cookies.<br><br>Du har valgt at sige nej tak til cookies. Alle cookies er blevet slettet og du kan sikkert forlade siden. Tak for besøget."
 
   # facebook controller - login started from facebook and asking for more privs.
   facebook:
