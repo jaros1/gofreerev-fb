@@ -10,17 +10,18 @@
   <%= csrf_meta_tags %>
   <meta name="viewport" content="width=device-width,initial-scale=1.0, user-scalable=no">
   <script>
+<%#
+      // destroy all rails cookies - cookies are also destroyed in cookie controller
+-%>
       $(document).ready(function() {
-          // destroy all rails cookies
-          $.removeCookie('_gofreerev-fb_session', { path: 'localhost/' });
-          $.removeCookie('request_method', { path: 'localhost/' });
+          $.removeCookie('_gofreerev-fb_session', { path: '/' });
+          $.removeCookie('request_method', { path: '/' });
       })
   </script>
 </head>
 <body>
 <div id="wrapper" style="width: 100%;">
   <header>
-    <!-- page header -->
     <%= render :partial => 'layouts/page_header' %>
     <div style="width: 100%">
       <hr>

@@ -59,7 +59,10 @@ da:
   layouts:
      application:
         cookie_note_text_title: "todo: add text"
-        cookie_note_text_html: "%{appname} anvender cookies som en del af tjenesten. Cookies slettes når browseren lukkes. Se mere under om menupunkt \"%{appname}\""
+        cookie_note_text_html: "%{appname} anvender cookies som en del af tjenesten. Se menupunkt \"%{appname}\""
+        cookie_accept_text: "Ok"
+        cookie_reject_text: "Afvis"
+        cookie_ignore_text: "Ignorer"
      page_header:
         header_currency_title: "Saldo. Brug valuta valg-liste hvis du ønsker din saldo vist i en anden valuta. Ens saldo i frie penge viser hvor meget man har investeret i venner og fællesskab og er et mål for taknemmelighedsgæld. Hvem har givet/modtaget mest? Hvis tur er det til at modtage/give? En positiv saldo betyder at man er god til at hjælpe andre og at ens hjælp er blevet værdsat. En negativ saldo betyder at man er god til at tage imod hjælp og at man har sat pris på hjælpen. Der er ingen sammenhæng imellem hvem der er rige/fattige i frie penge herinde og hvem der er rige/fattige i den virkelige verden."
         header_balance_prompt: "Saldo:"
@@ -147,24 +150,6 @@ da:
         logged_off: "Log ud ok. Tak for besøget. Brug nedenstående link til at logge ind igen eller vende tilbage til login API. Luk browseren for at fjerne session cookie."
         already_logged_off: "Du var allerede logget ud. Brug nedenstående link til at logge ind igen eller vende tilbage til login API. Luk browseren for at fjerne session cookie."
 
-  # facebook controller - login started from facebook and asking for more privs.
-  facebook:
-     autologin:
-        autologin_header: "Login er igang - vent venligst"
-     index:
-        invalid_state_login: "Login fra facebook fejlede. Muligt \"Cross-site Request Forgery\" problem."
-        invalid_state_status_update: "Muligt \"Cross-site Request Forgery\" problem ved anmodning om skriveadgang til facebook væg."
-        invalid_state_read_stream: "Muligt \"Cross-site Request Forgery\" problem ved anmodning om læseadgang til facebook væg."
-        invalid_state_other: "Muligt \"Cross-site Request Forgery\" problem."
-        user_denied_login: "Systemfejl. Login fra facebook fejlede."
-        user_denied_status_update: "%{appname} fik ikke tilladelse til at lave opslag på din facebook væg."
-        user_denied_read_stream: "%{appname} fik ikke tilladelse til at læse opslag på din facebook væg."
-        user_denied_other: "Systemfejl. Ukendt facebook anmodning blev afvist."
-        ok_login: "Facebook login ok."
-        ok_status_update: "%{appname} fik tilladelse til at lave opslag på din facebook væg."
-        ok_read_stream: "%{appname} fik tilladelse til at læse opslag på din facebook væg."
-        ok_other: "Ukendt facebook anmodning ok."
-
   # comments controller
   comments:
      create:
@@ -198,6 +183,28 @@ da:
         confirm_reject_new_deal: "Afvis forslag?"
         delete_comment: "Slet"
         confirm_delete_comment: "Slet kommentar?"
+
+  cookie:
+     decline_cookies:
+        page_header_html: "Du har valgt at sige nej tak til cookies. Alle cookies er blevet slettet og du kan forlade siden. Tak for besøget.<br><br>%{appname} anvender cookies i forbindelse med log in. I session cookie gemmes information om start tidspunkt, login API adgangsoplysninger, sprog, tidszone. Cookies slettes ved log ud og når browseren lukkes."
+
+  # facebook controller - login started from facebook and asking for more privs.
+  facebook:
+     autologin:
+        autologin_header: "Login er igang - vent venligst"
+     index:
+        invalid_state_login: "Login fra facebook fejlede. Muligt \"Cross-site Request Forgery\" problem."
+        invalid_state_status_update: "Muligt \"Cross-site Request Forgery\" problem ved anmodning om skriveadgang til facebook væg."
+        invalid_state_read_stream: "Muligt \"Cross-site Request Forgery\" problem ved anmodning om læseadgang til facebook væg."
+        invalid_state_other: "Muligt \"Cross-site Request Forgery\" problem."
+        user_denied_login: "Systemfejl. Login fra facebook fejlede."
+        user_denied_status_update: "%{appname} fik ikke tilladelse til at lave opslag på din facebook væg."
+        user_denied_read_stream: "%{appname} fik ikke tilladelse til at læse opslag på din facebook væg."
+        user_denied_other: "Systemfejl. Ukendt facebook anmodning blev afvist."
+        ok_login: "Facebook login ok."
+        ok_status_update: "%{appname} fik tilladelse til at lave opslag på din facebook væg."
+        ok_read_stream: "%{appname} fik tilladelse til at læse opslag på din facebook væg."
+        ok_other: "Ukendt facebook anmodning ok."
 
   # gift controller - general texts
   gifts:

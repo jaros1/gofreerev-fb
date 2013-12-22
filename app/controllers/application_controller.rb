@@ -70,10 +70,11 @@ class ApplicationController < ActionController::Base
     # language support
     # puts2log  "start. sessionid = #{request.session_options[:id]}"
     puts2log  "I18n.locale = #{I18n.locale}"
+
     # cookie note in page header for the first n seconds for a new session
     # eu cookie law - also called Directive on Privacy and Electronic Communications
-
-    if SHOW_COOKIE_NOTE and SHOW_COOKIE_NOTE > 0
+    # accepted cookie is a permanent cookie set if user accepts cookies
+    if SHOW_COOKIE_NOTE and SHOW_COOKIE_NOTE > 0 and cookies[:cookies] != 'accepted'
       session[:created] = Time.new unless session[:created]
       @cookie_note = true if Time.new - session[:created] < SHOW_COOKIE_NOTE
     end

@@ -58,7 +58,10 @@ en:
   layouts:
      application:
         cookie_note_text_title: "todo: add text"
-        cookie_note_text_html: "%{appname} uses cookies as part of the service. The cookies are deleted when the browser is closed. More information available under menu item \"%{appname}\""
+        cookie_note_text_html: "%{appname} uses cookies as part of the service. See menu item \"%{appname}\""
+        cookie_accept_text: "Accept"
+        cookie_reject_text: "Reject"
+        cookie_ignore_text: "Ignore"
      page_header:
         header_currency_title: "Balance. Use currency selection list if you want your balance shown in a different currency. Your balance of free money show how much you have invested in community and friends and is a measure of gratitude. Who has given / received most? Whose turn is it to receive / give? A positive balance means that you are good to help others and to one's help has been appreciated. A negative balance means that you are good to accept help and that you have appreciated the help. There is no correlation between who is rich / poor in free money here and who are rich / poor in the real world."
         header_balance_prompt: "Balance:"
@@ -144,23 +147,6 @@ en:
         logged_off: "Log out ok. Thanks for visiting %{appname}. Use links on this page to log in or to return to login API. Close browser to remove session cookie."
         already_logged_off: "Already logged out. Use links on this page to log in or to return to login API. Close browser to remove session cookie."
 
-  facebook:
-     autologin:
-        autologin_header: "Login in progress - please wait"
-     index:
-        invalid_state_login: "Login from facebook failed. Possible \"Cross-site Request Forgery\" problem."
-        invalid_state_status_update: "Possible \"Cross-site Request Forgery\" problem when asking for write access to facebook wall."
-        invalid_state_read_stream: "Possible \"Cross-site Request Forgery\" problem when asking for read access to facebook væg."
-        invalid_state_other: "Possible \"Cross-site Request Forgery\" problem."
-        user_denied_login: "System error. Login from facebook failed."
-        user_denied_status_update: "%{appname} was not granted access to write on your facebook wall."
-        user_denied_read_stream: "%{appname} was not granted access to read posts on your facebook wall."
-        user_denied_other: "System error. Unknown facebook request was rejected."
-        ok_login: "Facebook log in ok."
-        ok_status_update: "%{appname} was granted access to write on your facebook wall."
-        ok_read_stream: "%{appname} was granted access to read posts on your facebook wall."
-        ok_other: "System error. Unknown facebook request was accepted."
-
   # comments controller
   comments:
      create:
@@ -194,6 +180,27 @@ en:
         confirm_reject_new_deal: "Reject proposal?"
         delete_comment: "Delete"
         confirm_delete_comment: "Delete comment?"
+
+  cookie:
+     decline_cookies:
+        page_header_html: "You have rejected to use cookies for this web site. All cookies have been removed and you can leave this web site. Thank you for visiting %{appname}.<br><br>%{appname} uses cookies for log in. In session cookie are stored information about start time, login API authorization, language, timezone. Cookies are removed at log out and when the browser is closed."
+
+  facebook:
+     autologin:
+        autologin_header: "Login in progress - please wait"
+     index:
+        invalid_state_login: "Login from facebook failed. Possible \"Cross-site Request Forgery\" problem."
+        invalid_state_status_update: "Possible \"Cross-site Request Forgery\" problem when asking for write access to facebook wall."
+        invalid_state_read_stream: "Possible \"Cross-site Request Forgery\" problem when asking for read access to facebook væg."
+        invalid_state_other: "Possible \"Cross-site Request Forgery\" problem."
+        user_denied_login: "System error. Login from facebook failed."
+        user_denied_status_update: "%{appname} was not granted access to write on your facebook wall."
+        user_denied_read_stream: "%{appname} was not granted access to read posts on your facebook wall."
+        user_denied_other: "System error. Unknown facebook request was rejected."
+        ok_login: "Facebook log in ok."
+        ok_status_update: "%{appname} was granted access to write on your facebook wall."
+        ok_read_stream: "%{appname} was granted access to read posts on your facebook wall."
+        ok_other: "System error. Unknown facebook request was accepted."
 
   # gift controller
   gifts:

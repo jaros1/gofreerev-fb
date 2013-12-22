@@ -7,6 +7,7 @@
   <%= stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track' => true %>
   <%= javascript_include_tag 'application', 'data-turbolinks-track' => true %>
   <script src="/javascripts/jquery.form.js"></script>
+  <script src="/javascripts/jquery.cookie.js"></script>
   <script src="/javascripts/modernizr.js"></script>
   <script src="/javascripts/my.js"></script>
   <%= csrf_meta_tags %>
@@ -18,7 +19,13 @@
 <div id="wrapper" style="width: 100%;">
   <header>
     <% if @cookie_note -%>
-      <div id="cookie_note" style="width: 100%"><%= t '.cookie_note_text', :appname => APP_NAME %> <%= button_tag 'Ok', :onclick => "{document.getElementById('cookie_note').style.display = 'none'}" %><hr></div>
+      <div id="cookie_note" style="width: 100%">
+        <%= t '.cookie_note_text_html', :appname => APP_NAME %>
+        <%= button_tag t('.cookie_accept_text'), :onclick => "{$.cookie('cookies','accepted',{expires:3650});document.getElementById('cookie_note').style.display = 'none'}" %>
+        <%= button_tag t('.cookie_reject_text'), :onclick => "{top.location.href='" + cookie_decline_cookies_path + "'}" %>
+        <%= button_tag t('.cookie_ignore_text'), :onclick => "{document.getElementById('cookie_note').style.display = 'none'}" %>
+        <hr>
+      </div>
     <% end -%>
     <%# Hidden form for ajax task processing (for example downloading profile image after login) -%>
     <div style="display:none">

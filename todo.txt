@@ -469,6 +469,10 @@
      http://stackoverflow.com/questions/9821656/how-to-delete-cookie-before-redirect-to-other-page-in-javascri
 
 127) destroy session cookie after log out and before redirect to api
+     with js on link or use cookie controller for redirect to api after log out
 
 128) add remove cookies link in auth/index page
+
+129) InvalidAuthenticityToken error for log out link in decline_cookies page
+     disable log out link in cookie controller pages
 
