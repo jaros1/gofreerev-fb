@@ -62,7 +62,8 @@ DEBUG_AJAX = true # default false - set to true to get more ajax debug informati
 GET_MORE_ROWS_INTERVAL = 3.0 # max one show-more-rows ajax request every 3 seconds. # todo: minor problem with 3 seconds delay in JS and rails. See shared/show_more_rows and get_next_set_of_rows_error? and get_next_set_of_rows methods in application controller
 
 # show cookie note in top of page (EU cookie law / Directive on Privacy and Electronic Communications)
-# keep time and text small - cookie note is intruding and irritating - but even a stupid law is law
+# keep time and/or text small - cookie note is intruding and irritating
 # text is set in locale key application.layouts.cookie_note_text_html
 # user can select to accept, reject or ignore cookie note
-SHOW_COOKIE_NOTE = 60 # nil or number of seconds to display cookie note
+# accept and ignore will hide cookie note. reject will redirect to /cookie/decline_cookies
+SHOW_COOKIE_NOTE = 45 # nil or number of seconds to display cookie note in header

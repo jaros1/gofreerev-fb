@@ -876,7 +876,7 @@ function show_more_rows_success (table_name, debug)
         var href = link.href ;
         href = href.replace(/last_row_id=[0-9]+/, 'last_row_id=' + last_row_id) ;
         link.href = href ;
-        // add2log(pgm + 'href = ' + href) ;
+        add2log(pgm + 'href = ' + href)
         end_of_page = false ;
     }
 } // show_more_rows_success
@@ -984,6 +984,15 @@ function disable_enable_file_upload (gift_file_enabled) {
    gift_file.disabled = !gift_file_enabled ;
    // add2log('gift_file.disabled = ' + gift_file.disabled) ;
 } // disable_enable_file_upload
+
+
+// display cookie_note div for the first SHOW_COOKIE_NOTE seconds when a new user visits gofreerev
+function hide_cookie_note() {
+    var cookie_node = document.getElementById('cookie_note') ;
+    if (!cookie_node) return ;
+    cookie_node.style.display = 'none' ;
+} // hide_cookie_note
+
 
 // set JS timezone in tasks form
 // send to server in util/to_tasks

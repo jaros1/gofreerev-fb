@@ -462,17 +462,7 @@
 125) better puts2log output
      should display class.method: text class
 
-126) better cookie note with cancel link
-     cancel link - remote session cookies and redirect to page without any cookies
-     ignore - hide cookie note for now - will be displayed next time the user returns to gofreerev
-     ok link - permanent accept cookies - don't display this message again
-     http://stackoverflow.com/questions/9821656/how-to-delete-cookie-before-redirect-to-other-page-in-javascri
-
-127) destroy session cookie after log out and before redirect to api
-     with js on link or use cookie controller for redirect to api after log out
-
 128) add remove cookies link in auth/index page
 
 129) InvalidAuthenticityToken error for log out link in decline_cookies page
      disable log out link in cookie controller pages
-

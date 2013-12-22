@@ -76,7 +76,8 @@ class ApplicationController < ActionController::Base
     # accepted cookie is a permanent cookie set if user accepts cookies
     if SHOW_COOKIE_NOTE and SHOW_COOKIE_NOTE > 0 and cookies[:cookies] != 'accepted'
       session[:created] = Time.new unless session[:created]
-      @cookie_note = true if Time.new - session[:created] < SHOW_COOKIE_NOTE
+      cookie_note = SHOW_COOKIE_NOTE - (Time.new - session[:created])
+      @cookie_note = cookie_note if cookie_note >= 0.5
     end
 
     # fetch user(s)
