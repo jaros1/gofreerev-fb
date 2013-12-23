@@ -463,6 +463,3 @@
      should display class.method: text class
 
 128) add remove cookies link in auth/index page
-
-129) InvalidAuthenticityToken error for log out link in decline_cookies page
-     disable log out link in cookie controller pages

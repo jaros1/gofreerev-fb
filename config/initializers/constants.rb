@@ -59,11 +59,14 @@ BASE_COUNTRY = 'us' # default country if user country is unknown.
 BASE_LANGUAGE = 'en' # default language if user language is unknown
 
 DEBUG_AJAX = true # default false - set to true to get more ajax debug information - JS alerts, extra log messages etc
-GET_MORE_ROWS_INTERVAL = 3.0 # max one show-more-rows ajax request every 3 seconds. # todo: minor problem with 3 seconds delay in JS and rails. See shared/show_more_rows and get_next_set_of_rows_error? and get_next_set_of_rows methods in application controller
+
+# max one show-more-rows ajax request every 3 seconds.
+# See shared/show_more_rows and get_next_set_of_rows_error? and get_next_set_of_rows methods in application controller
+# todo: minor problem with sync. of 3 seconds delay in JS and rails.
+GET_MORE_ROWS_INTERVAL = 3.0
 
 # show cookie note in top of page (EU cookie law / Directive on Privacy and Electronic Communications)
-# keep time and/or text small - cookie note is intruding and irritating
-# text is set in locale key application.layouts.cookie_note_text_html
-# user can select to accept, reject or ignore cookie note
-# accept and ignore will hide cookie note. reject will redirect to /cookie/decline_cookies
-SHOW_COOKIE_NOTE = 45 # nil or number of seconds to display cookie note in header
+# keep time and/or text small - cookie note is intruding and irritating - nil to disable/hide cookie note
+# texts are set in locale keys application.layouts.cookie_note_*
+# user can accept, reject or ignore cookie note
+SHOW_COOKIE_NOTE = 30 # nil or number of seconds to display cookie note in header

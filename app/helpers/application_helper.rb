@@ -238,4 +238,13 @@ module ApplicationHelper
     Task.where("session_id = ?", session[:session_id]).count > 0
   end
 
+  def link_to_logout
+    if @request_fullpath.to_s =~ /\/cookie\//
+      # problem with log out link and InvalidAuthenticityToken in cookie controller (no session in cookie controller)
+      "<u>#{t('.header_log_out_link_text')}</u>".html_safe
+    else
+      link_to t('.header_log_out_link_text'), header_log_out_link_url, :method => 'delete'
+    end
+  end
+
 end # ApplicationHelper
