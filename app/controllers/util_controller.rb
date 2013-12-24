@@ -1018,7 +1018,7 @@ class UtilController < ApplicationController
           # url to grant missing status update permission to post on facebook wall
           # looks like permission status_update has been replaced with publish_actions
           # publish_actions is added to permissions hash when granting status_update priv.
-          oauth = Koala::Facebook::OAuth.new(API_ID[provider], API_SECRET[provider], FACEBOOK_CALLBACK_URL)
+          oauth = Koala::Facebook::OAuth.new(API_ID[provider], API_SECRET[provider], API_CALLBACK_URL[provider])
           url = oauth.url_for_oauth_code(:permissions => 'status_update', :state => set_state('status_update'))
           options[:url] = url
           options[:appname] = APP_NAME
@@ -1067,7 +1067,7 @@ class UtilController < ApplicationController
             return [key, {:appname => APP_NAME, :apiname => login_user.api_name_without_brackets}]
           else
             # message with link to grant missing read stream priv.
-            oauth = Koala::Facebook::OAuth.new(API_ID[provider], API_SECRET[provider], FACEBOOK_CALLBACK_URL)
+            oauth = Koala::Facebook::OAuth.new(API_ID[provider], API_SECRET[provider], API_CALLBACK_URL[provider])
             url = oauth.url_for_oauth_code(:permissions => 'read_stream', :state => set_state('read_stream'))
             key = api_gift.picture? ? '.fb_pic_post_missing_permission_html' : '.fb_msg_post_missing_permission_html'
             return [key, {:appname => APP_NAME, :apiname => login_user.api_name_without_brackets, :url => url}]
@@ -1140,10 +1140,12 @@ class UtilController < ApplicationController
       # todo: add picture
       # todo: add url for gift
       begin
-        x = client.add_share(:comment => gift.description)
+        link = api_gift.init_deep_link(I18n.locale)
+        x = client.add_share(:comment => "#{gift.description} - #{link}")
       rescue LinkedIn::Errors::AccessDeniedError => e
         puts2log  "LinkedIn::Errors::AccessDeniedError"
         puts2log  "e.message = #{e.message}"
+        api_gift.clear_deep_link
         if e.message.to_s =~ /^\(403\)/
           # e.message = (403): Access to posting shares denied
           # linkedin permission problem - post in linkedin wall not allowed as default
@@ -1153,9 +1155,8 @@ class UtilController < ApplicationController
 
           # http://railscarma.com/blog/rails-3/how-to-use-linkedin-api-in-rails-applications/
           scope = 'r_basicprofile r_network rw_nus'
-          redirect_uri = "#{SITE_URL}linkedin/index"
           client = LinkedIn::Client.new API_ID[provider], API_SECRET[provider]
-          request_token = client.request_token({:oauth_callback => redirect_uri}, :scope => scope)
+          request_token = client.request_token({:oauth_callback => API_CALLBACK_URL[provider], :scope => scope)
           client.authorize_from_access(request_token.token, request_token.secret)
           url = client.request_token.authorize_url
 

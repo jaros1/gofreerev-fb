@@ -464,8 +464,6 @@
 
 126) replace hardcoded login provider urls with provider_url helper.
 
-127) move providers url to array constant
-
 128) add array constant with provider_app_url, for example FACEBOOK_APP_URL = 'http://apps.facebook.com/gofreerev'
      there should be an app url for each provider
      do not look like there is an app url i linkedin

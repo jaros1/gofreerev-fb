@@ -29,18 +29,22 @@ end # OmniAuth
 #  6) add private post on task to UtilController.post_on_<provider> if wall posting is allowed for API
 #  7) check API_POST_PERMITTED and API_MUTUAL_FRIENDS hashes for new provider (environment.rb)
 
-API_ID     = {:facebook      => ENV['GOFREEREV_FB_APP_ID'],
-              :google_oauth2 => ENV['GOFREEREV_GP_APP_ID'],
-              :linkedin      => ENV['GOFREEREV_LI_APP_ID'],
-              :twitter       => ENV['GOFREEREV_TW_APP_ID']}.with_indifferent_access
-API_SECRET = {:facebook      => ENV['GOFREEREV_FB_APP_SECRET'],
-              :google_oauth2 => ENV['GOFREEREV_GP_APP_SECRET'],
-              :linkedin      => ENV['GOFREEREV_LI_APP_SECRET'],
-              :twitter       => ENV['GOFREEREV_TW_APP_SECRET']}.with_indifferent_access
-API_URL    = {:facebook      => "https://www.facebook.com",
-              :google_oauth2 => "https://plus.google.com/",
-              :linkedin      => "https://www.linkedin.com/",
-              :twitter       => "https://twitter.com/"}.with_indifferent_access
+API_ID           = {:facebook      => ENV['GOFREEREV_FB_APP_ID'],
+                    :google_oauth2 => ENV['GOFREEREV_GP_APP_ID'],
+                    :linkedin      => ENV['GOFREEREV_LI_APP_ID'],
+                    :twitter       => ENV['GOFREEREV_TW_APP_ID']}.with_indifferent_access
+API_SECRET       = {:facebook      => ENV['GOFREEREV_FB_APP_SECRET'],
+                    :google_oauth2 => ENV['GOFREEREV_GP_APP_SECRET'],
+                    :linkedin      => ENV['GOFREEREV_LI_APP_SECRET'],
+                    :twitter       => ENV['GOFREEREV_TW_APP_SECRET']}.with_indifferent_access
+API_URL          = {:facebook      => "https://www.facebook.com",
+                    :google_oauth2 => "https://plus.google.com/",
+                    :linkedin      => "https://www.linkedin.com/",
+                    :twitter       => "https://twitter.com/"}.with_indifferent_access
+API_CALLBACK_URL = {:facebook      => "#{SITE_URL}facebook/",
+                    :google_oauth2 => '',
+                    :linkedin      => "#{SITE_URL}linkedin/index",
+                    :twitter       => ''}.with_indifferent_access
 
 Rails.application.config.middleware.use OmniAuth::Builder do
   provider :facebook,      API_ID[:facebook],      API_SECRET[:facebook], :scope => "", :image_size => :normal, :info_fields => "name,permissions,friends,picture,timezone"
