@@ -9,6 +9,9 @@ class Koala::Facebook::ClientError
     puts2log  "#{prefix}http_status      = #{http_status} (#{http_status.class})"
     puts2log  "#{prefix}response_body    = #{response_body}"
   end
+  def puts2log  (text)
+    puts "#{caller_locations(1,1)[0].label}: #{text}"
+  end
 end
 
 class Koala::Facebook::ServerError
@@ -20,5 +23,8 @@ class Koala::Facebook::ServerError
     puts2log  "#{prefix}fb_error_message = #{fb_error_message} (#{fb_error_message.class})"
     puts2log  "#{prefix}http_status      = #{http_status} (#{http_status.class})"
     puts2log  "#{prefix}response_body    = #{response_body}"
+  end
+  def puts2log  (text)
+    puts "#{caller_locations(1,1)[0].label}: #{text}"
   end
 end

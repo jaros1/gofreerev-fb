@@ -112,7 +112,7 @@ class FacebookController < ApplicationController
       # code received from FB - login in progress - exchange code for an access token
       # todo: error handling?!
       puts2log  "code = #{params[:code]}"
-      oauth = Koala::Facebook::OAuth.new(API_ID[provider], API_SECRET[provider], API_CALLBACK_URL[provider]
+      oauth = Koala::Facebook::OAuth.new(API_ID[provider], API_SECRET[provider], API_CALLBACK_URL[provider])
       access_token = oauth.get_access_token(params[:code])
       # puts2log  "access_token = #{access_token}"
       # login completed. access token is saved.

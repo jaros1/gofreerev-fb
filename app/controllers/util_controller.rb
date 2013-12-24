@@ -1156,7 +1156,7 @@ class UtilController < ApplicationController
           # http://railscarma.com/blog/rails-3/how-to-use-linkedin-api-in-rails-applications/
           scope = 'r_basicprofile r_network rw_nus'
           client = LinkedIn::Client.new API_ID[provider], API_SECRET[provider]
-          request_token = client.request_token({:oauth_callback => API_CALLBACK_URL[provider], :scope => scope)
+          request_token = client.request_token({:oauth_callback => API_CALLBACK_URL[provider]}, :scope => scope)
           client.authorize_from_access(request_token.token, request_token.secret)
           url = client.request_token.authorize_url
 
