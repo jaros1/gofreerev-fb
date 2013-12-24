@@ -37,7 +37,7 @@ class FacebookController < ApplicationController
     end
 
     # unpack unsigned request
-    oauth = Koala::Facebook::OAuth.new(API_ID[:facebook], API_SECRET[:facebook], FACEBOOK_CALLBACK_URL)
+    oauth = Koala::Facebook::OAuth.new(API_ID[provider], API_SECRET[provider], FACEBOOK_CALLBACK_URL)
     hash = oauth.parse_signed_request(signed_request)
     puts2log  "hash = #{hash}"
     # hash = {"algorithm"=>"HMAC-SHA256", "issued_at"=>1373284394, "user"=>{"country"=>"dk", "locale"=>"da_DK", "age"=>{"min"=>21}}}
@@ -94,7 +94,7 @@ class FacebookController < ApplicationController
     if invalid_state?
       flash[:notice] = t ".invalid_state_#{context}", :appname => APP_NAME
       redirect_to :controller => (%w(login other).index(context) ? :auth : :gifts)
-      logout('facebook')
+      logout(provider)
       clear_state
       return
     end # if invalid_state?
@@ -104,7 +104,7 @@ class FacebookController < ApplicationController
       # user cancelled or denied api request
       flash[:notice] = t ".user_denied_#{context}", :appname => APP_NAME
       redirect_to :controller => (%w(login other).index(context) ? :auth : :gifts)
-      logout('facebook') if context == 'login'
+      logout(provider) if context == 'login'
       return
     end
 
@@ -112,7 +112,7 @@ class FacebookController < ApplicationController
       # code received from FB - login in progress - exchange code for an access token
       # todo: error handling?!
       puts2log  "code = #{params[:code]}"
-      oauth = Koala::Facebook::OAuth.new(API_ID[:facebook], API_SECRET[:facebook], FACEBOOK_CALLBACK_URL)
+      oauth = Koala::Facebook::OAuth.new(API_ID[provider], API_SECRET[provider], FACEBOOK_CALLBACK_URL)
       access_token = oauth.get_access_token(params[:code])
       # puts2log  "access_token = #{access_token}"
       # login completed. access token is saved.
@@ -143,7 +143,7 @@ class FacebookController < ApplicationController
     # fb_locale was received in FacebookController.create post request from facebook
     # add to api_response hash - is used for user.currency
     # api_response["language"] = session[:language]
-    res = login :provider => 'facebook',
+    res = login :provider => provider,
                 :token => access_token,
                 :uid => api_response["id"],
                 :name => api_response['name'],
@@ -152,7 +152,7 @@ class FacebookController < ApplicationController
                 :language => api_response['locale'].to_s.first(2)
     if !res
       # login ok
-      user_id = "#{api_response['id']}/facebook"
+      user_id = "#{api_response['id']}/#{provider}"
       user = User.find_by_user_id(user_id)
       if context == 'status_update'
         # add publish_actions to facebook user before redirecting to gifts/index page
@@ -185,6 +185,11 @@ class FacebookController < ApplicationController
   private
   def allow_iframe
     response.headers['X-Frame-Options'] = 'GOFORIT'
+  end
+
+  private
+  def provider
+    "facebook"
   end
 
 end

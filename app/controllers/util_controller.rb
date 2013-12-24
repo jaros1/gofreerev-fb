@@ -651,8 +651,8 @@ class UtilController < ApplicationController
       )
       # client = Google::APIClient.new
       plus = client.discovered_api('plus')
-      client.authorization.client_id = ENV['GOFREEREV_GP_APP_ID']
-      client.authorization.client_secret = ENV['GOFREEREV_GP_APP_SECRET']
+      client.authorization.client_id = API_ID[provider]
+      client.authorization.client_secret = API_SECRET[provider]
       client.authorization.access_token = token
 
       # find people in login user circles
@@ -757,7 +757,7 @@ class UtilController < ApplicationController
       login_user_id = login_user.user_id
 
       # create client for linkedin api requests
-      client = LinkedIn::Client.new ENV['GOFREEREV_LI_APP_ID'], ENV['GOFREEREV_LI_APP_SECRET']
+      client = LinkedIn::Client.new API_ID[provider], API_SECRET[provider]
       client.authorize_from_access token[0], token[1] # token and secret
 
       # todo: count number of connections retured from linkedin
@@ -827,8 +827,8 @@ class UtilController < ApplicationController
 
       # create client for twitter api requests
       client = Twitter::REST::Client.new do |config|
-        config.consumer_key        = ENV['GOFREEREV_TW_APP_ID']
-        config.consumer_secret     = ENV['GOFREEREV_TW_APP_SECRET']
+        config.consumer_key        = API_ID[provider]
+        config.consumer_secret     = API_SECRET[provider]
         config.access_token        = token[0]
         config.access_token_secret = token[1]
       end
@@ -1018,7 +1018,7 @@ class UtilController < ApplicationController
           # url to grant missing status update permission to post on facebook wall
           # looks like permission status_update has been replaced with publish_actions
           # publish_actions is added to permissions hash when granting status_update priv.
-          oauth = Koala::Facebook::OAuth.new(API_ID[:facebook], API_SECRET[:facebook], FACEBOOK_CALLBACK_URL)
+          oauth = Koala::Facebook::OAuth.new(API_ID[provider], API_SECRET[provider], FACEBOOK_CALLBACK_URL)
           url = oauth.url_for_oauth_code(:permissions => 'status_update', :state => set_state('status_update'))
           options[:url] = url
           options[:appname] = APP_NAME
@@ -1067,7 +1067,7 @@ class UtilController < ApplicationController
             return [key, {:appname => APP_NAME, :apiname => login_user.api_name_without_brackets}]
           else
             # message with link to grant missing read stream priv.
-            oauth = Koala::Facebook::OAuth.new(API_ID[:facebook], API_SECRET[:facebook], FACEBOOK_CALLBACK_URL)
+            oauth = Koala::Facebook::OAuth.new(API_ID[provider], API_SECRET[provider], FACEBOOK_CALLBACK_URL)
             url = oauth.url_for_oauth_code(:permissions => 'read_stream', :state => set_state('read_stream'))
             key = api_gift.picture? ? '.fb_pic_post_missing_permission_html' : '.fb_msg_post_missing_permission_html'
             return [key, {:appname => APP_NAME, :apiname => login_user.api_name_without_brackets, :url => url}]
@@ -1131,12 +1131,10 @@ class UtilController < ApplicationController
       return ['.post_on_api_old_gift', { :provider => provider, :id => gift.id }] unless gift.created_at > 5.minute.ago
 
       # create client for linkedin api requests
-      client = LinkedIn::Client.new ENV['GOFREEREV_LI_APP_ID'], ENV['GOFREEREV_LI_APP_SECRET']
+      client = LinkedIn::Client.new API_ID[provider], API_SECRET[provider]
       client.authorize_from_access token[0], token[1] # token and secret
-      puts2log  "GOFREEREV_LI_APP_ID = #{ENV['GOFREEREV_LI_APP_ID']}"
-      puts2log  "GOFREEREV_LI_APP_SECRET = #{ENV['GOFREEREV_LI_APP_SECRET']}"
-      puts2log  "token = #{token[0]}"
-      puts2log  "secret = #{token[1]}"
+      # puts2log  "token = #{token[0]}"
+      # puts2log  "secret = #{token[1]}"
 
       # todo: add offers/seeks to description
       # todo: add picture
@@ -1156,7 +1154,7 @@ class UtilController < ApplicationController
           # http://railscarma.com/blog/rails-3/how-to-use-linkedin-api-in-rails-applications/
           scope = 'r_basicprofile r_network rw_nus'
           redirect_uri = "#{SITE_URL}linkedin/index"
-          client = LinkedIn::Client.new ENV['GOFREEREV_LI_APP_ID'], ENV['GOFREEREV_LI_APP_SECRET']
+          client = LinkedIn::Client.new API_ID[provider], API_SECRET[provider]
           request_token = client.request_token({:oauth_callback => redirect_uri}, :scope => scope)
           client.authorize_from_access(request_token.token, request_token.secret)
           url = client.request_token.authorize_url

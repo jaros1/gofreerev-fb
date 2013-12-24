@@ -484,4 +484,6 @@
 
 131) linkedin setup
 
+132) generalize invite_friends_url
+
 

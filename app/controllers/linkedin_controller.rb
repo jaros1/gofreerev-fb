@@ -17,11 +17,11 @@ class LinkedinController < ApplicationController
     if x.class == Array and x.length == 2 and x[0].class == String and x[1].class == String and x[0] != "" and x[1] != ''
       puts2log  "login ok. Get name, .... from linkedin"
       # get basic user information from linkedin before 2. login with write permission (rw_nus) to linkedin wall
-      client = LinkedIn::Client.new ENV['GOFREEREV_LI_APP_ID'], ENV['GOFREEREV_LI_APP_SECRET']
+      client = LinkedIn::Client.new API_ID[provider], API_SECRET[provider]
       client.authorize_from_access x[0], x[1] # token and secret
       res1 = client.profile(:fields => %w(id,first-name,last-name,picture-url))
       # new login with write permission to linkedin wall
-      res2 = login :provider => 'linkedin',
+      res2 = login :provider => provider,
                   :token => x,
                   :uid => res1.id,
                   :name => "#{res1.first_name} #{res1.last_name}",
@@ -31,7 +31,7 @@ class LinkedinController < ApplicationController
       puts2log  "res2 = #{res2}"
       if !res2
         # login ok with extra rw_nus priv
-        user_id = "#{res1.id}/linkedin"
+        user_id = "#{res1.id}/#{provider}"
         user = User.find_by_user_id(user_id)
         user.permissions = "r_basicprofile,r_network,rw_nus"
         user.save!
@@ -53,7 +53,12 @@ class LinkedinController < ApplicationController
       puts2log  "login not ok."
     end
 
+  end # index
 
+
+  private
+  def provider
+    "linkedin"
   end
 
 end

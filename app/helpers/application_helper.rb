@@ -203,6 +203,7 @@ module ApplicationHelper
     }
   end # format_gift_param
 
+  # todo: generalize
   def invite_friends_url
     unless @user
       puts2log  '@user was not found'
@@ -215,7 +216,7 @@ module ApplicationHelper
         message = t 'shared.invite_friends.invite_friends_message_body'
         # no koala gem method for generation a invite friends url
         url = "https://#{Koala.config.dialog_host}/dialog/apprequests" +
-            "?app_id=#{API_ID[:facebook]}" +
+            "?app_id=#{API_ID[@user.provider]}" +
             "&redirect_uri=#{CGI.escape(SITE_URL + @request_fullpath)}" +
             "&message=#{CGI.escape(message.to_str)}" +
             "&title=#{CGI.escape(title.to_str)}" +
