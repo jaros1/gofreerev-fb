@@ -78,13 +78,11 @@ module ApplicationHelper
     [ [ "#{a[1][:iso_code]} #{a[1][:name]}".first(25), a[1][:iso_code] ]]
   end
 
-
-
   def header_log_in_link_url
     url_for :controller => :auth, :action => :index
   end
   def header_log_out_link_url
-    url_for :controller => :auth, :action => :destroy, :id => 42
+    url_for :controller => :auth, :action => :destroy, :id => "all"
   end
   def render_page_footer
     render_partial_with_language('layouts', 'page_footer')
@@ -240,8 +238,8 @@ module ApplicationHelper
 
   def link_to_logout
     if @request_fullpath.to_s =~ /\/cookie\//
-      # problem with log out link and InvalidAuthenticityToken in cookie controller (no session in cookie controller)
-      "<u>#{t('.header_log_out_link_text')}</u>".html_safe
+      # problem with log out link and InvalidAuthenticityToken error (no session in cookie controller). redirect to login/logout page
+      link_to t('.header_log_out_link_text'), auth_path
     else
       link_to t('.header_log_out_link_text'), header_log_out_link_url, :method => 'delete'
     end

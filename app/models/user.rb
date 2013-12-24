@@ -268,7 +268,7 @@ class User < ActiveRecord::Base
     return ['.callback_user_name_missing',  { :provider => provider } ] if user_name == ""
     # missing image is a minor problem
     image = options[:image].to_s
-    puts2log  "User.find_or_create_user: no profile picture received from login provider" if image == ""
+    puts2log  "no profile picture received from login provider #{provider}" if image == ""
     user_id = "#{uid}/#{provider}"
     user = User.find_by_user_id(user_id)
     user = User.new unless user
@@ -303,6 +303,8 @@ class User < ActiveRecord::Base
       active_currencies = ExchangeRate.active_currencies
       currency = BASE_CURRENCY if active_currencies.size > 0 and !active_currencies.index(currency)
       user.currency = currency
+      user.balance = { BALANCE_KEY => 0.0 }
+      user.balance_at = Date.parse(Sequence.get_last_exchange_rate_date)
     end # outer if
     user.save!
     user
@@ -339,7 +341,7 @@ class User < ActiveRecord::Base
       stdout, stderr, status = User.open4('rm *', user.profile_picture_tmp_os_folder)
       # puts2log  "rm: stdout = #{stdout}, stderr = #{stderr}, status = #{status} (#{status.class})" if status != 0
       # download image to work dir
-      stdout, stderr, status = User.open4("wget #{url}", user.profile_picture_tmp_os_folder)
+      stdout, stderr, status = User.open4("wget \"#{url}\"", user.profile_picture_tmp_os_folder)
       if status != 0
         puts2log "image download failed: wget: stdout = #{stdout}, stderr = #{stderr}, status = #{status} (#{status.class})"
         error = stderr.to_s.split("\n").last

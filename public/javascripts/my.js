@@ -432,7 +432,7 @@ function insert_update_gifts (tasks_sleep)
     // process ajax response received from new_messages_count ajax request
     // response has been inserted in new_messages_buffer_div in page header
     // also used after util/accept_new_deal to ajax replace gift
-    add2log('insert_update_gifts: start') ;
+    // add2log('insert_update_gifts: start') ;
 
     // check/update newest_gift_id (id for latest created gift)
     var new_newest_gift_id = document.getElementById("new-newest-gift-id") ; // from new_messages_buffer_div
@@ -1000,7 +1000,7 @@ $(document).ready(function() {
     var timezone = document.getElementById("timezone") ;
     if (!timezone) return ;
     timezone.value = get_js_timezone();
-    add2log('timezone = ' + timezone.value) ;
+    // add2log('timezone = ' + timezone.value) ;
 })
 
 // custom confirm box - for styling

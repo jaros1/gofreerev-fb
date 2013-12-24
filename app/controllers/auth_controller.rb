@@ -4,11 +4,23 @@ class AuthController < ApplicationController
   after_filter :allow_iframe
   before_filter :clear_state
 
+  # log in/out index page
   def index
-    @providers = OmniAuth::Builder.providers
-    # find logged in providers - userid and token
-    @logged_in_providers = @users.collect { |user| user.provider }
-  end
+    all_providers = OmniAuth::Builder.providers
+    logged_in_providers = @users.find_all { |user| !user.dummy_user? }.collect { |user| user.provider }
+    # initialize @providers hash with true/false to logged in provider
+    @providers = {}
+    all_providers.each do |provider|
+      @providers[provider] = case
+                               when !logged_in_providers.index(provider) then
+                                 0 # log in link
+                               when logged_in_providers.length == 1 then
+                                 1 # log out and return to login provider
+                               else
+                                 2 # log out and stay on auth/index page
+                             end # case
+    end # each provider
+  end # index
 
   # omniauth callback on success (login was started from rails)
   def create
@@ -143,32 +155,33 @@ class AuthController < ApplicationController
   end # oauth_failure
 
 
-  # logout
+  # logout. id is all or login provider
   def destroy
-    # fetch user for language support in logout page
     if User.dummy_users?(@users)
       flash[:notice] = t '.already_logged_off'
       redirect_to :action => :index
       return
     end
-    # empty session
-    # created is kept so that cookie note is not displayed after log out
-    # language is kept so that correct language is used when or if user returns to gofreerev
-    # timezone is kept so that correct timezone is shown when or if user returns to gofreerev
-    # session information is destroyed when user closes browser and cookies are removed
-    session.keys.each do |name|
-      session.delete(name) unless %w(_csrf_token created language timezone).index(name.to_s)
-    end
-    session[:user_ids] = []
-    session[:tokens] = {}
-    # redirect to api or redirect to auth/index page
-    if @users.length > 1
-      flash[:notice] = t '.logged_off', :appname => APP_NAME
+    provider = params[:id]
+    if provider != "all" and !OmniAuth::Builder.providers.index(provider)
+      flash[:notice] = t '.unknown_provider'
       redirect_to :action => :index
       return
     end
-    user = @users.first
-    case user.provider
+    if provider == 'all'
+      logout()
+    else
+      logout(provider)
+    end
+    # redirect to api or redirect to auth/index page
+    if @users.length > 1 or !@users.first.dummy_user?
+      # user logged in with other login provider(s)
+      flash[:notice] = t '.logged_off', :appname => APP_NAME, :apiname => t("shared.providers.#{provider}")
+      redirect_to :action => :index
+      return
+    end
+    # dummy user. redirect to login provider
+    case provider
       when 'facebook'
         redirect_to 'https://facebook.com/'
       when 'google_oauth2'
@@ -178,6 +191,7 @@ class AuthController < ApplicationController
       when 'twitter'
         redirect_to 'https://twitter.com/'
       else
+        flash[:notice] = t '.unknown_provider'
         redirect_to :action => :index
     end
   end # destroy

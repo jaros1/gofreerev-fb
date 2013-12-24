@@ -143,9 +143,20 @@ en:
         callback_user_name_missing_google: "Login failed. Did not receive username from google. Maybe scope userinfo.profile is missing for provider"
         callback_user_name_missing: "Login failed. Did not receive username from %{provider}"
         find_or_create_from_auth_hash: "System error. Invalid response from user update after login"
+     index:
+        link_prompt_facebook: "Facebook"
+        link_prompt_google_oauth2: "Google+"
+        link_prompt_linkedin: "LinkedIn"
+        link_prompt_twitter: "Twitter"
+        log_in_link_text: "log in"
+        log_out_link_text: "log out"
+        log_in_out_title0: "Log in with your %{apiname} account"
+        log_in_out_title1: "log out of %{appname} and return to %{apiname}"
+        log_in_out_title2: "log out of %{apiname}"
      destroy:
         logged_off: "Log out ok. Thanks for visiting %{appname}. Use links on this page to log in or to return to login API. Close browser to remove session cookie."
         already_logged_off: "Already logged out. Use links on this page to log in or to return to login API. Close browser to remove session cookie."
+        unknown_provider: "System error. Unknown login provider when logging off"
 
   # comments controller
   comments:
@@ -183,7 +194,7 @@ en:
 
   cookie:
      decline_cookies:
-        page_header_html: "%{appname} uses temporary cookies for log in. In temporary session cookie are stored information about start time, login API authorization, language, timezone. Temporary cookies are removed when the browser is closed. Cookie acceptance is the only information stored in a resident cookie.<br><br>You have rejected to use cookies for this web site. All cookies have been removed and you can leave this web site. Thank you for visiting %{appname}."
+        page_header_html: "%{appname} uses temporary cookies for log in. In temporary session cookie are stored information about start time, login API authorization, language, timezone. Temporary cookies are removed when the browser is closed. Cookie acceptance is the only information stored in a resident cookie.<br><br>You have rejected to use cookies for this web site. All cookies have been removed and it is secure to leave this web site. Thank you for visiting %{appname}."
 
   facebook:
      autologin:

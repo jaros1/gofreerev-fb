@@ -360,7 +360,14 @@ class ApplicationController < ActionController::Base
       user.save!
     end
     # schedule post login tasks.
-    add_task "User.download_profile_image('#{user.user_id}', '#{image}')", 5 if image =~ /^http/ and !image.index("''")
+    if image.to_s != ""
+      if image =~ /^http/ and !image.index("''") and !image.index('"')
+        # todo: other characters to filter? for example characters with a special os function
+        add_task "User.download_profile_image('#{user.user_id}', '#{image}')", 5
+      else
+        puts2log "invalid picture received from #{provider}. image = #{image}"
+      end
+    end
     post_login_task_provider = "post_login_#{provider}" # private method in UtilController
     if UtilController.new.private_methods.index(post_login_task_provider.to_sym)
       add_task post_login_task_provider, 5
