@@ -90,11 +90,21 @@ da:
         invite_friends_message_title: "Inviter dine venner til %{appname}"
         invite_friends_message_body: "Prøv et spil om at hjælpe hinanden og dele hinandens resourcer på en ny anderledes måde og et spil med en ny slags penge der kan forandre vores verden inspireret af ideer fra Charles Eisensteins bog Sacred Economics"
      providers:
-        # provider lowercase name - used in error messages
-        facebook: "facebook"
-        google_oauth2: "google+"
-        linkedin: "linkedin"
-        twitter: "twitter"
+        # provider downcase names - used in error messages
+        facebook_down: "facebook"
+        google_oauth2_down: "google+"
+        linkedin_down: "linkedin"
+        twitter_down: "twitter"
+        # provider camelize names - used in views
+        facebook_cam: "Facebook"
+        google_oauth2_cam: "Google+"
+        linkedin_cam: "LinkedIn"
+        twitter_cam: "Twitter"
+        # provider urls - used in links
+        facebook_url: "https://www.facebook.com"
+        google_oauth2_url: "https://plus.google.com/"
+        linkedin_url: "https://www.linkedin.com/"
+        twitter_url: "https://twitter.com/"
      translate_ajax_errors:
         ajax_task_exception: "Systemfejl \"%{exception}\" for opgave \"%{task}\". Tjek backtrace i server log for mere information." # task, exception
         ajax_task_invalid_response: "Systemfejl. Ugyldigt svar fra opgave \"%{task}\". Skal være Nil eller gyldigt input til translate." # task, response and exception. response is invalid response from opgave and exception is ruby exception from translate
@@ -147,17 +157,14 @@ da:
         callback_user_name_missing: "Login fejlede. Modtag ikke brugernavn fra %{provider}"
         find_or_create_from_auth_hash: "System fejl. Ugyldigt svar fra bruger opdatering efter login."
      index:
-        link_prompt_facebook: "Facebook"
-        link_prompt_google_oauth2: "Google+"
-        link_prompt_linkedin: "LinkedIn"
-        link_prompt_twitter: "Twitter"
         log_in_link_text: "log ind"
         log_out_link_text: "log ud"
         log_in_out_title0: "Opret adgang til %{appname} ved hjælp af din %{apiname} konto"
         log_in_out_title1: "Afbryd adgang til %{appname} og returner til %{apiname}"
         log_in_out_title2: "Afbryd adgang til %{appname} ved hjælp af din %{apiname} konto. Bemærk at du har adgang til %{appname} med flere login udbydere og at du efter %{apiname} \"log ud\" stadigvæk vil kunne bruge %{appname}. Bemærk desuden at %{apiname} \"log ud\" her IKKE logger dig ud af %{apiname}. Brug \"log ud\" funktionalitet i %{apiname} hvis du også ønsker at logge ud af %{apiname}."
+        remove_cookies_link_text: "Fjern cookies"
      destroy:
-        logged_off: "Adgang via %{apiname} er blevet afbrudt. Vær opmærksom på at du stadigvæk har adgang til %{appname} via en anden login provider. Brug nedenstående links til at logge ind/ud."
+        logged_off: "Adgang via %{apiname} er blevet afbrudt. Vær opmærksom på at du stadigvæk har adgang til %{appname} via en anden login udbyder. Brug nedenstående links til at logge ind/ud."
         already_logged_off: "Du var allerede logget ud. Brug nedenstående link til at logge ind igen. Luk browseren for at fjerne session cookie."
         unknown_provider: "Systemfejl. Ukendt login provider ved log ud"
 

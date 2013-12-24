@@ -24,13 +24,15 @@ end # OmniAuth
 #  1) add provider to GemFile
 #  2) add provider here
 #  3) add any provider specific methods to OmniAuth::AuthHash. See config/initializers/omniauth_<provider>.rb
-#  4) add provider to locals
-#     a) shared/providers with lowercase provider name used in messages
+#  4) add provider to locals - shared/providers with downcase and camelize names used in messages/views and urls for redirect
 #  5) add private post login task to UtilController.post_login_<provider> if any (get friends, permissions etc)
 #  6) add private post on task to UtilController.post_on_<provider> if wall posting is allowed for API
 #  7) check API_POST_PERMITTED and API_MUTUAL_FRIENDS hashes for new provider (environment.rb)
+
+FACEBOOK_API_ID, FACEBOOK_API_SECRET = ENV['GOFREEREV_FB_APP_ID'], ENV['GOFREEREV_FB_APP_SECRET']
+
 Rails.application.config.middleware.use OmniAuth::Builder do
-  provider :facebook,      ENV['GOFREEREV_FB_APP_ID'], ENV['GOFREEREV_FB_APP_SECRET'], :scope => "", :image_size => :normal, :info_fields => "name,permissions,friends,picture,timezone"
+  provider :facebook,      FACEBOOK_API_ID, FACEBOOK_API_SECRET, :scope => "", :image_size => :normal, :info_fields => "name,permissions,friends,picture,timezone"
   provider :google_oauth2, ENV['GOFREEREV_GP_APP_ID'], ENV['GOFREEREV_GP_APP_SECRET'], :scope => "plus.login userinfo.profile"
   provider :linkedin,      ENV['GOFREEREV_LI_APP_ID'], ENV['GOFREEREV_LI_APP_SECRET'], :scope => "r_basicprofile r_network", :fields => ['id', 'first-name', 'last-name', 'picture-url', 'public-profile-url', 'location']
   provider :twitter,       ENV['GOFREEREV_TW_APP_ID'], ENV['GOFREEREV_TW_APP_SECRET']

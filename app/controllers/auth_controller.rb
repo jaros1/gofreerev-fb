@@ -150,7 +150,7 @@ class AuthController < ApplicationController
     message = $1 if error.message =~ /"message": "(.*?)"/
     message = error.message unless message
     # flash[:notice] = "Authentication failure! #{type}: #{message}"
-    flash[:notice] = t '.authentication_failure', :provider => my_provider(strategy.name), :type => type, :message => message
+    flash[:notice] = t '.authentication_failure', :provider => provider_downcase(strategy.name), :type => type, :message => message
     redirect_to '/auth'
   end # oauth_failure
 
@@ -162,8 +162,9 @@ class AuthController < ApplicationController
       redirect_to :action => :index
       return
     end
-    provider = params[:id]
-    if provider != "all" and !OmniAuth::Builder.providers.index(provider)
+    provider = params[:id].to_s
+    if provider != "all" and !valid_provider?(provider)
+      puts2log "1: unknown provider #{provider}"
       flash[:notice] = t '.unknown_provider'
       redirect_to :action => :index
       return
@@ -176,23 +177,15 @@ class AuthController < ApplicationController
     # redirect to api or redirect to auth/index page
     if @users.length > 1 or !@users.first.dummy_user?
       # user logged in with other login provider(s)
-      flash[:notice] = t '.logged_off', :appname => APP_NAME, :apiname => t("shared.providers.#{provider}")
+      flash[:notice] = t '.logged_off', :appname => APP_NAME, :apiname => provider_downcase(provider)
       redirect_to :action => :index
       return
     end
     # dummy user. redirect to login provider
-    case provider
-      when 'facebook'
-        redirect_to 'https://facebook.com/'
-      when 'google_oauth2'
-        redirect_to 'https://plus.google.com/'
-      when 'linkedin'
-        redirect_to 'https://www.linkedin.com/'
-      when 'twitter'
-        redirect_to 'https://twitter.com/'
-      else
-        flash[:notice] = t '.unknown_provider'
-        redirect_to :action => :index
+    if provider == 'all'
+      redirect_to :action => :index
+    else
+      redirect_to provider_url(provider)
     end
   end # destroy
 

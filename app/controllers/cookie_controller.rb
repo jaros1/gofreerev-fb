@@ -6,13 +6,8 @@ class CookieController < ApplicationController
   skip_filter :get_timezone
   layout 'no_cookies_layout'
 
-  # cookie note cancel method - cookies has been removed - display
+  # cookie note cancel method - cookies has been removed
   def decline_cookies
-    #cookies.each do |name, value|
-    #  puts "delete #{name} cookie"
-    #  cookies.delete(name)
-    #end
-    #cookies.delete('_gofreerev-fb_session')
   end
 
   private
@@ -37,8 +32,10 @@ class CookieController < ApplicationController
   alias_method :old_cookies, :cookies
   def cookies
     old_cookies.each do |name, value|
+      puts2log "delete cookie #{name}"
       old_cookies.delete(name)
     end
+    puts2log "delete cookie _gofreerev-fb_session"
     old_cookies.delete('_gofreerev-fb_session')
     {}
   end

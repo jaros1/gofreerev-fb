@@ -12,17 +12,6 @@ class ApplicationController < ActionController::Base
   before_action :set_locale
   before_action :get_timezone
 
-  # Facebook API information is defined as OS environment variable
-  private
-  def api_id
-    ENV['GOFREEREV_FB_APP_ID']
-  end
-  helper_method :api_id
-  def api_secret
-    ENV['GOFREEREV_FB_APP_SECRET']
-  end
-  helper_method :api_secret
-
   # render to language specific pages.
   # viewname=create, session[:language] = da => call create-da.html.erb if the page exists
   private
@@ -270,18 +259,39 @@ class ApplicationController < ActionController::Base
     false
   end # invalid_price?
 
+  # provider helpers
+
+  # list of valid providers from /config/initializers/omniauth.rb
   private
   def valid_provider? (provider)
-    OmniAuth::Builder.providers.index(provider)
+    User.valid_provider?(provider)
   end
   helper_method "valid_provider?"
 
+  # provider name used in text (error messages, mouse over titles etc) - normal lowercase
   private
-  def my_provider (provider)
+  def provider_downcase (provider)
     return provider if !valid_provider?(provider) # unknown provider or already translated
-    t "shared.providers.#{provider}"
+    t "shared.providers.#{provider}_down"
   end
-  helper_method :my_provider
+  helper_method :provider_downcase
+
+  # formal provider name - used in views
+  private
+  def provider_camelize (provider)
+    return provider if !valid_provider?(provider) # unknown provider or already translated
+    t "shared.providers.#{provider}_cam"
+  end
+  helper_method :provider_camelize
+
+  # redirect urls used in views and controllers
+  private
+  def provider_url (provider)
+    return provider if !valid_provider?(provider) # unknown provider or already translated
+    t "shared.providers.#{provider}_url"
+  end
+  helper_method :provider_url
+
 
   private
   def add_task (task, priority=5)

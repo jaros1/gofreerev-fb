@@ -30,7 +30,6 @@ ENCRYPT_KEYS = [ ENV['GOFREEREV_KEY_1'], ENV['GOFREEREV_KEY_2'], ENV['GOFREEREV_
                  ENV['GOFREEREV_KEY_46'], ENV['GOFREEREV_KEY_47'], ENV['GOFREEREV_KEY_48'],
                  ENV['GOFREEREV_KEY_49'], ENV['GOFREEREV_KEY_50'] ]
 
-
 # negative interest
 NEGATIVE_INTEREST_PER_DAY = 0.02 # 0.02 % per day <=> 0.6 % per month <=> 7.0 % per year
 

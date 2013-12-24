@@ -1018,7 +1018,7 @@ class UtilController < ApplicationController
           # url to grant missing status update permission to post on facebook wall
           # looks like permission status_update has been replaced with publish_actions
           # publish_actions is added to permissions hash when granting status_update priv.
-          oauth = Koala::Facebook::OAuth.new(api_id, api_secret, FB_CALLBACK_URL)
+          oauth = Koala::Facebook::OAuth.new(FACEBOOK_API_ID, FACEBOOK_API_SECRET, FB_CALLBACK_URL)
           url = oauth.url_for_oauth_code(:permissions => 'status_update', :state => set_state('status_update'))
           options[:url] = url
           options[:appname] = APP_NAME
@@ -1067,7 +1067,7 @@ class UtilController < ApplicationController
             return [key, {:appname => APP_NAME, :apiname => login_user.api_name_without_brackets}]
           else
             # message with link to grant missing read stream priv.
-            oauth = Koala::Facebook::OAuth.new(api_id, api_secret, FB_CALLBACK_URL)
+            oauth = Koala::Facebook::OAuth.new(FACEBOOK_API_ID, FACEBOOK_API_SECRET, FB_CALLBACK_URL)
             url = oauth.url_for_oauth_code(:permissions => 'read_stream', :state => set_state('read_stream'))
             key = api_gift.picture? ? '.fb_pic_post_missing_permission_html' : '.fb_msg_post_missing_permission_html'
             return [key, {:appname => APP_NAME, :apiname => login_user.api_name_without_brackets, :url => url}]

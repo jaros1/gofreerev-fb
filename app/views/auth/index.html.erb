@@ -3,8 +3,8 @@
 <div style="width: 100%">
   <table>
     <% @providers.each do |provider, logged_in| %>
-        <tr title="<%= t ".log_in_out_title#{logged_in}", :appname => APP_NAME, :apiname => t("shared.providers.#{provider}") %>">
-          <td><%= t ".link_prompt_#{provider}" %></td>
+        <tr title="<%= t ".log_in_out_title#{logged_in}", :appname => APP_NAME, :apiname => provider_downcase(provider) %>">
+          <td><%= provider_camelize(provider) %></td>
           <td>:</td>
           <td>
             <% if logged_in == 0 -%>

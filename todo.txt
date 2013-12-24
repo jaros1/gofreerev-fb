@@ -462,4 +462,3 @@
 125) better puts2log output
      should display class.method: text class
 
-128) add remove cookies link in auth/index page

@@ -90,10 +90,20 @@ en:
         invite_friends_message_body: "Try a game about helping each other and sharing each others resources in a new different way and a game with a new kind of money that will change our world inspired by the ideas of Charles Eisenstein's book Sacred Economics"
      providers:
         # provider lowercase name - used in error messages
-        facebook: "facebook"
-        google_oauth2: "google+"
-        linkedin: "linkedin"
-        twitter: "twitter"
+        facebook_down: "facebook"
+        google_oauth2_down: "google+"
+        linkedin_down: "linkedin"
+        twitter_down: "twitter"
+        # provider camelize names - used in views
+        facebook_cam: "Facebook"
+        google_oauth2_cam: "Google+"
+        linkedin_cam: "LinkedIn"
+        twitter_cam: "Twitter"
+        # provider urls - used in links
+        facebook_url: "https://www.facebook.com"
+        google_oauth2_url: "https://plus.google.com/"
+        linkedin_url: "https://www.linkedin.com/"
+        twitter_url: "https://twitter.com/"
      translate_ajax_errors:
         ajax_task_exception: "System error \"%{exception}\" for task \"%{task}\". Check backtrace in server log for more information."
         ajax_task_invalid_response: "System error. Invalid response from task \"%{task}\". Must be Nil or a valid input to translate." # task, response and exception. response is invalid response from task and exception is exception from translate
@@ -144,17 +154,14 @@ en:
         callback_user_name_missing: "Login failed. Did not receive username from %{provider}"
         find_or_create_from_auth_hash: "System error. Invalid response from user update after login"
      index:
-        link_prompt_facebook: "Facebook"
-        link_prompt_google_oauth2: "Google+"
-        link_prompt_linkedin: "LinkedIn"
-        link_prompt_twitter: "Twitter"
         log_in_link_text: "log in"
         log_out_link_text: "log out"
-        log_in_out_title0: "Log in with your %{apiname} account"
-        log_in_out_title1: "log out of %{appname} and return to %{apiname}"
-        log_in_out_title2: "log out of %{apiname}"
+        log_in_out_title0: "Connect to %{appname} with your %{apiname} account"
+        log_in_out_title1: "Disconnect from %{appname} and return to %{apiname}"
+        log_in_out_title2: "Close your %{apiname} connection to %{appname}. Note that your are connected to %{appname} with an other login provider and that you after %{apiname} \"log out\" still can use %{appname}. Note also that \"log out\" here does NOT log your out of %{apiname}. Use \"log out\" function at %{apiname} if your also wish to log out of %{apiname}."
+        remove_cookies_link_text: "Remove cookies"
      destroy:
-        logged_off: "Log out ok. Thanks for visiting %{appname}. Use links on this page to log in or to return to login API. Close browser to remove session cookie."
+        logged_off: "Connection with %{apiname} has been closed. Note that you are still connected to %{appname} with an other login provider. Use links in this page to log in/out."
         already_logged_off: "Already logged out. Use links on this page to log in or to return to login API. Close browser to remove session cookie."
         unknown_provider: "System error. Unknown login provider when logging off"
 

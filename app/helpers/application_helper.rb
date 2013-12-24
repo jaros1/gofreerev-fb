@@ -160,7 +160,7 @@ module ApplicationHelper
   def my_sanitize_hash (hash)
     hash.each do |name, value|
       if name.to_s == 'provider'
-        hash[name] = my_provider(value)
+        hash[name] = provider_downcase(value)
       else
         hash[name] = my_sanitize (value.to_s.force_encoding('utf-8'))
       end
@@ -215,7 +215,7 @@ module ApplicationHelper
         message = t 'shared.invite_friends.invite_friends_message_body'
         # no koala gem method for generation a invite friends url
         url = "https://#{Koala.config.dialog_host}/dialog/apprequests" +
-            "?app_id=#{api_id}" +
+            "?app_id=#{FACEBOOK_API_ID}" +
             "&redirect_uri=#{CGI.escape(SITE_URL + @request_fullpath)}" +
             "&message=#{CGI.escape(message.to_str)}" +
             "&title=#{CGI.escape(title.to_str)}" +

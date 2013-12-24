@@ -247,6 +247,12 @@ class User < ActiveRecord::Base
   end # open4
 
 
+  # list of valid providers from /config/initializers/omniauth.rb
+  def self.valid_provider? (provider)
+    OmniAuth::Builder.providers.index(provider.to_s)
+  end
+
+
   # find and create or update user from hash
   # options: :provider, :token, :uid, :name, :image, :country, :language
   # called from login methods (authController.create, FbController.index, etc)
@@ -256,7 +262,7 @@ class User < ActiveRecord::Base
     # missing provider, unknown provider, missing token, uid or user_name are fatal errors.
     provider = options[:provider].to_s
     return '.callback_provider_missing' if provider == ""
-    return ['.callback_unknown_provider', { :provider => provider } ] unless OmniAuth::Builder.providers.index(provider.to_s)
+    return ['.callback_unknown_provider', { :provider => provider } ] unless User.valid_provider?(provider)
     token = options[:token].to_s
     return ['.callback_token_missing', { :provider => provider } ] if token == ""
     uid = options[:uid].to_s
