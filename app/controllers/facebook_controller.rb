@@ -37,7 +37,7 @@ class FacebookController < ApplicationController
     end
 
     # unpack unsigned request
-    oauth = Koala::Facebook::OAuth.new(FACEBOOK_API_ID, FACEBOOK_API_SECRET, FB_CALLBACK_URL)
+    oauth = Koala::Facebook::OAuth.new(API_ID[:facebook], API_SECRET[:facebook], FACEBOOK_CALLBACK_URL)
     hash = oauth.parse_signed_request(signed_request)
     puts2log  "hash = #{hash}"
     # hash = {"algorithm"=>"HMAC-SHA256", "issued_at"=>1373284394, "user"=>{"country"=>"dk", "locale"=>"da_DK", "age"=>{"min"=>21}}}
@@ -112,7 +112,7 @@ class FacebookController < ApplicationController
       # code received from FB - login in progress - exchange code for an access token
       # todo: error handling?!
       puts2log  "code = #{params[:code]}"
-      oauth = Koala::Facebook::OAuth.new(FACEBOOK_API_ID, FACEBOOK_API_SECRET, FB_CALLBACK_URL)
+      oauth = Koala::Facebook::OAuth.new(API_ID[:facebook], API_SECRET[:facebook], FACEBOOK_CALLBACK_URL)
       access_token = oauth.get_access_token(params[:code])
       # puts2log  "access_token = #{access_token}"
       # login completed. access token is saved.

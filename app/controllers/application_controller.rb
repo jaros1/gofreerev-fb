@@ -288,7 +288,7 @@ class ApplicationController < ActionController::Base
   private
   def provider_url (provider)
     return provider if !valid_provider?(provider) # unknown provider or already translated
-    t "shared.providers.#{provider}_url"
+    API_URL[provider.to_sym]
   end
   helper_method :provider_url
 

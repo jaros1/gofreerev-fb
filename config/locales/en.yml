@@ -99,11 +99,6 @@ en:
         google_oauth2_cam: "Google+"
         linkedin_cam: "LinkedIn"
         twitter_cam: "Twitter"
-        # provider urls - used in links
-        facebook_url: "https://www.facebook.com"
-        google_oauth2_url: "https://plus.google.com/"
-        linkedin_url: "https://www.linkedin.com/"
-        twitter_url: "https://twitter.com/"
      translate_ajax_errors:
         ajax_task_exception: "System error \"%{exception}\" for task \"%{task}\". Check backtrace in server log for more information."
         ajax_task_invalid_response: "System error. Invalid response from task \"%{task}\". Must be Nil or a valid input to translate." # task, response and exception. response is invalid response from task and exception is exception from translate
@@ -143,7 +138,7 @@ en:
   auth:
      oauth_failure:
         authentication_failure: "%{provider} authentication failure! %{type}: %{message}"
-        login_cancelled: '%{provider} was cancelled'
+        login_cancelled: '%{provider} login was cancelled'
         linkedin_rw_nus_cancelled: '%{appname} was not granted permission to post on your LinkedIn wall'
      create:
         callback_provider_missing: "Login failed. Did not receive name for login provider"

@@ -30,7 +30,7 @@ module ApplicationHelper
 
 
   def link_to_app_on_facebook
-    link_to APP_NAME, "javascript: {top.location.href='" + FB_APP_URL + "'}"
+    link_to APP_NAME, "javascript: {top.location.href='" + FACEBOOK_APP_URL + "'}"
   end
 
 
@@ -215,7 +215,7 @@ module ApplicationHelper
         message = t 'shared.invite_friends.invite_friends_message_body'
         # no koala gem method for generation a invite friends url
         url = "https://#{Koala.config.dialog_host}/dialog/apprequests" +
-            "?app_id=#{FACEBOOK_API_ID}" +
+            "?app_id=#{API_ID[:facebook]}" +
             "&redirect_uri=#{CGI.escape(SITE_URL + @request_fullpath)}" +
             "&message=#{CGI.escape(message.to_str)}" +
             "&title=#{CGI.escape(title.to_str)}" +
@@ -229,7 +229,7 @@ module ApplicationHelper
 
   def invite_friends_link1
     # todo: different url for each API (FB, GP, LI etc)
-    link_to t('shared.invite_friends.invite_friends_link_text1', :app_url => FB_APP_URL), invite_friends_url
+    link_to t('shared.invite_friends.invite_friends_link_text1', :app_url => FACEBOOK_APP_URL), invite_friends_url
   end
 
   def ajax_tasks?

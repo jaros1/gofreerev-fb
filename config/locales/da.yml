@@ -100,11 +100,6 @@ da:
         google_oauth2_cam: "Google+"
         linkedin_cam: "LinkedIn"
         twitter_cam: "Twitter"
-        # provider urls - used in links
-        facebook_url: "https://www.facebook.com"
-        google_oauth2_url: "https://plus.google.com/"
-        linkedin_url: "https://www.linkedin.com/"
-        twitter_url: "https://twitter.com/"
      translate_ajax_errors:
         ajax_task_exception: "Systemfejl \"%{exception}\" for opgave \"%{task}\". Tjek backtrace i server log for mere information." # task, exception
         ajax_task_invalid_response: "Systemfejl. Ugyldigt svar fra opgave \"%{task}\". Skal være Nil eller gyldigt input til translate." # task, response and exception. response is invalid response from opgave and exception is ruby exception from translate
@@ -134,7 +129,7 @@ da:
         local_picture_not_found: "Ugyldigt id %{id} ved opslag på %{provider} væg (3)"
         gift_posted_1_html: "Opslag opretter her, men ikke på din %{apiname} væg (%{error})" # unhandled error message
         gift_posted_2_html: "Opslag opretter her og på din %{apiname} væg"
-        gift_posted_3_html: "<div title='%{appname} mangler adgang til at skrive på din %{apiname} væg. Du kan godt dele dine resourcer med dine venner herinde, men opslag vil kun blive vist her og ikke på din %{apiname} væg. Dvs. dine opslag vil sandsynligvis kun blive set af få venner. Du kan give %{appname} tilladelse til at skrive på din %{apiname} væg. %{appname} laver kun de opslag du selv beder om. Billeder gemmes kun hos din login provider (i dette tilfælde %{apiname}). Uden adgang til at skrive på mindst en væg kan der ikke vedlægges billeder i forbindelse med opslag herinde.'>Manglende adgang til opslag på din %{apiname} væg. <a href=\"javascript: {top.location.href='%{url}'}\">Giv %{appname} lov til at lave opslag på min %{apiname} væg!</a></div>" # missing privileges
+        gift_posted_3_html: "<div title='%{appname} mangler adgang til at skrive på din %{apiname} væg. Du kan godt dele dine resourcer med dine venner herinde, men opslag vil kun blive vist her og ikke på din %{apiname} væg. Dvs. dine opslag vil sandsynligvis kun blive set af få venner. Du kan give %{appname} tilladelse til at skrive på din %{apiname} væg. %{appname} laver kun de opslag du selv beder om. Billeder gemmes kun hos din login udbyder (i dette tilfælde %{apiname}). Uden adgang til at skrive på mindst en væg kan der ikke vedlægges billeder i forbindelse med opslag herinde.'>Manglende adgang til opslag på din %{apiname} væg. <a href=\"javascript: {top.location.href='%{url}'}\">Giv %{appname} lov til at lave opslag på min %{apiname} væg!</a></div>" # missing privileges
         gift_posted_4_html: "Opslag opretter her, men ikke på din %{apiname} væg. Opslag fandes allerede på %{apiname} væg"
         gift_posted_5_html: "Opslag opretter her, men ikke på din %{apiname} væg. Opslag på %{apiname} væg er endnu ikke implementeret"
         fb_pic_post_unknown_problem: "Opslag opretter her og på din %{apiname} væg. Foto blev uploaded til din %{apiname} væg, men %{appname} mangler rettigheder til at se billedet på din %{apiname} væg og kan derfor ikke vise foto herinde. Måske du har ændret rettighedsindstillinger for %{appname}."
@@ -149,11 +144,11 @@ da:
         login_cancelled: '%{provider} login blev afbrudt'
         linkedin_rw_nus_cancelled: '%{appname} fik ikke lov til at opslag på din linkedin væg'
      create:
-        callback_provider_missing: "Login fejlede. Modtog ikke navn på login provider"
-        callback_unknown_provider: "Login fejlede. Modtag ukendt login provider %{provider}"
+        callback_provider_missing: "Login fejlede. Modtog ikke navn på login udbyder"
+        callback_unknown_provider: "Login fejlede. Modtag ukendt login udbyder %{provider}"
         callback_token_missing: "Login fejlede. Modtag ikke adgangs billet til %{provider}"
         callback_uid_missing: "Login fejlede. Modtog ikke bruger id fra %{provider}"
-        callback_user_name_missing_google: "Login fejlede. Modtog ikke brugernavn fra google. Evt. mangler scope userinfo.profile for provider"
+        callback_user_name_missing_google: "Login fejlede. Modtog ikke brugernavn fra google. Evt. mangler scope userinfo.profile for provider opsætning"
         callback_user_name_missing: "Login fejlede. Modtag ikke brugernavn fra %{provider}"
         find_or_create_from_auth_hash: "System fejl. Ugyldigt svar fra bruger opdatering efter login."
      index:
@@ -166,7 +161,7 @@ da:
      destroy:
         logged_off: "Adgang via %{apiname} er blevet afbrudt. Vær opmærksom på at du stadigvæk har adgang til %{appname} via en anden login udbyder. Brug nedenstående links til at logge ind/ud."
         already_logged_off: "Du var allerede logget ud. Brug nedenstående link til at logge ind igen. Luk browseren for at fjerne session cookie."
-        unknown_provider: "Systemfejl. Ukendt login provider ved log ud"
+        unknown_provider: "Systemfejl. Ukendt login udbyder ved log ud"
 
   # comments controller
   comments:
@@ -250,7 +245,7 @@ da:
         description_title: "Tekst. Skal udfyldes. Beskriv det du tilbyder eller søger hvad enten det er ting eller hjælp. Du bestemmer selv om du vil sælge, udleje, udlåne eller forære ting væk gratis. Da der handles i virtuelle frie penge forærer man i praksis altid ting væk, men ens saldo i frie penge vokser. Opslag laves på din væg og vises til dine venner eller hvem du har valgt skal se opslag fra denne app. Dine venner kan kommenterer dit opslag på din væg. Aftalen bør sluttes herinde så din saldo i frie penge opdateres."
         description_prompt: "Tekst:"
         file_title_true: "Vedlæg gerne et foto af det som du deler eller leder efter. Billeder er en effektiv måde at blive set på af ens venner. Upload kan godt tage lidt tid da billedet uploades i 2 trin. Først til %{appname} og dernæst videre til %{apiname}. Vent venligst."
-        file_title_false: "Der kan ikke vedlægges foto af det som du deler eller leder efter. Billeder uploades til din væg hos din login provider (for eksempel %{apiname}) og %{appname} mangler adgang til at skrive på din væg. Billeder er en effektiv måde at blive set på af ens venner. Benyt link øverst i denne side hvis du ønsker at give %{appname} mangler adgang til at skrive på din væg. Link vises efter oprettelse af nyt opslag"
+        file_title_false: "Der kan ikke vedlægges foto af det som du deler eller leder efter. Billeder uploades til din væg hos din login udbyder (for eksempel %{apiname}) og %{appname} mangler adgang til at skrive på din væg. Billeder er en effektiv måde at blive set på af ens venner. Benyt link øverst i denne side hvis du ønsker at give %{appname} mangler adgang til at skrive på din væg. Link vises efter oprettelse af nyt opslag"
         file_prompt: "Vedlæg:"
         gift_submit_button_text: "Opret opslag"
         pending_gift_popup_msg: "Ret valuta? Svar Cancel for at vende tilbage og lave opslag færdig. Svar OK for at tabe det indtastede opslag og opdatere valuta."

@@ -462,3 +462,26 @@
 125) better puts2log output
      should display class.method: text class
 
+126) replace hardcoded login provider urls with provider_url helper.
+
+127) move providers url to array constant
+
+128) add array constant with provider_app_url, for example FACEBOOK_APP_URL = 'http://apps.facebook.com/gofreerev'
+     there should be an app url for each provider
+     do not look like there is an app url i linkedin
+
+129) google+ setup
+     https://cloud.google.com/console?redirected=true#/project/786317114374/apiui/app?show=consent
+     add home page url
+     add logo
+     add privacy policy url
+     add terms of service url
+     add google+ page url
+
+130) facebook setup
+     https://developers.facebook.com/apps/391393607629383/summary
+     add a facebook page and use this before starting app
+
+131) linkedin setup
+
+
