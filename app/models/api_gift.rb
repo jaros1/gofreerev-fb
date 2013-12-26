@@ -258,6 +258,10 @@ class ApiGift < ActiveRecord::Base
     self.save!
     "#{SITE_URL}#{locale}/gifts/#{self.deep_link_id}#{self.deep_link_pw}"
   end
+  def deep_link (locale)
+    return nil unless deep_link_id and deep_link_pw
+    "#{SITE_URL}#{locale}/gifts/#{self.deep_link_id}#{self.deep_link_pw}"
+  end
   def clear_deep_link
     self.deep_link_id = self.deep_link_pw = self.deep_link_errors = nil
     self.save!

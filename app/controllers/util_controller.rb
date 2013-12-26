@@ -1140,8 +1140,57 @@ class UtilController < ApplicationController
       # todo: add picture
       # todo: add url for gift
       begin
-        link = api_gift.init_deep_link(I18n.locale)
-        x = client.add_share(:comment => "#{gift.description} - #{link}")
+        gift_url = api_gift.init_deep_link(I18n.locale)
+        gift_url = 'http://www.dr.dk'
+        image_url = "#{SITE_URL}#{gift.temp_picture_url}"
+        image_url = "http://ekstrabladet.dk/template/v4-0/img/logo.png"
+        # http://stackoverflow.com/questions/15183107/rails-linked-post-message
+        # http://developer.linkedin.com/documents/share-api#toggleview:id=ruby
+        # Node                Parent Node    Value 	Notes
+        # comment             share          Text of member's comment.        Post must contain comment and/or (content/title and content/submitted-url).
+        #                                                                     Max length is 700 characters.
+        # content             share          Parent node for information on shared document
+        # title               share/content  Title of shared document         Post must contain comment and/or (content/title and content/submitted-url).
+        #                                                                     Max length is 200 characters.
+        # submitted-url       share/content  URL for shared content           Post must contain comment and/or (content/title and content/submitted-url).
+        # submitted-image-url share/content  URL for image of shared content  Invalid without (content/title and content/submitted-url).
+        # description         share/content  Description of shared content    Max length of 256 characters.
+        # note that linkedin uses meta property="og:description as default description
+        # todo: check layout with and without picture
+        # todo: check description length. <= 256 use only description. length <= 700. Use only comment. Length between 700 and 956 use comment and description
+        text = "#{format_direction_without_user(api_gift)} #{gift.description}"
+        puts2log "picture = #{api_gift.picture?}, text.length = #{text.length}"
+        comment = nil
+        content = { "submitted-url" => gift_url }
+        if api_gift.picture?
+          # title (max 200 characters) required for post with image.
+          content["submitted-image-url"] = image_url
+          # layout rules for post with image on linkedin:
+          case
+            when text.length <= 200
+              content["title"] = text
+              content["description"] = ''
+            when text.length <= 456
+              content["title"] = text.first(200)
+              content["description"] = text.from(200)
+            else
+              raise "linkedin post with picture and text length > 456 is not implemented"
+          end
+        else
+          case
+            when text.length <= 700
+              comment = text
+            else
+              raise "linkedin post without picture and text length > 700 is not implemented"
+          end
+        end
+        comment = nil
+        content = { "submitted-url" => 'http://jan-roslind.dk/testcases/test1.html',
+                    "submitted-image-url" => 'http://jan-roslind.dk/testcases/sacred-economics-linkedin.jpg',
+                    "title" => 'Offers: Fra nytår bliver vagtlægens telefon i Hovedstaden ikke',
+                    "description" => 'længere svaret af en læge, men af en sygeplejerske. Danske Patienter kalder det et eksperiment.' }
+        x = client.add_share :content => content, :comment => comment
+        puts "x = #{x} (#{x.class})"
       rescue LinkedIn::Errors::AccessDeniedError => e
         puts2log  "LinkedIn::Errors::AccessDeniedError"
         puts2log  "e.message = #{e.message}"

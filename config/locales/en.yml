@@ -62,6 +62,7 @@ en:
         cookie_accept_text: "Accept"
         cookie_reject_text: "Reject"
         cookie_ignore_text: "Ignore"
+        page_footer_html: "%{appname} is an open source project. Source to this Rails/Facebook app is available at %{csv_link} under MIT licence and can be used by other developers in their open source projects. Open source also means that there are no secrets about how this app works and what information is saved about you and your friends.<br /><br />It is my hope that technology will develop that supports the many interesting thoughts in %{charles_eisenstein_link}'s book %{sacred_economics_link}."
      page_header:
         header_currency_title: "Balance. Use currency selection list if you want your balance shown in a different currency. Your balance of free money show how much you have invested in community and friends and is a measure of gratitude. Who has given / received most? Whose turn is it to receive / give? A positive balance means that you are good to help others and to one's help has been appreciated. A negative balance means that you are good to accept help and that you have appreciated the help. There is no correlation between who is rich / poor in free money here and who are rich / poor in the real world."
         header_balance_prompt: "Balance:"
@@ -154,6 +155,8 @@ en:
         log_in_out_title0: "Connect to %{appname} with your %{apiname} account"
         log_in_out_title1: "Disconnect from %{appname} and return to %{apiname}"
         log_in_out_title2: "Close your %{apiname} connection to %{appname}. Note that your are connected to %{appname} with an other login provider and that you after %{apiname} \"log out\" still can use %{appname}. Note also that \"log out\" here does NOT log your out of %{apiname}. Use \"log out\" function at %{apiname} if your also wish to log out of %{apiname}."
+        visit_th: "Visit"
+        visit_title: "Go to login provider without logging in / out. Opens in a new browser tab. Note that %{appname} will still be open in this tab. Remember to log out when out are finish using %{appname}."
         remove_cookies_link_text: "Remove cookies"
      destroy:
         logged_off: "Connection with %{apiname} has been closed. Note that you are still connected to %{appname} with an other login provider. Use links in this page to log in/out."
@@ -236,8 +239,8 @@ en:
         price_title: "Price in virtual free money. Optional. Can be set now or later. Best set be buyer / receiver so that the price becomes a measure of how much the thing / help was appreciated. There is used free virtual national money in here with a negative interest. %{min_interest}% per year with a positive balance and %{max_interest}% per year for a negative balance. One goal of the negative rate is to ensure that money and resources circulates. The negative interest rate makes it possible with a society without growth, overconsumption and with plenty of leisure to all."
         price_prompt: "Price:"
         price_free: "free"
-        direction_giver_prompt: "Offers:"
-        direction_receiver_prompt: "Seeks:"
+        direction_giver_prompt: "Offers: "
+        direction_receiver_prompt: "Seeks: "
         description_title: "Text. Required. Describe what you offer or what you are looking for whether it is things or help. You decide whether you want to sell, buy, rent, lend or give things away for free. We are trading in virtuel free money. Since we are trading in virtuel money you are in practive always giving you give ting or receiving help for free. But your balance in free money changes. Posts are make on your wall and displayed to your friends or whom you have selected to view posts by this app. Your friends can comment on your post on your wall. The agreement should be finalized in here so your balance in free cash being updated."
         description_prompt: "Text:"
         file_title_true: "Optional picture. Photos are an effective way to be seen by your friends. Picture upload takes some time as the picture is uploaded in 2 steps. First upload to %{appname} and than upload to %{apiname}. Please wait."

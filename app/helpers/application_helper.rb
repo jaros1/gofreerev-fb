@@ -10,14 +10,18 @@ module ApplicationHelper
   # link_to helpers
   # todo: link to api helpers should be more generic. For example use translate keys
   def link_to_facebook
-    link_to 'Facebook', 'javascript: {top.location.href="http://www.facebook.com/"}'
+    link_to 'Facebook', "javascript: {top.location.href='#{API_URL[:facebook]}/'}"
   end
   def link_to_google_plus
-    link_to 'google+', 'https://plus.google.com/'
+    link_to 'google+', API_URL[:google_oauth2]
   end
   def link_to_linkedin
-    link_to 'LinkedIn', 'https://www.linkedin.com/'
+    link_to 'LinkedIn', API_URL[:linkedin]
   end
+  def link_to_twitter
+    link_to 'LinkedIn', API_URL[:twitter]
+  end
+
   #def link_to_api
   #  return nil unless session[:user_id] and @user
   #  case
@@ -168,19 +172,19 @@ module ApplicationHelper
   end # my_sanitize_hash
 
 
-  def format_direction (api_gift)
-    gift = api_gift.gift
-    case gift.direction
-      when 'giver'
-        t '.direction_giver', :username => api_gift.giver.short_or_full_user_name(@user)
-      when 'receiver'
-        t '.direction_receiver', :username => api_gift.receiver.short_or_full_user_name(@user)
-      when 'both'
-        t '.direction_giver_and_receiver', :givername => api_gift.giver.short_user_name, :receivername => api_gift.receiver.short_user_name
-      else
-        raise "invalid direction for gift #{gift.id}"
-    end # case
-  end # format_direction
+  #def format_direction (api_gift)
+  #  gift = api_gift.gift
+  #  case gift.direction
+  #    when 'giver'
+  #      t 'gifts.index.direction_giver', :username => api_gift.giver.short_or_full_user_name(@user)
+  #    when 'receiver'
+  #      t 'gifts.index.direction_receiver', :username => api_gift.receiver.short_or_full_user_name(@user)
+  #    when 'both'
+  #      t 'gifts.index.direction_giver_and_receiver', :givername => api_gift.giver.short_user_name, :receivername => api_gift.receiver.short_user_name
+  #    else
+  #      raise "invalid direction for gift #{gift.id}"
+  #  end # case
+  #end # format_direction
 
   def inbox_new_notifications
     User.inbox_new_notifications(@users)
@@ -197,7 +201,7 @@ module ApplicationHelper
     gift = api_gift.gift
     optional_price = gift.price ? "#{t('.optional_price', :price => format_price(gift.price))} #{gift.currency}" : nil
     { :date           => format_date(gift.received_at || gift.created_at),
-      :direction      => format_direction(api_gift),
+      :direction      => format_direction_with_user(api_gift),
       :optional_price => optional_price,
       :text           =>  my_sanitize(gift.description)
     }

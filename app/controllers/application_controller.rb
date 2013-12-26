@@ -499,10 +499,49 @@ class ApplicationController < ActionController::Base
     Time.zone = session[:timezone] = timezone.to_f
   end
 
+  # used in api posts
+  private
+  def format_direction_without_user (api_gift)
+    gift = api_gift.gift
+    case gift.direction
+      when 'giver'
+        t 'gifts.index.direction_giver_prompt' # Offers:
+      when 'receiver'
+        t 'gifts.index.direction_receiver_prompt' # Seeks:
+      else
+        ""
+    end # case
+  end # format_direction
+
+  # used in gifts/index
+  private
+  def format_direction_with_user (api_gift)
+    gift = api_gift.gift
+    case gift.direction
+      when 'giver'
+        t 'gifts.api_gift.direction_giver', :username => api_gift.giver.short_or_full_user_name(@user)
+      when 'receiver'
+        t 'gifts.api_gift.direction_receiver', :username => api_gift.receiver.short_or_full_user_name(@user)
+      when 'both'
+        t 'gifts.api_gift.direction_giver_and_receiver', :givername => api_gift.giver.short_user_name, :receivername => api_gift.receiver.short_user_name
+      else
+        raise "invalid direction for gift #{gift.id}"
+    end # case
+  end # format_direction
+  helper_method :format_direction_with_user
+
   protected
   def puts2log  (text)
     puts "#{caller_locations(1,1)[0].label}: #{text}"
   end
   helper_method :puts2log
+
+  private
+  def deep_link?
+    deep_link = (params[:controller] == 'gifts' and params[:action] == 'show' and params[:id].to_s =~ /^[a-zA-Z0-9]{30}$/) ? true : false
+    # puts2log "deep_link = #{deep_link}, controller = #{params[:controller]}, action = #{params[:action]}, id = #{params[:id]}"
+    deep_link
+  end
+  helper_method "deep_link?"
 
 end # ApplicationController

@@ -468,20 +468,49 @@
      there should be an app url for each provider
      do not look like there is an app url i linkedin
 
-129) google+ setup
-     https://cloud.google.com/console?redirected=true#/project/786317114374/apiui/app?show=consent
-     add home page url
-     add logo
-     add privacy policy url
-     add terms of service url
-     add google+ page url
-
-130) facebook setup
-     https://developers.facebook.com/apps/391393607629383/summary
-     add a facebook page and use this before starting app
-
-131) linkedin setup
-
 132) generalize invite_friends_url
+
+133) add open graph meta-tags for deep links
+     http://ogp.me/
+     linkedin uses meta property="og:description" as default description when inserting a link
+     meta property="og:image" should be deep link image url
+
+134) add/show deep link for old post?
+     maybe only giver/receiver to add/show deep links
+     that is - other uses can see but not share gofreerev gifts on other social media
+
+135) implement other login providers
+     http://www.ebizmba.com/articles/social-networking-websites
+     http://en.wikipedia.org/wiki/List_of_social_networking_websites
+     https://github.com/intridea/omniauth/wiki/List-of-Strategies
+      5) Pinterest
+      6) Tumblr
+      7) Flickr
+      8) VK / Vkontakte
+      9) Instagram
+     10) DeviantArt
+     11) MySpace
+     12) Meetup
+     13) Weibo
+     14) Odnoklassniki
+     15) Renren
+     16) Yelp, Inc.
+     17) mixi
+     18) XING
+     19) Kaixin001
+     20) SoundCloud
+     21) Goodreads
+     22) Viadeo
+     23) Last.fm
+     24) Foursquare
+
+136) find optimal image format for each provider:
+     facebook: todo
+     google+: todo
+     linkedin: 180 x 110 (done)
+     twitter: todo
+
+137) server setup guide(s) ?
+
 
 

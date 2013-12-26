@@ -11,6 +11,16 @@
   <script src="/javascripts/my.js"></script>
   <%= csrf_meta_tags %>
   <meta name="viewport" content="width=device-width,initial-scale=1.0, user-scalable=no">
+<% if deep_link? -%>
+<%# open graph meta-tags to be used in api post -%>
+<% puts "@request_fullpath = #{@request_fullpath}" -%>
+  <meta property="og:title" content="<%= @open_graph[:title] %>" />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="<%= @open_graph[:image] %>" />
+  <meta property="og:url" content="<%= @open_graph[:url] %>" />
+  <meta property="og:description" content="<%= @open_graph[:description] %>" />
+  <meta property="og:site_name" content="<%= APP_NAME %>" />
+<% end -%>
   <script>
 <% if @cookie_note -%>
     window.setTimeout(hide_cookie_note,<%= (@cookie_note * 1000) %>);
@@ -55,7 +65,14 @@
   <!-- the page -->
   <%= yield %>
   <footer>
-    <%= render :partial => 'layouts/page_footer/page_footer' -%>
+    <div style="width: 100%">
+      <p>
+        <%= t ".page_footer_html", :appname => APP_NAME,
+                                   :csv_link => link_to_cvs,
+                                   :charles_eisenstein_link => link_to_charles_eisenstein,
+                                   :sacred_economics_link => link_to_sacred_economics %>
+      </p>
+    </div>
     <% if ajax_tasks? -%>
         <%# post response ajax processing - for example download profile image and friend list from login provider -%>
         <script>

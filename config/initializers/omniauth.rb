@@ -18,33 +18,49 @@ module OmniAuth
   end
 end # OmniAuth
 
-# setup list of providers to be used for authorization. Should be API with "friend-liste"
+# setup list of providers to be used for authorization. Must be login provider API with som kind of friend lists
 # providers: https://github.com/intridea/omniauth/wiki/List-of-Strategies
-# tasks when adding a new provider:
-#  1) add provider to GemFile
-#  2) add provider here
-#  3) add any provider specific methods to OmniAuth::AuthHash. See config/initializers/omniauth_<provider>.rb
-#  4) add provider to locals - shared/providers with downcase and camelize names used in messages/views and urls for redirect
-#  5) add private post login task to UtilController.post_login_<provider> if any (get friends, permissions etc)
-#  6) add private post on task to UtilController.post_on_<provider> if wall posting is allowed for API
-#  7) check API_POST_PERMITTED and API_MUTUAL_FRIENDS hashes for new provider (environment.rb)
+# check list when adding a new omniauth provider:
+#  1) add gem omniauth-<provider> (authorizatrion )and gem <provider> (client API operations) to GemFile.
+#     that is normally two gems for each omniauth supported strategy (authorization and client API operations)
+#  2) add provider in this file (6 API_... hash constants)
+#  3) add provider to OmniAuth::Builder setup in this file. options are different for each provider
+#  4) add any provider specific methods to OmniAuth::AuthHash. See config/initializers/omniauth_<provider>.rb
+#  5) add provider to /config/locals - shared/providers/* with downcase and camelize names used in messages/views and urls for redirect
+#  6) add private post login task to UtilController.post_login_<provider> if any (get friends, permissions etc)
+#  7) add private post on task to UtilController.post_on_<provider> if wall posting is allowed for API
+#  8) check API_POST_PERMITTED and API_MUTUAL_FRIENDS hashes for new provider (environment.rb)
+API_ID            = {:facebook      => ENV['GOFREEREV_FB_APP_ID'],
+                     :google_oauth2 => ENV['GOFREEREV_GP_APP_ID'],
+                     :linkedin      => ENV['GOFREEREV_LI_APP_ID'],
+                     :twitter       => ENV['GOFREEREV_TW_APP_ID']}.with_indifferent_access
+API_SECRET        = {:facebook      => ENV['GOFREEREV_FB_APP_SECRET'],
+                     :google_oauth2 => ENV['GOFREEREV_GP_APP_SECRET'],
+                     :linkedin      => ENV['GOFREEREV_LI_APP_SECRET'],
+                     :twitter       => ENV['GOFREEREV_TW_APP_SECRET']}.with_indifferent_access
+API_URL           = {:facebook      => "https://www.facebook.com",
+                     :google_oauth2 => "https://plus.google.com/",
+                     :linkedin      => "https://www.linkedin.com/",
+                     :twitter       => "https://twitter.com/"}.with_indifferent_access
+API_CALLBACK_URL  = {:facebook      => "#{SITE_URL}facebook/",
+                     :google_oauth2 => '',
+                     :linkedin      => "#{SITE_URL}linkedin/index",
+                     :twitter       => ''}.with_indifferent_access
 
-API_ID           = {:facebook      => ENV['GOFREEREV_FB_APP_ID'],
-                    :google_oauth2 => ENV['GOFREEREV_GP_APP_ID'],
-                    :linkedin      => ENV['GOFREEREV_LI_APP_ID'],
-                    :twitter       => ENV['GOFREEREV_TW_APP_ID']}.with_indifferent_access
-API_SECRET       = {:facebook      => ENV['GOFREEREV_FB_APP_SECRET'],
-                    :google_oauth2 => ENV['GOFREEREV_GP_APP_SECRET'],
-                    :linkedin      => ENV['GOFREEREV_LI_APP_SECRET'],
-                    :twitter       => ENV['GOFREEREV_TW_APP_SECRET']}.with_indifferent_access
-API_URL          = {:facebook      => "https://www.facebook.com",
-                    :google_oauth2 => "https://plus.google.com/",
-                    :linkedin      => "https://www.linkedin.com/",
-                    :twitter       => "https://twitter.com/"}.with_indifferent_access
-API_CALLBACK_URL = {:facebook      => "#{SITE_URL}facebook/",
-                    :google_oauth2 => '',
-                    :linkedin      => "#{SITE_URL}linkedin/index",
-                    :twitter       => ''}.with_indifferent_access
+# open graph (http://ogp.me/) recommended max length for meta-tags used in deep links
+# default values: 70 characters for title and 200 characters for description
+API_OG_TITLE_SIZE = {:facebook      => 94, # http://wptest.means.us.com/online-meta-tag-length-checker/
+                     :google_oauth2 => 63,
+                     :linkedin      => 55,
+                     :twitter       => 70}.with_indifferent_access
+API_OG_DESC_SIZE  = {:facebook      => 200, # http://www.joshspeters.com/how-to-optimize-the-ogdescription-tag-for-search-and-social
+                     :google_oauth2 => 155,
+                     :linkedin      => 200,
+                     :twitter       => 200}.with_indifferent_access
+API_OG_DEF_IMAGE  = {:facedbook     => "#{SITE_URL}images/sacred-economics.jpg",
+                     :google_oauth2 => "#{SITE_URL}images/sacred-economics.jpg",
+                     :linkedin      => "#{SITE_URL}images/sacred-economics-linkedin.jpg", # 180 x 110 best for linkedin
+                     :twitter       => "#{SITE_URL}images/sacred-economics.jpg"}
 
 Rails.application.config.middleware.use OmniAuth::Builder do
   provider :facebook,      API_ID[:facebook],      API_SECRET[:facebook], :scope => "", :image_size => :normal, :info_fields => "name,permissions,friends,picture,timezone"

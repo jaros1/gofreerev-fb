@@ -188,7 +188,7 @@ class GiftsController < ApplicationController
   def show
     # check gift id
     id = params[:id].to_s
-    deep_link = (id =~ /^[a-zA-Z0-9]{30}$/) # deep link from api wall to gift in gofreerev
+    deep_link = deep_link? # deep link from api wall to gift in gofreerev
     if deep_link
       deep_link_id = id.first(20)
       deep_link_pw = id.last(10)
@@ -246,8 +246,21 @@ class GiftsController < ApplicationController
     # ok - show gift
     if deep_link
       @gift = api_gift
+      # http://ogp.me/
+      # 1) http://wptest.means.us.com/online-meta-tag-length-checker/
+      #    og:title max length: facebook 94, google+ 63, twitter 70
+      #    og:description max length: facebook 200, google+ 155, twitter 200
+      # 2) http://www.joshspeters.com/how-to-optimize-the-ogdescription-tag-for-search-and-social
+      #    og:description max lengths: Facebook 300, linkedIn 225, Google+ 200 (LinkedIn have a 256 character limit in content.description field when posting)
+      # 3) http://moz.com/blog/title-tags-is-70-characters-the-best-practice-whiteboard-friday
+      #    title <= 70 characters
+      title, description = open_graph_title_and_desc(api_gift)
+      @open_graph = { :title => title,
+                      :description => description,
+                      :image => (api_gift.picture? ? api_gift.api_picture_url : API_OG_DEFAULT_IMAGE),
+                      :url   => api_gift.deep_link(I18n.locale)}
     elsif gift.api_gifts.length == 1
-      @gift = gift.api_gift.first
+      @gift = gift.api_gifts.first
     else
       # same sort criteria as in user.api_gifts sort (gift.id not relevant here)
       api_gifts = gift.api_gifts.sort do |a, b|
@@ -266,5 +279,19 @@ class GiftsController < ApplicationController
       format.js {}
     end
   end # show
+
+  private
+  def open_graph_title_and_desc(api_gift)
+    text = "#{format_direction_without_user(api_gift)}#{api_gift.gift.description}"
+    title_lng = API_OG_TITLE_SIZE[api_gift.provider] || 70
+    desc_lng = API_OG_DESC_SIZE[api_gift.provider] || 200
+    return [text, nil] if text.length <= title_lng
+    to = text.first(title_lng).rindex(' ')
+    if (to)
+      [text.first(to), text.from(to+1)]
+    else
+      [text.first(title_lng), text.from(title_lng)]
+    end
+  end
 
 end # GiftsController
