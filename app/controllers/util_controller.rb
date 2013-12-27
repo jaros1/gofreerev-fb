@@ -91,18 +91,18 @@ class UtilController < ApplicationController
       # return new newest_gift_id value and any new gifts visible to user
       @new_newest_gift_id = new_newest_gift_id
       @new_newest_status_update_at = new_newest_status_update_at
-      @gifts = User.api_gifts(@users, old_newest_gift_id, old_newest_status_update_at, true) # include delete marked gifts
-      @gifts = nil if @gifts.length == 0
+      @api_gifts = User.api_gifts(@users, old_newest_gift_id, old_newest_status_update_at, true) # include delete marked gifts
+      @api_gifts = nil if @api_gifts.length == 0
     end
     # remove any ajax comments for gifts in gifts array - that is gifts that will be ajax inserted or replaced in gifts html table
-    if @comments and @gifts and @comments.size > 0 and @gifts.size > 0
+    if @comments and @api_gifts and @comments.size > 0 and @api_gifts.size > 0
       # puts2log  "remove any comments that is included in gifts"
       # puts2log  "old @comments.size = #{@comments.size}, comments = " + @comments.collect { |c| c.id }.join(', ') if @comments
-      @comments = @comments.delete_if { |c| @gifts.find_all { |g| c.gift_id == g.gift_id }.first }
+      @comments = @comments.delete_if { |c| @api_gifts.find_all { |g| c.gift_id == g.gift_id }.first }
       @comments = nil if @comments.size == 0
       # puts2log  "new @comments.size = #{@comments.size}, comments = " + @comments.collect { |c| c.id }.join(', ') if @comments
     end
-    puts2log  "@gifts.size = #{@gifts.size}, gifts = " + @gifts.collect { |g| g.id }.join(', ') if @gifts
+    puts2log  "@gifts.size = #{@api_gifts.size}, gifts = " + @api_gifts.collect { |g| g.id }.join(', ') if @api_gifts
     puts2log  "@comments.size = #{@comments.size}, comments = " + @comments.collect { |c| c.id }.join(', ') if @comments
     puts2log  "@new_newest_gift_id = #{@new_newest_gift_id}"
     puts2log  "@new_newest_status_update_at = #{@new_newest_status_update_at}"
@@ -118,18 +118,18 @@ class UtilController < ApplicationController
   # Parameters: {"gifts"=>{"ids"=>"161"}}
   def missing_api_picture_urls
     render :layout => false
-    return unless params.has_key?("gifts")
+    return unless params.has_key?("api_gifts")
     return unless params[:api_gifts].has_key?(:ids)
     return if  params[:api_gifts][:ids] == ''
     ids = params[:api_gifts][:ids].split(',')
     puts2log  "ids = #{ids}"
-    gifts = Gift.where("id in (?)", ids)
+    api_gifts = ApiGift.where("id in (?)", ids)
 
     # set error timestamp
-    gifts.each do |gift|
-      puts2log  "url = #{gift.api_picture_url}"
-      gift.api_picture_url_on_error_at = Time.now
-      gift.save!
+    api_gifts.each do |api_gift|
+      puts2log  "url = #{api_gift.api_picture_url}"
+      api_gift.api_picture_url_on_error_at = Time.now
+      api_gift.save!
     end # each
 
     # get new picture urls
@@ -139,16 +139,19 @@ class UtilController < ApplicationController
     # todo: 3 - max request picture url once every hour
     # todo: 4 - gifts/index - should check for error marked pictured and fix urls that couldn't be fixed in here (see 2)
     access_token = session[:access_token]
-    return unless access_token
-    gifts.each do |gift|
-      next if gift.picture == 'N' or gift.deleted_at_api == 'Y'
+    tokens = session[:tokens]
+    return unless tokens
+    api_gifts.each do |api_gift|
+      next if api_gift.picture == 'N' or api_gift.deleted_at_api == 'Y'
+      access_token = tokens[api_gift.provider]
+      next unless access_token
       # get new picture url from API
       begin
         # todo: most use api_gift, not gift
-        gift.api_picture_url = gift.get_facebook_post(:access_token => access_token, :field => 'full_picture')
+        api_gift.api_picture_url = api_gift.get_facebook_post(:access_token => access_token, :field => 'full_picture')
       rescue ApiPostNotFoundException => e
         # identical api error response if picture is deleted or if user is not allowed to see picture
-        user_id_created_by = gift.api_gift_id.split('_').first + '/facebook'
+        user_id_created_by = api_gift.api_gift_id.split('_').first + '/facebook'
         if @user.user_id != user_id_created_by
           # picture may have or may not have been deleted in facebook.
           # current user may not have permission to read picture on wall
@@ -163,17 +166,17 @@ class UtilController < ApplicationController
             # gifts in app is not deleted automatically. Could affect the balance. Could be connected with other gifts.
             # this allow users to cleanup their FB profile without destroying data in app
         puts2log  "Gift has been deleted on #{@user.api_name_without_brackets}. Keep in #{APP_NAME} as the gift could have been used in balance and in connected gifts (todo)"
-        gift.picture = 'N'
-        gift.api_picture_url = nil
-        gift.api_picture_url_updated_at = nil
-        gift.deleted_at_api = 'Y'
-        gift.save!
+        api_gift.picture = 'N'
+        api_gift.api_picture_url = nil
+        api_gift.api_picture_url_updated_at = nil
+        api_gift.deleted_at_api = 'Y'
+        api_gift.save!
         next
       end # rescue
       # save new picture url from api
-      gift.api_picture_url_updated_at = Time.now
-      gift.api_picture_url_on_error_at = nil
-      gift.save!
+      api_gift.api_picture_url_updated_at = Time.now
+      api_gift.api_picture_url_on_error_at = nil
+      api_gift.save!
     end # each
 
   end # missing_api_picture_urls
@@ -430,7 +433,7 @@ class UtilController < ApplicationController
     # only client insert_update_gifts JS function is called
     # next new_mesage_count request will ajax replace this gift once more, but that is a minor problem
     gift.reload
-    @gifts = [gift]
+    @api_gifts = [gift]
     respond_to do |format|
       format.html {}
       format.json { render json: @comment, status: :created, location: @comment }

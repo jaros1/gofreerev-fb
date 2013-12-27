@@ -73,7 +73,7 @@ class UsersController < ApplicationController
       # can be invalid last_row_id - can be too many get-more-rows ajax requests - max one request every 3 seconds - more info in log
       # return "empty" ajax response with dummy row with correct last_row_id to client
       puts2log  "return empty ajax response with dummy row with correct last_row_id to client"
-      @gifts = []
+      @api_gifts = []
       @users2 = []
       @last_row_id = session[:last_row_id]
       respond_to do |format|
@@ -170,10 +170,9 @@ class UsersController < ApplicationController
 
     # recalculate balance once every day
     # todo: should only recalculate user balance from @user2.balance_at and to today
-    if @user2.balance_at.to_yyyymmdd != Sequence.get_last_exchange_rate_date
+    if !@user2.balance_at or @user2.balance_at.to_yyyymmdd != Sequence.get_last_exchange_rate_date
       @user2.recalculate_balance
       @user2.reload
-      @users = @users.collect { |user| user.user_id == @user2.user_id ? user.reload : user }
     end
 
     # get params: tab, last_row_id and todo: filters
@@ -211,7 +210,7 @@ class UsersController < ApplicationController
       # return "empty" ajax response with dummy row with correct last_row_id to client
       puts2log  "return empty ajax response with dummy row with correct last_row_id to client"
       @page_values = {:tab => tab }
-      @gifts = @users = []
+      @api_gifts = @users2 = []
       @last_row_id = session[:last_row_id]
       respond_to do |format|
         format.js {}
@@ -258,7 +257,7 @@ class UsersController < ApplicationController
       # todo: should show gift across providers if @user2.user_combination and @user2 in @users
       #       ( balance shared across login providers if user has selected this )
       gifts = ApiGift.where('(user_id_giver = ? or user_id_receiver = ?) and "gifts".deleted_at is null',
-                            @user2.user_id, @user2.user_id).references(:gifts).includes(:gift, :giver, :receiver).find_all do |ag|
+                            @user2.user_id, @user2.user_id).references(:api_gifts).includes(:gift, :giver, :receiver).find_all do |ag|
         # apply status and direction filters
         ((status == 'all' or (status == 'open' and !ag.gift.received_at) or (status == 'closed' and ag.gift.received_at)) and
             (direction == 'both' or (direction == 'giver' and ag.user_id_giver == @user2.user_id) or (direction == 'receiver' and ag.user_id_receiver == @user2.user_id)))
@@ -270,8 +269,8 @@ class UsersController < ApplicationController
         end # if
       end # sort
       # return next 10 gifts - first 10 for http request - next 10 for ajax request
-      @gifts, @last_row_id = get_next_set_of_rows(gifts, last_row_id)
-      puts2log  "@gifts.size = #{@gifts.size}, @last_row_id = #{@last_row_id}" if debug_ajax?
+      @api_gifts, @last_row_id = get_next_set_of_rows(gifts, last_row_id)
+      puts2log  "@gifts.size = #{@api_gifts.size}, @last_row_id = #{@last_row_id}" if debug_ajax?
     end
 
     if tab == 'friends'
@@ -279,8 +278,8 @@ class UsersController < ApplicationController
       users = @user2.app_friends.collect { |f| f.friend }.sort { |a,b| a.user_name <=> b.user_name}
       # users = User.all # uncomment to test ajax
       # return next 10 users - first 10 for http request - next 10 for ajax request
-      @users, @last_row_id = get_next_set_of_rows(users, last_row_id)
-      puts2log  "@users.size = #{@users.size}, @last_row_id = #{@last_row_id}" if debug_ajax?
+      @users2, @last_row_id = get_next_set_of_rows(users, last_row_id)
+      puts2log  "@users2.size = #{@users2.size}, @last_row_id = #{@last_row_id}" if debug_ajax?
     end # friends
 
     if tab == 'gifts'

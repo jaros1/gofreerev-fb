@@ -393,6 +393,11 @@ class User < ActiveRecord::Base
   #  user_id.first(2)
   #end
 
+  # return uid part of user_id
+  def uid
+    return nil unless user_id
+    user_id.split('/').last
+  end
   # return provider part of user_id - facebook, google_oauth2, linkedin or twitter - see OmniAuth::Builder.providers
   def provider
     return nil unless user_id
@@ -732,7 +737,25 @@ class User < ActiveRecord::Base
   end # recalculate_balance
 
   def self.recalculate_balance (login_users)
-    raise "todo: not implemented"
+    users = login_users.sort do |a,b|
+      (a.user_combination) || (0 <=> b.user_combination || 0)
+    end
+    # keep only one login_user for each user_combination
+    old_user_combination = -1
+    users = users.find_all do |user|
+      if user.user_combination
+        if user.user_combination == old_user_combination
+          false # skip user with doublet user_combination
+        else
+          old_user_combination = user.user_combination
+          true # keep first user for user_combination
+        end
+      else
+        true # keep all users without user_combination
+      end
+    end
+    # recalculate
+    users.each { |user| user.recalculate_balance }
   end
 
   def balance_with_2_decimals
@@ -992,7 +1015,7 @@ class User < ActiveRecord::Base
 
   def api_profile_url
     case
-      when facebook? then "http://facebook.com/#{user_id[3..-1]}"
+      when facebook? then "#{API_URL[provider]}/#{user_id[3..-1]}"
       when google_plus? then "todo:"
       else nil #error
     end
@@ -1098,10 +1121,10 @@ class User < ActiveRecord::Base
     end
     if newest_gift_id == 0 and newest_status_update_at == 0
       ags = ApiGift.where('(user_id_giver in (?) or user_id_receiver in (?))' + deleted,
-                      friends, friends).references(:gifts).includes(:gift, :giver, :receiver)
+                      friends, friends).references(:api_gifts).includes(:gift, :giver, :receiver)
     else
       ags = ApiGift.where('("gifts".id > ? or status_update_at > ?) and (user_id_giver in (?) or user_id_receiver in (?))' + deleted,
-                      newest_gift_id, newest_status_update_at, friends, friends).references(:gifts).includes(:gift, :giver, :receiver)
+                      newest_gift_id, newest_status_update_at, friends, friends).references(:api_gifts).includes(:gift, :giver, :receiver)
     end
     # sort api gifts
     ags = ags.sort do |a,b|

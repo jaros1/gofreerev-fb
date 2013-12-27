@@ -7,37 +7,7 @@ module ApplicationHelper
     puts2log  "session.to_hash = #{session.to_hash}"
   end
 
-  # link_to helpers
-  # todo: link to api helpers should be more generic. For example use translate keys
-  def link_to_facebook
-    link_to 'Facebook', "javascript: {top.location.href='#{API_URL[:facebook]}/'}"
-  end
-  def link_to_google_plus
-    link_to 'google+', API_URL[:google_oauth2]
-  end
-  def link_to_linkedin
-    link_to 'LinkedIn', API_URL[:linkedin]
-  end
-  def link_to_twitter
-    link_to 'LinkedIn', API_URL[:twitter]
-  end
-
-  #def link_to_api
-  #  return nil unless session[:user_id] and @user
-  #  case
-  #    when @user.facebook? then link_to_facebook
-  #    when @user.google_plus? then link_to_google_plus
-  #    when @user.linkedin? then link_to_linkedin
-  #  end
-  #end # link_to_api
-
-
-
-  def link_to_app_on_facebook
-    link_to APP_NAME, "javascript: {top.location.href='" + FACEBOOK_APP_URL + "'}"
-  end
-
-
+  # link_to helpers - used in page footer
   def link_to_cvs
     link_to CVS_NAME, CVS_URL, { :target => '_blank'}
   end

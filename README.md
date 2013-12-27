@@ -1,11 +1,18 @@
-Gofreerev-fb
-============
+Intro
+=====
 
-Rails app implementing free money and gift network (ideas taken from Sacred Economics by Charles Einstein)
+Gofreerev is a play with gift network, free money and negative interest (ideas taken from Sacred Economics by Charles Einstein).
 
-FREE-USD is the Free Money version of USD. Etc for other currencies.
-Negative interest for Free Money is between 5 and 10 % per year.
+Login with Facebook, Google+, LinkedIn and Twitter implemented. Multiple logins allowed.
+Gofreerev reads user id, name, profile picture and friends list from login provider (additional permissions can be granted by user).
 
-Design with inspiration from facebook UI.
-Support for Facebook, Google+, LinkedIn and Twitter users.
-Other login API's can easy be added.
+Each user has a positive or negative balance in free money and money are exchanged between users.
+Negative interest is 10 % per year for negative balance and 5 % per year for positive balance.
+Total balance in free money in Gofreerev will increase with between 0 and 5 % per year.
+
+
+
+
+
+
+

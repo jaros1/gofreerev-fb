@@ -552,7 +552,7 @@ function report_missing_api_picture_urls() {
     $.ajax({
         url: "/util/missing_api_picture_urls",
         type: "POST",
-        data: { gifts: {
+        data: { api_gifts: {
             ids: missing_api_picture_urls_local}}
     });
     missing_api_picture_urls = [];

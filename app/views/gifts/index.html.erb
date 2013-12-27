@@ -71,7 +71,7 @@
     </div>
 
     <div style="width: 100%">
-    <% if @gifts.size == 0 -%>
+    <% if @api_gifts.size == 0 -%>
         <p>
           <%= t '.no_gifts_was_found_html', :appname => APP_NAME, :apiname => @user.api_name_without_brackets %>
         </p>

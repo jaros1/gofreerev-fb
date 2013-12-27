@@ -1,4 +1,4 @@
-<% for api_gift in @gifts do
+<% for api_gift in @api_gifts do
      loop -%>
     <%= render :partial => 'gifts/api_gift', :locals => {:api_gift => api_gift} %>
 <% end -%>

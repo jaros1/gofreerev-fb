@@ -401,8 +401,6 @@
 108) deep link = N : link to a public page with login and redirect to gift
      deep link = Y : direct access to gift without login.
 
-109) User.recalculate_balance(login_users) method is missing
-
 110) ajax change currency?
      mark each user div with user ids
      send ajax request with new currency and array with user ids in page
@@ -418,15 +416,9 @@
      not a problem for util controller
      rails ignores the extra locale in url but is a little ugly
 
-113) util.missing_api_picture_urls
-     replace gift with api_gift
-
 114) check if there exists a translate library to be used for JS error messages
      Could be nice if rails locales could be used for javascript messages
      https://github.com/fnando/i18n-js (many issues - not updated for 8 months)
-
-115) rename partial user/gift to user/api_gift (ok)
-     rename @gifts to @api_gifts (gifts controller and users controller)
 
 116) deep link page - should be cached - without information about logged in user
      http write page with an dummy page header and without title for user divs
@@ -442,8 +434,8 @@
 120) gift with picture. on click:
      - show gift on facebook?
      - show gift on gofreerev?
-     picture is very small in gofreerev and a redirect to facebook maybe the best option
-     deep link make it easy to return from facebook to gofreerev
+     picture is very small in gofreerev and a redirect to api maybe the best option
+     deep link make it easy to return from api to gofreerev
 
 122) my.js - replace alert with add2log and add_to_tasks_errors
      JS alert should only be used in a few situations
@@ -461,12 +453,6 @@
 
 125) better puts2log output
      should display class.method: text class
-
-126) replace hardcoded login provider urls with provider_url helper.
-
-128) add array constant with provider_app_url, for example FACEBOOK_APP_URL = 'http://apps.facebook.com/gofreerev'
-     there should be an app url for each provider
-     do not look like there is an app url i linkedin
 
 132) generalize invite_friends_url
 
@@ -512,5 +498,15 @@
 
 137) server setup guide(s) ?
 
+138) minor problem with hr lines in users/show
+     should be width=100%
 
+139) util.missing_api_picture_urls
+     facebook - api_gift.get_facebook_post
+     implement missing api picture urls for linkedin & twitter
+
+140) users/show user2=login_user
+     add link/button to set/remove user_combination for logged in users
+
+141) auto create dummy users when needed
 

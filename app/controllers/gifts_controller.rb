@@ -14,7 +14,7 @@ class GiftsController < ApplicationController
   def create
     # start with empty ajax response
     @errors = []
-    @gifts = []
+    @api_gifts = []
     # initialize gift
     gift = Gift.new
     gift.price = params[:gift][:price].gsub(',', '.').to_f unless invalid_price?(params[:gift][:price])
@@ -84,7 +84,7 @@ class GiftsController < ApplicationController
     # delete picture after posting on api wall(s) - priority = 10
     add_task "delete_local_picture(#{gift.id})", 10 if picture
 
-    @gifts = ApiGift.where("id = ?", gift.api_gifts.first.id).includes(:gift)
+    @api_gifts = ApiGift.where("id = ?", gift.api_gifts.first.id).includes(:gift)
     format_ajax_response
     return
   end # create
@@ -113,7 +113,7 @@ class GiftsController < ApplicationController
       # can be invalid last_row_id - can be too many get-more-rows ajax requests - max one request every 3 seconds - more info in log
       # return "empty" ajax response with dummy row with correct last_row_id to client
       puts2log  "return empty ajax response with dummy row with correct last_row_id to client"
-      @gifts = []
+      @api_gifts = []
       @last_row_id = session[:last_row_id]
       respond_to do |format|
         format.js {}
@@ -140,7 +140,7 @@ class GiftsController < ApplicationController
     @gift = Gift.new
     @gift.direction = 'giver'
     if User.dummy_users?(@users)
-      @gifts = []
+      @api_gifts = []
       render_with_language __method__
       return
     end
@@ -171,7 +171,7 @@ class GiftsController < ApplicationController
       @first_gift = true
     end
 
-    @gifts, @last_row_id = get_next_set_of_rows(gifts, last_row_id)
+    @api_gifts, @last_row_id = get_next_set_of_rows(gifts, last_row_id)
     # session[:last_row_at] = GET_MORE_ROWS_INTERVAL.seconds.ago.to_f if !last_row_id # first http request at startup - ajax request for the next 10 rows in a split second
 
     # show 4 last comments for each gift
