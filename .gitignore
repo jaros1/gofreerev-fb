@@ -21,3 +21,6 @@ Capfile
 Capfile.1
 /config/deploy
 
+# Ignore database
+/config/database.yml
+
