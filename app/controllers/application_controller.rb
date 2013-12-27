@@ -47,7 +47,7 @@ class ApplicationController < ActionController::Base
   private
   def add_dummy_user
     if @users.size == 0
-      @user = User.find_by_user_id('gofreerev/gofreerev')
+      @user = User.find_or_create_dummy_user('gofreerev')
       @users = [ @user ]
     end
   end

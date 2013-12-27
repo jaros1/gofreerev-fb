@@ -33,7 +33,14 @@
     <hr>
   </div>
   <footer>
-    <%= render :partial => 'layouts/page_footer/page_footer' -%>
+    <div style="width: 100%">
+      <p>
+        <%= t ".page_footer_html", :appname => APP_NAME,
+              :csv_link => link_to_cvs,
+              :charles_eisenstein_link => link_to_charles_eisenstein,
+              :sacred_economics_link => link_to_sacred_economics %>
+      </p>
+    </div>
   </footer>
 </div>
 <% if debug_ajax? -%>

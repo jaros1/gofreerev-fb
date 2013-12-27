@@ -253,6 +253,25 @@ class User < ActiveRecord::Base
   end
 
 
+  def self.find_or_create_dummy_user (provider)
+    user_id = "gofreerev/#{provider}"
+    user = User.find_by_user_id(user_id)
+    return user if user
+    user = User.new
+    user.user_id = user_id
+    if provider =~ /^google/
+      user.user_name = "#{APP_NAME} Google"
+    else
+      user.user_name = "#{APP_NAME} #{provider.camelize}"
+    end
+    user.currency = BASE_CURRENCY
+    user.profile_picture_name = "#{provider}.png"
+    user.balance = { BALANCE_KEY => 0.0 }
+    user.save!
+    user
+  end # self.find_or_create_dummy_user
+
+
   # find and create or update user from hash
   # options: :provider, :token, :uid, :name, :image, :country, :language
   # called from login methods (authController.create, FbController.index, etc)

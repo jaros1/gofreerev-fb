@@ -496,10 +496,9 @@
      linkedin: 180 x 110 (done)
      twitter: todo
 
-137) server setup guide(s) ?
-
 138) minor problem with hr lines in users/show
      should be width=100%
+     check table width = 100% with left aligned columns
 
 139) util.missing_api_picture_urls
      facebook - api_gift.get_facebook_post
@@ -507,6 +506,3 @@
 
 140) users/show user2=login_user
      add link/button to set/remove user_combination for logged in users
-
-141) auto create dummy users when needed
-
