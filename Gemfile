@@ -19,6 +19,7 @@ gem 'twitter'           # twitter API calls  - http://sferik.github.io/twitter/
 
 # Use sqlite3 as the database for Active Record
 gem 'sqlite3'
+gem 'mysql2'
 
 # Use SCSS for stylesheets
 gem 'sass-rails', '~> 4.0.0'
