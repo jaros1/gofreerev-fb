@@ -43,6 +43,16 @@ class ExchangeRate < ActiveRecord::Base
     raise "invalid from_amount #{from_amount.class.name}" unless %w(Float BigDecimal).index(from_amount.class.name)
     raise "invalid from_currency #{from_currency}" unless from_currency.class.name == 'String' and from_currency.size == 3 and from_currency == from_currency.upcase
     raise "invalid to_currency #{to_currency}" unless to_currency.class.name == 'String' and to_currency.size == 3 and to_currency == to_currency.upcase
+
+    # check for zero or identical currencies
+    from_amount = from_amount.to_f
+    if from_amount == 0 or from_currency. == to_currency
+      # puts2log  'exchange: zero amount or identical currencies'
+      to_amount = from_amount
+      # puts2log  "exchange: from_amount = #{from_amount}, from_currency = #{from_currency}, to_amount = #{to_amount}, to_currency = #{to_currency}"
+      return to_amount
+    end
+
     date = date.to_yyyymmdd unless [NilClass, String].index(date.class) # convert date and time to string
     if defined? @@today
       cache = true if date and date > @@today # refresh cache
@@ -53,15 +63,6 @@ class ExchangeRate < ActiveRecord::Base
     date = @@today unless date
     # puts2log  "date = #{date}, @@today = #{@@today}"
     raise "invalid date" unless date.to_s.yyyymmdd? and date <= @@today
-
-    # check for zero or identical currencies
-    from_amount = from_amount.to_f
-    if from_amount == 0 or from_currency. == to_currency
-      # puts2log  'exchange: zero amount or identical currencies'
-      to_amount = from_amount
-      # puts2log  "exchange: from_amount = #{from_amount}, from_currency = #{from_currency}, to_amount = #{to_amount}, to_currency = #{to_currency}"
-      return to_amount
-    end
 
     if from_currency == BASE_CURRENCY
       exchange_rate1 = 1.0
