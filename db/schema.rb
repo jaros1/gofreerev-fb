@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20131221150501) do
+ActiveRecord::Schema.define(version: 20131228095258) do
 
   create_table "ajax_comments", force: true do |t|
     t.string   "user_id",    limit: 40, null: false
@@ -177,7 +177,7 @@ ActiveRecord::Schema.define(version: 20131221150501) do
     t.text     "balance"
     t.date     "balance_at"
     t.text     "permissions"
-    t.string   "profile_picture_name", limit: 10
+    t.string   "profile_picture_name", limit: 20
     t.text     "no_api_friends"
     t.text     "negative_interest"
     t.integer  "user_combination"
