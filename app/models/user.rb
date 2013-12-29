@@ -539,8 +539,8 @@ class User < ActiveRecord::Base
     "#{profile_picture_os_folder}/#{profile_picture_filename}"
   end
   def profile_picture_url
-    return "profiles/#{provider}.png" if dummy_user?
-    return 'profiles/no-picture.jpg' unless profile_picture_filename
+    return "#{provider}.png" if dummy_user?
+    return 'no-picture.jpg' unless profile_picture_filename
     "#{profile_picture_md5_path}/#{profile_picture_filename}"
   end
 
