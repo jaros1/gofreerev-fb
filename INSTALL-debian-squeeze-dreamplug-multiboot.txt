@@ -1,3 +1,7 @@
+There is also this guide: http://robmclarty.com/blog/how-to-setup-a-production-server-for-rails-4
+
+===================================================================================================
+
 Hardware: dreamplug multiboot
 OS: debian squeeze - 4 gb image from newit
 Software: ruby 2.0 - rails 4 - sqlite3 - apache2 - passenger
@@ -71,3 +75,5 @@ deploy - server
 post install
 
 36) move sqlite3 db to shared area or switch to mysql
+
+

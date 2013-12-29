@@ -8,14 +8,13 @@
 #
 
 # comment the next line if you wish to run this script
-exit
+
 
 # number of keys and key length
-PREFIX = 'GOFREEREV_KEY_' # Please change
+APPNAME = 'GOFREEREV'
+RAILS_ENVS = %w(DEV TEST PROD)
 NO_KEYS = 50
 KEY_LNG = 140
-RUBY_MAX_LINE_SIZE = 100 # For ruby array constant ENCRYPT_KEYS
-
 
 # change if you wish other character set og other random generator.
 def generate_random_string (lng)
@@ -26,29 +25,34 @@ def generate_random_string (lng)
 end # generate_random_string
 
 # generate keys - save in ruby array
-keys = []
-1.upto(NO_KEYS) { |i| keys[i] = generate_random_string(KEY_LNG) }
+keys = {}
+RAILS_ENVS.each do |rails_env|
+  keys[rails_env] = []
+  1.upto(NO_KEYS) { |i| keys[rails_env][i] = generate_random_string(KEY_LNG) }
+end
 
 # output bash script
-puts2log  ''
-puts2log  '# you could store your secret keys in linux/bash:''
-1.upto(NO_KEYS) do |i|
-  puts2log  "#{PREFIX}#{i}=#{keys[i]}"
-  puts2log  "export #{PREFIX}#{i}"
+puts  ''
+puts  '# you could store your secret keys in linux/bash:'
+RAILS_ENVS.each do |rails_env|
+  1.upto(NO_KEYS) do |i|
+    keyname = "#{APPNAME}_#{rails_env}_KEY_#{i}"
+    puts  "#{keyname}=#{keys[rails_env][i]}"
+    puts  "export #{keyname}"
+  end
 end
 
 # todo: output keys in other formats, linux shell, windows dos etc
 
 # output rails constraint to be inserted in /config/initializers/constraints.rb
-puts2log  ""
-puts2log  "insert this ruby constant in /config/initializers/constraints.rb"
-line = 'ENCRYPT_KEYS = [ '
-1.upto(NO_KEYS) do |i|
-  next_item = "ENV['#{PREFIX}#{i}']" + (i==50 ? ' ]' : ', ')
-  if (line+next_item).size > RUBY_MAX_LINE_SIZE
-    puts2log  line
-    line = '                 '
-  end
-  line = line + next_item
-end
-puts2log  line
+puts  ""
+puts  "insert this ruby constant in /config/initializers/constraints.rb"
+puts ""
+puts "railsenv = case Rails.env when 'development' then 'DEV' when 'test' then 'TEST' when 'production' then 'PROD' end"
+puts "encrypt_keys = []"
+puts "1.upto(50).each do |keyno|"
+puts '  encrypt_keys << ENV["GOFREEREV_#{railsenv}_KEY_#{keyno}"]'
+puts "end"
+puts "ENCRYPT_KEYS = encrypt_keys"
+puts ""
+

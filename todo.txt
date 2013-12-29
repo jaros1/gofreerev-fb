@@ -506,3 +506,11 @@
 
 140) users/show user2=login_user
      add link/button to set/remove user_combination for logged in users
+
+141) move constants FACEBOOK_APP_URL and SITE_URL to environment variables
+
+142) how to handle environment variables.
+     one file per server / environment outside git
+     would be nice if capistrano could copy files with environment variables to
+
+143) one database.yml file for each gofreerev site (localhost, dev1.gofreerev.com, etc)

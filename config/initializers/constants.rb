@@ -8,25 +8,15 @@ SITE_URL = 'http://localhost/'
 CVS_NAME = 'GitHub'
 CVS_URL = 'https://github.com/jaros1/gofreerev-fb'
 
-# some OS environment constants for encryption
+# OS environment constants for encryption
 # You can use ruby script /lib/generate_keys to generate keys and this ruby array constant
-ENCRYPT_KEYS = [ ENV['GOFREEREV_KEY_1'], ENV['GOFREEREV_KEY_2'], ENV['GOFREEREV_KEY_3'],
-                 ENV['GOFREEREV_KEY_4'], ENV['GOFREEREV_KEY_5'], ENV['GOFREEREV_KEY_6'],
-                 ENV['GOFREEREV_KEY_7'], ENV['GOFREEREV_KEY_8'], ENV['GOFREEREV_KEY_9'],
-                 ENV['GOFREEREV_KEY_10'], ENV['GOFREEREV_KEY_11'], ENV['GOFREEREV_KEY_12'],
-                 ENV['GOFREEREV_KEY_13'], ENV['GOFREEREV_KEY_14'], ENV['GOFREEREV_KEY_15'],
-                 ENV['GOFREEREV_KEY_16'], ENV['GOFREEREV_KEY_17'], ENV['GOFREEREV_KEY_18'],
-                 ENV['GOFREEREV_KEY_19'], ENV['GOFREEREV_KEY_20'], ENV['GOFREEREV_KEY_21'],
-                 ENV['GOFREEREV_KEY_22'], ENV['GOFREEREV_KEY_23'], ENV['GOFREEREV_KEY_24'],
-                 ENV['GOFREEREV_KEY_25'], ENV['GOFREEREV_KEY_26'], ENV['GOFREEREV_KEY_27'],
-                 ENV['GOFREEREV_KEY_28'], ENV['GOFREEREV_KEY_29'], ENV['GOFREEREV_KEY_30'],
-                 ENV['GOFREEREV_KEY_31'], ENV['GOFREEREV_KEY_32'], ENV['GOFREEREV_KEY_33'],
-                 ENV['GOFREEREV_KEY_34'], ENV['GOFREEREV_KEY_35'], ENV['GOFREEREV_KEY_36'],
-                 ENV['GOFREEREV_KEY_37'], ENV['GOFREEREV_KEY_38'], ENV['GOFREEREV_KEY_39'],
-                 ENV['GOFREEREV_KEY_40'], ENV['GOFREEREV_KEY_41'], ENV['GOFREEREV_KEY_42'],
-                 ENV['GOFREEREV_KEY_43'], ENV['GOFREEREV_KEY_44'], ENV['GOFREEREV_KEY_45'],
-                 ENV['GOFREEREV_KEY_46'], ENV['GOFREEREV_KEY_47'], ENV['GOFREEREV_KEY_48'],
-                 ENV['GOFREEREV_KEY_49'], ENV['GOFREEREV_KEY_50'] ]
+# note that ENCRYPT_KEYS[1] == ENV["GOFREEREV_#{railsenv}_KEY_2"] etc
+railsenv = case Rails.env when 'development' then 'DEV' when 'test' then 'TEST' when 'production' then 'PROD' end
+encrypt_keys = []
+1.upto(50).each do |keyno|
+  encrypt_keys << ENV["GOFREEREV_#{railsenv}_KEY_#{keyno}"]
+end
+ENCRYPT_KEYS = encrypt_keys
 
 # negative interest
 NEGATIVE_INTEREST_PER_DAY = 0.02 # 0.02 % per day <=> 0.6 % per month <=> 7.0 % per year
