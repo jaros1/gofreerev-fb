@@ -16,7 +16,7 @@ encrypt_keys = []
 1.upto(50).each do |keyno|
   encrypt_keys << ENV["GOFREEREV_#{railsenv}_KEY_#{keyno}"]
 end
-ENCRYPT_KEYS = encrypt_keys
+ENCRYPT_KEYS = encrypt_keys #
 
 # negative interest
 NEGATIVE_INTEREST_PER_DAY = 0.02 # 0.02 % per day <=> 0.6 % per month <=> 7.0 % per year
