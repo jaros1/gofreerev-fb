@@ -21,23 +21,36 @@ end # OmniAuth
 # setup list of providers to be used for authorization. Must be login provider API with som kind of friend lists
 # providers: https://github.com/intridea/omniauth/wiki/List-of-Strategies
 # check list when adding a new omniauth provider:
-#  1) add gem omniauth-<provider> (authorizatrion )and gem <provider> (client API operations) to GemFile.
+#  1) add gem omniauth-<provider> (authorization ) and gem <provider> (client API operations) to GemFile.
 #     that is normally two gems for each omniauth supported strategy (authorization and client API operations)
-#  2) add provider in this file (6 API_... hash constants)
-#  3) add provider to OmniAuth::Builder setup in this file. options are different for each provider
-#  4) add any provider specific methods to OmniAuth::AuthHash. See config/initializers/omniauth_<provider>.rb
-#  5) add provider to /config/locals - shared/providers/* with downcase and camelize names used in messages/views and urls for redirect
-#  6) add private post login task to UtilController.post_login_<provider> if any (get friends, permissions etc)
-#  7) add private post on task to UtilController.post_on_<provider> if wall posting is allowed for API
-#  8) check API_POST_PERMITTED and API_MUTUAL_FRIENDS hashes for new provider (environment.rb)
-API_ID            = {:facebook      => ENV['GOFREEREV_FB_APP_ID'],
-                     :google_oauth2 => ENV['GOFREEREV_GP_APP_ID'],
-                     :linkedin      => ENV['GOFREEREV_LI_APP_ID'],
-                     :twitter       => ENV['GOFREEREV_TW_APP_ID']}.with_indifferent_access
-API_SECRET        = {:facebook      => ENV['GOFREEREV_FB_APP_SECRET'],
-                     :google_oauth2 => ENV['GOFREEREV_GP_APP_SECRET'],
-                     :linkedin      => ENV['GOFREEREV_LI_APP_SECRET'],
-                     :twitter       => ENV['GOFREEREV_TW_APP_SECRET']}.with_indifferent_access
+#  2) get API_ID and API_SECRET for new provider. Register and add environment variables with API_ID and API_SECRET.
+#     environment variable names "GOFREEREV_<env>_APP_ID_<provider>" and "GOFREEREV_<env>_APP_SECRET_<provider>"
+#     for example GOFREEREV_DEV_APP_ID_FACEBOOK and GOFREEREV_DEV_APP_SECRET_FACEBOOK for facebook / development
+#  3) add provider in this file (7 API_... hash constants)
+#  4) add provider to OmniAuth::Builder setup in this file. options are different for each provider
+#  5) add any provider specific methods to OmniAuth::AuthHash. See config/initializers/omniauth_<provider>.rb
+#  6) add provider to /config/locals - shared/providers/* with downcase and camelize names used in messages/views and urls for redirect
+#  7) add private post login task to UtilController.post_login_<provider> if any (get friends, permissions etc)
+#  8) add private post on task to UtilController.post_on_<provider> if wall posting is allowed for API
+#  9) check API_POST_PERMITTED and API_MUTUAL_FRIENDS hashes for new provider (environment.rb)
+
+# initialize API_ID and API_SECRET hashes.
+api_id = {}
+api_secret = {}
+%w(facebook google_oauth2 linkedin twitter).each do |provider|
+  rails_env = case Rails.env when "development" then "DEV" when "test" then "TEST" when "production" then "PROD" end
+  # get api_id for provider
+  name = "gofreerev_#{rails_env}_app_id_#{provider}".upcase
+  api_id[provider] = ENV[name]
+  puts "Warning: environment variable #{name} was not found" if api_id[provider].to_s == ""
+  # get api_secret for provider
+  name = "gofreerev_#{rails_env}_app_secret_#{provider}".upcase
+  api_secret[provider] = ENV[name]
+  puts "Warning: environment variable #{name} was not found" if api_secret[provider].to_s == ""
+end
+API_ID     = api_id.with_indifferent_access
+API_SECRET = api_secret.with_indifferent_access
+
 API_URL           = {:facebook      => "https://www.facebook.com",
                      :google_oauth2 => "https://plus.google.com/",
                      :linkedin      => "https://www.linkedin.com/",

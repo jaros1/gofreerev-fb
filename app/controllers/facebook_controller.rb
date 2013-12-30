@@ -39,7 +39,7 @@ class FacebookController < ApplicationController
     # unpack unsigned request
     oauth = Koala::Facebook::OAuth.new(API_ID[provider], API_SECRET[provider], API_CALLBACK_URL[provider])
     hash = oauth.parse_signed_request(signed_request)
-    puts2log  "hash = #{hash}"
+    # puts2log  "hash = #{hash}"
     # hash = {"algorithm"=>"HMAC-SHA256", "issued_at"=>1373284394, "user"=>{"country"=>"dk", "locale"=>"da_DK", "age"=>{"min"=>21}}}
 
     # save language (only if language was nil)
@@ -54,7 +54,7 @@ class FacebookController < ApplicationController
     #               "user"=>{"country"=>"dk", "locale"=>"da_DK", "age"=>{"min"=>21}}, "user_id"=>"1705481075"}
     if hash.has_key?('oauth_token') && hash.has_key?('user_id')
       puts2log  'user has already authorized gofreerev'
-      puts2log  "oauth_token = #{hash['oauth_token']}"
+      # puts2log  "oauth_token = #{hash['oauth_token']}"
       puts2log  "user_id #{hash['user_id']}"
       # oauth_token = CAAFjZBGzzOkcBAB0GGUE4i4O9ZAT6FJ1N3U3mhl7S1TELLRl514fdEZAMuyMY4iUmFt74bBUWRH9WM4LYafsxs6osDzJc0ARo1yhRZCbAeQo0A9RXh5yEEW9cC3SjKC4LqbeO8x2Qy6JINJGO1pSkTllmQp5jPMZD
       # user_id  = 1705481075

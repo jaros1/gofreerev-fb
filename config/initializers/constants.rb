@@ -1,4 +1,3 @@
-
 # name and URL's for this project
 APP_NAME = 'Gofreerev'
 FACEBOOK_APP_URL = 'http://apps.facebook.com/gofreerev'
@@ -8,7 +7,7 @@ SITE_URL = 'http://localhost/'
 CVS_NAME = 'GitHub'
 CVS_URL = 'https://github.com/jaros1/gofreerev-fb'
 
-# OS environment constants for encryption
+# OS environment constants for attribute encryption (crypt_keeper + improvements)
 # You can use ruby script /lib/generate_keys to generate keys and this ruby array constant
 # note that ENCRYPT_KEYS[1] == ENV["GOFREEREV_#{railsenv}_KEY_2"] etc
 railsenv = case Rails.env when 'development' then 'DEV' when 'test' then 'TEST' when 'production' then 'PROD' end
@@ -16,22 +15,10 @@ encrypt_keys = []
 1.upto(50).each do |keyno|
   encrypt_keys << ENV["GOFREEREV_#{railsenv}_KEY_#{keyno}"]
 end
-ENCRYPT_KEYS = encrypt_keys #
+ENCRYPT_KEYS = encrypt_keys
 
-# negative interest
-NEGATIVE_INTEREST_PER_DAY = 0.02 # 0.02 % per day <=> 0.6 % per month <=> 7.0 % per year
-
-# calculate interest per month and per year
-#PRICE_FACTOR_PER_DAY = 1 - NEGATIVE_INTEREST_PER_DAY / 100
-#PRICE_FACTOR_PER_MONTH = PRICE_FACTOR_PER_DAY**(365 / 12)
-#PRICE_FACTOR_PER_YEAR = PRICE_FACTOR_PER_DAY**365
-#NEGATIVE_INTEREST_PER_MONTH = (1 - PRICE_FACTOR_PER_MONTH) * 100
-#NEGATIVE_INTEREST_PER_YEAR = (1 - PRICE_FACTOR_PER_YEAR) * 100
-
-# user.balance is an hash with user balance for each currency. Key BALANCE_KEY is used for total balance in BASE_CURRENCY.
-BALANCE_KEY = 'BALANCE'
-
-# interest calculation setup. Uses different negative interest for positive (5 %) and negative amounts (10 %)
+# negative interest calculation setup.
+# Uses negative interest 5 % for positive balance. negative amounts 10 % for negative balance.
 # year 1: a = 100, b = -100. year 2: a =  95, b =  -90.
 # in that way we get negative interest and an increasing supply of free money between 0 and 5 % per year
 NEG_INT_NEG_BALANCE_PER_YEAR = 10.0 # 10 % negative interest per year for positive balance (gifts given to others)
@@ -41,9 +28,11 @@ FACTOR_POS_BALANCE_PER_YEAR = 1.0 - NEG_INT_POS_BALANCE_PER_YEAR / 100.0 # 0.95 
 FACTOR_NEG_BALANCE_PER_DAY = (Math::E) ** (Math.log(FACTOR_NEG_BALANCE_PER_YEAR,Math::E) / 365) # 0.9997113827109777
 FACTOR_POS_BALANCE_PER_DAY = (Math::E) ** (Math.log(FACTOR_POS_BALANCE_PER_YEAR,Math::E) / 365) # 0.9998594803001535
 
+# user.balance is an hash with user balance for each currency. Key BALANCE_KEY is used for total balance in BASE_CURRENCY.
 BASE_CURRENCY = 'USD' # store exchange rates and internal balances in this currency
 BASE_COUNTRY = 'us' # default country if user country is unknown.
 BASE_LANGUAGE = 'en' # default language if user language is unknown
+BALANCE_KEY = 'BALANCE'
 
 DEBUG_AJAX = true # default false - set to true to get more ajax debug information - JS alerts, extra log messages etc
 
