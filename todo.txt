@@ -514,3 +514,6 @@
      would be nice if capistrano could copy files with environment variables to
 
 143) one database.yml file for each gofreerev site (localhost, dev1.gofreerev.com, etc)
+
+144) rails.validations.js - don't look like rails.validations is used
+     there was some problems with rails 4 and rails validations in summer 2013, but maybe rails 4 is supported now
