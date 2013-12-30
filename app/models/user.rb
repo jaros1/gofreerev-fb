@@ -1140,10 +1140,10 @@ class User < ActiveRecord::Base
     end
     if newest_gift_id == 0 and newest_status_update_at == 0
       ags = ApiGift.where('(user_id_giver in (?) or user_id_receiver in (?))' + deleted,
-                      friends, friends).references(:api_gifts).includes(:gift, :giver, :receiver)
+                      friends, friends).references(:gifts, :api_gifts).includes(:gift, :giver, :receiver)
     else
       ags = ApiGift.where('("gifts".id > ? or status_update_at > ?) and (user_id_giver in (?) or user_id_receiver in (?))' + deleted,
-                      newest_gift_id, newest_status_update_at, friends, friends).references(:api_gifts).includes(:gift, :giver, :receiver)
+                      newest_gift_id, newest_status_update_at, friends, friends).references(:gifts, :api_gifts).includes(:gift, :giver, :receiver)
     end
     # sort api gifts
     ags = ags.sort do |a,b|
