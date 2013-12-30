@@ -959,7 +959,11 @@ $(document).ready(function() {
 
 // error callback for gift actions (like, unlike, follow, unfollow etc - write to debug log + page header
 $(document).ready(function() {
+    $(".gift-action-link").unbind("ajax:beforeSend") ;
     $(".gift-action-link").unbind("ajax:error") ;
+    $(".gift-action-link").bind("ajax:beforeSend", function(xhr, settings){
+        clear_flash_and_ajax_errors() ;
+    })
     $(".gift-action-link").bind("ajax:error", function(jqxhr, textStatus, errorThrown){
         add2log('.gift-action-link.error');
         add2log('jqxhr = ' + jqxhr);

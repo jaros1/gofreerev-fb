@@ -520,14 +520,8 @@
 
 145) add mysql development environment on localhost.
      there are some select statements that are not working in mysql
-
-146) alter or drop SITE_URL constant in constants.rb
-     Maybe get site_url from actual request path?
-     Maybe get site_url from environment variable
+     maybe is only was problem with "" around table names!
 
 147) Minor problem when creating first gift on an empty gifts/index page
      No gifts table and new gifts are not displayed after create
      Display an empty gifts table and hide no_gifts_was_found_html text and invite_api_friends_link link?
-
-148) delete gift ajax - missing ajax:error handler
-

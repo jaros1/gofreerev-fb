@@ -329,8 +329,8 @@ class UtilController < ApplicationController
       puts2log  "Gift with id #{gift_id} was not found - silently ignore ajax request"
       return
     end
-    if ![gift.user_id_giver, gift.user_id_receiver].index(@user.user_id)
-      puts2log  "#{@user.short_user_name} is not allowed to delete gift id #{gift_id} - silently ignore ajax request"
+    if !gift.show_delete_gift_link?(@users)
+      puts2log  "user is not allowed to delete gift id #{gift_id} - silently ignore ajax request"
       return
     end
     # delete mark gift. Delete marked gifts will be ajax removed from other sessions within the next 5 minutes and will be physical deleted after 5 minutes
