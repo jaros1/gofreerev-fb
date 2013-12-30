@@ -957,6 +957,18 @@ $(document).ready(function() {
     })
 })
 
+// error callback for gift actions (like, unlike, follow, unfollow etc - write to debug log + page header
+$(document).ready(function() {
+    $(".gift-action-link").unbind("ajax:error") ;
+    $(".gift-action-link").bind("ajax:error", function(jqxhr, textStatus, errorThrown){
+        add2log('.gift-action-link.error');
+        add2log('jqxhr = ' + jqxhr);
+        add2log('textStatus = ' + textStatus);
+        add2log('errorThrown = ' + errorThrown);
+        add_to_tasks_errors('gift-action-link.error: ' + errorThrown + '. check server log for more information.') ;
+    })
+})
+
 // normally tasks errors and messages are injected from server
 // this function is used for client side errors - for example from error in callback functions (ajax:error)
 function add_to_tasks_errors (error) {

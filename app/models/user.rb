@@ -366,7 +366,7 @@ class User < ActiveRecord::Base
       stdout, stderr, status = User.open4('rm *', user.profile_picture_tmp_os_folder)
       # puts2log  "rm: stdout = #{stdout}, stderr = #{stderr}, status = #{status} (#{status.class})" if status != 0
       # download image to work dir
-      stdout, stderr, status = User.open4("wget \"#{url}\"", user.profile_picture_tmp_os_folder)
+      stdout, stderr, status = User.open4("wget \"#{url}\" --no-check-certificate", user.profile_picture_tmp_os_folder)
       if status != 0
         puts2log "image download failed: wget: stdout = #{stdout}, stderr = #{stderr}, status = #{status} (#{status.class})"
         error = stderr.to_s.split("\n").last

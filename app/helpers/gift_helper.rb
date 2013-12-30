@@ -8,9 +8,9 @@ module GiftHelper
     like = gl.like if gl and %w(Y N).index(gl.like)
     like = 'N' unless like
     if like == 'N'
-      link_to t('.like_gift'), util_like_gift_path(:gift_id => gift.id), :id => "gift-#{gift.id}-like-unlike-link", :remote => true, :method => :post
+      link_to t('.like_gift'), util_like_gift_path(:gift_id => gift.id), :id => "gift-#{gift.id}-like-unlike-link", :class => "gift-action-link", :remote => true, :method => :post
     else
-      link_to t('.unlike_gift'), util_unlike_gift_path(:gift_id => gift.id), :id => "gift-#{gift.id}-like-unlike-link", :remote => true, :method => :post
+      link_to t('.unlike_gift'), util_unlike_gift_path(:gift_id => gift.id), :id => "gift-#{gift.id}-like-unlike-link", :class => "gift-action-link", :remote => true, :method => :post
     end
   end # link_to_gift_like_unlike
 
@@ -46,14 +46,14 @@ module GiftHelper
     #  end
     #end
     if follow == 'N'
-      link_to t('.follow_gift'), util_follow_gift_path(:gift_id => gift.id), :id => "gift-#{gift.id}-follow-unfollow-link", :remote => true, :method => :post
+      link_to t('.follow_gift'), util_follow_gift_path(:gift_id => gift.id), :id => "gift-#{gift.id}-follow-unfollow-link", :class => "gift-action-link", :remote => true, :method => :post
     else
-      link_to t('.unfollow_gift'), util_unfollow_gift_path(:gift_id => gift.id), :id => "gift-#{gift.id}-follow-unfollow-link", :remote => true, :method => :post
+      link_to t('.unfollow_gift'), util_unfollow_gift_path(:gift_id => gift.id), :id => "gift-#{gift.id}-follow-unfollow-link", :class => "gift-action-link", :remote => true, :method => :post
     end
   end # link_to_gift_follow_unfollow
 
   def link_to_gift_hide (gift)
-    link_to t('.hide_gift'), util_hide_gift_path(:gift_id => gift.id), :id => "gift-#{gift.id}-hide-link", :remote => true, :method => :post, :data => { :confirm => t('.confirm_hide_gift') }
+    link_to t('.hide_gift'), util_hide_gift_path(:gift_id => gift.id), :id => "gift-#{gift.id}-hide-link", :class => "gift-action-link", :remote => true, :method => :post, :data => { :confirm => t('.confirm_hide_gift') }
   end
 
   # it could be nice with a popup dialog box with three choices. a) hide and keep balance, b) destroy and update balance, c) cancel
@@ -75,7 +75,7 @@ module GiftHelper
       keyno = 2
     end
     confirm_delete_gift_key = ".confirm_delete_gift_#{keyno}"
-    link_to t('.delete_gift'), util_delete_gift_path(:gift_id => gift.id), :id => "gift-#{gift.id}-delete-link", :remote => true, :method => :post, :data => { :confirm => t(confirm_delete_gift_key, confirm_delete_gift_options) }
+    link_to t('.delete_gift'), util_delete_gift_path(:gift_id => gift.id), :id => "gift-#{gift.id}-delete-link", :class => "gift-action-link", :remote => true, :method => :post, :data => { :confirm => t(confirm_delete_gift_key, confirm_delete_gift_options) }
   end # link_to_delete_gift
 
   def link_to_cancel_new_deal (comment)
