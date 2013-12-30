@@ -76,6 +76,9 @@
           <%= t '.no_gifts_was_found_html', :appname => APP_NAME, :apiname => @user.api_name_without_brackets %>
         </p>
         <%= t 'shared.invite_friends.invite_api_friends_link_prompt1', :apiname => @user.api_name_without_brackets %> <%= invite_friends_link1 %>
+        <div style="width: 100%">
+          <hr>
+        </div>
     <% else -%>
         <table id="gifts" style="border-spacing: 0;">
           <%= render :partial => 'table_header_row' %>

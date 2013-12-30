@@ -487,6 +487,10 @@ class User < ActiveRecord::Base
     permissions = self.permissions
     case provider
       when "facebook"
+        if !permissions
+          puts2log "Found #{provider} user without permissions. post_login_#{provider} method must have failed"
+          return false
+        end
         # looks like permission status_update has been replaced with publish_actions
         # publish_actions is added when requesting status_update priv.
         permissions['status_update'] == 1 or permissions["publish_actions"] == 1
@@ -1142,7 +1146,7 @@ class User < ActiveRecord::Base
       ags = ApiGift.where('(user_id_giver in (?) or user_id_receiver in (?))' + deleted,
                       friends, friends).references(:gifts, :api_gifts).includes(:gift, :giver, :receiver)
     else
-      ags = ApiGift.where('("gifts".id > ? or status_update_at > ?) and (user_id_giver in (?) or user_id_receiver in (?))' + deleted,
+      ags = ApiGift.where('(gifts.id > ? or status_update_at > ?) and (user_id_giver in (?) or user_id_receiver in (?))' + deleted,
                       newest_gift_id, newest_status_update_at, friends, friends).references(:gifts, :api_gifts).includes(:gift, :giver, :receiver)
     end
     # sort api gifts

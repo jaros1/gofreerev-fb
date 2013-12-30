@@ -21,7 +21,7 @@ class UtilController < ApplicationController
     # gift has been ajax removed from  gifts pages for other sessions in previous util/new_message_count requests
     # now is the time to destroy old delete marked gifts
     userids = @users.collect { |user| user.user_id }
-    Gift.where('("api_gifts".user_id_giver in (?) or "api_gifts".user_id_receiver in (?)) and deleted_at is not null and deleted_at < ?',
+    Gift.where('(api_gifts.user_id_giver in (?) or api_gifts.user_id_receiver in (?)) and deleted_at is not null and deleted_at < ?',
                userids, userids, 10.minutes.ago).includes(:api_gifts).references(:api_gifts).each do |g|
       g.destroy
     end

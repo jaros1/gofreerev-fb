@@ -256,7 +256,7 @@ class UsersController < ApplicationController
       # this select only shows gifts for @user2.provider - that is not gifts across providers
       # todo: should show gift across providers if @user2.user_combination and @user2 in @users
       #       ( balance shared across login providers if user has selected this )
-      gifts = ApiGift.where('(user_id_giver = ? or user_id_receiver = ?) and "gifts".deleted_at is null',
+      gifts = ApiGift.where('(user_id_giver = ? or user_id_receiver = ?) and gifts.deleted_at is null',
                             @user2.user_id, @user2.user_id).references(:api_gifts).includes(:gift, :giver, :receiver).find_all do |ag|
         # apply status and direction filters
         ((status == 'all' or (status == 'open' and !ag.gift.received_at) or (status == 'closed' and ag.gift.received_at)) and
