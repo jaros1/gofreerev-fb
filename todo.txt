@@ -517,3 +517,6 @@
 
 144) rails.validations.js - don't look like rails.validations is used
      there was some problems with rails 4 and rails validations in summer 2013, but maybe rails 4 is supported now
+
+145) add mysql development environment on localhost.
+     there are some select statements that are not working in mysql

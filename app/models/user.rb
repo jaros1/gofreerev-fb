@@ -1136,7 +1136,7 @@ class User < ActiveRecord::Base
       deleted = ""
     else
       # called from users or gifts controller - to not return delete mark gifts in response
-      deleted = ' and "gifts".deleted_at is null'
+      deleted = ' and gifts.deleted_at is null'
     end
     if newest_gift_id == 0 and newest_status_update_at == 0
       ags = ApiGift.where('(user_id_giver in (?) or user_id_receiver in (?))' + deleted,
