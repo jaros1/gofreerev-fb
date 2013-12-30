@@ -15,7 +15,7 @@
 /log/*.log
 /tmp
 /public/images/profiles
-/public/images/temp
+/public/images/temp/*
 
 # Ignore capistrano setup
 Capfile

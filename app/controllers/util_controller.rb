@@ -212,7 +212,7 @@ class UtilController < ApplicationController
     # change link
     @gift_link_id = "gift-#{gift.id}-like-unlike-link"
     @gift_link_href = util_unlike_gift_path(:gift_id => gift.id)
-    @gift_link_text = t('gifts.gift.unlike_gift')
+    @gift_link_text = t('gifts.api_gift.unlike_gift')
   end # like_gift
 
   def unlike_gift
@@ -236,7 +236,7 @@ class UtilController < ApplicationController
     # change link
     @gift_link_id = "gift-#{gift.id}-like-unlike-link"
     @gift_link_href = util_like_gift_path(:gift_id => gift.id)
-    @gift_link_text = t('gifts.gift.like_gift')
+    @gift_link_text = t('gifts.api_gift.like_gift')
   end # unlike_gift
 
   def follow_gift
@@ -265,7 +265,7 @@ class UtilController < ApplicationController
     # change link
     @gift_link_id = "gift-#{gift.id}-follow-unfollow-link"
     @gift_link_href = util_unfollow_gift_path(:gift_id => gift.id)
-    @gift_link_text = t('gifts.gift.unfollow_gift')
+    @gift_link_text = t('gifts.api_gift.unfollow_gift')
   end # follow_gift
 
   def unfollow_gift
@@ -292,7 +292,7 @@ class UtilController < ApplicationController
     # change link
     @gift_link_id = "gift-#{gift.id}-follow-unfollow-link"
     @gift_link_href = util_follow_gift_path(:gift_id => gift.id)
-    @gift_link_text = t('gifts.gift.follow_gift')
+    @gift_link_text = t('gifts.api_gift.follow_gift')
   end # unfollow_gift
 
   def hide_gift
@@ -1187,11 +1187,11 @@ class UtilController < ApplicationController
               raise "linkedin post without picture and text length > 700 is not implemented"
           end
         end
-        comment = nil
-        content = { "submitted-url" => 'http://jan-roslind.dk/testcases/test1.html',
-                    "submitted-image-url" => 'http://jan-roslind.dk/testcases/sacred-economics-linkedin.jpg',
-                    "title" => 'Offers: Fra nytår bliver vagtlægens telefon i Hovedstaden ikke',
-                    "description" => 'længere svaret af en læge, men af en sygeplejerske. Danske Patienter kalder det et eksperiment.' }
+        #comment = nil
+        #content = { "submitted-url" => 'http://jan-roslind.dk/testcases/test1.html',
+        #            "submitted-image-url" => 'http://jan-roslind.dk/testcases/sacred-economics-linkedin.jpg',
+        #            "title" => 'Offers: Fra nytår bliver vagtlægens telefon i Hovedstaden ikke',
+        #            "description" => 'længere svaret af en læge, men af en sygeplejerske. Danske Patienter kalder det et eksperiment.' }
         x = client.add_share :content => content, :comment => comment
         puts "x = #{x} (#{x.class})"
       rescue LinkedIn::Errors::AccessDeniedError => e
@@ -1267,8 +1267,8 @@ class UtilController < ApplicationController
       return ['.post_on_api_old_gift', { :provider => 'API', :id => gift.id }] unless gift.created_at > 5.minute.ago
 
       # check local picture file
-      return ['.no_local_picture', { :provider => provider, :id => id }] unless gift.temp_picture_filename
-      return ['.local_picture_not_found', { :provider => provider, :id => id }] unless File.exist?(gift.temp_picture_path)
+      return ['.no_local_picture', { :provider => 'API', :id => id }] unless gift.temp_picture_filename
+      return ['.local_picture_not_found', { :provider => 'API', :id => id }] unless File.exist?(gift.temp_picture_path)
 
       # delete file
       File.delete(gift.temp_picture_path)
