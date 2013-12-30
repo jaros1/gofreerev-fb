@@ -58,8 +58,7 @@ deploy - server
        wget https://github.com/itwars/nodejs-ARM/raw/master/nodejs_0.8.14~squeeze_armel.deb
        dpkg -i /path/nodejs_0.8.14~squeeze_armel.deb
 31) add environment variables to .bashrc
-    That is GOFREEREV_KEY_* keys used in /config/initializers/constants.rb (use script /lib/generate_keys to generate encryption keys)
-    And API id and secrets used in /config/initializers/omniauth.rb (register app for each login provider and get id and secret)
+    todo: add full list of required environment variables
 
 deploy - capistrano from client
 

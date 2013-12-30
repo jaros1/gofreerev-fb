@@ -204,7 +204,7 @@ module ApplicationHelper
 
   def invite_friends_link1
     # todo: different url for each API (FB, GP, LI etc)
-    link_to t('shared.invite_friends.invite_friends_link_text1', :app_url => FACEBOOK_APP_URL), invite_friends_url
+    link_to t('shared.invite_friends.invite_friends_link_text1'), invite_friends_url
   end
 
   def ajax_tasks?

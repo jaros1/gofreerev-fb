@@ -87,7 +87,7 @@ da:
         title_friend: "%{username}. Saldo %{balance}. Klik her for at se brugeroplysninger."
      invite_friends:
         invite_api_friends_link_prompt1: "Inviter %{apiname} venner:"
-        invite_friends_link_text1: "%{app_url}"
+        invite_friends_link_text1: "Inviter"
         invite_friends_message_title: "Inviter dine venner til %{appname}"
         invite_friends_message_body: "Prøv et spil om at hjælpe hinanden og dele hinandens resourcer på en ny anderledes måde og et spil med en ny slags penge der kan forandre vores verden inspireret af ideer fra Charles Eisensteins bog Sacred Economics"
      providers:

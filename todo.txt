@@ -524,5 +524,3 @@
 146) alter or drop SITE_URL constant in constants.rb
      Maybe get site_url from actual request path?
      Maybe get site_url from environment variable
-
-147) drop "tablename" in sql. sqlite3 uses ". mysql uses ` around table names
