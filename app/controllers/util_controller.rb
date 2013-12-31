@@ -553,7 +553,7 @@ class UtilController < ApplicationController
   end # get_user_friends_and_token
 
 
-  def get_gift_and_deep_link (id, provider)
+  def get_gift_and_deep_link (id, login_user, provider)
     api_gift = deep_link = nil
 
     # find and check gift and api_gift
@@ -951,7 +951,7 @@ class UtilController < ApplicationController
       return [key, options] if key
 
       # get gift, api_gift and deep_link
-      gift, api_gift, deep_link, key, options = get_gift_and_deep_link (id, provider)
+      gift, api_gift, deep_link, key, options = get_gift_and_deep_link(id, login_user, provider)
       return [key, options] if key
 
       # gift_posted_on_wall_api_wall. values:
@@ -1129,7 +1129,7 @@ class UtilController < ApplicationController
       return [key, options] if key
 
       # get gift, api_gift and deep_link
-      gift, api_gift, deep_link, key, options = get_gift_and_deep_link (id, provider)
+      gift, api_gift, deep_link, key, options = get_gift_and_deep_link(id, login_user, provider)
       return [key, options] if key
 
       # create client for linkedin api requests
