@@ -62,7 +62,21 @@ class GiftsController < ApplicationController
 
     # temporary save picture on server before posting it on api walls in post_on_<provider> tasks
     # picture will be deleted from server when posting on api walls are done
-    User.open4("mv #{gift_file.path} #{gift.temp_picture_path}") if picture
+    if picture
+      stdout, stderr, status = User.open4("mv #{gift_file.path} #{gift.temp_picture_path}")
+      if status != 0
+        # mv failed - continue post without picture
+        @errors << t(".file_mv_error", :error => stderr)
+        gift.temp_picture_filename = nil
+        gift.save!
+        gift.api_gifts.each do |api_gift|
+          api_gift.picture = 'N'
+          api_gift.api_picture_url = nil
+          api_gift.save!
+        end
+        picture = false
+      end
+    end
 
     # post on api wall(s) - priority = 5
     # status:

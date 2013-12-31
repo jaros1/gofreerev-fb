@@ -518,3 +518,23 @@
 147) Minor problem when creating first gift on an empty gifts/index page
      No gifts table and new gifts are not displayed after create
      Display an empty gifts table and hide no_gifts_was_found_html text and invite_api_friends_link link?
+
+148) dev1 - first post for a new day takes long time to complete
+     suspect exchange rate lookup
+     don't know if I was waiting for process or waiting for apache to start a new instance of rails
+     post ok, but new gift fields was first cleared after 5-10 seconds when response came from post_on_facebook task
+
+149) dev1 - post with picture:
+     Systemfejl "No such file or directory - /mnt/plugdisk/railsapps/gofreerev-fb/releases/20131230202759/public/images/temp/GNHf0WfBuPgYXGC.jpeg" for opgave "post_on_facebook(5)". Tjek backtrace i server log for mere information.
+     Ugyldigt id 5 ved opslag på API væg (3)
+     1) puts2log are written to /var/log/apache2/errors.log - should be written to development.log
+     2) post_in_facebook / api.put_picture - fails with  No such file or directory
+
+150) performens tuning. gifts/index ajax get 10 rows takes 7 seconds at localhost.
+     Observations:
+     - render api_gifts tages 2 seconds. check out user_div (62 ms) and comments2 (40 ms)
+     check out rails performens tools:
+     - http://37signals.com/svn/posts/3091-pssst-your-rails-application-has-a-secret-to-tell-you
+     - http://www.cheynewallace.com/ruby-on-rails-performance-tuning/
+     - http://pivotallabs.com/rubyrails-performance-tools/
+     - https://github.com/MiniProfiler/rack-mini-profiler

@@ -10,7 +10,7 @@ class Koala::Facebook::ClientError
     puts2log  "#{prefix}response_body    = #{response_body}"
   end
   def puts2log  (text)
-    puts "#{caller_locations(1,1)[0].label}: #{text}"
+    logger.debug "#{caller_locations(1,1)[0].label}: #{text}"
   end
 end
 
@@ -25,6 +25,6 @@ class Koala::Facebook::ServerError
     puts2log  "#{prefix}response_body    = #{response_body}"
   end
   def puts2log  (text)
-    puts "#{caller_locations(1,1)[0].label}: #{text}"
+    logger.debug "#{caller_locations(1,1)[0].label}: #{text}"
   end
 end

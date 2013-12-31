@@ -953,7 +953,11 @@ class UtilController < ApplicationController
         api = Koala::Facebook::API.new(token)
         begin
           link = api_gift.init_deep_link(I18n.locale)
-          if api_gift.picture?
+          if api_gift.picture? and !File.exists?(gift.temp_picture_path)
+            # post with picture but picture was not found.
+            # There must be some error handling in gifts/create that is missing
+            gift_posted_on_wall_api_wall = 6
+          elsif api_gift.picture?
             # status post with picture
             filetype = gift.temp_picture_path.split('.').last
             content_type = "image/#{filetype}"

@@ -224,12 +224,14 @@ en:
         file_upload_not_allowed: "File upload not allowed. %{appname} lack access to write on your %{apiname} wall."
         unsupported_filetype: "Unsupported filetype %{filetype} ii file upload. Supported filetypes are jpg, gif, png and bmp."
         file_is_too_big: "File is too big. Max allowed picture size is %{maxsize}."
+        file_mv_error: "Post was created without picture. Picture upload failed. Error: \"%{error}\"."
         # gift_not_posted_<n> is used if gift was not saved in gifts table - should never happen
         gift_not_posted_1: "Gift was not posted on your %{apiname} wall (%{error})" # unhandled error message
         gift_not_posted_2: "Gift was posted on your %{apiname} wall"
         gift_not_posted_3: "Gift was not posted on your %{apiname} wall" # missing privileges
         gift_not_posted_4: "Duplicate status message on %{apiname} wall"
         gift_not_posted_5: "Posting on %{apiname} has not yet been implemented"
+        gift_not_posted_6: "Gift was not posted on your %{apiname} wall. Internal error. Picture was not found."
         no_api_picture_url: "Picture uploaded, but did not get a picture url from #{apiname}"
      index:
         not_logged_in_flash: "Sorry. Page not available. Not logged in."

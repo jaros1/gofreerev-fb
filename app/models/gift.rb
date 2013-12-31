@@ -424,8 +424,10 @@ class Gift < ActiveRecord::Base
   end
   def temp_picture_path
     return nil unless temp_picture_filename
-    Rails.root.join('public', 'images', 'temp', temp_picture_filename).to_s
-  end
+    temp_dir = Rails.root.join('public', 'images', 'temp').to_s
+    FileUtils.mkdir_p temp_dir
+    "#{temp_dir}/#{temp_picture_filename}"
+  end # temp_picture_path
 
 
   # psydo attributea

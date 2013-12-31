@@ -97,7 +97,7 @@ module ActiveRecordExtensions
   end
 
   def puts2log  (text)
-    puts "#{caller_locations(1,1)[0].label}: #{text}"
+    logger.debug "#{caller_locations(1,1)[0].label}: #{text}"
   end
 
   module ClassMethods
@@ -148,7 +148,7 @@ module ActiveRecordExtensions
     end
 
     def puts2log  (text)
-      puts "#{caller_locations(1,1)[0].label}: #{text}"
+      logger.debug "#{caller_locations(1,1)[0].label}: #{text}"
     end
 
   end # ClassMethods
