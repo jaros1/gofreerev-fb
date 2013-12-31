@@ -232,6 +232,7 @@ en:
         gift_not_posted_4: "Duplicate status message on %{apiname} wall"
         gift_not_posted_5: "Posting on %{apiname} has not yet been implemented"
         gift_not_posted_6: "Gift was not posted on your %{apiname} wall. Internal error. Picture was not found."
+        gift_not_posted_7: "Gift was not posted on your %{apiname} wall. Internal error. Error in link %{link}."
         no_api_picture_url: "Picture uploaded, but did not get a picture url from #{apiname}"
      index:
         not_logged_in_flash: "Sorry. Page not available. Not logged in."

@@ -236,6 +236,7 @@ da:
         gift_not_posted_4: "Opslag fandes allerede på %{apiname} væg."
         gift_not_posted_5: "Opslag på %{apiname} væg er endnu ikke implementeret."
         gift_not_posted_6: "Opslag med billede kunne ikke oprettes på din %{apiname} væg. Intern system fejl. Fandt ikke billede."
+        gift_not_posted_7: "Opslag med billede kunne ikke oprettes på din %{apiname} væg. Intern system fejl. Fejl i link %{link}."
         no_api_picture_url: "Foto blev uploaded, men ingen URL til foto blev modtaget fra %{apiname}."
      index:
         not_logged_in_flash: "Siden kan desværre ikke vises. Du er ikke logget på. Brug nedenstående links til at logge ind."
