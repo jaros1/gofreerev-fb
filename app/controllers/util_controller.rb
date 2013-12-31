@@ -553,6 +553,29 @@ class UtilController < ApplicationController
   end # get_user_friends_and_token
 
 
+  def get_gift_and_deep_link (id, provider)
+    api_gift = deep_link = nil
+
+    # find and check gift and api_gift
+    gift = Gift.find_by_id(id)
+    return [gift, api_gift, deep_link, '.post_on_api_unknown_gift_id', { :provider => provider, :id => id }] unless gift
+    api_gift = ApiGift.find_by_gift_id_and_provider(gift.gift_id, provider)
+    return [gift, api_gift, deep_link, '.post_on_api_invalid_gift_id', { :provider => provider, :id => gift.id }] unless api_gift
+    return [gift, api_gift, deep_link, '.post_on_api_invalid_gift_id', { :provider => provider, :id => gift.id }] unless [api_gift.user_id_giver, api_gift.user_id_receiver].index(login_user.user_id)
+    return [gift, api_gift, deep_link, '.post_on_api_old_gift', { :provider => provider, :id => gift.id }] unless gift.created_at > 5.minute.ago
+
+    # check picture if any - must exists in /images/temp folder before post on API wall
+    return [gift, api_gift, deep_link, 'gift_posted_6_html', { :apiname => provider}] if api_gift.picture? and !gift.temp_picture_exists?
+
+    # initialize and check deep link
+    deep_link = api_gift.init_deep_link()
+    return [gift, api_gift, deep_link, ".gift_posted_7_html", { :apiname => provider, :link => deep_link }] unless api_gift.deep_link_ok?
+
+    # ok
+    return [gift, api_gift, deep_link]
+  end # get_gift_and_deep_link
+
+
   # post login task for facebook - get permissions and friends - using koala gem
   # called from do_tasks - ajax requests after login
   # must return nil or a valid input to translate
@@ -927,16 +950,9 @@ class UtilController < ApplicationController
       login_user, token, key, options = get_login_user_and_token(provider)
       return [key, options] if key
 
-      # get and check gift
-      gift = Gift.find_by_id(id)
-      return ['.post_on_api_unknown_gift_id', { :provider => provider, :id => id }] unless gift
-      api_gift = ApiGift.find_by_gift_id_and_provider(gift.gift_id, provider)
-      return ['.post_on_api_invalid_gift_id', { :provider => provider, :id => gift.id }] unless api_gift
-      return ['.post_on_api_invalid_gift_id', { :provider => provider, :id => gift.id }] unless [api_gift.user_id_giver, api_gift.user_id_receiver].index(login_user.user_id)
-      return ['.post_on_api_old_gift', { :provider => provider, :id => gift.id }] unless gift.created_at > 5.minute.ago
-      # get api gift for facebook post - api fields are empty at this point
-      api_gift = ApiGift.find_by_gift_id_and_provider(gift.gift_id, provider)
-      return [ '.post_on_api_no_api_gift', { :provider => provider, :id => id }] unless api_gift
+      # get gift, api_gift and deep_link
+      gift, api_gift, deep_link, key, options = get_gift_and_deep_link (id, provider)
+      return [key, options] if key
 
       # gift_posted_on_wall_api_wall. values:
       #  1: "Gift posted in here but not on your %{apiname} wall. #{error}" # unhandled error message
@@ -952,11 +968,9 @@ class UtilController < ApplicationController
         # link will be clickable if public url
         # link will be not clickable if localhost or server behind firewall
 
-        # validate deep link before posting on facebook
-        # problem is that facebook does not report error in deep link page
-        # this check does not work in WEBrick / development / single threaded server
-        link = api_gift.init_deep_link(I18n.locale)
-        return [".gift_posted_7_html", { :apiname => provider, :link => link }] unless api_gift.deep_link_ok?
+        # initialize and check deep link
+        deep_link = api_gift.init_deep_link()
+        return [".gift_posted_7_html", { :apiname => provider, :link => deep_link }] unless api_gift.deep_link_ok?
 
         begin
           # post
@@ -972,7 +986,7 @@ class UtilController < ApplicationController
             content_type = "image/#{filetype}"
             api_response = api.put_picture(gift.temp_picture_path,
                                            content_type,
-                                           {:message => "#{gift.description} - #{link}"
+                                           {:message => "#{gift.description} - #{deep_link}"
                                            })
             # api_response = {"id"=>"1396226023933952", "post_id"=>"100006397022113_1396195803936974"} (Hash)
             api_gift.api_gift_id = api_response['post_id']
@@ -981,7 +995,7 @@ class UtilController < ApplicationController
             # gift.description = "#{gift.description} - #{link}" # link only as text
             # gift.description = "<a href='#{link}'>#{gift.description}</a>" # html code as text
             api_response = api.put_connections('me', 'feed',
-                                               :message => "#{gift.description} - #{link}"
+                                               :message => "#{gift.description} - #{deep_link}"
                                                )
             # api_response = {"id"=>"100006397022113_1396235850599636"}
             api_gift.api_gift_id = api_response['id']
@@ -1091,24 +1105,6 @@ class UtilController < ApplicationController
         end # rescue
 
         # post ok and no permission problems
-
-        ## add comment with deep link
-        ## note that deep links will not by clickable localhost or server behind firewall
-        ## deep link must be a public available link to be clickable on facebook
-        #link = api_gift.init_deep_link(I18n.locale)
-        #begin
-        #  api.put_comment(api_gift.api_gift_id, link)
-        #rescue Koala::Facebook::ClientError => e
-        #  e.puts_exception("#{__method__}: ")
-        #  api_gift.clear_deep_link
-        #  raise
-        #rescue Koala::Facebook::ServerError => e
-        #  e.puts_exception("#{__method__}: ")
-        #  api_gift.clear_deep_link
-        #  raise
-        #end
-        ## deep link added
-
         # no errors - return posted message
         return [".gift_posted_#{gift_posted_on_wall_api_wall}_html", :apiname => login_user.api_name_without_brackets, :error => error]
       end
@@ -1120,13 +1116,7 @@ class UtilController < ApplicationController
     end
   end # post_on_facebook
 
-
-
-
-
-  # recalculate_user_balance
-
-  # post on google+ not implemented. The Google+ API is still a read only API
+  # post on google+ not implemented. The Google+ API is a read only API
   # private
   # def post_on_google_oauth2 (id)
   # end
@@ -1138,13 +1128,9 @@ class UtilController < ApplicationController
       login_user, token, key, options = get_login_user_and_token(provider)
       return [key, options] if key
 
-      # get and check gift
-      gift = Gift.find_by_id(id)
-      return ['.post_on_api_unknown_gift_id', { :provider => provider, :id => id }] unless gift
-      api_gift = ApiGift.find_by_gift_id_and_provider(gift.gift_id, provider)
-      return ['.post_on_api_invalid_gift_id', { :provider => provider, :id => gift.id }] unless api_gift
-      return ['.post_on_api_invalid_gift_id', { :provider => provider, :id => gift.id }] unless [api_gift.user_id_giver, api_gift.user_id_receiver].index(login_user.user_id)
-      return ['.post_on_api_old_gift', { :provider => provider, :id => gift.id }] unless gift.created_at > 5.minute.ago
+      # get gift, api_gift and deep_link
+      gift, api_gift, deep_link, key, options = get_gift_and_deep_link (id, provider)
+      return [key, options] if key
 
       # create client for linkedin api requests
       client = LinkedIn::Client.new API_ID[provider], API_SECRET[provider]
@@ -1156,10 +1142,8 @@ class UtilController < ApplicationController
       # todo: add picture
       # todo: add url for gift
       begin
-        gift_url = api_gift.init_deep_link(I18n.locale)
-        gift_url = 'http://www.dr.dk'
+
         image_url = "#{SITE_URL}#{gift.temp_picture_url}"
-        image_url = "http://ekstrabladet.dk/template/v4-0/img/logo.png"
         # http://stackoverflow.com/questions/15183107/rails-linked-post-message
         # http://developer.linkedin.com/documents/share-api#toggleview:id=ruby
         # Node                Parent Node    Value 	Notes
@@ -1177,7 +1161,7 @@ class UtilController < ApplicationController
         text = "#{format_direction_without_user(api_gift)} #{gift.description}"
         puts2log "picture = #{api_gift.picture?}, text.length = #{text.length}"
         comment = nil
-        content = { "submitted-url" => gift_url }
+        content = { "submitted-url" => deep_link }
         if api_gift.picture?
           # title (max 200 characters) required for post with image.
           content["submitted-image-url"] = image_url

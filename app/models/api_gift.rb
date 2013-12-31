@@ -251,25 +251,25 @@ class ApiGift < ActiveRecord::Base
     end
     deep_link_id
   end
-  def init_deep_link (locale)
+  def init_deep_link ()
     self.deep_link_id = ApiGift.new_deep_link_id
     self.deep_link_pw = String.generate_random_string(10)
     self.deep_link_errors = 0
     self.save!
-    "#{SITE_URL}#{locale}/gifts/#{self.deep_link_id}#{self.deep_link_pw}"
+    "#{SITE_URL}#{I18n.locale}/gifts/#{self.deep_link_id}#{self.deep_link_pw}"
   end
   def deep_link_ok?
     return true unless Rails.application.config.cache_classes
     # deep link not working in WEBrick / development (single threaded server)
-    link = api_gift.init_deep_link(I18n.locale)
+    link = deep_link()
     link_url = URI.parse(link)
     link_req = Net::HTTP::Get.new(link_url.path)
     link_res = Net::HTTP.start(link_url.host, link_url.port) { |http| http.request(link_req) }
     (link_res.class == Net::HTTPOK)
   end
-  def deep_link (locale)
+  def deep_link
     return nil unless deep_link_id and deep_link_pw
-    "#{SITE_URL}#{locale}/gifts/#{self.deep_link_id}#{self.deep_link_pw}"
+    "#{SITE_URL}#{I18n.locale}/gifts/#{self.deep_link_id}#{self.deep_link_pw}"
   end
   def clear_deep_link
     self.deep_link_id = self.deep_link_pw = self.deep_link_errors = nil

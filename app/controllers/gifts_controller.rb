@@ -272,7 +272,7 @@ class GiftsController < ApplicationController
       @open_graph = { :title => title,
                       :description => description,
                       :image => (api_gift.picture? ? api_gift.api_picture_url : API_OG_DEFAULT_IMAGE),
-                      :url   => api_gift.deep_link(I18n.locale)}
+                      :url   => api_gift.deep_link()}
     elsif gift.api_gifts.length == 1
       @gift = gift.api_gifts.first
     else
