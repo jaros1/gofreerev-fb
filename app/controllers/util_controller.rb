@@ -504,6 +504,7 @@ class UtilController < ApplicationController
       # puts2log  "task = #{at.task}, res = #{res}"
       @errors << res
     end
+    puts2log "@errors.size = #{@errors.size}"
     if @errors.size == 0
       render :nothing => true
       return
@@ -950,9 +951,21 @@ class UtilController < ApplicationController
         # post with or without picture - link is a deep link from facebook wall to gift in gofreerev
         # link will be clickable if public url
         # link will be not clickable if localhost or server behind firewall
+
+        # validate deep link before posting on facebook
+        # problem is that facebook does not report in deep link page back to koala
+        # this check if not working in WEBrick / development
+        if Rails.application.config.cache_classes
+          link = api_gift.init_deep_link(I18n.locale)
+          link_url = URI.parse(link)
+          link_req = Net::HTTP::Get.new(link_url.path)
+          link_res =  Net::HTTP.start(link_url.host, link_url.port) { |http| http.request(link_req) }
+          puts2log "link_res.error_type = #{link_res.error_type} (#{link_res.error_type.class})"
+        end
+
+        # post
         api = Koala::Facebook::API.new(token)
         begin
-          link = api_gift.init_deep_link(I18n.locale)
           if api_gift.picture? and !File.exists?(gift.temp_picture_path)
             # post with picture but picture was not found.
             # There must be some error handling in gifts/create that is missing

@@ -191,6 +191,7 @@ function ajax_flash (id)
 // ajax flash for row table rows - for example new rows in ajax_task_errors table
 function ajax_flash_new_table_rows (tablename, number_of_rows)
 {
+    add2log('ajax_flash_new_table_rows: table_name = ' + tablename + ', number_of_rows = ' + number_of_rows) ;
     var table = document.getElementById(tablename) ;
     if (!table) return ;
     var rows = table.rows ;
@@ -986,7 +987,7 @@ function add_to_tasks_errors (error) {
     var row = table.insertRow(length) ;
     var cell = row.insertCell(0) ;
     cell.innerHTML = error ;
-    ajax_flash_new_table_rows('tasks_errors', 100);
+    ajax_flash_new_table_rows('tasks_errors', 1);
 }
 
 // ajax enable/disable gift file field in gifts/index page

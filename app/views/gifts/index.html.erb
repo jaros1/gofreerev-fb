@@ -1,3 +1,12 @@
+<script>
+  function find_js_error() {
+      var js = "<tr>\n      <td>Opslag opretter her og på din linkedin væg<\/td>\n    <\/tr>\n    <tr>\n      <td>Systemfejl &quot;undefined local variable or method `req&#39; for #&quot; for opgave &quot;post_on_facebook(727)&quot;. Tjek backtrace i server log for mere information.<\/td>\n    <\/tr>\n" ;
+      $('#tasks_errors').append(js) ;
+  }
+</script>
+  <%= link_to "find_js_error", 'javascript: find_js_error()' %>
+
+
 <%= hidden_field_tag :newest_gift_id, @newest_gift_id, :id => "newest-gift-id" %>
 <%= hidden_field_tag :newest_status_update_at, @newest_status_update_at, :id => "newest-status-update-at" %>
 
