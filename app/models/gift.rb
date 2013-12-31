@@ -428,6 +428,9 @@ class Gift < ActiveRecord::Base
     FileUtils.mkdir_p temp_dir
     "#{temp_dir}/#{temp_picture_filename}"
   end # temp_picture_path
+  def temp_picture_exists?
+    File.exists?(temp_picture_path)
+  end # temp_picture_exists?
 
 
   # psydo attributea

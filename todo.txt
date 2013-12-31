@@ -524,12 +524,6 @@
      don't know if I was waiting for process or waiting for apache to start a new instance of rails
      post ok, but new gift fields was first cleared after 5-10 seconds when response came from post_on_facebook task
 
-149) dev1 - post with picture:
-     Systemfejl "No such file or directory - /mnt/plugdisk/railsapps/gofreerev-fb/releases/20131230202759/public/images/temp/GNHf0WfBuPgYXGC.jpeg" for opgave "post_on_facebook(5)". Tjek backtrace i server log for mere information.
-     Ugyldigt id 5 ved opslag på API væg (3)
-     1) puts2log are written to /var/log/apache2/errors.log - should be written to development.log
-     2) post_in_facebook / api.put_picture - fails with  No such file or directory
-
 150) performens tuning. gifts/index ajax get 10 rows takes 7 seconds on localhost.
      Observations:
      - render api_gifts tages 2 seconds. check out user_div (62 ms) and comments2 (40 ms)
@@ -544,6 +538,8 @@
 152) add custom logger
      should replace puts2log with logger2.debug, logger2.info, logger2.warn, logger2.error, logger2.fatal and logger2.unknown
 
-153) post_on_facebook. error in deep link page is only reported in log.
-     should validate deep link url before uploading to API
-
+153) error with post without picture
+     uninitialized constant GiftsController::API_OG_DEFAULT_IMAGE
+     maybe not use default picture for all API's?
+     looks like facebook does not load picture from url - only use picture supplied from user
+     looks like linkedin always add a picture from url - use default picture
