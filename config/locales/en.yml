@@ -130,6 +130,8 @@ en:
         gift_posted_3_html: "<div title='%{appname} lack access to write on your %{apiname} wall. You can share your resources with your friends in here, but postings will only appear here and not on your %{apiname} wall. This means your message is likely to be seen by few friends. You should therefore allow %{appname} permission to write on your wall. %{appname} will only make the postings you ask for. Pictures are uploaded to %{apiname}. Pictures can not be uploaded without permission to write on your %{apiname} wall.'>Gift not posted on your %{apiname} wall. <a href=\"javascript: {top.location.href='%{url}'}\">Allow %{appname} to post on my behalf!</a></div>" # missing privileges
         gift_posted_4_html: "Gift posted in here but not on your %{apiname} wall. Duplicate status message on %{apiname} wall"
         gift_posted_5_html: "Gift posted in here but not on your %{apiname} wall. Posting on %{apiname} has not yet been implemented"
+        gift_posted_6_html: "Gift was not posted on your %{apiname} wall. Internal error. Picture was not found."
+        gift_posted_7_html: "Gift was not posted on your %{apiname} wall. Internal error. Error in deep link %{link}."
         fb_pic_post_unknown_problem: "Gift was posted in here and on your %{apiname} wall. Picture was uploaded to your %{apiname} wall but %{appname} did not have permission to read the picture on your %{apiname} wall and can not display the picture in here. Maybe you have changed permissions for %{appname}."
         fb_pic_post_missing_permission_html: "<div title='%{appname} lack access to read posts on your %{apiname} wall. You can upload gift with pictures to %{apiname} but pictures can not be displayed in %{appname}. You can change visibility for %{appname} posts to public or you could grant %{appname} permission to read posts on your wall. %{appname} will only use read posts permission to display pictures witin %{appname}.'>Gift was posted in here and on your %{apiname} wall but picture can not be displayed. <a href=\"javascript: {top.location.href='%{url}'}\">Allow %{appname} to read posts on my %{apiname} wall!</a></p>"
         fb_msg_post_unknown_problem: "Gift was posted in here and on your %{apiname} wall. Picture was uploaded to your %{apiname} wall but %{appname} did not have permission to read the picture on your %{apiname} wall and can not display the picture in here. Maybe you have changed permissions for %{appname}."
@@ -231,8 +233,6 @@ en:
         gift_not_posted_3: "Gift was not posted on your %{apiname} wall" # missing privileges
         gift_not_posted_4: "Duplicate status message on %{apiname} wall"
         gift_not_posted_5: "Posting on %{apiname} has not yet been implemented"
-        gift_not_posted_6: "Gift was not posted on your %{apiname} wall. Internal error. Picture was not found."
-        gift_not_posted_7: "Gift was not posted on your %{apiname} wall. Internal error. Error in link %{link}."
         no_api_picture_url: "Picture uploaded, but did not get a picture url from #{apiname}"
      index:
         not_logged_in_flash: "Sorry. Page not available. Not logged in."

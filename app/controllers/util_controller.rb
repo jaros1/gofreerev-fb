@@ -958,13 +958,12 @@ class UtilController < ApplicationController
         # todo: move to ApiGift.check_deep_link - also to be used in other api's
         if Rails.application.config.cache_classes
           link = api_gift.init_deep_link(I18n.locale)
-          link = 'http://www.dr.dk/nyheder/'
           link_url = URI.parse(link)
           link_req = Net::HTTP::Get.new(link_url.path)
           link_res =  Net::HTTP.start(link_url.host, link_url.port) { |http| http.request(link_req) }
           puts2log "link_res.class = #{link_res.class}"
           puts2log "link_res.error_type = #{link_res.error_type} (#{link_res.error_type.class})"
-          return [".gift_posted_7", { :link => link }] if link_res.class != Net::HTTPOK
+          return [".gift_posted_7_html", { :link => link }] if link_res.class != Net::HTTPOK
         end
 
         begin

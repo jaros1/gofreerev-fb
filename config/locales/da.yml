@@ -133,6 +133,8 @@ da:
         gift_posted_3_html: "<div title='%{appname} mangler adgang til at skrive på din %{apiname} væg. Du kan godt dele dine resourcer med dine venner herinde, men opslag vil kun blive vist her og ikke på din %{apiname} væg. Dvs. dine opslag vil sandsynligvis kun blive set af få venner. Du kan give %{appname} tilladelse til at skrive på din %{apiname} væg. %{appname} laver kun de opslag du selv beder om. Billeder gemmes kun hos din login udbyder (i dette tilfælde %{apiname}). Uden adgang til at skrive på mindst en væg kan der ikke vedlægges billeder i forbindelse med opslag herinde.'>Manglende adgang til opslag på din %{apiname} væg. <a href=\"javascript: {top.location.href='%{url}'}\">Giv %{appname} lov til at lave opslag på min %{apiname} væg!</a></div>" # missing privileges
         gift_posted_4_html: "Opslag opretter her, men ikke på din %{apiname} væg. Opslag fandes allerede på %{apiname} væg"
         gift_posted_5_html: "Opslag opretter her, men ikke på din %{apiname} væg. Opslag på %{apiname} væg er endnu ikke implementeret"
+        gift_posted_6_html: "Opslag med billede kunne ikke oprettes på din %{apiname} væg. Intern system fejl. Fandt ikke billede."
+        gift_posted_7_html: "Opslag med billede kunne ikke oprettes på din %{apiname} væg. Intern system fejl. Fejl i dybt link %{link}."
         fb_pic_post_unknown_problem: "Opslag opretter her og på din %{apiname} væg. Foto blev uploaded til din %{apiname} væg, men %{appname} mangler rettigheder til at se billedet på din %{apiname} væg og kan derfor ikke vise foto herinde. Måske du har ændret rettighedsindstillinger for %{appname}."
         fb_pic_post_missing_permission_html: "<div title='Foto blev uploaded til din %{apiname} væg, men %{appname} mangler rettigheder til at se billedet på din %{apiname} væg og kan derfor ikke vise foto herinde. Du kan løse dette problem ved enten at ændre synlighed for %{appname} opslag til offentlig eller ved at give %{appname} lov til at læse opslag på din %{apiname} væg.'>Opslag opretter herinde og på din %{apiname} væg, men foto kan ikke vises her. <a href=\"javascript: {top.location.href='%{url}'}\">Giv Gofreerev lov til at læse opslag på min væg!</a></div>"
         fb_msg_post_unknown_problem: "Opslag opretter her og på din %{apiname} væg, men %{appname} mangler rettigheder til at se opslaget på din %{apiname} væg. Måske du har ændret rettighedsindstillinger for %{appname}."
@@ -235,8 +237,6 @@ da:
         gift_not_posted_3: "Opslag blev ikke oprettet på din %{apiname} væg." # missing privileges
         gift_not_posted_4: "Opslag fandes allerede på %{apiname} væg."
         gift_not_posted_5: "Opslag på %{apiname} væg er endnu ikke implementeret."
-        gift_not_posted_6: "Opslag med billede kunne ikke oprettes på din %{apiname} væg. Intern system fejl. Fandt ikke billede."
-        gift_not_posted_7: "Opslag med billede kunne ikke oprettes på din %{apiname} væg. Intern system fejl. Fejl i link %{link}."
         no_api_picture_url: "Foto blev uploaded, men ingen URL til foto blev modtaget fra %{apiname}."
      index:
         not_logged_in_flash: "Siden kan desværre ikke vises. Du er ikke logget på. Brug nedenstående links til at logge ind."
