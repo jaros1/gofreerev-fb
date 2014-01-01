@@ -178,19 +178,19 @@ module ApplicationHelper
   end # format_gift_param
 
   # todo: generalize
-  def invite_friends_url
-    unless @user
-      puts2log  '@user was not found'
+  def invite_friends_url (login_user)
+    unless login_user
+      puts2log  'login_user was not found'
       return ''
     end
     case
-      when @user.facebook?
+      when login_user.facebook?
         # url - friend request url
         title = t 'shared.invite_friends.invite_friends_message_title', :appname => APP_NAME
         message = t 'shared.invite_friends.invite_friends_message_body'
         # no koala gem method for generation a invite friends url
         url = "https://#{Koala.config.dialog_host}/dialog/apprequests" +
-            "?app_id=#{API_ID[@user.provider]}" +
+            "?app_id=#{API_ID[login_user.provider]}" +
             "&redirect_uri=#{CGI.escape(SITE_URL + @request_fullpath)}" +
             "&message=#{CGI.escape(message.to_str)}" +
             "&title=#{CGI.escape(title.to_str)}" +
@@ -204,7 +204,7 @@ module ApplicationHelper
 
   def invite_friends_link1
     # todo: different url for each API (FB, GP, LI etc)
-    link_to t('shared.invite_friends.invite_friends_link_text1'), invite_friends_url
+    link_to t('shared.invite_friends.invite_friends_link_text1'), invite_friends_url(@user)
   end
 
   def ajax_tasks?

@@ -116,7 +116,7 @@ module UsersHelper
   end # invite_friends_text
 
   def invite_api_friends_link
-    link_to t('.invite_api_friends_link_text2', :apiname => @user.api_name_without_brackets), invite_friends_url, :title => t('.invite_api_friends_link_title2', :appname => APP_NAME, :apiname => @user.api_name_without_brackets)
+    link_to t('.invite_api_friends_link_text2', :apiname => @user.api_name_without_brackets), invite_friends_url(@user), :title => t('.invite_api_friends_link_title2', :appname => APP_NAME, :apiname => @user.api_name_without_brackets)
   end
 
   # user_nav_link is used in users/show nav links - up to 9 links in up to 3 sections

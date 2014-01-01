@@ -571,6 +571,7 @@ class User < ActiveRecord::Base
     gifts_given + gifts_received
   end
 
+  # find app friends. instance method for actual user and class method for logged in users
   def app_friends
     Friend.where("user_id_giver = ?", user_id).includes(:friend).find_all do |f|
       # puts2log  "user_id_receiver = #{f.user_id_receiver}, api_friend = #{f.api_friend}, app_friend = #{f.app_friend}"
@@ -583,9 +584,21 @@ class User < ActiveRecord::Base
       end
     end # find all
   end # app_friends
+  def self.app_friends (login_users)
+    login_user_ids = login_users.collect { |login_user| login_user.user_id }
+    user_friends = Friend.where("user_id_giver in (?)", login_user_ids).includes(:friend).find_all do |f|
+      f.friend.friend?(login_users)
+    end
+  end
+
+  # find number of app friends. instance method for actual user and class method for logged in users
+  # show special messages to user if no app friends was found
   def no_app_friends
     return @no_app_friends if @no_app_friends
     @no_app_friends = app_friends.size
+  end
+  def self.no_app_friends (login_users)
+    User.app_friends(login_users).size
   end
 
   # recalculate user balance

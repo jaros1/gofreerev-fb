@@ -85,9 +85,7 @@ class UsersController < ApplicationController
     # always use users friends as basic (friends_filter = true)
     # todo: remove friend doubles - that is friends with same friend.user_combination?
     # todo: but they maybe friend in one login provider and not friends for an other login provider
-    user_friends = Friend.where("user_id_giver in (?)", login_user_ids).includes(:friend).find_all do |f|
-      f.friend.friend?(@users)
-    end.sort do |a,b|
+    user_friends = User.app_friends(@users).sort do |a,b|
       if a.friend.user_name <=> b.friend.user_name
         a.friend.id <=> b.friend.id
       else

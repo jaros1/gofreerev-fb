@@ -43,7 +43,7 @@
     <p>
       <%= t '.no_users_was_found_html', :appname => APP_NAME, :apiname => @user.api_name_without_brackets %>
     </p>
-    <%= t 'shared.invite_friends.invite_api_friends_link_prompt1', :apiname => @user.api_name_without_brackets %> <%= invite_friends_link1 %>
+    <%= render :partial => 'shared/invite_friends' %>
     <br/>
 <% else -%>
     <div style="width: 100%">

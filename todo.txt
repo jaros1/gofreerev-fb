@@ -543,3 +543,27 @@
      maybe not use default picture for all API's?
      looks like facebook does not load picture from url - only use picture supplied from user
      looks like linkedin always add a picture from url - use default picture
+
+154) problem with profile picture for new users
+     page was showing path to /profiles/... even if picture has not been downloaded from API.
+     problem was layout
+     maybe insert "?" picture in /profile/ temporary until real profile picture has been downloaded from API
+
+155) Log out with one logged in user should redirect to api. Working at localhost. Not working at dev1
+
+156) edit text on FB welcome pace - facebook/create
+     some features are not implemented yet / text should be rewritten
+     text can be seen for FB user that not yet have accepted gofreerev
+
+157) problem with images and locale.
+     should not use local in path to images
+
+158) invite friend partial
+     invite friends: provider1 provider2 provider3 ..
+     to be used in gifts/index page if no app friends is found
+     to be used in users/index page if no app friends is found
+     there should always be a invite friends link i friends page
+
+
+
+

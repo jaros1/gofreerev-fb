@@ -502,6 +502,8 @@ function insert_update_gifts (tasks_sleep)
         if (old_gifts_trs[i].id.match(re)) old_gifts_index = i ;
     } // for
     add2log('old_gifts_index = ' + old_gifts_index) ;
+    // check for first row to be inserted in gifts table - for example for a new gofreerev user
+    if ((!old_gifts_index) && (old_gifts_trs.length >= 1) && (old_gifts_trs.length <= 2)) old_gifts_index = old_gifts_trs.length-1 ;
     if (!old_gifts_index) return ; // error - id with format format gift-<999>-1 was not found - ignore error silently
     var first_old_gift_tr = old_gifts_trs[old_gifts_index] ;
     var old_gifts_tbody = first_old_gift_tr.parentNode ;
