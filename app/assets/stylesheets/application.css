@@ -243,7 +243,7 @@ form {
 /* users/index */
 
 /* friends filter: 2 lines on small display - 1 line on big display */
-@media screen and (max-width: 479px) {
+@media screen and (max-width: 532px) {
     .friends-filter-2-lines {
         display: inline;
     }
@@ -251,7 +251,7 @@ form {
         display: none;
     }
 }
-@media screen and (min-width: 480px) {
+@media screen and (min-width: 533px) {
     .friends-filter-2-lines {
         display: none;
     }

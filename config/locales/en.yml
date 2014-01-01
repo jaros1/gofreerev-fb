@@ -86,8 +86,9 @@ en:
         title_friend: "%{username}. Balance %{balance}. Click here to see user info."
      invite_friends:
         invite_friends_prompt: "Invite friends:"
-        invite_friends_message_title: "Invite your friends to play %{appname}"
-        invite_friends_message_body: "Try a game about helping each other and sharing each others resources in a new different way and a game with a new kind of money that will change our world inspired by the ideas of Charles Eisenstein's book Sacred Economics"
+        invite_friends_link_title: "Use this link to invite your %{apiname} friends to use %{appname}"
+        invite_friends_message_title: "Invite your friends to play %{appname}" # facebook
+        invite_friends_message_body: "Try a game about helping each other and sharing each others resources in a new different way and a game with a new kind of money that will change our world inspired by the ideas of Charles Eisenstein's book Sacred Economics" # facebook
         invalid_call: "invalid call - login_user was missing in invite_friends_url call"
         not_implemented: "invite %{apiname} friends is not implemented"
      providers:
@@ -584,9 +585,6 @@ en:
         app_friends_link_text: "Friends"
         not_app_friends_link_text: "Not friends"
         all_app_users_link_text: "All"
-        invite_api_friends_link_prompt2: "%{apiname_camelized}:" # apiname, apiname_camelized_
-        invite_api_friends_link_title2: "Use this link to invite your %{apiname} friends to use %{appname}"
-        invite_api_friends_link_text2: "Invite friends"
         no_users_was_found_html: "There was not any other %{appname} users. To get started, you should create a few posts<br />with anything you want to share with your friends or with something you are looking<br />for or are missing, and that you think your friends might be able to help you.<br /><br />Invite one or more of your good %{apiname} friends to use %{appname}.<br />Either by sending a personal message with the link below or by using<br />the link below to invite your friends to use Gofreerev. a personal<br />message is the best since many people will reject game invitations."
 
 

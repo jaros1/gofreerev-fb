@@ -459,14 +459,11 @@ class User < ActiveRecord::Base
   end # short_or_full_user_name
 
   def api_name_without_brackets
-    return 'google+' if provider == 'google'
-    provider
+    API_DOWNCASE_NAME[provider] || provider
   end
 
   def api_name_with_brackets
-    api_name = api_name_without_brackets
-    return nil unless api_name
-    "(#{api_name})"
+    "(#{api_name_without_brackets})"
   end
 
 

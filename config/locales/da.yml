@@ -87,6 +87,7 @@ da:
         title_friend: "%{username}. Saldo %{balance}. Klik her for at se brugeroplysninger."
      invite_friends:
         invite_friends_prompt: "Inviter venner:"
+        invite_friends_link_title: "Brug dette link til at inviterer dine %{apiname} venner til at bruge %{appname}"
         invite_friends_message_title: "Inviter dine venner til %{appname}"
         invite_friends_message_body: "Prøv et spil om at hjælpe hinanden og dele hinandens resourcer på en ny anderledes måde og et spil med en ny slags penge der kan forandre vores verden inspireret af ideer fra Charles Eisensteins bog Sacred Economics"
         invalid_call: "ugyldigt kald - login bruger manglende i kald af invite_friends_url"
@@ -582,8 +583,5 @@ da:
         app_friends_link_text: "Venner"
         not_app_friends_link_text: "Ej venner"
         all_app_users_link_text: "Alle"
-        invite_api_friends_link_prompt2: "%{apiname_camelized}:" # apiname, apiname_camelized_
-        invite_api_friends_link_title2: "Brug dette link til at inviterer dine %{apiname} venner til at bruge %{appname}"
-        invite_api_friends_link_text2: "Inviter venner"
         no_users_was_found_html: "Der blev ikke fundet nogle andre %{appname} brugere. For at komme igang bør du nu<br />oprette et par opslag med noget du gerne vil dele med dine venner eller med noget<br />du søger eller mangler, og som du tror dine venner måske kan hjælpe dig med.<br /><br />Dernæst skal du invitere en eller flere af dine gode venner til at bruge %{appname}.<br />Enten ved at sende et personlig besked med nedenstående link eller ved at bruge<br />nedenstående link til at inviterer dine %{apiname} venner til at bruge %{appname}. <br />En personlig besked er det bedste da mange mennesker vil afvise uopfordrede<br />spil invitationer."
 

@@ -70,7 +70,13 @@
     </div>
 <% end -%>
 <% if true or User.no_app_friends(@users) == 0 -%>
-    <%= hr = true ; render :partial => 'shared/invite_friends' %>
+    <div style="width: 100%">
+      <table>
+        <tr>
+          <%= hr = true ; render :partial => 'shared/invite_friends' %>
+        </tr>
+      </table>
+    </div>
 <% end -%>
 <% if hr -%>
     <div style="width: 100%">

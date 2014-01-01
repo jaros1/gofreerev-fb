@@ -16,8 +16,7 @@
       <td><u><%= not_app_friends_link(@friends_filter) %></u></td>
       <td><u><%= app_friends_friends_link(@friends_filter) %></u></td>
       <td>&nbsp;&nbsp;|&nbsp;&nbsp;</td>
-      <td><%= invite_api_friends_text %></td>
-      <td><%= invite_api_friends_link %></td>
+      <%= render :partial => 'shared/invite_friends' %>
     </tr>
   </table>
 </div>
@@ -32,8 +31,7 @@
       </td>
     </tr>
     <tr>
-      <td><%= invite_api_friends_text %></td>
-      <td><%= invite_api_friends_link %></td>
+      <%= render :partial => 'shared/invite_friends' %>
     </tr>
   </table>
 </div>
