@@ -186,14 +186,15 @@ module ApplicationHelper
       puts2log msg
       return "javascript: alert('#{msg}')"
     end
-    case login_user.provider
+    provider = login_user.provider
+    case provider
       when 'facebook'
         # url - friend request url
         title = t 'shared.invite_friends.invite_friends_message_title', :appname => APP_NAME
         message = t 'shared.invite_friends.invite_friends_message_body'
         # no koala gem method for generation a invite friends url
         url = "https://#{Koala.config.dialog_host}/dialog/apprequests" +
-            "?app_id=#{API_ID[login_user.provider]}" +
+            "?app_id=#{API_ID[provider]}" +
             "&redirect_uri=#{CGI.escape(SITE_URL + @request_fullpath)}" +
             "&message=#{CGI.escape(message.to_str)}" +
             "&title=#{CGI.escape(title.to_str)}" +
@@ -202,7 +203,7 @@ module ApplicationHelper
         url
       else
         # invite provider friends is not implemented
-        msg = t 'shared.invite_friends.not_implemented', :apiname => API_DOWNCASE_NAME[login_user.provider] ||
+        msg = t 'shared.invite_friends.not_implemented', :apiname => provider_downcase(provider)
         "javascript: alert('#{msg}')"
     end # case
   end # invite_friends_url
