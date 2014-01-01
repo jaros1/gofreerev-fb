@@ -69,8 +69,9 @@
       <%= t '.no_gifts_was_found_html', :appname => APP_NAME, :apiname => @user.api_name_without_brackets %>
     </div>
 <% end -%>
-<% if true or User.no_app_friends(@users) == 0 -%>
+<% if User.no_app_friends(@users) == 0 -%>
     <div style="width: 100%">
+      <%= t '.no_friends_was_found_html', :appname => APP_NAME, :apiname => @user.api_name_without_brackets %>
       <table>
         <tr>
           <%= hr = true ; render :partial => 'shared/invite_friends' %>

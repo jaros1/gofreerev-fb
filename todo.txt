@@ -556,14 +556,6 @@
 157) problem with images and locale.
      should not use local in path to images
 
-158) invite friend partial
-     invite friends: provider1 provider2 provider3 ..
-     to be used in gifts/index page if no app friends is found
-     to be used in users/index page if no app friends is found
-     change invite friends link in users/index page:
-     - now: "provider: invite friends" in a responsive table layout (1 or 2 rows)
-     - now to make a list of provider links responsive (1-n providers)?
-
 159) problem after show-more-rows error
      javascript variable end_of_page is set to true and is never changed back to false
      share link does not set end_of_page variable back to false
@@ -590,3 +582,5 @@
      add user profile url for google+, linkedin and twitter
 
 165) change language LOV or link
+
+166) linkedin - dialog for removing linkedin friend?
