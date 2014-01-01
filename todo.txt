@@ -549,8 +549,6 @@
      problem was layout
      maybe insert "?" picture in /profile/ temporary until real profile picture has been downloaded from API
 
-155) Log out with one logged in user should redirect to api. Working at localhost. Not working at dev1
-
 156) edit text on FB welcome pace - facebook/create
      some features are not implemented yet / text should be rewritten
      text can be seen for FB user that not yet have accepted gofreerev
@@ -571,16 +569,15 @@
      share link does not set end_of_page variable back to false
      /gifts/index does set end_of_page back to true
      maybe use document.ready to set end_of_page to false when user clicks on share link i page header
+     google a solution
 
 160) users/show page - friend status for logged in user
      status: You
      no friend actions
      maybe use add gofreerev friend button to set user_combination across login api's
 
-161) google_oauth2 text is wrong in
-     user div in page header - use provider_downcase(provider) method
+161) provider google is wrong in:
      button text in users/index page - - use provider_downcase(provider) method
-     mouse over text in users/index page for user profile links
 
 162) users/index page
      should show logged in users for friends=true filter

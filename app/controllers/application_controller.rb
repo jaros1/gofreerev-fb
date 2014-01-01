@@ -298,7 +298,7 @@ class ApplicationController < ActionController::Base
   # redirect urls used in views and controllers
   private
   def provider_url (provider)
-    return provider if !valid_provider?(provider) # unknown provider or already translated
+    return nil if !valid_provider?(provider) # unknown provider or already translated
     API_URL[provider]
   end
   helper_method :provider_url

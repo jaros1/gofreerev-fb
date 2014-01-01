@@ -170,26 +170,24 @@ class AuthController < ApplicationController
       return
     end
     if provider == 'all'
+      provider = @users.first.provider if @users.size == 1 # redirect to this provider after logout
       logout()
     else
       logout(provider)
     end
     # redirect to api or redirect to auth/index page
-    if @users.length > 1 or !@users.first.dummy_user?
+    if !@users.first.dummy_user?
       # user logged in with other login provider(s)
       flash[:notice] = t '.logged_off', :appname => APP_NAME, :apiname => provider_downcase(provider)
       redirect_to :action => :index
       return
     end
-    # dummy user. redirect to login provider
-    if provider == 'all'
+    if provider == 'all' or !(api_url = API_URL[provider])
       redirect_to :action => :index
-    else
-      redirect_to provider_url(provider)
+    elsif
+      redirect_to api_url
     end
   end # destroy
-
-
 
   protected
   def auth_hash
