@@ -149,4 +149,18 @@ module UsersHelper
     end
   end # user_nav_link
 
+
+  def api_profile_url (user)
+    provider = user.provider
+    case provider
+      when 'facebook' then "#{API_URL[provider]}/#{user.uid}"
+      else
+        # link to #{API_DOWNCASE_NAME[provider] || provider} user profile not implemented
+        msg = translate '.api_profile_link_not_implemented', :apiname => (API_DOWNCASE_NAME[provider] || provider)
+        puts2log msg
+        "javascript: alert('#{msg}')"
+    end
+  end
+
+
 end

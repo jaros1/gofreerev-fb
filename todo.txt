@@ -562,8 +562,34 @@
      invite friends: provider1 provider2 provider3 ..
      to be used in gifts/index page if no app friends is found
      to be used in users/index page if no app friends is found
-     there should always be a invite friends link i friends page
+     change invite friends link in users/index page:
+     - now: "provider: invite friends" in a responsive table layout (1 or 2 rows)
+     - now to make a list of provider links responsive (1-n providers)?
 
+159) problem after show-more-rows error
+     javascript variable end_of_page is set to true and is never changed back to false
+     share link does not set end_of_page variable back to false
+     /gifts/index does set end_of_page back to true
+     maybe use document.ready to set end_of_page to false when user clicks on share link i page header
 
+160) users/show page - friend status for logged in user
+     status: You
+     no friend actions
+     maybe use add gofreerev friend button to set user_combination across login api's
 
+161) google_oauth2 text is wrong in
+     user div in page header - use provider_downcase(provider) method
+     button text in users/index page - - use provider_downcase(provider) method
+     mouse over text in users/index page for user profile links
 
+162) users/index page
+     should show logged in users for friends=true filter
+
+162) users/index page
+     invalid Add <provider> friend
+     is showing "Add linkedin friend" for google+ users
+
+163) user.api_profile_url
+     add user profile url for google+, linkedin and twitter
+
+165) change language LOV or link

@@ -85,10 +85,11 @@ en:
         title_non_friend: "%{username}. Click here to see user info."
         title_friend: "%{username}. Balance %{balance}. Click here to see user info."
      invite_friends:
-        invite_api_friends_link_prompt1: "Invite %{apiname} friends:"
-        invite_friends_link_text1: "Invite"
+        invite_friends_prompt: "Invite friends:"
         invite_friends_message_title: "Invite your friends to play %{appname}"
         invite_friends_message_body: "Try a game about helping each other and sharing each others resources in a new different way and a game with a new kind of money that will change our world inspired by the ideas of Charles Eisenstein's book Sacred Economics"
+        invalid_call: "invalid call - login_user was missing in invite_friends_url call"
+        not_implemented: "invite %{apiname} friends is not implemented"
      providers:
         # provider lowercase name - used in error messages
         facebook_down: "facebook"
@@ -565,6 +566,7 @@ en:
         friend_status_text_r: "Pending %{appname} friend request"
         friend_status_text_p: "Want to be your %{appname} friend"
         friend_status_text_b: "Blocked. %{appname} friend requests are ignored"
+        api_profile_link_not_implemented: "link to %{apiname} user profile not implemented"
      friend_action_buttons:
         add_api_friend: "Add %{apiname} friend"
         remove_api_friend: "Remove %{apiname} friend"

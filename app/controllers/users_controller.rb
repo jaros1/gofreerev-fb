@@ -339,12 +339,17 @@ class UsersController < ApplicationController
   # do friend actions (add/remove api/app friend etc)
   # see users.friend_status_actions for full list
   def friend_actions
+    # next page is not ajax - remove last_row_id from return_to url to prevent ajax response
+    return_to = params[:return_to]
+    return_to = return_to.gsub(/&last_row_id=\d+/,'')
+    return_to = return_to.gsub(/(last_row_id=\d+&)/,'')
+    # check param
     id2 = params[:friend_id]
     user2 = User.find_by_id(id2)
     if !user2
       puts2log  "invalid request. Friend with id #{id2} was not found"
       flash[:notice] = t '.invalid_request'
-      redirect_to params[:return_to]
+      redirect_to return_to
       return
     end
     login_user = @users.find { |user| user.provider == user2.provider }
@@ -353,7 +358,7 @@ class UsersController < ApplicationController
     if !allowed_friend_actions.index(friend_action)
       puts2log  "invalid request. Friend action #{friend_action} not allowed."
       puts2log  "allowed friend actions are " + allowed_friend_actions.join(', ')
-      redirect_to params[:return_to]
+      redirect_to return_to
       return
     end
 
@@ -370,7 +375,7 @@ class UsersController < ApplicationController
     # for example send_app_friend_request with ok response send_app_friend_request_ok and error response send_app_friend_request_error
     postfix = user2.send(friend_action, login_user) ? "_ok" : "_error"
     flash[:notice] = t ".#{friend_action}#{postfix}", :appname => APP_NAME, :username => user2.short_user_name
-    redirect_to params[:return_to]
+    redirect_to return_to
   end # friend_actions
 
 

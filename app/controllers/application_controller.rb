@@ -48,7 +48,7 @@ class ApplicationController < ActionController::Base
   def add_dummy_user
     if @users.size == 0
       @user = User.find_or_create_dummy_user('gofreerev')
-      @users = [ @user ]
+      @users << @user
     end
   end
 
@@ -85,6 +85,17 @@ class ApplicationController < ActionController::Base
       session[:user_ids] = login_user_ids
       session[:tokens] = new_tokens
     end
+
+    # add sort_by_provider method instance method to @users array.
+    # used in a few views (invite users, auth/index)
+    # todo: should use provider_downcase method, but application controller methods are not available in Array class
+    # todo: move provider_downcase to constant?
+    @users.define_singleton_method :sort_by_provider do
+      self.sort do |a, b|
+        (API_CAMELIZE_NAME[a.provider] || a.provider) <=> (API_CAMELIZE_NAME[b.provider] || b.provider)
+      end
+    end
+
     # shortcut for @users.first. Random user is selected for a user with multiple provider logins
     # todo: remove @user - should only use @users array
     @user = @users.first
@@ -174,8 +185,8 @@ class ApplicationController < ActionController::Base
   # last_low_id must be correct - max one get-more-rows ajax request every GET_MORE_ROWS_INTERVAL seconds
   private
   def get_next_set_of_rows_error?(last_row_id)
-    raise "get_next_set_of_rows: session[:last_row_id] was not found" unless  session[:last_row_id]
-    raise "get_next_set_of_rows: session[:last_row_at] was not found" unless  session[:last_row_at]
+    raise "get_next_set_of_rows: session[:last_row_id] was not found" unless session[:last_row_id]
+    raise "get_next_set_of_rows: session[:last_row_at] was not found" unless session[:last_row_at]
     # max one get-more-rows request once every GET_MORE_ROWS_INTERVAL seconds
     new_last_row_at = Time.new.to_f
     dif = new_last_row_at - session[:last_row_at]
@@ -272,7 +283,7 @@ class ApplicationController < ActionController::Base
   private
   def provider_downcase (provider)
     return provider if !valid_provider?(provider) # unknown provider or already translated
-    t "shared.providers.#{provider}_down"
+    API_DOWNCASE_NAME[provider] || provider
   end
   helper_method :provider_downcase
 
@@ -280,7 +291,7 @@ class ApplicationController < ActionController::Base
   private
   def provider_camelize (provider)
     return provider if !valid_provider?(provider) # unknown provider or already translated
-    t "shared.providers.#{provider}_cam"
+    API_CAMELIZE_NAME[provider] || provider
   end
   helper_method :provider_camelize
 
@@ -322,6 +333,7 @@ class ApplicationController < ActionController::Base
   def logged_in?
     (login_user_ids.length > 0)
   end
+  helper_method "logged_in?"
 
   private
   def login_required

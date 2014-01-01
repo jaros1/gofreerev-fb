@@ -86,21 +86,11 @@ da:
         title_non_friend: "%{username}. Klik her for at se brugeroplysninger."
         title_friend: "%{username}. Saldo %{balance}. Klik her for at se brugeroplysninger."
      invite_friends:
-        invite_api_friends_link_prompt1: "Inviter %{apiname} venner:"
-        invite_friends_link_text1: "Inviter"
+        invite_friends_prompt: "Inviter venner:"
         invite_friends_message_title: "Inviter dine venner til %{appname}"
         invite_friends_message_body: "Prøv et spil om at hjælpe hinanden og dele hinandens resourcer på en ny anderledes måde og et spil med en ny slags penge der kan forandre vores verden inspireret af ideer fra Charles Eisensteins bog Sacred Economics"
-     providers:
-        # provider downcase names - used in error messages
-        facebook_down: "facebook"
-        google_oauth2_down: "google+"
-        linkedin_down: "linkedin"
-        twitter_down: "twitter"
-        # provider camelize names - used in views
-        facebook_cam: "Facebook"
-        google_oauth2_cam: "Google+"
-        linkedin_cam: "LinkedIn"
-        twitter_cam: "Twitter"
+        invalid_call: "ugyldigt kald - login bruger manglende i kald af invite_friends_url"
+        not_implemented: "inviter %{apiname} venner er endnu ikke implementeret"
      translate_ajax_errors:
         ajax_task_exception: "Systemfejl \"%{exception}\" for opgave \"%{task}\". Tjek backtrace i server log for mere information." # task, exception
         ajax_task_invalid_response: "Systemfejl. Ugyldigt svar fra opgave \"%{task}\". Skal være Nil eller gyldigt input til translate." # task, response and exception. response is invalid response from opgave and exception is ruby exception from translate
@@ -574,6 +564,7 @@ da:
         friend_status_text_r: "Du afventer accept af %{appname} venneanmodning"
         friend_status_text_p: "%{username} afventer accept af %{appname} venneanmodning"
         friend_status_text_b: "%{appname} venneanmodninger fra %{username} ignoreres"
+        api_profile_link_not_implemented: "link til %{apiname} bruger profil er endnu ikke implementeret"
      friend_action_buttons:
         add_api_friend: "Tilføj %{apiname} ven"
         remove_api_friend: "Fjern %{apiname} ven"

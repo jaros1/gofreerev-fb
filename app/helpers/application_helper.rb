@@ -178,13 +178,16 @@ module ApplicationHelper
   end # format_gift_param
 
   # todo: generalize
+  # todo: different url for each API (FB, GP, LI etc)
   def invite_friends_url (login_user)
-    unless login_user
-      puts2log  'login_user was not found'
-      return ''
+    if login_user.class != User
+      # invalid call - login_user was missing in invite_friends_url call
+      msg = t 'shared.invite_friends.invalid_call'
+      puts2log msg
+      return "javascript: alert('#{msg}')"
     end
-    case
-      when login_user.facebook?
+    case login_user.provider
+      when 'facebook'
         # url - friend request url
         title = t 'shared.invite_friends.invite_friends_message_title', :appname => APP_NAME
         message = t 'shared.invite_friends.invite_friends_message_body'
@@ -196,15 +199,16 @@ module ApplicationHelper
             "&title=#{CGI.escape(title.to_str)}" +
             "&filters=" + CGI.escape("['app_non_users']")
         # puts2log  "url = #{url}"
-        return url
+        url
       else
-        ''
+        # invite provider friends is not implemented
+        msg = t 'shared.invite_friends.not_implemented', :apiname => API_DOWNCASE_NAME[login_user.provider] ||
+        "javascript: alert('#{msg}')"
     end # case
   end # invite_friends_url
 
-  def invite_friends_link1
-    # todo: different url for each API (FB, GP, LI etc)
-    link_to t('shared.invite_friends.invite_friends_link_text1'), invite_friends_url(@user)
+  def invite_friends_link (login_user)
+    link_to provider_camelize(login_user.provider), invite_friends_url(login_user)
   end
 
   def ajax_tasks?

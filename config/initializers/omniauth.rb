@@ -26,15 +26,14 @@ end # OmniAuth
 #  2) get API_ID and API_SECRET for new provider. Register and add environment variables with API_ID and API_SECRET.
 #     environment variable names "GOFREEREV_<env>_APP_ID_<provider>" and "GOFREEREV_<env>_APP_SECRET_<provider>"
 #     for example GOFREEREV_DEV_APP_ID_FACEBOOK and GOFREEREV_DEV_APP_SECRET_FACEBOOK for facebook / development
-#  3) add provider in this file (7 API_... hash constants)
+#  3) add provider in this file (9 API_... hash constants)
 #  4) add provider to OmniAuth::Builder setup in this file. options are different for each provider
 #  5) add any provider specific methods to OmniAuth::AuthHash. See config/initializers/omniauth_<provider>.rb
-#  6) add provider to /config/locals - shared/providers/* with downcase and camelize names used in messages/views and urls for redirect
-#  7) add private post login task to UtilController.post_login_<provider> if any (get friends, permissions etc)
-#  8) add private post on task to UtilController.post_on_<provider> if wall posting is allowed for API
-#  9) check API_POST_PERMITTED and API_MUTUAL_FRIENDS hashes for new provider (environment.rb)
+#  6) add private post login task to UtilController.post_login_<provider> if any (get friends, permissions etc)
+#  7) add private post on task to UtilController.post_on_<provider> if wall posting is allowed for API
+#  8) check API_POST_PERMITTED and API_MUTUAL_FRIENDS hashes for new provider (environment.rb)
 
-# initialize API_ID and API_SECRET hashes.
+# initialize API_ID and API_SECRET hashes to be used in authorization and API requests
 api_id = {}
 api_secret = {}
 %w(facebook google_oauth2 linkedin twitter).each do |provider|
@@ -51,16 +50,40 @@ end
 API_ID     = api_id.with_indifferent_access
 API_SECRET = api_secret.with_indifferent_access
 
+Rails.application.config.middleware.use OmniAuth::Builder do
+  provider :facebook,      API_ID[:facebook],      API_SECRET[:facebook], :scope => "", :image_size => :normal, :info_fields => "name,permissions,friends,picture,timezone"
+  provider :google_oauth2, API_ID[:google_oauth2], API_SECRET[:google_oauth2], :scope => "plus.login userinfo.profile"
+  provider :linkedin,      API_ID[:linkedin],      API_SECRET[:linkedin], :scope => "r_basicprofile r_network", :fields => ['id', 'first-name', 'last-name', 'picture-url', 'public-profile-url', 'location']
+  provider :twitter,       API_ID[:twitter],       API_SECRET[:twitter]
+end
+
+# additional API setup
+
+# visit or redirect to API
 API_URL           = {:facebook      => "https://www.facebook.com",
                      :google_oauth2 => "https://plus.google.com/",
                      :linkedin      => "https://www.linkedin.com/",
                      :twitter       => "https://twitter.com/"}.with_indifferent_access
+
+# callback url used in util controller and in API specific controllers (facebook, linkedin)
 API_CALLBACK_URL  = {:facebook      => "#{SITE_URL}facebook/",
                      :google_oauth2 => '',
                      :linkedin      => "#{SITE_URL}linkedin/index",
                      :twitter       => ''}.with_indifferent_access
 
-# open graph (http://ogp.me/) recommended max length for meta-tags used in deep links
+# API name to be used in messages and mouse over texts
+API_DOWNCASE_NAME = {:facebook      => 'facebook',
+                     :google_oauth2 => 'google+',
+                     :linkedin      => 'linkedin',
+                     :twitter       => 'twitter'}.with_indifferent_access
+
+# API name to be used in views and links
+API_CAMELIZE_NAME = {:facebook      => 'Facebook',
+                     :google_oauth2 => 'Google+',
+                     :linkedin      => 'LinkedIn',
+                     :twitter       => 'Twitter'}.with_indifferent_access
+
+# open graph values (http://ogp.me/) recommended max length for meta-tags used in deep links
 # default values: 70 characters for title and 200 characters for description
 API_OG_TITLE_SIZE = {:facebook      => 94, # http://wptest.means.us.com/online-meta-tag-length-checker/
                      :google_oauth2 => 63,
@@ -75,12 +98,7 @@ API_OG_DEF_IMAGE  = {:facedbook     => "#{SITE_URL}images/sacred-economics.jpg",
                      :linkedin      => "#{SITE_URL}images/sacred-economics-linkedin.jpg", # 180 x 110 best for linkedin
                      :twitter       => "#{SITE_URL}images/sacred-economics.jpg"}
 
-Rails.application.config.middleware.use OmniAuth::Builder do
-  provider :facebook,      API_ID[:facebook],      API_SECRET[:facebook], :scope => "", :image_size => :normal, :info_fields => "name,permissions,friends,picture,timezone"
-  provider :google_oauth2, API_ID[:google_oauth2], API_SECRET[:google_oauth2], :scope => "plus.login userinfo.profile"
-  provider :linkedin,      API_ID[:linkedin],      API_SECRET[:linkedin], :scope => "r_basicprofile r_network", :fields => ['id', 'first-name', 'last-name', 'picture-url', 'public-profile-url', 'location']
-  provider :twitter,       API_ID[:twitter],       API_SECRET[:twitter]
-end
+
 
 # extract basic information from auth_hash (provider, uid, user_name, token, language)
 # provider specific versions can be implemented with get_<method>_<provider>.

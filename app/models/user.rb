@@ -1049,14 +1049,6 @@ class User < ActiveRecord::Base
   end
 
 
-  def api_profile_url
-    case
-      when facebook? then "#{API_URL[provider]}/#{user_id[3..-1]}"
-      when google_plus? then "todo:"
-      else nil #error
-    end
-  end
-
   def inbox_new_notifications
     raise "debug - maybe no longer used"
     return @new_notifications if defined?(@new_notifications)
