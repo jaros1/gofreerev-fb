@@ -86,6 +86,7 @@ da:
         title_non_friend: "%{username}. Klik her for at se brugeroplysninger."
         title_friend: "%{username}. Saldo %{balance}. Klik her for at se brugeroplysninger."
      invite_friends:
+        no_friends_was_found_html: "<p>Der blev ikke fundet nogle %{appname} venner. Du skal invitere en eller flere af dine gode<br />venner til at bruge %{appname}. Enten ved at sende en invitation med nedenstående link<br />eller ved at sende en personlig invitation til at bruge %{appname}. En personlig invitation<br />er det bedste da mange mennesker vil afvise uopfordrede spil invitationer.</p>"
         invite_friends_prompt: "Inviter venner:"
         invite_friends_link_title: "Brug dette link til at inviterer dine %{apiname} venner til at bruge %{appname}"
         invite_friends_message_title: "Inviter dine venner til %{appname}"
@@ -249,7 +250,6 @@ da:
         description_required_text: "Tekst skal udfyldes."
         price_invalid_text: "Pris is ugyldig. Brug kun cifre, højst et decimal komma/punktum og højst 2 decimaler. Tusindtalsseparator er ikke tilladt."
         no_gifts_was_found_html: "<p>Der blev ikke fundet nogle opslag. Hverken du eller dine venner har endnu oprettet<br />nogle opslag herinde i %{appname}. For at komme igang bør du nu oprette et par opslag<br />med noget du gerne vil dele med dine venner eller med noget du søger eller mangler,<br />og som du tror dine venner måske kan hjælpe dig med.</p>"
-        no_friends_was_found_html: "<p>Der blev ikke fundet nogle %{appname} venner. Du skal invitere en eller flere af dine gode<br />venner til at bruge %{appname}. Enten ved at sende en invitation med nedenstående link<br />eller ved at sende en personlig invitation til at bruge %{appname}. En personlig invitation<br />er det bedste da mange mennesker vil afvise uopfordrede spil invitationer.</p>"
         comment_comment_required_text: "Kommentar felt skal udfyldes"
         comment_price_invalid_text: "Pris is ugyldig. Brug kun cifre, højst et decimal komma/punktum og højst 2 decimaler. Tusindtalsseparator er ikke tilladt."
      table_header_row:
@@ -584,5 +584,4 @@ da:
         app_friends_link_text: "Venner"
         not_app_friends_link_text: "Ej venner"
         all_app_users_link_text: "Alle"
-        no_users_was_found_html: "Der blev ikke fundet nogle andre %{appname} brugere. For at komme igang bør du nu<br />oprette et par opslag med noget du gerne vil dele med dine venner eller med noget<br />du søger eller mangler, og som du tror dine venner måske kan hjælpe dig med.<br /><br />Dernæst skal du invitere en eller flere af dine gode venner til at bruge %{appname}.<br />Enten ved at sende et personlig besked med nedenstående link eller ved at bruge<br />nedenstående link til at inviterer dine %{apiname} venner til at bruge %{appname}. <br />En personlig besked er det bedste da mange mennesker vil afvise uopfordrede<br />spil invitationer."
 

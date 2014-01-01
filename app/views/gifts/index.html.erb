@@ -70,14 +70,7 @@
     </div>
 <% end -%>
 <% if User.no_app_friends(@users) == 0 -%>
-    <div style="width: 100%">
-      <%= t '.no_friends_was_found_html', :appname => APP_NAME, :apiname => @user.api_name_without_brackets %>
-      <table>
-        <tr>
-          <%= hr = true ; render :partial => 'shared/invite_friends' %>
-        </tr>
-      </table>
-    </div>
+    <%= hr = true ; render :partial => 'shared/no_app_friends' %>
 <% end -%>
 <% if hr -%>
     <div style="width: 100%">

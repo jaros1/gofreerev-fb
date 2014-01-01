@@ -85,6 +85,7 @@ en:
         title_non_friend: "%{username}. Click here to see user info."
         title_friend: "%{username}. Balance %{balance}. Click here to see user info."
      invite_friends:
+        no_friends_was_found_html: "<p>There was not found any %{appname} friends. Invite some of your good friends to use %{appname}.<br />Either by sending a personal message with the link below or by using<br />the link below to invite your friends to use Gofreerev. a personal<br />message is the best since many people will ignore or reject game invitations.</p>"
         invite_friends_prompt: "Invite friends:"
         invite_friends_link_title: "Use this link to invite your %{apiname} friends to use %{appname}"
         invite_friends_message_title: "Invite your friends to play %{appname}" # facebook
@@ -256,7 +257,6 @@ en:
         description_required_text: "Text is required."
         price_invalid_text: "Price is invalid. Only numbers, max 2 decimals, thousands separator not allowed."
         no_gifts_was_found_html: "<p>There was not found any posts. Neither you nor your friends have even created<br />any posts here in %{appname}. To get started, you must now create a few posts<br />with somehing you want to share with your friends or with something you are looking<br />for or are missing, and that you think your friends might be able to help you.</p>"
-        no_friends_was_found_html: "<p>There was not found any %{appname} friends. Invite some of your good friends to use %{appname}.<br />Either by sending a personal message with the link below or by using<br />the link below to invite your friends to use Gofreerev. a personal<br />message is the best since many people will ignore or reject game invitations.</p>"
         comment_comment_required_text: "Comment is required"
         comment_price_invalid_text: "Price is invalid. Only numbers, max 2 decimals, thousands separator not allowed."
      table_header_row:
@@ -586,6 +586,5 @@ en:
         app_friends_link_text: "Friends"
         not_app_friends_link_text: "Not friends"
         all_app_users_link_text: "All"
-        no_users_was_found_html: "There was not any other %{appname} users. To get started, you should create a few posts<br />with anything you want to share with your friends or with something you are looking<br />for or are missing, and that you think your friends might be able to help you.<br /><br />Invite one or more of your good %{apiname} friends to use %{appname}.<br />Either by sending a personal message with the link below or by using<br />the link below to invite your friends to use Gofreerev. a personal<br />message is the best since many people will reject game invitations."
 
 

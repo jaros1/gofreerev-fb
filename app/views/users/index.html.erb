@@ -37,12 +37,11 @@
 </div>
 <br/>
 
-<% if @users2.size == 0 -%>
-    <p>
-      <%= t '.no_users_was_found_html', :appname => APP_NAME, :apiname => @user.api_name_without_brackets %>
-    </p>
-    <%= render :partial => 'shared/invite_friends' %>
-    <br/>
+<% if User.no_app_friends(@users) == 0 -%>
+    <%= hr = true ; render :partial => 'shared/no_app_friends' %>
+    <div style="width: 100%">
+      <hr>
+    </div>
 <% else -%>
     <div style="width: 100%">
       <table id="users" style="width: 100%">
