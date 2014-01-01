@@ -584,3 +584,6 @@
 165) change language LOV or link
 
 166) linkedin - dialog for removing linkedin friend?
+
+167) move document.ready #new_gift.ajaxForm javascript code to my.js
+     should not be included in html page

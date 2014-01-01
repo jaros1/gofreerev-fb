@@ -65,7 +65,7 @@
 <% if @api_gifts.size == 0
      hr = true
 -%>
-    <div style="width: 100%">
+    <div id="no-gifts-div" style="width: 100%">
       <%= t '.no_gifts_was_found_html', :appname => APP_NAME, :apiname => @user.api_name_without_brackets %>
     </div>
 <% end -%>
@@ -79,14 +79,10 @@
 <% end -%>
 
 <%# gifts table -%>
-<table id="gifts" style="border-spacing: 0;">
+<table id="gifts" style="display: <%= @api_gifts.size == 0 ? 'none' : 'inline' %>">
   <%= render :partial => 'table_header_row' %>
   <%= render :partial => 'api_gifts' %>
 </table>
-</div>
-
-
-
 <br/>
 
 <%#
@@ -103,8 +99,7 @@
                 <% end -%>
             },
             success: function (responseText, statusText, xhr, $form) {
-                <% if debug_ajax? -%>add2log('#new_gift.success');
-                <% end -%>
+                <% if debug_ajax? -%>add2log('#new_gift.success'); <% end -%>
                 document.getElementById('progressbar-div').style.display = 'none';
                 var gift_price = document.getElementById('gift_price');
                 if (gift_price) gift_price.value = '';
@@ -114,6 +109,11 @@
                 if (gift_file) gift_file.value = '';
                 var disp_gift_file = document.getElementById('disp_gift_file');
                 if (disp_gift_file) disp_gift_file.value = '';
+                // first gift for a new gofreerev user - show gifts table and hide no api gift found message
+                var gifts = document.getElementById('gifts') ;
+                if (gifts) gifts.style.display = 'inline' ;
+                var no_gifts_div = document.getElementById('no-gifts-div') ;
+                if (no_gifts_div) no_gifts_div.style.display = 'none' ;
             },
             error: function (jqxhr, textStatus, errorThrown) {
                 document.getElementById('progressbar-div').style.display = 'none';
