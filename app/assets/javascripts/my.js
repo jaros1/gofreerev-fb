@@ -561,6 +561,45 @@ function report_missing_api_picture_urls() {
     missing_api_picture_urls = [];
 } // report_missing_picture_urls
 
+// enable ajax submit for new gifts in gifts/index page
+$(document).ready(function () {
+    var new_gift = document.getElementById('new_gift');
+    if (!new_gift) return; // not gifts/index page
+    new_gift.action = '/gifts.js'; // ajax request
+    // bind 'myForm' and provide a simple callback function
+    // http://malsup.com/jquery/form/#options-object
+    $('#new_gift').ajaxForm({
+        beforeSubmit: function (formData, jqForm, options) {
+            add2log('#new_gift.beforeSubmit');
+        },
+        success: function (responseText, statusText, xhr, $form) {
+            add2log('#new_gift.success');
+            document.getElementById('progressbar-div').style.display = 'none';
+            var gift_price = document.getElementById('gift_price');
+            if (gift_price) gift_price.value = '';
+            var gift_description = document.getElementById('gift_description');
+            if (gift_description) gift_description.value = '';
+            var gift_file = document.getElementById('gift_file');
+            if (gift_file) gift_file.value = '';
+            var disp_gift_file = document.getElementById('disp_gift_file');
+            if (disp_gift_file) disp_gift_file.value = '';
+            // first gift for a new gofreerev user - show gifts table - hide no api gift found message
+            var gifts = document.getElementById('gifts');
+            if (gifts) gifts.style.display = 'inline';
+            var no_gifts_div = document.getElementById('no-gifts-div');
+            if (no_gifts_div) no_gifts_div.style.display = 'none';
+        },
+        error: function (jqxhr, textStatus, errorThrown) {
+            document.getElementById('progressbar-div').style.display = 'none';
+            add2log('#new_gift.error');
+            add2log('jqxhr = ' + jqxhr);
+            add2log('textStatus = ' + textStatus);
+            add2log('errorThrown = ' + errorThrown);
+            add_to_tasks_errors('new_form.ajaxform.error: ' + errorThrown + '. check server log for more information.');
+        }
+    });
+});
+
 // auto resize text fields
 // found at http://stackoverflow.com/questions/454202/creating-a-textarea-with-auto-resize
 var observe;

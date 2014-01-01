@@ -219,7 +219,7 @@ en:
         user_denied_read_stream: "%{appname} was not granted access to read posts on your facebook wall."
         user_denied_other: "System error. Unknown facebook request was rejected."
         ok_login: "Facebook log in ok."
-        ok_status_update: "%{appname} was granted access to write on your facebook wall."
+        ok_status_update: "You have granted %{appname} permission to write on your facebook wall."
         ok_read_stream: "%{appname} was granted access to read posts on your facebook wall."
         ok_other: "System error. Unknown facebook request was accepted."
 

@@ -525,6 +525,7 @@
      post ok, but new gift fields was first cleared after 5-10 seconds when response came from post_on_facebook task
 
 150) performens tuning. gifts/index ajax get 10 rows takes 7 seconds on localhost.
+     is a problem for user that can se many gifts in gifts/index page
      Observations:
      - render api_gifts tages 2 seconds. check out user_div (62 ms) and comments2 (40 ms)
      check out rails performens tools:
@@ -584,6 +585,3 @@
 165) change language LOV or link
 
 166) linkedin - dialog for removing linkedin friend?
-
-167) move document.ready #new_gift.ajaxForm javascript code to my.js
-     should not be included in html page
