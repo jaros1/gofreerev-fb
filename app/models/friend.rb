@@ -138,13 +138,21 @@ class Friend < ActiveRecord::Base
   # mutual_friends = true: facebook, linkedin - update friend list for login user and for friend
   # mutual friends = false: google+, twitter - update only friend list for login user
   def self.update_friends_from_hash (login_user_id, friends_hash, mutual_friends)
+    provider = login_user_id.split('/').last
     # update friend user names
     friends_hash.each do |friend_user_id, hash|
-      next if hash[:old_name] == hash[:new_name]
-      # puts2log  "fetch_user: update user names: old name = #{hash[:old_name]}, new name = #{hash[:new_name]}"
-      friend_user = hash[:user]
-      friend_user.user_name = hash[:new_name].force_encoding('UTF-8')
-      friend_user.save!
+      friend_user = nil
+      if hash[:old_name] != hash[:new_name]
+        # puts2log  "fetch_user: update user names: old name = #{hash[:old_name]}, new name = #{hash[:new_name]}"
+        friend_user = hash[:user]
+        friend_user.user_name = hash[:new_name].force_encoding('UTF-8')
+      end
+      if hash[:old_api_profile_url] != hash[:new_api_profile_url] and %w(linkedin twitter).index(provider)
+        # puts2log  "fetch_user: update api profile url: old url = #{hash[:old_api_profile_url]}, new url = #{hash[:new_api_profile_url]}"
+        friend_user = hash[:user] unless friend_user
+        friend_user.api_profile_url = hash[:new_api_profile_url]
+      end
+      friend_user.save! if friend_user
     end # each
 
     # update api_fiend

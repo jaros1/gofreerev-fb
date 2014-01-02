@@ -546,7 +546,14 @@ class UtilController < ApplicationController
       old_friend = old_friends_list[i]
       old_friend.friend.user_name = old_friend.friend.user_name.force_encoding('UTF-8')
       login_user_id = old_friend.user_id_receiver
-      friends_hash[login_user_id] = {:user => old_friend.friend, :old_name => old_friend.friend.user_name, :new_name => old_friend.friend.user_name, :old_api_friend => old_friend.api_friend, :new_api_friend => 'N', :new_record => false}
+      friends_hash[login_user_id] = {:user => old_friend.friend,
+                                     :old_name => old_friend.friend.user_name,
+                                     :new_name => old_friend.friend.user_name,
+                                     :old_name => old_friend.friend.api_profile_url,
+                                     :new_name => old_friend.friend.api_profile_url,
+                                     :old_api_friend => old_friend.api_friend,
+                                     :new_api_friend => 'N',
+                                     :new_record => false}
     end
     # ok
     return [login_user, friends_hash, token]
@@ -816,12 +823,18 @@ class UtilController < ApplicationController
               friend_user = User.new
               friend_user.user_id = friend_user_id
               friend_user.user_name = friend_name
+              friend_user.api_profile_url = connection.public_profile_url if connection.public_profile_url
               friend_user.save!
             end
-            friends_hash[friend_user_id] = {:user => friend_user, :old_name => friend_user.user_name, :old_api_friend => 'N', :new_record => true}
+            friends_hash[friend_user_id] = {:user => friend_user,
+                                            :old_name => friend_user.user_name,
+                                            :old_api_profile_url => friend_user.api_profile_url,
+                                            :old_api_friend => 'N',
+                                            :new_record => true}
           end
           friends_hash[friend_user_id][:new_name] = friend_name
           friends_hash[friend_user_id][:new_api_friend] = 'Y'
+          friends_hash[friend_user_id][:new_api_profile_url] = connection.public_profile_url if connection.public_profile_url
         end # connection loop
       rescue LinkedIn::Errors::AccessDeniedError => e
         return ['.linkedin_access_denied', {:provider => provider}] if e.message.to_s =~ /Access to connections denied/
@@ -874,6 +887,7 @@ class UtilController < ApplicationController
       begin
         client.friends.to_a.each do |friend|
           no_twitter_friends += 1
+          puts2log "friend.url = #{friend.url} (#{friend.url.class})"
           # copy friend to friends_hash
           friend_user_id = "#{friend.id}/#{provider}"
           friend_name = friend.name.dup.force_encoding('UTF-8')
@@ -887,17 +901,21 @@ class UtilController < ApplicationController
               friend_user = User.new
               friend_user.user_id = friend_user_id
               friend_user.user_name = friend_name
+              friend_user.api_profile_url = friend.url.to_s
               friend_user.save!
             end
-            friends_hash[friend_user_id] = {:user => friend_user, :old_name => friend_user.user_name, :old_api_friend => 'N', :new_record => true}
+            friends_hash[friend_user_id] = {:user => friend_user,
+                                            :old_name => friend_user.user_name,
+                                            :old_api_profile_url => friend_user.api_profile_url,
+                                            :old_api_friend => 'N',
+                                            :new_record => true}
           end
           friends_hash[friend_user_id][:new_name] = friend_name
+          friends_hash[friend_user_id][:new_api_profile_url] = friend.url.to_s
           friends_hash[friend_user_id][:new_api_friend] = 'Y'
         end # connection loop
       # todo: add rescue for missing privs
       end
-
-
 
       # update twitter friends
       Friend.update_friends_from_hash(login_user_id, friends_hash, false)
