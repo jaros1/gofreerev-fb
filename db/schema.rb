@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20131228095258) do
+ActiveRecord::Schema.define(version: 20140102121230) do
 
   create_table "ajax_comments", force: true do |t|
     t.string   "user_id",    limit: 40, null: false
@@ -181,6 +181,7 @@ ActiveRecord::Schema.define(version: 20131228095258) do
     t.text     "no_api_friends"
     t.text     "negative_interest"
     t.integer  "user_combination"
+    t.text     "api_profile_url"
   end
 
   add_index "users", ["user_combination"], name: "index_users_user_combination"

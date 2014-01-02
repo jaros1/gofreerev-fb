@@ -194,7 +194,30 @@ class User < ActiveRecord::Base
     temp_negative_interest
   end # negative_interest_was
 
-
+  # 11) user_combination - unencrypted integer - connect user balance across login providers
+  
+  # 12) api_profile_url - user profile url - used for some API's with special url not derived from uid - for example linkedin
+  # String in model - Encrypted text in db
+  def api_profile_url
+    return nil unless (temp_api_profile_url = read_attribute(:api_profile_url))
+    # puts2log  "temp_api_profile_url = #{temp_api_profile_url}"
+    encrypt_remove_pre_and_postfix(temp_api_profile_url, 'api_profile_url', 39)
+  end # api_profile_url
+  def api_profile_url=(new_api_profile_url)
+    if new_api_profile_url
+      check_type('api_profile_url', new_api_profile_url, 'String')
+      write_attribute :api_profile_url, encrypt_add_pre_and_postfix(new_api_profile_url, 'api_profile_url', 39)
+    else
+      write_attribute :api_profile_url, nil
+    end
+  end # api_profile_url=
+  alias_method :api_profile_url_before_type_cast, :api_profile_url
+  def api_profile_url_was
+    return api_profile_url unless api_profile_url_changed?
+    return nil unless (temp_api_profile_url = attribute_was(:api_profile_url))
+    encrypt_remove_pre_and_postfix(temp_api_profile_url, 'api_profile_url', 39)
+  end # api_profile_url_was
+  
   # change currency in page header.
   attr_accessor :new_currency
 
@@ -294,12 +317,22 @@ class User < ActiveRecord::Base
     # missing image is a minor problem
     image = options[:image].to_s
     puts2log  "no profile picture received from login provider #{provider}" if image == ""
+    # missing or invalid profile url is a minor problem
+    profile_url = options[:profile_url].to_s
+    if profile_url == ""
+      puts2log "no profile url was received from login provider #{provider}"
+      profile_url = nil
+    elsif profile_url !~ /^https?/
+      puts2log "invalid profile url '#{profile_url}' was received from login provider #{provider}"
+      profile_url = nil
+    end
     user_id = "#{uid}/#{provider}"
     user = User.find_by_user_id(user_id)
     user = User.new unless user
     user.user_id = user_id
     user.user_name = user_name
     user.permissions = "r_basicprofile,r_network" if provider == 'linkedin' # default scope from initializers/omniauth.rb
+    user.api_profile_url = profile_url if profile_url
     if user.new_record?
       # initialize currency from country - for example google and twitter
       country_code = options[:country].to_s
@@ -415,7 +448,7 @@ class User < ActiveRecord::Base
   # return uid part of user_id
   def uid
     return nil unless user_id
-    user_id.split('/').last
+    user_id.split('/').first
   end
   # return provider part of user_id - facebook, google_oauth2, linkedin or twitter - see OmniAuth::Builder.providers
   def provider

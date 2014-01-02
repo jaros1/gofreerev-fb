@@ -20,4 +20,8 @@ class OmniAuth::AuthHash
     return nil unless token.to_s != "" and secret.to_s != ""
     [ token, secret]
   end # get_token_linkedin
+  def get_profile_url_linkedin
+    profile_url = self[:info][:urls][:public_profile] if self[:info] and self[:info][:urls]
+    profile_url
+  end
 end

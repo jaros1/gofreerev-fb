@@ -581,7 +581,14 @@
 
 163) user.api_profile_url
      add user profile url for google+, linkedin and twitter
+     linkedin:
+     - auth started from rails - field public_profile can be used
+     facebook:
+     - auth started from rails - field link can be used
 
 165) change language LOV or link
 
 166) linkedin - dialog for removing linkedin friend?
+
+167) add flash after ok login started from rails
+     <provider> login ok

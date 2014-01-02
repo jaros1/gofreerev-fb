@@ -19,7 +19,9 @@ class LinkedinController < ApplicationController
       # get basic user information from linkedin before 2. login with write permission (rw_nus) to linkedin wall
       client = LinkedIn::Client.new API_ID[provider], API_SECRET[provider]
       client.authorize_from_access x[0], x[1] # token and secret
-      res1 = client.profile(:fields => %w(id,first-name,last-name,picture-url))
+      res1 = client.profile(:fields => %w(id,first-name,last-name,picture-url,public-profile-url))
+      puts2log "res1.public_profile_url = #{res1.public_profile_url}"
+      # index: res1.public_profile_url = http://www.linkedin.com/pub/jan-test-account-roslind/87/b08/27a
       # new login with write permission to linkedin wall
       res2 = login :provider => provider,
                   :token => x,
@@ -27,7 +29,8 @@ class LinkedinController < ApplicationController
                   :name => "#{res1.first_name} #{res1.last_name}",
                   :image => res1.picture_url,
                   :country => nil,
-                  :language => nil
+                  :language => nil,
+                  :profile_url => res1.public_profile_url
       puts2log  "res2 = #{res2}"
       if !res2
         # login ok with extra rw_nus priv

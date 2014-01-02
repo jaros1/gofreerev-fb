@@ -136,7 +136,7 @@ class FacebookController < ApplicationController
     #       or could add ajax to post_on_facebook to enable/disable file upload button?
     puts2log  'get user id and name'
     api = Koala::Facebook::API.new(access_token)
-    api_request = 'me?fields=name,picture,locale'
+    api_request = 'me?fields=name,picture,locale,link'
     puts2log  "api_request = #{api_request}"
     api_response = api.get_object api_request
     puts2log  "api_response = #{api_response.to_s}"
@@ -149,7 +149,8 @@ class FacebookController < ApplicationController
                 :name => api_response['name'],
                 :image => (api_response['picture']['data']['url'] if api_response['picture'] and api_response['picture']['data']),
                 :country => api_response['locale'].to_s.last(2),
-                :language => api_response['locale'].to_s.first(2)
+                :language => api_response['locale'].to_s.first(2),
+                :profile_url => api_response['link']
     if !res
       # login ok
       user_id = "#{api_response['id']}/#{provider}"

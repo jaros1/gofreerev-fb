@@ -146,6 +146,7 @@ module UsersHelper
     provider = user.provider
     case provider
       when 'facebook' then "#{API_URL[provider]}/#{user.uid}"
+      when 'google_oauth2' then "#{API_URL[provider]}#{user.uid}/posts"
       else
         # link to #{API_DOWNCASE_NAME[provider] || provider} user profile not implemented
         msg = translate '.api_profile_link_not_implemented', :apiname => (API_DOWNCASE_NAME[provider] || provider)
@@ -153,6 +154,5 @@ module UsersHelper
         "javascript: alert('#{msg}')"
     end
   end
-
 
 end

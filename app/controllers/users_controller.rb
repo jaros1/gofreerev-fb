@@ -372,7 +372,7 @@ class UsersController < ApplicationController
     if %w(add_api_friend remove_api_friend).index(friend_action)
       # api friend actions
       # no facebook api dialogs to add and remove facebook friends - just redirect to users profile page at facebook
-      redirect_to user2.api_profile_url
+      redirect_to api_profile_url(user2)
       return
     end
 

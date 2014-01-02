@@ -681,6 +681,7 @@ class UtilController < ApplicationController
       client.authorization.client_id = API_ID[provider]
       client.authorization.client_secret = API_SECRET[provider]
       client.authorization.access_token = token
+      puts2log "token = #{token}"
 
       # find people in login user circles
       # https://developers.google.com/api-client-library/ruby/guide/pagination
@@ -786,14 +787,22 @@ class UtilController < ApplicationController
       # create client for linkedin api requests
       client = LinkedIn::Client.new API_ID[provider], API_SECRET[provider]
       client.authorize_from_access token[0], token[1] # token and secret
+      # puts2log "token = #{token.join(', ')}"
+
+      # get public profile url for login user
+      profile = client.profile :fields=>['public-profile-url']
+      public_profile_url = profile.public_profile_url
+      puts2log "public_profile_url = #{public_profile_url}"
+      # post_login_linkedin: public_profile_url = http://www.linkedin.com/pub/jan-test-account-roslind/87/b08/27a
 
       # todo: count number of connections retured from linkedin
       # todo: handle nil array returned from linkedin (r_network missing in scope)
 
       no_linkedin_connections = 0
       begin
-        client.connections.all.each do |connection|
+        client.connections(:fields => %w(id,first-name,last-name,public-profile-url)).all.each do |connection|
           no_linkedin_connections += 1
+          puts2log "connection.public_profile_url = #{connection.public_profile_url}"
           # copy friend to friends_hash
           friend_user_id = "#{connection.id}/#{provider}"
           friend_name = "#{connection.first_name} #{connection.last_name}".force_encoding('UTF-8')
@@ -818,6 +827,7 @@ class UtilController < ApplicationController
         return ['.linkedin_access_denied', {:provider => provider}] if e.message.to_s =~ /Access to connections denied/
         raise
       end
+      puts2log "Found #{no_linkedin_connections} #{provider} connections"
 
       # update linkedin connections
       Friend.update_friends_from_hash(login_user_id, friends_hash, false)

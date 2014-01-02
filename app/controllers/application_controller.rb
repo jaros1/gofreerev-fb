@@ -352,6 +352,7 @@ class ApplicationController < ActionController::Base
     image = options[:image]
     country = options[:country]
     language = options[:language]
+    profile_url = options[:profile_url]
     # create/update user from information received from login provider
     # returns user (ok) or an array with translate key and options for error message
     user = User.find_or_create_user :provider => provider,
@@ -360,7 +361,8 @@ class ApplicationController < ActionController::Base
                                     :name => name,
                                     :image => image,
                                     :country => country,
-                                    :language => language
+                                    :language => language,
+                                    :profile_url => profile_url
     return user unless user.class == User
     # user login ok
     # save user and access token - multiple login allows - one for each login provider

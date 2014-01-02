@@ -162,6 +162,13 @@ class OmniAuth::AuthHash
     image = nil if image and image !~ /^https?:/
     image
   end
+  def get_profile_url
+    provider = get_provider()
+    method = "get_profile_url_#{provider}"
+    return eval(method) if respond_to? method.to_sym
+    profile_url = self[:extra][:raw_info][:link] if self[:extra] and self[:extra][:raw_info]
+    profile_url
+  end
 end # OmniAuth::AuthHash
 
 OmniAuth.config.on_failure = AuthController.action(:oauth_failure)
