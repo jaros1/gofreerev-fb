@@ -85,19 +85,24 @@ class UsersController < ApplicationController
     # always use users friends as basic (friends_filter = true)
     # todo: remove friend doubles - that is friends with same friend.user_combination?
     # todo: but they maybe friend in one login provider and not friends for an other login provider
-    user_friends = User.app_friends(@users).sort do |a,b|
-      if a.friend.user_name <=> b.friend.user_name
-        a.friend.id <=> b.friend.id
-      else
-        a.friend.user_name <=> b.friend.user_name
-      end
-    end
+    #user_friends = User.app_friends(@users).sort do |a,b|
+    #  if a.friend.user_name == b.friend.user_name
+    #    a.friend.id <=> b.friend.id
+    #  else
+    #    a.friend.user_name <=> b.friend.user_name
+    #  end
+    #end
     # puts2log  "friends_filter = #{@friends_filter}, found #{user_friends.size} friends"
 
     if @friends_filter == true
       # simple friends search - just return login users friends
-      users2 = user_friends.collect { |f| f.friend }
+      users2 = User.app_friends(@users).sort_by_user_name
     else
+      # all login users direct connections (friends and non friends)
+      all_friends = User.all_friends(@users)
+      all_friends_user_ids = all_friends.collect { |f| f.user_id_receiver }
+      # find user friends
+      user_friends = all_friends.find_all { |f| f.friend.friend?(@users)}
       # friends_filter = nil (all users) or false (only non friends)
       # find friends of friends
       friends_userids = user_friends.collect { |f| f.user_id_receiver }
@@ -105,7 +110,7 @@ class UsersController < ApplicationController
       # puts2log  "friends_userids = " + friends_userids.join(', ')
       friends = User.where("user_id in (?)", friends_userids).includes(:friends)
       # puts2log  "friends = " + friends.collect { |u| u.short_user_name }.join(', ')
-      friends_friends_userids = friends_userids
+      friends_friends_userids = all_friends_user_ids
       friends.each do |u|
         friends_friends_userids = (friends_friends_userids + u.friends.collect { |f| f.user_id_receiver }).uniq
       end # each u
@@ -158,7 +163,7 @@ class UsersController < ApplicationController
       redirect_to :action => :index
       return
     end
-    if @user2.mutual_friends(@users).size == 0
+    if !login_user_ids.index(@user2.user_id) and @user2.mutual_friends(@users).size == 0
       puts2log  "invalid request. No mutual friends for user with id #{id}"
       flash[:notice] = t '.invalid_request'
       redirect_to :action => :index

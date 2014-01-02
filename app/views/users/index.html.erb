@@ -39,10 +39,7 @@
 
 <% if User.no_app_friends(@users) == 0 -%>
     <%= hr = true ; render :partial => 'shared/no_app_friends' %>
-    <div style="width: 100%">
-      <hr>
-    </div>
-<% else -%>
+<% end -%>
     <div style="width: 100%">
       <table id="users" style="width: 100%">
         <tr>
@@ -55,7 +52,6 @@
         <% end -%>
       </table>
     </div>
-<% end -%>
 
 <br/>
 <%# add remote link to get more rows and call javascript to setup end of page event and post ajax handling of the new rows. set DEBUG_AJAX to true in initializers/constraints.rb to get more ajax debug information -%>

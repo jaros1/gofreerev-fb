@@ -581,12 +581,20 @@ class User < ActiveRecord::Base
       end
     end # find all
   end # app_friends
-  def self.app_friends (login_users)
+
+  def self.all_friends (login_users)
+    return [] if login_users.size == 0
     login_user_ids = login_users.collect { |login_user| login_user.user_id }
-    user_friends = Friend.where("user_id_giver in (?)", login_user_ids).includes(:friend).find_all do |f|
+    friends = Friend.where("user_id_giver in (?)", login_user_ids).includes(:friend)
+    Friend.define_sort_by_user_name(friends)
+  end # self.all_friends
+
+  def self.app_friends (login_users)
+    friends = User.all_friends(login_users).find_all do |f|
       f.friend.friend?(login_users)
     end
-  end
+    Friend.define_sort_by_user_name(friends)
+  end # self.app_friends
 
   # find number of app friends. instance method for actual user and class method for logged in users
   # show special messages to user if no app friends was found
@@ -1231,7 +1239,7 @@ class User < ActiveRecord::Base
 
   # cache mutual friends lookup in @mutual_friends hash index by login_user.id
   def mutual_friends (login_users)
-    raise "invalid call" unless login_users.class == Array
+    raise "invalid call" unless [Array, ActiveRecord::Relation::ActiveRecord_Relation_User].index(login_users.class)
     login_user = login_users.find { |user| self.provider == user.provider }
     return {} unless login_user
     return @mutual_friends[login_user.id] if @mutual_friends and @mutual_friends.has_key?(login_user.id)

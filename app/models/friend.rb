@@ -199,6 +199,20 @@ class Friend < ActiveRecord::Base
 
   end # self.update_friends_from_hash
 
+  def self.define_sort_by_user_name (friends)
+    friends.define_singleton_method :sort_by_user_name do
+      self.sort do |a, b|
+        if a.friend.user_name == b.friend.user_name
+          a.friend.id <=> b.friend.id
+        else
+          a.friend.user_name <=> b.friend.user_name
+        end
+      end # sort
+    end # sort_by_user_name
+    friends
+  end
+
+
 
 
   ##############
