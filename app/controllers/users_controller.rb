@@ -96,7 +96,7 @@ class UsersController < ApplicationController
 
     if @friends_filter == true
       # simple friends search - just return login users friends
-      users2 = User.app_friends(@users).sort_by_user_name
+      users2 = User.app_friends(@users).sort_by_user_name.collect { |f| f.friend }
     else
       # all login users direct connections (friends and non friends)
       all_friends = User.all_friends(@users)

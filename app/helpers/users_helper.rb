@@ -143,6 +143,7 @@ module UsersHelper
 
 
   def api_profile_url (user)
+    return user.api_profile_url if user.api_profile_url.to_s =~ /^https?/
     provider = user.provider
     case provider
       when 'facebook' then "#{API_URL[provider]}/#{user.uid}"
