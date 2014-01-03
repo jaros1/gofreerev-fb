@@ -276,7 +276,7 @@ class ApiGift < ActiveRecord::Base
     logger.error2 "link_res.class = #{link_res.class}"
     error = $1 if link_res.body.to_s =~ /<h2>(.*?)<\/h2>/
     if error
-      logger.error2 "error = #{h2}"
+      logger.error2 "error = #{error}"
     else
       logger.error2 "link_res.body = #{link_res.body}"
       error = link_res.class.to_s
