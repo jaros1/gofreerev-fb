@@ -1,6 +1,4 @@
- 1) post comments on API walls?
-
- 2) how much information to se about deals between friends and friends friends?
+ 1) how much information to se about deals between friends and friends friends?
     facebook: Shows status from friends on wall - do not show status from friends friends on wall
     Show gifts started by friends as giver or receiver with all pictures and comments
     Anonymous gifts started by friends friends as giver or receiver and with friends as receiver or giver
@@ -8,32 +6,12 @@
     - hide picture and name of friends friend
     - hide text and pictures
 
- 3) when closing a deal and paying with money.
-    select between anonymous money without a linked story or link the money to one or more stores / other gifts
-    anonymous money - no links between gifts - no story updates
-    linked money - story updates
+ 2) compare JS timezone with rails timezones - there could be differences
+    I have tested with copenhagen and india
 
- 4) link stories. Insert link for one story in an other story.
-    how to handle security? Should only see gifts from/to friends
+ 3) add date format. see application_helper.format_date
 
- 5) check that timezone offset is used in views
-    - timezone 1 = dk ok in inbox
-    - timezone -5.5 = india ok in inbox
-    JS timezone is set with ajax after login
-    check timezone information from login providers
-    - facebook - not relevant - timezone is set with JS ajax in facebook/autologin under login process
-    - google+ - todo: check if app can be started from google+  and how to set timezone
-    - linkedin - todo: check if app can be started from linkedin and how to set timezone
-    - twitter - todo: check if app can be started from twitter and how to set timezone
-    compare JS timezone with rails timezones - that is - find differences between timezones in client and in server
-
- 6) add date format. see application_helper.format_date
-
- 8) add a counter to a gift. Normally 1 gift, but can be any number or nil. Eg. nil for a service.
-    Clone a closed gift, keep the original gift and decrease counter. Close deal when counter reaches zero.
-    Maybe link all the stories if accepted by the receiver
-
- 9) api notifications:
+ 4) api notifications:
     get a app access token.
     send only notifications to api if internal notifications in app is not read.
     Short summary of unread app notifications in api notification
@@ -42,247 +20,84 @@
     one notification every day if user connects to app.
     don't send any more notifications if user has not been connected for 28 days
 
-10) close account and delete all data in app
-    auto cleanup and close of inactive accounts?!
-    there is no reason to keep data for users that does not use the app ( other than delete of user and gifts changes other users balance )
-    maybe
+ 5) close account and delete all data in app
 
-11) add more detailed description of what user information is saved in app. privacy note. Maybe with cookie note.
+ 6) add more detailed description of what user information is saved in app. privacy note. Maybe with cookie note.
 
-12) gifts/index: post on api wall checkbox. Only if user has granted post-on-wall prio.
-    multiple checkboxes if user is connected with write permission to multiple api walls
-
-13) gifts/index: comment with final description before the deal is closed? Or keep original text with comments?
-
-14) One balance for user with more than one login api.
+ 7) One balance for user with more than one login api.
     user must select "Share balance" in users/show screen to set user.user_combination
     recalculate balance will calculate one shared balance
     no other information is shared access login api's
 
-15) gets only small picture api url from fb. See gift.get_api_picture_url method
-    It should possible to get url for a larger picture from facebook api
+ 8) add accept conditions for new users?
 
-16) wrap fb api (koala) in a generic exception handler with dump of request and exception after error
+ 9) add disclaimer
 
-17) add accept conditions for new users?
+10) add cookie policy note
 
-18) add disclaimer
-
-19) add cookie policy note
-
-20) convert javascript to coffeescript?
-
-21) How much sync. of comments in api and comments in app?
-    write comment to fb - don't download comments from fb=
-
-22) edit gift. Can not edit post on api. Allow to edit post in app?
-
-23) mark new comments with color in inbox.
-
-24) Model changes - like/unlike comment?
-
-25) new deal / cancel / accept / reject error handling:
+11) new deal / cancel / accept / reject error handling:
     new deal can fail if gift user has accepted an other offer
     cancel can fail if gift user has accepted a deal or has rejected new deal from user
     accept can fail if other user has cancelled the offer
     reject can fail if other user has cancelled the offer
     write short error msg in gift-xxx-comment-yyy-status div after errors
 
-26) comments: timestamps for cancel, reject and accept deal?
-
-27) use identical encryption keys on development and test (easy generation of fixtures)
-    use different encryption keys in production environment
-
-28) make script to compare language files (en, da etc). Find missing keys
+12) make script to compare language files (en, da etc). Find missing keys
     check out https://github.com/tigrish/i18n-spec
     could be used to verify that all keys exists
 
-29) allow new proposal for giver/receiver so that giver/receiver can change price?
-    Or allow edit price for a not closed gift?
+13) recalculate user balance at request or once every day
 
-30) add category to gift?
-    could make it easier to find relevant gifts
-    But more information to fill when posting gifts
-    Could be an information that can be added after create
-
-31) add number of friends to user_div mouse over text?
-
-32) add number of mutual friends to user_div mouse over text?
-
-33) test with IE.
-    can not get ie6, 7, 8 to start under wine
-    ie8 is running under PlayOnLinux, but runs wery slow.
-    http posts in gofreerev not working (http and ajax)- rails server: ERROR invalid body size - no solution found
-    better to test from a read windows pc.
-    expects that some javascript does not work with IE
-
-34) recalculate user balance at request or once every day
-
-35) refactor styles to stylesheets - use stylesheets and not inline styles.
-    responsive design added
-
-36) add comments with available interpolation variables to locales files (da, en)
-
-37) user.recalculate_balance recalculates balance for all closed deals with user as giver or receiver.
+14) user.recalculate_balance recalculates balance for all closed deals with user as giver or receiver.
     ok when few closed deals for a user, but can be a performance issue with many closed deals for a user.
     allow recalculating balance from a specific date or from a specific gift.id
     should only recalculate balance from last closed deal
 
-38) delete user account - recalculate all relevant user balances (closed deals)
+15) delete user account - recalculate all relevant user balances (closed deals)
     notification to users with changed balance?
 
-39) batch processing:
+16) batch processing:
     accept new deal - set new_balance_at = yesterday - for both users - user is marked for recalculate balance (ok)
     batch processing - recalculate balance for all users where new_balance_at != today (todo)
 
-40) check texts in views/fb/create.html.erb and create_da_html.erb
+17) check texts in views/fb/create.html.erb and create_da_html.erb
 
-41) show a more informative page when not logged in
+18) show a more informative page when not logged in
     ensure that all not logged users is rendered to same page (auth/index)
     this page is also index by search engines and should be informative
     maybe the same texts as in /fb/create.html.erb and create_da_html.erb pages
 
-42) check todo's in source
+19) check todo's in source
 
-43) advance dialog box when deleting gift
-    a) removed from gift from share page with unchanged balance (hide from gifts/index - show in users/show)
-    b) delete gift with changed balance (delete from gifts/index and users/show
-    c) cancel
-    No easy was to implement this. See gift_helper.link_to_delete_gift
-
-44) add som kind of flash when removing gifts and comments from page
-    check jquery books - check jquery ui effect demo sites - check css3 transitions
-
-45) compare list of social networks with list of oauth2 api's
-    https://github.com/intridea/omniauth/wiki/List-of-Strategies
-    http://webtrends.about.com/od/socialnetworks/tp/general-social-network-list.htm
-    http://en.wikipedia.org/wiki/List_of_social_networking_websites
-    implement oauth for most used social networks
-
-46) add language to url (ok)
+20) add language to url (ok)
     use url helpers in views so that locale is included in all links
+    there are problems with pictures on dev1 server
     allow users to select language in app
 
-48) md5 alternatives? md5 is to easy to break
-
-49) don't insert same task twice in task queue
-
-50) check for special api setup problems and return setup hints on error messages
-    for example google+ : Access Not Configured
-
-51) add no post_login_<provider> task error message with hint how to fix this problem
-    no friend information is downloaded from provider and app does not work without a friend network
-
-52) difference between facegook & linkedin friends and google+ & twitter friends
+21) difference between facegook & linkedin friends and google+ & twitter friends
     facebook & linkedin friends are mutual friends
     google+ and twitter friends are not mutual friends
     added constant hash API_MUTUAL_FRIENDS with true/false for each login provider
-    how to handle not mutual friends in gofreerev?
+    how to handle not mutual friends in gofreerev? (google+ and twitter)
 
-53) invite friends to user gofreerev.
-    faceboke (ok) - todo: retest
-    google+ (todo)
+22) invite friends to user gofreerev.
+    facebook (ok) - todo: retest
+    google+ (todo) -
     linkedin (todo)
     twitter (todo)
 
-54) show dummy header line for not logged in users
+23) check how to post on twitter
 
-55) minor javascript problem with ajax util/currencies to get full list of currencies onfocus
-    user has to click twice on currency LOV to change currency.
-    the problem is that LOV object is changing at first click
-
-56) gift post with ajax - follow up
-    ajax replace gift picture url when picture has been received from api
-    test all errors after changing gift post to ajax
-    must support multiple login apis
-    check how to post on twitter
-
-57) delete gift - JS confirm dialog to big on 320 width screen
-    JS confirm dialog can not be styled. Needs a custom dialog box
-    http://lesseverything.com/blog/archives/2012/07/18/customizing-confirmation-dialog-in-rails/
-    http://www.pjmccormick.com/nicer-rails-confirm-dialogs-and-not-just-delete-methods
-    Not working in rails 4 - I am must be doing some ting wrong
-    Tried with JS - tried with coffee script - without success
-
-58) responsive design - missing opera plugin to set screen width.
-
-59) responsive testing tools: http://www.gonzoblog.nl/2012/03/21/10-testing-tools-for-responsive-web-design/
-    http://mattkersley.com/responsive/ can be used. Not working for localhost / gofreerev
-    http://responsivepx.com can be used. Not working for localhost / gofreerev.
-    Many other tools not working for localhost / gofreerev
-
-60) Problem with cleanup in task queue.
-    It looks like the page is handing while waiting for cleanup in task queue
-    maybe problem with development setup. Only one server process.
-
-61) <body onload="xx"> is being used in application layout to set onfocus event to get list of currencies in page header
-    should be changed to $(document).ready ....
-    http://api.jquery.com/ready/
-    The .ready() method is generally incompatible with the <body onload=""> attribute.
-    If load must be used, either do not use .ready() or use jQuery's .load() method to
-    attach load event handlers to the window or to more specific items, like images.
-
-62) move documentation in html pages to <%# -%> tags for smaller pages and intact documentation
-
-63) shorten inline javascript code in html pages
-    add helper JS functions
-    for example /shared/show_more_rows
-
-64) check html source to see if anything can be removed or shorten
-
-65) insert messages in tasks_errors in page header
-    util/do_tasks.html.erb - @errors is an array with key and options for translation
-    gifts/ajax_errors.html.erb - @errors is an array with translated messages
-    maybe move to shared with better partial names
-
-66) picture size problem when ajax adding new gift with big picture
-    First added with full size and then resized to normal size
-    takes only a split second but is ugly
-
-67) cookies notification does not close after 30 seconds
-
-68) picture size problem. First gifts/index request for a new day
-    charlie gift 383. picture not resizing to width 100px.
-    picture was resized to normal size after 2 minutes (looks like the next new_messages_count solved the problem)
-    Only a problem with temporary local pictures.
-    possible a problem with rails server and only one server instance
-
-69) add timestamp to lines in tasks_errors for easier test & debugging
-    timestamp - server timestamp or client timestamp?
-    Maybe only timestamp if DEBUG_AJAX = true
-    will make it easier to report problems and find matching lines in server log
-
-70) how does browse file dialog look like on a mobile device?
-
-71) html5 - add picture direct from camera - google html media capture - http://mobilehtml5.org/
-
-72) add ajax:error for comment post. Should write an error message in tasks_errors table.
+24) add ajax:error for comment post. Should write an error message in tasks_errors table.
     or better as a comment line
     tasks error table is in top of page and user may not see error message
 
-73) comments. should comments be visible across providers?
-     best if comments can be seen across login providers
-
-74) jquery: add unbind before bind to prevent doublet ajax event handlers
-
-75) check modernizr.js - where is it being user for - where is it loaded
-    modernizr.js can also be used to polyfilla old browsers
-    that is enable html5 in old browsers
-
-76) check rails.validations.js - where is it used - where is it loaded
-
-77) util.missing_api_picture_urls
-    change from gift ids to api gift ids
+25) missing_api_picture_urls
+    test that missing api_picture_urls functionaly still works
     make a test with picture upload to two api's and delete picture from one api
     gifts/index should show api_gift with picture (if authorization allows it)
 
-78) missing_api_picture_urls
-    change javascript that catches pictures with invalid urls - should report api_gift.id
-    change form that sends array with invalid picture ids to util.missing_api_picture_urls
-
-80) check direction. added as field to gifts. check direction in source
-
-81) delete api_gifts and gifts with temp picture urls - that is picture on server
+26) delete api_gifts and gifts with temp picture urls - that is picture on server
     normally temp pictures will be removed in util.delete_local_picture, but errors can occur
     should be a job for util.new_messages_count or util.missing_api_picture_urls
     process could be:
@@ -290,7 +105,7 @@
     2) report missing picture to util.missing_api_picture_urls,
     3) cleanup in util.missing_api_picture_urls
 
-82) accept deal: must add giver/receiver for all api gift rows
+27) accept deal: must add giver/receiver for all api gift rows
     gift created by user a logged with 3 api providers
     gift accepted by user b logged in with 2 api providers.
     how to set user_id_giver / user_id_receiver for the last api_gift?
@@ -299,296 +114,160 @@
     map api gifts provider for provider (login users <=> comment users)
     use dummy user "gofreerev/<provider>" if no provider match between login user(s) and comment user(s)
 
-83) create a dummy user for each provider
-    for example gofreerev/facebook, gofreerev/google, gofreerev/linkedin etc.
-    show minimal information for dummy gofreerev users
+28) reject login with user id for dummy user
 
-84) reject login with user id for dummy user
+29) where to send notifications for a user with multiple logins?
 
-85) where to send notifications for a user with multiple logins?
-
-86) dont send notification when charlie comments his own gift
+30) dont send notification when charlie comments his own gift
     notification is from charlie/facebook to charlie/linkedin
     and from charlie/linkedin to charlie/facebook
 
-87) stress test. make a db with really many rows and test performance.
+31) stress test. make a db with really many rows and test performance.
     There maybe are missing an index or two
     there maybe are some sql to rewrite
 
-88) some problems in user.recalculate balance after splitting gifts in gifts and api_gifts
+32) some problems in user.recalculate balance after splitting gifts in gifts and api_gifts
     check /auth/facebook and post_login error for price
 
-89) add validation for gift.received_at:
-    1) direction = both
-    2) giver and receiver in api_gifts
-
-90) add ignore / don't show missing write permission link
-    that is - user don't want to see message any more
-    add post on wall Y/N field to user. Should be a Y/N for user and each provider.
-    default is Y - warning with missing priv - ajax inject link to request missing priv
-    N - do not show warning with missing priv - do not post on provider wall
-
-91) new gift form. disable/enabe file upload
-    works with javascript, but title is not changed
-    minor problem as write permission to api wall normally is not changed
-    minor problem as mouse over text normally is not read by user
-
-92) follow/unfollow gift:
+33) follow/unfollow gift:
     user logged in as provider 1 selects to follow gift
     user logged in as provider 2 selects to unfollow gift
     show unfollow link when user is logging in as provider 1 and 2?
 
-93) search app source for @user. @users should be used if possible.
+34) ActionController::RoutingError (No route matches [GET] "/gifts/images/invisible-picture.gif"):
 
-94) ActionController::RoutingError (No route matches [GET] "/gifts/images/invisible-picture.gif"):
-
-95) page header. log out link. different title for one and more than one logged in user
-    returns to login provider if only one login provider
-    returns to auth/index page if more than one login provider
-
-96) maybe make request for priv links (status_update and read_stream) dynamic.
-    set state with js and ajax before calling api
-    In that way the links will work even if user has used back bottom in browser
-
-97) rails server with multiple instances?
-    now client is waiting very long time at first request every day (fetch exchange rates)
-    fetch new exchange rates takes 24 seconds
-
-98) twitter returns to  127.0.0.1 - not to localhost
+35) twitter returns to  127.0.0.1 - not to localhost
     127.0.0.1 should redirect to localhost
     or change app setup on twitter
 
-99) post on linkedin
+36) post on linkedin
     add link to gift
     add offers/seeks prefix in description
     upload picture
-    also see 101 & 105 - there are problems with deep link from api into gofreerev
 
-100) check session variables
-     session variables should only be used from accessor methods in app. controller
-     gives a better overview and an easier to maintain code
+37) check session variables
+    session variables should only be used from accessor methods in app. controller
+    gives a better overview and an easier to maintain code
 
-101) add deep public link for gift posted on api(s)
-     add a public controller without login
-     generate a long random access token for gift
-     use link direct in post without picture
-     post picture without link and add public deep link in first comment
-     or post picture + comment in one post and add an extra post with deep link to gift
-     add public link to gift should work for all apis
-     maybe just normal gift link with an ?access_token=xxxx parameter what works only for this gift
+38) tests - needs new users.yml file - encryption now is with old userids
 
-102) maybe use transactions in util.do_tasks?
-     maybe failure in a later task rollbacks previous ok tasks?
+39) wrong flash message if user cancel request for read_stream permission
+    looks like success response from facebook to facebook controller,
+    but read_stream priv has not been granted.
+    must double check permissions after returning from facebook priv. request page
+    or old/new facebook priv. could be checked in post_login_facebook with ajax messages
 
-103) test - needs new users.yml file - encryption now is with old userids
+40) deep link - return nice error page if deep link has been removed
 
-104) wrong flash message if user cancel request for read_stream permission
-     looks like success response from facebook to facebook controller,
-     but read_stream priv has not been granted.
-     must double check permissions after returning from facebook priv. request page
-     or old/new facebook priv. could be checked in post_login_facebook with ajax messages
+41) test case:
+    create deal [ a.provider1, a.provider2] as giver, [ b.provider1, b.provider2 ] as receiver, price > 0
+    login as a.provider1 and b.provider2
+    problem with user/show balance. logged users are giver and receiver at the same time
+    must be displayed as 0 in balance
+    check code with [ag.user_id_giver, ag.user_id_receiver].index(user_id)
+    check code with login_user_ids.index(ag.user_id_giver)
+    check code with api_gift = api_gifts.find { |ag| [ ag.user_id_giver, ag.user_id_receiver].index(???)
 
-105) cache web pages with public deep links
-     cache must be when gift changes (new status, new comments etc)
-     that is - no login user dependent information in page
-     actual user information can be ajax injected in page
-     after response - check if user is logged in and refresh specific user information
+42) generalize invite_friends_url
 
-107) user y/n to deep links
-     show note about deep link when granting write access to api wall
-     should default be Y or N?
+43) add open graph meta-tags for deep links
+    http://ogp.me/
+    linkedin uses meta property="og:description" as default description when inserting a link
+    meta property="og:image" should be deep link image url
 
-108) deep link = N : link to a public page with login and redirect to gift
-     deep link = Y : direct access to gift without login.
+33) find optimal image format for each provider:
+    facebook: todo
+    google+: todo
+    linkedin: 180 x 110 (done)
+    twitter: todo
+    must be tested from an public available server (dev1.gofreerev.com)
 
-110) ajax change currency?
-     mark each user div with user ids
-     send ajax request with new currency and array with user ids in page
-     receive table with new user div title with balance information in new currency
-     use javascript to change title for user divs in page
+34) util.missing_api_picture_urls
+    facebook - api_gift.get_facebook_post
+    implement missing api picture urls for linkedin & twitter
 
-111) format price
-     use currency or use language to format prices?
-     we are using currency now. See application controller.fetch_user
+35) users/show user2=login_user
+    add link/button to set/remove user_combination for logged in users
 
-112) minor problem with double locale in url. For example /da/da/users/999 for users/show links
-     only for resource controllers :facebook, :gifts, :users, :inbox, :comments
-     not a problem for util controller
-     rails ignores the extra locale in url but is a little ugly
+36) add mysql development environment on localhost.
+    there are some select statements that are not working in mysql
+    maybe is only was problem with "" around table names!
 
-114) check if there exists a translate library to be used for JS error messages
-     Could be nice if rails locales could be used for javascript messages
-     https://github.com/fnando/i18n-js (many issues - not updated for 8 months)
+37) dev1 - first post for a new day takes long time to complete
+    suspect exchange rate lookup
+    don't know if I was waiting for process or waiting for apache to start a new instance of rails
+    post ok, but new gift fields was first cleared after 5-10 seconds when response came from post_on_facebook task
 
-116) deep link page - should be cached - without information about logged in user
-     http write page with an dummy page header and without title for user divs
-     ajax get page header for logged in user
-     ajax get user div titles for logged in user
+38) performens tuning. gifts/index ajax get 10 rows takes 7 seconds on localhost.
+    is a problem for user that can se many gifts in gifts/index page
+    Observations:
+    - render api_gifts tages 2 seconds. check out user_div (62 ms) and comments2 (40 ms)
+    check out rails performens tools:
+    - http://37signals.com/svn/posts/3091-pssst-your-rails-application-has-a-secret-to-tell-you
+    - http://www.cheynewallace.com/ruby-on-rails-performance-tuning/
+    - http://pivotallabs.com/rubyrails-performance-tools/
+    - https://github.com/MiniProfiler/rack-mini-profiler
 
-117) deep link - remember last http get - clear deep link if link has not been used for x days
+39) add custom logger
+    should replace puts2log with logger2.debug, logger2.info, logger2.warn, logger2.error, logger2.fatal and logger2.unknown
 
-118) deep link - return nice error page if deep link has been removed
+40) error with post without picture
+    uninitialized constant GiftsController::API_OG_DEFAULT_IMAGE
+    maybe not use default picture for all API's?
+    looks like facebook does not load picture from url - only use picture supplied from user
+    looks like linkedin always add a picture from url - use default picture
 
-119) deep link - cache should be expired after new comments or when status_update_at changes
+41) problem with profile picture for new users
+    page was showing path to /profiles/... even if picture has not been downloaded from API.
+    problem was layout
+    maybe insert "?" picture in /profile/ temporary until real profile picture has been downloaded from API
 
-120) gift with picture. on click:
-     - show gift on facebook?
-     - show gift on gofreerev?
-     picture is very small in gofreerev and a redirect to api maybe the best option
-     deep link make it easy to return from api to gofreerev
+42) problem with images and locale.
+    should not use local in path to images
 
-122) my.js - replace alert with add2log and add_to_tasks_errors
-     JS alert should only be used in a few situations
-     But use may not see top of page and error notifications
+43) problem after show-more-rows error
+    javascript variable end_of_page is set to true and is never changed back to false
+    share link does not set end_of_page variable back to false
+    /gifts/index does set end_of_page back to true
+    maybe use document.ready to set end_of_page to false when user clicks on share link i page header
+    google a solution
 
-124) test case:
-     create deal [ a.provider1, a.provider2] as giver, [ b.provider1, b.provider2 ] as receiver, price > 0
-     login as a.provider1 and b.provider2
-     problem with user/show balance. logged users are giver and receiver at the same time
-     problem with user/show filters. logged users are giver and receiver at the same time
-     must be displayed as 0 in balance
-     check code with [ag.user_id_giver, ag.user_id_receiver].index(user_id)
-     check code with login_user_ids.index(ag.user_id_giver)
-     check code with api_gift = api_gifts.find { |ag| [ ag.user_id_giver, ag.user_id_receiver].index(???)
+44) users/show page - friend status for logged in user
+    status: You
+    no friend actions
+    maybe use add gofreerev friend button to set user_combination across login api's
 
-125) better puts2log output
-     should display class.method: text class
+45) provider google is wrong in:
+    button text in users/index page - - use provider_downcase(provider) method
 
-132) generalize invite_friends_url
+46) users/index page
+    should show logged in users for friends=true filter
+    should not show logged in users for friends=false filter
 
-133) add open graph meta-tags for deep links
-     http://ogp.me/
-     linkedin uses meta property="og:description" as default description when inserting a link
-     meta property="og:image" should be deep link image url
+47) users/index page
+    invalid Add <provider> friend
+    is showing "Add linkedin friend" for google+ users
 
-134) add/show deep link for old post?
-     maybe only giver/receiver to add/show deep links
-     that is - other uses can see but not share gofreerev gifts on other social media
+48) change language LOV or link
 
-135) implement other login providers
-     http://www.ebizmba.com/articles/social-networking-websites
-     http://en.wikipedia.org/wiki/List_of_social_networking_websites
-     https://github.com/intridea/omniauth/wiki/List-of-Strategies
-      5) Pinterest
-      6) Tumblr
-      7) Flickr
-      8) VK / Vkontakte
-      9) Instagram
-     10) DeviantArt
-     11) MySpace
-     12) Meetup
-     13) Weibo
-     14) Odnoklassniki
-     15) Renren
-     16) Yelp, Inc.
-     17) mixi
-     18) XING
-     19) Kaixin001
-     20) SoundCloud
-     21) Goodreads
-     22) Viadeo
-     23) Last.fm
-     24) Foursquare
+49) add api friend
+    - facebook: link to profile
+    - linkedin: todo
+    - google+: todo
+    - twitter: todo
 
-136) find optimal image format for each provider:
-     facebook: todo
-     google+: todo
-     linkedin: 180 x 110 (done)
-     twitter: todo
-     must be tested from an public available server (dev1.gofreerev.com)
+50) remove api friend:
+    - facebook: link to profile
+    - linkedin: todo
+    - google+: todo
+    - twitter: todo
 
-138) minor problem with hr lines in users/show
-     should be width=100%
-     check table width = 100% with left aligned columns
+51) check notifications and change notification test cases to support multiple logins
 
-139) util.missing_api_picture_urls
-     facebook - api_gift.get_facebook_post
-     implement missing api picture urls for linkedin & twitter
+52) check app on windows 8.1 / IE
+    maybe it is possible to run older IE versions under windows 8.1?
+    expects that some javascript does not work with IE
 
-140) users/show user2=login_user
-     add link/button to set/remove user_combination for logged in users
+53) better git page
 
-144) rails.validations.js - don't look like rails.validations is used
-     there was some problems with rails 4 and rails validations in summer 2013, but maybe rails 4 is supported now
-
-145) add mysql development environment on localhost.
-     there are some select statements that are not working in mysql
-     maybe is only was problem with "" around table names!
-
-147) Minor problem when creating first gift on an empty gifts/index page
-     No gifts table and new gifts are not displayed after create
-     Display an empty gifts table and hide no_gifts_was_found_html text and invite_api_friends_link link?
-
-148) dev1 - first post for a new day takes long time to complete
-     suspect exchange rate lookup
-     don't know if I was waiting for process or waiting for apache to start a new instance of rails
-     post ok, but new gift fields was first cleared after 5-10 seconds when response came from post_on_facebook task
-
-150) performens tuning. gifts/index ajax get 10 rows takes 7 seconds on localhost.
-     is a problem for user that can se many gifts in gifts/index page
-     Observations:
-     - render api_gifts tages 2 seconds. check out user_div (62 ms) and comments2 (40 ms)
-     check out rails performens tools:
-     - http://37signals.com/svn/posts/3091-pssst-your-rails-application-has-a-secret-to-tell-you
-     - http://www.cheynewallace.com/ruby-on-rails-performance-tuning/
-     - http://pivotallabs.com/rubyrails-performance-tools/
-     - https://github.com/MiniProfiler/rack-mini-profiler
-
-151) remote links - disable on ajax submit and enable when ajax request has finished
-
-152) add custom logger
-     should replace puts2log with logger2.debug, logger2.info, logger2.warn, logger2.error, logger2.fatal and logger2.unknown
-
-153) error with post without picture
-     uninitialized constant GiftsController::API_OG_DEFAULT_IMAGE
-     maybe not use default picture for all API's?
-     looks like facebook does not load picture from url - only use picture supplied from user
-     looks like linkedin always add a picture from url - use default picture
-
-154) problem with profile picture for new users
-     page was showing path to /profiles/... even if picture has not been downloaded from API.
-     problem was layout
-     maybe insert "?" picture in /profile/ temporary until real profile picture has been downloaded from API
-
-156) edit text on FB welcome pace - facebook/create
-     some features are not implemented yet / text should be rewritten
-     text can be seen for FB user that not yet have accepted gofreerev
-
-157) problem with images and locale.
-     should not use local in path to images
-
-159) problem after show-more-rows error
-     javascript variable end_of_page is set to true and is never changed back to false
-     share link does not set end_of_page variable back to false
-     /gifts/index does set end_of_page back to true
-     maybe use document.ready to set end_of_page to false when user clicks on share link i page header
-     google a solution
-
-160) users/show page - friend status for logged in user
-     status: You
-     no friend actions
-     maybe use add gofreerev friend button to set user_combination across login api's
-
-161) provider google is wrong in:
-     button text in users/index page - - use provider_downcase(provider) method
-
-162) users/index page
-     should show logged in users for friends=true filter
-
-162) users/index page
-     invalid Add <provider> friend
-     is showing "Add linkedin friend" for google+ users
-
-163) user.api_profile_url
-     add user profile url for google+, linkedin and twitter
-     linkedin:
-     - auth started from rails - field public_profile can be used
-     facebook:
-     - auth started from rails - field link can be used
-
-165) change language LOV or link
-
-166) linkedin - dialog for removing linkedin friend?
-
-167) add flash after ok login started from rails
-     <provider> login ok
+54) links on app setup page to git page

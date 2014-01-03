@@ -25,40 +25,12 @@ class AuthController < ApplicationController
   # omniauth callback on success (login was started from rails)
   def create
     @auth_hash = auth_hash
-    puts2log  "auth_hash = #{auth_hash}"
-
-    ## check if url for user profile is received from omniauth gem login (login started from rails)
-    ## facebook and google have uid in profile url
-    ## linkedin and twitter have special profile url
-    #if auth_hash.get_provider == 'facebook'
-    #  puts2log "facebook: extra.raw_info.link = #{auth_hash[:extra][:raw_info][:link]}" if auth_hash[:extra] and auth_hash[:extra][:raw_info]
-    #  puts2log "facebook: info.urls.Facebook  = #{auth_hash[:info][:urls][:Facebook]}" if auth_hash[:info] and auth_hash[:info][:urls]
-    #  #create: facebook: extra.raw_info.link = https://www.facebook.com/profile.php?id=100006351370003
-    #  #create: facebook: info.urls.Facebook: https://www.facebook.com/profile.php?id=100006351370003
-    #end
-    #if auth_hash.get_provider == 'linkedin'
-    #  puts2log "linkedin: extra.raw_info.publicProfileUrl = #{auth_hash[:extra][:raw_info][:publicProfileUrl]}" if auth_hash[:extra] and auth_hash[:extra][:raw_info]
-    #  puts2log "linkedin: info.urls.public_profile        = #{auth_hash[:info][:urls][:public_profile]}" if auth_hash[:info] and auth_hash[:info][:urls]
-    #  #create: linkedin: extra.raw_info.publicProfileUrl = http://www.linkedin.com/pub/jan-test-account-roslind/87/b08/27a
-    #  #create: linkedin: info.urls.public_profile        = http://www.linkedin.com/pub/jan-test-account-roslind/87/b08/27a
-    #end
-    #if auth_hash.get_provider == 'google_oauth2'
-    #  puts2log "google+: extra.raw_info.link = #{auth_hash[:extra][:raw_info][:link]}" if auth_hash[:extra] and auth_hash[:extra][:raw_info]
-    #  puts2log "google+: info.urls.Google    = #{auth_hash[:info][:urls][:Google]}" if auth_hash[:info] and auth_hash[:info][:urls]
-    #  # create: google+: extra.raw_info.link = https://plus.google.com/+JanRoslind
-    #  # create: google+: info.urls.Google: https://plus.google.com/+JanRoslind
-    #end
-    #if auth_hash.get_provider == 'twitter'
-    #  puts2log "twitter: extra.raw_info.screen_name = #{auth_hash[:extra][:raw_info][:screen_name]}" if auth_hash[:extra] and auth_hash[:extra][:raw_info]
-    #  puts2log "twitter: info.urls.Twitter          = #{auth_hash[:info][:urls][:Twitter]}" if auth_hash[:info] and auth_hash[:info][:urls]
-    #  #create: twitter: extra.raw_info.screen_name = Gofreerev
-    #  #create: twitter: info.urls.Twitter          = https://twitter.com/Gofreerev
-    #end
-    #puts2log "auth_hash.get_profile_url = #{auth_hash.get_profile_url}"
+    # puts2log  "auth_hash = #{auth_hash}"
 
     # login - return nil (ok) or array with translate key and options for error message
     # auth_hash.get_xxx methods are defined in initializers/omniauth*.rb
-    res = login :provider => auth_hash.get_provider,
+    provider = auth_hash.get_provider
+    res = login :provider => provider,
                 :token => auth_hash.get_token,
                 :uid => auth_hash.get_uid,
                 :name => auth_hash.get_user_name,
@@ -68,6 +40,7 @@ class AuthController < ApplicationController
                 :profile_url => auth_hash.get_profile_url
     if !res
       # login ok
+      flash[:notice] = t '.login_ok', :apiname => provider_camelize(provider)
       redirect_to :controller => :gifts, :action => :index
     else
       # login failed

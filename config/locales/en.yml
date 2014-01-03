@@ -154,6 +154,7 @@ en:
         callback_user_name_missing_google: "Login failed. Did not receive username from google. Maybe scope userinfo.profile is missing for provider"
         callback_user_name_missing: "Login failed. Did not receive username from %{provider}"
         find_or_create_from_auth_hash: "System error. Invalid response from user update after login"
+        login_ok: "%{apiname} log in ok."
      index:
         log_in_link_text: "log in"
         log_out_link_text: "log out"
@@ -167,6 +168,24 @@ en:
         logged_off: "Connection with %{apiname} has been closed. Note that you are still connected to %{appname} with an other login provider. Use links in this page to log in/out."
         already_logged_off: "Already logged out. Use links on this page to log in or to return to login API. Close browser to remove session cookie."
         unknown_provider: "System error. Unknown login provider when logging off"
+
+  facebook:
+     autologin:
+        autologin_header: "Login in progress - please wait"
+     index:
+        invalid_state_login: "Login from facebook failed. Possible \"Cross-site Request Forgery\" problem."
+        invalid_state_status_update: "Possible \"Cross-site Request Forgery\" problem when asking for write access to facebook wall."
+        invalid_state_read_stream: "Possible \"Cross-site Request Forgery\" problem when asking for read access to facebook væg."
+        invalid_state_other: "Possible \"Cross-site Request Forgery\" problem."
+        find_or_create_from_auth_hash: "System error. Invalid response from user update after login"
+        user_denied_login: "System error. Login from facebook failed."
+        user_denied_status_update: "%{appname} was not granted access to write on your facebook wall."
+        user_denied_read_stream: "%{appname} was not granted access to read posts on your facebook wall."
+        user_denied_other: "System error. Unknown facebook request was rejected."
+        ok_login: "Facebook log in ok."
+        ok_status_update: "You have granted %{appname} permission to write on your facebook wall."
+        ok_read_stream: "%{appname} was granted access to read posts on your facebook wall."
+        ok_other: "System error. Unknown facebook request was accepted."
 
   # comments controller
   comments:
@@ -205,23 +224,6 @@ en:
   cookie:
      decline_cookies:
         page_header_html: "%{appname} uses temporary cookies for log in. In temporary session cookie are stored information about start time, login API authorization, language, timezone. Temporary cookies are removed when the browser is closed. Cookie acceptance is the only information stored in a resident cookie.<br><br>You have rejected to use cookies for this web site. All cookies have been removed and it is secure to leave this web site. Thank you for visiting %{appname}."
-
-  facebook:
-     autologin:
-        autologin_header: "Login in progress - please wait"
-     index:
-        invalid_state_login: "Login from facebook failed. Possible \"Cross-site Request Forgery\" problem."
-        invalid_state_status_update: "Possible \"Cross-site Request Forgery\" problem when asking for write access to facebook wall."
-        invalid_state_read_stream: "Possible \"Cross-site Request Forgery\" problem when asking for read access to facebook væg."
-        invalid_state_other: "Possible \"Cross-site Request Forgery\" problem."
-        user_denied_login: "System error. Login from facebook failed."
-        user_denied_status_update: "%{appname} was not granted access to write on your facebook wall."
-        user_denied_read_stream: "%{appname} was not granted access to read posts on your facebook wall."
-        user_denied_other: "System error. Unknown facebook request was rejected."
-        ok_login: "Facebook log in ok."
-        ok_status_update: "You have granted %{appname} permission to write on your facebook wall."
-        ok_read_stream: "%{appname} was granted access to read posts on your facebook wall."
-        ok_other: "System error. Unknown facebook request was accepted."
 
   # gift controller
   gifts:
@@ -477,6 +479,7 @@ en:
 
   linkedin:
      index:
+        find_or_create_from_auth_hash: "System error. Invalid response from user update after login"
         ok_rw_nus: "%{appname} was granted access to write on your linkedin wall."
 
   # user controller

@@ -146,6 +146,7 @@ da:
         callback_user_name_missing_google: "Login fejlede. Modtog ikke brugernavn fra google. Evt. mangler scope userinfo.profile for provider opsætning"
         callback_user_name_missing: "Login fejlede. Modtag ikke brugernavn fra %{provider}"
         find_or_create_from_auth_hash: "System fejl. Ugyldigt svar fra bruger opdatering efter login."
+        login_ok: "%{apiname} log ind ok."
      index:
         log_in_link_text: "log ind"
         log_out_link_text: "log ud"
@@ -159,6 +160,25 @@ da:
         logged_off: "Adgang via %{apiname} er blevet afbrudt. Vær opmærksom på at du stadigvæk har adgang til %{appname} via en anden login udbyder. Brug nedenstående links til at logge ind/ud."
         already_logged_off: "Du var allerede logget ud. Brug nedenstående link til at logge ind igen. Luk browseren for at fjerne session cookie."
         unknown_provider: "Systemfejl. Ukendt login udbyder ved log ud"
+
+  # facebook controller - login started from facebook and asking for more privs.
+  facebook:
+     autologin:
+        autologin_header: "Login er igang - vent venligst"
+     index:
+        invalid_state_login: "Login fra facebook fejlede. Muligt \"Cross-site Request Forgery\" problem."
+        invalid_state_status_update: "Muligt \"Cross-site Request Forgery\" problem ved anmodning om skriveadgang til facebook væg."
+        invalid_state_read_stream: "Muligt \"Cross-site Request Forgery\" problem ved anmodning om læseadgang til facebook væg."
+        invalid_state_other: "Muligt \"Cross-site Request Forgery\" problem."
+        find_or_create_from_auth_hash: "System fejl. Ugyldigt svar fra bruger opdatering efter login."
+        user_denied_login: "Systemfejl. Login fra facebook fejlede."
+        user_denied_status_update: "%{appname} fik ikke tilladelse til at lave opslag på din facebook væg."
+        user_denied_read_stream: "%{appname} fik ikke tilladelse til at læse opslag på din facebook væg."
+        user_denied_other: "Systemfejl. Ukendt facebook anmodning blev afvist."
+        ok_login: "Facebook login ok."
+        ok_status_update: "%{appname} fik tilladelse til at lave opslag på din facebook væg."
+        ok_read_stream: "%{appname} fik tilladelse til at læse opslag på din facebook væg."
+        ok_other: "Ukendt facebook anmodning ok."
 
   # comments controller
   comments:
@@ -197,24 +217,6 @@ da:
   cookie:
      decline_cookies:
         page_header_html: "%{appname} anvender temporære cookies i forbindelse med log in. I temporær session cookie gemmes information om start tidspunkt, login API adgangsoplysninger, sprog, tidszone. Temporære cookies slettes når browseren lukkes. Eneste cookie der gemmes permament er accept af anvendelse af cookies.<br><br>Du har valgt at sige nej tak til cookies. Alle cookies er blevet slettet og du kan sikkert forlade siden. Tak for besøget."
-
-  # facebook controller - login started from facebook and asking for more privs.
-  facebook:
-     autologin:
-        autologin_header: "Login er igang - vent venligst"
-     index:
-        invalid_state_login: "Login fra facebook fejlede. Muligt \"Cross-site Request Forgery\" problem."
-        invalid_state_status_update: "Muligt \"Cross-site Request Forgery\" problem ved anmodning om skriveadgang til facebook væg."
-        invalid_state_read_stream: "Muligt \"Cross-site Request Forgery\" problem ved anmodning om læseadgang til facebook væg."
-        invalid_state_other: "Muligt \"Cross-site Request Forgery\" problem."
-        user_denied_login: "Systemfejl. Login fra facebook fejlede."
-        user_denied_status_update: "%{appname} fik ikke tilladelse til at lave opslag på din facebook væg."
-        user_denied_read_stream: "%{appname} fik ikke tilladelse til at læse opslag på din facebook væg."
-        user_denied_other: "Systemfejl. Ukendt facebook anmodning blev afvist."
-        ok_login: "Facebook login ok."
-        ok_status_update: "%{appname} fik tilladelse til at lave opslag på din facebook væg."
-        ok_read_stream: "%{appname} fik tilladelse til at læse opslag på din facebook væg."
-        ok_other: "Ukendt facebook anmodning ok."
 
   # gift controller - general texts
   gifts:
@@ -475,6 +477,7 @@ da:
 
   linkedin:
      index:
+        find_or_create_from_auth_hash: "System fejl. Ugyldigt svar fra bruger opdatering efter login."
         ok_rw_nus: "%{appname} fik tilladelse til at lave opslag på din linkedin væg."
 
   # user controller
