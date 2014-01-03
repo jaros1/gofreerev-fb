@@ -577,6 +577,7 @@ class UtilController < ApplicationController
     # initialize and check deep link
     deep_link = api_gift.init_deep_link()
     if error = api_gift.deep_link_invalid?
+      # error in deep link page - stop post on API and return error message with deep link and error to gifts/index page
       return [gift, api_gift, deep_link, ".gift_posted_7_html", { :apiname => provider, :link => deep_link, :error => error }]
     end
 

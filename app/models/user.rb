@@ -377,38 +377,39 @@ class User < ActiveRecord::Base
     begin
       user = User.find_by_user_id(user_id)
       if !user
-        logger.debug2 "error: invalid user id"
+        logger.error2 "error: invalid user id"
         return ['.profile_image_invalid_user', {:user_id => user_id}]
       end
       if url.to_s == ""
-        logger.debug2 "error: no image received from provider / post_login ajax request"
+        logger.warn2 "error: no image received from provider / post_login ajax request"
         return ['.profile_image_blank', {:provider => user.provider}]
       end
       if url !~ /https?\:\/\//
-        logger.debug2 "error: invalid image #{url} received from provider / post_login ajax request"
+        logger.warn2 "error: invalid image #{url} received from provider / post_login ajax request"
         return ['.profile_image_invalid_url', {:provider => user.provider, :image => url}]
       end
       # check image type
       image_type = FastImage.type(url).to_s
       if !%w(gif jpeg png jpg bmp).index(image_type)
-        logger.debug2 "warning: unsupported image type #{image_type} for #{url}"
+        logger.error2 "unsupported image type #{image_type} from #{user.provider}"
         return ['.profile_image_invalid_type', {:provider => user.provider, :image => url, :image_type => image_type}]
       end
       # prepare work dir for download
       FileUtils.mkdir_p FileUtils.mkdir_p user.profile_picture_tmp_os_folder
       stdout, stderr, status = User.open4('rm *', user.profile_picture_tmp_os_folder)
+      logger.debug2 "mkdir_p: stdout = #{stdout}, stderr = #{stderr}, status = #{status}"
       # logger.debug2  "rm: stdout = #{stdout}, stderr = #{stderr}, status = #{status} (#{status.class})" if status != 0
       # download image to work dir
       stdout, stderr, status = User.open4("wget \"#{url}\" --no-check-certificate", user.profile_picture_tmp_os_folder)
       if status != 0
-        logger.debug2 "image download failed: wget: stdout = #{stdout}, stderr = #{stderr}, status = #{status} (#{status.class})"
+        logger.warn2 "image download failed: wget: stdout = #{stdout}, stderr = #{stderr}, status = #{status} (#{status.class})"
         error = stderr.to_s.split("\n").last
         return ['.profile_image_wget_failed', {:provider => user.provider, :image => url, :error => error}]
       end
       # check download
       files = Dir.entries(user.profile_picture_tmp_os_folder).delete_if { |x| ['.', '..'].index(x) }
       if files.size != 1
-        logger.debug2 "image download failed. expected 1 image. found #{files.size} images"
+        logger.error2 "image download failed. expected 1 image. found #{files.size} images"
         return ['.profile_image_count_failed', {:provider => user.provider, :image => url, :count => files.size}]
       end
       # rename/move image
@@ -421,7 +422,7 @@ class User < ActiveRecord::Base
       stdout, stderr, status = User.open4("mv #{old_file_name} ../#{new_file_name}", user.profile_picture_tmp_os_folder)
       if status != 0
         # rename/move failed
-        logger.debug2 "image rename/move failed: stdout = #{stdout}, stderr = #{stderr}, status = #{status} (#{status.class})"
+        logger.error2 "image rename/move failed: stdout = #{stdout}, stderr = #{stderr}, status = #{status} (#{status.class})"
         error = stderr.to_s.split("\n").last
         return ['.profile_image_mv_failed', {:provider => user.provider, :image => url, :error => error}]
       end
@@ -434,8 +435,8 @@ class User < ActiveRecord::Base
       logger.debug2 "rmdir: stdout = #{stdout}, stderr = #{stderr}, status = #{status} (#{status.class})" if status != 0
       nil
     rescue Exception => e
-      logger.debug2 "Exception: #{e.message.to_s}"
-      logger.debug2 "Backtrace: " + e.backtrace.join("\n")
+      logger.error2 "Exception: #{e.message.to_s}"
+      logger.error2 "Backtrace: " + e.backtrace.join("\n")
       raise
     end
   end # self.download_profile_image
