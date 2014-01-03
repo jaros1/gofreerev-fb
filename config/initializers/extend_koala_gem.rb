@@ -9,9 +9,6 @@ class Koala::Facebook::ClientError
     logger.debug2  "#{prefix}http_status      = #{http_status} (#{http_status.class})"
     logger.debug2  "#{prefix}response_body    = #{response_body}"
   end
-  #def logger.debug2  (text)
-  #  logger.debug "#{caller_locations(1,1)[0].label}: #{text}"
-  #end
 end
 
 class Koala::Facebook::ServerError
@@ -24,7 +21,4 @@ class Koala::Facebook::ServerError
     logger.debug2  "#{prefix}http_status      = #{http_status} (#{http_status.class})"
     logger.debug2  "#{prefix}response_body    = #{response_body}"
   end
-  #def logger.debug2  (text)
-  #  logger.debug "#{caller_locations(1,1)[0].label}: #{text}"
-  #end
 end

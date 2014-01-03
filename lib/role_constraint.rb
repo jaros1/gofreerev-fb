@@ -55,9 +55,4 @@ class RoleConstraint
     signature(params).length == 0
   end
 
-  private
-  #def logger.debug2  (text)
-  #  logger.debug "#{caller_locations(1,1)[0].label}: #{text}"
-  #end
-
 end

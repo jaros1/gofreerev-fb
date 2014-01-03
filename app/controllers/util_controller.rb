@@ -577,7 +577,7 @@ class UtilController < ApplicationController
     # initialize and check deep link
     deep_link = api_gift.init_deep_link()
 
-    return [gift, api_gift, deep_link, ".gift_posted_7_html", { :apiname => provider, :link => deep_link }] unless api_gift.deep_link_ok?
+    return [gift, api_gift, deep_link, ".gift_posted_7_html", { :apiname => provider, :link => deep_link, :error => error }] unless (error = api_gift.deep_link_invalid?)
 
     # ok
     return [gift, api_gift, deep_link]
@@ -996,10 +996,6 @@ class UtilController < ApplicationController
         # post with or without picture - link is a deep link from facebook wall to gift in gofreerev
         # link will be clickable if public url
         # link will be not clickable if localhost or server behind firewall
-
-        # initialize and check deep link
-        deep_link = api_gift.init_deep_link()
-        return [".gift_posted_7_html", { :apiname => provider, :link => deep_link }] unless api_gift.deep_link_ok?
 
         begin
           # post

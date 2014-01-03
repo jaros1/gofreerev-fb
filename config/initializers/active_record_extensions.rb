@@ -96,10 +96,6 @@ module ActiveRecordExtensions
     str.to_f
   end
 
-  #def logger.debug2  (text)
-  #  logger.debug "#{caller_locations(1,1)[0].label}: #{text}"
-  #end
-
   module ClassMethods
 
     # https://gist.github.com/danieldbower/842562
@@ -146,10 +142,6 @@ module ActiveRecordExtensions
       return amount * FACTOR_NEG_BALANCE_PER_DAY ** days if amount < 0
       amount
     end
-
-    #def logger.debug2  (text)
-    #  logger.debug "#{caller_locations(1,1)[0].label}: #{text}"
-    #end
 
   end # ClassMethods
 

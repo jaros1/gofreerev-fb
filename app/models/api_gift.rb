@@ -263,17 +263,25 @@ class ApiGift < ActiveRecord::Base
     self.save!
     "#{SITE_URL}#{I18n.locale}/gifts/#{self.deep_link_id}#{self.deep_link_pw}"
   end
-  def deep_link_ok?
-    return true unless Rails.application.config.cache_classes
+  def deep_link_invalid?
+    return nil unless Rails.application.config.cache_classes
     # deep link not working in WEBrick / development (single threaded server)
     link = deep_link()
     link_url = URI.parse(link)
     link_req = Net::HTTP::Get.new(link_url.path)
     link_res = Net::HTTP.start(link_url.host, link_url.port) { |http| http.request(link_req) }
-    ok = (link_res.class == Net::HTTPOK)
-    logger.debug2 "ok = #{ok}"
-    clear_deep_link unless ok
-    ok
+    return nil if link_res.class == Net::HTTPOK
+    # error in deep link page
+    logger.error2 "error in deep link page #{link}"
+    logger.error2 "link_res.class = #{link_res.class}"
+    error = $1 if link_res.body.to_s =~ /<h2>(.*?)<\/h2>/
+    if error
+      logger.error2 "error = #{h2}"
+    else
+      logger.error2 "link_res.body = #{link_res.body}"
+      error = link_res.class.to_s
+    end
+    error
   end
   def deep_link
     return nil unless deep_link_id and deep_link_pw

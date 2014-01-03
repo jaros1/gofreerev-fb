@@ -287,3 +287,6 @@
 58) linkedin image upload
     is processes batch and temp picture is deleted before linkedin checks deep link
     linkedin deep link check failed with Internal server error and linkedin never checks image url
+
+59) extract error message from rails page
+    <h2>uninitialized constant GiftsController::API_OG_DEFAULT_IMAGE</h2>

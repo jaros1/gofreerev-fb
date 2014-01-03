@@ -544,12 +544,6 @@ class ApplicationController < ActionController::Base
   end # format_direction
   helper_method :format_direction_with_user
 
-  #protected
-  #def logger.debug2  (text)
-  #  logger.debug "#{caller_locations(1,1)[0].label}: #{text}"
-  #end
-  #helper_method :logger.debug2
-
   private
   def deep_link?
     deep_link = (params[:controller] == 'gifts' and params[:action] == 'show' and params[:id].to_s =~ /^[a-zA-Z0-9]{30}$/) ? true : false
