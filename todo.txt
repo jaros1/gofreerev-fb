@@ -290,3 +290,7 @@
     1) create shared dir for temp files
     2) change path to /images/temp/
     done - not tested
+
+
+    <img alt="Bdthjge2xydcpuc" onload="check_api_picture_url(67, this)" src="/images/temp/bDTHJGE2xYDCPuc.jpeg">
+    <img alt="M2sal71g8bai5fb" onload="check_api_picture_url(68, this)" src="/images/temp/M2sal71G8BAi5FB.jpeg">

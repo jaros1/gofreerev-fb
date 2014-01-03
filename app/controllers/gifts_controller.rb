@@ -41,7 +41,11 @@ class GiftsController < ApplicationController
       @errors << t('.file_is_too_big', :maxsize => '2 Mb')
       picture = false
     end
-    gift.temp_picture_filename = "#{String.generate_random_string(20)}.#{filetype}".last(20) if picture
+    if picture
+      gift.temp_picture_filename = "#{String.generate_random_string(20)}.#{filetype}".last(20)
+      logger.debug2 "gift.temp_picture_filename = #{gift.temp_picture_filename}"
+    end
+
     gift.valid?
     gift.errors.add :price, :invalid if invalid_price?(params[:gift][:price]) # price= accepts only float and model can not return invalid price error
     return add_error_and_format_ajax_resp(gift.errors.full_messages.join(', ')) if gift.errors.size > 0
@@ -63,7 +67,10 @@ class GiftsController < ApplicationController
     # temporary save picture on server before posting it on api walls in post_on_<provider> tasks
     # picture will be deleted from server when posting on api walls are done
     if picture
-      stdout, stderr, status = User.open4("mv #{gift_file.path} #{gift.temp_picture_path}")
+      cmd = "mv #{gift_file.path} #{gift.temp_picture_path}"
+      stdout, stderr, status = User.open4(cmd)
+      logger.debug2 "mv: cmd = #{cmd}"
+      logger.debug2 "mv: stdout = #{stdout}, stderr = #{stderr}, status = #{status}"
       if status != 0
         # mv failed - continue post without picture
         @errors << t(".file_mv_error", :error => stderr)
