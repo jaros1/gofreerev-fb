@@ -265,7 +265,10 @@ class ApiGift < ActiveRecord::Base
     link_url = URI.parse(link)
     link_req = Net::HTTP::Get.new(link_url.path)
     link_res = Net::HTTP.start(link_url.host, link_url.port) { |http| http.request(link_req) }
-    (link_res.class == Net::HTTPOK)
+    ok = (link_res.class == Net::HTTPOK)
+    puts2log "ok = #{ok}"
+    clear_deep_link unless ok
+    ok
   end
   def deep_link
     return nil unless deep_link_id and deep_link_pw

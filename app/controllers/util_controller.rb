@@ -576,6 +576,7 @@ class UtilController < ApplicationController
 
     # initialize and check deep link
     deep_link = api_gift.init_deep_link()
+
     return [gift, api_gift, deep_link, ".gift_posted_7_html", { :apiname => provider, :link => deep_link }] unless api_gift.deep_link_ok?
 
     # ok
@@ -1250,6 +1251,7 @@ class UtilController < ApplicationController
 
       # check response from client.add_share request
       if x.class != Net::HTTPCreated
+        api_gift.clear_deep_link
         puts2log "no exception from client.add_share, but post was not created"
         puts2log "x = #{x} (#{x.class})"
         puts2log "x.body = #{x.body} (#{x.body.class})"
