@@ -13,7 +13,7 @@
         <% if api_gift.giver -%>
             <%= @size = 'small'; render '/shared/user_div', :user_div => api_gift.giver %>
         <% elsif @first_gift -%>
-            <img src="images/invisible-picture.gif" class="small_profile_picture" />
+            <img src="/images/invisible-picture.gif" class="small_profile_picture" />
             <% @first_gift = false -%>
         <% end -%>
       </td>
@@ -21,7 +21,7 @@
         <% if api_gift.receiver -%>
             <%= @size = 'small'; render '/shared/user_div', :user_div => api_gift.receiver %>
         <% elsif @first_gift -%>
-            <img src="images/invisible-picture.gif" class="small_profile_picture" />
+            <img src="/images/invisible-picture.gif" class="small_profile_picture" />
             <% @first_gift = false -%>
         <% end -%>
       </td>
