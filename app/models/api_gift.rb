@@ -254,6 +254,11 @@ class ApiGift < ActiveRecord::Base
   def init_deep_link ()
     self.deep_link_id = ApiGift.new_deep_link_id
     self.deep_link_pw = String.generate_random_string(10)
+    if %w(facebook).index(self.provider)
+      # facebook converts deep link url to lowercase letters in request when checking deep link
+      self.deep_link_id.downcase!
+      self.deep_link_pw.downcase!
+    end
     self.deep_link_errors = 0
     self.save!
     "#{SITE_URL}#{I18n.locale}/gifts/#{self.deep_link_id}#{self.deep_link_pw}"

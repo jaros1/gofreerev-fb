@@ -275,3 +275,9 @@
 55) post on linkedin from localhost
     can not upload picture with localhost url to linkedin
     add a special error message for this case?
+
+56) uppercase letters are not allowed in facebook deep links
+
+57) invalid deep link requests
+    should display an error page
+    must not redirect for not logged in users
