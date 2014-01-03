@@ -143,6 +143,7 @@ da:
         callback_unknown_provider: "Login fejlede. Modtag ukendt login udbyder %{provider}"
         callback_token_missing: "Login fejlede. Modtag ikke adgangs billet til %{provider}"
         callback_uid_missing: "Login fejlede. Modtog ikke bruger id fra %{provider}"
+        callback_gofreerev_uid: "Login fejlede. uid gofreerev kan desværre ikke benyttes"
         callback_user_name_missing_google: "Login fejlede. Modtog ikke brugernavn fra google. Evt. mangler scope userinfo.profile for provider opsætning"
         callback_user_name_missing: "Login fejlede. Modtag ikke brugernavn fra %{provider}"
         find_or_create_from_auth_hash: "System fejl. Ugyldigt svar fra bruger opdatering efter login."
@@ -477,6 +478,8 @@ da:
 
   linkedin:
      index:
+        no_client: "System fejl. Kunne ikke åbne %{apiname} API klient. %{appname} fik ikke tilladelse til at lave opslag på din %{apiname} væg."
+        auth_failed: "System fejl. Kunne ikke autoriserer %{apiname} API klient. %{appname} fik ikke tilladelse til at lave opslag på din %{apiname} væg. Fejl meddelelse \"%{error}\"."
         find_or_create_from_auth_hash: "System fejl. Ugyldigt svar fra bruger opdatering efter login."
         ok_rw_nus: "%{appname} fik tilladelse til at lave opslag på din linkedin væg."
 

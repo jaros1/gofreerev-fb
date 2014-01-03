@@ -1187,7 +1187,7 @@ class UtilController < ApplicationController
         # todo: check layout with and without picture
         # todo: check description length. <= 256 use only description. length <= 700. Use only comment. Length between 700 and 956 use comment and description
         text = "#{format_direction_without_user(api_gift)} #{gift.description}"
-        puts2log "picture = #{api_gift.picture?}, text.length = #{text.length}"
+        puts2log "picture = #{api_gift.picture?}, text.length = #{text.length}, image_url = #{image_url}"
         comment = nil
         content = { "submitted-url" => deep_link }
         if api_gift.picture?
@@ -1217,8 +1217,8 @@ class UtilController < ApplicationController
         #            "submitted-image-url" => 'http://jan-roslind.dk/testcases/sacred-economics-linkedin.jpg',
         #            "title" => 'Offers: Fra nytår bliver vagtlægens telefon i Hovedstaden ikke',
         #            "description" => 'længere svaret af en læge, men af en sygeplejerske. Danske Patienter kalder det et eksperiment.' }
+        puts2log "content = #{content}, comment = #{comment}"
         x = client.add_share :content => content, :comment => comment
-        puts "x = #{x} (#{x.class})"
       rescue LinkedIn::Errors::AccessDeniedError => e
         puts2log  "LinkedIn::Errors::AccessDeniedError"
         puts2log  "e.message = #{e.message}"
@@ -1248,9 +1248,24 @@ class UtilController < ApplicationController
         raise
       end
 
+      # check response from client.add_share request
+      if x.class != Net::HTTPCreated
+        puts2log "no exception from client.add_share, but post was not created"
+        puts2log "x = #{x} (#{x.class})"
+        puts2log "x.body = #{x.body} (#{x.body.class})"
+        return ['.gift_posted_1_html', {:apiname => provider, :error => x.body}]
+      end
+
       # post on linkedin ok
-      puts2log  "x = #{x} (#{x.class})"
-      puts2log  "x.methods = #{x.methods.sort.join(', ')}"
+      puts2log "x = #{x} (#{x.class})"
+      # puts2log "x.methods = #{x.methods.sort.join(', ')}"
+      puts2log "x.body = #{x.body} (#{x.body.class})"
+      #post_on_linkedin: x.body = {
+      #    "updateKey": "UNIU-310307710-5824797827771314176-SHARE",
+      #    "updateUrl": "http://www.linkedin.com/updates?discuss=&scope=310307710&stype=M&topic=5824797827771314176&type=U&a=omJz"
+      #}
+
+      # todo: get url for picture on linkedin wall.
 
       # no errors - return posted message
       return [".gift_posted_2_html", :apiname => provider, :error => nil]

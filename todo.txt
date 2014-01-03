@@ -104,6 +104,7 @@
     1) delete old local picturs.
     2) report missing picture to util.missing_api_picture_urls,
     3) cleanup in util.missing_api_picture_urls
+    3/1-2014: temp folder was empty on development server
 
 27) accept deal: must add giver/receiver for all api gift rows
     gift created by user a logged with 3 api providers
@@ -113,8 +114,6 @@
     check user_combination for comment user to test if other user also uses multiple logins
     map api gifts provider for provider (login users <=> comment users)
     use dummy user "gofreerev/<provider>" if no provider match between login user(s) and comment user(s)
-
-28) reject login with user id for dummy user
 
 29) where to send notifications for a user with multiple logins?
 
@@ -197,6 +196,7 @@
     suspect exchange rate lookup
     don't know if I was waiting for process or waiting for apache to start a new instance of rails
     post ok, but new gift fields was first cleared after 5-10 seconds when response came from post_on_facebook task
+    increased sleep period before submitting do_tasks from 100 to 200 milliseconds (gifts/create.js.erb)
 
 38) performens tuning. gifts/index ajax get 10 rows takes 7 seconds on localhost.
     is a problem for user that can se many gifts in gifts/index page
@@ -268,6 +268,6 @@
     maybe it is possible to run older IE versions under windows 8.1?
     expects that some javascript does not work with IE
 
-53) better git page
+53) better github page
 
 54) links on app setup page to git page

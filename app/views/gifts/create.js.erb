@@ -7,5 +7,5 @@ ajax_flash_new_table_rows('tasks_errors',<%= @errors.size %>);
 <% end -%>
 <% if @api_gifts.size > 0 -%>
 document.getElementById('new_messages_buffer_div').innerHTML = '<%= j render("create") %>';
-insert_update_gifts(100) ; <%# move new gift from buffer to gifts table -%>
+insert_update_gifts(200) ; <%# move new gift from buffer to gifts table -%>
 <% end -%>

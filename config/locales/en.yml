@@ -151,6 +151,7 @@ en:
         callback_unknown_provider: "Login failed. Received unknown login provider %{provider}"
         callback_token_missing: "Login failed. Did not receive access token from %{provider}"
         callback_uid_missing: "Login failed. Did not receive user id from %{provider}"
+        callback_gofreerev_uid: "Login failed. uid gofreerev can not be used"
         callback_user_name_missing_google: "Login failed. Did not receive username from google. Maybe scope userinfo.profile is missing for provider"
         callback_user_name_missing: "Login failed. Did not receive username from %{provider}"
         find_or_create_from_auth_hash: "System error. Invalid response from user update after login"
@@ -479,6 +480,8 @@ en:
 
   linkedin:
      index:
+        no_client: "System failure. Could not open %{apiname} API client. %{appname} was not granted access to write on your %{apiname} wall."
+        auth_failed: "System failure. Could not authorize %{apiname} API client. %{appname} was not granted access to write on your %{apiname} wall. Error: \"%{error}\"."
         find_or_create_from_auth_hash: "System error. Invalid response from user update after login"
         ok_rw_nus: "%{appname} was granted access to write on your linkedin wall."
 

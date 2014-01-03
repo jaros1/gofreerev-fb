@@ -12,7 +12,21 @@ class LinkedinController < ApplicationController
   def index
     # linkedin oauth client was saved in util.post_on_linkedin after "(403): Access to posting shares denied" error
     client = get_linkedin_client
-    x = client.authorize_from_request(client.request_token.token, client.request_token.secret, params[:oauth_verifier])
+    if !client
+      # linkedin client temporary saved in task queue in util.post_on_linkedin was not found
+      # maybe client was deleted by cleanup rutine (clients older than 10 minutes are deleted)
+      # maybe used has reloaded this page after an exception
+      flash[:notice] = t '.no_client', :apiname => provider_downcase('linkedin'), :appname => APP_NAME
+      redirect_to :controller => :gifts
+      return
+    end
+    begin
+      x = client.authorize_from_request(client.request_token.token, client.request_token.secret, params[:oauth_verifier])
+    rescue Exception => e
+      puts2log "Exception: #{e.message} (#{e.class})"
+      flash[:notice] = t '.auth_failed', :apiname => provider_downcase('linkedin'), :appname => APP_NAME, :error => e.message
+      raise
+    end
     puts2log  "x = #{x} (#{x.class})"
     if x.class == Array and x.length == 2 and x[0].class == String and x[1].class == String and x[0] != "" and x[1] != ''
       puts2log  "login ok. Get name, .... from linkedin"
