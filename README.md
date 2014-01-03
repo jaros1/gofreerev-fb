@@ -20,5 +20,5 @@ Resources
 =========
 
 I could need some help with:
-- Styling. Responsive layout implemented, but no other styling
-- Gems. I have implemented "show-more-rows" ajax expanding pages. It should be possible this feature to a gem
+- Styling. Responsive layout implemented, but no other styling.
+- Gems. I have implemented "show-more-rows" ajax expanding pages. It should be possible to move this feature to a gem so that it can be used in other projects.
