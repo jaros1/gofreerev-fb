@@ -40,7 +40,7 @@ namespace :db do
             file.write "\n"
           end
         end
-        puts2log  "extracted #{table_name}"
+        logger.debug2  "extracted #{table_name}"
       end
     end
   end

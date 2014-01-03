@@ -37,12 +37,12 @@ class Friend < ActiveRecord::Base
   # Y or N. Friends in FB or mutual connection in google+
   validates_presence_of :api_friend
   def api_friend
-    # puts2log  "gift.api_friend: api_friend = #{read_attribute(:api_friend)} (#{read_attribute(:api_friend).class.name})"
+    # logger.debug2  "gift.api_friend: api_friend = #{read_attribute(:api_friend)} (#{read_attribute(:api_friend).class.name})"
     return nil unless (extended_api_friend = read_attribute(:api_friend))
     encrypt_remove_pre_and_postfix(extended_api_friend, 'api_friend', 16)
   end # api_friend
   def api_friend=(new_api_friend)
-    # puts2log  "gift.api_friend=: api_friend = #{new_api_friend} (#{new_api_friend.class.name})"
+    # logger.debug2  "gift.api_friend=: api_friend = #{new_api_friend} (#{new_api_friend.class.name})"
     if new_api_friend
       check_type('api_friend', new_api_friend, 'String')
       raise TypeError, "Allowed values for api_friend is Y and N" unless %w(Y N).index(new_api_friend)
@@ -66,12 +66,12 @@ class Friend < ActiveRecord::Base
   #   N - not app friends
   #   B - not app friends and blocked
   def app_friend
-    # puts2log  "gift.app_friend: app_friend = #{read_attribute(:app_friend)} (#{read_attribute(:app_friend).class.name})"
+    # logger.debug2  "gift.app_friend: app_friend = #{read_attribute(:app_friend)} (#{read_attribute(:app_friend).class.name})"
     return nil unless (extended_app_friend = read_attribute(:app_friend))
     encrypt_remove_pre_and_postfix(extended_app_friend, 'app_friend', 17)
   end # app_friend
   def app_friend=(new_app_friend)
-    # puts2log  "gift.app_friend=: app_friend = #{new_app_friend} (#{new_app_friend.class.name})"
+    # logger.debug2  "gift.app_friend=: app_friend = #{new_app_friend} (#{new_app_friend.class.name})"
     if new_app_friend
       check_type('app_friend', new_app_friend, 'String')
       raise TypeError, "Allowed values for app_friend is Y, N, R, P and B" unless %w(Y N R P B).index(new_app_friend)
@@ -143,12 +143,12 @@ class Friend < ActiveRecord::Base
     friends_hash.each do |friend_user_id, hash|
       friend_user = nil
       if hash[:old_name] != hash[:new_name]
-        # puts2log  "fetch_user: update user names: old name = #{hash[:old_name]}, new name = #{hash[:new_name]}"
+        # logger.debug2  "fetch_user: update user names: old name = #{hash[:old_name]}, new name = #{hash[:new_name]}"
         friend_user = hash[:user]
         friend_user.user_name = hash[:new_name].force_encoding('UTF-8')
       end
       if hash[:old_api_profile_url] != hash[:new_api_profile_url] and %w(linkedin twitter).index(provider)
-        # puts2log  "fetch_user: update api profile url: old url = #{hash[:old_api_profile_url]}, new url = #{hash[:new_api_profile_url]}"
+        # logger.debug2  "fetch_user: update api profile url: old url = #{hash[:old_api_profile_url]}, new url = #{hash[:new_api_profile_url]}"
         friend_user = hash[:user] unless friend_user
         friend_user.api_profile_url = hash[:new_api_profile_url]
       end
@@ -159,18 +159,18 @@ class Friend < ActiveRecord::Base
     friends_hash.each do |friend_user_id, hash|
       if hash[:new_record]
         # new friend entries
-        # puts2log  "new friend entries"
+        # logger.debug2  "new friend entries"
         Friend.add_friend(login_user_id, friend_user_id)
       else
         # old friend entry
-        # puts2log  "old friend entry, name = #{hash[:new_name]}, old api friend = #{hash[:old_api_friend]}, new api friend = #{hash[:new_api_friend]}"
+        # logger.debug2  "old friend entry, name = #{hash[:new_name]}, old api friend = #{hash[:old_api_friend]}, new api friend = #{hash[:new_api_friend]}"
         next if hash[:old_api_friend] == hash[:new_api_friend] # no change in api friend status
                                                                # api friend status changed
         f1 = Friend.where("user_id_giver = ? and user_id_receiver = ?", login_user_id, friend_user_id).first
         f2 = Friend.where("user_id_giver = ? and user_id_receiver = ?", friend_user_id, login_user_id).first
         if (f1 == nil or f1.app_friend == nil) and (f2 == nil or f2.app_friend == nil)
           # Default app_friend status - just delete
-          # puts2log  "Default app_friend status - just delete"
+          # logger.debug2  "Default app_friend status - just delete"
           Friend.remove_friend(login_user_id, friend_user_id)
           next
         end
@@ -190,16 +190,16 @@ class Friend < ActiveRecord::Base
           f2.app_friend = nil
         end
         f1.api_friend = f2.api_friend = hash[:new_api_friend]
-                                                               # puts2log  "before save"
-                                                               # puts2log  "update f1: giver = #{f1.user_id_giver}, receiver = #{f1.user_id_receiver}, api = #{f1.api_friend}, app = #{f1.app_friend}"
-                                                               # puts2log  "update f2: giver = #{f2.user_id_giver}, receiver = #{f2.user_id_receiver}, api = #{f2.api_friend}, app = #{f2.app_friend}"
+                                                               # logger.debug2  "before save"
+                                                               # logger.debug2  "update f1: giver = #{f1.user_id_giver}, receiver = #{f1.user_id_receiver}, api = #{f1.api_friend}, app = #{f1.app_friend}"
+                                                               # logger.debug2  "update f2: giver = #{f2.user_id_giver}, receiver = #{f2.user_id_receiver}, api = #{f2.api_friend}, app = #{f2.app_friend}"
         f1.save!
         f2.save!
-                                                               # puts2log  "after save"
+                                                               # logger.debug2  "after save"
         f1.reload
         f2.reload
-                                                               # puts2log  "update f1: giver = #{f1.user_id_giver}, receiver = #{f1.user_id_receiver}, api = #{f1.api_friend}, app = #{f1.app_friend}"
-                                                               # puts2log  "update f2: giver = #{f2.user_id_giver}, receiver = #{f2.user_id_receiver}, api = #{f2.api_friend}, app = #{f2.app_friend}"
+                                                               # logger.debug2  "update f1: giver = #{f1.user_id_giver}, receiver = #{f1.user_id_receiver}, api = #{f1.api_friend}, app = #{f1.app_friend}"
+                                                               # logger.debug2  "update f2: giver = #{f2.user_id_giver}, receiver = #{f2.user_id_receiver}, api = #{f2.api_friend}, app = #{f2.app_friend}"
         raise "api_friend status was not updated" unless f1.api_friend == hash[:new_api_friend] and f2.api_friend == hash[:new_api_friend]
       end # if
     end # each

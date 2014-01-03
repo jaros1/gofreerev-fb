@@ -99,6 +99,9 @@ GEM
     jquery-rails (3.0.4)
       railties (>= 3.0, < 5.0)
       thor (>= 0.14, < 2.0)
+    jquery-turbolinks (2.0.1)
+      railties (>= 3.1.0)
+      turbolinks
     jquery-ui-rails (4.0.5)
       railties (>= 3.1.0)
     json (1.8.1)
@@ -263,6 +266,7 @@ DEPENDENCIES
   google_currency (~> 3.0.0)
   jbuilder (~> 1.2)
   jquery-rails
+  jquery-turbolinks
   jquery-ui-rails (~> 4.0.4)
   koala (= 1.7.0rc1)
   linkedin

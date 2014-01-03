@@ -126,7 +126,7 @@ class GiftsController < ApplicationController
       # problem with ajax request.
       # can be invalid last_row_id - can be too many get-more-rows ajax requests - max one request every 3 seconds - more info in log
       # return "empty" ajax response with dummy row with correct last_row_id to client
-      puts2log  "return empty ajax response with dummy row with correct last_row_id to client"
+      logger.debug2  "return empty ajax response with dummy row with correct last_row_id to client"
       @api_gifts = []
       @last_row_id = session[:last_row_id]
       respond_to do |format|
@@ -149,8 +149,8 @@ class GiftsController < ApplicationController
 
     # initialize gift form in top of gifts/index page
     #
-    # puts2log  "user_name = #{@user.user_name}" if @user
-    # puts2log  "access_token = #{session[:access_token]}"
+    # logger.debug2  "user_name = #{@user.user_name}" if @user
+    # logger.debug2  "access_token = #{session[:access_token]}"
     @gift = Gift.new
     @gift.direction = 'giver'
     if User.dummy_users?(@users)
@@ -159,7 +159,7 @@ class GiftsController < ApplicationController
       return
     end
     @gift.currency = @users.first.currency unless @gift.currency
-    # puts2log  "index: description = #{@gift.description}"
+    # logger.debug2  "index: description = #{@gift.description}"
 
     # initialize list of gifts
     # list of gifts with @user as giver or receiver + gifts med @user.friends as giver or receiver
@@ -172,7 +172,7 @@ class GiftsController < ApplicationController
     # gifts = Gift.where('user_id_giver is not null or user_id_receiver is not null').order('id desc') # uncomment to test ajax
 
     # last_row_id != nil. ajax request from end of gifts/index page - return next 10 rows to gifts/index page
-    # puts2log  "last_row_id = #{params[:last_row_id]}, gifts.length = #{@gifts.length}"
+    # logger.debug2  "last_row_id = #{params[:last_row_id]}, gifts.length = #{@gifts.length}"
     if !last_row_id
       # http request - return one gift - ajax request for the next 10 rows will start in a second - see shared/show_more_rows
       # remember newest gift id (global). Gifts created by friends after page load will be ajax inserted in gifts/index page
@@ -213,14 +213,14 @@ class GiftsController < ApplicationController
     end
     if !gift
       if deep_link
-        puts2log  "invalid deep link id"
+        logger.debug2  "invalid deep link id"
         if User.dummy_users?(@users)
           flash[:notice] = t '.invalid_deep_link_id_not_logged_in'
         else
           flash[:notice] = t '.invalid_deep_link_id_logged_in'
         end
       else
-        puts2log  "invalid gift id"
+        logger.debug2  "invalid gift id"
         flash[:notice] = t '.invalid_gift_id'
       end
       if deep_link and User.dummy_users?(@users)
@@ -236,7 +236,7 @@ class GiftsController < ApplicationController
       api_gift.deep_link_errors += 1
       api_gift.save!
       api_gift.clear_deep_link if api_gift.deep_link_errors > 10
-      puts2log  "invalid deep link pw"
+      logger.debug2  "invalid deep link pw"
       if User.dummy_users?(@users)
         flash[:notice] = t '.invalid_deep_link_id_not_logged_in'
       else
@@ -251,7 +251,7 @@ class GiftsController < ApplicationController
     end
     # check access. giver and/or receiver of gift must be a app friend
     if !deep_link and !gift.visible_for?(@users)
-      puts2log  "no access"
+      logger.debug2  "no access"
       flash[:notice] = t ('.no_access')
       redirect_to :action => :index
       return

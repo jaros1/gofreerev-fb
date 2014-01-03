@@ -76,17 +76,17 @@ class Notification < ActiveRecord::Base
   # validates_presence_of :noti_options # does not work for some reason!
   def noti_options
     return nil unless (temp_extended_noti_options = read_attribute(:noti_options))
-    # puts2log  "get temp_extended_noti_options = #{temp_extended_noti_options} (#{temp_extended_noti_options.class.name})"
+    # logger.debug2  "get temp_extended_noti_options = #{temp_extended_noti_options} (#{temp_extended_noti_options.class.name})"
     YAML::load encrypt_remove_pre_and_postfix(temp_extended_noti_options, 'noti_options', 20)
   end # noti_options
   def noti_options=(new_noti_options)
     if new_noti_options
       check_type('noti_options', new_noti_options, 'Hash')
       temp_extended_noti_options = encrypt_add_pre_and_postfix(new_noti_options.to_yaml , 'noti_options', 20)
-      # puts2log  "set temp_extended_noti_options = #{temp_extended_noti_options} (#{temp_extended_noti_options.class.name})"
+      # logger.debug2  "set temp_extended_noti_options = #{temp_extended_noti_options} (#{temp_extended_noti_options.class.name})"
       write_attribute :noti_options, temp_extended_noti_options
     else
-      # puts2log  "set temp_extended_noti_options = nil"
+      # logger.debug2  "set temp_extended_noti_options = nil"
       write_attribute :noti_options, nil
     end
   end # noti_options=
@@ -108,7 +108,7 @@ class Notification < ActiveRecord::Base
   # keep max 20 notifications for each user
   def before_create
     limit = 19
-    # puts2log  "notification.before_create: to_user_id = #{to_user_id}"
+    # logger.debug2  "notification.before_create: to_user_id = #{to_user_id}"
     count = Notification.where("to_user_id = ?", to_user_id).length
     return if count <= limit
     # keep newest 19 notifications (0..18).

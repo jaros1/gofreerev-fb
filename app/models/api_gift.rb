@@ -103,12 +103,12 @@ class ApiGift < ActiveRecord::Base
   # 7) api_picture_url - String in Model - encrypted text in db
   validates_presence_of :api_picture_url, :if => Proc.new { |rec| rec.picture? }
   def api_picture_url
-    # puts2log  "api_picture_url = #{read_attribute(:api_picture_url)} (#{read_attribute(:api_picture_url).class.name})"
+    # logger.debug2  "api_picture_url = #{read_attribute(:api_picture_url)} (#{read_attribute(:api_picture_url).class.name})"
     return nil unless (extended_api_picture_url = read_attribute(:api_picture_url))
     encrypt_remove_pre_and_postfix(extended_api_picture_url, 'api_picture_url', 23)
   end # api_picture_url
   def api_picture_url=(new_api_picture_url)
-    # puts2log  "api_picture_url = #{new_api_picture_url} (#{new_api_picture_url.class.name})"
+    # logger.debug2  "api_picture_url = #{new_api_picture_url} (#{new_api_picture_url.class.name})"
     if new_api_picture_url
       check_type('api_picture_url', new_api_picture_url, 'String')
       write_attribute :api_picture_url, encrypt_add_pre_and_postfix(new_api_picture_url, 'api_picture_url', 23)
@@ -271,20 +271,13 @@ class ApiGift < ActiveRecord::Base
     link_req = Net::HTTP::Get.new(link_url.path)
     link_res = Net::HTTP.start(link_url.host, link_url.port) { |http| http.request(link_req) }
     ok = (link_res.class == Net::HTTPOK)
-    puts2log "ok = #{ok}"
+    logger.debug2 "ok = #{ok}"
     clear_deep_link unless ok
     ok
   end
   def deep_link
     return nil unless deep_link_id and deep_link_pw
-    link = "#{SITE_URL}#{I18n.locale}/gifts/#{self.deep_link_id}#{self.deep_link_pw}"
-    puts2log "deep_link = #{link}"
-    logger.debug2 "deep_link = #{link}"
-    logger.info2 "deep_link = #{link}"
-    logger.warn2 "deep_link = #{link}"
-    logger.error2 "deep_link = #{link}"
-    logger.fatal2 "deep_link = #{link}"
-    link
+    "#{SITE_URL}#{I18n.locale}/gifts/#{self.deep_link_id}#{self.deep_link_pw}"
   end
   def clear_deep_link
     self.deep_link_id = self.deep_link_pw = self.deep_link_errors = nil
@@ -302,11 +295,11 @@ class ApiGift < ActiveRecord::Base
     field = options[:field]
     raise "#{__method__}: invalid call" unless %w(full_picture message).index(field)
     #if picture != 'Y'
-    #  puts2log  "api_gift.get_api_picture_url: picture = \"#{picture}\""
+    #  logger.debug2  "api_gift.get_api_picture_url: picture = \"#{picture}\""
     #  return nil
     #end
     if deleted_at_api == 'Y'
-      puts2log  "deleted picture"
+      logger.debug2  "deleted picture"
       return nil
     end
     raise NoApiAccessTokenException unless access_token
@@ -331,7 +324,7 @@ class ApiGift < ActiveRecord::Base
       raise
     end
     # ok request - return picture url or message text
-    puts2log  "api_response = #{api_response}"
+    logger.debug2  "api_response = #{api_response}"
     return api_response[field]
   end # get_api_picture_url
 

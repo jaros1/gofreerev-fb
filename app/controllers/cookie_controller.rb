@@ -32,10 +32,10 @@ class CookieController < ApplicationController
   alias_method :old_cookies, :cookies
   def cookies
     old_cookies.each do |name, value|
-      puts2log "delete cookie #{name}"
+      logger.debug2 "delete cookie #{name}"
       old_cookies.delete(name)
     end
-    puts2log "delete cookie _gofreerev-fb_session"
+    logger.debug2 "delete cookie _gofreerev-fb_session"
     old_cookies.delete('_gofreerev-fb_session')
     {}
   end

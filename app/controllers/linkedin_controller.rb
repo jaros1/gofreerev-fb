@@ -23,18 +23,18 @@ class LinkedinController < ApplicationController
     begin
       x = client.authorize_from_request(client.request_token.token, client.request_token.secret, params[:oauth_verifier])
     rescue Exception => e
-      puts2log "Exception: #{e.message} (#{e.class})"
+      logger.debug2 "Exception: #{e.message} (#{e.class})"
       flash[:notice] = t '.auth_failed', :apiname => provider_downcase('linkedin'), :appname => APP_NAME, :error => e.message
       raise
     end
-    puts2log  "x = #{x} (#{x.class})"
+    logger.debug2  "x = #{x} (#{x.class})"
     if x.class == Array and x.length == 2 and x[0].class == String and x[1].class == String and x[0] != "" and x[1] != ''
-      puts2log  "login ok. Get name, .... from linkedin"
+      logger.debug2  "login ok. Get name, .... from linkedin"
       # get basic user information from linkedin before 2. login with write permission (rw_nus) to linkedin wall
       client = LinkedIn::Client.new API_ID[provider], API_SECRET[provider]
       client.authorize_from_access x[0], x[1] # token and secret
       res1 = client.profile(:fields => %w(id,first-name,last-name,picture-url,public-profile-url))
-      puts2log "res1.public_profile_url = #{res1.public_profile_url}"
+      logger.debug2 "res1.public_profile_url = #{res1.public_profile_url}"
       # index: res1.public_profile_url = http://www.linkedin.com/pub/jan-test-account-roslind/87/b08/27a
       # new login with write permission to linkedin wall
       res2 = login :provider => provider,
@@ -45,7 +45,7 @@ class LinkedinController < ApplicationController
                   :country => nil,
                   :language => nil,
                   :profile_url => res1.public_profile_url
-      puts2log  "res2 = #{res2}"
+      logger.debug2  "res2 = #{res2}"
       if !res2
         # login ok with extra rw_nus priv
         user_id = "#{res1.id}/#{provider}"
@@ -60,14 +60,14 @@ class LinkedinController < ApplicationController
         begin
           flash[:notice] = t key, options
         rescue Exception => e
-          puts2log  "invalid response from login. Must be nil or a valid input to translate. Response: #{res2}"
+          logger.debug2  "invalid response from login. Must be nil or a valid input to translate. Response: #{res2}"
           flash[:notice] = t '.find_or_create_from_auth_hash', :response => res2, :exception => e.message.to_s
         end
         redirect_to :controller => :auth
       end
 
     else
-      puts2log  "login not ok."
+      logger.debug2  "login not ok."
     end
 
   end # index

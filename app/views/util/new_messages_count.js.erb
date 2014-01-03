@@ -4,7 +4,7 @@
 -%>
 <%#
   # debug ajax - copy output to js function and test ajax from client side in a test jS function / link
-  puts2log  j(render("new_messages_count"))
+  logger.debug2  j(render("new_messages_count"))
 -%>
 document.getElementById('new_messages_buffer_div').innerHTML = '<%= j render("new_messages_count") %>' ;
 update_new_messages_count() ;

@@ -1,4 +1,4 @@
-<% puts2log  "@errors.size = #{@errors.size}, @gifts.size = #{@api_gifts.size}"
+<% logger.debug2  "@errors.size = #{@errors.size}, @gifts.size = #{@api_gifts.size}"
    raise "empty response from gifts/create" if @errors.size == 0 and @api_gifts.size == 0
 -%>
 <% if @errors.size > 0 -%>

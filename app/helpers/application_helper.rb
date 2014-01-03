@@ -3,8 +3,8 @@ module ApplicationHelper
 
   # debug
   def dump_session_variables
-    puts2log  "@user = #{@user}"
-    puts2log  "session.to_hash = #{session.to_hash}"
+    logger.debug2  "@user = #{@user}"
+    logger.debug2  "session.to_hash = #{session.to_hash}"
   end
 
   # link_to helpers - used in page footer
@@ -21,7 +21,7 @@ module ApplicationHelper
   # partial helpers
   def render_partial_with_language (folder, partialname)
     language = session[:language]
-    puts2log  "folder = #{folder}, partialname = #{partialname}, language = #{language}"
+    logger.debug2  "folder = #{folder}, partialname = #{partialname}, language = #{language}"
     language = nil if language == BASE_LANGUAGE
     unless language
       # no language or english
@@ -30,7 +30,7 @@ module ApplicationHelper
     # check for language specific partial
     partialname2 = "#{partialname}_#{language}"
     filename = Rails.root.join('app', 'views', folder, "_#{partialname2}.html.erb").to_s
-    puts2log  "filename = #{filename}"
+    logger.debug2  "filename = #{filename}"
     partialname2 = partialname unless File.exists?(filename)
     render :partial => "#{folder}/#{partialname2}"
   end # render_application_partial
@@ -66,12 +66,12 @@ module ApplicationHelper
   # format prices - user currency is used for default seperators
   def format_price (price)
     return nil unless price
-    # puts2log  "@user_currency_separator = #{@user_currency_separator}, @user_currency_delimiter = #{@user_currency_delimiter}"
+    # logger.debug2  "@user_currency_separator = #{@user_currency_separator}, @user_currency_delimiter = #{@user_currency_delimiter}"
     number_with_precision(price, :precision => 2, :separator => @user_currency_separator, :delimiter => @user_currency_delimiter)
   end
 
   def format_user_balance (user, login_users)
-    # puts2log  "user = #{user.user_id}, login_users = " + login_users.collect { |user| user.user_id }.join(', ')
+    # logger.debug2  "user = #{user.user_id}, login_users = " + login_users.collect { |user| user.user_id }.join(', ')
     return nil unless user.class == User and login_users.class == Array
     return nil if login_users.length == 0
     if user.user_combination
@@ -87,25 +87,25 @@ module ApplicationHelper
     from_currency = 'USD'
     to_currencies = login_users.collect { |login_user| login_user.currency }.uniq
     if to_currencies.length > 1
-      puts2log  "todo: error, login procedure should ensure one and only one currency for logged in users"
+      logger.debug2  "todo: error, login procedure should ensure one and only one currency for logged in users"
     end
     to_currency = to_currencies.first
-    puts2log  "to_currency = #{to_currency}"
+    logger.debug2  "to_currency = #{to_currency}"
     if balance.size == 2 and user.currency == login_users.first.currency
       # short format. only one currency in balance hash. Return this without any conversion if login user currency
       return format_price(from_amount) if user.currency == login_users.first.currency
     end # æøå
     # exchange from_amount
     if from_currency == to_currency
-      # puts2log  "no exchange: to_amount = from_amount = #{from_amount}"
+      # logger.debug2  "no exchange: to_amount = from_amount = #{from_amount}"
       to_amount = from_amount
       to_currency = ''
     elsif (to_amount = ExchangeRate.exchange(from_amount, from_currency, to_currency))
-      # puts2log  "exchange ok: from_amount = #{from_amount}, from_currency = #{from_currency}, to_amount = #{to_amount}, to_currency = #{to_currency}"
+      # logger.debug2  "exchange ok: from_amount = #{from_amount}, from_currency = #{from_currency}, to_amount = #{to_amount}, to_currency = #{to_currency}"
       to_currency = ''
     else
       # exchange rate was not ready - show original user balance with currency - exchange rate should be ready in next request
-      # puts2log  "exchange rate not ready: from_amount = #{from_amount}, from_currency = #{from_currency}"
+      # logger.debug2  "exchange rate not ready: from_amount = #{from_amount}, from_currency = #{from_currency}"
       to_amount = from_amount
       to_currency = ' ' + from_currency
     end
@@ -183,7 +183,7 @@ module ApplicationHelper
     if login_user.class != User
       # invalid call - login_user was missing in invite_friends_url call
       msg = t 'shared.invite_friends.invalid_call'
-      puts2log msg
+      logger.debug2 msg
       return "javascript: alert('#{msg}')"
     end
     provider = login_user.provider
@@ -199,7 +199,7 @@ module ApplicationHelper
             "&message=#{CGI.escape(message.to_str)}" +
             "&title=#{CGI.escape(title.to_str)}" +
             "&filters=" + CGI.escape("['app_non_users']")
-        # puts2log  "url = #{url}"
+        # logger.debug2  "url = #{url}"
         url
       else
         # invite provider friends is not implemented

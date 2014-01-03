@@ -10,12 +10,12 @@ class Task < ActiveRecord::Base
   # 2) task_data - String in model - encrypted text in db - update not allowed
   # for example used for linkedin oauth client when asking for rw_nus priv (post on linkedin wall priv.)
   def task_data
-    # puts2log  "gift.task_data: task_data = #{read_attribute(:task_data)} (#{read_attribute(:task_data).class.name})"
+    # logger.debug2  "gift.task_data: task_data = #{read_attribute(:task_data)} (#{read_attribute(:task_data).class.name})"
     return nil unless (extended_task_data = read_attribute(:task_data))
     encrypt_remove_pre_and_postfix(extended_task_data, 'task_data', 37)
   end
   def task_data=(new_task_data)
-    # puts2log  "gift.task_data=: task_data = #{new_task_data} (#{new_task_data.class.name})"
+    # logger.debug2  "gift.task_data=: task_data = #{new_task_data} (#{new_task_data.class.name})"
     if new_task_data
       check_type('task_data', new_task_data, 'String')
       write_attribute :task_data, encrypt_add_pre_and_postfix(new_task_data, 'task_data', 37)

@@ -18,14 +18,14 @@ class ApplicationController < ActionController::Base
   def render_with_language(viewname)
     language = session[:language]
     # language = BASE_LANGUAGE # todo: remove this line
-    puts2log  "language = #{language}"
+    logger.debug2  "language = #{language}"
     if !language or language == BASE_LANGUAGE
       render :action => viewname
       return
     end
     viewname2 = "#{viewname}_#{language}"
     filename = Rails.root.join('app', 'views', controller_name, "#{viewname2}.html.erb").to_s
-    puts2log  "filename = #{filename}"
+    logger.debug2  "filename = #{filename}"
     viewname2 = viewname unless File.exists?(filename)
     render :action => viewname2
   end # render_with_language
@@ -33,7 +33,7 @@ class ApplicationController < ActionController::Base
   private
   def debug_session (msg)
     [:oauth, :language, :country, :state, :access_token, :user_id].each do |name|
-      puts2log  "#{msg}: session[:#{name}] = #{session[name]}"
+      logger.debug2  "#{msg}: session[:#{name}] = #{session[name]}"
     end
   end
 
@@ -57,8 +57,8 @@ class ApplicationController < ActionController::Base
   private
   def fetch_user
     # language support
-    # puts2log  "start. sessionid = #{request.session_options[:id]}"
-    puts2log  "I18n.locale = #{I18n.locale}"
+    # logger.debug2  "start. sessionid = #{request.session_options[:id]}"
+    logger.debug2  "I18n.locale = #{I18n.locale}"
 
     # cookie note in page header for the first n seconds for a new session
     # eu cookie law - also called Directive on Privacy and Electronic Communications
@@ -102,16 +102,16 @@ class ApplicationController < ActionController::Base
 
     # debugging
     if @users.length == 0
-      puts2log  "found none logged in users"
+      logger.debug2  "found none logged in users"
     else
       @users.each do |user|
-        puts2log  "user_id = #{user.user_id}, user_name = #{user.user_name}, currency = #{user.currency}"
+        logger.debug2  "user_id = #{user.user_id}, user_name = #{user.user_name}, currency = #{user.currency}"
       end
     end
 
     # check currencies. all logged in users must use same currency
     currencies = @users.collect { |user| user.currency }.uniq
-    puts2log  "more when one currency found for logged in users: #{}" if currencies.length > 1
+    logger.debug2  "more when one currency found for logged in users: #{}" if currencies.length > 1
 
     # add some instance variables
     if @user
@@ -120,7 +120,7 @@ class ApplicationController < ActionController::Base
       @user_currency_separator = Money::Currency.table[@user.currency.downcase.to_sym][:decimal_mark]
       @user_currency_delimiter = Money::Currency.table[@user.currency.downcase.to_sym][:thousands_separator]
     end
-    puts2log  "@user_currency_separator = #{@user_currency_separator}, @user_currency_delimiter = #{@user_currency_delimiter}"
+    logger.debug2  "@user_currency_separator = #{@user_currency_separator}, @user_currency_delimiter = #{@user_currency_delimiter}"
 
     # add dummy user for page header
     add_dummy_user if @users.size == 0
@@ -137,15 +137,15 @@ class ApplicationController < ActionController::Base
     params[:locale] = nil if params.has_key?(:locale) and request.xhr?
     session[:language] = params[:locale] if filter_locale(params[:locale])
     I18n.locale = filter_locale(params[:locale]) || filter_locale(session[:language]) || filter_locale(I18n.default_locale) || 'en'
-    puts2log  "I18n.locale = #{I18n.locale}. params[:locale] = #{params[:locale]}, session[:language] = #{session[:language]}, "
+    logger.debug2  "I18n.locale = #{I18n.locale}. params[:locale] = #{params[:locale]}, session[:language] = #{session[:language]}, "
   end
 
   private
   def default_url_options(options={})
-    # puts2log  "options: #{options}."
-    # puts2log  "I18n.locale = #{I18n.locale} (#{I18n.locale.class})"
-    # puts2log  "I18n.default_locale = #{I18n.default_locale} (#{I18n.default_locale.class})"
-    # puts2log  "controller = #{params[:controller]}"
+    # logger.debug2  "options: #{options}."
+    # logger.debug2  "I18n.locale = #{I18n.locale} (#{I18n.locale.class})"
+    # logger.debug2  "I18n.default_locale = #{I18n.default_locale} (#{I18n.default_locale.class})"
+    # logger.debug2  "controller = #{params[:controller]}"
     { locale: I18n.locale }
   end
 
@@ -196,7 +196,7 @@ class ApplicationController < ActionController::Base
       if debug_ajax?
         raise msg
       else
-        puts2log  msg
+        logger.debug2  msg
       end
       # return dummy row with correct last_row_id to client x
       return true
@@ -208,11 +208,11 @@ class ApplicationController < ActionController::Base
       #       javascript code in /shared/show_more_rows partial. 3 seconds wait in JS and in rails should work
       msg = "Max one get-more-rows ajax request every #{GET_MORE_ROWS_INTERVAL} seconds. session[:last_row_at_debug] = #{session[:last_row_at_debug]}. Time.new = #{Time.new}. Wait for #{GET_MORE_ROWS_INTERVAL-dif} seconds"
       if debug_ajax?
-        puts2log  msg
-        puts2log  msg
-        puts2log  msg
+        logger.debug2  msg
+        logger.debug2  msg
+        logger.debug2  msg
       else
-        puts2log  msg
+        logger.debug2  msg
         sleep(GET_MORE_ROWS_INTERVAL-dif) # there mst be error in javascript wait between get-more-rows ajax requests
       end
       # return dummy row with correct last_row_id to client
@@ -226,17 +226,17 @@ class ApplicationController < ActionController::Base
   # used in ajax expanding pages (gifts/index, users/index and users/show pages)
   private
   def get_next_set_of_rows (rows, last_row_id, no_rows=nil)
-    puts2log  "last_row_id = #{last_row_id}"
+    logger.debug2  "last_row_id = #{last_row_id}"
     ajax_request = (last_row_id != nil)
     no_rows = ajax_request ? 10 : 1 unless no_rows # default - return 1 row in first http request - return 10 rows in ajax requests
     total_no_rows = rows.size
     if ajax_request
       # ajax request
       # check if last_row_id is valid - row could have been deleted between two requests
-      # puts2log  "ajax request - check if last_row_id still is valid"
+      # logger.debug2  "ajax request - check if last_row_id still is valid"
       from = rows.index { |u| u.last_row_id == last_row_id }
       if !from
-        puts2log  "invalid last_row_id - or row is no longer in rows - ignore error and return first 10 rows"
+        logger.debug2  "invalid last_row_id - or row is no longer in rows - ignore error and return first 10 rows"
         last_row_id = nil
       end
       last_row_id = nil unless from # invalid last_row_id - deleted row or changed permissions - ignore error and return first 10 rows
@@ -248,12 +248,12 @@ class ApplicationController < ActionController::Base
     else
       last_row_id = nil # last row - no more ajax requests
     end
-    puts2log  "returning next #{rows.size} of #{total_no_rows} rows . last_row_id = #{last_row_id}"
+    logger.debug2  "returning next #{rows.size} of #{total_no_rows} rows . last_row_id = #{last_row_id}"
     # keep last_row_id and timestamp - checked in get_next_set_of_rows_error? before calling this method
     session[:last_row_id] = last_row_id # control - is checked in next ajax request
     session[:last_row_at] = Time.new.to_f
     session[:last_row_at_debug] = Time.new
-    puts2log  "last_row_at_debug = #{session[:last_row_at_debug]}"
+    logger.debug2  "last_row_at_debug = #{session[:last_row_at_debug]}"
     session[:last_row_at] = GET_MORE_ROWS_INTERVAL.seconds.ago.to_f unless ajax_request # first http request at startup - ajax request for the next 10 rows in a split second
     [ rows, last_row_id]
   end # get_next_set_of_rows
@@ -389,14 +389,14 @@ class ApplicationController < ActionController::Base
         # todo: other characters to filter? for example characters with a special os function
         add_task "User.download_profile_image('#{user.user_id}', '#{image}')", 5
       else
-        puts2log "invalid picture received from #{provider}. image = #{image}"
+        logger.debug2 "invalid picture received from #{provider}. image = #{image}"
       end
     end
     post_login_task_provider = "post_login_#{provider}" # private method in UtilController
     if UtilController.new.private_methods.index(post_login_task_provider.to_sym)
       add_task post_login_task_provider, 5
     else
-      puts2log  "Warning. No post login task was found for #{provider}. No #{provider} friend information will be downloaded"
+      logger.debug2  "Warning. No post login task was found for #{provider}. No #{provider} friend information will be downloaded"
     end
     # enable file upload button if new user can write on api wall
     add_task "disable_enable_file_upload", 5
@@ -506,10 +506,10 @@ class ApplicationController < ActionController::Base
     timezone = "#{timezone}.0" unless timezone.to_s.index('.')
     timezones = ActiveSupport::TimeZone.all.collect { |tz| (tz.tzinfo.current_period.utc_offset / 60.0 / 60.0).to_s }.uniq
     if !timezones.index(timezone)
-      puts2log  "unknown timezome #{timezone}"
+      logger.debug2  "unknown timezome #{timezone}"
       return
     end
-    puts2log  "timezone = #{timezone}"
+    logger.debug2  "timezone = #{timezone}"
     Time.zone = session[:timezone] = timezone.to_f
   end
 
@@ -544,16 +544,16 @@ class ApplicationController < ActionController::Base
   end # format_direction
   helper_method :format_direction_with_user
 
-  protected
-  def puts2log  (text)
-    logger.debug "#{caller_locations(1,1)[0].label}: #{text}"
-  end
-  helper_method :puts2log
+  #protected
+  #def logger.debug2  (text)
+  #  logger.debug "#{caller_locations(1,1)[0].label}: #{text}"
+  #end
+  #helper_method :logger.debug2
 
   private
   def deep_link?
     deep_link = (params[:controller] == 'gifts' and params[:action] == 'show' and params[:id].to_s =~ /^[a-zA-Z0-9]{30}$/) ? true : false
-    # puts2log "deep_link = #{deep_link}, controller = #{params[:controller]}, action = #{params[:action]}, id = #{params[:id]}"
+    # logger.debug2 "deep_link = #{deep_link}, controller = #{params[:controller]}, action = #{params[:action]}, id = #{params[:id]}"
     deep_link
   end
   helper_method "deep_link?"

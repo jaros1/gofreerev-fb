@@ -209,7 +209,7 @@
     - https://github.com/MiniProfiler/rack-mini-profiler
 
 39) add custom logger
-    should replace puts2log with logger2.debug, logger2.info, logger2.warn, logger2.error, logger2.fatal and logger2.unknown
+    should replace logger.debug2 with logger2.debug, logger2.info, logger2.warn, logger2.error, logger2.fatal and logger2.unknown
 
 40) error with post without picture
     uninitialized constant GiftsController::API_OG_DEFAULT_IMAGE

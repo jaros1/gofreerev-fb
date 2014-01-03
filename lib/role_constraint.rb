@@ -11,11 +11,11 @@ class RoleConstraint
   def matches?(request)
     params = request.params
     session = request.session
-    # puts2log  "roles = #{@roles}, roles.class = #{@roles.class}"
-    # puts2log  "request = #{@request}, request.class = #{request.class}"
-    # puts2log  "request.methods = #{request.methods.sort.join(', ')}"
-    # puts2log  "params = #{params}"
-    # puts2log  "signature = #{signature(params)}"
+    # logger.debug2  "roles = #{@roles}, roles.class = #{@roles.class}"
+    # logger.debug2  "request = #{@request}, request.class = #{request.class}"
+    # logger.debug2  "request.methods = #{request.methods.sort.join(', ')}"
+    # logger.debug2  "params = #{params}"
+    # logger.debug2  "signature = #{signature(params)}"
     if @roles.index(:logged_in) or @roles.index(:not_logged_in)
       user_ids = session[:user_ids] || []
       if user_ids.length == 0
@@ -28,19 +28,19 @@ class RoleConstraint
     end
     # set bool filters for each role - all filters must be true - true if role is not in filter
     empty = (@roles.index(:empty) != nil and empty?(params) or @roles.index(:empty) == nil)
-    # puts2log  "empty = #{empty}"
+    # logger.debug2  "empty = #{empty}"
     logged_in = (@roles.index(:logged_in) != nil and users.length > 0 or @roles.index(:logged_in) == nil)
-    # puts2log  "logged_in = #{logged_in}"
+    # logger.debug2  "logged_in = #{logged_in}"
     not_logged_in = (@roles.index(:not_logged_in) != nil and users.length == 0 or @roles.index(:not_logged_in) == nil)
-    # puts2log  "not_logged_in = #{not_logged_in}"
+    # logger.debug2  "not_logged_in = #{not_logged_in}"
     fb_locale = (@roles.index(:fb_locale) != nil and params[:fb_locale].to_s != '' or @roles.index(:fb_locale) == nil)
-    # puts2log  "fb_locale = #{fb_locale}"
+    # logger.debug2  "fb_locale = #{fb_locale}"
     signed_request = (@roles.index(:signed_request) != nil and params[:signed_request].to_s != '' or @roles.index(:signed_request) == nil)
-    # puts2log  "signed_request = #{signed_request}"
+    # logger.debug2  "signed_request = #{signed_request}"
     res = (empty and logged_in and not_logged_in and fb_locale and signed_request)
-    # puts2log  "routes.rb / RoleConstraint:"
-    # puts2log  "roles = #{@roles}, signature = #{signature(params)}, users.length = #{users.length}"
-    # puts2log  "res = #{res}, empty = #{empty}, logged_in = #{logged_in}, not_logged_in = #{not_logged_in}, fb_locale = #{fb_locale}, signed_request = #{signed_request}"
+    # logger.debug2  "routes.rb / RoleConstraint:"
+    # logger.debug2  "roles = #{@roles}, signature = #{signature(params)}, users.length = #{users.length}"
+    # logger.debug2  "res = #{res}, empty = #{empty}, logged_in = #{logged_in}, not_logged_in = #{not_logged_in}, fb_locale = #{fb_locale}, signed_request = #{signed_request}"
     res
   end
 
@@ -56,8 +56,8 @@ class RoleConstraint
   end
 
   private
-  def puts2log  (text)
-    logger.debug "#{caller_locations(1,1)[0].label}: #{text}"
-  end
+  #def logger.debug2  (text)
+  #  logger.debug "#{caller_locations(1,1)[0].label}: #{text}"
+  #end
 
 end

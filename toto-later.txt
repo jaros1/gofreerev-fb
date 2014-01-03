@@ -55,7 +55,7 @@ Low priority todo list. Minor errors, wishlist etc.
    maybe only giver/receiver to add/show deep links
    that is - other uses can see but not share gofreerev gifts on other social media
 
-10) better puts2log output
+10) better logger.debug2 output
     should display class.method: text class
 
 11) my.js - replace alert with add2log and add_to_tasks_errors

@@ -34,12 +34,12 @@ class Gift < ActiveRecord::Base
   validates_presence_of :description
   attr_readonly :description
   def description
-    # puts2log  "gift.description: description = #{read_attribute(:description)} (#{read_attribute(:description).class.name})"
+    # logger.debug2  "gift.description: description = #{read_attribute(:description)} (#{read_attribute(:description).class.name})"
     return nil unless (extended_description = read_attribute(:description))
     encrypt_remove_pre_and_postfix(extended_description, 'description', 2)
   end
   def description=(new_description)
-    # puts2log  "gift.description=: description = #{new_description} (#{new_description.class.name})"
+    # logger.debug2  "gift.description=: description = #{new_description} (#{new_description.class.name})"
     if new_description
       check_type('description', new_description, 'String')
       write_attribute :description, encrypt_add_pre_and_postfix(new_description, 'description', 2)
@@ -63,7 +63,7 @@ class Gift < ActiveRecord::Base
     elsif !record.received_at_was and record.received_at
       nil # deal has just been approved - currency and price have just been copied from proposal
     else
-      # puts2log  "Gift.validates_each currency: gift id #{record.id}, old value = #{record.currency_was}, new value = #{value}"
+      # logger.debug2  "Gift.validates_each currency: gift id #{record.id}, old value = #{record.currency_was}, new value = #{value}"
       record.errors.add attr, :readonly
     end
   end # validates_each :currency
@@ -191,7 +191,7 @@ class Gift < ActiveRecord::Base
   # Hash in model, encrypted text in db
   def balance_doc_giver
     return nil unless (temp_extended_balance_doc_giver = read_attribute(:balance_doc_giver))
-    # puts2log  "temp_extended_balance_doc_giver = #{temp_extended_balance_doc_giver}"
+    # logger.debug2  "temp_extended_balance_doc_giver = #{temp_extended_balance_doc_giver}"
     YAML::load encrypt_remove_pre_and_postfix(temp_extended_balance_doc_giver, 'balance_doc_giver', 34)
   end # balance_doc_giver
   def balance_doc_giver=(new_balance_doc_giver)
@@ -213,7 +213,7 @@ class Gift < ActiveRecord::Base
   # Hash in model, encrypted text in db
   def balance_doc_receiver
     return nil unless (temp_extended_balance_doc_receiver = read_attribute(:balance_doc_receiver))
-    # puts2log  "temp_extended_balance_doc_receiver = #{temp_extended_balance_doc_receiver}"
+    # logger.debug2  "temp_extended_balance_doc_receiver = #{temp_extended_balance_doc_receiver}"
     YAML::load encrypt_remove_pre_and_postfix(temp_extended_balance_doc_receiver, 'balance_doc_receiver', 35)
   end # balance_doc_receiver
   def balance_doc_receiver=(new_balance_doc_receiver)
@@ -289,7 +289,7 @@ class Gift < ActiveRecord::Base
     end
   end # balance_doc
   def set_balance (user_ids, new_balance, new_balance_doc)
-    # puts2log  "Gift.set_balance: id = #{id}, user_id = #{user_id}, new_balance = #{new_balance}, user_id_giver = #{user_id_giver}, user_id_receiver = #{user_id_receiver}"
+    # logger.debug2  "Gift.set_balance: id = #{id}, user_id = #{user_id}, new_balance = #{new_balance}, user_id_giver = #{user_id_giver}, user_id_receiver = #{user_id_receiver}"
     return new_balance unless received_at
     api_gift = api_gifts.find { |ag| (user_ids.index(ag.user_id_giver) or user_ids.index(ag.user_id_receiver)) }
     return new_balance unless api_gift
@@ -316,15 +316,15 @@ class Gift < ActiveRecord::Base
     begin
       api_response = api.get_object(api_request)
     rescue Koala::Facebook::ClientError => e
-      puts2log  'Koala::Facebook::ClientError'
-      puts2log  "e.fb_error_type = #{e.fb_error_type}"
-      puts2log  "e.fb_error_code = #{e.fb_error_code}"
-      puts2log  "e.fb_error_subcode = #{e.fb_error_subcode}"
-      puts2log  "e.fb_error_message = #{e.fb_error_message}"
-      puts2log  "e.http_status = #{e.http_status}"
-      puts2log  "e.response_body = #{e.response_body}"
-      puts2log  "e.fb_error_type.class.name = #{e.fb_error_type.class.name}"
-      puts2log  "e.fb_error_code.class.name = #{e.fb_error_code.class.name}"
+      logger.debug2  'Koala::Facebook::ClientError'
+      logger.debug2  "e.fb_error_type = #{e.fb_error_type}"
+      logger.debug2  "e.fb_error_code = #{e.fb_error_code}"
+      logger.debug2  "e.fb_error_subcode = #{e.fb_error_subcode}"
+      logger.debug2  "e.fb_error_message = #{e.fb_error_message}"
+      logger.debug2  "e.http_status = #{e.http_status}"
+      logger.debug2  "e.response_body = #{e.response_body}"
+      logger.debug2  "e.fb_error_type.class.name = #{e.fb_error_type.class.name}"
+      logger.debug2  "e.fb_error_code.class.name = #{e.fb_error_code.class.name}"
       # Koala::Facebook::ClientError
       # e.fb_error_type = GraphMethodException
       # e.fb_error_code = 100
@@ -342,7 +342,7 @@ class Gift < ActiveRecord::Base
         raise
       end
     end
-    puts2log  "api_response = #{api_response}"
+    logger.debug2  "api_response = #{api_response}"
     return api_response["full_picture"]
   end # get_api_picture_url
 =end
@@ -382,7 +382,7 @@ class Gift < ActiveRecord::Base
     (0..(cs.length-1)).each { |i| cs[i].no_older_comments = i }
     return cs.last(4) if first_comment_id == nil
     index = cs.find_index { |c| c.id.to_s == first_comment_id.to_s }
-    # puts2log  "index = #{index}"
+    # logger.debug2  "index = #{index}"
     return [] if index == nil or index == 0
     cs[0..(index-1)].last(10)
   end # comments_with_filter

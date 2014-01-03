@@ -11,7 +11,7 @@ class UsersController < ApplicationController
 
   def update
     if !@users.find { |user| params[:id] == user.id.to_s}
-      puts2log  "invalid id. params[:id] = #{params[:id]}"
+      logger.debug2  "invalid id. params[:id] = #{params[:id]}"
       flash[:notice] = t '.invalid_request'
       if params[:return_to].to_s != ''
         redirect_to params[:return_to]
@@ -67,12 +67,12 @@ class UsersController < ApplicationController
     else
       last_row_id = nil
     end
-    # puts2log  "last_row_id = #{last_row_id}"
+    # logger.debug2  "last_row_id = #{last_row_id}"
     if last_row_id and get_next_set_of_rows_error?(last_row_id)
       # problem with ajax request.
       # can be invalid last_row_id - can be too many get-more-rows ajax requests - max one request every 3 seconds - more info in log
       # return "empty" ajax response with dummy row with correct last_row_id to client
-      puts2log  "return empty ajax response with dummy row with correct last_row_id to client"
+      logger.debug2  "return empty ajax response with dummy row with correct last_row_id to client"
       @api_gifts = []
       @users2 = []
       @last_row_id = session[:last_row_id]
@@ -92,7 +92,7 @@ class UsersController < ApplicationController
     #    a.friend.user_name <=> b.friend.user_name
     #  end
     #end
-    # puts2log  "friends_filter = #{@friends_filter}, found #{user_friends.size} friends"
+    # logger.debug2  "friends_filter = #{@friends_filter}, found #{user_friends.size} friends"
 
     if @friends_filter == true
       # simple friends search - just return login users friends
@@ -107,9 +107,9 @@ class UsersController < ApplicationController
       # find friends of friends
       friends_userids = user_friends.collect { |f| f.user_id_receiver }
       friends_userids.delete_if { |user_id| login_user_ids.index(user_id) }
-      # puts2log  "friends_userids = " + friends_userids.join(', ')
+      # logger.debug2  "friends_userids = " + friends_userids.join(', ')
       friends = User.where("user_id in (?)", friends_userids).includes(:friends)
-      # puts2log  "friends = " + friends.collect { |u| u.short_user_name }.join(', ')
+      # logger.debug2  "friends = " + friends.collect { |u| u.short_user_name }.join(', ')
       friends_friends_userids = all_friends_user_ids
       friends.each do |u|
         friends_friends_userids = (friends_friends_userids + u.friends.collect { |f| f.user_id_receiver }).uniq
@@ -117,14 +117,14 @@ class UsersController < ApplicationController
       friends_friends_userids.delete_if { |user_id| login_user_ids.index(user_id) }
       # find relevant users
       users2 = []
-      # puts2log  "friends_friends_userids = #{friends_friends_userids.join(', ')}"
+      # logger.debug2  "friends_friends_userids = #{friends_friends_userids.join(', ')}"
       User.where("user_id in (?)", friends_friends_userids).each do |user|
         friend = user.friend?(@users)
-        # puts2log  "user = #{user.user_id}, friend = #{friend}"
+        # logger.debug2  "user = #{user.user_id}, friend = #{friend}"
         next if @friends_filter == false and friend # don't show friends
         users2 << user
       end # each user
-      # puts2log  "users2.size = #{users2.size}"
+      # logger.debug2  "users2.size = #{users2.size}"
       # sort: number of mutual friends desc, user name ascending, id ascending
       users2 = users2.sort do |a, b|
         if a.mutual_friends(@users).size != b.mutual_friends(@users).size
@@ -158,18 +158,18 @@ class UsersController < ApplicationController
     id = params[:id]
     @user2 = User.find_by_id(id)
     if !@user2
-      puts2log  "invalid request. User with id #{id} was not found"
+      logger.debug2  "invalid request. User with id #{id} was not found"
       flash[:notice] = t '.invalid_request'
       redirect_to :action => :index
       return
     end
     if !login_user_ids.index(@user2.user_id) and @user2.mutual_friends(@users).size == 0
-      puts2log  "invalid request. No mutual friends for user with id #{id}"
+      logger.debug2  "invalid request. No mutual friends for user with id #{id}"
       flash[:notice] = t '.invalid_request'
       redirect_to :action => :index
       return
     end
-    puts2log  "@user2 = #{@user2.id} #{@user2.user_name}"
+    logger.debug2  "@user2 = #{@user2.id} #{@user2.user_name}"
 
     # recalculate balance once every day
     # todo: should only recalculate user balance from @user2.balance_at and to today
@@ -196,7 +196,7 @@ class UsersController < ApplicationController
       tab = params[:tab].to_s || tabs.first
       tab = tabs.first unless tabs.index(tab)
     end
-    puts2log  "tab = #{tab}"
+    logger.debug2  "tab = #{tab}"
 
     # http request: return first 10 gifts (last_row_id = nil)
     # ajax request: return next 10 gifts (last_row_id != nil)
@@ -211,7 +211,7 @@ class UsersController < ApplicationController
       # problem with ajax request.
       # can be invalid last_row_id - can be too many get-more-rows ajax requests - max one request every 3 seconds - more info in log
       # return "empty" ajax response with dummy row with correct last_row_id to client
-      puts2log  "return empty ajax response with dummy row with correct last_row_id to client"
+      logger.debug2  "return empty ajax response with dummy row with correct last_row_id to client"
       @page_values = {:tab => tab }
       @api_gifts = @users2 = []
       @last_row_id = session[:last_row_id]
@@ -244,7 +244,7 @@ class UsersController < ApplicationController
       directions = %w(giver receiver both)
       direction = params[:direction] || 'both'
       direction = 'both' unless %w(giver receiver both).index(direction)
-      puts2log  "balance filters: status = #{status}, direction = #{direction}"
+      logger.debug2  "balance filters: status = #{status}, direction = #{direction}"
 
       # initialize array with user navigation links. 0-3 sections with links. Up to 9 links.
       @user_nav_links = []
@@ -273,7 +273,7 @@ class UsersController < ApplicationController
       end # sort
       # return next 10 gifts - first 10 for http request - next 10 for ajax request
       @api_gifts, @last_row_id = get_next_set_of_rows(gifts, last_row_id)
-      puts2log  "@gifts.size = #{@api_gifts.size}, @last_row_id = #{@last_row_id}" if debug_ajax?
+      logger.debug2  "@gifts.size = #{@api_gifts.size}, @last_row_id = #{@last_row_id}" if debug_ajax?
     end
 
     if tab == 'friends'
@@ -282,7 +282,7 @@ class UsersController < ApplicationController
       # users = User.all # uncomment to test ajax
       # return next 10 users - first 10 for http request - next 10 for ajax request
       @users2, @last_row_id = get_next_set_of_rows(users, last_row_id)
-      puts2log  "@users2.size = #{@users2.size}, @last_row_id = #{@last_row_id}" if debug_ajax?
+      logger.debug2  "@users2.size = #{@users2.size}, @last_row_id = #{@last_row_id}" if debug_ajax?
     end # friends
 
     if tab == 'gifts'
@@ -333,8 +333,8 @@ class UsersController < ApplicationController
     end
 
     # ok - all needed exchange rates was available - currency and balance was updated
-    # puts2log  "ok - all needed exchange rates was available - currency and balance was updated"
-    # puts2log  "currency = #{@user.currency}, balance = #{@user.balance}"
+    # logger.debug2  "ok - all needed exchange rates was available - currency and balance was updated"
+    # logger.debug2  "currency = #{@user.currency}, balance = #{@user.balance}"
     # @user.save!
 
     redirect_to params[:return_to]
@@ -352,7 +352,7 @@ class UsersController < ApplicationController
     id2 = params[:friend_id]
     user2 = User.find_by_id(id2)
     if !user2
-      puts2log  "invalid request. Friend with id #{id2} was not found"
+      logger.debug2  "invalid request. Friend with id #{id2} was not found"
       flash[:notice] = t '.invalid_request'
       redirect_to return_to
       return
@@ -361,8 +361,8 @@ class UsersController < ApplicationController
     friend_action = params[:friend_action]
     allowed_friend_actions = user2.friend_status_actions(login_user).collect { |fa| fa.downcase }
     if !allowed_friend_actions.index(friend_action)
-      puts2log  "invalid request. Friend action #{friend_action} not allowed."
-      puts2log  "allowed friend actions are " + allowed_friend_actions.join(', ')
+      logger.debug2  "invalid request. Friend action #{friend_action} not allowed."
+      logger.debug2  "allowed friend actions are " + allowed_friend_actions.join(', ')
       redirect_to return_to
       return
     end

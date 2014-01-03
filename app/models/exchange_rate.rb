@@ -47,9 +47,9 @@ class ExchangeRate < ActiveRecord::Base
     # check for zero or identical currencies
     from_amount = from_amount.to_f
     if from_amount == 0 or from_currency. == to_currency
-      # puts2log  'exchange: zero amount or identical currencies'
+      # logger.debug2  'exchange: zero amount or identical currencies'
       to_amount = from_amount
-      # puts2log  "exchange: from_amount = #{from_amount}, from_currency = #{from_currency}, to_amount = #{to_amount}, to_currency = #{to_currency}"
+      # logger.debug2  "exchange: from_amount = #{from_amount}, from_currency = #{from_currency}, to_amount = #{to_amount}, to_currency = #{to_currency}"
       return to_amount
     end
 
@@ -61,7 +61,7 @@ class ExchangeRate < ActiveRecord::Base
     end
     ExchangeRate.cache_exchange_rates if cache
     date = @@today unless date
-    # puts2log  "date = #{date}, @@today = #{@@today}"
+    # logger.debug2  "date = #{date}, @@today = #{@@today}"
     raise "invalid date" unless date.to_s.yyyymmdd? and date <= @@today
 
     if from_currency == BASE_CURRENCY
@@ -123,9 +123,9 @@ class ExchangeRate < ActiveRecord::Base
       from = BASE_CURRENCY
       usd_rates = ExchangeRate.get_all_exchange_rates(from)
       if usd_rates.size < 50
-        puts2log  "Error: found less than 50 exchange rates from default money bank"
-        puts2log  "rates = #{usd_rates}"
-        puts2log  "next currency request in 6 hours"
+        logger.debug2  "Error: found less than 50 exchange rates from default money bank"
+        logger.debug2  "rates = #{usd_rates}"
+        logger.debug2  "next currency request in 6 hours"
         # ExchangeRate.set_last_money_bank_request(Time.current_hour_no) # already set
         return ['.too_few_exchange_rates', {:bank => Money.default_bank.class.name.split('::').last, :expected => 50, :found => usd_rates.size}]
       end
@@ -147,8 +147,8 @@ class ExchangeRate < ActiveRecord::Base
 
       nil
     rescue Exception => e
-      puts2log  "Exception: #{e.message.to_s}"
-      puts2log  "Backtrace: " + e.backtrace.join("\n")
+      logger.debug2  "Exception: #{e.message.to_s}"
+      logger.debug2  "Backtrace: " + e.backtrace.join("\n")
       raise
     end
   end # fetch_exchange_rates

@@ -27,14 +27,14 @@ class UserTest < ActiveSupport::TestCase
 
   def assert_hash (text, expected, found)
     found.keys.each do |name|
-      # puts2log  "#{text}: #{name}. Expected #{expected[name]}. Found #{found[name]}"
+      # logger.debug2  "#{text}: #{name}. Expected #{expected[name]}. Found #{found[name]}"
       assert (expected[name].round(8) == found[name].round(8)), "#{text}: #{name} is invalid. Expected #{expected[name]}. Found #{found[name]}" if expected.has_key?(name)
     end
   end # assert_hash
 
   def assert_gift (gift, expected)
-    puts2log  "balance_doc_giver = #{gift.balance_doc_giver}"
-    puts2log  "balance_doc_receiver = #{gift.balance_doc_receiver}"
+    logger.debug2  "balance_doc_giver = #{gift.balance_doc_giver}"
+    logger.debug2  "balance_doc_receiver = #{gift.balance_doc_receiver}"
     found = { :negative_interest_giver => gift.balance_doc_giver[:negative_interest][BALANCE_KEY],
               :negative_interest_receiver => gift.balance_doc_receiver[:negative_interest][BALANCE_KEY],
               :balance_giver => gift.balance_giver,
@@ -353,8 +353,8 @@ class UserTest < ActiveSupport::TestCase
     charlie_balance = ExchangeRate.exchange(charlie_dkk, 'DKK', 'USD', date) + charlie_usd
     sandra_balance = ExchangeRate.exchange(sandra_dkk, 'DKK', 'USD', date) + sandra_usd
 
-    puts2log  "charlie: dkk = #{charlie_dkk}, usd = #{charlie_usd}, balance = #{charlie_balance}"
-    puts2log  "sandra: dkk = #{sandra_dkk}, usd = #{sandra_usd}, balance = #{sandra_balance}"
+    logger.debug2  "charlie: dkk = #{charlie_dkk}, usd = #{charlie_usd}, balance = #{charlie_balance}"
+    logger.debug2  "sandra: dkk = #{sandra_dkk}, usd = #{sandra_usd}, balance = #{sandra_balance}"
     # charlie: dkk = 97.87691892116952, usd = -15.660307027387113, balance = 1.670073867551924
     # sandra: dkk = -97.87691892116936, usd = 15.660307027387109, balance = -1.6700738675519027
     charlie.recalculate_balance
