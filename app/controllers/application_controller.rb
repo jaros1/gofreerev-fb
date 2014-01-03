@@ -126,7 +126,7 @@ class ApplicationController < ActionController::Base
     add_dummy_user if @users.size == 0
 
     # get new exchange rates? add to task queue
-    add_task 'ExchangeRate.fetch_exchange_rates', 10 if ExchangeRate.fetch_exchange_rates?
+    add_task 'ExchangeRate.fetch_exchange_rates', 10 if logged_in? and ExchangeRate.fetch_exchange_rates?
   end # fetch_user
 
 
@@ -446,7 +446,7 @@ class ApplicationController < ActionController::Base
   end
   def clear_state
     session.delete(:state)
-    get_linkedin_client()
+    get_linkedin_client() if logged_in?
   end
   def invalid_state?
     state = params[:state].to_s

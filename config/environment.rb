@@ -1,6 +1,24 @@
 # Load the Rails application.
 require File.expand_path('../application', __FILE__)
 
+class ActiveSupport::Logger
+  def debug2 (text)
+    debug "#{caller_locations(1,1)[0].label}: #{text}"
+  end
+  def info2 (text)
+    info "#{caller_locations(1,1)[0].label}: #{text}"
+  end
+  def warn2 (text)
+    warn "#{caller_locations(1,1)[0].label}: #{text}"
+  end
+  def error2 (text)
+    error "#{caller_locations(1,1)[0].label}: #{text}"
+  end
+  def fatal2 (text)
+    fatal "#{caller_locations(1,1)[0].label}: #{text}"
+  end
+end
+
 # Extend String
 class String
   # random string - for keys, state etc

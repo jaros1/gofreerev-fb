@@ -276,8 +276,14 @@
     can not upload picture with localhost url to linkedin
     add a special error message for this case?
 
-56) uppercase letters are not allowed in facebook deep links
-
-57) invalid deep link requests
+56) invalid deep link requests
     should display an error page
     must not redirect for not logged in users
+
+57) find ip-adr for login providers
+    dev1 should only be open for login providers and testers
+    not for public
+
+58) linkedin image upload
+    is processes batch and temp picture is deleted before linkedin checks deep link
+    linkedin deep link check failed with Internal server error and linkedin never checks image url

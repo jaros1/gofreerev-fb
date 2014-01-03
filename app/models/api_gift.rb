@@ -257,7 +257,7 @@ class ApiGift < ActiveRecord::Base
     if %w(facebook).index(self.provider)
       # facebook converts deep link url to lowercase letters in request when checking deep link
       self.deep_link_id.downcase!
-      self.deep_link_pw.downcase!
+      self.deep_link_pw = self.deep_link_pw.downcase # encrypted text. no downcase! method
     end
     self.deep_link_errors = 0
     self.save!
@@ -277,7 +277,14 @@ class ApiGift < ActiveRecord::Base
   end
   def deep_link
     return nil unless deep_link_id and deep_link_pw
-    "#{SITE_URL}#{I18n.locale}/gifts/#{self.deep_link_id}#{self.deep_link_pw}"
+    link = "#{SITE_URL}#{I18n.locale}/gifts/#{self.deep_link_id}#{self.deep_link_pw}"
+    puts2log "deep_link = #{link}"
+    logger.debug2 "deep_link = #{link}"
+    logger.info2 "deep_link = #{link}"
+    logger.warn2 "deep_link = #{link}"
+    logger.error2 "deep_link = #{link}"
+    logger.fatal2 "deep_link = #{link}"
+    link
   end
   def clear_deep_link
     self.deep_link_id = self.deep_link_pw = self.deep_link_errors = nil
