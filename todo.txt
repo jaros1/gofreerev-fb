@@ -200,6 +200,11 @@
     is a problem for user that can se many gifts in gifts/index page
     Observations:
     - render api_gifts tages 2 seconds. check out user_div (62 ms) and comments2 (40 ms)
+    - try something like "select * from table where sort_id < last_sort_id limit 10" with index on sort_id
+    - should only fetch relevant rows
+    second test 4/1-2014
+    - render 10 rows takes 2 seconds (total 368 rows)
+    - big selects to get gift_likes, one select for each provider
     check out rails performens tools:
     - http://37signals.com/svn/posts/3091-pssst-your-rails-application-has-a-secret-to-tell-you
     - http://www.cheynewallace.com/ruby-on-rails-performance-tuning/
@@ -285,12 +290,22 @@
 58) linkedin image upload
     is processes batch and temp picture is deleted before linkedin checks deep link
     linkedin deep link check failed with Internal server error and linkedin never checks image url
+    there is a bigger problem with linkedin batch upload process
+    can not get picture url before linkedin has uploaded picture to linkedin wall
+    information returned from client.add_share:
+    post_on_linkedin: x.body = {
+        "updateKey": "UNIU-310307710-5824797827771314176-SHARE",
+        "updateUrl": "http://www.linkedin.com/updates?discuss=&scope=310307710&stype=M&topic=5824797827771314176&type=U&a=omJz"
+    }
+    find information about update key, update url, scope, stype and topic fields
+    todo: after client.add_share. test of updateUrl exists
 
 59) ActionController::RoutingError (No route matches [GET] "/temp/gMqsQGkFJYK6ISX.jpeg"):
     1) create shared dir for temp files
     2) change path to /images/temp/
     done - not tested
 
+60) picture with not existing temp picture are not removed in check missing picture urls
+    check that missing picture urls check is running on dev1
 
-    <img alt="Bdthjge2xydcpuc" onload="check_api_picture_url(67, this)" src="/images/temp/bDTHJGE2xYDCPuc.jpeg">
-    <img alt="M2sal71g8bai5fb" onload="check_api_picture_url(68, this)" src="/images/temp/M2sal71G8BAi5FB.jpeg">
+61) problem with api_gifts without gift - only on development!

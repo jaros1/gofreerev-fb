@@ -1265,6 +1265,19 @@ class UtilController < ApplicationController
       #    "updateUrl": "http://www.linkedin.com/updates?discuss=&scope=310307710&stype=M&topic=5824797827771314176&type=U&a=omJz"
       #}
 
+      # extract and check updateUrl - do not know if page exists at this point in upload process
+      update_url = $1 if x.body.to_s =~ /"updateUrl": "(.*?)"/
+      if update_url
+        # test if update url exists
+        link_url = URI.parse(update_url)
+        link_req = Net::HTTP::Get.new(link_url.path)
+        link_res = Net::HTTP.start(link_url.host, link_url.port) { |http| http.request(link_req) }
+        logger.debug2 "link_res.class = #{link_res.class}"
+        logger.debug2 "link_res.body = #{link_res.body}"
+      else
+        logger.error2 'updateUrl was not found en response from linkedin'
+      end
+
       # todo: get url for picture on linkedin wall.
 
       # no errors - return posted message
