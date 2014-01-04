@@ -1170,7 +1170,7 @@ class UtilController < ApplicationController
       # todo: add url for gift
       begin
 
-        image_url = "#{SITE_URL}#{gift.temp_picture_url}"
+        image_url = "#{SITE_URL}#{gift.temp_picture_url}".gsub('//','/')
         # http://stackoverflow.com/questions/15183107/rails-linked-post-message
         # http://developer.linkedin.com/documents/share-api#toggleview:id=ruby
         # Node                Parent Node    Value 	Notes
@@ -1279,7 +1279,7 @@ class UtilController < ApplicationController
       logger.debug2 "x2 = #{x2} (#{x2.class})"
       logger.debug2 "x2.methods = #{x2.methods.sort.join(', ')}"
 
-      # try with an old update key
+      # try with an old update key (from development app setup)
       update_key = "UNIU-310307710-5825168482513600512-SHARE"
       x3 = client.shares :key => update_key
       logger.debug2 "x3 = #{x3} (#{x3.class})"
@@ -1318,6 +1318,7 @@ class UtilController < ApplicationController
 
   # delete local picture file that was used when posting picture in api wall(s) - see post_on_facebook etc.
   def delete_local_picture (id)
+    return nil # todo: debugging post on linkedin
     begin
       logger.debug2  ""
 
