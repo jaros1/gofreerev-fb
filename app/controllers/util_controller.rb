@@ -1266,14 +1266,16 @@ class UtilController < ApplicationController
       #}
 
       # extract and check updateUrl - do not know if page exists at this point in upload process
+      # todo: update_url redirects to linkedin login page
       update_url = $1 if x.body.to_s =~ /"updateUrl": "(.*?)"/
       if update_url
         # test if update url exists
-        link_url = URI.parse(update_url)
-        link_req = Net::HTTP::Get.new(link_url.path)
-        link_res = Net::HTTP.start(link_url.host, link_url.port) { |http| http.request(link_req) }
+        link_res = ApiGift.http_get(update_url)
         logger.debug2 "link_res.class = #{link_res.class}"
         logger.debug2 "link_res.body = #{link_res.body}"
+        # logger.debug2 "link_res.methods = #{link_res.methods.sort.join(', ')}"
+        # logger.debug2 "link_res = #{link_res}"
+        # logger.debug2 "link.location = #{link_res['location']}"
       else
         logger.error2 'updateUrl was not found en response from linkedin'
       end

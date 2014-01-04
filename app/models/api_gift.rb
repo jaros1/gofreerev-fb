@@ -242,6 +242,53 @@ class ApiGift < ActiveRecord::Base
     (picture == 'Y')
   end
 
+  public
+  def self.http_get (url, timeout=30, max_redirects=3)
+    xstarttime = Time.new
+    while max_redirects > 0
+      # get header
+      response = nil
+      begin
+
+        # support for https - see http://stufftohelpyouout.blogspot.com/2010/05/how-to-fix-nethttpbadresponse-wrong.html
+        url_obj = URI.parse(url)
+        http = Net::HTTP.new(url_obj.host, url_obj.port)
+        http.use_ssl = true if url =~ /^https/
+        http.read_timeout=timeout
+        lpath = url_obj.path
+        lpath = "/" if lpath.to_s == ""
+        lpath = "#{lpath}?#{url_obj.query}" unless url_obj.query.to_s == ""
+        request = Net::HTTP::Get.new(lpath, {"User-Agent" => "Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.2.23) Gecko/20110921 Ubuntu/10.04 (lucid) Firefox/3.6.23"})
+        response = http.start {|http| http.request(request) }
+
+      rescue Exception => e
+        xmessage = e.message.to_s
+        raise HttpRequestTimeOut("Timeout after #{timeout} seconds") if xmessage == "execution expired"
+        logger.error2 "Exception = #{xmessage} (#{e.class})"
+        raise
+      end # begin
+
+      # check response
+      case response
+        when Net::HTTPOK
+          return response
+        when Net::HTTPRedirection
+          # redirection - continue loop
+          url = response['location']
+          max_redirects = max_redirects - 1
+        else
+          # unexpected response
+          logger.warn2 "response.class = #{response.class}, response.code = #{response.code}"
+          return response
+      end # case
+
+    end # while
+    raise HttpRedirection.new("More than #{max_redirects} redirections")
+
+  end # http_get
+
+
+
   # helpers for deep link - that is deep link from api wall to gift on gofreerev without login
   def self.new_deep_link_id
     deep_link_id = nil
@@ -264,22 +311,25 @@ class ApiGift < ActiveRecord::Base
     "#{SITE_URL}#{I18n.locale}/gifts/#{self.deep_link_id}#{self.deep_link_pw}"
   end
   def deep_link_invalid?
+    # deep link check not working in WEBrick / development (single threaded server)
     return nil unless Rails.application.config.cache_classes
-    # deep link not working in WEBrick / development (single threaded server)
     link = deep_link()
-    link_url = URI.parse(link)
-    link_req = Net::HTTP::Get.new(link_url.path)
-    link_res = Net::HTTP.start(link_url.host, link_url.port) { |http| http.request(link_req) }
-    return nil if link_res.class == Net::HTTPOK
+    return 'No deep link' unless link
+    begin
+      response = ApiGift.http_get(link)
+    rescue HttpRequestTimeOut => e
+      return e.message
+    end
+    return nil if response.class == Net::HTTPOK
     # error in deep link page
     logger.error2 "error in deep link page #{link}"
-    logger.error2 "link_res.class = #{link_res.class}"
-    error = $1 if link_res.body.to_s =~ /<h2>(.*?)<\/h2>/
+    logger.error2 "link_res.class = #{response.class}"
+    error = $1 if response.body.to_s =~ /<h2>(.*?)<\/h2>/
     if error
       logger.error2 "error = #{error}"
     else
-      logger.error2 "link_res.body = #{link_res.body}"
-      error = link_res.class.to_s
+      logger.error2 "link_res.body = #{response.body}"
+      error = response.class.to_s
     end
     error
   end
