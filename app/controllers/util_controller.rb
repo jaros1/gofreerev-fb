@@ -1265,20 +1265,25 @@ class UtilController < ApplicationController
       #    "updateUrl": "http://www.linkedin.com/updates?discuss=&scope=310307710&stype=M&topic=5824797827771314176&type=U&a=omJz"
       #}
 
-      # extract and check updateUrl - do not know if page exists at this point in upload process
+      # extract update key and url
       # todo: update_url redirects to linkedin login page
+      update_key = $1 if x.body.to_s =~ /"updateKey": "(.*?)"/
       update_url = $1 if x.body.to_s =~ /"updateUrl": "(.*?)"/
-      if update_url
-        # test if update url exists
-        link_res = ApiGift.http_get(update_url)
-        logger.debug2 "link_res.class = #{link_res.class}"
-        logger.debug2 "link_res.body = #{link_res.body}"
-        # logger.debug2 "link_res.methods = #{link_res.methods.sort.join(', ')}"
-        # logger.debug2 "link_res = #{link_res}"
-        # logger.debug2 "link.location = #{link_res['location']}"
-      else
-        logger.error2 'updateUrl was not found en response from linkedin'
-      end
+      logger.debug2 "update key = #{update_key}, update_url = #{update_url}"
+
+      # https://developer.linkedin.com/documents/share-api
+      # You can use the update key to request the XML or JSON representation of the newly created share.
+      # This can be achieved by making a GET call to http://www.linkedin-ei.com/v1/people/~/network/updates/key={update_key}
+      # (setting {update_key} to the value you received in the previous response)
+      x2 = client.shares :key => update_key
+      logger.debug2 "x2 = #{x2} (#{x2.class})"
+      logger.debug2 "x2.methods = #{x2.methods.sort.join(', ')}"
+
+      # try with an old update key
+      update_key = "UNIU-310307710-5825168482513600512-SHARE"
+      x3 = client.shares :key => update_key
+      logger.debug2 "x3 = #{x3} (#{x3.class})"
+      logger.debug2 "x3.methods = #{x3.methods.sort.join(', ')}"
 
       # todo: get url for picture on linkedin wall.
 
