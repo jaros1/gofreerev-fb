@@ -82,6 +82,25 @@ class GiftsController < ApplicationController
           api_gift.save!
         end
         picture = false
+      else
+        # mv ok - change file permissions
+        # apache must have read access to image files
+        cmd = "chmod o+r #{gift.temp_picture_path}"
+        stdout, stderr, status = User.open4(cmd)
+        logger.debug2 "chmod: cmd = #{cmd}"
+        logger.debug2 "chmod: stdout = #{stdout}, stderr = #{stderr}, status = #{status}"
+        if status != 0
+          # mv failed - continue post without picture
+          @errors << t(".file_chmod_error", :error => stderr)
+          gift.temp_picture_filename = nil
+          gift.save!
+          gift.api_gifts.each do |api_gift|
+            api_gift.picture = 'N'
+            api_gift.api_picture_url = nil
+            api_gift.save!
+          end
+          picture = false
+        end
       end
     end
 

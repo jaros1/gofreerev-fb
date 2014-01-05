@@ -60,43 +60,53 @@ end
 # additional API setup
 
 # visit or redirect to API
-API_URL           = {:facebook      => "https://www.facebook.com",
-                     :google_oauth2 => "https://plus.google.com/",
-                     :linkedin      => "https://www.linkedin.com/",
-                     :twitter       => "https://twitter.com/"}.with_indifferent_access
+API_URL = {:facebook => "https://www.facebook.com",
+           :google_oauth2 => "https://plus.google.com/",
+           :linkedin => "https://www.linkedin.com/",
+           :twitter => "https://twitter.com/"}.with_indifferent_access
 
 # callback url used in util controller and in API specific controllers (facebook, linkedin)
-API_CALLBACK_URL  = {:facebook      => "#{SITE_URL}facebook/",
-                     :google_oauth2 => '',
-                     :linkedin      => "#{SITE_URL}linkedin/index",
-                     :twitter       => ''}.with_indifferent_access
+API_CALLBACK_URL = {:facebook => "#{SITE_URL}facebook/",
+                    :google_oauth2 => '',
+                    :linkedin => "#{SITE_URL}linkedin/index",
+                    :twitter => ''}.with_indifferent_access
 
 # API name to be used in messages and mouse over texts
-API_DOWNCASE_NAME = {:facebook      => 'facebook',
+API_DOWNCASE_NAME = {:facebook => 'facebook',
                      :google_oauth2 => 'google+',
-                     :linkedin      => 'linkedin',
-                     :twitter       => 'twitter'}.with_indifferent_access
+                     :linkedin => 'linkedin',
+                     :twitter => 'twitter'}.with_indifferent_access
 
 # API name to be used in views and links
-API_CAMELIZE_NAME = {:facebook      => 'Facebook',
+API_CAMELIZE_NAME = {:facebook => 'Facebook',
                      :google_oauth2 => 'Google+',
-                     :linkedin      => 'LinkedIn',
-                     :twitter       => 'Twitter'}.with_indifferent_access
+                     :linkedin => 'LinkedIn',
+                     :twitter => 'Twitter'}.with_indifferent_access
+
+# API picture store: nil (not relevant), :api or :local. Default is :api
+API_PROFILE_PICTURE_STORE = {:facebook => :local,
+                             :google_oauth2 => :local,
+                             :linkedin => :local,
+                             :twitter => :local}.with_indifferent_access
+API_GIFT_PICTURE_STORE = {:facebook => :api,
+                          :google_oauth2 => nil, # images not uploaded to google+ - google+ is a readonly API
+                          :linkedin => :local, # images are not uploaded to LinkedIn
+                          :twitter => :api}.with_indifferent_access
 
 # open graph values (http://ogp.me/) recommended max length for meta-tags used in deep links
 # default values: 70 characters for title and 200 characters for description
-API_OG_TITLE_SIZE = {:facebook      => 94, # http://wptest.means.us.com/online-meta-tag-length-checker/
+API_OG_TITLE_SIZE = {:facebook => 94, # http://wptest.means.us.com/online-meta-tag-length-checker/
                      :google_oauth2 => 63,
-                     :linkedin      => 55,
-                     :twitter       => 70}.with_indifferent_access
-API_OG_DESC_SIZE  = {:facebook      => 200, # http://www.joshspeters.com/how-to-optimize-the-ogdescription-tag-for-search-and-social
-                     :google_oauth2 => 155,
-                     :linkedin      => 200,
-                     :twitter       => 200}.with_indifferent_access
-API_OG_DEF_IMAGE  = {:facedbook     => "#{SITE_URL}images/sacred-economics.jpg",
-                     :google_oauth2 => "#{SITE_URL}images/sacred-economics.jpg",
-                     :linkedin      => "#{SITE_URL}images/sacred-economics-linkedin.jpg", # 180 x 110 best for linkedin
-                     :twitter       => "#{SITE_URL}images/sacred-economics.jpg"}
+                     :linkedin => 55,
+                     :twitter => 70}.with_indifferent_access
+API_OG_DESC_SIZE = {:facebook => 200, # http://www.joshspeters.com/how-to-optimize-the-ogdescription-tag-for-search-and-social
+                    :google_oauth2 => 155,
+                    :linkedin => 200,
+                    :twitter => 200}.with_indifferent_access
+API_OG_DEF_IMAGE = {:facedbook => "#{SITE_URL}images/sacred-economics.jpg",
+                    :google_oauth2 => "#{SITE_URL}images/sacred-economics.jpg",
+                    :linkedin => "#{SITE_URL}images/sacred-economics-linkedin.jpg", # 180 x 110 best for linkedin
+                    :twitter => "#{SITE_URL}images/sacred-economics.jpg"}
 
 
 

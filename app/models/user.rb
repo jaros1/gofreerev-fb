@@ -29,7 +29,8 @@ class User < ActiveRecord::Base
   # https://github.com/jmazzi/crypt_keeper - text columns are encrypted in database
   # encrypt_add_pre_and_postfix/encrypt_remove_pre_and_postfix added in setters/getters for better encryption
   # this is different encrypt for each attribute and each db row
-  crypt_keeper :user_name, :currency, :balance, :permissions, :no_api_friends, :negative_interest, :encryptor => :aes, :key => ENCRYPT_KEYS[0]
+  crypt_keeper :user_name, :currency, :balance, :permissions, :no_api_friends, :negative_interest,
+               :api_profile_url, :new_profile_picture_url, :encryptor => :aes, :key => ENCRYPT_KEYS[0]
 
 
   ##############
@@ -217,6 +218,29 @@ class User < ActiveRecord::Base
     return nil unless (temp_api_profile_url = attribute_was(:api_profile_url))
     encrypt_remove_pre_and_postfix(temp_api_profile_url, 'api_profile_url', 39)
   end # api_profile_url_was
+
+  # 12) new_profile_picture_url - url to user profile picture 
+  # picture store for profile pictures is either :api or :local. See array constant API_PROFILE_PICTURE_STORE
+  # String in model - Encrypted text in db
+  def new_profile_picture_url
+    return nil unless (temp_new_profile_picture_url = read_attribute(:new_profile_picture_url))
+    # logger.debug2  "temp_new_profile_picture_url = #{temp_new_profile_picture_url}"
+    encrypt_remove_pre_and_postfix(temp_new_profile_picture_url, 'new_profile_picture_url', 40)
+  end # new_profile_picture_url
+  def new_profile_picture_url=(new_new_profile_picture_url)
+    if new_new_profile_picture_url
+      check_type('new_profile_picture_url', new_new_profile_picture_url, 'String')
+      write_attribute :new_profile_picture_url, encrypt_add_pre_and_postfix(new_new_profile_picture_url, 'new_profile_picture_url', 40)
+    else
+      write_attribute :new_profile_picture_url, nil
+    end
+  end # new_profile_picture_url=
+  alias_method :new_profile_picture_url_before_type_cast, :new_profile_picture_url
+  def new_profile_picture_url_was
+    return new_profile_picture_url unless new_profile_picture_url_changed?
+    return nil unless (temp_new_profile_picture_url = attribute_was(:new_profile_picture_url))
+    encrypt_remove_pre_and_postfix(temp_new_profile_picture_url, 'new_profile_picture_url', 40)
+  end # new_profile_picture_url_was
   
   # change currency in page header.
   attr_accessor :new_currency
@@ -394,16 +418,51 @@ class User < ActiveRecord::Base
         logger.error2 "unsupported image type #{image_type} from #{user.provider}"
         return ['.profile_image_invalid_type', {:provider => user.provider, :image => url, :image_type => image_type}]
       end
-      # prepare work dir for download
-      FileUtils.mkdir_p FileUtils.mkdir_p user.profile_picture_tmp_os_folder
-      stdout, stderr, status = User.open4('rm *', user.profile_picture_tmp_os_folder)
-      logger.debug2 "mkdir_p: stdout = #{stdout}, stderr = #{stderr}, status = #{status}"
-      # logger.debug2  "rm: stdout = #{stdout}, stderr = #{stderr}, status = #{status} (#{status.class})" if status != 0
-      # download image to work dir
-      stdout, stderr, status = User.open4("wget \"#{url}\" --no-check-certificate", user.profile_picture_tmp_os_folder)
+      # check image store for profile pictures (:api or :local)
+      picture_store = API_PROFILE_PICTURE_STORE(user.provider) || :api
+      if picture_store == :api
+        # profile pictures are not downloaded. just use url as it is.
+        Picture.delete_if_app_url(user.new_profile_picture_url)
+        user.new_profile_picture_url = url
+        user.save!
+        return nil
+      end
+      if picture_store != :local
+        logger.fatal2 "unknown profile picture store #{picture_store} for login provider #{user.provider}"
+        logger.fatal2 "please check array constant API_PROFILE_PICTURE_STORE (/config/initializers/omniauth.rb"
+        return ['.profile_image_unsupported_store', {:provider => user.provider}]
+      end
+
+      # download profile pictures from server to local picture store
+
+      if user.new_profile_picture_url
+        # ignore old api profile picture url
+        user.new_profile_picture_url = nil unless Picture.app_url?(user.new_profile_picture_url)
+      end
+      old_image_type = Picture.find_picture_type(user.new_profile_picture_url) if user.new_profile_picture_url
+      # 3 cases:
+      #  a) first profile picture download (new path)
+      #  b) profile picture with unchanged image type (unchanged path - overwrite old picture)
+      #  c) profile picture with new image type (changed path - delete old picture and download new picture)
+      if !user.new_profile_picture_url or old_image_type != image_type
+        # get new picture location
+        rel_path = Picture.new_perm_rel_path image_type
+      else
+        # reuse old picture location
+        rel_path = Picture.rel_path(user.new_profile_picture_url)
+      end
+      # create temp dir for picture download
+      tmp_dir_rel_path = "#{rel_path}.tmp"
+      tmp_dir_full_os_path = Picture.full_os_path(tmp_dir_rel_path)
+      FileUtils.mkdir_p tmp_dir_full_os_path
+      # download image to temp dir
+      stdout, stderr, status = User.open4("wget \"#{url}\" --no-check-certificate", tmp_dir_full_os_path)
       if status != 0
+        # download failed - set error message
         logger.warn2 "image download failed: wget: stdout = #{stdout}, stderr = #{stderr}, status = #{status} (#{status.class})"
         error = stderr.to_s.split("\n").last
+        stdout, stderr, status = User.open4("rm *", tmp_dir_full_os_path)
+
         return ['.profile_image_wget_failed', {:provider => user.provider, :image => url, :error => error}]
       end
       # check download
@@ -417,7 +476,7 @@ class User < ActiveRecord::Base
       if user.profile_picture_name and user.profile_picture_name.split('.').last == image_type
         new_file_name = user.profile_picture_name # unchanged image type - keep old picture name
       else
-        new_file_name = (String.generate_random_string(10) + '.' + image_type).last(10).downcase # generate new picture name
+        new_file_name = (String.generate_random_string(20) + '.' + image_type).last(20).downcase # generate new picture name
       end
       stdout, stderr, status = User.open4("mv #{old_file_name} ../#{new_file_name}", user.profile_picture_tmp_os_folder)
       if status != 0

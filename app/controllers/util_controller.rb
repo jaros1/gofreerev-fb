@@ -1170,7 +1170,7 @@ class UtilController < ApplicationController
       # todo: add url for gift
       begin
 
-        image_url = "#{SITE_URL}#{gift.temp_picture_url}".gsub('//','/')
+        image_url = "#{SITE_URL}#{gift.temp_picture_url}".gsub('//images','/images') # fix double // in url
         # http://stackoverflow.com/questions/15183107/rails-linked-post-message
         # http://developer.linkedin.com/documents/share-api#toggleview:id=ruby
         # Node                Parent Node    Value 	Notes
@@ -1196,7 +1196,7 @@ class UtilController < ApplicationController
           case
             when text.length <= 200
               content["title"] = text
-              content["description"] = ''
+              content["description"] = '.'
             when text.length <= 456
               content["title"] = text.first(200)
               content["description"] = text.from(200)

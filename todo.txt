@@ -299,6 +299,7 @@
     }
     find information about update key, update url, scope, stype and topic fields
     todo: after client.add_share. test of updateUrl exists
+    Linkedin does not store pictures - pictures are stored locally
 
 59) ActionController::RoutingError (No route matches [GET] "/temp/gMqsQGkFJYK6ISX.jpeg"):
     1) create shared dir for temp files
@@ -309,3 +310,12 @@
     check that missing picture urls check is running on dev1
 
 61) problem with api_gifts without gift - only on development!
+
+62) profile_picture_name should be uniq
+    profile picture folder is now md5(user_id)
+    two different users could have identical md5
+
+63) add API_LOCAL_PICTURE array constant
+
+64) it should be possible to get larger facebook pictures
+    right click menu in facebook gives a public available full size picture url

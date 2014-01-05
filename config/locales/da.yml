@@ -105,6 +105,7 @@ da:
         profile_image_blank: "Intet profil billede modtaget fra %{provider}" # provider
         profile_image_invalid_url: "Ugyldig profil billede url \"%{image}\" modtaget fra %{provider}" # image and provider - image must be an url (http or https)
         profile_image_invalid_type: "Advarsel. Profil billede type %{image_type} modtaget fra %{provider} er ikke understøttet. Url til profil billede var \"%{image}\""
+        profile_image_unsupported_store: "Systemfejl. Tjek venligst API_PROFILE_PICTURE_STORE for %{provider}."
         profile_image_wget_failed: "Download af profil billede fra %{provider} fejlede: \"%{error}\". Url til profil billede var \"%{image}\""
         profile_image_count_failed: "Systemfejl. Download af profil billede fra %{provider} fejlede. Forventede et profil billede. Fandt %{count} profil billeder. Url var \"%{image}\""
         profile_image_mv_failed: "Systemfejl. Kunne ikke indsætte nyt profil billede modtaget fra %{provider}: \"%{error}\""
