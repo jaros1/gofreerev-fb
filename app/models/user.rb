@@ -414,14 +414,18 @@ class User < ActiveRecord::Base
       end
       # check image type
       image_type = FastImage.type(url).to_s
+      if image_type.to_s == ''
+        logger.error2 "profile picture url #{url} with blank image type. provider #{user.provider}"
+        return ['.profile_image_invalid_type', {:provider => user.provider, :image => url, :image_type => image_type}]
+      end
       if !%w(gif jpeg png jpg bmp).index(image_type)
-        logger.error2 "unsupported image type #{image_type} from #{user.provider}"
+        logger.error2 "profile picture url #{url} with unsupported image type #{image_type}. provider #{user.provider}"
         return ['.profile_image_invalid_type', {:provider => user.provider, :image => url, :image_type => image_type}]
       end
       # check image store for profile pictures (:api or :local)
-      picture_store = API_PROFILE_PICTURE_STORE(user.provider) || :api
+      picture_store = API_PROFILE_PICTURE_STORE[user.provider] || :api
       if picture_store == :api
-        # profile pictures are not downloaded. just use url as it is.
+        # preferred choice - no profile pictures download - just use url as it is.
         Picture.delete_if_app_url(user.new_profile_picture_url)
         user.new_profile_picture_url = url
         user.save!
@@ -436,67 +440,123 @@ class User < ActiveRecord::Base
       # download profile pictures from server to local picture store
 
       if user.new_profile_picture_url
-        # ignore old api profile picture url
+        # ignore old api profile picture url - will be replaced with an app profile picture url after download
         user.new_profile_picture_url = nil unless Picture.app_url?(user.new_profile_picture_url)
       end
       old_image_type = Picture.find_picture_type(user.new_profile_picture_url) if user.new_profile_picture_url
       # 3 cases:
-      #  a) first profile picture download (new path)
-      #  b) profile picture with unchanged image type (unchanged path - overwrite old picture)
-      #  c) profile picture with new image type (changed path - delete old picture and download new picture)
+      #  1) first profile picture download (new path)
+      #  2) profile picture with unchanged image type (unchanged path - overwrite old picture)
+      #  3) profile picture with new image type (changed path - delete old picture and download new picture)
       if !user.new_profile_picture_url or old_image_type != image_type
-        # get new picture location
+        # case 1) and 3) get new picture location
+        case_no = user.new_profile_picture_url ? 3 : 1
+        old_profile_picture_url = user.new_profile_picture_url
         rel_path = Picture.new_perm_rel_path image_type
       else
-        # reuse old picture location
+        # case 2) reuse old picture location
         rel_path = Picture.rel_path(user.new_profile_picture_url)
+        case_no = 2
       end
       # create temp dir for picture download
-      tmp_dir_rel_path = "#{rel_path}.tmp"
-      tmp_dir_full_os_path = Picture.full_os_path(tmp_dir_rel_path)
-      FileUtils.mkdir_p tmp_dir_full_os_path
+      tmp_dir_full_os_path = Picture.create_tmp_dir :rel_path => rel_path
       # download image to temp dir
       stdout, stderr, status = User.open4("wget \"#{url}\" --no-check-certificate", tmp_dir_full_os_path)
       if status != 0
-        # download failed - set error message
+        # download failed
         logger.warn2 "image download failed: wget: stdout = #{stdout}, stderr = #{stderr}, status = #{status} (#{status.class})"
-        error = stderr.to_s.split("\n").last
-        stdout, stderr, status = User.open4("rm *", tmp_dir_full_os_path)
-
+        Picture.delete_tmp_dir :full_os_path => tmp_dir_full_os_path
         return ['.profile_image_wget_failed', {:provider => user.provider, :image => url, :error => error}]
       end
       # check download
-      files = Dir.entries(user.profile_picture_tmp_os_folder).delete_if { |x| ['.', '..'].index(x) }
+      files = Dir.entries(tmp_dir_full_os_path).delete_if { |x| ['.', '..'].index(x) }
       if files.size != 1
         logger.error2 "image download failed. expected 1 image. found #{files.size} images"
+        Picture.delete_tmp_dir :full_os_path => tmp_dir_full_os_path
         return ['.profile_image_count_failed', {:provider => user.provider, :image => url, :count => files.size}]
       end
-      # rename/move image
-      old_file_name = files.first
-      if user.profile_picture_name and user.profile_picture_name.split('.').last == image_type
-        new_file_name = user.profile_picture_name # unchanged image type - keep old picture name
-      else
-        new_file_name = (String.generate_random_string(20) + '.' + image_type).last(20).downcase # generate new picture name
+      new_image_file_full_os_path = "#{tmp_dir_full_os_path}/#{files.first}"
+      if case_no == 2
+        # 2) overwrite old profile picture - backup before overwrite
+        from = Picture.full_os_path :url => old_profile_picture_url
+        to = "#{new_image_file_full_os_path}.old"
+        cmd = "cp #{from} #{to}"
+        if status != 0
+          logger.debug2 "case #{case_no}"
+          logger.debug2 "cp1: cmd = #{cmd}"
+          logger.error2 "cp1: stdout = #{stdout}, stderr = #{stderr}, status = #{status} (#{status.class})"
+          error = stderr.to_s.split("\n").last
+          Picture.delete_tmp_dir :full_os_path => tmp_dir_full_os_path
+          return ['.profile_image_cp1_failed', {:provider => user.provider, :image => url, :error => error}]
+        end
+        # backup ok
       end
-      stdout, stderr, status = User.open4("mv #{old_file_name} ../#{new_file_name}", user.profile_picture_tmp_os_folder)
+      # copy
+      from = new_image_file_full_os_path
+      to = Picture.full_os_path :rel_path => rel_path
+      cmd = "cp #{from} #{to}"
+      stdout, stderr, status = User.open4(cmd)
       if status != 0
-        # rename/move failed
-        logger.error2 "image rename/move failed: stdout = #{stdout}, stderr = #{stderr}, status = #{status} (#{status.class})"
-        error = stderr.to_s.split("\n").last
-        return ['.profile_image_mv_failed', {:provider => user.provider, :image => url, :error => error}]
+        # copy failed
+        logger.debug2 "case #{case_no}"
+        logger.debug2 "cp2: cmd = #{cmd}"
+        logger.error2 "cp2: stdout = #{stdout}, stderr = #{stderr}, status = #{status} (#{status.class})"
+        error1 = stderr.to_s.split("\n").last
+        if case_no == 2
+          # restore backup
+          from = "#{new_image_file_full_os_path}.old"
+          to = Picture.full_os_path :url => old_profile_picture_url
+          cmd = "cp #{from} #{to}"
+          stdout, stderr, status = User.open4(cmd)
+          if status != 0
+            logger.debug2 "case #{case_no}"
+            logger.debug2 "cp3: cmd = #{cmd}"
+            logger.error2 "cp3: stdout = #{stdout}, stderr = #{stderr}, status = #{status} (#{status.class})"
+            error2 = stderr.to_s.split("\n").last
+            error = "#{error1} - #{error2}"
+            Picture.delete_tmp_dir :full_os_path => tmp_dir_full_os_path
+            return ['.profile_image_cp3_failed', {:provider => user.provider, :image => url, :error => error}]
+          end
+          # backup restored
+        end
+        # copy failed
+        Picture.delete_tmp_dir :full_os_path => tmp_dir_full_os_path
+        return ['.profile_image_cp2_failed', {:provider => user.provider, :image => url, :error => error1}]
       end
-      # download, rename and move ok
+      # copied
+      # download and copy ok
       user.reload
-      user.profile_picture_name = new_file_name
-      user.update_attribute('profile_picture_name', new_file_name) if user.profile_picture_name_changed?
+      user.new_profile_picture_url = Picture.url :rel_path => rel_path
+      user.update_attribute('new_profile_picture_url', user.new_profile_picture_url) if user.new_profile_picture_url_changed?
       # cleanup
-      stdout, stderr, status = User.open4("rmdir tmp", user.profile_picture_os_folder)
-      logger.debug2 "rmdir: stdout = #{stdout}, stderr = #{stderr}, status = #{status} (#{status.class})" if status != 0
+      Picture.delete_tmp_dir :full_os_path => tmp_dir_full_os_path
+      Picture.delete :url => old_profile_picture_url if case_no == 3
       nil
     rescue Exception => e
       logger.error2 "Exception: #{e.message.to_s}"
       logger.error2 "Backtrace: " + e.backtrace.join("\n")
-      raise
+      # picture cleanup - any problems are only written to log
+      begin
+        if tmp_dir_full_os_path and File.exists?(tmp_dir_full_os_path)
+          begin
+            # always remove tmp dir if tmp dir exists
+            Picture.delete_tmp_dir :full_os_path => tmp_dir_full_os_path
+          rescue Exception => e
+            logger.error2 "Error in tmp dir cleanup after exception. Error = #{e.message}"
+          end
+        end
+        if case_no and [1, 3].index(case_no) and rel_path
+          begin
+            # new picture location - remove picture if picture exists
+            to = Picture.full_os_path :rel_path => rel_path
+            FileUtils.rm(to) if File.exists(to)
+          rescue Exception => e
+            logger.error2 "Error in tmp dir cleanup after exception. Error = #{e.message}"
+          end
+        end
+      rescue Exception => e
+        logger.error2 "Error in picture cleanup after exception. Error = #{e.message}"
+      end
     end
   end # self.download_profile_image
 

@@ -180,32 +180,43 @@ class Picture < ActiveRecord::Base
   # delete picture if local app url - for example delete gift with picture or after changing profile picture store to :api
   def self.delete_if_app_url(url)
     return nil if url.to_s == ""
-    Picture.delete(url) if Picture.app_url?(url)
+    Picture.delete(:url => url) if Picture.app_url?(url)
   end
 
   # delete picture including empty parent folders
   def self.delete (options)
     Picture.check_app_options(options)
-    filename = options[:full_os_path]
-    if !File.exist?(filename)
-      logger.warn2 "Picture was not found. Filename = #{filename}"
+    url, full_os_path = options[:url], options[:full_os_path]
+    if !File.exist?(full_os_path)
+      logger.warn2 "Picture was not found. Filename = #{full_os_path}"
       return
     end
     # delete picture
-    File.delete(filename)
+    File.delete(full_os_path)
     return if Picture.temp_app_url?(url)
+    # cleanup empty parent folders
+    Picture.delete_empty_parent_dirs :full_os_path => full_os_path
+  end # delete
+
+  # used after picture delete to remove empty parent dirs
+  def self.delete_empty_parent_dirs (options)
+    Picture.check_app_options(options)
+    url, rel_path, full_os_path = options[:url], options[:rel_path], options[:full_os_path]
+    msg = 'Expected :url, :rel_path or :perm_perm to deleted picture in perm'
+    raise InvalidCall.new(msg) unless Picture.perm_app_url?(url)
+    raise InvalidCall.new(msg) if File.exists?(full_os_path)
     # cleanup unused parent folders
     loop do
       rel_path = rel_path.split('/')[0..-2].join('/')
       return unless rel_path.index('/') # never delete temp or perm root folder
-      dir_full_path = Picture.full_os_path(rel_path)
+      dir_full_path = Picture.full_os_path :rel_path => rel_path
       return unless (Dir.entries(dir_full_path) - %w{ . .. }).empty? # only delete empty parent folders
       FileUtil.rmdir  dir_full_path
     end
-  end # delete
+  end
 
   # cleanup empty folders under PICTURE_PERM_OS_ROOT (Picture.delete should remove empty parent folders)
-  def self.delete_empty_dirs (options = {})
+  def self.delete_empty_sub_dirs (options = {})
     options[:full_os_path] = PICTURE_PERM_OS_ROOT if options == {}
     Picture.check_app_options(options)
     url, full_os_path = options[:url], options[:full_os_path]
@@ -223,11 +234,37 @@ class Picture < ActiveRecord::Base
     Dir.entries(full_os_path).each do |dir|
       next if %w(. ..).index(dir)
       new_full_os_path = "#{full_os_path}/#{dir}"
-      no_files += Picture.delete_empty_dirs(:full_os_path => new_full_os_path) # recursive call
+      no_files += Picture.delete_empty_sub_dirs(:full_os_path => new_full_os_path) # recursive call
     end
     return no_files if full_os_path == PICTURE_PERM_OS_ROOT
-    FileUtils.rmdir dir_full_path if no_files == 0
+    FileUtils.rmdir full_os_path if no_files == 0
     no_files == 0 ? 0 : no_files + 1
   end # delete_empty_dirs
+
+
+  # temp dir helpers - temp dirs are used when downloading pictures
+  
+  def self.create_tmp_dir (options)
+    Picture.check_app_options(options)
+    url, rel_path, full_os_path = options[:url], options[:rel_path], options[:full_os_path]
+    msg = 'Expected :url, :rel_path or :perm_perm to picture in perm'
+    raise InvalidCall.new(msg) unless Picture.perm_app_url?(url)
+    # create temp dir for picture download
+    tmp_dir_rel_path = "#{rel_path}.tmp"
+    tmp_dir_full_os_path = Picture.full_os_path :rel_path => tmp_dir_rel_path
+    FileUtils.mkdir_p tmp_dir_full_os_path
+    tmp_dir_full_os_path
+  end
+  
+  def self.delete_tmp_dir (options)
+    Picture.check_app_options(options)
+    url, full_os_path = options[:url], options[:full_os_path]
+    msg = 'Expected :url, :rel_path or :perm_perm to picture in perm'
+    raise InvalidCall.new(msg) unless Picture.perm_app_url?(url)
+    stdout, stderr, status = User.open4("rm *", full_os_path)
+    logger.debug2 "rm: stdout = #{stdout}, stderr = #{stderr}, status = #{status} (#{status.class})"
+    FileUtils.rmdir full_os_path
+    Picture.delete_empty_parent_dirs :full_os_path => full_os_path
+  end
 
 end

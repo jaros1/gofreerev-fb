@@ -244,3 +244,5 @@ Low priority todo list. Minor errors, wishlist etc.
     how to handle security? Should only see gifts from/to friends
 
 61) post comments on API walls?
+
+62) picture store. add :host for hosted pictures

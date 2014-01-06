@@ -319,3 +319,8 @@
 
 64) it should be possible to get larger facebook pictures
     right click menu in facebook gives a public available full size picture url
+
+65) if profile picture store = :api.
+    add onload handler to profile picture to check for invalid profile picture urls
+    should ajax report invalid profile picture url to server.
+    should display no-picture.jpg if profile picture was not found
