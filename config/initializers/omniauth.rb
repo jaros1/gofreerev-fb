@@ -83,11 +83,12 @@ API_CAMELIZE_NAME = {:facebook => 'Facebook',
                      :linkedin => 'LinkedIn',
                      :twitter => 'Twitter'}.with_indifferent_access
 
-# API picture store: nil (not relevant), :api or :local. Default is :api
-API_PROFILE_PICTURE_STORE = {:facebook => :local,
-                             :google_oauth2 => :local,
-                             :linkedin => :local,
-                             :twitter => :local}.with_indifferent_access
+# API profile pictures: :api or :local. Default is :api <=> Profile pictures are not downloaded from provider
+API_PROFILE_PICTURE_STORE = {}.with_indifferent_access
+
+# gift pictures: nil (no picture/readonly api), :api (use api picture url) or :local (keep local copy of picture)
+# gooogle+ must be :local or nil (readonly api)
+# linkedin must be :local or nil (only picture url is uploaded to linkedin)
 API_GIFT_PICTURE_STORE = {:facebook => :api,
                           :google_oauth2 => nil, # images not uploaded to google+ - google+ is a readonly API
                           :linkedin => :local, # images are not uploaded to LinkedIn
@@ -107,8 +108,6 @@ API_OG_DEF_IMAGE = {:facedbook => "#{SITE_URL}images/sacred-economics.jpg",
                     :google_oauth2 => "#{SITE_URL}images/sacred-economics.jpg",
                     :linkedin => "#{SITE_URL}images/sacred-economics-linkedin.jpg", # 180 x 110 best for linkedin
                     :twitter => "#{SITE_URL}images/sacred-economics.jpg"}
-
-
 
 # extract basic information from auth_hash (provider, uid, user_name, token, language)
 # provider specific versions can be implemented with get_<method>_<provider>.

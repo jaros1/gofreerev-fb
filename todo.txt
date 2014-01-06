@@ -324,3 +324,7 @@
     add onload handler to profile picture to check for invalid profile picture urls
     should ajax report invalid profile picture url to server.
     should display no-picture.jpg if profile picture was not found
+
+66) facebook login
+    - do not use profile picture url from omniauth login
+    - use profile picture url from koala me?fields=..picture.. request

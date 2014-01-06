@@ -338,9 +338,12 @@ class User < ActiveRecord::Base
     # todo: should escape username - ERB::Util.html_escape(user_name) does not work from activemodel
     return '.callback_user_name_missing_google' if user_name == "" and provider.first(6) == 'google'
     return ['.callback_user_name_missing',  { :provider => provider } ] if user_name == ""
-    # missing image is a minor problem
+    # missing profile image is a minor problem - only check here - profile image information is updated in a post login task
+    # facebook: profile image from omniauth login is not used (wrong dimensions) -
+    #           profile image from koala request in post_login_facebook is used
     image = options[:image].to_s
-    logger.debug2  "no profile picture received from login provider #{provider}" if image == ""
+    logger.debug2 "no profile picture received from login provider #{provider}" if image == "" and provider != 'facebook'
+    logger.debug2 "profile image url #{image}" unless image == ""
     # missing or invalid profile url is a minor problem
     profile_url = options[:profile_url].to_s
     if profile_url == ""
@@ -397,7 +400,7 @@ class User < ActiveRecord::Base
   # called from util.do_tasks after login process has completed
   # return nil if ok
   # return array with translate key and options if warning or error
-  def self.download_profile_image (user_id, url)
+  def self.update_profile_image (user_id, url)
     begin
       user = User.find_by_user_id(user_id)
       if !user
@@ -425,10 +428,10 @@ class User < ActiveRecord::Base
       # check image store for profile pictures (:api or :local)
       picture_store = API_PROFILE_PICTURE_STORE[user.provider] || :api
       if picture_store == :api
-        # preferred choice - no profile pictures download - just use url as it is.
+        # preferred choice - profile pictures not downloaded - use profile picture url from provider as it is
         Picture.delete_if_app_url(user.new_profile_picture_url)
         user.new_profile_picture_url = url
-        user.save!
+        user.update_attribute('new_profile_picture_url', user.new_profile_picture_url) if user.new_profile_picture_url_changed?
         return nil
       end
       if picture_store != :local

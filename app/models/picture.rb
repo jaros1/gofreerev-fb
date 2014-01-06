@@ -211,7 +211,7 @@ class Picture < ActiveRecord::Base
       return unless rel_path.index('/') # never delete temp or perm root folder
       dir_full_path = Picture.full_os_path :rel_path => rel_path
       return unless (Dir.entries(dir_full_path) - %w{ . .. }).empty? # only delete empty parent folders
-      FileUtil.rmdir  dir_full_path
+      FileUtils.rmdir  dir_full_path
     end
   end
 

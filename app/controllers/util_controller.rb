@@ -600,10 +600,10 @@ class UtilController < ApplicationController
 
       # setup facebook api client - get permissions and friends
 
-      # get user information - permissions and friends  - use koala gem for this
+      # get user information - permissions, friends and picture  - koala gem is used for facebook api requests
       # logger.debug2  'get user id and name'
       api = Koala::Facebook::API.new(token)
-      api_request = 'me?fields=permissions,friends'
+      api_request = 'me?fields=permissions,friends,picture'
       # logger.debug2  "api_request = #{api_request}"
       api_response = api.get_object api_request
       logger.debug2  "api_response = #{api_response.to_s}"
@@ -618,6 +618,7 @@ class UtilController < ApplicationController
       login_user.permissions = api_response['permissions']['data'][0]
       login_user.permissions = {} if login_user.permissions == []
       login_user.save!
+
       # logger.debug2  "permissions = #{login_user.permissions}"
       # logger.debug2  "post_gift_allowed? = #{login_user.post_gift_allowed?}"
 
@@ -656,6 +657,12 @@ class UtilController < ApplicationController
       # update facebook friends
       Friend.update_friends_from_hash(login_user_id, friends_hash, true)
       # facebook friend list updated
+
+      # 3) update profile picture
+      image = api_response['picture']['data']['url'] if api_response['picture'] and api_response['picture']['data']
+      logger.debug2 "image = #{image}"
+      key, options = User.update_profile_image(login_user_id, image)
+      return [key, options] if key # error when updating profile picture information
 
       # ok
       nil

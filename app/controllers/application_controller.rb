@@ -384,10 +384,12 @@ class ApplicationController < ActionController::Base
       user.save!
     end
     # schedule post login tasks.
+
     if image.to_s != ""
       if image =~ /^http/ and !image.index("''") and !image.index('"')
         # todo: other characters to filter? for example characters with a special os function
-        add_task "User.download_profile_image('#{user.user_id}', '#{image}')", 5
+        # facebook: profile picture from login is not used - profile picture from koala request in post_login_facebook is used
+        add_task "User.update_profile_image('#{user.user_id}', '#{image}')", 5
       else
         logger.debug2 "invalid picture received from #{provider}. image = #{image}"
       end
