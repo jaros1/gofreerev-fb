@@ -698,7 +698,7 @@ class UtilController < ApplicationController
       client.authorization.client_id = API_ID[provider]
       client.authorization.client_secret = API_SECRET[provider]
       client.authorization.access_token = token
-      logger.debug2 "token = #{token}"
+      # logger.debug2 "token = #{token}"
 
       # find people in login user circles
       # https://developers.google.com/api-client-library/ruby/guide/pagination
