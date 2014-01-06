@@ -325,6 +325,12 @@
     should ajax report invalid profile picture url to server.
     should display no-picture.jpg if profile picture was not found
 
-66) facebook login
-    - do not use profile picture url from omniauth login
+66) google+ login
+    - do not use profile picture url from omniauth login (full size 512 x 510)
+      problem. profile picture store is :api. that is profile piture is used as it is
     - use profile picture url from koala me?fields=..picture.. request
+
+67) flash message and max cookie size
+    big flash messages gives CookieOverflow
+    add a flash sequence and table and save only unique flash id in notice[:flash]
+

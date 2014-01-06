@@ -25,7 +25,7 @@ class AuthController < ApplicationController
   # omniauth callback on success (login was started from rails)
   def create
     @auth_hash = auth_hash
-    # logger.debug2  "auth_hash = #{auth_hash}"
+    logger.debug2  "auth_hash = #{auth_hash}"
 
     # login - return nil (ok) or array with translate key and options for error message
     # auth_hash.get_xxx methods are defined in initializers/omniauth*.rb
@@ -153,6 +153,7 @@ class AuthController < ApplicationController
     #strategy.name = linkedin
     message = $1 if error.message =~ /"message": "(.*?)"/
     message = error.message unless message
+    message = message.to_s.first(40)
     # flash[:notice] = "Authentication failure! #{type}: #{message}"
     flash[:notice] = t '.authentication_failure', :provider => provider_downcase(strategy.name), :type => type, :message => message
     redirect_to '/auth'

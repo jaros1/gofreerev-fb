@@ -674,7 +674,7 @@ class UtilController < ApplicationController
   end # post_login_facebook
 
 
-  # post login task for google+ - todo: use for .....
+  # post login task for google+
   # using google-api-client
   # called from do_tasks - ajax requests after login
   # must return nil or a valid input to translate
