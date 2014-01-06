@@ -312,7 +312,8 @@ class User < ActiveRecord::Base
       user.user_name = "#{APP_NAME} #{provider.camelize}"
     end
     user.currency = BASE_CURRENCY
-    user.profile_picture_name = "#{provider}.png"
+    # user.profile_picture_name = "#{provider}.png"
+    user.new_profile_picture_url = "#{SITE_URL}/images/#{provider}.png".gsub('//images', '/images')
     user.balance = { BALANCE_KEY => 0.0 }
     user.save!
     user
@@ -676,30 +677,6 @@ class User < ActiveRecord::Base
     end
   end  # read_gifts_allowed?
 
-  # profile picture helpers - a copy of profile picture is downloaded at login
-  def profile_picture_filename
-    profile_picture_name
-  end
-  def profile_picture_md5_path
-    md5 = Digest::MD5.hexdigest(user_id).downcase
-    folders = ['profiles'] + md5.scan(/.{2}/)
-    folders.join('/')
-  end
-  def profile_picture_os_folder
-    Rails.root.join('public', 'images', profile_picture_md5_path).to_s
-  end
-  def profile_picture_tmp_os_folder
-    Rails.root.join('public', 'images', profile_picture_md5_path, 'tmp').to_s
-  end
-
-  def profile_picture_os_filename
-    "#{profile_picture_os_folder}/#{profile_picture_filename}"
-  end
-  def profile_picture_url
-    return "#{provider}.png" if dummy_user?
-    return 'no-picture.jpg' unless profile_picture_filename
-    "#{profile_picture_md5_path}/#{profile_picture_filename}"
-  end
 
   # relation helpers
   def offers

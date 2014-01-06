@@ -302,9 +302,9 @@
     Linkedin does not store pictures - pictures are stored locally
 
 59) ActionController::RoutingError (No route matches [GET] "/temp/gMqsQGkFJYK6ISX.jpeg"):
-    1) create shared dir for temp files
-    2) change path to /images/temp/
-    done - not tested
+    api gift with api_picture_url to deleted temp picture
+    add server site cleanup for api_gifts with temp url
+    created in gifts/create - removed in util.delete_local_picture after post_on_<provider> tasks
 
 60) picture with not existing temp picture are not removed in check missing picture urls
     check that missing picture urls check is running on dev1
@@ -325,12 +325,6 @@
     should ajax report invalid profile picture url to server.
     should display no-picture.jpg if profile picture was not found
 
-66) google+ login
-    - do not use profile picture url from omniauth login (full size 512 x 510)
-      problem. profile picture store is :api. that is profile piture is used as it is
-    - use profile picture url from koala me?fields=..picture.. request
-
 67) flash message and max cookie size
     big flash messages gives CookieOverflow
     add a flash sequence and table and save only unique flash id in notice[:flash]
-

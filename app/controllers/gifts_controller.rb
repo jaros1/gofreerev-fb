@@ -42,8 +42,19 @@ class GiftsController < ApplicationController
       picture = false
     end
     if picture
-      gift.temp_picture_filename = "#{String.generate_random_string(20)}.#{filetype}".last(20)
-      logger.debug2 "gift.temp_picture_filename = #{gift.temp_picture_filename}"
+      # perm or temp picture store - for example perm for linkedin and temp for facebook
+      # configuration in hash constant API_GIFT_PICTURE_STORE
+      rel_path = Picture.new_temp_or_perm_rel_path @users, filetype
+      if rel_path
+        gift.temp_picture_filename = "#{String.generate_random_string(20)}.#{filetype}".last(20)
+        logger.debug2 "gift.temp_picture_filename = #{gift.temp_picture_filename}"
+      else
+        # error - picture store setup was not found for logged in users
+        # invalid picture store setup (API_GIFT_PICTURE_STORE) or file upload should not be allowed
+        providers = @users.collect { |u| u.provider }
+        @errors << t('.invalid_pic_store', :providers => providers.join(', '))
+        picture = false
+      end
     end
 
     gift.valid?

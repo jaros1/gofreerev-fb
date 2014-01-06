@@ -61,6 +61,20 @@ class Picture < ActiveRecord::Base
       return rel_path unless File.exist? filename
     end
   end
+  def self.new_temp_or_perm_rel_path (login_users, image_type)
+     providers = login_users.collect { |u| u.provider }
+     [:local, :api].each do |picture_store|
+       if API_GIFT_PICTURE_STORE.find { |name,value| providers.index(name.to_s) and value == picture_store }
+         if picture_store == :local
+           return Picture.new_perm_rel_path image_type
+         else
+           return Picture.new_term_rel_path image_type
+         end
+       end # if
+     end # each picture_store
+     # error - no picture store - could be readonly API google+
+     nil
+  end
 
 
   # test helpers
