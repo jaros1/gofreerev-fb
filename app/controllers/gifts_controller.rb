@@ -43,7 +43,7 @@ class GiftsController < ApplicationController
     end
     if picture
       # perm or temp picture store - for example perm for linkedin and temp for facebook
-      # configuration in hash constant API_GIFT_PICTURE_STORE
+      # ( configuration in hash constant API_GIFT_PICTURE_STORE )
       rel_path = Picture.new_temp_or_perm_rel_path @users, filetype
       if rel_path
         gift.temp_picture_filename = "#{String.generate_random_string(20)}.#{filetype}".last(20)

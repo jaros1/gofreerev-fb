@@ -317,9 +317,6 @@
 
 63) add API_LOCAL_PICTURE array constant
 
-64) it should be possible to get larger facebook pictures
-    right click menu in facebook gives a public available full size picture url
-
 65) if profile picture store = :api.
     add onload handler to profile picture to check for invalid profile picture urls
     should ajax report invalid profile picture url to server.
@@ -328,3 +325,17 @@
 67) flash message and max cookie size
     big flash messages gives CookieOverflow
     add a flash sequence and table and save only unique flash id in notice[:flash]
+
+68) check if img onload and img onerror events could be handled on a higher level - for example on gifts table
+    http://api.jquery.com/on/
+    $( "#dataTable tbody tr" ).on( "click", function() {
+     alert( $( this ).text() );
+     });
+
+69) check if user div onclick events could be handled on a higher level - for example on document
+    can not use user_id in id. user divs are repeated many times for each user.
+    maybe use data-userid attribute for this
+
+70)
+
+

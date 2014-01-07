@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140106175222) do
+ActiveRecord::Schema.define(version: 20140107075040) do
 
   create_table "ajax_comments", force: true do |t|
     t.string   "user_id",    limit: 40, null: false
@@ -169,7 +169,7 @@ ActiveRecord::Schema.define(version: 20140106175222) do
   add_index "tasks", ["session_id"], name: "index_tasks_on_session_id"
 
   create_table "users", force: true do |t|
-    t.string   "user_id",                 limit: 40
+    t.string   "user_id",             limit: 40
     t.text     "user_name"
     t.datetime "created_at"
     t.datetime "updated_at"
@@ -181,7 +181,7 @@ ActiveRecord::Schema.define(version: 20140106175222) do
     t.text     "negative_interest"
     t.integer  "user_combination"
     t.text     "api_profile_url"
-    t.text     "new_profile_picture_url"
+    t.text     "profile_picture_url"
   end
 
   add_index "users", ["user_combination"], name: "index_users_user_combination"

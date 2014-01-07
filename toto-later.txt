@@ -246,3 +246,6 @@ Low priority todo list. Minor errors, wishlist etc.
 61) post comments on API walls?
 
 62) picture store. add :host for hosted pictures
+
+63) it should be possible to get larger facebook pictures
+    right click menu in facebook gives a public available full size picture url
