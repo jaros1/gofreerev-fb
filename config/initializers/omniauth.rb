@@ -98,16 +98,16 @@ API_GIFT_PICTURE_STORE = {:facebook => :api,
 # default values: 70 characters for title and 200 characters for description
 API_OG_TITLE_SIZE = {:facebook => 94, # http://wptest.means.us.com/online-meta-tag-length-checker/
                      :google_oauth2 => 63,
-                     :linkedin => 55,
+                     :linkedin => 60,
                      :twitter => 70}.with_indifferent_access
 API_OG_DESC_SIZE = {:facebook => 200, # http://www.joshspeters.com/how-to-optimize-the-ogdescription-tag-for-search-and-social
                     :google_oauth2 => 155,
-                    :linkedin => 200,
+                    :linkedin => 245,
                     :twitter => 200}.with_indifferent_access
 API_OG_DEF_IMAGE = {:facedbook => "#{SITE_URL}images/sacred-economics.jpg",
                     :google_oauth2 => "#{SITE_URL}images/sacred-economics.jpg",
                     :linkedin => "#{SITE_URL}images/sacred-economics-linkedin.jpg", # 180 x 110 best for linkedin
-                    :twitter => "#{SITE_URL}images/sacred-economics.jpg"}
+                    :twitter => "#{SITE_URL}images/sacred-economics.jpg"}.with_indifferent_access
 
 # extract basic information from auth_hash (provider, uid, user_name, token, language)
 # provider specific versions can be implemented with get_<method>_<provider>.

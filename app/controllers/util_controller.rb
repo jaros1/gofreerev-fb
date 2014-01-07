@@ -1199,6 +1199,7 @@ class UtilController < ApplicationController
         # note that linkedin uses meta property="og:description as default description
         # todo: check layout with and without picture
         # todo: check description length. <= 256 use only description. length <= 700. Use only comment. Length between 700 and 956 use comment and description
+        # my test says: title 60, description 245 and comment 600 characters
         text = "#{format_direction_without_user(api_gift)} #{gift.description}"
         logger.debug2 "picture = #{api_gift.picture?}, text.length = #{text.length}, image_url = #{image_url}"
         comment = nil
