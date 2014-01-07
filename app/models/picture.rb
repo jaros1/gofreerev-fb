@@ -68,7 +68,7 @@ class Picture < ActiveRecord::Base
          if picture_store == :local
            return Picture.new_perm_rel_path image_type
          else
-           return Picture.new_term_rel_path image_type
+           return Picture.new_temp_rel_path image_type
          end
        end # if
      end # each picture_store
@@ -184,12 +184,23 @@ class Picture < ActiveRecord::Base
     options[:url]
   end
 
-
   def self.find_picture_type (fullpath_or_url)
     image_type = FastImage.type(fullpath_or_url.to_s).to_s
     Picture.check_image_type(image_type)
     image_type
   end
+
+  # create parent dir for perm picture before move or copy new picture
+  def self.create_parent_dirs (options)
+    Picture.check_app_options(options)
+    url, rel_path = options[:url], options[:rel_path]
+    return unless Picture.perm_app_url? url
+    # find parent dir
+    rel_path = rel_path.split('/')[0..-2].join('/')
+    full_os_path = Picture.full_os_path :rel_path => rel_path
+    # create parent dirs
+    FileUtils.mkdir_p full_os_path
+  end # self.create_parent_dirs
 
   # delete picture if local app url - for example delete gift with picture or after changing profile picture store to :api
   def self.delete_if_app_url(url)

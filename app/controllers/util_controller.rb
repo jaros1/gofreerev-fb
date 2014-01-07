@@ -572,7 +572,7 @@ class UtilController < ApplicationController
     return [gift, api_gift, deep_link, '.post_on_api_old_gift', { :provider => provider, :id => gift.id }] unless gift.created_at > 5.minute.ago
 
     # check picture if any - must exists in /images/temp folder before post on API wall
-    return [gift, api_gift, deep_link, 'gift_posted_6_html', { :apiname => provider}] if api_gift.picture? and !gift.temp_picture_exists?
+    return [gift, api_gift, deep_link, 'gift_posted_6_html', { :apiname => provider}] if api_gift.picture? and !gift.rel_path_picture_exists?
 
     # initialize and check deep link
     deep_link = api_gift.init_deep_link()
@@ -1010,15 +1010,17 @@ class UtilController < ApplicationController
           # post
           api = Koala::Facebook::API.new(token)
           # todo: add method gift.temp_picture_exists?
-          if api_gift.picture? and !gift.temp_picture_exists?
+          if api_gift.picture? and !gift.rel_path_picture_exists?
             # post with picture but picture was not found.
             # There must be some error handling in gifts/create that is missing
             gift_posted_on_wall_api_wall = 6
           elsif api_gift.picture?
             # status post with picture
-            filetype = gift.temp_picture_path.split('.').last
+            picture_url = Picture.url :rel_path => gift.app_picture_rel_path
+            picture_full_os_path = Picture.full_os_path :rel_path => gift.app_picture_rel_path
+            filetype = gift.app_picture_rel_path.split('.').last
             content_type = "image/#{filetype}"
-            api_response = api.put_picture(gift.temp_picture_path,
+            api_response = api.put_picture(picture_full_os_path,
                                            content_type,
                                            {:message => "#{gift.description} - #{deep_link}"
                                            })
@@ -1088,10 +1090,15 @@ class UtilController < ApplicationController
           options[:appname] = APP_NAME
         end
         return ".gift_posted_#{gift_posted_on_wall_api_wall}_html", options
+      elsif !api_gift.picture? or api_gift.picture? and Picture.perm_app_url?(picture_url)
+        # post ok - no picture or picture with perm app url
+        # no need to read access to api wall
+        # return posted message
+        return [".gift_posted_#{gift_posted_on_wall_api_wall}_html", :apiname => login_user.api_name_without_brackets, :error => error]
       else
-        # post ok - gift posted in facebook wall - check read access to gift / get picture url
+        # post ok - gift posted in facebook wall
+        # check read access to gift / get picture url
         # must have read access to post on facebook wall to display picture in gofreerev
-        # must have read access to post on facebook wall to add comment with deep link to gift on gofreerev
         field = api_gift.picture? ? 'full_picture' : 'message'
         begin
           res = api_gift.api_picture_url = api_gift.get_facebook_post(:access_token => token, :field => field)
@@ -1325,7 +1332,6 @@ class UtilController < ApplicationController
 
   # delete local picture file that was used when posting picture in api wall(s) - see post_on_facebook etc.
   def delete_local_picture (id)
-    return nil # todo: debugging post on linkedin
     begin
       logger.debug2  ""
 
@@ -1335,20 +1341,33 @@ class UtilController < ApplicationController
       return ['.post_on_api_old_gift', { :provider => 'API', :id => gift.id }] unless gift.created_at > 5.minute.ago
 
       # check local picture file
-      return ['.no_local_picture', { :provider => 'API', :id => id }] unless gift.temp_picture_filename
-      return ['.local_picture_not_found', { :provider => 'API', :id => id }] unless File.exist?(gift.temp_picture_path)
+      return ['.no_local_picture', { :provider => 'API', :id => id }] unless gift.app_picture_rel_path
+      app_picture_full_os_path = Picture.full_os_path :rel_path => gift.app_picture_rel_path
+      app_picture_url          = Picture.url :rel_path => gift.app_picture_rel_path
+      return ['.local_picture_not_found', { :provider => 'API', :id => id }] unless File.exist?(app_picture_full_os_path)
 
       # delete file
-      File.delete(gift.temp_picture_path)
-      gift.temp_picture_filename = nil
-      gift.save!
+      perm_app_picture = Picture.perm_app_url?(app_picture_url)
+      if !perm_app_picture
+        File.delete(app_picture_full_os_path) if File.exists?(app_picture_full_os_path)
+        gift.temp_picture_filename = nil
+        gift.save!
+      end
 
-      # check picture setting after posting on api walls
+      # check temp picture after posting on api walls
+      # should be set in post_in_<provider> tasks, but not after exceptions
       gift.api_gifts.each do |api_gift|
-        if api_gift.api_picture_url =~ /^temp/
-          # temp url - picture was not uploaded to api wall
-          api_gift.api_picture_url = nil
-          api_gift.picture = 'N'
+        if Picture.temp_app_url?(api_gift.api_picture_url)
+          # temp url - delete or replace with perm url
+          # replace with perm url is only a workaround/fallback for this gift
+          if perm_app_picture
+            api_gift.api_picture_url = app_picture_url
+            logger.warn "fallback after post_on_#{api_gift.provider} failure. Added perm app url for gift id #{gift.id}"
+          else
+            api_gift.api_picture_url = nil
+            api_gift.picture = 'N'
+            logger.debug2 "fallback after post_on_#{api_gift.provider} failure. Blanked picture url for gift id #{gift.id}"
+          end
           api_gift.save!
         end
       end

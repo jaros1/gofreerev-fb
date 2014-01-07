@@ -11,7 +11,8 @@ class Gift < ActiveRecord::Base
   # encrypt_add_pre_and_postfix/encrypt_remove_pre_and_postfix added in setters/getters for better encryption
   # this is different encrypt for each attribute and each db row
   # _before_type_cast methods are used by form helpers and are redefined
-  crypt_keeper :description, :currency, :price, :received_at, :balance_giver, :balance_receiver, :balance_doc_giver, :balance_doc_receiver, :encryptor => :aes, :key => ENCRYPT_KEYS[1]
+  crypt_keeper :description, :currency, :price, :received_at, :balance_giver, :balance_receiver,
+               :balance_doc_giver, :balance_doc_receiver, :app_picture_rel_path, :encryptor => :aes, :key => ENCRYPT_KEYS[1]
 
 
   ##############
@@ -254,10 +255,32 @@ class Gift < ActiveRecord::Base
   attr_readonly :created_by
   validates_presence_of :created_by
   validates_inclusion_of :created_by, :allow_blank => true, :in => %w(giver receiver)
-
-  # placeholders for giver and receiver from api gifts - from user.gifts methods
-  # attr_accessor :giver, :receiver, :picture
-
+  
+  # 30) app_picture_rel_path - rel_path to picture store - temp or perm picture store
+  # perm picture store is used for providers with API_GIFT_PICTURE_STORE = :local (for example linkedin)
+  # term picture store is used for temporary picture store when uploading pictures to provider (for example facebook)
+  # String en model - encrypted text in db
+  def app_picture_rel_path
+    # logger.debug41  "gift.app_picture_rel_path: app_picture_rel_path = #{read_attribute(:app_picture_rel_path)} (#{read_attribute(:app_picture_rel_path).class.name})"
+    return nil unless (extended_app_picture_rel_path = read_attribute(:app_picture_rel_path))
+    encrypt_remove_pre_and_postfix(extended_app_picture_rel_path, 'app_picture_rel_path', 41)
+  end
+  def app_picture_rel_path=(new_app_picture_rel_path)
+    # logger.debug41  "gift.app_picture_rel_path=: app_picture_rel_path = #{new_app_picture_rel_path} (#{new_app_picture_rel_path.class.name})"
+    if new_app_picture_rel_path
+      check_type('app_picture_rel_path', new_app_picture_rel_path, 'String')
+      write_attribute :app_picture_rel_path, encrypt_add_pre_and_postfix(new_app_picture_rel_path, 'app_picture_rel_path', 41)
+    else
+      write_attribute :app_picture_rel_path, nil
+    end
+  end
+  alias_method :app_picture_rel_path_before_type_cast, :app_picture_rel_path
+  def app_picture_rel_path_was
+    return app_picture_rel_path unless app_picture_rel_path_changed?
+    return nil unless (extended_app_picture_rel_path = attribute_was(:app_picture_rel_path))
+    encrypt_remove_pre_and_postfix(extended_app_picture_rel_path, 'app_picture_rel_path', 41)
+  end # app_picture_rel_path_was
+  
 
   #
   # helper methods
@@ -431,6 +454,13 @@ class Gift < ActiveRecord::Base
   def temp_picture_exists?
     File.exists?(temp_picture_path)
   end # temp_picture_exists?
+
+  def rel_path_picture_exists?
+    return false unless app_picture_rel_path
+    full_os_path = Picture.full_os_path :rel_path => app_picture_rel_path
+    return false unless full_os_path
+    File.exists?(full_os_path)
+  end
 
 
   # psydo attributea

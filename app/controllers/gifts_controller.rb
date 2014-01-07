@@ -43,11 +43,13 @@ class GiftsController < ApplicationController
     end
     if picture
       # perm or temp picture store - for example perm for linkedin and temp for facebook
-      # ( configuration in hash constant API_GIFT_PICTURE_STORE )
-      rel_path = Picture.new_temp_or_perm_rel_path @users, filetype
-      if rel_path
-        gift.temp_picture_filename = "#{String.generate_random_string(20)}.#{filetype}".last(20)
-        logger.debug2 "gift.temp_picture_filename = #{gift.temp_picture_filename}"
+      # ( configuration in hash constant API_GIFT_PICTURE_STORE - /config/initializers/omniauth.rb )
+      picture_rel_path = Picture.new_temp_or_perm_rel_path @users, filetype
+      if picture_rel_path
+        gift.app_picture_rel_path = picture_rel_path
+        logger.debug2 "gift.app_picture_rel_path = #{gift.app_picture_rel_path}"
+        picture_url = Picture.url :rel_path => picture_rel_path
+        picture_full_os_path = Picture.full_os_path :rel_path => picture_rel_path
       else
         # error - picture store setup was not found for logged in users
         # invalid picture store setup (API_GIFT_PICTURE_STORE) or file upload should not be allowed
@@ -62,7 +64,8 @@ class GiftsController < ApplicationController
     return add_error_and_format_ajax_resp(gift.errors.full_messages.join(', ')) if gift.errors.size > 0
 
     # add api_gifts - one api_gifts for each provider
-    # api_gift_id and any picture will be added in post_on_<provider> tasks
+    # api_gift_id will be added in post_on_<provider> tasks
+    # api_picture_url may change in post_on_<provider> tasks if picture store is :api
     @users.each do |user|
       api_gift = ApiGift.new
       api_gift.gift_id = gift.gift_id
@@ -70,22 +73,32 @@ class GiftsController < ApplicationController
       api_gift.user_id_giver = gift.direction == 'giver' ? user.user_id : nil
       api_gift.user_id_receiver = gift.direction == 'receiver' ? user.user_id : nil
       api_gift.picture = picture ? 'Y' : 'N'
-      api_gift.api_picture_url = gift.temp_picture_url if picture
+      api_gift.api_picture_url = picture_url if picture
       gift.api_gifts << api_gift
     end
     gift.save!
 
-    # temporary save picture on server before posting it on api walls in post_on_<provider> tasks
-    # picture will be deleted from server when posting on api walls are done
     if picture
-      cmd = "mv #{gift_file.path} #{gift.temp_picture_path}"
+      # create dir
+      Picture.create_parent_dirs :rel_path => picture_rel_path
+      # move uploaded file to location in perm or temp picture store
+      cmd = "mv #{gift_file.path} #{picture_full_os_path}"
       stdout, stderr, status = User.open4(cmd)
-      logger.debug2 "mv: cmd = #{cmd}"
-      logger.debug2 "mv: stdout = #{stdout}, stderr = #{stderr}, status = #{status}"
       if status != 0
-        # mv failed - continue post without picture
+        # mv failed
+        logger.error2 "mv: cmd = #{cmd}"
+        logger.error2 "mv: stdout = #{stdout}, stderr = #{stderr}, status = #{status}"
+        # OS cleanup
+        begin
+          File.delete(picture_full_os_path) if File.exists?(picture_full_os_path)
+          Picture.delete_empty_parent_dirs(:rel_path => picture_rel_path)
+        rescue Exception => e
+          # ignore OS cleanup errors - write message on log and continue
+          logger.error2 "mv: OS cleanup failed. error = #{e.message}"
+        end
+        # continue post without picture
         @errors << t(".file_mv_error", :error => stderr)
-        gift.temp_picture_filename = nil
+        gift.app_picture_rel_path = nil
         gift.save!
         gift.api_gifts.each do |api_gift|
           api_gift.picture = 'N'
@@ -96,12 +109,21 @@ class GiftsController < ApplicationController
       else
         # mv ok - change file permissions
         # apache must have read access to image files
-        cmd = "chmod o+r #{gift.temp_picture_path}"
+        cmd = "chmod o+r #{picture_full_os_path}"
         stdout, stderr, status = User.open4(cmd)
-        logger.debug2 "chmod: cmd = #{cmd}"
-        logger.debug2 "chmod: stdout = #{stdout}, stderr = #{stderr}, status = #{status}"
         if status != 0
-          # mv failed - continue post without picture
+          # chmod failed
+          logger.error2 "chmod: cmd = #{cmd}"
+          logger.error2 "chmod: stdout = #{stdout}, stderr = #{stderr}, status = #{status}"
+          # OS cleanup
+          begin
+            File.delete(picture_full_os_path) if File.exists?(picture_full_os_path)
+            Picture.delete_empty_parent_dirs(:rel_path => picture_rel_path)
+          rescue Exception => e
+            # ignore OS cleanup errors - write message on log and continue
+            logger.error2 "chmod: OS cleanup failed. error = #{e.message}"
+          end
+          # continue post without picture
           @errors << t(".file_chmod_error", :error => stderr)
           gift.temp_picture_filename = nil
           gift.save!
@@ -133,7 +155,7 @@ class GiftsController < ApplicationController
     add_task "disable_enable_file_upload", 5
 
     # delete picture after posting on api wall(s) - priority = 10
-    add_task "delete_local_picture(#{gift.id})", 10 if picture
+    add_task "delete_local_picture(#{gift.id})", 10 if picture and Picture.temp_app_url?(picture_url)
 
     @api_gifts = ApiGift.where("id = ?", gift.api_gifts.first.id).includes(:gift)
     format_ajax_response
