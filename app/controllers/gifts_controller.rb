@@ -367,7 +367,7 @@ class GiftsController < ApplicationController
       title = text
       on_error_desc = "Help each other and the environment. Share your resources. #{APP_NAME} is a play with some concepts (gift network, free money and negative interest) from Charles Eisensteins book Sacred Economics."
       begin
-        description = t '.og_def_desc_#{api_gift.provider}', :appname => APP_NAME, :api_name => provider_downcase(api_gift.provider), :raise => I18n::MissingTranslationData
+        description = t ".og_def_desc_#{api_gift.provider}", :appname => APP_NAME, :api_name => provider_downcase(api_gift.provider), :raise => I18n::MissingTranslationData
       rescue I18n::MissingTranslationData => e
         logger.error2 "Error in translate key gifts.show.og_desc_#{api_gift.provider}"
         logger.error2 "#{e.message} (#{e.class})"

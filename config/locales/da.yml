@@ -292,10 +292,10 @@ da:
         no_access: "Ugyldigt kald. Du har ikke adgang til at se dette opslag"
         invalid_deep_link_id_logged_in: "Dette opslag er desværre blevet slettet."
         invalid_deep_link_id_not_logged_in: "Dette opslag er desværre blevet slettet. Brug browserens tilbage knap eller log ind for at se andre opslag"
-        og_def_desc_facebook: "Help each other and the environment. Share your resources. #{APP_NAME} is a play with some concepts (gift network, free money and negative interest) from Charles Eisensteins book Sacred Economics."
-        og_def_desc_google_oauth2: "Help each other and the environment. Share your resources. #{APP_NAME} is a play with some concepts (gift network, free money and negative interest) from Charles Eisensteins book Sacred Economics."
-        og_def_desc_linkedin: "Help each other and the environment. Share your resources. #{APP_NAME} is a play with some concepts (gift network, free money and negative interest) from Charles Eisensteins book Sacred Economics."
-        og_def_desc_twitter: "Help each other and the environment. Share your resources. #{APP_NAME} is a play with some concepts (gift network, free money and negative interest) from Charles Eisensteins book Sacred Economics."
+        og_def_desc_facebook: "Help each other and the environment. Share your resources. %{appname} is a play with some concepts (gift network, free money and negative interest) from Charles Eisensteins book Sacred Economics."
+        og_def_desc_google_oauth2: "Help each other and the environment. Share your resources. %{appname} is a play with some concepts (gift network, free money and negative interest) from Charles Eisensteins book Sacred Economics."
+        og_def_desc_linkedin: "Help each other and the environment. Share your resources. %{appname} is a play with some concepts (gift network, free money and negative interest) from Charles Eisensteins book Sacred Economics."
+        og_def_desc_twitter: "Help each other and the environment. Share your resources. %{appname} is a play with some concepts (gift network, free money and negative interest) from Charles Eisensteins book Sacred Economics."
 
   # inbox controller
   inbox:
