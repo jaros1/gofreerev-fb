@@ -1184,7 +1184,7 @@ class UtilController < ApplicationController
       # todo: add url for gift
       begin
 
-        image_url = "#{SITE_URL}#{gift.temp_picture_url}".gsub('//images','/images') # fix double // in url
+        image_url = Picture.url :rel_path => gift.app_picture_rel_path if api_gift.picture? and gift.rel_path_picture_exists?
         # http://stackoverflow.com/questions/15183107/rails-linked-post-message
         # http://developer.linkedin.com/documents/share-api#toggleview:id=ruby
         # Node                Parent Node    Value 	Notes
@@ -1350,7 +1350,7 @@ class UtilController < ApplicationController
       perm_app_picture = Picture.perm_app_url?(app_picture_url)
       if !perm_app_picture
         File.delete(app_picture_full_os_path) if File.exists?(app_picture_full_os_path)
-        gift.temp_picture_filename = nil
+        gift.app_picture_rel_path = nil
         gift.save!
       end
 

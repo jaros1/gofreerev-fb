@@ -440,21 +440,6 @@ class Gift < ActiveRecord::Base
     return false
   end # show_delete_gift_link?
 
-
-  def temp_picture_url
-    return nil unless temp_picture_filename
-    "/images/temp/#{temp_picture_filename}"
-  end
-  def temp_picture_path
-    return nil unless temp_picture_filename
-    temp_dir = Rails.root.join('public', 'images', 'temp').to_s
-    FileUtils.mkdir_p temp_dir
-    "#{temp_dir}/#{temp_picture_filename}"
-  end # temp_picture_path
-  def temp_picture_exists?
-    File.exists?(temp_picture_path)
-  end # temp_picture_exists?
-
   def rel_path_picture_exists?
     return false unless app_picture_rel_path
     full_os_path = Picture.full_os_path :rel_path => app_picture_rel_path

@@ -125,7 +125,7 @@ class GiftsController < ApplicationController
           end
           # continue post without picture
           @errors << t(".file_chmod_error", :error => stderr)
-          gift.temp_picture_filename = nil
+          gift.app_picture_rel_path = nil
           gift.save!
           gift.api_gifts.each do |api_gift|
             api_gift.picture = 'N'
