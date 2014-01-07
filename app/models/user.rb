@@ -164,9 +164,6 @@ class User < ActiveRecord::Base
     encrypt_remove_pre_and_postfix(temp_extended_no_api_friends, 'no_api_friends', 13).to_i
   end # no_api_friends_was
 
-  # 8) profile_picture_type. String in Model and db. Not encrypted.
-  # profile picture is downloaded under /public/images/profiles. profile picture name is <user_id>.<profile_picture_type>
-
   # 10) negative_interest. Required. Multi-currency Hash in model. Encrypted text in db
   # Keys is ISO code for currency USD, EUR, GBP etc.
   # Key BALANCE is sum of all currencies exchanged to users actual currency

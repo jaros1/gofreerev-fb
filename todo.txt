@@ -220,10 +220,7 @@
     looks like facebook does not load picture from url - only use picture supplied from user
     looks like linkedin always add a picture from url - use default picture
 
-41) problem with profile picture for new users
-    page was showing path to /profiles/... even if picture has not been downloaded from API.
-    problem was layout
-    maybe insert "?" picture in /profile/ temporary until real profile picture has been downloaded from API
+41) insert "?" picture in /user div/ temporary real profile picture has been downloaded from API
 
 42) problem with images and locale.
     should not use local in path to images
