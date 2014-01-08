@@ -362,7 +362,9 @@ class ApiGift < ActiveRecord::Base
     end
     raise NoApiAccessTokenException unless access_token
     api = Koala::Facebook::API.new(access_token)
+    logger.debug2 "access_token = #{access_token}"
     api_request = "#{api_gift_id}?fields=#{field}"
+    logger.debug2 "api_request = #{api_request}"
     # api_request = "#{api_gift_id}?fields=picture.type(large)" # Systemfejl "type: OAuthException, code: 2500, message: Subfields are not supported by picture [HTTP 400]"
     begin
       api_response = api.get_object(api_request)

@@ -347,3 +347,10 @@
 74) change attached picture mouse over text.
 
 75) problem with api gifts without gifts
+
+76) facebook and open graph.
+    can not manuel share a deep link on facebook if gift picture store is :api
+    facebook gift picture is too small to be accepted in facebook's open graph implementing
+    Tested on https://developers.facebook.com/tools/debug
+
+77) post_on_<...> and gifts/show with deep link should set identical title and description

@@ -328,13 +328,18 @@ class GiftsController < ApplicationController
       # 3) http://moz.com/blog/title-tags-is-70-characters-the-best-practice-whiteboard-friday
       #    title <= 70 characters
       title, description = open_graph_title_and_desc(api_gift)
+      image = api_gift.picture? ? api_gift.api_picture_url : API_OG_DEF_IMAGE[api_gift.provider]
       logger.debug2 "OG. provider    = #{api_gift.provider}"
       logger.debug2 "OG: title       = #{title}"
       logger.debug2 "OG: description = #{description}"
+      logger.debug2 "OG: image       = #{image}"
       @open_graph = { :title => title,
                       :description => description,
-                      :image => (api_gift.picture? ? api_gift.api_picture_url : API_OG_DEF_IMAGE[api_gift.provider]),
+                      :image => image,
                       :url   => api_gift.deep_link()}
+      # facebook open graph:
+      # https://developers.facebook.com/tools/debug
+      # http://stackoverflow.com/questions/1138460/how-does-facebook-sharer-select-images
     elsif gift.api_gifts.length == 1
       @gift = gift.api_gifts.first
     else
