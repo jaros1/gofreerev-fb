@@ -346,3 +346,4 @@
 
 74) change attached picture mouse over text.
 
+75) problem with api gifts without gifts

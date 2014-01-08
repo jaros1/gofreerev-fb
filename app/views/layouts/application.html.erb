@@ -11,7 +11,7 @@
 <% puts "@request_fullpath = #{@request_fullpath}" -%>
   <meta property="og:title" content="<%= @open_graph[:title] %>" />
   <meta property="og:type" content="website" />
-  <meta property="og:image" content="<%= @open_graph[:image] %>" />
+  <meta property="og:image" content="<%= raw @open_graph[:image] %>" />
   <meta property="og:url" content="<%= @open_graph[:url] %>" />
   <meta property="og:description" content="<%= @open_graph[:description] %>" />
   <meta property="og:site_name" content="<%= APP_NAME %>" />

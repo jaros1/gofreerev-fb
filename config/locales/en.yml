@@ -248,7 +248,7 @@ en:
         not_logged_in_flash: "Sorry. Page not available. Not logged in."
         not_logged_in_text: "You are not logged in and you can not create wall postings."
         welcome_msg_after_login: "Welcome %{username} to %{appname}"
-        create_gift_header_line: "Help each other and the environment. Share your resources. Give loan / rent out, sell etc."
+        create_gift_header_line: "Help each other and the environment. Share your resources. Give, rent, loan, sell."
         price_title: "Price in virtual free money. Optional. Can be set now or later. Best set be buyer / receiver so that the price becomes a measure of how much the thing / help was appreciated. There is used free virtual national money in here with a negative interest. %{min_interest}% per year with a positive balance and %{max_interest}% per year for a negative balance. One goal of the negative rate is to ensure that money and resources circulates. The negative interest rate makes it possible with a society without growth, overconsumption and with plenty of leisure to all."
         price_prompt: "Price:"
         price_free: "free"
@@ -299,9 +299,9 @@ en:
         no_access: "Invalid request. You are not allowed to see this post"
         invalid_deep_link_id_logged_in: "Sorry. This post has been removed."
         invalid_deep_link_id_not_logged_in: "Sorry. This post has been removed. Use back button in browser or log in to see other posts."
-        og_def_desc_facebook: "Help each other and the environment. Share your resources. %{appname} is a play with some concepts (gift network, free money and negative interest) from Charles Eisensteins book Sacred Economics."
+        og_def_desc_facebook: "Give, rent, loan, sell, buy. Share resources with your friends. Help each other and help the environment. %{appname} is a play with some concepts (gift network, free money and negative interest) from Charles Eisensteins book Sacred Economics." # optimal size 255 characters
         og_def_desc_google_oauth2: "Help each other and the environment. Share your resources. %{appname} is a play with some concepts (gift network, free money and negative interest) from Charles Eisensteins book Sacred Economics."
-        og_def_desc_linkedin: "Help each other and the environment. Share your resources. %{appname} is a play with some concepts (gift network, free money and negative interest) from Charles Eisensteins book Sacred Economics."
+        og_def_desc_linkedin: "Give, rent, loan, sell, buy. Share resources with your friends. Help each other and help the environment. %{appname} is a play with some concepts (gift network, free money and negative interest) from Charles Eisensteins book Sacred Economics." # optimal size 245 characters
         og_def_desc_twitter: "Help each other and the environment. Share your resources. %{appname} is a play with some concepts (gift network, free money and negative interest) from Charles Eisensteins book Sacred Economics."
 
   # inbox controller

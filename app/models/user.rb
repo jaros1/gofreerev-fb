@@ -1289,6 +1289,11 @@ class User < ActiveRecord::Base
       ags = ApiGift.where('(gifts.id > ? or status_update_at > ?) and (user_id_giver in (?) or user_id_receiver in (?))' + deleted,
                       newest_gift_id, newest_status_update_at, friends, friends).references(:gifts, :api_gifts).includes(:gift, :giver, :receiver)
     end
+    # error check before sort (missing gift)
+    ags = ags.find_all do |ag|
+      logger.warn2 "Ignoring ApiGift without Gift. Gift id #{ag.gift_id}" unless ag.gift
+      ag.gift
+    end
     # sort api gifts
     ags = ags.sort do |a,b|
       if (a.gift.received_at || a.created_at) ==  (b.gift.received_at || b.created_at)
