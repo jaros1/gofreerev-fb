@@ -977,6 +977,128 @@ class UtilController < ApplicationController
   end # recalculate_user_balance
 
 
+  # get url for api gift picture on facebook wall - size >= 200 x 200
+  # used in post_in_facebook and in missing_api_picture_urls
+  # raises ApiPostNotFoundException if post/picture was not found (missing permission or post/picture has been deleted)
+  # that is - get_api_picture_url_facebook is also used to check for missing read stream permission
+  # return nil (ok) or [key, options] error input to translate
+  # params:
+  # - just_posted - true if called from post_on_facebook - false if called from missing_api_picture_urls
+  # - api_client - koala api client
+  private
+  def get_api_picture_url_facebook (api_gift, just_posted=true, api_client=nil) # api is Koala API client
+
+    return nil if api_gift.deleted_at_api # ignore - post/picture has been deleted from facebook wall
+
+    if !api_client
+      # get access token and initialize koala api client
+      provider = "facebook"
+      login_user, token, key, options = get_login_user_and_token(provider)
+      return [key, options] if key
+      api_client = Koala::Facebook::API.new(token)
+    end
+
+    # two koala api request. 1) get picture and object_id, 2) get an array with different size pictures
+
+    # 1) get picture and object id
+    object_id = nil
+    begin
+      # check read access to facebook wall and get object_id for next api request (only for post with picture)
+      res1 = api_client.get_object api_gift.api_gift_id
+      object_id, picture = res1["object_id"], res1["picture"]
+      image_type = FastImage.type(picture) if picture.to_s != ""
+      logger.debug2 "first lookup: object_id = #{object_id}, picture = #{picture}, image type = #{image_type}"
+      if api_gift.picture?
+        if %w(jpg jpeg gif png bmp).index(image_type.to_s)
+          # valid (small) picture url received from facebook
+          api_gift.api_picture_url = picture
+          api_gift.api_picture_url_updated_at = Time.now
+          api_gift.api_picture_url_on_error_at = nil
+          api_gift.save!
+        else
+          # unexpected error - found post, but did not get a valid picture url
+          logger.debug2 "Did not get a picture url from api. Must be problem with missing access token, picture != Y or deleted_at_api == Y"
+          logger.debug2 "res1 = #{res1}"
+          return ['.no_api_picture_url', {:apiname => login_user.api_name_without_brackets}]
+        end
+      end
+    rescue Koala::Facebook::ClientError => e
+      if e.fb_error_type == 'GraphMethodException' and e.fb_error_code == 100
+        # identical error response if picture is deleted or if user is not allowed to see picture
+        # picture not found - maybe picture has been deleted - maybe a permission problem
+        # granting read_stream or changing visibility of app setting to public can solve the problem
+        # read_stream permission will be requested if error is raise when posting on facebook wall
+
+        # problem with upload and permissions
+        # could not get full_picture url for an uploaded picture
+        # or could not get mesaage for an post
+        # the problem appeared after changing app visibility from public to friends
+        # that is - app is not allowed to get info about the uploaded picture!!
+        # there must be more to it - changed visibility to only me and did get picture url
+        # changed visibility to friends and did get the picture url
+        # just display a warning and continue. Request read_stream permission from user if read_stream priv. is missing
+        api_gift.picture = 'N' if api_gift.picture?
+        api_gift.deleted_at_api = Time.new
+        api_gift.save!
+        # (re)check permissions
+        if login_user.read_gifts_allowed?
+          # check if user has removed read stream priv.
+          login_user.get_api_permissions(token)
+        end
+        if login_user.read_gifts_allowed?
+          # error - this should not happen.
+          key = api_gift.picture? ? '.fb_pic_post_unknown_problem' : '.fb_msg_post_unknown_problem'
+          return [key, {:appname => APP_NAME, :apiname => login_user.api_name_without_brackets}]
+        else
+          # message with link to grant missing read stream priv.
+          oauth = Koala::Facebook::OAuth.new(API_ID[provider], API_SECRET[provider], API_CALLBACK_URL[provider])
+          url = oauth.url_for_oauth_code(:permissions => 'read_stream', :state => set_state('read_stream'))
+          key = api_gift.picture? ? '.fb_pic_post_missing_permission_html' : '.fb_msg_post_missing_permission_html'
+          return [key, {:appname => APP_NAME, :apiname => login_user.api_name_without_brackets, :url => url}]
+        end
+      else
+        # unhandled koala / facebook exception
+        e.puts_exception("#{__method__}: ")
+        raise
+      end
+    end # rescue
+    return nil unless object_id # post without picture
+
+    if object_id
+      # post with picture
+      # 2) get best size picture from facebook. picture with size >= 200 x 200 or largest picture
+      # picture must be min 200 x 200 for open graph links on facebook
+      # https://developers.facebook.com/tools/debug)
+      begin
+        res2 = api_client.get_object object_id
+        images = res2["images"]
+        if images.class == Array and images.size > 0
+          logger.debug2 "second lookup: images = #{images}"
+          image = nil
+          images.each do |hash|
+            image = hash["source"] if hash["height"].to_i >= 200 and hash["width"].to_i >= 200
+          end
+          image = images.first["source"] unless image
+          logger.debug2 "image = #{image}"
+          api_gift.api_picture_url = image
+          api_gift.save!
+        else
+          logger.warn2 "second lookup: no images array was returned from facebook API request. Keeping old picture"
+          logger.warn2 "res2 = #{res2}"
+        end
+      rescue Koala::Facebook::ClientError => e
+        # unhandled koala / facebook exception
+        e.puts_exception("#{__method__}: ")
+        raise
+      end
+    end
+
+    # ok
+    nil
+
+  end # get_api_picture_url_facebook
+
+
   # post on facebook wall - with or without picture
   # picture is temporary saved local, but is deleted when the picture has been posted in wall(s)
   # task was inserted in gifts/create
@@ -1102,94 +1224,8 @@ class UtilController < ApplicationController
         # check read access to gift and get picture url with best size > 200 x 200
         # must have read access to post on facebook wall to display picture in gofreerev
         # 1) use api_gift.api_gift_id to get object_id (picture size in first request is too small)
-        object_id = nil
-        begin
-          # check read access to facebook wall and get object_id for next api request
-          res1 = api.get_object api_gift.api_gift_id
-          logger.debug2 "#{res1} = #{res1}"
-          if api_gift.picture?
-            api_gift.api_picture_url = res1["picture"]
-            if api_gift.api_picture_url
-              # valid picture url received from api (picture is too small for gofreerev wall and for open graph image tag)
-              api_gift.api_picture_url_updated_at = Time.now
-              api_gift.api_picture_url_on_error_at = nil
-              api_gift.save!
-              object_id = res1["object_id"]
-            else
-              logger.debug2 "Did not get a picture url from api. Must be problem with missing access token, picture != Y or deleted_at_api == Y"
-              return ['.no_api_picture_url', {:apiname => login_user.api_name_without_brackets}]
-            end
-          end
-        rescue Koala::Facebook::ClientError => e
-          if e.fb_error_type == 'GraphMethodException' and e.fb_error_code == 100
-            # identical error response if picture is deleted or if user is not allowed to see picture
-            # picture not found - maybe picture has been deleted - maybe a permission problem
-            # granting read_stream or changing visibility of app setting to public can solve the problem
-            # read_stream permission will be requested if error is raise when posting on facebook wall
-
-            # problem with upload and permissions
-            # could not get full_picture url for an uploaded picture
-            # or could not get mesaage for an post
-            # the problem appeared after changing app visibility from public to friends
-            # that is - app is not allowed to get info about the uploaded picture!!
-            # there must be more to it - changed visibility to only me and did get picture url
-            # changed visibility to friends and did get the picture url
-            # just display a warning and continue. Request read_stream permission from user if read_stream priv. is missing
-            if api_gift.picture?
-              api_gift.picture = 'N'
-              api_gift.save!
-            end
-            if login_user.read_gifts_allowed?
-              # check if user has removed read stream priv.
-              login_user.get_api_permissions(token)
-            end
-            if login_user.read_gifts_allowed?
-              # error - this should not happen.
-              key = api_gift.picture? ? '.fb_pic_post_unknown_problem' : '.fb_msg_post_unknown_problem'
-              return [key, {:appname => APP_NAME, :apiname => login_user.api_name_without_brackets}]
-            else
-              # message with link to grant missing read stream priv.
-              oauth = Koala::Facebook::OAuth.new(API_ID[provider], API_SECRET[provider], API_CALLBACK_URL[provider])
-              url = oauth.url_for_oauth_code(:permissions => 'read_stream', :state => set_state('read_stream'))
-              key = api_gift.picture? ? '.fb_pic_post_missing_permission_html' : '.fb_msg_post_missing_permission_html'
-              return [key, {:appname => APP_NAME, :apiname => login_user.api_name_without_brackets, :url => url}]
-            end
-          else
-            # unhandled koala / facebook exception
-            e.puts_exception("#{__method__}: ")
-            raise
-          end
-
-        end # rescue
-
-        if object_id
-          # post with picture
-          # 2) get best size picture from facebook. picture with size >= 200 x 200 or largest picture
-          logger.debug2 "object_id = #{object_id}"
-          begin
-            res2 = api.get_object object_id
-            logger.debug2 "res2 = #{res2}"
-            images = res2["images"]
-            logger.debug2 "images.class = #{images.class}"
-            logger.debug2 "images = #{images}"
-            if images.class == Array and images.size > 0
-              image = nil
-              images.each do |hash|
-                image = hash["source"] if hash["height"].to_i >= 200 and hash["width"].to_i >= 200
-              end
-              image = images.first["source"] unless image
-              logger.debug2 "image = #{image}"
-              api_gift.api_picture_url = image
-              api_gift.save!
-            else
-              logger.warn2 "no images array was returned from facebook API request. Keeping "
-            end
-          rescue Koala::Facebook::ClientError => e
-            # unhandled koala / facebook exception
-            e.puts_exception("#{__method__}: ")
-            raise
-          end
-        end
+        key, options = get_api_picture_url_facebook(api_gift, true, api)
+        return [key, options] if key
 
         # post ok and no permission problems
         # no errors - return posted message

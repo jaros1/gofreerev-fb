@@ -249,3 +249,9 @@ Low priority todo list. Minor errors, wishlist etc.
 
 63) it should be possible to get larger facebook pictures
     right click menu in facebook gives a public available full size picture url
+
+64) API_GIFT_PICTURE_STORE - allow array with values?
+    for example API_GIFT_PICTURE_STORE[:linkedin] = [:facebook, :local]
+    that is - use url to facebook picture or use local perm store
+    user logged in with facebook and linked will use facebook as picture store
+    user only logged with linkedin will use local perm picture store

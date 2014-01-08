@@ -340,17 +340,25 @@
     but only if LinkedIn connection
 
 72) display "grant write access to api wall" already when user enters gifts/index page
-    information is in user.permissions field
+    information is available in user.permissions field
 
 73) change attached picture check. Should use information in API_GIFT_PICTURE_STORE hash and user.permissions field
 
 74) change attached picture mouse over text.
+    explain reason if picture can not be uploaded
+    add note with recommended picture size ( dimensions)
 
 75) problem with api gifts without gifts
 
-76) facebook and open graph.
-    can not manuel share a deep link on facebook if gift picture store is :api
-    facebook gift picture is too small to be accepted in facebook's open graph implementing
-    Tested on https://developers.facebook.com/tools/debug
-
 77) post_on_<...> and gifts/show with deep link should set identical title and description
+    move open_graph_title_and_desc to app controller
+
+78) rename user.profile_picture_url to api_profile_picture_url
+
+79) add api_gifts.api_gift_url with url to gift on api
+    is available for both facebook and linkedin
+
+80) move api_gift.get_facebook_post to util controller and use it in check missing picture urls and post_on_facebook
+    more generic name. for example get_url_facebook(api_gift), get_url_twitter(api_gift) etc
+
+
