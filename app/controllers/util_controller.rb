@@ -1016,7 +1016,9 @@ class UtilController < ApplicationController
     begin
       # check read access to facebook wall and get object_id for next api request (only for post with picture)
       res1 = api_client.get_object api_gift.api_gift_id
-      object_id, picture = res1["object_id"], res1["picture"]
+      # logger.debug2 "res1 = #{res1}"
+      api_gift.api_gift_url = res1['link']
+      object_id, picture = res1['object_id'], res1['picture']
       image_type = FastImage.type(picture) if picture.to_s != ""
       logger.debug2 "first lookup: object_id = #{object_id}, picture = #{picture}, image type = #{image_type}"
       if api_gift.picture?
@@ -1025,7 +1027,6 @@ class UtilController < ApplicationController
           api_gift.api_picture_url = picture
           api_gift.api_picture_url_updated_at = Time.now
           api_gift.api_picture_url_on_error_at = nil
-          api_gift.save!
         else
           # unexpected error - found post, but did not get a valid picture url
           logger.debug2 "Did not get a picture url from api. Must be problem with missing access token, picture != Y or deleted_at_api == Y"
@@ -1033,6 +1034,7 @@ class UtilController < ApplicationController
           return ['.no_api_picture_url', {:apiname => login_user.api_name_without_brackets}]
         end
       end
+      api_gift.save!
     rescue Koala::Facebook::ClientError => e
       if e.fb_error_type == 'GraphMethodException' and e.fb_error_code == 100
         # identical error response if picture is deleted or if user is not allowed to see picture
@@ -1082,6 +1084,7 @@ class UtilController < ApplicationController
       # https://developers.facebook.com/tools/debug)
       begin
         res2 = api_client.get_object object_id
+        # logger.debug2 "res2 = #{res2}"
         images = res2["images"]
         if images.class == Array and images.size > 0
           logger.debug2 "second lookup: images = #{images}"
@@ -1378,22 +1381,17 @@ class UtilController < ApplicationController
       update_key = $1 if x.body.to_s =~ /"updateKey": "(.*?)"/
       update_url = $1 if x.body.to_s =~ /"updateUrl": "(.*?)"/
       logger.debug2 "update key = #{update_key}, update_url = #{update_url}"
+      api_gift.api_gift_url = update_url # note that post on linkedin wall is created in a batch process. Will work in one or 2 minutes
+      api_gift.save!
 
       # https://developer.linkedin.com/documents/share-api
       # You can use the update key to request the XML or JSON representation of the newly created share.
       # This can be achieved by making a GET call to http://www.linkedin-ei.com/v1/people/~/network/updates/key={update_key}
       # (setting {update_key} to the value you received in the previous response)
-      x2 = client.shares :key => update_key
-      logger.debug2 "x2 = #{x2} (#{x2.class})"
-      logger.debug2 "x2.methods = #{x2.methods.sort.join(', ')}"
-
-      # try with an old update key (from development app setup)
-      update_key = "UNIU-310307710-5825168482513600512-SHARE"
-      x3 = client.shares :key => update_key
-      logger.debug2 "x3 = #{x3} (#{x3.class})"
-      logger.debug2 "x3.methods = #{x3.methods.sort.join(', ')}"
-
-      # todo: get url for picture on linkedin wall.
+      # can not lookup post in linkedin wall at this time - post is created batch - will be created in one or two minutes
+      # x2 = client.shares :key => update_key
+      # logger.debug2 "x2 = #{x2} (#{x2.class})"
+      # logger.debug2 "x2.methods = #{x2.methods.sort.join(', ')}"
 
       # no errors - return posted message
       return [".gift_posted_2_html", :apiname => provider, :error => nil]

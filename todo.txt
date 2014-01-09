@@ -353,12 +353,6 @@
 77) post_on_<...> and gifts/show with deep link should set identical title and description
     move open_graph_title_and_desc to app controller
 
-78) rename user.profile_picture_url to api_profile_picture_url
-    better to add and drop column to prevent invalid encryption for renamed field
-
-79) add api_gifts.api_gift_url with url to gift on api
-    is available for both facebook and linkedin
-
 81) add error handling and @errors array to missing_api_picture_urls ajax response (empty response now)
 
 82) add post on <provider> check box in auth/index page

@@ -1,21 +1,22 @@
 class ApiGift < ActiveRecord::Base
 
   #create_table "api_gifts", force: true do |t|
-  #  1 t.string   "gift_id",                     limit: 20
-  #  2 t.string   "provider",                    limit: 20
-  #  3 t.string   "user_id_giver",               limit: 40
-  #  4 t.string   "user_id_receiver",            limit: 40
-  #  5 t.string   "picture",                     limit: 1
-  #  6 t.text     "api_gift_id"
-  #  7 t.text     "api_picture_url"
-  #  8 t.text     "api_picture_url_updated_at"
-  #  9 t.text     "api_picture_url_on_error_at"
-  # 10 t.string   "deleted_at_api",              limit: 1
-  # 11 t.datetime "created_at"
-  # 12 t.datetime "updated_at"
-  # 13 t.string   "deep_link_id",                limit: 20
-  # 14 t.text     "deep_link_pw"
-  # 15 t.integer  "deep_link_errors"
+  #  t.string   "gift_id",                     limit: 20
+  #  t.string   "provider",                    limit: 20
+  #  t.string   "user_id_giver",               limit: 40
+  #  t.string   "user_id_receiver",            limit: 40
+  #  t.string   "picture",                     limit: 1
+  #  t.text     "api_gift_id"
+  #  t.text     "api_picture_url"
+  #  t.text     "api_picture_url_updated_at"
+  #  t.text     "api_picture_url_on_error_at"
+  #  t.string   "deleted_at_api",              limit: 1
+  #  t.datetime "created_at"
+  #  t.datetime "updated_at"
+  #  t.string   "deep_link_id",                limit: 20
+  #  t.text     "deep_link_pw"
+  #  t.integer  "deep_link_errors"
+  #  t.text     "api_gift_url"
   #end
 
   belongs_to :gift, :class_name => 'Gift', :primary_key => :gift_id, :foreign_key => :gift_id
@@ -26,7 +27,8 @@ class ApiGift < ActiveRecord::Base
   # encrypt_add_pre_and_postfix/encrypt_remove_pre_and_postfix added in setters/getters for better encryption
   # this is different encrypt for each attribute and each db row
   # _before_type_cast methods are used by form helpers and are redefined
-  crypt_keeper :api_gift_id, :api_picture_url, :api_picture_url_updated_at, :api_picture_url_on_error_at, :encryptor => :aes, :key => ENCRYPT_KEYS[1]
+  crypt_keeper :api_gift_id, :api_picture_url, :api_picture_url_updated_at, :api_picture_url_on_error_at, :deep_link_pw,
+               :api_gift_url, :encryptor => :aes, :key => ENCRYPT_KEYS[1]
 
 
   ##############
@@ -196,6 +198,28 @@ class ApiGift < ActiveRecord::Base
     return nil unless (extended_deep_link_pw = attribute_was(:deep_link_pw))
     encrypt_remove_pre_and_postfix(extended_deep_link_pw, 'deep_link_pw', 38)
   end # deep_link_pw_was
+  
+  # 16) deep_link_errors - integer 
+  
+  # 17) api_gift_url - url to post on api wall - String in model - encrypted text in db
+  def api_gift_url
+    return nil unless (extended_api_gift_url = read_attribute(:api_gift_url))
+    encrypt_remove_pre_and_postfix(extended_api_gift_url, 'api_gift_url', 42)
+  end
+  def api_gift_url=(new_api_gift_url)
+    if new_api_gift_url
+      check_type('api_gift_url', new_api_gift_url, 'String')
+      write_attribute :api_gift_url, encrypt_add_pre_and_postfix(new_api_gift_url, 'api_gift_url', 42)
+    else
+      write_attribute :api_gift_url, nil
+    end
+  end
+  alias_method :api_gift_url_before_type_cast, :api_gift_url
+  def api_gift_url_was
+    return api_gift_url unless api_gift_url_changed?
+    return nil unless (extended_api_gift_url = attribute_was(:api_gift_url))
+    encrypt_remove_pre_and_postfix(extended_api_gift_url, 'api_gift_url', 42)
+  end # api_gift_url_was
 
 
   # helper methods
