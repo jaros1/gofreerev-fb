@@ -30,7 +30,7 @@ class User < ActiveRecord::Base
   # encrypt_add_pre_and_postfix/encrypt_remove_pre_and_postfix added in setters/getters for better encryption
   # this is different encrypt for each attribute and each db row
   crypt_keeper :user_name, :currency, :balance, :permissions, :no_api_friends, :negative_interest,
-               :api_profile_url, :profile_picture_url, :api_profile_picture_url, :encryptor => :aes, :key => ENCRYPT_KEYS[0]
+               :api_profile_url, :api_profile_picture_url, :encryptor => :aes, :key => ENCRYPT_KEYS[0]
 
 
   ##############
@@ -216,30 +216,7 @@ class User < ActiveRecord::Base
     encrypt_remove_pre_and_postfix(temp_api_profile_url, 'api_profile_url', 39)
   end # api_profile_url_was
 
-  # 12) profile_picture_url - url to user profile picture
-  # picture store for profile pictures is either :api or :local. See array constant API_PROFILE_PICTURE_STORE
-  # String in model - Encrypted text in db
-  def profile_picture_url
-    return nil unless (temp_profile_picture_url = read_attribute(:profile_picture_url))
-    # logger.debug2  "temp_profile_picture_url = #{temp_profile_picture_url}"
-    encrypt_remove_pre_and_postfix(temp_profile_picture_url, 'profile_picture_url', 40)
-  end # profile_picture_url
-  def profile_picture_url=(new_profile_picture_url)
-    if new_profile_picture_url
-      check_type('profile_picture_url', new_profile_picture_url, 'String')
-      write_attribute :profile_picture_url, encrypt_add_pre_and_postfix(new_profile_picture_url, 'profile_picture_url', 40)
-    else
-      write_attribute :profile_picture_url, nil
-    end
-  end # profile_picture_url=
-  alias_method :profile_picture_url_before_type_cast, :profile_picture_url
-  def profile_picture_url_was
-    return profile_picture_url unless profile_picture_url_changed?
-    return nil unless (temp_profile_picture_url = attribute_was(:profile_picture_url))
-    encrypt_remove_pre_and_postfix(temp_profile_picture_url, 'profile_picture_url', 40)
-  end # profile_picture_url_was
-
-  # 13) api_profile_picture_url - url to user profile picture
+  # 12) api_profile_picture_url - url to user profile picture
   # picture store for profile pictures is either :api or :local. See array constant API_PROFILE_PICTURE_STORE
   # String in model - Encrypted text in db
   def api_profile_picture_url
@@ -335,7 +312,7 @@ class User < ActiveRecord::Base
     end
     user.currency = BASE_CURRENCY
     # user.profile_picture_name = "#{provider}.png"
-    user.profile_picture_url = "#{SITE_URL}/images/#{provider}.png".gsub('//images', '/images')
+    user.api_profile_picture_url = "#{SITE_URL}/images/#{provider}.png".gsub('//images', '/images')
     user.balance = { BALANCE_KEY => 0.0 }
     user.save!
     user
@@ -452,9 +429,9 @@ class User < ActiveRecord::Base
       picture_store = API_PROFILE_PICTURE_STORE[user.provider] || :api
       if picture_store == :api
         # preferred choice - profile pictures not downloaded - use profile picture url from provider as it is
-        Picture.delete_if_app_url(user.profile_picture_url)
-        user.profile_picture_url = url
-        user.update_attribute('profile_picture_url', user.profile_picture_url) if user.profile_picture_url_changed?
+        Picture.delete_if_app_url(user.api_profile_picture_url)
+        user.api_profile_picture_url = url
+        user.update_attribute('api_profile_picture_url', user.api_profile_picture_url) if user.api_profile_picture_url_changed?
         return nil
       end
       if picture_store != :local
@@ -465,23 +442,23 @@ class User < ActiveRecord::Base
 
       # download profile pictures from server to local picture store
 
-      if user.profile_picture_url
+      if user.api_profile_picture_url
         # ignore old api profile picture url - will be replaced with an app profile picture url after download
-        user.profile_picture_url = nil unless Picture.app_url?(user.profile_picture_url)
+        user.api_profile_picture_url = nil unless Picture.app_url?(user.api_profile_picture_url)
       end
-      old_image_type = Picture.find_picture_type(user.profile_picture_url) if user.profile_picture_url
+      old_image_type = Picture.find_picture_type(user.api_profile_picture_url) if user.api_profile_picture_url
       # 3 cases:
       #  1) first profile picture download (new path)
       #  2) profile picture with unchanged image type (unchanged path - overwrite old picture)
       #  3) profile picture with new image type (changed path - delete old picture and download new picture)
-      if !user.profile_picture_url or old_image_type != image_type
+      if !user.api_profile_picture_url or old_image_type != image_type
         # case 1) and 3) get new picture location
-        case_no = user.profile_picture_url ? 3 : 1
-        old_profile_picture_url = user.profile_picture_url
+        case_no = user.api_profile_picture_url ? 3 : 1
+        old_api_profile_picture_url = user.api_profile_picture_url
         rel_path = Picture.new_perm_rel_path image_type
       else
         # case 2) reuse old picture location
-        rel_path = Picture.rel_path(user.profile_picture_url)
+        rel_path = Picture.rel_path(user.api_profile_picture_url)
         case_no = 2
       end
       # create temp dir for picture download
@@ -504,7 +481,7 @@ class User < ActiveRecord::Base
       new_image_file_full_os_path = "#{tmp_dir_full_os_path}/#{files.first}"
       if case_no == 2
         # 2) overwrite old profile picture - backup before overwrite
-        from = Picture.full_os_path :url => old_profile_picture_url
+        from = Picture.full_os_path :url => old_api_profile_picture_url
         to = "#{new_image_file_full_os_path}.old"
         cmd = "cp #{from} #{to}"
         if status != 0
@@ -531,7 +508,7 @@ class User < ActiveRecord::Base
         if case_no == 2
           # restore backup
           from = "#{new_image_file_full_os_path}.old"
-          to = Picture.full_os_path :url => old_profile_picture_url
+          to = Picture.full_os_path :url => old_api_profile_picture_url
           cmd = "cp #{from} #{to}"
           stdout, stderr, status = User.open4(cmd)
           if status != 0
@@ -552,11 +529,11 @@ class User < ActiveRecord::Base
       # copied
       # download and copy ok
       user.reload
-      user.profile_picture_url = Picture.url :rel_path => rel_path
-      user.update_attribute('profile_picture_url', user.profile_picture_url) if user.profile_picture_url_changed?
+      user.api_profile_picture_url = Picture.url :rel_path => rel_path
+      user.update_attribute('api_profile_picture_url', user.api_profile_picture_url) if user.api_profile_picture_url_changed?
       # cleanup
       Picture.delete_tmp_dir :full_os_path => tmp_dir_full_os_path
-      Picture.delete :url => old_profile_picture_url if case_no == 3
+      Picture.delete :url => old_api_profile_picture_url if case_no == 3
       nil
     rescue Exception => e
       logger.error2 "Exception: #{e.message.to_s}"
