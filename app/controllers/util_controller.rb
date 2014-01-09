@@ -117,79 +117,158 @@ class UtilController < ApplicationController
   # temp api url can have changed / picture may have been deleted
   # Parameters: {"gifts"=>{"ids"=>"161"}}
   def missing_api_picture_urls
-    render :layout => false
-    return unless params.has_key?("api_gifts")
-    return unless params[:api_gifts].has_key?(:ids)
-    return if  params[:api_gifts][:ids] == ''
-    ids = params[:api_gifts][:ids].split(',')
-    logger.debug2  "ids = #{ids}"
-    api_gifts = ApiGift.where("id in (?)", ids)
-    # set error timestamp
-    api_gifts.each do |api_gift|
-      logger.debug2  "url = #{api_gift.api_picture_url}"
-      api_gift.api_picture_url_on_error_at = Time.now
-      api_gift.save!
-    end # each
+    @errors = []
+    begin
+      if !params.has_key?("api_gifts") or !params[:api_gifts].has_key?(:ids) or params[:api_gifts][:ids] == ''
+        @errors << ['.mis_api_pic_no_param', {}]
+        return
+      end
+      ids = params[:api_gifts][:ids].split(',')
+      logger.debug2 "ids = #{ids}"
+      api_gifts = ApiGift.where("id in (?)", ids)
 
-    # get new picture urls
-    # todo: 1 - catch deleted picture / status
-    #       Koala::Facebook::ClientError (type: GraphMethodException, code: 100, message: Unsupported get request. [HTTP 400]):
-    # todo: 2 - maybe app friend is not allowed to see picture in facebook
-    # todo: 3 - max request picture url once every hour
-    # todo: 4 - gifts/index - should check for error marked pictured and fix urls that couldn't be fixed in here (see 2)
-    access_token = session[:access_token]
-    tokens = session[:tokens]
-    return unless tokens
-    api_clients = {}
-    api_gifts.each do |api_gift|
-      next if api_gift.picture == 'N' or api_gift.deleted_at_api == 'Y'
-      # check if gift was created by logged in user
-      created_by_user_id = api_gift.gift.created_by == 'giver' ? api_gift.user_id_giver : api_gift.user_id_receiver
-      next unless login_userids.index(created_by_user_id)
-      # check/initialize api client
-      api_client = api_clients[api_gift.provider]
-      if !api_client
-        # initialize api client for provider
-        access_token = tokens[api_gift.provider]
-        if !access_token
-          logger.warn2 "received api_gift.id #{api_gift.id} for provider #{api_gift.provider}, but user is not connected with provider #{api_gift.provider}"
+      # get new picture urls if possible. Stategies for finding a new valid url:
+      # 1) api_gift_id and deleted_at_api != 'Y'
+      #    1a) logged in as creator - recheck api wall
+      #    1b) not logged in as creator - skip - check later with creator login
+      # 2) no api_gift_id or deleted_at_api == 'Y'
+      #    2a) other provider with an valid api_gift_url - use url as workaround - mark invalid urls with error timestamp
+      #    2b) invalid url and api_gift_id and deleted_at_api != 'Y' and logged in as creator - recheck api wall and use if valid
+      #    2b) invalid url and api_gift_id and deleted_at_api != 'Y' and not
+
+      # todo: 3 - max request picture url once every hour
+      tokens = session[:tokens]
+      if !tokens
+        @errors << ['.mis_api_pic_no_tokens', {}]
+        return
+      end
+      return unless tokens
+      api_clients = {}
+      api_gifts.each do |api_gift|
+        if !api_gift.picture? or api_gift.api_picture_url.to_s == ""
+          logger.debug2 "Ignoring api_gift #{api_gift.id} where picture has been deleted (refresh gifts/index page in browser)"
           next
         end
-        case api_gift.provider
-          when 'facebook' then
-            api_client = Koala::Facebook::API.new(access_token)
-          else
-            logger.error2 "initialize api client for #{api_gift.provider} not implemented, api_gift.id = #{api_gift_id}"
+        if Picture.app_url?(api_gift.api_picture_url)
+          # local url / picture on server, but picture was not found (by browser)
+          # check if file exists. Could be a file protection problems
+          full_os_path = Picture.full_os_path :url => api_gift.api_picture_url
+          rel_path = Picture.rel_path :url => api_gift.api_picture_url
+          if File.exists? full_os_path
+            # picture exists on filesystem but was reported as missing by browser/js
+            # must be invalid file protection for /images/temp/ or /images/perm/ folder
+            logger.error2 "picture #{rel_path} exists in file system but was not found by browser. check file protection"
+            @errors << ['.mis_api_pic_file_exists', {:rel_path => rel_path}]
             next
+          end
+          # local picture file has been deleted. Continue. Maybe picture is available from an other api provider
+        else
+          # api url. recheck that picture has move or has been deleted
+          image_type = FastImage.type(api_gift.api_picture_url)
+          if %w(jpg jpeg gif png bmp).index(image_type)
+            # api url still exists. Could be a temporary problem
+            logger.warn2 "api gift #{api_gift.id} url #{api_gift.api_picture_url} exists, but was not found by browser"
+            @errors << ['.mis_api_pic_url_exists', {:url => api_gift.api_picture_url}]
+            next
+          end
         end
-        api_clients[api_gift.provider] = api_client
-      end
-
-
-      # get new picture url from API
-      begin
-        # check api wall
-      key, options = get_api_picture_url_facebook(api_gift, false, api_client)
-      if key
-        logger.error2 "error handling is missing. api_gift.id = #{api_gift.id}, key = #{key}, options = #{options}"
-        next
-      end
-      rescue ApiPostNotFoundException => e
-        # identical api error response if picture is deleted or if user is not allowed to see picture
-        logger.debug2  "Gift has been deleted on #{api_gift.provider} wall."
-        api_gift.picture = 'N'
-        api_gift.api_picture_url = nil
-        api_gift.api_picture_url_updated_at = nil
-        api_gift.deleted_at_api = 'Y'
+        # correct that api picture url does not exist - error mark api gift
+        api_gift.api_picture_url_on_error_at = Time.now
         api_gift.save!
-        next
-      end # rescue
-      # ok - new url received from api
-      api_gift.api_picture_url_updated_at = Time.now
-      api_gift.api_picture_url_on_error_at = nil
-      api_gift.save!
-    end # each
 
+        # check api wall - skip check if logged in user not is creator of post/picture
+        created_by_user_id = api_gift.gift.created_by == 'giver' ? api_gift.user_id_giver : api_gift.user_id_receiver
+        created_by_user = login_user_ids.index(created_by_user_id)
+        if api_gift.api_gift_id and api_gift.deleted_at_api != 'Y' and !created_by_user
+          # recheck api wall later as user created_by_user_id
+          logger.debug2 "check api gift #{api_gift.id} later with creator #{created_by_user_id} permissions"
+          next
+        end
+
+        # check api wall. logged in user is creator of post/picture
+        if api_gift.api_gift_id and api_gift.deleted_at_api != 'Y'
+          # check api wall
+
+          # check/initialize api client
+          api_client = api_clients[api_gift.provider]
+          if !api_client
+            # initialize api client for provider
+            token = tokens[api_gift.provider]
+            if !token
+              logger.warn2 "received api_gift.id #{api_gift.id} for provider #{api_gift.provider}, but user is not connected with provider #{api_gift.provider}"
+              @errors << ['.mis_api_pic_no_token', { :apiname => provider_downcase(api_gift.provider)}]
+              next
+            end
+            case api_gift.provider
+              when 'facebook' then
+                api_client = Koala::Facebook::API.new(token)
+              else
+                logger.error2 "initialize api client for #{api_gift.provider} not implemented, api_gift.id = #{api_gift.id}"
+                @errors << ['.mis_api_pic_not_implemented', { :apiname => provider_downcase(api_gift.provider)} ]
+                next
+            end
+            api_clients[api_gift.provider] = api_client
+          end
+          # api client initialized
+
+          # get new picture url from API
+          begin
+            # check api wall
+            key, options = get_api_picture_url_facebook(api_gift, false, api_client)
+            if key
+              # todo: check translate keys used in get_api_picture_url_facebook
+              @errors << [key, options]
+              next
+            end
+            # ok - post/picture os still on api wall and new api gift picture url has been received
+            next
+          rescue ApiPostNotFoundException => e
+            # identical api error response if picture is deleted or if user is not allowed to see picture
+            logger.debug2 "api gift #{api_gift.id} has been deleted on #{api_gift.provider} wall."
+            api_gift.deleted_at_api = 'Y'
+            api_gift.save!
+            # Continue. Maybe picture url is available from an other api provider
+          end # rescue
+
+          # end check api wall
+        end
+
+        # api gift no longer on api wall. Check if picture url is available from an other api provider
+        # that is - user was logged in with multiple api providers when gift was created
+        # could be local perm path for linked used for a linkedin api gift
+        # could be a facebook api url used for an not facebook api provider
+        api_gift.reload
+        new_api_picture_url = nil
+        api_gift.gift.api_gifts.delete_if { |ag| ag.id == api_gift.id }.each do |api_gift2|
+          next if !api_gift2.picture?
+          next if api_gift2.api_picture_url_on_error_at
+          next if api_gift2.api_gift_url.to_s == ""
+          image_type2 = FastImage.type(api_gift2.api_picture_url)
+          next unless %w(jpg jpeg gif png bmp).index(image_type2)
+          new_api_picture_url = api_gift2.api_picture_url
+          break
+        end # each api_gift2
+        if !new_api_picture_url
+          logger.debug2 "api_gift id #{api_gift.id} - did not found api picture url for other provider"
+          api_gift.picture = 'N'
+          api_gift.save!
+          next
+        end
+
+        # use api_picture_url from other provider
+        logger.debug2 "api gift id #{api_gift.id} - found api picture url for an other provider"
+        logger.debug2 "old provider #{api_gift.provider}"
+        logger.debug2 "url = #{new_api_picture_url}"
+        api_gift.api_picture_url = new_api_picture_url
+        api_gift.api_picture_url_on_error_at = nil
+        api_gift.save!
+
+      end # each api_gift
+    rescue Exception => e
+      logger.debug2 "Exception: #{e.message.to_s} (#{e.class})"
+      logger.debug2 "Backtrace: " + e.backtrace.join("\n")
+      @errors << ['.mis_api_pic_exception', {:error => e.message} ]
+    end
   end # missing_api_picture_urls
 
 
@@ -1001,11 +1080,12 @@ class UtilController < ApplicationController
 
     return nil if api_gift.deleted_at_api # ignore - post/picture has been deleted from facebook wall
 
+    provider = "facebook"
+    login_user, token, key, options = get_login_user_and_token(provider)
+    return [key, options] if key
+
     if !api_client
       # get access token and initialize koala api client
-      provider = "facebook"
-      login_user, token, key, options = get_login_user_and_token(provider)
-      return [key, options] if key
       api_client = Koala::Facebook::API.new(token)
     end
 

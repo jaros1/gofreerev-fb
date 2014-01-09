@@ -553,7 +553,7 @@ function report_missing_api_picture_urls() {
     // Report ids with invalid picture url
     var missing_api_picture_urls_local = missing_api_picture_urls.join();
     $.ajax({
-        url: "/util/missing_api_picture_urls",
+        url: "/util/missing_api_picture_urls.js",
         type: "POST",
         data: { api_gifts: {
             ids: missing_api_picture_urls_local}}

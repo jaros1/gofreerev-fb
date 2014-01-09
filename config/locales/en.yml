@@ -143,6 +143,13 @@ en:
         fb_pic_post_missing_permission_html: "<div title='%{appname} lack access to read posts on your %{apiname} wall. You can upload gift with pictures to %{apiname} but pictures can not be displayed in %{appname}. You can change visibility for %{appname} posts to public or you could grant %{appname} permission to read posts on your wall. %{appname} will only use read posts permission to display pictures witin %{appname}.'>Gift was posted in here and on your %{apiname} wall but picture can not be displayed. <a href=\"javascript: {top.location.href='%{url}'}\">Allow %{appname} to read posts on my %{apiname} wall!</a></p>"
         fb_msg_post_unknown_problem: "Gift was posted in here and on your %{apiname} wall. Picture was uploaded to your %{apiname} wall but %{appname} did not have permission to read the picture on your %{apiname} wall and can not display the picture in here. Maybe you have changed permissions for %{appname}."
         fb_msg_post_missing_permission_html: "<div title='%{appname} lack access to read posts on your %{apiname} wall. You can upload gift with pictures to %{apiname} but pictures can not be displayed in %{appname}. You can change visibility for %{appname} posts to public or you could grant %{appname} permission to read posts on your wall. %{appname} will only use read posts permission to display pictures witin %{appname}.'>Gift was posted in here and on your %{apiname} wall but picture can not be displayed. <a href=\"javascript: {top.location.href='%{url}'}\">Allow %{appname} to read posts on my %{apiname} wall!</a></p>"
+        # util.missing_api_picture_urls - feedback from browser with invalid image references
+        mis_api_pic_exception: "System error when checking moved or deleted images. Error: \"%{error}\". More information in log."
+        mis_api_pic_no_param: "System error when checking moved or deleted images. Did not receive a list with image ids."
+        mis_api_pic_no_tokens: "System error when checking moved or deleted images. Did not find any login information."
+        mis_api_pic_no_token: "System error when checking moved or deleted images. Warning: Received id for an %{apiname} image but user is not connected to %{apiname}."
+        mis_api_pic_not_implemented: "Check for moved or deleted images is not implemented for %{apiname}."
+        mis_api_pic_file_exists: "Warning. Browser did not find picture %{rel_path}, but picture exists on the server."
 
   # auth controller
   auth:

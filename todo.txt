@@ -349,11 +349,12 @@
     add note with recommended picture size ( dimensions)
 
 75) problem with api gifts without gifts
+    check out where gifts are deleted
 
 77) post_on_<...> and gifts/show with deep link should set identical title and description
-    move open_graph_title_and_desc to app controller
-
-81) add error handling and @errors array to missing_api_picture_urls ajax response (empty response now)
+    move open_graph_title_and_desc to app controller and use method from gifts/show and util/post_in_<provider>
 
 82) add post on <provider> check box in auth/index page
 
+84) check response from FastImage.type(gift_file.path) if site is temporary unavailable
+    should not error mark pictures if a api picture server is temporary out of service

@@ -73,7 +73,13 @@ class GiftsController < ApplicationController
       api_gift.user_id_giver = gift.direction == 'giver' ? user.user_id : nil
       api_gift.user_id_receiver = gift.direction == 'receiver' ? user.user_id : nil
       api_gift.picture = picture ? 'Y' : 'N'
-      api_gift.api_picture_url = picture_url if picture
+      api_gift.api_picture_url = picture_url if picture # temporary or perm local url
+      if !API_GIFT_PICTURE_STORE[user.provider]
+        # no picture store for this provider
+        # this is - provider does not support picture uploads and local perm picture store is not being used
+        api_gift.picture = 'N'
+        api_gift.api_picture_url = nil
+      end
       gift.api_gifts << api_gift
     end
     gift.save!
@@ -141,13 +147,27 @@ class GiftsController < ApplicationController
     # status:
     # - facebook ok -
     # - google+ not implemented - The Google+ API is at current time a read only API
-    # - linkedin - todo - post without picture ok
+    # - linkedin - ok
     # - twitter - todo
     # note that post_on_<provider> is called even if post_gift_allowed? is false (inject link to grant missing permission)
     tokens = session[:tokens] || {}
     tokens.keys.each do |provider|
       task_name = "post_on_#{provider}"
-      add_task "#{task_name}(#{gift.id})", 5 if UtilController.new.private_methods.index(task_name.to_sym)
+      if UtilController.new.private_methods.index(task_name.to_sym)
+        # post on provider wall
+        add_task "#{task_name}(#{gift.id})", 5
+      elsif API_GIFT_PICTURE_STORE[provider] == :api
+        logger.error2 "API_GIFT_PICTURE_STORE setup problem for #{provider}"
+        logger.error2 "api gift picture store is :api, but no post_on_#{provider} task was found"
+        api_gift = gift.api_gifts.find { |ag| ap.provider == provider }
+        if api_gift
+          logger.error2 "api_gift for #{provider} was not found"
+        else
+          api_gift.picture = 'N'
+          api_gift.api_picture_url = nil
+          api_gift.save! if api_gift.changed?
+        end
+      end
     end
 
     # disable file upload button if post on provider wall was rejected for all apis
