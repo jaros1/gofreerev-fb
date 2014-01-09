@@ -354,11 +354,12 @@
     move open_graph_title_and_desc to app controller
 
 78) rename user.profile_picture_url to api_profile_picture_url
+    better to add and drop column to prevent invalid encryption for renamed field
 
 79) add api_gifts.api_gift_url with url to gift on api
     is available for both facebook and linkedin
 
-80) move api_gift.get_facebook_post to util controller and use it in check missing picture urls and post_on_facebook
-    more generic name. for example get_url_facebook(api_gift), get_url_twitter(api_gift) etc
+81) add error handling and @errors array to missing_api_picture_urls ajax response (empty response now)
 
+82) add post on <provider> check box in auth/index page
 

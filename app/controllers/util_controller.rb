@@ -124,7 +124,6 @@ class UtilController < ApplicationController
     ids = params[:api_gifts][:ids].split(',')
     logger.debug2  "ids = #{ids}"
     api_gifts = ApiGift.where("id in (?)", ids)
-
     # set error timestamp
     api_gifts.each do |api_gift|
       logger.debug2  "url = #{api_gift.api_picture_url}"
@@ -141,31 +140,43 @@ class UtilController < ApplicationController
     access_token = session[:access_token]
     tokens = session[:tokens]
     return unless tokens
+    api_clients = {}
     api_gifts.each do |api_gift|
       next if api_gift.picture == 'N' or api_gift.deleted_at_api == 'Y'
-      access_token = tokens[api_gift.provider]
-      next unless access_token
+      # check if gift was created by logged in user
+      created_by_user_id = api_gift.gift.created_by == 'giver' ? api_gift.user_id_giver : api_gift.user_id_receiver
+      next unless login_userids.index(created_by_user_id)
+      # check/initialize api client
+      api_client = api_clients[api_gift.provider]
+      if !api_client
+        # initialize api client for provider
+        access_token = tokens[api_gift.provider]
+        if !access_token
+          logger.warn2 "received api_gift.id #{api_gift.id} for provider #{api_gift.provider}, but user is not connected with provider #{api_gift.provider}"
+          next
+        end
+        case api_gift.provider
+          when 'facebook' then
+            api_client = Koala::Facebook::API.new(access_token)
+          else
+            logger.error2 "initialize api client for #{api_gift.provider} not implemented, api_gift.id = #{api_gift_id}"
+            next
+        end
+        api_clients[api_gift.provider] = api_client
+      end
+
+
       # get new picture url from API
       begin
-        # todo: most use api_gift, not gift
-        api_gift.api_picture_url = api_gift.get_facebook_post(:access_token => access_token, :field => 'full_picture')
+        # check api wall
+      key, options = get_api_picture_url_facebook(api_gift, false, api_client)
+      if key
+        logger.error2 "error handling is missing. api_gift.id = #{api_gift.id}, key = #{key}, options = #{options}"
+        next
+      end
       rescue ApiPostNotFoundException => e
         # identical api error response if picture is deleted or if user is not allowed to see picture
-        user_id_created_by = api_gift.api_gift_id.split('_').first + '/facebook'
-        if @user.user_id != user_id_created_by
-          # picture may have or may not have been deleted in facebook.
-          # current user may not have permission to read picture on wall
-          # keep api_picture_url_on_error_at timestamp and continue
-          # the picture url will be checked by picture owner at a later time
-          logger.debug2  "Could not get new picture url. Could be deleted picture. Could be api permission problem. Keep error and let owner check picture url at a later time"
-          next
-        end # if
-            # picture was not found with picture owner login
-            # it could be a facebook permission problem (app priv has been removed) but most likely the picture has been deleted
-            # keep api_picture_url_on_error_at so that we known about when the picture was been deleted
-            # gifts in app is not deleted automatically. Could affect the balance. Could be connected with other gifts.
-            # this allow users to cleanup their FB profile without destroying data in app
-        logger.debug2  "Gift has been deleted on #{@user.api_name_without_brackets}. Keep in #{APP_NAME} as the gift could have been used in balance and in connected gifts (todo)"
+        logger.debug2  "Gift has been deleted on #{api_gift.provider} wall."
         api_gift.picture = 'N'
         api_gift.api_picture_url = nil
         api_gift.api_picture_url_updated_at = nil
@@ -173,7 +184,7 @@ class UtilController < ApplicationController
         api_gift.save!
         next
       end # rescue
-      # save new picture url from api
+      # ok - new url received from api
       api_gift.api_picture_url_updated_at = Time.now
       api_gift.api_picture_url_on_error_at = nil
       api_gift.save!

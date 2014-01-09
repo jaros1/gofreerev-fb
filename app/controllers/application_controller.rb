@@ -162,7 +162,8 @@ class ApplicationController < ActionController::Base
   # see js functions check_api_picture_url and report_missing_api_picture_urls
   private
   def get_missing_api_picture_urls
-    return nil unless login_user_ids.size > 0
+    logger.debug2 "login_user_ids = #{login_user_ids}"
+    return 'missing_api_picture_urls = [] ;' unless login_user_ids.size > 0
     # all api gifts with @users as giver or receiver
     api_gifts = ApiGift.where("(user_id_giver in (?) or user_id_receiver in (?)) and " +
                                   "api_picture_url_on_error_at is not null and " +
@@ -170,7 +171,7 @@ class ApplicationController < ActionController::Base
                        login_user_ids, login_user_ids).includes(:gift)
     # remove api gift where @users are not creator of gift
     api_gifts.delete_if do |api_gift|
-      user_id_created_by = api_gift.created_by == 'giver' ? api_gift.user_id_giver : api_gift.user_id_receiver
+      user_id_created_by = api_gift.gift.created_by == 'giver' ? api_gift.user_id_giver : api_gift.user_id_receiver
       !login_user_ids.index(user_id_created_by)
     end # delete_if
     if api_gifts.size == 0

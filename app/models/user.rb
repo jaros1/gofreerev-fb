@@ -30,7 +30,7 @@ class User < ActiveRecord::Base
   # encrypt_add_pre_and_postfix/encrypt_remove_pre_and_postfix added in setters/getters for better encryption
   # this is different encrypt for each attribute and each db row
   crypt_keeper :user_name, :currency, :balance, :permissions, :no_api_friends, :negative_interest,
-               :api_profile_url, :profile_picture_url, :encryptor => :aes, :key => ENCRYPT_KEYS[0]
+               :api_profile_url, :profile_picture_url, :api_profile_picture_url, :encryptor => :aes, :key => ENCRYPT_KEYS[0]
 
 
   ##############
@@ -238,6 +238,31 @@ class User < ActiveRecord::Base
     return nil unless (temp_profile_picture_url = attribute_was(:profile_picture_url))
     encrypt_remove_pre_and_postfix(temp_profile_picture_url, 'profile_picture_url', 40)
   end # profile_picture_url_was
+
+  # 13) api_profile_picture_url - url to user profile picture
+  # picture store for profile pictures is either :api or :local. See array constant API_PROFILE_PICTURE_STORE
+  # String in model - Encrypted text in db
+  def api_profile_picture_url
+    return nil unless (temp_api_profile_picture_url = read_attribute(:api_profile_picture_url))
+    # logger.debug2  "temp_api_profile_picture_url = #{temp_api_profile_picture_url}"
+    encrypt_remove_pre_and_postfix(temp_api_profile_picture_url, 'api_profile_picture_url', 40)
+  end # api_profile_picture_url
+  def api_profile_picture_url=(new_api_profile_picture_url)
+    if new_api_profile_picture_url
+      check_type('api_profile_picture_url', new_api_profile_picture_url, 'String')
+      write_attribute :api_profile_picture_url, encrypt_add_pre_and_postfix(new_api_profile_picture_url, 'api_profile_picture_url', 40)
+    else
+      write_attribute :api_profile_picture_url, nil
+    end
+  end # api_profile_picture_url=
+  alias_method :api_profile_picture_url_before_type_cast, :api_profile_picture_url
+  def api_profile_picture_url_was
+    return api_profile_picture_url unless api_profile_picture_url_changed?
+    return nil unless (temp_api_profile_picture_url = attribute_was(:api_profile_picture_url))
+    encrypt_remove_pre_and_postfix(temp_api_profile_picture_url, 'api_profile_picture_url', 40)
+  end # api_profile_picture_url_was
+  
+  
   
   # change currency in page header.
   attr_accessor :new_currency

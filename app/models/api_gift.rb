@@ -342,52 +342,6 @@ class ApiGift < ActiveRecord::Base
     self.save!
   end
 
-  # check post/picture after post on facebook - get url for picture or get message
-  # url is used for showing pictures in gofreerev
-  # message is just used for permission
-  # gofreerev must have read permission to post on facebook wall
-  # ApiPostNotFoundException is raised in case of missing permissions
-  # called from util.missing_api_picture_urls and util.post_on_facebook
-  def get_facebook_post (options)
-    access_token = options[:access_token]
-    field = options[:field]
-    raise "#{__method__}: invalid call" unless %w(full_picture message).index(field)
-    #if picture != 'Y'
-    #  logger.debug2  "api_gift.get_api_picture_url: picture = \"#{picture}\""
-    #  return nil
-    #end
-    if deleted_at_api == 'Y'
-      logger.debug2  "deleted picture"
-      return nil
-    end
-    raise NoApiAccessTokenException unless access_token
-    api = Koala::Facebook::API.new(access_token)
-    logger.debug2 "access_token = #{access_token}"
-    api_request = "#{api_gift_id}?fields=#{field}"
-    logger.debug2 "api_request = #{api_request}"
-    # api_request = "#{api_gift_id}?fields=picture.type(large)" # Systemfejl "type: OAuthException, code: 2500, message: Subfields are not supported by picture [HTTP 400]"
-    begin
-      api_response = api.get_object(api_request)
-    rescue Koala::Facebook::ClientError => e
-      if e.fb_error_type == 'GraphMethodException' and e.fb_error_code == 100
-        # identical error response if picture is deleted or if user is not allowed to see picture
-        # picture not found - maybe picture has been deleted - maybe a permission problem
-        # granting read_stream or changing visibility of app setting to public can solve the problem
-        # read_stream permission will be requested if error is raise when posting on facebook wall
-        raise ApiPostNotFoundException
-      else
-        e.puts_exception("#{__method__}: ")
-        raise
-      end
-    rescue Koala::Facebook::ServerError => e
-      e.puts_exception("#{__method__}: ")
-      raise
-    end
-    # ok request - return picture url or message text
-    logger.debug2  "api_response = #{api_response}"
-    return api_response[field]
-  end # get_api_picture_url
-
 
   # https://github.com/jmazzi/crypt_keeper gem encrypts all attributes and all rows in db with the same key
   # this extension to use different encryption for each attribute and each row
