@@ -8,6 +8,18 @@
 
  2) compare JS timezone with rails timezones - there could be differences
     I have tested with copenhagen and india
+    Rails timezones:
+    - ActiveSupport::TimeZone.all.collect { |tz| (tz.tzinfo.current_period.utc_offset / 60.0 / 60.0).to_s }.uniq
+    - ["-11.0", "-10.0", "-9.0", "-8.0", "-7.0", "-6.0", "-5.0", "-4.5", "-4.0", "-3.5", "-3.0", "-2.0", "-1.0",
+       "0.0", "1.0", "2.0", "3.0", "3.5", "4.0", "4.5", "5.0", "5.5", "5.75", "6.0", "6.5", "7.0", "8.0", "9.0",
+       "9.5", "10.0", "11.0", "12.0", "12.75", "13.0"]
+    javascript timezones:
+    wiki: http://en.wikipedia.org/wiki/Time_zone#List_of_UTC_offsets
+    wiki/rails problems: -9.5, 10.5, 11.5 and 14 is defined in wiki, but not in rails
+    rails: http://api.rubyonrails.org/classes/ActiveSupport/TimeZone.html
+    The version of TZInfo bundled with Active Support only includes the definitions necessary to support the zones
+    defined by the TimeZone class. If you need to use zones that aren't defined by TimeZone, you'll need to install
+    the TZInfo gem (if a recent version of the gem is installed locally, this will be used instead of the bundled version
 
  3) add date format. see application_helper.format_date
 
@@ -358,3 +370,4 @@
 
 84) check response from FastImage.type(gift_file.path) if site is temporary unavailable
     should not error mark pictures if a api picture server is temporary out of service
+    FastImage.type returns nil if server is temporary unavailable

@@ -164,7 +164,7 @@ class UtilController < ApplicationController
           # local picture file has been deleted. Continue. Maybe picture is available from an other api provider
         else
           # api url. recheck that picture has move or has been deleted
-          image_type = FastImage.type(api_gift.api_picture_url)
+          image_type = FastImage.type(api_gift.api_picture_url).to_s
           if %w(jpg jpeg gif png bmp).index(image_type)
             # api url still exists. Could be a temporary problem
             logger.warn2 "api gift #{api_gift.id} url #{api_gift.api_picture_url} exists, but was not found by browser"
@@ -243,7 +243,7 @@ class UtilController < ApplicationController
           next if !api_gift2.picture?
           next if api_gift2.api_picture_url_on_error_at
           next if api_gift2.api_gift_url.to_s == ""
-          image_type2 = FastImage.type(api_gift2.api_picture_url)
+          image_type2 = FastImage.type(api_gift2.api_picture_url).to_s
           next unless %w(jpg jpeg gif png bmp).index(image_type2)
           new_api_picture_url = api_gift2.api_picture_url
           break
@@ -1461,6 +1461,7 @@ class UtilController < ApplicationController
       update_key = $1 if x.body.to_s =~ /"updateKey": "(.*?)"/
       update_url = $1 if x.body.to_s =~ /"updateUrl": "(.*?)"/
       logger.debug2 "update key = #{update_key}, update_url = #{update_url}"
+      api_gift.api_gift_id = update_key
       api_gift.api_gift_url = update_url # note that post on linkedin wall is created in a batch process. Will work in one or 2 minutes
       api_gift.save!
 
@@ -1483,7 +1484,55 @@ class UtilController < ApplicationController
     end
   end # post_on_linkedin
 
-  # check after post_on_<provider>'s' if user have write access to any api wall
+
+  private
+  def post_on_twitter (id)
+    begin
+      # get login user and api access token
+      provider = "twitter"
+      login_user, token, key, options = get_login_user_and_token(provider)
+      return [key, options] if key
+
+      # get gift, api_gift and deep_link
+      gift, api_gift, deep_link, key, options = get_gift_and_deep_link(id, login_user, provider)
+      return [key, options] if key
+
+      # create client for twitter api requests
+      client = Twitter::REST::Client.new do |config|
+        config.consumer_key        = API_ID[provider]
+        config.consumer_secret     = API_SECRET[provider]
+        config.access_token        = token[0]
+        config.access_token_secret = token[1]
+      end
+
+      tweet = gift.description.first(140)
+      if api_gift.picture?
+        # http://rubydoc.info/github/jnunemaker/twitter/Twitter/Client:update_with_media
+        full_os_path = Picture.full_os_path :rel_path => gift.app_picture_rel_path
+        x = client.update_with_media(tweet, File.new(full_os_path))
+      else
+        x = client.update(tweet)
+      end
+      return ['.gift_posted_1_html', {:apiname => provider, :error => "Expected Twitter::Tweet. Found #{x.class}"}] if x.class != Twitter::Tweet
+      if api_gift.picture?
+        api_gift.api_picture_url = x.media.first.media_url.to_s
+      end
+      api_gift.api_gift_id = x.id.to_s
+      api_gift.api_gift_url = x.url.to_s
+      api_gift.save!
+
+      # no errors - return posted message
+      return [".gift_posted_2_html", :apiname => provider, :error => nil]
+
+    rescue Exception => e
+      logger.debug2  "Exception: #{e.message.to_s} (#{e.class})"
+      logger.debug2  "Backtrace: " + e.backtrace.join("\n")
+      raise
+    end
+  end
+
+
+      # check after post_on_<provider>'s' if user have write access to any api wall
   # disable if user does not have granted write permission to any api wall
   # enable if user have granted write permission to one api wall
   # todo: should also change title ......
