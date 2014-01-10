@@ -735,6 +735,7 @@ class UtilController < ApplicationController
       end
 
       api_friends_list.each do |friend|
+        # logger.debug2 "friend = #{friend}"
         friend_user_id = friend["id"] + '/facebook'
         friend["name"] = friend["name"].force_encoding('UTF-8')
         if friends_hash.has_key?(friend_user_id)
@@ -844,13 +845,15 @@ class UtilController < ApplicationController
 
         # copy friends to hash.
         # logger.debug2  "result.data.items = #{result.data.items}"
+        # todo: check friend.kind = plus#person - maybe ignore rows with friend.kind != plus#person
+        # todo: returns profile picture urls with size 50 x 50 (?sz=50) - replace with ?sz=100 ?
         for friend in result.data.items do
           # logger.debug2  "friend = #{friend} (#{friend.class})"
           # copy friend to friends_hash
           friend_user_id = "#{friend.id}/#{provider}"
           if friends_hash.has_key?(friend_user_id)
             # OK - user already in hash
-            nil
+            friend_user = friends_hash[friend_user_id][:user]
           else
             # new google friend
             if !(friend_user = User.where("user_id = ?", friend_user_id).first)
@@ -858,11 +861,20 @@ class UtilController < ApplicationController
               friend_user = User.new
               friend_user.user_id = friend_user_id
               friend_user.user_name = friend.display_name.force_encoding('UTF-8')
+              friend_user.api_profile_url = friend.url
+              friend_user.api_profile_picture_url = friend.image.url
               friend_user.save!
             end
-            friends_hash[friend_user_id] = {:user => friend_user, :old_name => friend_user.user_name, :old_api_friend => 'N', :new_record => true}
+            friends_hash[friend_user_id] = {:user => friend_user,
+                                            :old_name => friend_user.user_name,
+                                            :old_api_profile_url => friend_user.api_profile_url,
+                                            :old_api_profile_picture_url => friend_user.api_profile_picture_url,
+                                            :old_api_friend => 'N',
+                                            :new_record => true}
           end
           friends_hash[friend_user_id][:new_name] = friend.display_name.force_encoding('UTF-8')
+          friends_hash[friend_user_id][:new_api_profile_url] = friend.url
+          friends_hash[friend_user_id][:new_api_profile_picture_url] = friend.image.url
           friends_hash[friend_user_id][:new_api_friend] = 'Y'
         end # item
         # next page - get more friends if any
@@ -871,7 +883,7 @@ class UtilController < ApplicationController
       end # loop for all google+ friends
 
       # update google+ friends
-      Friend.update_friends_from_hash(login_user_id, friends_hash, false,%w(name))
+      Friend.update_friends_from_hash(login_user_id, friends_hash, false,%w(name api_profile_url api_profile_picture_url))
       # google+ friends updated
 
       # 3) update balance
@@ -908,6 +920,7 @@ class UtilController < ApplicationController
       # logger.debug2 "token = #{token.join(', ')}"
 
       # get public profile url for login user
+      # todo: public_profile_url is not saved!. Maybe downloaded in user.update_profile_image post login task
       profile = client.profile :fields=>['public-profile-url']
       public_profile_url = profile.public_profile_url
       logger.debug2 "public_profile_url = #{public_profile_url}"
@@ -918,15 +931,18 @@ class UtilController < ApplicationController
 
       no_linkedin_connections = 0
       begin
-        client.connections(:fields => %w(id,first-name,last-name,public-profile-url)).all.each do |connection|
+        # http://developer.linkedin.com/documents/profile-fields#profile
+        fields = %w(id,first-name,last-name,public-profile-url,picture-url,num-connections)
+        client.connections(:fields => fields).all.each do |connection|
           no_linkedin_connections += 1
+          logger.debug2 "connection = #{connection} (#{connection.class})"
           logger.debug2 "connection.public_profile_url = #{connection.public_profile_url}"
           # copy friend to friends_hash
           friend_user_id = "#{connection.id}/#{provider}"
           friend_name = "#{connection.first_name} #{connection.last_name}".force_encoding('UTF-8')
           if friends_hash.has_key?(friend_user_id)
             # OK - user already in hash
-            nil
+            friend_user = friends_hash[friend_user_id][:user]
           else
             # new google friend
             if !(friend_user = User.where("user_id = ?", friend_user_id).first)
@@ -935,17 +951,23 @@ class UtilController < ApplicationController
               friend_user.user_id = friend_user_id
               friend_user.user_name = friend_name
               friend_user.api_profile_url = connection.public_profile_url if connection.public_profile_url
+              friend_user.api_profile_picture_url = connection.picture_url
+              friend_user.no_api_friends = connection.num_connections
               friend_user.save!
             end
             friends_hash[friend_user_id] = {:user => friend_user,
                                             :old_name => friend_user.user_name,
                                             :old_api_profile_url => friend_user.api_profile_url,
+                                            :old_api_profile_picture_url => friend_user.api_profile_picture_url,
+                                            :old_no_api_friends => friend_user.no_api_friends,
                                             :old_api_friend => 'N',
                                             :new_record => true}
           end
           friends_hash[friend_user_id][:new_name] = friend_name
           friends_hash[friend_user_id][:new_api_friend] = 'Y'
           friends_hash[friend_user_id][:new_api_profile_url] = connection.public_profile_url if connection.public_profile_url
+          friends_hash[friend_user_id][:new_api_profile_picture_url] = connection.picture_url
+          friends_hash[friend_user_id][:new_no_api_friends] = connection.num_connections
         end # connection loop
       rescue LinkedIn::Errors::AccessDeniedError => e
         return ['.linkedin_access_denied', {:provider => provider}] if e.message.to_s =~ /Access to connections denied/
@@ -954,7 +976,7 @@ class UtilController < ApplicationController
       logger.debug2 "Found #{no_linkedin_connections} #{provider} connections"
 
       # update linkedin connections
-      Friend.update_friends_from_hash(login_user_id, friends_hash, false,%w(name api_profile_url))
+      Friend.update_friends_from_hash(login_user_id, friends_hash, false,%w(name api_profile_url api_profile_picture_url no_api_friends))
       # linkedin connections updated
 
       # 3) update balance
@@ -992,7 +1014,7 @@ class UtilController < ApplicationController
       begin
         client.friends.to_a.each do |friend|
           no_twitter_friends += 1
-          logger.debug2 "friend.url = #{friend.url} (#{friend.url.class})"
+          # logger.debug2 "friend.url = #{friend.url} (#{friend.url.class})"
           # copy friend to friends_hash
           friend_user_id = "#{friend.id}/#{provider}"
           friend_name = friend.name.dup.force_encoding('UTF-8')
@@ -1008,24 +1030,30 @@ class UtilController < ApplicationController
               friend_user.user_name = friend_name
               friend_user.api_profile_url = friend.url.to_s
               friend_user.api_profile_picture_url = friend.profile_image_url
+              friend_user.no_api_friends = friend.friends_count
               friend_user.save!
             end
             friends_hash[friend_user_id] = {:user => friend_user,
                                             :old_name => friend_user.user_name,
                                             :old_api_profile_url => friend_user.api_profile_url,
                                             :old_api_profile_picture_url => friend_user.api_profile_picture_url,
+                                            :old_no_api_friends => friend_user.no_api_friends,
                                             :old_api_friend => 'N',
                                             :new_record => true}
           end
+          # only blank api_profile_picture_url is updated
+          # omniauth login returns a size 73 x 73 profile picture (bigger)
+          # friends list returns url to a size 48 x 48 profile picture (normal)
           friends_hash[friend_user_id][:new_name] = friend_name
           friends_hash[friend_user_id][:new_api_profile_url] = friend.url.to_s
           friends_hash[friend_user_id][:new_api_profile_picture_url] = friend_user.api_profile_picture_url || friend.profile_image_url.to_s
+          friends_hash[friend_user_id][:new_no_api_friends] = friend.friends_count
           friends_hash[friend_user_id][:new_api_friend] = 'Y'
         end # connection loop
       end
 
       # update twitter friends
-      Friend.update_friends_from_hash(login_user_id, friends_hash, false,%w(name api_profile_url api_profile_picture_url))
+      Friend.update_friends_from_hash(login_user_id, friends_hash, false,%w(name api_profile_url api_profile_picture_url no_api_friends))
       # twitter friends updated
 
       # 3) update balance

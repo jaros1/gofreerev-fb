@@ -140,8 +140,7 @@ class Friend < ActiveRecord::Base
   #
   def self.update_friends_from_hash (login_user_id, friends_hash, mutual_friends, fields=%w(name))
     provider = login_user_id.split('/').last
-    # update select user fields (name, api_profile_url an api_profile_picture_url)
-    # different api clients/providers returns different information about friends
+    # update selected user fields - different api clients/providers returns different information about friends
     friends_hash.each do |friend_user_id, hash|
       friend_user = nil
       if fields.index('name')
@@ -154,7 +153,7 @@ class Friend < ActiveRecord::Base
       end
       if fields.index('api_profile_url')
         # update api_profile_url
-        if hash[:old_api_profile_url] != hash[:new_api_profile_url] and %w(linkedin twitter).index(provider)
+        if hash[:old_api_profile_url] != hash[:new_api_profile_url]
           # logger.debug2  "fetch_user: update api profile url: old url = #{hash[:old_api_profile_url]}, new url = #{hash[:new_api_profile_url]}"
           friend_user = hash[:user] unless friend_user
           friend_user.api_profile_url = hash[:new_api_profile_url]
@@ -162,10 +161,18 @@ class Friend < ActiveRecord::Base
       end
       if fields.index('api_profile_picture_url')
         # update api_profile_picture_url
-        if hash[:old_api_profile_picture_url] != hash[:new_api_profile_picture_url] and %w(linkedin twitter).index(provider)
+        if hash[:old_api_profile_picture_url] != hash[:new_api_profile_picture_url]
           # logger.debug2  "fetch_user: update api profile url: old url = #{hash[:old_api_profile_picture_url]}, new url = #{hash[:new_api_profile_picture_url]}"
           friend_user = hash[:user] unless friend_user
           friend_user.api_profile_picture_url = hash[:new_api_profile_picture_url]
+        end
+      end
+      if fields.index('no_api_friends')
+        # update no_api_friends
+        if hash[:old_no_api_friends] != hash[:new_no_api_friends]
+          # logger.debug2  "fetch_user: update api profile url: old url = #{hash[:old_no_api_friends]}, new url = #{hash[:new_no_api_friends]}"
+          friend_user = hash[:user] unless friend_user
+          friend_user.no_api_friends = hash[:new_no_api_friends]
         end
       end
       friend_user.save! if friend_user

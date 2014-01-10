@@ -381,15 +381,8 @@
 
 87) found class wrapword in source - check
 
-88) post_login_trigger
-    get api_profile_picture_url for friends without any profile picture
-    friend.profile_image_url
-    Note that profile picture size in friend list is 48 x 48
-    profile pocture size from omniauth login is 73 x 73
-    do not replace big profile picture with small profile picture
-
 89) change Friend.update_friends_from_hash params to options hash
 
+90) user/show: add provider filter if logged in with more when one provider
 
-
-
+91) check profile picture store and api_profile_picture_url in post_login_<provider> methods
