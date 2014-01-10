@@ -532,11 +532,12 @@ function insert_update_gifts (tasks_sleep)
 // JS array with gift ids
 var missing_api_picture_urls = [];
 // function used in onload for img tags
-function check_api_picture_url(giftid, img) {
+function check_api_picture_url(api_gift_id, img) {
+    add2log('check_api_picture_url. api gift id = ' + api_gift_id + ', img.width = ' + img.width + ', img.height = ' + img.height ) ;
     if ((img.width <= 1) && (img.height <= 1)) {
         // image not found - url expired or api picture deleted
         // alert('changed picture url: gift_id = ' + giftid + ', img = ' + img + ', width = ' + img.width + ', height = ' + img.height) ;
-        missing_api_picture_urls.push(giftid);
+        missing_api_picture_urls.push(api_gift_id);
     }
     else {
         // image found. rescale

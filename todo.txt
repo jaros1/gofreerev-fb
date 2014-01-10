@@ -371,3 +371,8 @@
 84) check response from FastImage.type(gift_file.path) if site is temporary unavailable
     should not error mark pictures if a api picture server is temporary out of service
     FastImage.type returns nil if server is temporary unavailable
+
+85) check if two step authorization can be implemented for twitter
+    that is first login with read and second login with write access.
+
+86) refactor initialize api client code

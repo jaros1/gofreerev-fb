@@ -81,7 +81,6 @@ class ApiGift < ActiveRecord::Base
   end
 
   # 6) api_gift_id - String in model - encrypted text in db - api id for the gift / status update on the wall
-  attr_readonly :api_gift_id
   def api_gift_id
     return nil unless (extended_api_gift_id = read_attribute(:api_gift_id))
     encrypt_remove_pre_and_postfix(extended_api_gift_id, 'api_gift_id', 24)
@@ -170,6 +169,7 @@ class ApiGift < ActiveRecord::Base
   end # api_picture_url_on_error_at_was
 
   # 10) deleted_at_api. String Y/N.
+  validates_inclusion_of :deleted_at_api, :allow_blank => true, :in => %w(Y N)
 
   # 11) created_at - timestamp - not encrypted
 

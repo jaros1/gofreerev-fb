@@ -202,6 +202,13 @@ class UtilController < ApplicationController
             case api_gift.provider
               when 'facebook' then
                 api_client = Koala::Facebook::API.new(token)
+              when 'twitter' then
+                api_client = Twitter::REST::Client.new do |config|
+                  config.consumer_key        = API_ID[provider]
+                  config.consumer_secret     = API_SECRET[provider]
+                  config.access_token        = token[0]
+                  config.access_token_secret = token[1]
+                end
               else
                 logger.error2 "initialize api client for #{api_gift.provider} not implemented, api_gift.id = #{api_gift.id}"
                 @errors << ['.mis_api_pic_not_implemented', { :apiname => provider_downcase(api_gift.provider)} ]
@@ -1078,7 +1085,7 @@ class UtilController < ApplicationController
   private
   def get_api_picture_url_facebook (api_gift, just_posted=true, api_client=nil) # api is Koala API client
 
-    return nil if api_gift.deleted_at_api # ignore - post/picture has been deleted from facebook wall
+    return nil if api_gift.deleted_at_api == 'Y' # ignore - post/picture has been deleted from facebook wall
 
     provider = "facebook"
     login_user, token, key, options = get_login_user_and_token(provider)
@@ -1130,8 +1137,7 @@ class UtilController < ApplicationController
         # there must be more to it - changed visibility to only me and did get picture url
         # changed visibility to friends and did get the picture url
         # just display a warning and continue. Request read_stream permission from user if read_stream priv. is missing
-        api_gift.picture = 'N' if api_gift.picture?
-        api_gift.deleted_at_api = Time.new
+        api_gift.deleted_at_api = 'Y' if just_posted
         api_gift.save!
         # (re)check permissions
         if login_user.read_gifts_allowed?
@@ -1193,7 +1199,48 @@ class UtilController < ApplicationController
   end # get_api_picture_url_facebook
 
 
-  # post on facebook wall - with or without picture
+  # recheck post on twitter
+  # mark as deleted if post has been deleted
+  # get new api_picture_url if picture url has changed
+  # called from missing_api_picture_urls if image has been moved or deleted
+  private
+  def get_api_picture_url_twitter (api_gift, just_posted=true, api_client=nil) # api is Koala API client
+
+    provider = "facebook"
+    login_user, token, key, options = get_login_user_and_token(provider)
+    return [key, options] if key
+
+    if !api_client
+      # get access token and initialize twitter api client
+      api_client = Twitter::REST::Client.new do |config|
+        config.consumer_key        = API_ID[provider]
+        config.consumer_secret     = API_SECRET[provider]
+        config.access_token        = token[0]
+        config.access_token_secret = token[1]
+      end
+    end
+
+    # check twitter post
+    begin
+      x = api_client.status api_gift.api_gift_id
+      logger.debug2 "x = #{x}"
+      logger.debug2 "x.class = #{x.class}"
+      api_gift.api_picture_url = x.media.first.media_url.to_s if api_gift.picture?
+    rescue Twitter::Error::NotFound => e
+      logger.debug2 "Exception: e = #{e.message} (#{e.class})"
+      api_gift.deleted_at_api = 'Y'
+    end
+    api_gift.save!
+
+    # ok
+    nil
+
+  end
+
+
+
+
+                                                                                # post on facebook wall - with or without picture
   # picture is temporary saved local, but is deleted when the picture has been posted in wall(s)
   # task was inserted in gifts/create
   private
@@ -1514,10 +1561,8 @@ class UtilController < ApplicationController
         x = client.update(tweet)
       end
       return ['.gift_posted_1_html', {:apiname => provider, :error => "Expected Twitter::Tweet. Found #{x.class}"}] if x.class != Twitter::Tweet
-      if api_gift.picture?
-        api_gift.api_picture_url = x.media.first.media_url.to_s
-      end
-      api_gift.api_gift_id = x.id.to_s
+      api_gift.api_picture_url = x.media.first.media_url.to_s if api_gift.picture?
+      api_gift.api_gift_id  = x.id.to_s
       api_gift.api_gift_url = x.url.to_s
       api_gift.save!
 

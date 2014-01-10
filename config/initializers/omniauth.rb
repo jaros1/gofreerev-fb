@@ -54,13 +54,7 @@ Rails.application.config.middleware.use OmniAuth::Builder do
   provider :facebook,      API_ID[:facebook],      API_SECRET[:facebook], :scope => "", :image_size => :normal, :info_fields => "name,permissions,friends,picture,timezone"
   provider :google_oauth2, API_ID[:google_oauth2], API_SECRET[:google_oauth2], :scope => "plus.login userinfo.profile"
   provider :linkedin,      API_ID[:linkedin],      API_SECRET[:linkedin], :scope => "r_basicprofile r_network", :fields => ['id', 'first-name', 'last-name', 'picture-url', 'public-profile-url', 'location']
-  provider :twitter,       API_ID[:twitter],       API_SECRET[:twitter],
-           {
-               :image_size => 'bigger',
-               :authorize_params => {
-                   :x_auth_access_type => 'read'
-               }
-           }
+  provider :twitter,       API_ID[:twitter],       API_SECRET[:twitter], { :image_size => 'bigger', :authorize_params => { :x_auth_access_type => 'write' } }
 end
 
 # additional API setup
