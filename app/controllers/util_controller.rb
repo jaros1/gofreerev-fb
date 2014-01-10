@@ -204,14 +204,14 @@ class UtilController < ApplicationController
                 api_client = Koala::Facebook::API.new(token)
               when 'twitter' then
                 api_client = Twitter::REST::Client.new do |config|
-                  config.consumer_key        = API_ID[provider]
-                  config.consumer_secret     = API_SECRET[provider]
+                  config.consumer_key        = API_ID[api_gift.provider]
+                  config.consumer_secret     = API_SECRET[api_gift.provider]
                   config.access_token        = token[0]
                   config.access_token_secret = token[1]
                 end
               else
                 logger.error2 "initialize api client for #{api_gift.provider} not implemented, api_gift.id = #{api_gift.id}"
-                @errors << ['.mis_api_pic_not_implemented', { :apiname => provider_downcase(api_gift.provider)} ]
+                @errors << ['.mis_api_pic_not_implemented1', { :apiname => provider_downcase(api_gift.provider)} ]
                 next
             end
             api_clients[api_gift.provider] = api_client
@@ -221,9 +221,17 @@ class UtilController < ApplicationController
           # get new picture url from API
           begin
             # check api wall
-            key, options = get_api_picture_url_facebook(api_gift, false, api_client)
+            case api_gift.provider
+              when 'facebook'
+                key, options = get_api_picture_url_facebook(api_gift, false, api_client)
+              when 'twitter'
+                key, options = get_api_picture_url_twitter(api_gift, false, api_client)
+              else
+                logger.error2 "No get_api_picture_url_#{api_gift.provider} method"
+                @errors << ['.mis_api_pic_not_implemented2', { :apiname => provider_downcase(api_gift.provider)} ]
+                next2
+            end
             if key
-              # todo: check translate keys used in get_api_picture_url_facebook
               @errors << [key, options]
               next
             end
@@ -249,8 +257,9 @@ class UtilController < ApplicationController
         api_gift.gift.api_gifts.delete_if { |ag| ag.id == api_gift.id }.each do |api_gift2|
           next if !api_gift2.picture?
           next if api_gift2.api_picture_url_on_error_at
-          next if api_gift2.api_gift_url.to_s == ""
+          next if api_gift2.api_picture_url.to_s == ""
           image_type2 = FastImage.type(api_gift2.api_picture_url).to_s
+          logger.debug2 "api_gift: provider #{api_gift2.provider}, api_picture_url = #{api_gift2.api_picture_url}, image_type2 = #{image_type2}"
           next unless %w(jpg jpeg gif png bmp).index(image_type2)
           new_api_picture_url = api_gift2.api_picture_url
           break
@@ -1206,7 +1215,7 @@ class UtilController < ApplicationController
   private
   def get_api_picture_url_twitter (api_gift, just_posted=true, api_client=nil) # api is Koala API client
 
-    provider = "facebook"
+    provider = "twitter"
     login_user, token, key, options = get_login_user_and_token(provider)
     return [key, options] if key
 

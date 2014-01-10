@@ -148,7 +148,8 @@ en:
         mis_api_pic_no_param: "System error when checking moved or deleted images. Did not receive a list with image ids."
         mis_api_pic_no_tokens: "System error when checking moved or deleted images. Did not find any login information."
         mis_api_pic_no_token: "System error when checking moved or deleted images. Warning: Received id for an %{apiname} image but user is not connected to %{apiname}."
-        mis_api_pic_not_implemented: "Check for moved or deleted images is not implemented for %{apiname}."
+        mis_api_pic_not_implemented1: "Check for moved or deleted images is not implemented for %{apiname}."
+        mis_api_pic_not_implemented2: "Check for moved or deleted images is not implemented for %{apiname}."
         mis_api_pic_file_exists: "Warning. Browser did not find picture %{rel_path}, but picture exists on the server."
 
   # auth controller

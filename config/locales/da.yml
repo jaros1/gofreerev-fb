@@ -140,7 +140,8 @@ da:
         mis_api_pic_no_param: "System fejl ved tjek af flyttede eller slettede billeder. Modtag ingen liste med billed id'er."
         mis_api_pic_no_tokens: "System fejl ved tjek af flyttede eller slettede billeder. Fandt ikke login oplysninger."
         mis_api_pic_no_token: "System fejl ved tjek af flyttede eller slettede billeder. Advarsel. Modtag id for et %{apiname} billede, men bruger er ikke logget ind med %{apiname}."
-        mis_api_pic_not_implemented: "Tjek for flyttede eller slettede billeder er ikke implementeret for %{apiname}."
+        mis_api_pic_not_implemented1: "Tjek for flyttede eller slettede billeder er ikke implementeret for %{apiname}."
+        mis_api_pic_not_implemented2: "Tjek for flyttede eller slettede billeder er ikke implementeret for %{apiname}."
         mis_api_pic_file_exists: "Advarsel. Browser fandt ikke billede %{rel_path}, men billede findes på serveren."
 
   # auth controller

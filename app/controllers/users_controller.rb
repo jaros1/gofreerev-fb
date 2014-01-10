@@ -234,7 +234,7 @@ class UsersController < ApplicationController
       # done in a client js call after the page has been rendered to the user
       # see last lines in /gifts/index page
       # see onLoad tag on img
-      # see js functions check_api_picture_url and report_missing_api_picture_urls
+      # see js functions imgonload and report_missing_api_picture_urls
       @missing_api_picture_urls = get_missing_api_picture_urls()
 
       # filters: status (open, closed and all) and direction (giver, receiver and both)

@@ -376,3 +376,6 @@
     that is first login with read and second login with write access.
 
 86) refactor initialize api client code
+
+87) found class wrapword in source - check
+

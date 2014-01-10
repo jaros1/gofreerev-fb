@@ -532,9 +532,16 @@ function insert_update_gifts (tasks_sleep)
 // JS array with gift ids
 var missing_api_picture_urls = [];
 // function used in onload for img tags
-function check_api_picture_url(api_gift_id, img) {
-    add2log('check_api_picture_url. api gift id = ' + api_gift_id + ', img.width = ' + img.width + ', img.height = ' + img.height ) ;
+function imgonload(img) {
+    api_gift_id = img.dataset.id ;
+    add2log('imgonload. api gift id = ' + api_gift_id + ', img.width = ' + img.width + ', img.height = ' + img.height +
+        ', naturalWidth = ' + img.naturalWidth + ', naturalHeight = ' + img.naturalHeight + ', complete = ' + img.complete) ;
     if ((img.width <= 1) && (img.height <= 1)) {
+        // image not found - url expired or api picture deleted
+        // alert('changed picture url: gift_id = ' + giftid + ', img = ' + img + ', width = ' + img.width + ', height = ' + img.height) ;
+        missing_api_picture_urls.push(api_gift_id);
+    }
+    else if ((img.naturalWidth <= 1) && (img.naturalHeight <= 1)) {
         // image not found - url expired or api picture deleted
         // alert('changed picture url: gift_id = ' + giftid + ', img = ' + img + ', width = ' + img.width + ', height = ' + img.height) ;
         missing_api_picture_urls.push(api_gift_id);
@@ -543,15 +550,25 @@ function check_api_picture_url(api_gift_id, img) {
         // image found. rescale
         img.width = 200;
     }
-} // check_api_picture_url
+} // imgonload
+// function used in onload for img tags
+function imgonerror(img) {
+    api_gift_id = img.dataset.id ;
+    add2log('imgonerror. api gift id = ' + api_gift_id + ', img.width = ' + img.width + ', img.height = ' + img.height +
+        ', naturalWidth = ' + img.naturalWidth + ', naturalHeight = ' + img.naturalHeight + ', complete = ' + img.complete) ;
+    missing_api_picture_urls.push(api_gift_id);
+} // imgonerror
+
+
 // function to report gift ids with invalid urls. Submitted in end of gifts/index page
 function report_missing_api_picture_urls() {
     if (missing_api_picture_urls.length == 0) {
         // no picture urls to check
-        // alert('no picture urls to check') ;
+        add2log('report_missing_api_picture_urls: no picture urls to check') ;
         return;
     }
     // Report ids with invalid picture url
+    add2log('report_missing_api_picture_urls: sending api gift ids to server') ;
     var missing_api_picture_urls_local = missing_api_picture_urls.join();
     $.ajax({
         url: "/util/missing_api_picture_urls.js",
@@ -869,21 +886,22 @@ function show_more_rows_scroll(table_name, interval, debug) {
         if (sleep < 0) sleep = 0;
         if (debug) add2log('Sleep ' + (sleep / 1000.0) + ' seconds' + '. old timestamp ' + old_show_more_rows_request_at + ', new timestamp ' + now);
         old_show_more_rows_request_at = now + sleep;
+        add2log('show_more_rows_scroll: table_name = ' + table_name || '. call show_more_rows in ' + sleep || ' milliseconds');
         if (sleep == 0) show_more_rows();
         else setTimeout("show_more_rows()", sleep);
-        if (table_name == 'gifts') {
-            // report any invalid api picture urls - url has changed or picture has been deleted
-            // array with gift ids is initialized in img onload="check_api_picture_url ..."
-            // submitted in 2 seconds to allow pictures in page to load
-            // api_picture_url_on_error_at is set for pictures with invalid urls
-            // picture urls are checked with api calls by current user and if necessary by picture owner at a later time
-            setTimeout(report_missing_api_picture_urls, 2000);
-        }
     }
 } // show_more_rows_scroll
 
 function show_more_rows_success (table_name, debug)
 {
+    if (table_name == 'gifts') {
+        // report any invalid api picture urls - url has changed or picture has been deleted
+        // array with gift ids is initialized in img onload="imgonload ..."
+        // submitted in 2 seconds to allow pictures in page to load
+        // api_picture_url_on_error_at is set for pictures with invalid urls
+        // picture urls are checked with api calls by current user and if necessary by picture owner at a later time
+        setTimeout(report_missing_api_picture_urls, 2000);
+    }
     // find id for last row (nil or id for last row in table)
     var pgm = "#show-more-rows-link.ajax:success: " ;
     var link = document.getElementById("show-more-rows-link") ;

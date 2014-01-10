@@ -159,7 +159,7 @@ class ApplicationController < ActionController::Base
   # done in a client js call after the page has been rendered to the user
   # see last lines in /gifts/index page
   # see onLoad tag on img
-  # see js functions check_api_picture_url and report_missing_api_picture_urls
+  # see js functions imgonload and report_missing_api_picture_urls
   private
   def get_missing_api_picture_urls
     logger.debug2 "login_user_ids = #{login_user_ids}"
