@@ -919,12 +919,10 @@ class UtilController < ApplicationController
       client.authorize_from_access token[0], token[1] # token and secret
       # logger.debug2 "token = #{token.join(', ')}"
 
-      # get public profile url for login user
-      # todo: public_profile_url is not saved!. Maybe downloaded in user.update_profile_image post login task
-      profile = client.profile :fields=>['public-profile-url']
-      public_profile_url = profile.public_profile_url
-      logger.debug2 "public_profile_url = #{public_profile_url}"
-      # post_login_linkedin: public_profile_url = http://www.linkedin.com/pub/jan-test-account-roslind/87/b08/27a
+      ## get public profile url for login user
+      #profile = client.profile :fields=>['public-profile-url']
+      #public_profile_url = profile.public_profile_url
+      #logger.debug2 "public_profile_url = #{public_profile_url}"
 
       # todo: count number of connections retured from linkedin
       # todo: handle nil array returned from linkedin (r_network missing in scope)

@@ -140,13 +140,22 @@ class Friend < ActiveRecord::Base
   #
   def self.update_friends_from_hash (login_user_id, friends_hash, mutual_friends, fields=%w(name))
     provider = login_user_id.split('/').last
+    if fields.index('api_profile_picture_url')
+      # check picture store for profile pictures
+      picture_store = API_PROFILE_PICTURE_STORE[provider] || :api
+      if ![:local,:api].index(picture_store)
+        logger.fatal2 "unknown profile picture store #{picture_store} for login provider #{provider}"
+        logger.fatal2 "please check array constant API_PROFILE_PICTURE_STORE (/config/initializers/omniauth.rb"
+        picture_store = :api
+      end
+    end
+
     # update selected user fields - different api clients/providers returns different information about friends
     friends_hash.each do |friend_user_id, hash|
       friend_user = nil
       if fields.index('name')
         # update name
         if hash[:old_name] != hash[:new_name]
-          # logger.debug2  "fetch_user: update user names: old name = #{hash[:old_name]}, new name = #{hash[:new_name]}"
           friend_user = hash[:user]
           friend_user.user_name = hash[:new_name].force_encoding('UTF-8')
         end
@@ -154,7 +163,6 @@ class Friend < ActiveRecord::Base
       if fields.index('api_profile_url')
         # update api_profile_url
         if hash[:old_api_profile_url] != hash[:new_api_profile_url]
-          # logger.debug2  "fetch_user: update api profile url: old url = #{hash[:old_api_profile_url]}, new url = #{hash[:new_api_profile_url]}"
           friend_user = hash[:user] unless friend_user
           friend_user.api_profile_url = hash[:new_api_profile_url]
         end
@@ -162,9 +170,13 @@ class Friend < ActiveRecord::Base
       if fields.index('api_profile_picture_url')
         # update api_profile_picture_url
         if hash[:old_api_profile_picture_url] != hash[:new_api_profile_picture_url]
-          # logger.debug2  "fetch_user: update api profile url: old url = #{hash[:old_api_profile_picture_url]}, new url = #{hash[:new_api_profile_picture_url]}"
-          friend_user = hash[:user] unless friend_user
-          friend_user.api_profile_picture_url = hash[:new_api_profile_picture_url]
+          # check picture store
+          # do not overwrite old picture if local picture store and old picture url is an local url
+          local = (picture_store == :local and Picture.app_url?(hash[:old_api_profile_picture_url]))
+          if !hash[:old_api_profile_picture_url] or picture_store == :api or !local
+            friend_user = hash[:user] unless friend_user
+            friend_user.api_profile_picture_url = hash[:new_api_profile_picture_url]
+          end
         end
       end
       if fields.index('no_api_friends')
