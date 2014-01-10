@@ -137,20 +137,36 @@ class Friend < ActiveRecord::Base
   # friends_hash is hash with old and new friend from util_controller.post_login_<provider> api request
   # mutual_friends = true: facebook, linkedin - update friend list for login user and for friend
   # mutual friends = false: google+, twitter - update only friend list for login user
-  def self.update_friends_from_hash (login_user_id, friends_hash, mutual_friends)
+  #
+  def self.update_friends_from_hash (login_user_id, friends_hash, mutual_friends, fields=%w(name))
     provider = login_user_id.split('/').last
-    # update friend user names
+    # update select user fields (name, api_profile_url an api_profile_picture_url)
+    # different api clients/providers returns different information about friends
     friends_hash.each do |friend_user_id, hash|
       friend_user = nil
-      if hash[:old_name] != hash[:new_name]
-        # logger.debug2  "fetch_user: update user names: old name = #{hash[:old_name]}, new name = #{hash[:new_name]}"
-        friend_user = hash[:user]
-        friend_user.user_name = hash[:new_name].force_encoding('UTF-8')
+      if fields.index('name')
+        # update name
+        if hash[:old_name] != hash[:new_name]
+          # logger.debug2  "fetch_user: update user names: old name = #{hash[:old_name]}, new name = #{hash[:new_name]}"
+          friend_user = hash[:user]
+          friend_user.user_name = hash[:new_name].force_encoding('UTF-8')
+        end
       end
-      if hash[:old_api_profile_url] != hash[:new_api_profile_url] and %w(linkedin twitter).index(provider)
-        # logger.debug2  "fetch_user: update api profile url: old url = #{hash[:old_api_profile_url]}, new url = #{hash[:new_api_profile_url]}"
-        friend_user = hash[:user] unless friend_user
-        friend_user.api_profile_url = hash[:new_api_profile_url]
+      if fields.index('api_profile_url')
+        # update api_profile_url
+        if hash[:old_api_profile_url] != hash[:new_api_profile_url] and %w(linkedin twitter).index(provider)
+          # logger.debug2  "fetch_user: update api profile url: old url = #{hash[:old_api_profile_url]}, new url = #{hash[:new_api_profile_url]}"
+          friend_user = hash[:user] unless friend_user
+          friend_user.api_profile_url = hash[:new_api_profile_url]
+        end
+      end
+      if fields.index('api_profile_picture_url')
+        # update api_profile_picture_url
+        if hash[:old_api_profile_picture_url] != hash[:new_api_profile_picture_url] and %w(linkedin twitter).index(provider)
+          # logger.debug2  "fetch_user: update api profile url: old url = #{hash[:old_api_profile_picture_url]}, new url = #{hash[:new_api_profile_picture_url]}"
+          friend_user = hash[:user] unless friend_user
+          friend_user.api_profile_picture_url = hash[:new_api_profile_picture_url]
+        end
       end
       friend_user.save! if friend_user
     end # each

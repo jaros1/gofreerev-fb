@@ -318,7 +318,7 @@
 60) picture with not existing temp picture are not removed in check missing picture urls
     check that missing picture urls check is running on dev1
 
-61) problem with api_gifts without gift - only on development!
+61) problem with api_gifts without gift
 
 62) profile_picture_name should be uniq
     profile picture folder is now md5(user_id)
@@ -326,24 +326,18 @@
 
 63) add API_LOCAL_PICTURE array constant
 
-65) if profile picture store = :api.
-    add onload handler to profile picture to check for invalid profile picture urls
+65) profile picture store = :api.
+    add onload/onerror handler to profile picture to check for invalid profile picture urls
     should ajax report invalid profile picture url to server.
-    should display no-picture.jpg if profile picture was not found
+    should display no-picture.jpg if user profile picture was not found
 
 67) flash message and max cookie size
     big flash messages gives CookieOverflow
     add a flash sequence and table and save only unique flash id in notice[:flash]
 
-68) check if img onload and img onerror events could be handled on a higher level - for example on gifts table
-    http://api.jquery.com/on/
-    $( "#dataTable tbody tr" ).on( "click", function() {
-     alert( $( this ).text() );
-     });
-
 69) check if user div onclick events could be handled on a higher level - for example on document
     can not use user_id in id. user divs are repeated many times for each user.
-    maybe use data-userid attribute for this
+    use data-id attribute for user.id
 
 70) link from post on gofreerev to post on facebook. api_gift.api_gift_id => url
     but only if FB friend
@@ -356,9 +350,10 @@
 
 73) change attached picture check. Should use information in API_GIFT_PICTURE_STORE hash and user.permissions field
 
-74) change attached picture mouse over text.
+74) change attached file mouse over text.
     explain reason if picture can not be uploaded
-    add note with recommended picture size ( dimensions)
+    add note with recommended picture size ( dimensions) for different providers
+    maybe just allow file attachment for all posts
 
 75) problem with api gifts without gifts
     check out where gifts are deleted
@@ -371,11 +366,30 @@
 84) check response from FastImage.type(gift_file.path) if site is temporary unavailable
     should not error mark pictures if a api picture server is temporary out of service
     FastImage.type returns nil if server is temporary unavailable
+    Must combine FastImage = nil with a http get page notfound check
 
 85) check if two step authorization can be implemented for twitter
     that is first login with read and second login with write access.
+    for example a grant write access link with an ok/cancel dialog
+    permissions = read after login. Change to write if user gives write access to twitter wall
 
 86) refactor initialize api client code
+    - facebook/koala - todo
+    - google+ - todo
+    - linkedin - todo
+    - twitter (done)
 
 87) found class wrapword in source - check
+
+88) post_login_trigger
+    get api_profile_picture_url for friends without any profile picture
+    friend.profile_image_url
+    Note that profile picture size in friend list is 48 x 48
+    profile pocture size from omniauth login is 73 x 73
+    do not replace big profile picture with small profile picture
+
+89) change Friend.update_friends_from_hash params to options hash
+
+
+
 

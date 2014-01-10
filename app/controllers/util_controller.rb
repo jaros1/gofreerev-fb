@@ -203,12 +203,7 @@ class UtilController < ApplicationController
               when 'facebook' then
                 api_client = Koala::Facebook::API.new(token)
               when 'twitter' then
-                api_client = Twitter::REST::Client.new do |config|
-                  config.consumer_key        = API_ID[api_gift.provider]
-                  config.consumer_secret     = API_SECRET[api_gift.provider]
-                  config.access_token        = token[0]
-                  config.access_token_secret = token[1]
-                end
+                api_client = init_api_client_twitter(token)
               else
                 logger.error2 "initialize api client for #{api_gift.provider} not implemented, api_gift.id = #{api_gift.id}"
                 @errors << ['.mis_api_pic_not_implemented1', { :apiname => provider_downcase(api_gift.provider)} ]
@@ -761,7 +756,7 @@ class UtilController < ApplicationController
       end # each
 
       # update facebook friends
-      Friend.update_friends_from_hash(login_user_id, friends_hash, true)
+      Friend.update_friends_from_hash(login_user_id, friends_hash, true,%w(name))
       # facebook friend list updated
 
       # 3) update profile picture
@@ -876,7 +871,7 @@ class UtilController < ApplicationController
       end # loop for all google+ friends
 
       # update google+ friends
-      Friend.update_friends_from_hash(login_user_id, friends_hash, false)
+      Friend.update_friends_from_hash(login_user_id, friends_hash, false,%w(name))
       # google+ friends updated
 
       # 3) update balance
@@ -959,7 +954,7 @@ class UtilController < ApplicationController
       logger.debug2 "Found #{no_linkedin_connections} #{provider} connections"
 
       # update linkedin connections
-      Friend.update_friends_from_hash(login_user_id, friends_hash, false)
+      Friend.update_friends_from_hash(login_user_id, friends_hash, false,%w(name api_profile_url))
       # linkedin connections updated
 
       # 3) update balance
@@ -989,15 +984,9 @@ class UtilController < ApplicationController
       login_user, friends_hash, token, key, options = get_user_friends_and_token(provider)
       return [key, options] if key
       login_user_id = login_user.user_id
-      # logger.debug2  "token = #{token.join(', ')}"
 
       # create client for twitter api requests
-      client = Twitter::REST::Client.new do |config|
-        config.consumer_key        = API_ID[provider]
-        config.consumer_secret     = API_SECRET[provider]
-        config.access_token        = token[0]
-        config.access_token_secret = token[1]
-      end
+      client = init_api_client_twitter(token)
 
       no_twitter_friends = 0
       begin
@@ -1009,32 +998,34 @@ class UtilController < ApplicationController
           friend_name = friend.name.dup.force_encoding('UTF-8')
           if friends_hash.has_key?(friend_user_id)
             # OK - user already in hash
-            nil
+            friend_user = friends_hash[friend_user_id][:user]
           else
-            # new google friend
+            # new google friend - create user if friend does not exists
             if !(friend_user = User.where("user_id = ?", friend_user_id).first)
               # create unknown user - create user with minimal user information (user id and name)
               friend_user = User.new
               friend_user.user_id = friend_user_id
               friend_user.user_name = friend_name
               friend_user.api_profile_url = friend.url.to_s
+              friend_user.api_profile_picture_url = friend.profile_image_url
               friend_user.save!
             end
             friends_hash[friend_user_id] = {:user => friend_user,
                                             :old_name => friend_user.user_name,
                                             :old_api_profile_url => friend_user.api_profile_url,
+                                            :old_api_profile_picture_url => friend_user.api_profile_picture_url,
                                             :old_api_friend => 'N',
                                             :new_record => true}
           end
           friends_hash[friend_user_id][:new_name] = friend_name
           friends_hash[friend_user_id][:new_api_profile_url] = friend.url.to_s
+          friends_hash[friend_user_id][:new_api_profile_picture_url] = friend_user.api_profile_picture_url || friend.profile_image_url.to_s
           friends_hash[friend_user_id][:new_api_friend] = 'Y'
         end # connection loop
-      # todo: add rescue for missing privs
       end
 
       # update twitter friends
-      Friend.update_friends_from_hash(login_user_id, friends_hash, false)
+      Friend.update_friends_from_hash(login_user_id, friends_hash, false,%w(name api_profile_url api_profile_picture_url))
       # twitter friends updated
 
       # 3) update balance
@@ -1219,15 +1210,8 @@ class UtilController < ApplicationController
     login_user, token, key, options = get_login_user_and_token(provider)
     return [key, options] if key
 
-    if !api_client
-      # get access token and initialize twitter api client
-      api_client = Twitter::REST::Client.new do |config|
-        config.consumer_key        = API_ID[provider]
-        config.consumer_secret     = API_SECRET[provider]
-        config.access_token        = token[0]
-        config.access_token_secret = token[1]
-      end
-    end
+    # initialize twitter api client
+    api_client = init_api_client_twitter(token) if !api_client
 
     # check twitter post
     begin
@@ -1554,12 +1538,7 @@ class UtilController < ApplicationController
       return [key, options] if key
 
       # create client for twitter api requests
-      client = Twitter::REST::Client.new do |config|
-        config.consumer_key        = API_ID[provider]
-        config.consumer_secret     = API_SECRET[provider]
-        config.access_token        = token[0]
-        config.access_token_secret = token[1]
-      end
+      client = init_api_client_twitter(token)
 
       tweet = gift.description.first(140)
       if api_gift.picture?
@@ -1655,6 +1634,19 @@ class UtilController < ApplicationController
       raise
     end
   end # delete_local_picture
+
+  private
+  def init_api_client_twitter (token)
+    provider = 'twitter'
+    # logger.debug2  "token = #{token.join(', ')}"
+    api_client = Twitter::REST::Client.new do |config|
+      config.consumer_key        = API_ID[provider]
+      config.consumer_secret     = API_SECRET[provider]
+      config.access_token        = token[0]
+      config.access_token_secret = token[1]
+    end
+    api_client
+  end # init_api_client_twitter
   
   
 end # UtilController
