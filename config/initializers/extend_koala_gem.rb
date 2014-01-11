@@ -1,4 +1,15 @@
 # dump unexpected facebook/koala exceptions to log for easier debugging
+
+class Koala::Facebook::APIError
+  # inject rails logger into Koala exceptions
+  def logger=(new_logger)
+    @logger = new_logger
+  end
+  def logger
+    @logger
+  end
+end
+
 class Koala::Facebook::ClientError
   def puts_exception (prefix=nil)
     logger.debug2  "#{prefix}Koala::Facebook::ClientError"

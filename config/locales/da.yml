@@ -145,6 +145,7 @@ da:
         mis_api_pic_not_implemented1: "Tjek for flyttede eller slettede billeder er ikke implementeret for %{apiname}."
         mis_api_pic_not_implemented2: "Tjek for flyttede eller slettede billeder er ikke implementeret for %{apiname}."
         mis_api_pic_file_exists: "Advarsel. Browser fandt ikke billede %{rel_path}, men billede findes på serveren."
+        # auth/index + util.post_on_wall_yn:
         unknown_provider: "System fejl. Ukendt login udbyder %{apiname}. Ændring af Opslag? er ikke blevet gemt."
         unknown_post_on_wall: "System fejl. Ukendt valg med ændring af Opslag? for %{apiname}. Valg er ikke blevet gemt."
 

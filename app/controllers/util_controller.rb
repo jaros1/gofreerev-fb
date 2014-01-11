@@ -1187,6 +1187,7 @@ class UtilController < ApplicationController
         end
       else
         # unhandled koala / facebook exception
+        e.logger = logger
         e.puts_exception("#{__method__}: ")
         raise
       end
@@ -1218,6 +1219,7 @@ class UtilController < ApplicationController
         end
       rescue Koala::Facebook::ClientError => e
         # unhandled koala / facebook exception
+        e.logger = logger
         e.puts_exception("#{__method__}: ")
         raise
       end
@@ -1258,7 +1260,7 @@ class UtilController < ApplicationController
     # ok
     nil
 
-  end
+  end # get_api_picture_url_twitter
 
 
   # change user.post_on_wall_yn. ajax request from auth/index page
@@ -1287,7 +1289,22 @@ class UtilController < ApplicationController
 
   end # post_on_wall_yn
 
-                                                                                # post on facebook wall - with or without picture
+
+  # return [key, options] with @errors ajax to grant write access to facebook wall
+  # link is injected in tasks_errors table in page header
+  private
+  def grant_write_link_facebook
+    provider = 'facebook'
+    oauth = Koala::Facebook::OAuth.new(API_ID[provider], API_SECRET[provider], API_CALLBACK_URL[provider])
+    url = oauth.url_for_oauth_code(:permissions => 'status_update', :state => set_state('status_update'))
+    key = '.gift_posted_3_html'
+    options = {:apiname => provider_downcase(provider),
+               :url => url,
+               :appname => APP_NAME}
+    [key, options]
+  end # grant_write_link_facebook
+
+  # post on facebook wall - with or without picture
   # picture is temporary saved local, but is deleted when the picture has been posted in wall(s)
   # task was inserted in gifts/create
   private
@@ -1351,6 +1368,7 @@ class UtilController < ApplicationController
           logger.debug2 "api_response = #{api_response} (#{api_response.class.name})"
           gift_posted_on_wall_api_wall = 2 # Gift posted in here and on your facebook wall
         rescue Koala::Facebook::ClientError => e
+          e.logger = logger
           e.puts_exception("#{__method__}: ")
           if e.fb_error_type == 'OAuthException' && e.fb_error_code == 506
             # delete gift and ignore error OAuthException, code: 506, message: (#506) Duplicate status message [HTTP 400]
@@ -1363,8 +1381,7 @@ class UtilController < ApplicationController
             if !login_user.post_gift_allowed?
               # permission to post on api wall has been removed.
               # show request_post_gift_priv_link link in gifts/index page
-              gift_posted_on_wall_api_wall = 3
-              error = nil
+              return grant_write_link_facebook
             else
               # permission to post on api wall has NOT been removed. Unknown error
               gift_posted_on_wall_api_wall = 1 # unknown error. no translation
@@ -1377,6 +1394,7 @@ class UtilController < ApplicationController
             api_gift.clear_deep_link
           end
         rescue Koala::Facebook::ServerError => e
+          e.logger = logger
           e.puts_exception("#{__method__}: ")
           gift_posted_on_wall_api_wall = 1 # unknown error. no translation
           error = e.fb_error_message.to_s
@@ -1385,23 +1403,15 @@ class UtilController < ApplicationController
       else
         # post_gift_allowed? false - ajax inject link to grant missing permission
         gift_posted_on_wall_api_wall = 3
+        return grant_write_link_facebook
       end # if
 
       if gift_posted_on_wall_api_wall != 2
         # error or warning
         api_gift.picture = 'N'
         api_gift.save!
-        options = {:apiname => login_user.api_name_without_brackets, :error => error}
-        if gift_posted_on_wall_api_wall == 3
-          # url to grant missing status update permission to post on facebook wall
-          # looks like permission status_update has been replaced with publish_actions
-          # publish_actions is added to permissions hash when granting status_update priv.
-          oauth = Koala::Facebook::OAuth.new(API_ID[provider], API_SECRET[provider], API_CALLBACK_URL[provider])
-          url = oauth.url_for_oauth_code(:permissions => 'status_update', :state => set_state('status_update'))
-          options[:url] = url
-          options[:appname] = APP_NAME
-        end
-        return ".gift_posted_#{gift_posted_on_wall_api_wall}_html", options
+        return [".gift_posted_#{gift_posted_on_wall_api_wall}_html",
+                {:apiname => login_user.api_name_without_brackets, :error => error}]
       elsif !api_gift.picture? or api_gift.picture? and Picture.perm_app_url?(picture_url)
         # post ok - no picture or picture with perm app url
         # no need to read access to api wall

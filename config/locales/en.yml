@@ -152,6 +152,7 @@ en:
         mis_api_pic_not_implemented1: "Check for moved or deleted images is not implemented for %{apiname}."
         mis_api_pic_not_implemented2: "Check for moved or deleted images is not implemented for %{apiname}."
         mis_api_pic_file_exists: "Warning. Browser did not find picture %{rel_path}, but picture exists on the server."
+        # auth/index + util.post_on_wall_yn:
         unknown_provider: "System error. Unknown login provider %{apiname}. Change in Post? has not been saved."
         unknown_post_on_wall: "System error. Unknown choise for login provider %{apiname}. Change in Post? has not been saved."
 
