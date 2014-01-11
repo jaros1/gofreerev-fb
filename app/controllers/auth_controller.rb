@@ -20,12 +20,13 @@ class AuthController < ApplicationController
                     else
                       2 # logged in with multiple login providers - log out link and stay on auth/index page
                   end # case
-      # access; 0 not connected, 1 read access, 2 read+write access
+      # access; 0 not connected, 1 read access, 2 read+write access, 3 special note about twitter access
       if logged_in == 0
         access = 0
       else
         user = @users.find { |u| u.provider == provider }
         access = user.post_gift_allowed? ? 2 : 1
+        access = 3 if access == 1 and provider == 'twitter'
       end
       @providers << [provider, logged_in, access]
     end # each provider

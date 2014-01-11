@@ -5,7 +5,9 @@
     <tr>
       <th title="<%= t ".visit_title", :appname => APP_NAME, :apiname => provider_downcase(nil) %>"><%= t ".visit_th" %></th>
       <th style="width: 10px"></th>
-      <th><%= t '.connect_th' %></th>
+      <th title="<%= t ".connect_title", :appname => APP_NAME %>">
+        <%= t '.connect_th' %>
+      </th>
       <th style="width: 10px"></th>
       <th><%= t '.access_th' %></th>
     </tr>
