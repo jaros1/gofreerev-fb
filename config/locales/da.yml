@@ -182,6 +182,8 @@ da:
         access_link_text_1: "læs"
         access_link_text_2: "læs+skriv"
         access_link_text_3: "(skriv)"
+        post_th: "Opslag?"
+        post_th_title: "Brug tjek bokse i denne kolonne til at tillade eller forhindre opslag på væg hos din login udbyder. Du kan blive bedt om yderligere rettigheder hvis du vælger ja til opslag hos din login udbyder."
         remove_cookies_link_text: "Fjern cookies"
      destroy:
         logged_off: "Adgang via %{apiname} er blevet afbrudt. Vær opmærksom på at du stadigvæk har adgang til %{appname} via en anden login udbyder. Brug nedenstående links til at logge ind/ud."

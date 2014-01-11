@@ -189,6 +189,8 @@ en:
         access_link_text_1: "read"
         access_link_text_2: "read+write"
         access_link_text_3: "(write)"
+        post_th: "Post?"
+        post_th_title: "Use check boxes in this column to allow or prevent post on login provider walls. You might be asked for more permissions if you allow post on your login providers wall."
         remove_cookies_link_text: "Remove cookies"
      destroy:
         logged_off: "Connection with %{apiname} has been closed. Note that you are still connected to %{appname} with an other login provider. Use links in this page to log in/out."

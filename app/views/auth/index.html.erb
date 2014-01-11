@@ -12,8 +12,12 @@
       <th title="<%= t ".access_th_title", :appname => APP_NAME %>">
         <%= t '.access_th' %>
       </th>
+      <th style="width: 10px"></th>
+      <th title="<%= t ".post_th_title", :appname => APP_NAME %>">
+        <%= t '.post_th' %>
+      </th>
     </tr>
-    <% @providers.each do |x| ; provider, logged_in, access = x -%>
+    <% @providers.each do |x| ; provider, logged_in, access, post_on_wall = x -%>
     <tr>
       <td title="<%= t ".visit_title", :appname => APP_NAME, :apiname => provider_downcase(provider) %>">
         <%= link_to provider_camelize(provider), API_URL[provider], :target => '_blank' %>
@@ -29,6 +33,12 @@
       <td></td>
       <td title="<%= t ".access_title_#{access}", :appname => APP_NAME, :apiname => provider_downcase(provider) %>">
         <%= link_to t(".access_link_text_#{access}"), API_APP_SETTING_URL[provider] || '#', :target => '_blank' %>
+      </td>
+      <td></td>
+      <td style="text-align: center">
+        <% if [1,2].index(post_on_wall) -%>
+            <%= check_box_tag "post_#{provider}", :checked => (post_on_wall == 2) %>
+        <% end -%>
       </td>
     </tr>
     <% end -%>

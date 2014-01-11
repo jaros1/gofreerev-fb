@@ -28,7 +28,13 @@ class AuthController < ApplicationController
         access = user.post_gift_allowed? ? 2 : 1
         access = 3 if access == 1 and provider == 'twitter'
       end
-      @providers << [provider, logged_in, access]
+      # post_on_wall checkbox. 0 disable/hide, 1 unchecked, 2 checked
+      if logged_in == 0 or !API_POST_PERMITTED[provider]
+        post_on_wall = 0
+      else
+        post_on_wall = user.post_on_wall_yn == 'Y' ? 2 : 1
+      end
+      @providers << [provider, logged_in, access, post_on_wall]
     end # each provider
 
     @providers = @providers.sort do |a,b|

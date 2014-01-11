@@ -239,7 +239,10 @@ class User < ActiveRecord::Base
     encrypt_remove_pre_and_postfix(temp_api_profile_picture_url, 'api_profile_picture_url', 40)
   end # api_profile_picture_url_was
   
-  
+  # 13) post_on_wall_yn - allow post on api wall - default is Y unless readonly API (google+)
+  # string in model and db
+  validates_presence_of :post_on_wall_yn
+  validates_inclusion_of :post_on_wall_yn, :allow_blank => true, :in => %w(Y N)
   
   # change currency in page header.
   attr_accessor :new_currency
@@ -314,6 +317,7 @@ class User < ActiveRecord::Base
     # user.profile_picture_name = "#{provider}.png"
     user.api_profile_picture_url = "#{SITE_URL}/images/#{provider}.png".gsub('//images', '/images')
     user.balance = { BALANCE_KEY => 0.0 }
+    user.post_on_wall_yn = 'N'
     user.save!
     user
   end # self.find_or_create_dummy_user
@@ -409,6 +413,7 @@ class User < ActiveRecord::Base
       user.currency = currency
       user.balance = { BALANCE_KEY => 0.0 }
       user.balance_at = Date.parse(Sequence.get_last_exchange_rate_date)
+      user.post_on_wall_yn = API_POST_PERMITTED[provider] ? 'Y' : 'N'
     end # outer if
     user.save!
     user

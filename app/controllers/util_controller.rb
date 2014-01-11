@@ -748,6 +748,7 @@ class UtilController < ApplicationController
             friend_user = User.new
             friend_user.user_id = friend_user_id
             friend_user.user_name = friend["name"]
+            friend_user.post_on_wall_yn = 'Y'
             friend_user.save!
           end
           friends_hash[friend_user_id] = {:user => friend_user, :old_name => friend_user.user_name, :old_api_friend => 'N', :new_record => true}
@@ -863,6 +864,7 @@ class UtilController < ApplicationController
               friend_user.user_name = friend.display_name.force_encoding('UTF-8')
               friend_user.api_profile_url = friend.url
               friend_user.api_profile_picture_url = friend.image.url
+              friend_user.post_on_wall_yn = 'N'
               friend_user.save!
             end
             friends_hash[friend_user_id] = {:user => friend_user,
@@ -951,6 +953,7 @@ class UtilController < ApplicationController
               friend_user.api_profile_url = connection.public_profile_url if connection.public_profile_url
               friend_user.api_profile_picture_url = connection.picture_url
               friend_user.no_api_friends = connection.num_connections
+              friend_user.post_on_wall_yn = 'Y'
               friend_user.save!
             end
             friends_hash[friend_user_id] = {:user => friend_user,
@@ -1029,6 +1032,7 @@ class UtilController < ApplicationController
               friend_user.api_profile_url = friend.url.to_s
               friend_user.api_profile_picture_url = friend.profile_image_url
               friend_user.no_api_friends = friend.friends_count
+              friend_user.post_on_wall_yn = 'Y'
               friend_user.save!
             end
             friends_hash[friend_user_id] = {:user => friend_user,
