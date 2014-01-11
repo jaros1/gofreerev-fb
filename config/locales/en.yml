@@ -152,6 +152,8 @@ en:
         mis_api_pic_not_implemented1: "Check for moved or deleted images is not implemented for %{apiname}."
         mis_api_pic_not_implemented2: "Check for moved or deleted images is not implemented for %{apiname}."
         mis_api_pic_file_exists: "Warning. Browser did not find picture %{rel_path}, but picture exists on the server."
+        unknown_provider: "System error. Unknown login provider %{apiname}. Change in Post? has not been saved."
+        unknown_post_on_wall: "System error. Unknown choise for login provider %{apiname}. Change in Post? has not been saved."
 
   # auth controller
   auth:
@@ -190,7 +192,7 @@ en:
         access_link_text_2: "read+write"
         access_link_text_3: "(write)"
         post_th: "Post?"
-        post_th_title: "Use check boxes in this column to allow or prevent post on login provider walls. You might be asked for more permissions if you allow post on your login providers wall."
+        post_th_title: "Use check boxes in this column to allow or prevent post on login provider walls. You might later be asked for more permissions if you select to allow post on your login providers wall."
         remove_cookies_link_text: "Remove cookies"
      destroy:
         logged_off: "Connection with %{apiname} has been closed. Note that you are still connected to %{appname} with an other login provider. Use links in this page to log in/out."

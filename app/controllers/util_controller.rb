@@ -1261,7 +1261,31 @@ class UtilController < ApplicationController
   end
 
 
+  # change user.post_on_wall_yn. ajax request from auth/index page
+  public
+  def post_on_wall_yn
+    @errors = []
+    logger.debug2 "params = #{params}"
+    # check provider
+    provider = params[:provider]
+    return ['.unknown_provider', {:apiname => provider }] unless valid_provider?(provider)
+    # check post_on_wall_yn
+    post_on_wall = case params[:post_on_wall]
+                        when 'true' then 'Y'
+                        when 'false' then 'N'
+                        else
+                          logger.error2 "Invalid post_on_wall value received from client. params = #{params}"
+                          return ['.unknown_post_on_wall', {:apiname => provider }]
+                      end # case
 
+    # get user
+    login_user, token, key, options = get_login_user_and_token(provider)
+    return [key, options] if key
+
+    # update user
+    login_user.update_attribute('post_on_wall_yn', post_on_wall)
+
+  end # post_on_wall_yn
 
                                                                                 # post on facebook wall - with or without picture
   # picture is temporary saved local, but is deleted when the picture has been posted in wall(s)

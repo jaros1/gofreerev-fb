@@ -27,6 +27,7 @@ GofreerevFb::Application.routes.draw do
   post 'util/reject_new_deal'
   post 'util/do_tasks'
   get "util/currencies"
+  post "util/post_on_wall_yn"
   delete 'auth/destroy'
 
   # The priority is based upon order of creation: first created -> highest priority.

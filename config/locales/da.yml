@@ -145,6 +145,8 @@ da:
         mis_api_pic_not_implemented1: "Tjek for flyttede eller slettede billeder er ikke implementeret for %{apiname}."
         mis_api_pic_not_implemented2: "Tjek for flyttede eller slettede billeder er ikke implementeret for %{apiname}."
         mis_api_pic_file_exists: "Advarsel. Browser fandt ikke billede %{rel_path}, men billede findes på serveren."
+        unknown_provider: "System fejl. Ukendt login udbyder %{apiname}. Ændring af Opslag? er ikke blevet gemt."
+        unknown_post_on_wall: "System fejl. Ukendt valg med ændring af Opslag? for %{apiname}. Valg er ikke blevet gemt."
 
   # auth controller
   auth:
@@ -183,7 +185,7 @@ da:
         access_link_text_2: "læs+skriv"
         access_link_text_3: "(skriv)"
         post_th: "Opslag?"
-        post_th_title: "Brug tjek bokse i denne kolonne til at tillade eller forhindre opslag på væg hos din login udbyder. Du kan blive bedt om yderligere rettigheder hvis du vælger ja til opslag hos din login udbyder."
+        post_th_title: "Brug tjek bokse i denne kolonne til at tillade eller forhindre opslag på væg hos din login udbyder. Du kan senere blive bedt om yderligere rettigheder hvis du vælger at sige ja til opslag på væg hos din login udbyder."
         remove_cookies_link_text: "Fjern cookies"
      destroy:
         logged_off: "Adgang via %{apiname} er blevet afbrudt. Vær opmærksom på at du stadigvæk har adgang til %{appname} via en anden login udbyder. Brug nedenstående links til at logge ind/ud."

@@ -1,3 +1,17 @@
+<script>
+  // send post_on_wall choise to server - no feedback
+  function post_on_wall_ajax(checkbox) {
+      var provider = checkbox.name.substr(5) ;
+      var post_on_wall = checkbox.checked ;
+      // alert('checkbox = provider = ' + provider + ', post_on_wall = ' + post_on_wall) ;
+      $.ajax({
+          url: "/util/post_on_wall_yn.js",
+          type: "POST",
+          data: { provider: provider, post_on_wall: post_on_wall }
+      });
+  }
+</script>
+
 <div style="width: 100%"><br/></div>
 
 <div style="width: 100%">
@@ -37,7 +51,7 @@
       <td></td>
       <td style="text-align: center">
         <% if [1,2].index(post_on_wall) -%>
-            <%= check_box_tag "post_#{provider}", :checked => (post_on_wall == 2) %>
+            <%= check_box_tag "post_#{provider}", 1, (post_on_wall == 2), :onchange => "post_on_wall_ajax(this)" %>
         <% end -%>
       </td>
     </tr>
