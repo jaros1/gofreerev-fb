@@ -1297,12 +1297,29 @@ class UtilController < ApplicationController
     provider = 'facebook'
     oauth = Koala::Facebook::OAuth.new(API_ID[provider], API_SECRET[provider], API_CALLBACK_URL[provider])
     url = oauth.url_for_oauth_code(:permissions => 'status_update', :state => set_state('status_update'))
-    key = '.gift_posted_3_html'
-    options = {:apiname => provider_downcase(provider),
-               :url => url,
-               :appname => APP_NAME}
-    [key, options]
+    ['.gift_posted_3_html', {:apiname => provider_downcase(provider),
+                             :url => url,
+                             :appname => APP_NAME}]
   end # grant_write_link_facebook
+
+  # return [key, options] with @errors ajax to grant write access to linkedin wall
+  # link is injected in tasks_errors table in page header
+  private
+  def grant_write_link_linkedin
+    provider = 'linkedin'
+    # http://railscarma.com/blog/rails-3/how-to-use-linkedin-api-in-rails-applications/
+    scope = 'r_basicprofile r_network rw_nus'
+    client = LinkedIn::Client.new API_ID[provider], API_SECRET[provider]
+    request_token = client.request_token({:oauth_callback => API_CALLBACK_URL[provider]}, :scope => scope)
+    client.authorize_from_access(request_token.token, request_token.secret)
+    url = client.request_token.authorize_url
+    # save client - client object is used for authorization when/if user returns from linkedin with write permission to linkedin wall
+    # too big for session cookie - to saved in task_data
+    save_linkedin_client(client)
+    # ajax inject link in gifts/index page
+    return ['.gift_posted_3_html', { :appname => APP_NAME, :apiname => provider, :url => url}]
+  end # grant_write_link_linkedin
+
 
   # post on facebook wall - with or without picture
   # picture is temporary saved local, but is deleted when the picture has been posted in wall(s)
@@ -1523,21 +1540,7 @@ class UtilController < ApplicationController
           # default linkedin scope is "r_basicprofile r_network" - see config//initializers/omniauth.rb
           # inject link in @errors so that user can authorize with request scope => "r_basicprofile r_network rw_nus"
           # that is - user can permit post on linked wall
-
-          # http://railscarma.com/blog/rails-3/how-to-use-linkedin-api-in-rails-applications/
-          scope = 'r_basicprofile r_network rw_nus'
-          client = LinkedIn::Client.new API_ID[provider], API_SECRET[provider]
-          request_token = client.request_token({:oauth_callback => API_CALLBACK_URL[provider]}, :scope => scope)
-          client.authorize_from_access(request_token.token, request_token.secret)
-          url = client.request_token.authorize_url
-
-          # save client - client object is used for authorization when/if user returns from linkedin with write permission to linkedin wall
-          # too big for session cookie - to saved in task_data
-          save_linkedin_client(client)
-
-          # ajax inject link in gifts/index page
-          return ['.gift_posted_3_html', { :appname => APP_NAME, :apiname => provider, :url => url}]
-
+          return grant_write_link_linkedin
         end
         raise
       end

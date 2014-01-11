@@ -12,6 +12,10 @@ end
 
 class Koala::Facebook::ClientError
   def puts_exception (prefix=nil)
+    if !logger
+      puts "Warning. No logger was found for Koala::Facebook::ClientError exception"
+      return
+    end
     logger.debug2  "#{prefix}Koala::Facebook::ClientError"
     logger.debug2  "#{prefix}fb_error_type    = #{fb_error_type} (#{fb_error_type.class})"
     logger.debug2  "#{prefix}fb_error_code    = #{fb_error_code} (#{fb_error_code.class})"
@@ -24,6 +28,10 @@ end
 
 class Koala::Facebook::ServerError
   def puts_exception (prefix=nil)
+    if !logger
+      puts "Warning. No logger was found for Koala::Facebook::ServerError exception"
+      return
+    end
     logger.debug2  "#{prefix}Koala::Facebook::ServerError"
     logger.debug2  "#{prefix}fb_error_type    = #{fb_error_type} (#{fb_error_type.class})"
     logger.debug2  "#{prefix}fb_error_code    = #{fb_error_code} (#{fb_error_code.class})"
