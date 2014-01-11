@@ -173,7 +173,7 @@ en:
         visit_th: "Visit API"
         visit_title: "Go to %{apiname} without logging in / out. Opens in a new browser tab. Note that %{appname} will still be open in this tab. Remember to log out when out are finish using %{appname}."
         connect_th: "Connect"
-        connect_title: "Use links in this column to connect / disconnect from login providers. Note that you can be connected with multiple login providers at the same time."
+        connect_th_title: "Use links in this column to connect / disconnect from login providers. Note that you can be connected with multiple login providers at the same time but only with one connection for each login provider."
         log_in_link_text: "log in"
         log_out_link_text: "log out"
         log_in_out_title0: "Connect to %{appname} with your %{apiname} account"
