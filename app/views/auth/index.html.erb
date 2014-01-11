@@ -23,7 +23,7 @@
         <% end -%>
       </td>
       <td></td>
-      <td>
+      <td title="<%= t ".access_title_#{access}", :appname => APP_NAME, :apiname => provider_downcase(provider) %>">
         <%= link_to t(".access_link_text_#{access}"), API_APP_SETTING_URL[provider] || '#', :target => '_blank' %>
       </td>
     </tr>
