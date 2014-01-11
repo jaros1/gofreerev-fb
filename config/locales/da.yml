@@ -93,6 +93,8 @@ da:
         invite_friends_message_body: "Prøv et spil om at hjælpe hinanden og dele hinandens resourcer på en ny anderledes måde og et spil med en ny slags penge der kan forandre vores verden inspireret af ideer fra Charles Eisensteins bog Sacred Economics"
         invalid_call: "ugyldigt kald - login bruger manglende i kald af invite_friends_url"
         not_implemented: "inviter %{apiname} venner er endnu ikke implementeret"
+     providers:
+        blank: "login udbyder" # not logged in or generic text used in provider_downcase and provider_camelize methods
      translate_ajax_errors:
         ajax_task_exception: "Systemfejl \"%{exception}\" for opgave \"%{task}\". Tjek backtrace i server log for mere information." # task, exception
         ajax_task_invalid_response: "Systemfejl. Ugyldigt svar fra opgave \"%{task}\". Skal være Nil eller gyldigt input til translate." # task, response and exception. response is invalid response from opgave and exception is ruby exception from translate
@@ -166,8 +168,13 @@ da:
         log_in_out_title0: "Opret adgang til %{appname} ved hjælp af din %{apiname} konto"
         log_in_out_title1: "Afbryd adgang til %{appname} og returner til %{apiname}"
         log_in_out_title2: "Afbryd adgang til %{appname} ved hjælp af din %{apiname} konto. Bemærk at du har adgang til %{appname} med flere login udbydere og at du efter %{apiname} \"log ud\" stadigvæk vil kunne bruge %{appname}. Bemærk desuden at %{apiname} \"log ud\" her IKKE logger dig ud af %{apiname}. Brug \"log ud\" funktionalitet i %{apiname} hvis du også ønsker at logge ud af %{apiname}."
+        connect_th: "Forbind"
         visit_th: "Besøg"
-        visit_title: "Gå til login udbyder uden at logge ind / ud. Link åbnet i et nyt faneblad i din browser. Bemærk at %{appname} stadigvæk vil være åben i dette faneblad. Husk at logge ud når du er færdig med at bruge %{appname}."
+        visit_title: "Gå til %{apiname} uden at logge ind / ud. Link åbnet i et nyt faneblad i din browser. Bemærk at %{appname} stadigvæk vil være åben i dette faneblad. Husk at logge ud når du er færdig med at bruge %{appname}."
+        access_th: "Adgang"
+        access_link_text_0: "ukendt"
+        access_link_text_1: "læs"
+        access_link_text_2: "læs+skriv"
         remove_cookies_link_text: "Fjern cookies"
      destroy:
         logged_off: "Adgang via %{apiname} er blevet afbrudt. Vær opmærksom på at du stadigvæk har adgang til %{appname} via en anden login udbyder. Brug nedenstående links til at logge ind/ud."

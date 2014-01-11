@@ -283,6 +283,7 @@ class ApplicationController < ActionController::Base
   # provider name used in text (error messages, mouse over titles etc) - normal lowercase
   private
   def provider_downcase (provider)
+    return t 'shared.providers.blank' if provider.to_s == '' # generic provider text
     return provider if !valid_provider?(provider) # unknown provider or already translated
     API_DOWNCASE_NAME[provider] || provider
   end
@@ -291,6 +292,7 @@ class ApplicationController < ActionController::Base
   # formal provider name - used in views
   private
   def provider_camelize (provider)
+    return t 'shared.providers.blank' if provider.to_s == '' # generic provider text
     return provider if !valid_provider?(provider) # unknown provider or already translated
     API_CAMELIZE_NAME[provider] || provider
   end

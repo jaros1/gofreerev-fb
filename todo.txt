@@ -362,11 +362,16 @@
     move open_graph_title_and_desc to app controller and use method from gifts/show and util/post_in_<provider>
 
 82) add post on <provider> check box in auth/index page
+    maybe to options - grant write access to api wall
+    add column with access: none, read and read+write
+    add column with link to grant write access to api wall
+    add column with checkbox to enable/disable post on api wall
 
 84) check response from FastImage.type(gift_file.path) if site is temporary unavailable
     should not error mark pictures if a api picture server is temporary out of service
     FastImage.type returns nil if server is temporary unavailable
     Must combine FastImage = nil with a http get page notfound check
+    http://stackoverflow.com/questions/2695020/how-can-i-use-ruby-to-check-if-a-domain-exists
 
 85) check if two step authorization can be implemented for twitter
     that is first login with read and second login with write access.
@@ -378,11 +383,18 @@
     - google+ - todo
     - linkedin - todo
     - twitter (done)
+    maybe refactor to method in app controller
 
 87) found class wrapword in source - check
 
-89) change Friend.update_friends_from_hash params to options hash
+89) change Friend.update_friends_from_hash params to options hash - 4 parameters - easy to make mistake
 
 90) user/show: add provider filter if logged in with more when one provider
 
-91) check profile picture store and api_profile_picture_url in post_login_<provider> methods
+91) auth/index page
+    access status read or r+w with link to
+    - facebook: https://www.facebook.com/settings?tab=applications
+    - google+: https://plus.google.com/apps
+    - twitter: https://twitter.com/settings/applications
+    - linkedin: https://www.linkedin.com/secure/settings?userAgree=&goback=.nas_*1_*1_*1
+

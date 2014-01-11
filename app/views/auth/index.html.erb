@@ -3,40 +3,34 @@
 <div style="width: 100%">
   <table>
     <tr>
-      <td>
-        <table>
-          <tr>
-            <th colspan="3" style="text-align: center">Log in / out</th>
-          </tr>
-          <% @providers.each do |provider, logged_in| -%>
-              <tr title="<%= t ".log_in_out_title#{logged_in}", :appname => APP_NAME, :apiname => provider_downcase(provider) %>">
-                <td><%= provider_camelize(provider) %></td>
-                <td>:</td>
-                <td>
-                  <% if logged_in == 0 -%>
-                      <%= link_to t(".log_in_link_text"), "/auth/#{provider}" %>
-                  <% else -%>
-                      <%= link_to t(".log_out_link_text"), auth_destroy_path(:id => provider), :method => :delete %>
-                  <% end -%>
-                </td>
-              </tr>
-          <% end %>
-        </table>
+      <th title="<%= t ".visit_title", :appname => APP_NAME, :apiname => provider_downcase(nil) %>"><%= t ".visit_th" %></th>
+      <th style="width: 10px"></th>
+      <th><%= t '.connect_th' %></th>
+      <th style="width: 10px"></th>
+      <th><%= t '.access_th' %></th>
+    </tr>
+    <% @providers.each do |x| ; provider, logged_in, access = x -%>
+    <tr>
+      <td title="<%= t ".visit_title", :appname => APP_NAME, :apiname => provider_downcase(provider) %>">
+        <%= link_to provider_camelize(provider), API_URL[provider], :target => '_blank' %>
       </td>
-      <td style="width: 30px"></td>
+      <td></td>
+      <td title="<%= t ".log_in_out_title#{logged_in}", :appname => APP_NAME, :apiname => provider_downcase(provider) %>">
+        <% if logged_in == 0 -%>
+            <%= link_to t(".log_in_link_text"), "/auth/#{provider}" %>
+        <% else -%>
+            <%= link_to t(".log_out_link_text"), auth_destroy_path(:id => provider), :method => :delete %>
+        <% end -%>
+      </td>
+      <td></td>
       <td>
-        <table title="<%= t ".visit_title", :appname => APP_NAME %>">
-          <tr><th><%= t ".visit_th" %></th></tr>
-          <% @providers.each do |provider, logged_in| -%>
-            <tr>
-              <td><%= link_to provider_camelize(provider), API_URL[provider], :target => '_blank' %></td>
-            </tr>
-          <% end -%>
-        </table>
+        <%= link_to t(".access_link_text_#{access}"), API_APP_SETTING_URL[provider] || '#', :target => '_blank' %>
       </td>
     </tr>
+    <% end -%>
   </table>
 </div>
+
 
 <div style="width: 100%"><br/></div>
 <%= link_to t('.remove_cookies_link_text'), cookie_decline_cookies_path %>

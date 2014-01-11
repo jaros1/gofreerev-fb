@@ -62,7 +62,7 @@ en:
         cookie_accept_text: "Accept"
         cookie_reject_text: "Reject"
         cookie_ignore_text: "Ignore"
-        page_footer_html: "%{appname} is an open source project. Source to this Rails/Facebook app is available at %{csv_link} under MIT licence and can be used by other developers in their open source projects. Open source also means that there are no secrets about how this app works and what information is saved about you and your friends.<br /><br />It is my hope that technology will develop that supports the many interesting thoughts in %{charles_eisenstein_link}'s book %{sacred_economics_link}."
+        page_footer_html: "%{appname} is an open source project. Source to this app is available at %{csv_link} under MIT licence and can be used by other developers in their open source projects. Open source also means that there are no secrets about how this app works and what information is saved about you and your friends.<br /><br />It is my hope that technology will develop that supports the many interesting thoughts in %{charles_eisenstein_link}'s book %{sacred_economics_link}."
      page_header:
         header_currency_title: "Balance. Use currency selection list if you want your balance shown in a different currency. Your balance of free money show how much you have invested in community and friends and is a measure of gratitude. Who has given / received most? Whose turn is it to receive / give? A positive balance means that you are good to help others and to one's help has been appreciated. A negative balance means that you are good to accept help and that you have appreciated the help. There is no correlation between who is rich / poor in free money here and who are rich / poor in the real world."
         header_balance_prompt: "Balance:"
@@ -94,15 +94,16 @@ en:
         not_implemented: "invite %{apiname} friends is not implemented"
      providers:
         # provider lowercase name - used in error messages
-        facebook_down: "facebook"
-        google_oauth2_down: "google+"
-        linkedin_down: "linkedin"
-        twitter_down: "twitter"
-        # provider camelize names - used in views
-        facebook_cam: "Facebook"
-        google_oauth2_cam: "Google+"
-        linkedin_cam: "LinkedIn"
-        twitter_cam: "Twitter"
+#        facebook_down: "facebook"
+#        google_oauth2_down: "google+"
+#        linkedin_down: "linkedin"
+#        twitter_down: "twitter"
+#        # provider camelize names - used in views
+#        facebook_cam: "Facebook"
+#        google_oauth2_cam: "Google+"
+#        linkedin_cam: "LinkedIn"
+#        twitter_cam: "Twitter"
+        blank: "login provider" # not logged in or generic text used in provider_downcase and provider_camelize methods
      translate_ajax_errors:
         ajax_task_exception: "System error \"%{exception}\" for task \"%{task}\". Check backtrace in server log for more information."
         ajax_task_invalid_response: "System error. Invalid response from task \"%{task}\". Must be Nil or a valid input to translate." # task, response and exception. response is invalid response from task and exception is exception from translate
@@ -174,8 +175,13 @@ en:
         log_in_out_title0: "Connect to %{appname} with your %{apiname} account"
         log_in_out_title1: "Disconnect from %{appname} and return to %{apiname}"
         log_in_out_title2: "Close your %{apiname} connection to %{appname}. Note that your are connected to %{appname} with an other login provider and that you after %{apiname} \"log out\" still can use %{appname}. Note also that \"log out\" here does NOT log your out of %{apiname}. Use \"log out\" function at %{apiname} if your also wish to log out of %{apiname}."
+        connect_th: "Connect"
         visit_th: "Visit"
-        visit_title: "Go to login provider without logging in / out. Opens in a new browser tab. Note that %{appname} will still be open in this tab. Remember to log out when out are finish using %{appname}."
+        visit_title: "Go to %{apiname} without logging in / out. Opens in a new browser tab. Note that %{appname} will still be open in this tab. Remember to log out when out are finish using %{appname}."
+        access_th: "Access"
+        access_link_text_0: "unknown"
+        access_link_text_1: "read"
+        access_link_text_2: "read+write"
         remove_cookies_link_text: "Remove cookies"
      destroy:
         logged_off: "Connection with %{apiname} has been closed. Note that you are still connected to %{appname} with an other login provider. Use links in this page to log in/out."

@@ -9,17 +9,30 @@ class AuthController < ApplicationController
     all_providers = OmniAuth::Builder.providers
     logged_in_providers = @users.find_all { |user| !user.dummy_user? }.collect { |user| user.provider }
     # initialize @providers hash with true/false to logged in provider
-    @providers = {}
+    @providers = []
     all_providers.each do |provider|
-      @providers[provider] = case
-                               when !logged_in_providers.index(provider) then
-                                 0 # log in link
-                               when logged_in_providers.length == 1 then
-                                 1 # log out and return to login provider
-                               else
-                                 2 # log out and stay on auth/index page
-                             end # case
+      # logged_in: 0 not connected, 1 connected with one login provider, 2 connected with multiple login providers
+      logged_in = case
+                    when !logged_in_providers.index(provider) then
+                      0 # not logged in - log in link
+                    when logged_in_providers.length == 1 then
+                      1 # logged in with one login provider - log out link and return to login provider
+                    else
+                      2 # logged in with multiple login providers - log out link and stay on auth/index page
+                  end # case
+      # access; 0 not connected, 1 read access, 2 read+write access
+      if logged_in == 0
+        access = 0
+      else
+        user = @users.find { |u| u.provider == provider }
+        access = user.post_gift_allowed? ? 2 : 1
+      end
+      @providers << [provider, logged_in, access]
     end # each provider
+
+    @providers = @providers.sort do |a,b|
+      provider_camelize(a) <=> provider_camelize(b)
+    end
   end # index
 
   # omniauth callback on success (login was started from rails)

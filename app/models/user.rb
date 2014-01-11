@@ -358,7 +358,26 @@ class User < ActiveRecord::Base
     user = User.new unless user
     user.user_id = user_id
     user.user_name = user_name
-    user.permissions = "r_basicprofile,r_network" if provider == 'linkedin' # default scope from initializers/omniauth.rb
+    # setup efault permissions after login (read = read user profile and friends information)
+    case
+      when provider == 'facebook'
+        # facebook permissions is returned in koala api request me?fields=permissions in util.post_login_facebook
+        # facebook permissions is also updated in facebook/index when user returns with status_update or read_stream permission from facebook
+        nil
+      when API_DEFAULT_PERMISSIONS[provider].to_s != ''
+        # use default permission setup from /config/initializers/omniauth.rb
+        # - update_status and read_stream is requested after login if required
+        # linkedin:
+        # - starts with r_basicprofile,r_network.
+        # - is changed in linkedin controller to r_basicprofile,r_network,rw_nus when user returns with rw_nus priv from linkedin
+        # google+: always read - readonly api
+        # twitter: authorization with write, but only read is used until user allows post on twitter
+        user.permissions = API_DEFAULT_PERMISSIONS[provider]
+      else
+        user.permissions = 'read'
+        logger.warn2 "Default permission setup is missing for #{provider}."
+        logger.warn2 "plase check API_DEFAULT_PERMISSIONS in /config/initializers/omniauth.rb"
+    end # case
     user.api_profile_url = profile_url if profile_url
     if user.new_record?
       # initialize currency from country - for example google and twitter
@@ -647,10 +666,15 @@ class User < ActiveRecord::Base
         # looks like permission status_update has been replaced with publish_actions
         # publish_actions is added when requesting status_update priv.
         permissions['status_update'] == 1 or permissions["publish_actions"] == 1
+      when 'google_oauth2'
+        # readonly API
+        false
       when "linkedin"
         permissions.to_s.split(',').index('rw_nus') != nil
+      when 'twitter'
+        permissions.to_s == 'write'
       else
-        logger.debug2  "todo: post_on_wall? not implemented for #{provider}"
+        logger.warn2  "post_on_wall? not implemented for #{provider}"
         false
     end # case
   end # post_gift_allowed?

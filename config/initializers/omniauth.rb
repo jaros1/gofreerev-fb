@@ -71,13 +71,28 @@ API_CALLBACK_URL = {:facebook => "#{SITE_URL}facebook/",
                     :linkedin => "#{SITE_URL}linkedin/index",
                     :twitter => ''}.with_indifferent_access
 
+# default user permissions after login.
+# facebook: koala me?fields=permissions request is used to check facebook permissions after login
+# twitter: authorization with write access, but user must enable post on twitter before write permission is used
+API_DEFAULT_PERMISSIONS = {:google_oauth2 => 'read',
+                           :linkedin => 'r_basicprofile,r_network',
+                           :twitter => 'read'}.with_indifferent_access
+
+# link to API app settings so that user easy can review and change permissions
+API_APP_SETTING_URL = {:facebook => 'https://www.facebook.com/settings?tab=applications',
+                       :google_oauth2 => 'https://plus.google.com/apps',
+                       :linkedin => 'https://www.linkedin.com/secure/settings?userAgree=&goback=.nas_*1_*1_*1',
+                       :twitter => 'https://twitter.com/settings/applications'}.with_indifferent_access
+
 # API name to be used in messages and mouse over texts
+# text for "nil" API provider (not logged in or generic messages) /locales/xx.yml/shared/providers
 API_DOWNCASE_NAME = {:facebook => 'facebook',
                      :google_oauth2 => 'google+',
                      :linkedin => 'linkedin',
                      :twitter => 'twitter'}.with_indifferent_access
 
 # API name to be used in views and links
+# text for "nil" API provider (not logged in or generic messages) /locales/xx.yml/shared/providers
 API_CAMELIZE_NAME = {:facebook => 'Facebook',
                      :google_oauth2 => 'Google+',
                      :linkedin => 'LinkedIn',
