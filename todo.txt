@@ -398,9 +398,9 @@
     - twitter: https://twitter.com/settings/applications
     - linkedin: https://www.linkedin.com/secure/settings?userAgree=&goback=.nas_*1_*1_*1
 
-92) refactor grant_write_link_linkedin
-
-93) create grant_write_link_twitter
+93) create grant_write_link_twitter method
+    maybe ajax link?
+    ajax: update user.permission to write, hide link and inject message in tasḱs_errors table
 
 94) add hide/ignore check box to grant_write_link_<provider> links
     => ajax user.post_on_wall_yn = 'N'

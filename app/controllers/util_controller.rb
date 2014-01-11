@@ -1320,7 +1320,6 @@ class UtilController < ApplicationController
     return ['.gift_posted_3_html', { :appname => APP_NAME, :apiname => provider, :url => url}]
   end # grant_write_link_linkedin
 
-
   # post on facebook wall - with or without picture
   # picture is temporary saved local, but is deleted when the picture has been posted in wall(s)
   # task was inserted in gifts/create
@@ -1465,6 +1464,26 @@ class UtilController < ApplicationController
       provider = "linkedin"
       login_user, token, key, options = get_login_user_and_token(provider)
       return [key, options] if key
+
+      # check user privs before post in linkedin wall
+      # that is user.permissions and user.post_on_wall_yn settings
+      if login_user.post_gift_allowed?
+        # user has authorized post on linkedin wall
+        if login_user.post_on_wall_yn != 'Y'
+          logger.debug2 "Ignore post_on_linkedin. User has authorized post on linkedin wall but has selected not to post on linkedin wall"
+          return nil
+        end
+        # continue with post on linkedin wall
+      else
+        # user has not authorized post on linkedin wall
+        if login_user.post_on_wall_yn == 'Y'
+          # inject link to authorize post on linkedin wall
+          return grant_write_link_linkedin
+        else
+          logger.debug2 "Ignore post_on_linkedin. User has not authorzed post on linkedin wall and has also selected not to post in linkedin wall"
+          return nil
+        end
+      end
 
       # get gift, api_gift and deep_link
       gift, api_gift, deep_link, key, options = get_gift_and_deep_link(id, login_user, provider)
