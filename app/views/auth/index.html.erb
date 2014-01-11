@@ -9,7 +9,9 @@
         <%= t '.connect_th' %>
       </th>
       <th style="width: 10px"></th>
-      <th><%= t '.access_th' %></th>
+      <th title="<%= t ".access_th_title", :appname => APP_NAME %>">
+        <%= t '.access_th' %>
+      </th>
     </tr>
     <% @providers.each do |x| ; provider, logged_in, access = x -%>
     <tr>

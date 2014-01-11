@@ -180,6 +180,7 @@ en:
         log_in_out_title1: "Disconnect from %{appname} and return to %{apiname}"
         log_in_out_title2: "Close your %{apiname} connection to %{appname}. Note that your are connected to %{appname} with an other login provider and that you after %{apiname} \"log out\" still can use %{appname}. Note also that \"log out\" here does NOT log your out of %{apiname}. Use \"log out\" function at %{apiname} if your also wish to log out of %{apiname}."
         access_th: "Access"
+        access_th_title: "You can in this column see a summary of the access you have given %{appname}. Use the links below to review app settings at your login provider."
         access_title_0: "Unknown access. You are not aonnected to %{appname} with a %{apiname} account. Use this link to review what access you may have given %{appname}. Opens in a new browser tab."
         access_title_1: "%{appname} has read access to your %{apiname} profile information. Use this link to review what access you have given %{appname}. Opens in a new browser tab."
         access_title_2: "%{appname} can make post on your %{apiname} wall and can read your profile information. Use this link to review what access you have given %{appname}. Opens in a new browser tab."
