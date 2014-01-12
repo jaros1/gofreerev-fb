@@ -1301,6 +1301,7 @@ class UtilController < ApplicationController
   public
   def grant_write_twitter
     @errors = []
+    @link = nil
     provider = 'twitter'
     # get user
     login_user, token, key, options = get_login_user_and_token(provider)
@@ -1308,7 +1309,10 @@ class UtilController < ApplicationController
       @errors << [key, options]
       return
     end
+    # change twitter user permissions from read to write
     login_user.update_attribute('permissions', 'write')
+    # hide ajax injected link to grant write permission to twitter wall
+    @link = "grant_write_div_#{provider}"
     # ok
     @errors << ['.grant_write_ok', {:appname => APP_NAME, :apiname => provider_downcase(provider)} ]
   end # grant_write_twitter
