@@ -390,35 +390,5 @@ class GiftsController < ApplicationController
   end # show
 
 
-  private
-  def open_graph_title_and_desc(api_gift)
-    text = "#{format_direction_without_user(api_gift)}#{api_gift.gift.description}"
-    title_lng = API_OG_TITLE_SIZE[api_gift.provider] || 70
-    desc_lng = API_OG_DESC_SIZE[api_gift.provider] || 200
-    if text.length <= title_lng
-      # short gift text - get generic description from gifts.show.og_def_desc_<provider>
-      title = text
-      on_error_desc = "Help each other and the environment. Share your resources. #{APP_NAME} is a play with some concepts (gift network, free money and negative interest) from Charles Eisensteins book Sacred Economics."
-      begin
-        description = t ".og_def_desc_#{api_gift.provider}", :appname => APP_NAME, :api_name => provider_downcase(api_gift.provider), :raise => I18n::MissingTranslationData
-      rescue I18n::MissingTranslationData => e
-        logger.error2 "Error in translate key gifts.show.og_desc_#{api_gift.provider}"
-        logger.error2 "#{e.message} (#{e.class})"
-        description = on_error_desc
-      rescue I18n::MissingInterpolationArgument => e
-        logger.error2 "Error in translate key gifts.show.og_desc_#{api_gift.provider}"
-        logger.error2 "#{e.message} (#{e.class})"
-        description = on_error_desc
-      end
-      return [title, description]
-    end
-    # long gift - split gift in title and description
-    to = text.first(title_lng).rindex(' ')
-    if (to)
-      [text.first(to), text.from(to+1).first(desc_lng) ]
-    else
-      [text.first(title_lng), text.from(title_lng).first(desc_lng)]
-    end
-  end
 
 end # GiftsController

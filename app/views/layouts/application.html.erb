@@ -7,7 +7,7 @@
   <%= csrf_meta_tags %>
   <meta name="viewport" content="width=device-width,initial-scale=1.0, user-scalable=no">
 <% if deep_link? -%>
-<%# open graph meta-tags to be used in api post -%>
+<%# open graph meta-tags to be used in shared post -%>
 <% puts "@request_fullpath = #{@request_fullpath}" -%>
   <meta property="og:title" content="<%= @open_graph[:title] %>" />
   <meta property="og:type" content="website" />
@@ -15,6 +15,7 @@
   <meta property="og:url" content="<%= @open_graph[:url] %>" />
   <meta property="og:description" content="<%= @open_graph[:description] %>" />
   <meta property="og:site_name" content="<%= APP_NAME %>" />
+  <% if API_ID[:facebook] %><meta property="fb:app_id" content="<%= API_ID[:facebook] %>" /><% end -%>
 <% end -%>
   <script>
 <% if @cookie_note -%>

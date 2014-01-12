@@ -1547,7 +1547,6 @@ class UtilController < ApplicationController
       # todo: add url for gift
       begin
 
-        image_url = Picture.url :rel_path => gift.app_picture_rel_path if api_gift.picture? and gift.rel_path_picture_exists?
         # http://stackoverflow.com/questions/15183107/rails-linked-post-message
         # http://developer.linkedin.com/documents/share-api#toggleview:id=ruby
         # Node                Parent Node    Value 	Notes
@@ -1563,33 +1562,38 @@ class UtilController < ApplicationController
         # todo: check layout with and without picture
         # todo: check description length. <= 256 use only description. length <= 700. Use only comment. Length between 700 and 956 use comment and description
         # my test says: title 60, description 245 and comment 600 characters
+        image_url = Picture.url :rel_path => gift.app_picture_rel_path if api_gift.picture? and gift.rel_path_picture_exists?
         text = "#{format_direction_without_user(api_gift)} #{gift.description}"
         logger.debug2 "picture = #{api_gift.picture?}, text.length = #{text.length}, image_url = #{image_url}"
+
         comment = nil
         content = { "submitted-url" => deep_link }
-        if api_gift.picture?
-          # title (max 200 characters) required for post with image.
-          content["submitted-image-url"] = image_url
-          # layout rules for post with image on linkedin:
-          case
-            when text.length <= 200
-              content["title"] = text
-              content["description"] = '.'
-            when text.length <= 456
-              content["title"] = text.first(200)
-              content["description"] = text.from(200)
-            else
-              raise "linkedin post with picture and text length > 456 is not implemented"
-          end
-        else
-          case
-            when text.length <= 700
-              comment = text
-            else
-              raise "linkedin post without picture and text length > 700 is not implemented"
-          end
-        end
-        logger.debug2 "content = #{content}, comment = #{comment}"
+        content["title"], content["description"] = open_graph_title_and_desc(api_gift)
+        comment = text if text.length > API_OG_TITLE_SIZE[:linkedin]
+        content["submitted-image-url"] = image_url if api_gift.picture?
+        #if api_gift.picture?
+        #  # title (max 200 characters) required for post with image.
+        #  content["submitted-image-url"] = image_url
+        #  # layout rules for post with image on linkedin:
+        #  case
+        #    when text.length <= 200
+        #      content["title"] = text
+        #      content["description"] = '.'
+        #    when text.length <= 456
+        #      content["title"] = text.first(200)
+        #      content["description"] = text.from(200)
+        #    else
+        #      raise "linkedin post with picture and text length > 456 is not implemented"
+        #  end
+        #else
+        #  case
+        #    when text.length <= 700
+        #      comment = text
+        #    else
+        #      raise "linkedin post without picture and text length > 700 is not implemented"
+        #  end
+        #end
+        #logger.debug2 "content = #{content}, comment = #{comment}"
         x = api_client.add_share :content => content, :comment => comment
       rescue LinkedIn::Errors::AccessDeniedError => e
         logger.debug2  "LinkedIn::Errors::AccessDeniedError"

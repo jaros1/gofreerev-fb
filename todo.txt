@@ -370,12 +370,23 @@
 78) facebook and open graph
     - replace api_client.put_picture and api_client.put_connections with something else to add open graph tags?
     - here is a good rails/fb demo: https://devcenter.heroku.com/articles/facebook-ruby
+      add fb:app_id as meta tag?
     - facebook object api: https://developers.facebook.com/docs/opengraph/using-object-api/
     - koala with og.likes:
       http://stackoverflow.com/questions/12199608/koala-like-doesn-t-work
       api_response = api.put_connections("me", "og.likes", :object => deep_link)
       can be used, but requires :local gift picture store and activity is  only shown in activity log / not on wall
     - facebook object debugger: https://developers.facebook.com/tools/debug/
+
+79) linkedin and open graph
+    - looks like post on linkedin wall already is an open graph object
+    - just fix title and description in util.post_on_linkedin
+
+80) twitter and open graph
+    - todo
+
+81) google+ and open graph
+    - todo
 
 84) check response from FastImage.type(gift_file.path) if site is temporary unavailable
     should not error mark pictures if a api picture server is temporary out of service
