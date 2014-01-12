@@ -758,7 +758,10 @@ class UtilController < ApplicationController
       end # each
 
       # update facebook friends
-      Friend.update_friends_from_hash(login_user_id, friends_hash, true,%w(name))
+      Friend.update_friends_from_hash :login_user_id => login_user_id,
+                                      :friends_hash => friends_hash,
+                                      :mutual_friends => true,
+                                      :fields => %w(name)
       # facebook friend list updated
 
       # 3) update profile picture
@@ -885,7 +888,10 @@ class UtilController < ApplicationController
       end # loop for all google+ friends
 
       # update google+ friends
-      Friend.update_friends_from_hash(login_user_id, friends_hash, false,%w(name api_profile_url api_profile_picture_url))
+      Friend.update_friends_from_hash :login_user_id => login_user_id,
+                                      :friends_hash => friends_hash,
+                                      :mutual_friends => false,
+                                      :fields => %w(name api_profile_url api_profile_picture_url)
       # google+ friends updated
 
       # 3) update balance
@@ -977,7 +983,10 @@ class UtilController < ApplicationController
       logger.debug2 "Found #{no_linkedin_connections} #{provider} connections"
 
       # update linkedin connections
-      Friend.update_friends_from_hash(login_user_id, friends_hash, false,%w(name api_profile_url api_profile_picture_url no_api_friends))
+      Friend.update_friends_from_hash :login_user_id => login_user_id,
+                                      :friends_hash => friends_hash,
+                                      :mutual_friends => false,
+                                      :fields => %w(name api_profile_url api_profile_picture_url no_api_friends)
       # linkedin connections updated
 
       # 3) update balance
@@ -1055,7 +1064,10 @@ class UtilController < ApplicationController
       end
 
       # update twitter friends
-      Friend.update_friends_from_hash(login_user_id, friends_hash, false,%w(name api_profile_url api_profile_picture_url no_api_friends))
+      Friend.update_friends_from_hash :login_user_id => login_user_id,
+                                      :friends_hash => friends_hash,
+                                      :mutual_friends => false,
+                                      :fields => %w(name api_profile_url api_profile_picture_url no_api_friends)
       # twitter friends updated
 
       # 3) update balance
@@ -1375,9 +1387,12 @@ class UtilController < ApplicationController
       # check user privs before post in facebook wall
       # ( permissions is also checked before scheduling post_on_facebook task )
       case login_user.get_write_on_wall_action
-        when User::WRITE_ON_WALL_NO then return nil # ignore
-        when User::WRITE_ON_WALL_YES then nil # continue
-        when User::WRITE_ON_WALL_MISSING_PRIVS then return grant_write_link_facebook # inject link to grant missing priv.
+        when User::WRITE_ON_WALL_NO then
+          return nil # ignore
+        when User::WRITE_ON_WALL_YES then
+          nil # continue
+        when User::WRITE_ON_WALL_MISSING_PRIVS then
+          return grant_write_link_facebook # inject link to grant missing priv.
       end
 
       # get gift, api_gift and deep_link
@@ -1393,83 +1408,78 @@ class UtilController < ApplicationController
       gift_posted_on_wall_api_wall = 1
       error = 'unknown error'
 
-      api = nil # Koala API client
+      # initialize koala api client
+      api_client = Koala::Facebook::API.new(token)
 
-      if login_user.post_gift_allowed?
-        # post with or without picture - link is a deep link from facebook wall to gift in gofreerev
-        # link will be clickable if public url
-        # link will be not clickable if localhost or server behind firewall
+      # post with or without picture - link is a deep link from facebook wall to gift in gofreerev
+      # link will be clickable if public url
+      # link will be not clickable if localhost or server behind firewall
 
-        begin
-          # post - initialize koala client
-          api = Koala::Facebook::API.new(token)
-          # todo: add method gift.temp_picture_exists?
-          if api_gift.picture? and !gift.rel_path_picture_exists?
-            # post with picture but picture was not found.
-            # There must be some error handling in gifts/create that is missing
-            gift_posted_on_wall_api_wall = 6
-          elsif api_gift.picture?
-            # status post with picture
-            picture_url = Picture.url :rel_path => gift.app_picture_rel_path
-            picture_full_os_path = Picture.full_os_path :rel_path => gift.app_picture_rel_path
-            filetype = gift.app_picture_rel_path.split('.').last
-            content_type = "image/#{filetype}"
-            api_response = api.put_picture(picture_full_os_path,
-                                           content_type,
-                                           {:message => "#{gift.description} - #{deep_link}"
-                                           })
-            # api_response = {"id"=>"1396226023933952", "post_id"=>"100006397022113_1396195803936974"} (Hash)
-            api_gift.api_gift_id = api_response['post_id']
+      begin
+        # todo: add method gift.temp_picture_exists?
+        if api_gift.picture? and !gift.rel_path_picture_exists?
+          # post with picture but picture was not found.
+          # There must be some error handling in gifts/create that is missing
+          gift_posted_on_wall_api_wall = 6
+        elsif api_gift.picture?
+          # status post with picture
+          picture_url = Picture.url :rel_path => gift.app_picture_rel_path
+          picture_full_os_path = Picture.full_os_path :rel_path => gift.app_picture_rel_path
+          filetype = gift.app_picture_rel_path.split('.').last
+          content_type = "image/#{filetype}"
+          # ( post as an open graph story - gift picture store must be :local - is shown as a like in activity log / not on wall )
+          #   api_response = api_client.put_connections("me", "og.likes", :object => deep_link)
+          api_response = api_client.put_picture(picture_full_os_path,
+                                                content_type,
+                                                {:message => "#{gift.description} - #{deep_link}"
+                                                })
+          # api_response = {"id"=>"1396226023933952", "post_id"=>"100006397022113_1396195803936974"} (Hash)
+          api_gift.api_gift_id = api_response['post_id']
+        else
+          # status post without picture
+          # gift.description = "#{gift.description} - #{link}" # link only as text
+          # gift.description = "<a href='#{link}'>#{gift.description}</a>" # html code as text
+          api_response = api_client.put_connections('me', 'feed',
+                                                    :message => "#{gift.description} - #{deep_link}"
+          )
+          # api_response = {"id"=>"100006397022113_1396235850599636"}
+          api_gift.api_gift_id = api_response['id']
+        end
+        logger.debug2 "api_response = #{api_response} (#{api_response.class.name})"
+        gift_posted_on_wall_api_wall = 2 # Gift posted in here and on your facebook wall
+      rescue Koala::Facebook::ClientError => e
+        e.logger = logger
+        e.puts_exception("#{__method__}: ")
+        if e.fb_error_type == 'OAuthException' && e.fb_error_code == 506
+          # delete gift and ignore error OAuthException, code: 506, message: (#506) Duplicate status message [HTTP 400]
+          gift_posted_on_wall_api_wall = 4 # Gift posted in here but not on your facebook wall. Duplicate status message on facebook wall.
+        elsif e.fb_error_type == 'OAuthException' && e.fb_error_code == 200
+          # e.response_body = {"error":{"message":"(#200) The user hasn't authorized the application to perform this action","type":"OAuthException","code":200}}
+          # check if permission to post i api wall has been removed
+          error = e.to_s
+          login_user.get_api_permissions(token)
+          if !login_user.post_gift_allowed?
+            # permission to post on api wall has been removed.
+            # show request_post_gift_priv_link link in gifts/index page
+            return grant_write_link_facebook
           else
-            # status post without picture
-            # gift.description = "#{gift.description} - #{link}" # link only as text
-            # gift.description = "<a href='#{link}'>#{gift.description}</a>" # html code as text
-            api_response = api.put_connections('me', 'feed',
-                                               :message => "#{gift.description} - #{deep_link}"
-            )
-            # api_response = {"id"=>"100006397022113_1396235850599636"}
-            api_gift.api_gift_id = api_response['id']
-          end
-          logger.debug2 "api_response = #{api_response} (#{api_response.class.name})"
-          gift_posted_on_wall_api_wall = 2 # Gift posted in here and on your facebook wall
-        rescue Koala::Facebook::ClientError => e
-          e.logger = logger
-          e.puts_exception("#{__method__}: ")
-          if e.fb_error_type == 'OAuthException' && e.fb_error_code == 506
-            # delete gift and ignore error OAuthException, code: 506, message: (#506) Duplicate status message [HTTP 400]
-            gift_posted_on_wall_api_wall = 4 # Gift posted in here but not on your facebook wall. Duplicate status message on facebook wall.
-          elsif e.fb_error_type == 'OAuthException' && e.fb_error_code == 200
-            # e.response_body = {"error":{"message":"(#200) The user hasn't authorized the application to perform this action","type":"OAuthException","code":200}}
-            # check if permission to post i api wall has been removed
-            error = e.to_s
-            login_user.get_api_permissions(token)
-            if !login_user.post_gift_allowed?
-              # permission to post on api wall has been removed.
-              # show request_post_gift_priv_link link in gifts/index page
-              return grant_write_link_facebook
-            else
-              # permission to post on api wall has NOT been removed. Unknown error
-              gift_posted_on_wall_api_wall = 1 # unknown error. no translation
-              api_gift.clear_deep_link
-            end
-          else
-            # unhandled exceptions
+            # permission to post on api wall has NOT been removed. Unknown error
             gift_posted_on_wall_api_wall = 1 # unknown error. no translation
-            error = e.to_s
             api_gift.clear_deep_link
           end
-        rescue Koala::Facebook::ServerError => e
-          e.logger = logger
-          e.puts_exception("#{__method__}: ")
+        else
+          # unhandled exceptions
           gift_posted_on_wall_api_wall = 1 # unknown error. no translation
-          error = e.fb_error_message.to_s
+          error = e.to_s
           api_gift.clear_deep_link
-        end # rescue
-      else
-        # post_gift_allowed? false - ajax inject link to grant missing permission
-        gift_posted_on_wall_api_wall = 3
-        return grant_write_link_facebook
-      end # if
+        end
+      rescue Koala::Facebook::ServerError => e
+        e.logger = logger
+        e.puts_exception("#{__method__}: ")
+        gift_posted_on_wall_api_wall = 1 # unknown error. no translation
+        error = e.fb_error_message.to_s
+        api_gift.clear_deep_link
+      end # rescue
 
       if gift_posted_on_wall_api_wall != 2
         # error or warning
@@ -1479,15 +1489,15 @@ class UtilController < ApplicationController
                 {:apiname => login_user.api_name_without_brackets, :error => error}]
       elsif !api_gift.picture? or api_gift.picture? and Picture.perm_app_url?(picture_url)
         # post ok - no picture or picture with perm app url
-        # no need to read access to api wall
+        # no need to check read permission to gift on api wall
         # return posted message
         return [".gift_posted_#{gift_posted_on_wall_api_wall}_html", :apiname => login_user.api_name_without_brackets, :error => error]
       else
         # post ok - gift posted in facebook wall
-        # check read access to gift and get picture url with best size > 200 x 200
+        # check read permissioin to gift and get picture url with best size > 200 x 200
         # must have read access to post on facebook wall to display picture in gofreerev
         # 1) use api_gift.api_gift_id to get object_id (picture size in first request is too small)
-        key, options = get_api_picture_url_facebook(api_gift, true, api)
+        key, options = get_api_picture_url_facebook(api_gift, true, api_client)
         return [key, options] if key
 
         # post ok and no permission problems
@@ -1526,9 +1536,9 @@ class UtilController < ApplicationController
       gift, api_gift, deep_link, key, options = get_gift_and_deep_link(id, login_user, provider)
       return [key, options] if key
 
-      # create client for linkedin api requests
-      client = LinkedIn::Client.new API_ID[provider], API_SECRET[provider]
-      client.authorize_from_access token[0], token[1] # token and secret
+      # create api client for linkedin api requests
+      api_client = LinkedIn::Client.new API_ID[provider], API_SECRET[provider]
+      api_client.authorize_from_access token[0], token[1] # token and secret
       # logger.debug2  "token = #{token[0]}"
       # logger.debug2  "secret = #{token[1]}"
 
@@ -1580,7 +1590,7 @@ class UtilController < ApplicationController
           end
         end
         logger.debug2 "content = #{content}, comment = #{comment}"
-        x = client.add_share :content => content, :comment => comment
+        x = api_client.add_share :content => content, :comment => comment
       rescue LinkedIn::Errors::AccessDeniedError => e
         logger.debug2  "LinkedIn::Errors::AccessDeniedError"
         logger.debug2  "e.message = #{e.message}"

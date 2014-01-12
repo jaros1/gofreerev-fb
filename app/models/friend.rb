@@ -138,7 +138,11 @@ class Friend < ActiveRecord::Base
   # mutual_friends = true: facebook, linkedin - update friend list for login user and for friend
   # mutual friends = false: google+, twitter - update only friend list for login user
   #
-  def self.update_friends_from_hash (login_user_id, friends_hash, mutual_friends, fields=%w(name))
+  def self.update_friends_from_hash (options)
+    login_user_id = options[:login_user_id]
+    friends_hash = options[:friends_hash]
+    mutual_friends = options[:mutual_friends]
+    fields = options[:fields] || %w(name)
     provider = login_user_id.split('/').last
     if fields.index('api_profile_picture_url')
       # check picture store for profile pictures

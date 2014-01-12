@@ -364,8 +364,18 @@
 75) problem with api gifts without gifts
     check out where gifts are deleted
 
-77) post_on_<...> and gifts/show with deep link should set identical title and description
+77) post_on_<...> and gifts/show with deep link should set identical open graph title and description
     move open_graph_title_and_desc to app controller and use method from gifts/show and util/post_in_<provider>
+
+78) facebook and open graph
+    - replace api_client.put_picture and api_client.put_connections with something else to add open graph tags?
+    - here is a good rails/fb demo: https://devcenter.heroku.com/articles/facebook-ruby
+    - facebook object api: https://developers.facebook.com/docs/opengraph/using-object-api/
+    - koala with og.likes:
+      http://stackoverflow.com/questions/12199608/koala-like-doesn-t-work
+      api_response = api.put_connections("me", "og.likes", :object => deep_link)
+      can be used, but requires :local gift picture store and activity is  only shown in activity log / not on wall
+    - facebook object debugger: https://developers.facebook.com/tools/debug/
 
 84) check response from FastImage.type(gift_file.path) if site is temporary unavailable
     should not error mark pictures if a api picture server is temporary out of service
@@ -380,14 +390,6 @@
     - twitter (done)
     maybe refactor to method in app controller
 
-87) found class wrapword in source - check
-
-89) change Friend.update_friends_from_hash params to options hash - 4 parameters - easy to make mistake
+87) found class wrapword in source - used in api_gift.html.erb - could be a workaround for response web pages with small width
 
 90) user/show: add provider filter if logged in with more when one provider
-
-95) refactor write_on_wall check. Should also be used before schedule tasks.
-    check_write_on_wall_privs:
-    a) no
-    b) yes
-    c) missing privis
