@@ -52,7 +52,7 @@ class LinkedinController < ApplicationController
         user = User.find_by_user_id(user_id)
         user.permissions = "r_basicprofile,r_network,rw_nus"
         user.save!
-        flash[:notice] = t ".ok_rw_nus", :appname => APP_NAME
+        flash[:notice] = t ".ok_rw_nus", :appname => APP_NAME, :apiname => provider_downcase(provider)
         redirect_to :controller => :gifts
       else
         # login failed

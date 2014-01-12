@@ -1270,7 +1270,10 @@ class UtilController < ApplicationController
     logger.debug2 "params = #{params}"
     # check provider
     provider = params[:provider]
-    return ['.unknown_provider', {:apiname => provider }] unless valid_provider?(provider)
+    if !valid_provider?(provider)
+      @errors << ['.unknown_provider', {:apiname => provider }]
+      return
+    end
     # check post_on_wall_yn
     post_on_wall = case params[:post_on_wall]
                         when 'true' then 'Y'
@@ -1282,12 +1285,33 @@ class UtilController < ApplicationController
 
     # get user
     login_user, token, key, options = get_login_user_and_token(provider)
-    return [key, options] if key
+    if key
+      @errors << [key, options]
+      return
+    end
 
     # update user
     login_user.update_attribute('post_on_wall_yn', post_on_wall)
 
   end # post_on_wall_yn
+
+
+  # grant_write_twitter is called from gifts/index page
+  # ( remote link was ajax injected in post_on_twitter if missing write priv. )
+  public
+  def grant_write_twitter
+    @errors = []
+    provider = 'twitter'
+    # get user
+    login_user, token, key, options = get_login_user_and_token(provider)
+    if key
+      @errors << [key, options]
+      return
+    end
+    login_user.update_attribute('permissions', 'write')
+    # ok
+    @errors << ['.grant_write_ok', {:appname => APP_NAME, :apiname => provider_downcase(provider)} ]
+  end # grant_write_twitter
 
 
   # return [key, options] with @errors ajax to grant write access to facebook wall

@@ -150,6 +150,7 @@ da:
         unknown_provider: "System fejl. Ukendt login udbyder %{apiname}. Ændring af Opslag? er ikke blevet gemt."
         unknown_post_on_wall: "System fejl. Ukendt valg med ændring af Opslag? for %{apiname}. Valg er ikke blevet gemt."
         confirm_grant_write: "Tillad opslag på din %{apiname} væg?"
+        grant_write_ok: "%{appname} fik tilladelse til at lave opslag på din %{apiname} væg."
 
   # auth controller
   auth:
@@ -210,8 +211,8 @@ da:
         user_denied_read_stream: "%{appname} fik ikke tilladelse til at læse opslag på din facebook væg."
         user_denied_other: "Systemfejl. Ukendt facebook anmodning blev afvist."
         ok_login: "Facebook login ok."
-        ok_status_update: "%{appname} fik tilladelse til at lave opslag på din facebook væg."
-        ok_read_stream: "%{appname} fik tilladelse til at læse opslag på din facebook væg."
+        ok_status_update: "%{appname} fik tilladelse til at lave opslag på din %{apiname} væg."
+        ok_read_stream: "%{appname} fik tilladelse til at læse opslag på din %{apiname} væg."
         ok_other: "Ukendt facebook anmodning ok."
 
   # comments controller
@@ -518,7 +519,7 @@ da:
         no_client: "System fejl. Kunne ikke åbne %{apiname} API klient. %{appname} fik ikke tilladelse til at lave opslag på din %{apiname} væg."
         auth_failed: "System fejl. Kunne ikke autoriserer %{apiname} API klient. %{appname} fik ikke tilladelse til at lave opslag på din %{apiname} væg. Fejl meddelelse \"%{error}\"."
         find_or_create_from_auth_hash: "System fejl. Ugyldigt svar fra bruger opdatering efter login."
-        ok_rw_nus: "%{appname} fik tilladelse til at lave opslag på din linkedin væg."
+        ok_rw_nus: "%{appname} fik tilladelse til at lave opslag på din %{apiname} væg."
 
   # user controller
   users:

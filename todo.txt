@@ -410,3 +410,6 @@
     a) no
     b) yes
     c) missing privis
+
+96) check facebook.index.ok_read_stream
+
