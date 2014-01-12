@@ -222,6 +222,12 @@
     - http://www.cheynewallace.com/ruby-on-rails-performance-tuning/
     - http://pivotallabs.com/rubyrails-performance-tools/
     - https://github.com/MiniProfiler/rack-mini-profiler
+    could add a work table with api gifts ids that is initialized in first http request
+    get rows from work table in the following show-more-rows ajax requests
+    add a expire timestamp for data i work table. For example cleanup after xx minutes
+    maybe initialize work table in a ajax tasks so that user don't have to wait for work table to be initialized
+    request will be slow until work table has been initialized
+    maybe start initialize of work table as a post login task
 
 39) add custom logger
     should replace logger.debug2 with logger2.debug, logger2.info, logger2.warn, logger2.error, logger2.fatal and logger2.unknown

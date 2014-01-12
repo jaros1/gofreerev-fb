@@ -75,8 +75,8 @@ da:
         header_friends_link_title: ''
         header_friends_link_text: 'Venner'
         header_api_link_title: "Returner til %{apiname} UDEN at logge ud af %{appname}"
-        header_log_in_link_text: 'Log in'
-        header_log_in_link_title: 'Log in'
+        header_log_in_link_text: 'Log ind'
+        header_log_in_link_title: 'Log ind'
         header_log_out_link_text: 'Log ud'
         header_log_out_link_title: "Log ud af %{appname}"
 
@@ -267,6 +267,7 @@ da:
         gift_not_posted_4: "Opslag fandes allerede på %{apiname} væg."
         gift_not_posted_5: "Opslag på %{apiname} væg er endnu ikke implementeret."
         no_api_picture_url: "Foto blev uploaded, men ingen URL til foto blev modtaget fra %{apiname}."
+        no_api_walls: "Opslag blev oprettet herinde, men ikke på nogen login udbyders væg. Dit opslag vil kun set af venner der benytter %{appname}. Gå evt. til \"Log ind\" siden og tjek læse/skriveadgang til login udbyder væg og om du har tilladt opslag på login udbyder væg."
      index:
         not_logged_in_flash: "Siden kan desværre ikke vises. Du er ikke logget på. Brug nedenstående links til at logge ind."
         not_logged_in_text: "Du er ikke logget ind og der kan ikke oprettes opslag."

@@ -150,12 +150,19 @@ class GiftsController < ApplicationController
     # - linkedin - ok
     # - twitter - todo
     # note that post_on_<provider> is called even if post_gift_allowed? is false (inject link to grant missing permission)
+    no_walls = 0
     tokens = session[:tokens] || {}
     tokens.keys.each do |provider|
       task_name = "post_on_#{provider}"
       if UtilController.new.private_methods.index(task_name.to_sym)
         # post on provider wall
-        add_task "#{task_name}(#{gift.id})", 5
+        # check permission
+        login_user = @users.find { |u| u.provider == provider}
+        if login_user.get_write_on_wall_action != User::WRITE_ON_WALL_NO then
+          # User::WRITE_ON_WALL_YES or User::WRITE_ON_WALL_MISSING_PRIVS
+          add_task "#{task_name}(#{gift.id})", 5
+          no_walls += 1
+        end
       elsif API_GIFT_PICTURE_STORE[provider] == :api
         logger.error2 "API_GIFT_PICTURE_STORE setup problem for #{provider}"
         logger.error2 "api gift picture store is :api, but no post_on_#{provider} task was found"
@@ -169,6 +176,7 @@ class GiftsController < ApplicationController
         end
       end
     end
+    @errors << t('.no_api_walls', :appname => APP_NAME) if no_walls == 0
 
     # disable file upload button if post on provider wall was rejected for all apis
     # enable file upload button if post on wall was allowed for one provider
