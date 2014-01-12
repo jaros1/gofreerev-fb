@@ -323,9 +323,9 @@ da:
         no_access: "Ugyldigt kald. Du har ikke adgang til at se dette opslag"
         invalid_deep_link_id_logged_in: "Dette opslag er desværre blevet slettet."
         invalid_deep_link_id_not_logged_in: "Dette opslag er desværre blevet slettet. Brug browserens tilbage knap eller log ind for at se andre opslag"
-        og_def_desc_facebook: "Help each other and the environment. Share your resources. %{appname} is a play with some concepts (gift network, free money and negative interest) from Charles Eisensteins book Sacred Economics."
+        og_def_desc_facebook: "Giv, lån/lej ud, hjælp, byt, sælg. Del jeres resourcer. Hjælp dine venner og miljøet. %{appname} er en leg med nogle af begreber (gavenetværk, frie penge og negativ rente) fra Charles Eisensteins bog Sacred Economics. Læs bogen gratis på nettet." # optimal size 255 characters
         og_def_desc_google_oauth2: "Help each other and the environment. Share your resources. %{appname} is a play with some concepts (gift network, free money and negative interest) from Charles Eisensteins book Sacred Economics."
-        og_def_desc_linkedin: "Help each other and the environment. Share your resources. %{appname} is a play with some concepts (gift network, free money and negative interest) from Charles Eisensteins book Sacred Economics."
+        og_def_desc_linkedin: "Giv, lån/lej ud, sælg. Hjælp hinanden og miljøet. Del jeres resourcer. %{appname} leger med nogle af begreber (frie penge, negativ rente og gavenetværk) fra Charles Eisensteins bog Sacred Economics. Kan læses nettet." # optimal size 220 characters
         og_def_desc_twitter: "Help each other and the environment. Share your resources. %{appname} is a play with some concepts (gift network, free money and negative interest) from Charles Eisensteins book Sacred Economics."
 
   # inbox controller

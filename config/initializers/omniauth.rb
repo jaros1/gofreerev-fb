@@ -117,7 +117,7 @@ API_OG_TITLE_SIZE = {:facebook => 94, # http://wptest.means.us.com/online-meta-t
                      :twitter => 70}.with_indifferent_access
 API_OG_DESC_SIZE = {:facebook => 255, # http://www.joshspeters.com/how-to-optimize-the-ogdescription-tag-for-search-and-social
                     :google_oauth2 => 155,
-                    :linkedin => 245,
+                    :linkedin => 220, # max 220 in util.post_on_linkedin ( up to 245 characters allowed in og:description meta-tag )
                     :twitter => 200}.with_indifferent_access
 API_OG_DEF_IMAGE = {:facedbook => "#{SITE_URL}images/sacred-economics.jpg",
                     :google_oauth2 => "#{SITE_URL}images/sacred-economics.jpg",

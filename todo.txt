@@ -377,6 +377,7 @@
       api_response = api.put_connections("me", "og.likes", :object => deep_link)
       can be used, but requires :local gift picture store and activity is  only shown in activity log / not on wall
     - facebook object debugger: https://developers.facebook.com/tools/debug/
+Giv, lån/lej ud, hjælp, byt, sælg. Del jeres resourcer. Hjælp dine venner og miljøet. %{appname} er en leg med nogle af begreber (gavenetværk, frie penge og negativ rente) fra Charles Eisensteins bog Sacred Economics. Læs bogen gratis på nettet.
 
 79) linkedin and open graph
     - looks like post on linkedin wall already is an open graph object
@@ -404,3 +405,7 @@
 87) found class wrapword in source - used in api_gift.html.erb - could be a workaround for response web pages with small width
 
 90) user/show: add provider filter if logged in with more when one provider
+
+91) add share icons to api_gift (one icon for each api provider)
+    share with a deep link
+    allow all to share og allow only creator to share?

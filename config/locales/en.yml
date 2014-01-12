@@ -331,7 +331,7 @@ en:
         invalid_deep_link_id_not_logged_in: "Sorry. This post has been removed. Use back button in browser or log in to see other posts."
         og_def_desc_facebook: "Give, rent, loan, sell, buy. Share resources with your friends. Help each other and help the environment. %{appname} is a play with some concepts (gift network, free money and negative interest) from Charles Eisensteins book Sacred Economics." # optimal size 255 characters
         og_def_desc_google_oauth2: "Help each other and the environment. Share your resources. %{appname} is a play with some concepts (gift network, free money and negative interest) from Charles Eisensteins book Sacred Economics."
-        og_def_desc_linkedin: "Give, rent, loan, sell, buy. Share resources with your friends. Help each other and help the environment. %{appname} is a play with some concepts (gift network, free money and negative interest) from Charles Eisensteins book Sacred Economics." # optimal size 245 characters
+        og_def_desc_linkedin: "Give, rent, loan, sell, buy. Share each others resources and help the environment. %{appname} is a play with some concepts (gift network, free money and negative interest) from Charles Eisensteins book Sacred Economics." # optimal size 220 characters.
         og_def_desc_twitter: "Help each other and the environment. Share your resources. %{appname} is a play with some concepts (gift network, free money and negative interest) from Charles Eisensteins book Sacred Economics."
 
   # inbox controller
