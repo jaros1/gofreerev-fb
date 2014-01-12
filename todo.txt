@@ -404,3 +404,9 @@
 
 94) add hide/ignore check box to grant_write_link_<provider> links
     => ajax user.post_on_wall_yn = 'N'
+
+95) refactor write_on_wall check. Should also be used before schedule tasks.
+    check_write_on_wall_privs:
+    a) no
+    b) yes
+    c) missing privis

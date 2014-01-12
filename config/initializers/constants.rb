@@ -51,3 +51,4 @@ GET_MORE_ROWS_INTERVAL = 3.0
 # texts are set in locale keys application.layouts.cookie_note_*
 # user can accept, reject or ignore cookie note
 SHOW_COOKIE_NOTE = 30 # nil or number of seconds to display cookie note in header
+

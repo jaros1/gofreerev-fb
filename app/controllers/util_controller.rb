@@ -1320,6 +1320,19 @@ class UtilController < ApplicationController
     return ['.gift_posted_3_html', { :appname => APP_NAME, :apiname => provider, :url => url}]
   end # grant_write_link_linkedin
 
+  # return [key, options] with @errors ajax to grant write access to twitter wall
+  # link is injected in tasks_errors table in page header
+  # read/write authorization in twitter is a gofreerev concept - omniauth login is with write permission to twitter wall
+  def grant_write_link_twitter
+    provider = 'twitter'
+    url = '/util/grant_write_twitter'
+    confirm = t 'shared.translate_ajax_errors.confirm_grant_write', :apiname => provider_downcase(provider)
+    # ajax inject link in gifts/index page
+    return ['.gift_posted_3b_html',
+            { :appname => APP_NAME, :apiname => provider_downcase(provider), :provider => provider,
+              :url => url, :confirm => confirm}]
+  end
+
   # post on facebook wall - with or without picture
   # picture is temporary saved local, but is deleted when the picture has been posted in wall(s)
   # task was inserted in gifts/create
@@ -1330,6 +1343,14 @@ class UtilController < ApplicationController
       provider = "facebook"
       login_user, token, key, options = get_login_user_and_token(provider)
       return [key, options] if key
+
+      # check user privs before post in facebook wall
+      # ( permissions is also checked before scheduling post_on_facebook task )
+      case login_user.get_write_on_wall_action
+        when User::WRITE_ON_WALL_NO then return nil # ignore
+        when User::WRITE_ON_WALL_YES then nil # continue
+        when User::WRITE_ON_WALL_MISSING_PRIVS then return grant_write_link_facebook # inject link to grant missing priv.
+      end
 
       # get gift, api_gift and deep_link
       gift, api_gift, deep_link, key, options = get_gift_and_deep_link(id, login_user, provider)
@@ -1466,23 +1487,11 @@ class UtilController < ApplicationController
       return [key, options] if key
 
       # check user privs before post in linkedin wall
-      # that is user.permissions and user.post_on_wall_yn settings
-      if login_user.post_gift_allowed?
-        # user has authorized post on linkedin wall
-        if login_user.post_on_wall_yn != 'Y'
-          logger.debug2 "Ignore post_on_linkedin. User has authorized post on linkedin wall but has selected not to post on linkedin wall"
-          return nil
-        end
-        # continue with post on linkedin wall
-      else
-        # user has not authorized post on linkedin wall
-        if login_user.post_on_wall_yn == 'Y'
-          # inject link to authorize post on linkedin wall
-          return grant_write_link_linkedin
-        else
-          logger.debug2 "Ignore post_on_linkedin. User has not authorzed post on linkedin wall and has also selected not to post in linkedin wall"
-          return nil
-        end
+      # ( permissions is also checked before scheduling post_on_linkedin task )
+      case login_user.get_write_on_wall_action
+        when User::WRITE_ON_WALL_NO then return nil # ignore
+        when User::WRITE_ON_WALL_YES then nil # continue
+        when User::WRITE_ON_WALL_MISSING_PRIVS then return grant_write_link_linkedin # inject link to grant missing priv.
       end
 
       # get gift, api_gift and deep_link
@@ -1542,11 +1551,6 @@ class UtilController < ApplicationController
               raise "linkedin post without picture and text length > 700 is not implemented"
           end
         end
-        #comment = nil
-        #content = { "submitted-url" => 'http://jan-roslind.dk/testcases/test1.html',
-        #            "submitted-image-url" => 'http://jan-roslind.dk/testcases/sacred-economics-linkedin.jpg',
-        #            "title" => 'Offers: Fra nytår bliver vagtlægens telefon i Hovedstaden ikke',
-        #            "description" => 'længere svaret af en læge, men af en sygeplejerske. Danske Patienter kalder det et eksperiment.' }
         logger.debug2 "content = #{content}, comment = #{comment}"
         x = client.add_share :content => content, :comment => comment
       rescue LinkedIn::Errors::AccessDeniedError => e
@@ -1555,10 +1559,7 @@ class UtilController < ApplicationController
         api_gift.clear_deep_link
         if e.message.to_s =~ /^\(403\)/
           # e.message = (403): Access to posting shares denied
-          # linkedin permission problem - post in linkedin wall not allowed as default
-          # default linkedin scope is "r_basicprofile r_network" - see config//initializers/omniauth.rb
-          # inject link in @errors so that user can authorize with request scope => "r_basicprofile r_network rw_nus"
-          # that is - user can permit post on linked wall
+          # inject link in tasks_errors table in gifts/index page to allow user to grant missing write permission
           return grant_write_link_linkedin
         end
         raise
@@ -1618,6 +1619,14 @@ class UtilController < ApplicationController
       provider = "twitter"
       login_user, token, key, options = get_login_user_and_token(provider)
       return [key, options] if key
+
+      # check user privs before post in twitter wall
+      # ( permissions is also checked before scheduling post_on_twitter task )
+      case login_user.get_write_on_wall_action
+        when User::WRITE_ON_WALL_NO then return nil # ignore
+        when User::WRITE_ON_WALL_YES then nil # continue
+        when User::WRITE_ON_WALL_MISSING_PRIVS then return grant_write_link_twitter # inject link to grant missing priv.
+      end
 
       # get gift, api_gift and deep_link
       gift, api_gift, deep_link, key, options = get_gift_and_deep_link(id, login_user, provider)

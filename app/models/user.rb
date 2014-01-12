@@ -705,6 +705,33 @@ class User < ActiveRecord::Base
     end
   end  # read_gifts_allowed?
 
+  # write on api wall helpers
+  WRITE_ON_WALL_YES = 1
+  WRITE_ON_WALL_NO = 2
+  WRITE_ON_WALL_MISSING_PRIVS = 3
+
+  def get_write_on_wall_action
+    # check user privs before post in provider wall
+    # that is user.permissions and user.post_on_wall_yn settings
+    if post_gift_allowed?
+      # user has authorized post on provider wall
+      if post_on_wall_yn != 'Y'
+        logger.debug2 "User has authorized post on #{provider} but has selected not to post on #{provider} wall"
+        return User::WRITE_ON_WALL_NO
+      end
+      # write priv ok - continue with post on provider wall
+      return User::WRITE_ON_WALL_YES
+    else
+      # user has not authorized post on provider wall
+      if post_on_wall_yn == 'Y'
+        # inject link to authorize post on provider wall
+        return User::WRITE_ON_WALL_MISSING_PRIVS
+      else
+        logger.debug2 "Ignore post_on_#{provider}. User has not authorzed post on #{provider} wall and has also selected not to post on #{provider} wall"
+        return User::WRITE_ON_WALL_NO
+      end
+    end
+  end # check_write_on_wall_privs
 
   # relation helpers
   def offers
