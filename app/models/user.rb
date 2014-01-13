@@ -1291,26 +1291,17 @@ class User < ActiveRecord::Base
     end
   end # self.inbox_new_notifications
 
-  # refresh user permisssion
+  # refresh user permisssions
   # called in error handling after picture upload with ApiPostNotFoundException error
   # see api_gifts/create
-  def get_api_permissions(access_token)
-    raise NoApiAccessTokenException unless access_token
-    api = Koala::Facebook::API.new(access_token)
+  def get_permissions_facebook(api_client)
     api_request = 'me?fields=permissions'
     logger.debug2  "api_request = #{api_request}"
     begin
-      api_response = api.get_object(api_request)
+      api_response = api_client.get_object(api_request)
     rescue Koala::Facebook::ClientError => e
-      logger.debug2  'Koala::Facebook::ClientError'
-      logger.debug2  "e.fb_error_type = #{e.fb_error_type}"
-      logger.debug2  "e.fb_error_code = #{e.fb_error_code}"
-      logger.debug2  "e.fb_error_subcode = #{e.fb_error_subcode}"
-      logger.debug2  "e.fb_error_message = #{e.fb_error_message}"
-      logger.debug2  "e.http_status = #{e.http_status}"
-      logger.debug2  "e.response_body = #{e.response_body}"
-      logger.debug2  "e.fb_error_type.class.name = #{e.fb_error_type.class.name}"
-      logger.debug2  "e.fb_error_code.class.name = #{e.fb_error_code.class.name}"
+      e.logger = logger
+      e.puts_exception("#{__method__}: ")
       raise
     end # rescue
     logger.debug2  "api_response = #{api_response}"

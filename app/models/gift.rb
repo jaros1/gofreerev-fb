@@ -327,51 +327,6 @@ class Gift < ActiveRecord::Base
   end # set_balance
 
 
-  # todo: these get_api_picture_url methods only return url for small picture. it would be nice to get url with a larger picture
-
-=begin
-  def get_api_picture_url (access_token)
-    return nil unless picture == 'Y'
-    return nil if deleted_at_api == 'Y'
-    raise NoApiAccessTokenException unless access_token
-    api = Koala::Facebook::API.new(access_token)
-    api_request = "#{api_gift_id}?fields=full_picture"
-    begin
-      api_response = api.get_object(api_request)
-    rescue Koala::Facebook::ClientError => e
-      logger.debug2  'Koala::Facebook::ClientError'
-      logger.debug2  "e.fb_error_type = #{e.fb_error_type}"
-      logger.debug2  "e.fb_error_code = #{e.fb_error_code}"
-      logger.debug2  "e.fb_error_subcode = #{e.fb_error_subcode}"
-      logger.debug2  "e.fb_error_message = #{e.fb_error_message}"
-      logger.debug2  "e.http_status = #{e.http_status}"
-      logger.debug2  "e.response_body = #{e.response_body}"
-      logger.debug2  "e.fb_error_type.class.name = #{e.fb_error_type.class.name}"
-      logger.debug2  "e.fb_error_code.class.name = #{e.fb_error_code.class.name}"
-      # Koala::Facebook::ClientError
-      # e.fb_error_type = GraphMethodException
-      # e.fb_error_code = 100
-      # e.fb_error_subcode =
-      # e.fb_error_message = Unsupported get request.
-      # e.http_status = 400
-      # e.response_body = {"error":{"message":"Unsupported get request.","type":"GraphMethodException","code":100}}
-      # e.fb_error_type.class.name = String
-      # e.fb_error_code.class.name = Fixnum
-      # todo: identical error response if picture is deleted or if user is not allowed to see picture
-      if e.fb_error_type == 'GraphMethodException' and e.fb_error_code == 100
-        # picture not found - maybe picture has been deleted - maybe a permission problem
-        raise ApiPostNotFoundException
-      else
-        raise
-      end
-    end
-    logger.debug2  "api_response = #{api_response}"
-    return api_response["full_picture"]
-  end # get_api_picture_url
-=end
-
-
-
   def visible_for? (users)
     if users.class != Array
       return false

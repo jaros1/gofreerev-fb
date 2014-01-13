@@ -369,28 +369,12 @@
 
 78) facebook and open graph
     - replace api_client.put_picture and api_client.put_connections with something else to add open graph tags?
-    - here is a good rails/fb demo: https://devcenter.heroku.com/articles/facebook-ruby
-      add fb:app_id as meta tag?
     - facebook object api: https://developers.facebook.com/docs/opengraph/using-object-api/
     - koala with og.likes:
       http://stackoverflow.com/questions/12199608/koala-like-doesn-t-work
       api_response = api.put_connections("me", "og.likes", :object => deep_link)
       can be used, but requires :local gift picture store and activity is  only shown in activity log / not on wall
     - facebook object debugger: https://developers.facebook.com/tools/debug/
-Giv, lån/lej ud, hjælp, byt, sælg. Del jeres resourcer. Hjælp dine venner og miljøet. %{appname} er en leg med nogle af begreber (gavenetværk, frie penge og negativ rente) fra Charles Eisensteins bog Sacred Economics. Læs bogen gratis på nettet.
-
-79) linkedin and open graph
-    - looks like post on linkedin wall already is an open graph object
-    - just fix title and description in util.post_on_linkedin
-
-80) twitter and open graph
-    https://dev.twitter.com/docs/cards/getting-started
-    https://dev.twitter.com/docs/cards/validation/validator
-    include url with deep link if text is short
-    include url with deep link in comment is text is long
-
-81) google+ and open graph
-    - todo
 
 84) check response from FastImage.type(gift_file.path) if site is temporary unavailable
     should not error mark pictures if a api picture server is temporary out of service
@@ -412,3 +396,9 @@ Giv, lån/lej ud, hjælp, byt, sælg. Del jeres resourcer. Hjælp dine venner og
 91) add share icons to api_gift (one icon for each api provider)
     share with a deep link
     allow all to share og allow only creator to share?
+    http://jquery-plugins.net/tag/social-share-button
+
+92) inject text into picture
+    most relevant for twitter where description is truncated to about 70 characters to include deep link
+    but could be an option for all login providers
+    for example a merge text and picture checkbox when posting new gift

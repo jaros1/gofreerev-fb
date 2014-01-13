@@ -1184,7 +1184,7 @@ class UtilController < ApplicationController
         # (re)check permissions
         if login_user.read_gifts_allowed?
           # check if user has removed read stream priv.
-          login_user.get_api_permissions(token)
+          login_user.get_permissions_facebook(api_client)
         end
         if login_user.read_gifts_allowed?
           # error - this should not happen.
@@ -1457,7 +1457,7 @@ class UtilController < ApplicationController
           # e.response_body = {"error":{"message":"(#200) The user hasn't authorized the application to perform this action","type":"OAuthException","code":200}}
           # check if permission to post i api wall has been removed
           error = e.to_s
-          login_user.get_api_permissions(token)
+          login_user.get_permissions_facebook(api_client)
           if !login_user.post_gift_allowed?
             # permission to post on api wall has been removed.
             # show request_post_gift_priv_link link in gifts/index page
@@ -1681,7 +1681,9 @@ class UtilController < ApplicationController
       # tweet with deep link in tweet message
       # tweet format: [offers/seeks] + gift.description + " - " + SITE_URL/gifts/xx/123456789012345678901234567890
       # description will be truncated if tweet length > 140
-      # expect description longer than 70 characters to be truncated
+      # expect description longer than 70 characters to be truncated in tweet
+      # full description is available in deep link
+      # todo: maybe inject text in picture.
       text = "#{format_direction_without_user(api_gift)}#{api_gift.gift.description}"
       deep_link = " - #{api_gift.init_deep_link}"
       text = text.first(140-deep_link.length) if text.length + deep_link.length > 140
@@ -1784,6 +1786,12 @@ class UtilController < ApplicationController
   end # delete_local_picture
 
   private
+  def init_api_client_facebook (token)
+    api_client = Koala::Facebook::API.new(token)
+    api_client
+  end
+
+  private
   def init_api_client_twitter (token)
     provider = 'twitter'
     # logger.debug2  "token = #{token.join(', ')}"
@@ -1795,6 +1803,6 @@ class UtilController < ApplicationController
     end
     api_client
   end # init_api_client_twitter
-  
-  
+
+
 end # UtilController
