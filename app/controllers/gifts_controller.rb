@@ -365,6 +365,15 @@ class GiftsController < ApplicationController
                       :description => description,
                       :image => image,
                       :url   => api_gift.deep_link()}
+      # add special twitter meta-tags if available
+      api_gift_twitter = api_gift.gift.api_gifts.find { |ag| ag.provider == 'twitter' }
+      if api_gift_twitter
+        created_by_user_id = api_gift.gift.created_by == 'giver' ? api_gift_twitter.user_id_giver : api_gift_twitter.user_id_receiver
+        created_by = User.find_by_user_id(created_by_user_id)
+        @open_graph[:twitter_creator] = '@' + created_by.api_profile_url.split('/').last if created_by.api_profile_url
+        logger.debug2 "@open_graph[:twitter_creator] = #{@open_graph[:twitter_creator]}"
+        # @open_graph[:twitter_creator] = Gofreerev
+      end
       # facebook open graph:
       # https://developers.facebook.com/tools/debug
       # http://stackoverflow.com/questions/1138460/how-does-facebook-sharer-select-images
