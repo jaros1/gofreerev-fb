@@ -104,9 +104,11 @@ API_PROFILE_PICTURE_STORE = {}.with_indifferent_access
 # gift pictures: nil (no picture/readonly api), :api (use api picture url) or :local (keep local copy of picture)
 # gooogle+ must be :local or nil (readonly api)
 # linkedin must be :local or nil (only picture url is uploaded to linkedin)
-API_GIFT_PICTURE_STORE = {:facebook => :api,
+# fallback must be :local or nil (use :local to enable local gift picture store as a fallback/last option)
+API_GIFT_PICTURE_STORE = {:fallback => nil,
+                          :facebook => :api,
                           :google_oauth2 => nil, # images not uploaded to google+ - google+ is a readonly API
-                          :linkedin => :local, # images are not uploaded to LinkedIn
+                          :linkedin => :local, # images are not uploaded to LinkedIn and must be stored on app server
                           :twitter => :api}.with_indifferent_access
 
 # open graph values (http://ogp.me/) recommended max length for meta-tags used in deep links

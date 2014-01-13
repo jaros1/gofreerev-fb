@@ -25,7 +25,7 @@ class AuthController < ApplicationController
         access = 0
       else
         user = @users.find { |u| u.provider == provider }
-        access = user.post_gift_allowed? ? 2 : 1
+        access = user.post_on_wall_authorized? ? 2 : 1
         access = 3 if access == 1 and provider == 'twitter'
       end
       # post_on_wall checkbox. 0 disable/hide, 1 unchecked, 2 checked
@@ -121,7 +121,7 @@ class AuthController < ApplicationController
         type == :invalid_credentials and
         error.class == OAuth::Problem and
         error.message == 'parameter_absent'
-      client = get_linkedin_client()
+      client = get_linkedin_api_client()
       if client
         logger.debug2  "request for linked rw_nus priv. was cancelled"
         flash[:notice] = t ".linkedin_rw_nus_cancelled", :appname => APP_NAME

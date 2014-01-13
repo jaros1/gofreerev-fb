@@ -61,20 +61,32 @@ class Picture < ActiveRecord::Base
       return rel_path unless File.exist? filename
     end
   end
-  def self.new_temp_or_perm_rel_path (login_users, image_type)
-     providers = login_users.collect { |u| u.provider }
-     [:local, :api].each do |picture_store|
-       if API_GIFT_PICTURE_STORE.find { |name,value| providers.index(name.to_s) and value == picture_store }
-         if picture_store == :local
-           return Picture.new_perm_rel_path image_type
-         else
-           return Picture.new_temp_rel_path image_type
-         end
-       end # if
-     end # each picture_store
-     # error - no picture store - could be readonly API google+
-     nil
+
+  def self.find_picture_store (login_users)
+    providers = login_users.collect { |u| u.provider }
+    # :local picture store?
+    login_users.each do |login_user|
+      next unless API_GIFT_PICTURE_STORE[login_user.provider] == :local
+      return :local if login_user.post_on_wall_allowed?
+    end
+    # :api picture store?
+    login_users.each do |login_user|
+      next unless API_GIFT_PICTURE_STORE[login_user.provider] == :api
+      return :api if login_user.post_on_wall_allowed?
+    end
+    # fallback option when :local or :api picture store was not available
+    return :local if API_GIFT_PICTURE_STORE[:fallback] == :local
+    # no fallback - could be a readonly API as google+ - image upload is not allowed
+    nil
   end
+
+  def self.new_temp_or_perm_rel_path (login_users, image_type)
+    case Picture.find_picture_store(login_users)
+      when :local then Picture.new_perm_rel_path image_type
+      when :api then Picture.new_term_rel_path image_type
+      else nil # error - no picture store - could be google+ - image upload is not allowed
+    end
+  end # self.new_temp_or_perm_rel_path
 
 
   # test helpers

@@ -24,7 +24,7 @@ class GiftsController < ApplicationController
     gift.description = params[:gift][:description]
     gift_file = params[:gift_file]
     picture = (gift_file.class.name == 'ActionDispatch::Http::UploadedFile')
-    if picture and !User.post_gift_allowed?(@users)
+    if picture and !User.post_on_wall_authorized?(@users)
       @errors << t('.file_upload_not_allowed',
                    :appname => APP_NAME,
                    :apiname => (@users.length > 1 ? 'login provider' : @users.first.api_name_without_brackets))

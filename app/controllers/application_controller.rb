@@ -451,7 +451,7 @@ class ApplicationController < ActionController::Base
   end
   def clear_state
     session.delete(:state)
-    get_linkedin_client() if logged_in?
+    get_linkedin_api_client() if logged_in?
   end
   def invalid_state?
     state = params[:state].to_s
@@ -465,7 +465,7 @@ class ApplicationController < ActionController::Base
   # save is called after gifts/create and LinkedIn::Errors::AccessDeniedError from linkedin - post in linkedin wall not allowed
   # get is called from linkedin/index when user returns from linkedin after allowing write access to linkedin wall
   private
-  def save_linkedin_client (client)
+  def save_linkedin_api_client (client)
     task_name = 'linkedin_rw_nus'
     t = Task.find_by_session_id_and_task(session[:session_id], task_name)
     t.destroy if t
@@ -477,7 +477,7 @@ class ApplicationController < ActionController::Base
     t.task_data = client.to_yaml
     t.save!
   end # save_linkedin_client
-  def get_linkedin_client
+  def get_linkedin_api_client
     task_name = 'linkedin_rw_nus'
     t = Task.where("session_id = ? and task = ? and created_at > ?", session[:session_id], task_name, 10.minutes.ago).first
     return nil unless t
@@ -588,6 +588,54 @@ class ApplicationController < ActionController::Base
       [text.first(title_lng), text.from(title_lng).first(desc_lng)]
     end
   end # open_graph_title_and_desc
+
+  private
+  def init_api_client_facebook (token)
+    api_client = Koala::Facebook::API.new(token)
+    api_client
+  end
+
+  private
+  def init_api_client_google_oauth2 (token)
+    provider = 'google_oauth2'
+    api_client = Google::APIClient.new(
+        :application_name => 'Gofreerev',
+        :application_version => '0.1'
+    )
+    api_client.authorization.client_id = API_ID[provider]
+    api_client.authorization.client_secret = API_SECRET[provider]
+    api_client.authorization.access_token = token
+    api_client
+  end
+
+  private
+  def init_api_client_linkedin (token)
+    provider = 'linkedin'
+    api_client = LinkedIn::Client.new API_ID[provider], API_SECRET[provider]
+    api_client.authorize_from_access token[0], token[1] # token and secret
+    api_client
+  end
+
+
+  private
+  def init_api_client_twitter (token)
+    provider = 'twitter'
+    # logger.debug2  "token = #{token.join(', ')}"
+    api_client = Twitter::REST::Client.new do |config|
+      config.consumer_key        = API_ID[provider]
+      config.consumer_secret     = API_SECRET[provider]
+      config.access_token        = token[0]
+      config.access_token_secret = token[1]
+    end
+    api_client
+  end # init_api_client_twitter
+
+
+  # intiialize api client
+  private
+  def init_api_client (provider, token=nil)
+
+  end
 
 
 end # ApplicationController

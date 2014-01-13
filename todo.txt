@@ -354,18 +354,8 @@
 72) display "grant write access to api wall" already when user enters gifts/index page
     information is available in user.permissions field
 
-73) change attached picture check. Should use information in API_GIFT_PICTURE_STORE hash and user.permissions field
-
-74) change attached file mouse over text.
-    explain reason if picture can not be uploaded
-    add note with recommended picture size ( dimensions) for different providers
-    maybe just allow file attachment for all posts
-
 75) problem with api gifts without gifts
     check out where gifts are deleted
-
-77) post_on_<...> and gifts/show with deep link should set identical open graph title and description
-    move open_graph_title_and_desc to app controller and use method from gifts/show and util/post_in_<provider>
 
 78) facebook and open graph
     - replace api_client.put_picture and api_client.put_connections with something else to add open graph tags?
@@ -382,13 +372,6 @@
     Must combine FastImage = nil with a http get page notfound check
     http://stackoverflow.com/questions/2695020/how-can-i-use-ruby-to-check-if-a-domain-exists
 
-86) refactor initialize api client code
-    - facebook/koala - todo
-    - google+ - todo
-    - linkedin - todo
-    - twitter (done)
-    maybe refactor to method in app controller
-
 87) found class wrapword in source - used in api_gift.html.erb - could be a workaround for response web pages with small width
 
 90) user/show: add provider filter if logged in with more when one provider
@@ -402,3 +385,8 @@
     most relevant for twitter where description is truncated to about 70 characters to include deep link
     but could be an option for all login providers
     for example a merge text and picture checkbox when posting new gift
+
+93) check user.post_gift_allowed? class and instance method
+    there should be an post_gift_allowed? method and a post_image_allowed? method.
+    post_gift_allowed ok if permission and post_on_wall setting is ok
+    post_image_allowed ok if login in users and gift picture store setting is ok.

@@ -660,7 +660,7 @@ class User < ActiveRecord::Base
   end # currency_with_text
 
   # has user granted app privs wall postings?
-  def post_gift_allowed?
+  def post_on_wall_authorized?
     permissions = self.permissions
     case provider
       when "facebook"
@@ -682,28 +682,33 @@ class User < ActiveRecord::Base
         logger.warn2  "post_on_wall? not implemented for #{provider}"
         false
     end # case
-  end # post_gift_allowed?
-
-  def self.post_gift_allowed? (users)
+  end # post_on_wall_authorized?
+  def self.post_on_wall_authorized? (users)
     return false unless users.class == Array and users.length > 0
     users.each do |user|
       next unless API_POST_PERMITTED[user.provider]
-      return true if user.post_gift_allowed?
+      return true if user.post_on_wall_authorized?
     end
     false
-  end # self.post_gift_allowed? (users)
+  end # self.post_on_wall_authorized?
 
-  # "permissions"=>{"data"=>[{"installed"=>1, "basic_info"=>1, "read_stream"=>1, "status_update"=>1, "photo_upload"=>1, "video_upload"=>1, "create_note"=>1, "share_item"=>1, "publish_stream"=>1, "publish_actions"=>1, "bookmarked"=>1}
-  def read_gifts_allowed?
-    permissions = self.permissions
-    case
-      when facebook?
-        permissions['read_stream'] == 1
-      else
-        logger.debug2  "read_wall_allowed? not implemented for #{user_id.first(2)} users"
-        false
+  # has user authorized and enabled post on wall?
+  def post_on_wall_allowed?
+    post_on_wall_yn == 'Y' and post_on_wall_authorized?
+  end
+  def self.post_on_wall_allowed? (login_users)
+    return false if login_users.size == 0 or login_users.size == 1 and login_users.first.dummy_user?
+    login_users.each do |login_user|
+      return true if login_user.post_on_wall_allowed?
     end
-  end  # read_gifts_allowed?
+    return false
+  end
+
+
+  def self.post_image_allowed? (login_users)
+    (Picture.find_picture_store(login_users) != nil)
+  end # post_image_allowed?
+
 
   # write on api wall helpers
   WRITE_ON_WALL_YES = 1
@@ -713,7 +718,7 @@ class User < ActiveRecord::Base
   def get_write_on_wall_action
     # check user privs before post in provider wall
     # that is user.permissions and user.post_on_wall_yn settings
-    if post_gift_allowed?
+    if post_on_wall_authorized?
       # user has authorized post on provider wall
       if post_on_wall_yn != 'Y'
         logger.debug2 "User has authorized post on #{provider} but has selected not to post on #{provider} wall"

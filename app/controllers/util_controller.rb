@@ -201,7 +201,7 @@ class UtilController < ApplicationController
             end
             case api_gift.provider
               when 'facebook' then
-                api_client = Koala::Facebook::API.new(token)
+                api_client = init_api_client_facebook(token)
               when 'twitter' then
                 api_client = init_api_client_twitter(token)
               else
@@ -703,7 +703,7 @@ class UtilController < ApplicationController
 
       # get user information - permissions, friends and picture  - koala gem is used for facebook api requests
       # logger.debug2  'get user id and name'
-      api = Koala::Facebook::API.new(token)
+      api = init_api_client_facebook(token)
       api_request = 'me?fields=permissions,friends,picture'
       # logger.debug2  "api_request = #{api_request}"
       api_response = api.get_object api_request
@@ -795,15 +795,8 @@ class UtilController < ApplicationController
 
       # get new google api friends
       # logger.debug2  "token = #{token}"
-      client = Google::APIClient.new(
-          :application_name => 'Gofreerev',
-          :application_version => '0.1'
-      )
-      # client = Google::APIClient.new
-      plus = client.discovered_api('plus')
-      client.authorization.client_id = API_ID[provider]
-      client.authorization.client_secret = API_SECRET[provider]
-      client.authorization.access_token = token
+      api_client = init_api_client_google_oauth2(token)
+      plus = api_client.discovered_api('plus')
       # logger.debug2 "token = #{token}"
 
       # find people in login user circles
@@ -814,7 +807,7 @@ class UtilController < ApplicationController
       # loop for all google+ friends
       loop do
 
-        result = client.execute(request)
+        result = api_client.execute(request)
         # logger.debug2  "result = #{result}"
         # logger.debug2  "result.error_message.class = #{result.error_message.class}"
         # logger.debug2  "result.error_message = #{result.error_message}"
@@ -923,8 +916,7 @@ class UtilController < ApplicationController
       login_user_id = login_user.user_id
 
       # create client for linkedin api requests
-      client = LinkedIn::Client.new API_ID[provider], API_SECRET[provider]
-      client.authorize_from_access token[0], token[1] # token and secret
+      api_client = init_api_client_linkedin(token) # token and secret
       # logger.debug2 "token = #{token.join(', ')}"
 
       ## get public profile url for login user
@@ -939,7 +931,7 @@ class UtilController < ApplicationController
       begin
         # http://developer.linkedin.com/documents/profile-fields#profile
         fields = %w(id,first-name,last-name,public-profile-url,picture-url,num-connections)
-        client.connections(:fields => fields).all.each do |connection|
+        api_client.connections(:fields => fields).all.each do |connection|
           no_linkedin_connections += 1
           logger.debug2 "connection = #{connection} (#{connection.class})"
           logger.debug2 "connection.public_profile_url = #{connection.public_profile_url}"
@@ -1135,7 +1127,7 @@ class UtilController < ApplicationController
 
     if !api_client
       # get access token and initialize koala api client
-      api_client = Koala::Facebook::API.new(token)
+      api_client = init_api_client_facebook(token)
     end
 
     # two koala api request. 1) get picture and object_id, 2) get an array with different size pictures
@@ -1349,13 +1341,15 @@ class UtilController < ApplicationController
     provider = 'linkedin'
     # http://railscarma.com/blog/rails-3/how-to-use-linkedin-api-in-rails-applications/
     scope = 'r_basicprofile r_network rw_nus'
-    client = LinkedIn::Client.new API_ID[provider], API_SECRET[provider]
-    request_token = client.request_token({:oauth_callback => API_CALLBACK_URL[provider]}, :scope => scope)
-    client.authorize_from_access(request_token.token, request_token.secret)
-    url = client.request_token.authorize_url
+    # can not use init_api_client_linkedin here
+    # we are setting up a new linkedin login link with extended permissions
+    api_client = LinkedIn::Client.new API_ID[provider], API_SECRET[provider]
+    request_token = api_client.request_token({:oauth_callback => API_CALLBACK_URL[provider]}, :scope => scope)
+    api_client.authorize_from_access(request_token.token, request_token.secret)
+    url = api_client.request_token.authorize_url
     # save client - client object is used for authorization when/if user returns from linkedin with write permission to linkedin wall
     # too big for session cookie - to saved in task_data
-    save_linkedin_client(client)
+    save_linkedin_api_client(api_client)
     # ajax inject link in gifts/index page
     return ['.gift_posted_3_html', { :appname => APP_NAME, :apiname => provider, :url => url}]
   end # grant_write_link_linkedin
@@ -1409,7 +1403,7 @@ class UtilController < ApplicationController
       error = 'unknown error'
 
       # initialize koala api client
-      api_client = Koala::Facebook::API.new(token)
+      api_client = init_api_client_facebook(token)
 
       # post with or without picture - link is a deep link from facebook wall to gift in gofreerev
       # link will be clickable if public url
@@ -1458,7 +1452,7 @@ class UtilController < ApplicationController
           # check if permission to post i api wall has been removed
           error = e.to_s
           login_user.get_permissions_facebook(api_client)
-          if !login_user.post_gift_allowed?
+          if !login_user.post_on_wall_authorized?
             # permission to post on api wall has been removed.
             # show request_post_gift_priv_link link in gifts/index page
             return grant_write_link_facebook
@@ -1537,8 +1531,7 @@ class UtilController < ApplicationController
       return [key, options] if key
 
       # create api client for linkedin api requests
-      api_client = LinkedIn::Client.new API_ID[provider], API_SECRET[provider]
-      api_client.authorize_from_access token[0], token[1] # token and secret
+      api_client = init_api_client_linkedin(token) # token and secret
       # logger.debug2  "token = #{token[0]}"
       # logger.debug2  "secret = #{token[1]}"
 
@@ -1724,7 +1717,7 @@ class UtilController < ApplicationController
       # reload @users - permissions can have changed in post_in_<provider> tasks
       @users = @users.collect { |user| user.reload }
       # disabled = !@gift_file. See do_tasks.js.erb
-      @gift_file = User.post_gift_allowed?(@users)
+      @gift_file = User.post_on_wall_authorized?(@users)
       logger.debug2  "@gift_file = #{@gift_file}"
       nil
     rescue Exception => e
@@ -1784,25 +1777,5 @@ class UtilController < ApplicationController
       raise
     end
   end # delete_local_picture
-
-  private
-  def init_api_client_facebook (token)
-    api_client = Koala::Facebook::API.new(token)
-    api_client
-  end
-
-  private
-  def init_api_client_twitter (token)
-    provider = 'twitter'
-    # logger.debug2  "token = #{token.join(', ')}"
-    api_client = Twitter::REST::Client.new do |config|
-      config.consumer_key        = API_ID[provider]
-      config.consumer_secret     = API_SECRET[provider]
-      config.access_token        = token[0]
-      config.access_token_secret = token[1]
-    end
-    api_client
-  end # init_api_client_twitter
-
 
 end # UtilController

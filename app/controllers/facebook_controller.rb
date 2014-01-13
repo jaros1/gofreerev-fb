@@ -135,7 +135,7 @@ class FacebookController < ApplicationController
     #       could refresh permissions here
     #       or could add ajax to post_on_facebook to enable/disable file upload button?
     logger.debug2  'get user id and name'
-    api = Koala::Facebook::API.new(access_token)
+    api = init_api_client_facebook(access_token)
     api_request = 'me?fields=name,locale,link'
     logger.debug2  "api_request = #{api_request}"
     api_response = api.get_object api_request
