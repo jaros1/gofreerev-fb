@@ -1080,6 +1080,19 @@ $(document).ready(function() {
     // add2log('timezone = ' + timezone.value) ;
 })
 
+// gifts/index page - copy rows from hidden_tasks_errors to tasks_errors - links to grant write permission to api walls
+$(document).ready(function() {
+    var from_table = document.getElementById('hidden_tasks_errors') ;
+    if (!from_table) return ; // not gifts/index page
+    var to_table = document.getElementById('tasks_errors') ;
+    var from_trs = from_table.rows ;
+    for (var i=from_trs.length-1; i>= 0 ; i--) {
+        var tr = from_trs[i];
+        from_table.deleteRow(i) ;
+        to_table.appendChild(tr) ;
+    }
+});
+
 // custom confirm box - for styling
 // http://lesseverything.com/blog/archives/2012/07/18/customizing-confirmation-dialog-in-rails/
 // http://www.pjmccormick.com/nicer-rails-confirm-dialogs-and-not-just-delete-methods

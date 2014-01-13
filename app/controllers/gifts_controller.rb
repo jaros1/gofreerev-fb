@@ -270,6 +270,20 @@ class GiftsController < ApplicationController
       AjaxComment.where("user_id in (?)", login_user_ids).delete_all if login_user_ids.length > 0
       # insert dummy profile pictures in first row - force fixed size for empty from or to columns
       @first_gift = true
+      # check write on wall settings
+      @errors = []
+      @users.each do |user|
+        if user.get_write_on_wall_action == User::WRITE_ON_WALL_MISSING_PRIVS
+          # todo: refactor to a grant_write_link(provider) method
+          case user.provider
+            when 'facebook' then @errors << grant_write_link_facebook
+            when 'linkedin' then @errors << grant_write_link_linkedin
+            when 'twitter' then @errors << grant_write_link_twitter
+            else nil
+          end # case
+        end # if
+      end # each user
+      logger.debug2 "@errors = #{@errors}"
     end
 
     @api_gifts, @last_row_id = get_next_set_of_rows(gifts, last_row_id)

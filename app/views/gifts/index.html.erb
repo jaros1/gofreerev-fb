@@ -9,6 +9,11 @@
     %>
 </script>
 
+<%# hidden table with links to grant write access to api walls %>
+<table id="hidden_tasks_errors" style="display:none">
+<%= render :partial => 'shared/translate_ajax_errors' %>
+</table>
+
 <%# create new gift form -%>
 <div style="width: 100%"><%= t '.create_gift_header_line' %></div>
 <div style="width: 100%">
@@ -102,7 +107,9 @@
     csv_gift_price_invalid = '<%= t '.price_invalid_text' %>';
     csv_comment_comment_required = '<%= t '.comment_comment_required_text' %>';
     csv_comment_price_invalid = '<%= t '.comment_price_invalid_text' %>';
+
 </script>
+
 
 
 

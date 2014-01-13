@@ -630,12 +630,49 @@ class ApplicationController < ActionController::Base
     api_client
   end # init_api_client_twitter
 
-
-  # intiialize api client
+  # return [key, options] with @errors ajax to grant write access to facebook wall
+  # link is injected in tasks_errors table in page header
   private
-  def init_api_client (provider, token=nil)
+  def grant_write_link_facebook
+    provider = 'facebook'
+    oauth = Koala::Facebook::OAuth.new(API_ID[provider], API_SECRET[provider], API_CALLBACK_URL[provider])
+    url = oauth.url_for_oauth_code(:permissions => 'status_update', :state => set_state('status_update'))
+    ['.gift_posted_3_html', {:apiname => provider_downcase(provider),
+                             :url => url,
+                             :appname => APP_NAME}]
+  end # grant_write_link_facebook
 
+  # return [key, options] with @errors ajax to grant write access to linkedin wall
+  # link is injected in tasks_errors table in page header
+  private
+  def grant_write_link_linkedin
+    provider = 'linkedin'
+    # http://railscarma.com/blog/rails-3/how-to-use-linkedin-api-in-rails-applications/
+    scope = 'r_basicprofile r_network rw_nus'
+    # can not use init_api_client_linkedin here
+    # we are setting up a new linkedin login link with extended permissions
+    api_client = LinkedIn::Client.new API_ID[provider], API_SECRET[provider]
+    request_token = api_client.request_token({:oauth_callback => API_CALLBACK_URL[provider]}, :scope => scope)
+    api_client.authorize_from_access(request_token.token, request_token.secret)
+    url = api_client.request_token.authorize_url
+    # save client - client object is used for authorization when/if user returns from linkedin with write permission to linkedin wall
+    # too big for session cookie - to saved in task_data
+    save_linkedin_api_client(api_client)
+    # ajax inject link in gifts/index page
+    return ['.gift_posted_3_html', { :appname => APP_NAME, :apiname => provider, :url => url}]
+  end # grant_write_link_linkedin
+
+  # return [key, options] with @errors ajax to grant write access to twitter wall
+  # link is injected in tasks_errors table in page header
+  # read/write authorization in twitter is a gofreerev concept - omniauth login is with write permission to twitter wall
+  def grant_write_link_twitter
+    provider = 'twitter'
+    url = '/util/grant_write_twitter'
+    confirm = t 'shared.translate_ajax_errors.confirm_grant_write', :apiname => provider_downcase(provider)
+    # ajax inject link in gifts/index page
+    return ['.gift_posted_3b_html',
+            { :appname => APP_NAME, :apiname => provider_downcase(provider), :provider => provider,
+              :url => url, :confirm => confirm}]
   end
-
 
 end # ApplicationController
