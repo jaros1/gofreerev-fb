@@ -1676,8 +1676,22 @@ class UtilController < ApplicationController
 
       # create client for twitter api requests
       client = init_api_client_twitter(token)
+      logger.debug2 "token = #{token}"
 
-      tweet = gift.description.first(140)
+      # tweet with or without deep link in tweet message
+      text = "#{format_direction_without_user(api_gift)}#{api_gift.gift.description}"
+      deep_link_lng = "#{SITE_URL}#{I18n.locale}/gifts/".length + 30
+      if text.length + 3 + deep_link_lng <= 140
+        # include deep link in tweet
+        deep_link = api_gift.init_deep_link
+        tweet = "#{text} - #{deep_link}"
+      else
+        # tweet without deep link.
+        # todo: add comment with deep link?
+        tweet = text.first(140)
+      end
+
+      # post tweet
       if api_gift.picture?
         # http://rubydoc.info/github/jnunemaker/twitter/Twitter/Client:update_with_media
         full_os_path = Picture.full_os_path :rel_path => gift.app_picture_rel_path
@@ -1686,6 +1700,7 @@ class UtilController < ApplicationController
         x = client.update(tweet)
       end
       return ['.gift_posted_1_html', {:apiname => provider, :error => "Expected Twitter::Tweet. Found #{x.class}"}] if x.class != Twitter::Tweet
+
       api_gift.api_picture_url = x.media.first.media_url.to_s if api_gift.picture?
       api_gift.api_gift_id  = x.id.to_s
       api_gift.api_gift_url = x.url.to_s

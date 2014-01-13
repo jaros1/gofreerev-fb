@@ -384,7 +384,12 @@ Giv, lån/lej ud, hjælp, byt, sælg. Del jeres resourcer. Hjælp dine venner og
     - just fix title and description in util.post_on_linkedin
 
 80) twitter and open graph
-    - todo
+    https://dev.twitter.com/docs/cards/getting-started
+    https://dev.twitter.com/docs/cards/validation/validator
+    add twitter:domain tag (optional) - from url
+    add twitter:twitter:site with twitter username (owner of site) - could be an environment variable
+    add twitter:creator tag with twitter username (creator of gift if created by a twitter user)
+    include url with deep link if text
 
 81) google+ and open graph
     - todo

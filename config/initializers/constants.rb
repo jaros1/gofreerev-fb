@@ -7,7 +7,7 @@ ENV_PREFIX = "#{ENV_APP_NAME}_#{ENV_RAILSENV}_" # GOFREEREV_DEV_
 
 # name and url for this project
 APP_NAME     = 'Gofreerev'     # app name used in views and error messages
-SITE_URL     = ENV["#{ENV_PREFIX}SITE_URL"] # 'http://localhost/'
+SITE_URL     = ENV["#{ENV_PREFIX}SITE_URL"] # 'http://localhost/' # must end with /
 
 # where can you find source for this open source project?
 CVS_NAME = 'GitHub'

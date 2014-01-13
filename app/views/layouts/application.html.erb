@@ -16,6 +16,7 @@
   <meta property="og:description" content="<%= @open_graph[:description] %>" />
   <meta property="og:site_name" content="<%= APP_NAME %>" />
   <% if API_ID[:facebook] %><meta property="fb:app_id" content="<%= API_ID[:facebook] %>" /><% end -%>
+  <% if API_ID[:twitter] %><meta name="twitter:card" content="summary_large_image"><% end -%>
 <% end -%>
   <script>
 <% if @cookie_note -%>
