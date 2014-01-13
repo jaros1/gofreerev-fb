@@ -386,7 +386,6 @@ Giv, lån/lej ud, hjælp, byt, sælg. Del jeres resourcer. Hjælp dine venner og
 80) twitter and open graph
     https://dev.twitter.com/docs/cards/getting-started
     https://dev.twitter.com/docs/cards/validation/validator
-    add twitter:domain tag (optional) - from url
     include url with deep link if text is short
     include url with deep link in comment is text is long
 

@@ -1678,18 +1678,14 @@ class UtilController < ApplicationController
       client = init_api_client_twitter(token)
       logger.debug2 "token = #{token}"
 
-      # tweet with or without deep link in tweet message
+      # tweet with deep link in tweet message
+      # tweet format: [offers/seeks] + gift.description + " - " + SITE_URL/gifts/xx/123456789012345678901234567890
+      # description will be truncated if tweet length > 140
+      # expect description longer than 70 characters to be truncated
       text = "#{format_direction_without_user(api_gift)}#{api_gift.gift.description}"
-      deep_link_lng = "#{SITE_URL}#{I18n.locale}/gifts/".length + 30
-      if text.length + 3 + deep_link_lng <= 140
-        # include deep link in tweet
-        deep_link = api_gift.init_deep_link
-        tweet = "#{text} - #{deep_link}"
-      else
-        # tweet without deep link.
-        # todo: add comment with deep link?
-        tweet = text.first(140)
-      end
+      deep_link = " - #{api_gift.init_deep_link}"
+      text = text.first(140-deep_link.length) if text.length + deep_link.length > 140
+      tweet = "#{text}#{deep_link}"
 
       # post tweet
       if api_gift.picture?
