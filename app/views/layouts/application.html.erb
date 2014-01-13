@@ -18,6 +18,7 @@
   <% if API_ID[:facebook] %><meta property="fb:app_id" content="<%= API_ID[:facebook] %>" /><% end -%>
   <% if API_ID[:twitter] %><meta name="twitter:card" content="summary_large_image"><% end -%>
   <% if @open_graph[:twitter_creator] %><meta name="twitter:creator" content="<%= @open_graph[:twitter_creator] %>"><% end -%>
+  <% if API_OWNER[:twitter] %><meta name="twitter:site" content="<%= API_OWNER[:twitter] %>"><% end -%>
 <% end -%>
   <script>
 <% if @cookie_note -%>

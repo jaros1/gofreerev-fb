@@ -366,6 +366,7 @@ class GiftsController < ApplicationController
                       :image => image,
                       :url   => api_gift.deep_link()}
       # add special twitter meta-tags if available
+      # add twitter:creator if gift was created by a twitter user
       api_gift_twitter = api_gift.gift.api_gifts.find { |ag| ag.provider == 'twitter' }
       if api_gift_twitter
         created_by_user_id = api_gift.gift.created_by == 'giver' ? api_gift_twitter.user_id_giver : api_gift_twitter.user_id_receiver

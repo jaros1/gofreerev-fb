@@ -124,6 +124,9 @@ API_OG_DEF_IMAGE = {:facedbook => "#{SITE_URL}images/sacred-economics.jpg",
                     :linkedin => "#{SITE_URL}images/sacred-economics-linkedin.jpg", # 180 x 110 best for linkedin
                     :twitter => "#{SITE_URL}images/sacred-economics.jpg"}.with_indifferent_access
 
+# for twitter:site card meta-tag - The Twitter username of the owner of this card's domain. - only twitter
+API_OWNER = { :twitter => ENV['GOFREEREV_APP_OWNER_TWITTER'] }.with_indifferent_access
+
 # extract basic information from auth_hash (provider, uid, user_name, token, language)
 # provider specific versions can be implemented with get_<method>_<provider>.
 # See omniauth_linkedin.rb for an example.
