@@ -274,13 +274,8 @@ class GiftsController < ApplicationController
       @errors = []
       @users.each do |user|
         if user.get_write_on_wall_action == User::WRITE_ON_WALL_MISSING_PRIVS
-          # todo: refactor to a grant_write_link(provider) method
-          case user.provider
-            when 'facebook' then @errors << grant_write_link_facebook
-            when 'linkedin' then @errors << grant_write_link_linkedin
-            when 'twitter' then @errors << grant_write_link_twitter
-            else nil
-          end # case
+          key, options = grant_write_link(user.provider)
+          @errors << [key, options] if key
         end # if
       end # each user
       logger.debug2 "@errors = #{@errors}"

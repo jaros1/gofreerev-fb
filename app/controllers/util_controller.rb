@@ -1341,7 +1341,7 @@ class UtilController < ApplicationController
         when User::WRITE_ON_WALL_YES then
           nil # continue
         when User::WRITE_ON_WALL_MISSING_PRIVS then
-          return grant_write_link_facebook # inject link to grant missing priv.
+          return grant_write_link(provider) # inject link to grant missing priv.
       end
 
       # get gift, api_gift and deep_link
@@ -1410,7 +1410,7 @@ class UtilController < ApplicationController
           if !login_user.post_on_wall_authorized?
             # permission to post on api wall has been removed.
             # show request_post_gift_priv_link link in gifts/index page
-            return grant_write_link_facebook
+            return grant_write_link(provider)
           else
             # permission to post on api wall has NOT been removed. Unknown error
             gift_posted_on_wall_api_wall = 1 # unknown error. no translation
@@ -1478,7 +1478,7 @@ class UtilController < ApplicationController
       case login_user.get_write_on_wall_action
         when User::WRITE_ON_WALL_NO then return nil # ignore
         when User::WRITE_ON_WALL_YES then nil # continue
-        when User::WRITE_ON_WALL_MISSING_PRIVS then return grant_write_link_linkedin # inject link to grant missing priv.
+        when User::WRITE_ON_WALL_MISSING_PRIVS then return grant_write_link(provider) # inject link to grant missing priv.
       end
 
       # get gift, api_gift and deep_link
@@ -1550,7 +1550,7 @@ class UtilController < ApplicationController
         if e.message.to_s =~ /^\(403\)/
           # e.message = (403): Access to posting shares denied
           # inject link in tasks_errors table in gifts/index page to allow user to grant missing write permission
-          return grant_write_link_linkedin
+          return grant_write_link(provider)
         end
         raise
       end
@@ -1615,7 +1615,7 @@ class UtilController < ApplicationController
       case login_user.get_write_on_wall_action
         when User::WRITE_ON_WALL_NO then return nil # ignore
         when User::WRITE_ON_WALL_YES then nil # continue
-        when User::WRITE_ON_WALL_MISSING_PRIVS then return grant_write_link_twitter # inject link to grant missing priv.
+        when User::WRITE_ON_WALL_MISSING_PRIVS then return grant_write_link(provider) # inject link to grant missing priv.
       end
 
       # get gift, api_gift and deep_link

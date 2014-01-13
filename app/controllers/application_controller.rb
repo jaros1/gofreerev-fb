@@ -673,6 +673,15 @@ class ApplicationController < ActionController::Base
     return ['.gift_posted_3b_html',
             { :appname => APP_NAME, :apiname => provider_downcase(provider), :provider => provider,
               :url => url, :confirm => confirm}]
-  end
+  end # grant_write_link_twitter
+
+  def grant_write_link (provider)
+    case provider
+      when 'facebook' then grant_write_link_facebook
+      when 'linkedin' then grant_write_link_linkedin
+      when 'twitter' then grant_write_link_twitter
+      else nil
+    end # case
+  end # grant_write_link
 
 end # ApplicationController
