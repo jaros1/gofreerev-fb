@@ -92,7 +92,7 @@ class FacebookController < ApplicationController
 
     # Cross-site Request Forgery check
     if invalid_state?
-      flash[:notice] = t ".invalid_state_#{context}", :appname => APP_NAME
+      save_flash ".invalid_state_#{context}", :appname => APP_NAME
       redirect_to :controller => (%w(login other).index(context) ? :auth : :gifts)
       logout(provider)
       clear_state
@@ -102,7 +102,7 @@ class FacebookController < ApplicationController
 
     if params[:error_reason] == 'user_denied'
       # user cancelled or denied api request
-      flash[:notice] = t ".user_denied_#{context}", :appname => APP_NAME
+      save_flash ".user_denied_#{context}", :appname => APP_NAME
       redirect_to :controller => (%w(login other).index(context) ? :auth : :gifts)
       logout(provider) if context == 'login'
       return
@@ -164,16 +164,16 @@ class FacebookController < ApplicationController
         user.permissions = permissions
         user.save!
       end
-      flash[:notice] = t ".ok_#{context}", :appname => APP_NAME, :apiname => provider_downcase(provider)
+      save_flash ".ok_#{context}", :appname => APP_NAME, :apiname => provider_downcase(provider)
       redirect_to :controller => :gifts
     else
       # login failed
       key, options = res
       begin
-        flash[:notice] = t key, options
+        save_flash key, options
       rescue Exception => e
         logger.debug2  "invalid response from User.find_or_create_from_auth_hash. Must be nil or a valid input to translate. Response: #{user}"
-        flash[:notice] = t '.find_or_create_from_auth_hash', :response => user, :exception => e.message.to_s
+        save_flash '.find_or_create_from_auth_hash', :response => user, :exception => e.message.to_s
       end
       redirect_to :controller => :auth
     end

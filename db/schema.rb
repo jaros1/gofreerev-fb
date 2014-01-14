@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140111115826) do
+ActiveRecord::Schema.define(version: 20140114082203) do
 
   create_table "ajax_comments", force: true do |t|
     t.string   "user_id",    limit: 40, null: false
@@ -83,6 +83,12 @@ ActiveRecord::Schema.define(version: 20140111115826) do
   end
 
   add_index "exchange_rates", ["from_currency", "to_currency", "date"], name: "index_exchange_rates_pk", unique: true
+
+  create_table "flashes", force: true do |t|
+    t.text     "message"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "friends", force: true do |t|
     t.string   "user_id_giver",    limit: 40

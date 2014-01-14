@@ -8,7 +8,10 @@ GofreerevFb::Application.routes.draw do
   get '/auth/:provider/callback', :to => 'auth#create'
   post '/auth/:provider/callback', :to => 'auth#create'
   get '/auth/failure' do
-    flash[:notice] = params[:message] # if using sinatra-flash or rack-flash
+    flash = Flash.new
+    flash.message = params[:message] # if using sinatra-flash or rack-flash
+    flash.save!
+    session[:flash_id] = flash.id
     redirect '/auth'
   end
   get '/auth', :to => 'auth#index'

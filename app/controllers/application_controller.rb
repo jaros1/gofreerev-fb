@@ -341,7 +341,7 @@ class ApplicationController < ActionController::Base
   private
   def login_required
     return true if logged_in?
-    flash[:notice] = t 'gifts.index.not_logged_in_flash'
+    save_flash 'gifts.index.not_logged_in_flash'
     redirect_to :controller => :auth, :action => :index
   end # login_required
 
@@ -366,7 +366,7 @@ class ApplicationController < ActionController::Base
                                     :country => country,
                                     :language => language,
                                     :profile_url => profile_url
-    return user unless user.class == User
+    return user unless user.class == User # error: key + options
     # user login ok
     # save user and access token - multiple login allows - one for each login provider
     login_user_ids = login_user_ids().clone
@@ -673,6 +673,7 @@ class ApplicationController < ActionController::Base
   # return [key, options] with @errors ajax to grant write access to twitter wall
   # link is injected in tasks_errors table in page header
   # read/write authorization in twitter is a gofreerev concept - omniauth login is with write permission to twitter wall
+  private
   def grant_write_link_twitter
     provider = 'twitter'
     url = '/util/grant_write_twitter'
@@ -688,6 +689,7 @@ class ApplicationController < ActionController::Base
               :hide_url => hide_url}]
   end # grant_write_link_twitter
 
+  private
   def grant_write_link (provider)
     case provider
       when 'facebook' then grant_write_link_facebook
@@ -696,5 +698,35 @@ class ApplicationController < ActionController::Base
       else nil
     end # case
   end # grant_write_link
+
+  # use flash methods to prevent CookieOverflow for big flash messages
+  private
+  def save_flash (key, options = {})
+    # delete old flash
+    flash_id = session[:flash_id]
+    if flash_id
+      flash = Flash.find_by_id(flash_id)
+      flash.destroy if flash
+      session.delete(:flash_id)
+    end
+    # create new flash
+    flash = Flash.new
+    flash.message = t key, options
+    flash.save!
+    session[:flash_id] = flash.id
+  end
+
+  private
+  def get_flash
+    flash_id = session[:flash_id]
+    return nil unless flash_id
+    flash = Flash.find_by_id(flash_id)
+    session.delete(:flash_id)
+    return nil unless flash
+    message = flash.message
+    flash.destroy!
+    message
+  end
+  helper_method :get_flash
 
 end # ApplicationController

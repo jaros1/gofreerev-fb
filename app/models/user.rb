@@ -416,6 +416,9 @@ class User < ActiveRecord::Base
       user.post_on_wall_yn = API_POST_PERMITTED[provider] ? 'Y' : 'N'
     end # outer if
     user.save!
+    # cleanup any old flash message
+    Flash.where("created_at < ?", 2.minute.ago).delete_all
+    # user find/create ok - continue with login
     user
   end # find_or_create_user
 

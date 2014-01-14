@@ -337,10 +337,6 @@
     should ajax report invalid profile picture url to server.
     should display no-picture.jpg if user profile picture was not found
 
-67) flash message and max cookie size
-    big flash messages gives CookieOverflow
-    add a flash sequence and table and save only unique flash id in notice[:flash]
-
 69) check if user div onclick events could be handled on a higher level - for example on document
     can not use user_id in id. user divs are repeated many times for each user.
     use data-id attribute for user.id

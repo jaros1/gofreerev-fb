@@ -311,13 +311,13 @@ class GiftsController < ApplicationController
       if deep_link
         logger.debug2  "invalid deep link id"
         if User.dummy_users?(@users)
-          flash[:notice] = t '.invalid_deep_link_id_not_logged_in'
+          save_flash '.invalid_deep_link_id_not_logged_in'
         else
-          flash[:notice] = t '.invalid_deep_link_id_logged_in'
+          save_flash '.invalid_deep_link_id_logged_in'
         end
       else
         logger.debug2  "invalid gift id"
-        flash[:notice] = t '.invalid_gift_id'
+        save_flash '.invalid_gift_id'
       end
       if deep_link and User.dummy_users?(@users)
         # not logged in
@@ -334,9 +334,9 @@ class GiftsController < ApplicationController
       api_gift.clear_deep_link if api_gift.deep_link_errors > 10
       logger.debug2  "invalid deep link pw"
       if User.dummy_users?(@users)
-        flash[:notice] = t '.invalid_deep_link_id_not_logged_in'
+        save_flash '.invalid_deep_link_id_not_logged_in'
       else
-        flash[:notice] = t '.invalid_deep_link_id_logged_in'
+        save_flash '.invalid_deep_link_id_logged_in'
       end
       if deep_link and User.dummy_users?(@users)
         redirect_to :controller => :auth
@@ -348,7 +348,7 @@ class GiftsController < ApplicationController
     # check access. giver and/or receiver of gift must be a app friend
     if !deep_link and !gift.visible_for?(@users)
       logger.debug2  "no access"
-      flash[:notice] = t ('.no_access')
+      save_flash ('.no_access')
       redirect_to :action => :index
       return
     end
