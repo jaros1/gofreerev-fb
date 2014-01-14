@@ -699,7 +699,7 @@ class ApplicationController < ActionController::Base
     end # case
   end # grant_write_link
 
-  # use flash methods to prevent CookieOverflow for big flash messages
+  # use flash table to prevent CookieOverflow for big flash messages when using session cookie
   private
   def save_flash (key, options = {})
     # delete old flash

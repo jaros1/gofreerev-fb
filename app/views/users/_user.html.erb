@@ -12,7 +12,7 @@
   <td title="<%= t '.friend_status_title_' + (user.mutual_friends(@users).size == 1 ? '1' : 'n'),
                       :no_mutual_friends => user.mutual_friends(@users).size,
                       :mutual_friends => user.mutual_friends(@users).join(', ') if !user.friend?(@user) %>">
-    <%= t user.friend_status_translate_code(@user),
+    <%= t user.friend_status_translate_code(@users),
              :appname => APP_NAME, :apiname => @user.api_name_without_brackets,
              :username => user.short_user_name,
              :no_mutual_friends => user.mutual_friends(@users).size,

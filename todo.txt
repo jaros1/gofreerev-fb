@@ -302,39 +302,11 @@
     dev1 should only be open for login providers and testers
     not for public
 
-58) linkedin image upload
-    is processes batch and temp picture is deleted before linkedin checks deep link
-    linkedin deep link check failed with Internal server error and linkedin never checks image url
-    there is a bigger problem with linkedin batch upload process
-    can not get picture url before linkedin has uploaded picture to linkedin wall
-    information returned from client.add_share:
-    post_on_linkedin: x.body = {
-        "updateKey": "UNIU-310307710-5824797827771314176-SHARE",
-        "updateUrl": "http://www.linkedin.com/updates?discuss=&scope=310307710&stype=M&topic=5824797827771314176&type=U&a=omJz"
-    }
-    find information about update key, update url, scope, stype and topic fields
-    todo: after client.add_share. test of updateUrl exists
-    Linkedin does not store pictures - pictures are stored locally
-
-59) ActionController::RoutingError (No route matches [GET] "/temp/gMqsQGkFJYK6ISX.jpeg"):
-    api gift with api_picture_url to deleted temp picture
-    add server site cleanup for api_gifts with temp url
+59) add server site cleanup for api_gifts with temp url
     created in gifts/create - removed in util.delete_local_picture after post_on_<provider> tasks
-
-60) picture with not existing temp picture are not removed in check missing picture urls
-    check that missing picture urls check is running on dev1
-
-61) problem with api_gifts without gift
-
-62) profile_picture_name should be uniq
-    profile picture folder is now md5(user_id)
-    two different users could have identical md5
-
-63) add API_LOCAL_PICTURE array constant
 
 65) profile picture store = :api.
     add onload/onerror handler to profile picture to check for invalid profile picture urls
-    should ajax report invalid profile picture url to server.
     should display no-picture.jpg if user profile picture was not found
 
 69) check if user div onclick events could be handled on a higher level - for example on document

@@ -416,8 +416,18 @@ class User < ActiveRecord::Base
       user.post_on_wall_yn = API_POST_PERMITTED[provider] ? 'Y' : 'N'
     end # outer if
     user.save!
-    # cleanup any old flash message
-    Flash.where("created_at < ?", 2.minute.ago).delete_all
+    # check/add dummy friend row for user
+    friend = Friend.where('user_id_giver = ? and user_id_receiver = user_id_giver', user.user_id)
+    if !friend
+      f = Friend.new
+      f.user_id_giver = u.user_id
+      f.user_id_receiver = u.user_id
+    end
+    f.api_friend = 'Y'
+    f.app_friend = nil
+    f.save!
+    # cleanup any old flash message - there should never be any
+    Flash.where("created_at < ?", 1.minute.ago).delete_all
     # user find/create ok - continue with login
     user
   end # find_or_create_user
@@ -1062,7 +1072,8 @@ class User < ActiveRecord::Base
     end
   end
 
-  def friend_status_translate_code (login_user)
+  def friend_status_translate_code (login_users)
+    login_user = login_users.find { |u| u.provider == self.provider }
     ".friend_status_text_#{friend_status_code(login_user).downcase}"
   end
 
@@ -1077,7 +1088,16 @@ class User < ActiveRecord::Base
   # The action names is also used as keys in translate. See <language>.users.friend_action_buttons.<method>
   # first letter uppercase - confirm box before submit
   # second letter uppercase - new window (target=_blank)
-  def friend_status_actions (login_user)
+  def friend_status_actions (login_user_or_login_users)
+    if login_user_or_login_users.class == User
+      login_user = login_user_or_login_users
+    elsif login_user_or_login_users.class == Array
+      login_user = login_user_or_login_users.find { |u| u.provider == self.provider}
+    end
+    if login_user.class != User
+      logger.error2 "Invalid call. expected user or array of users. login_user_or_login_users = #{login_user_or_login_users}"
+      return []
+    end
     case friend_status_code(login_user)
       when 'Y' then return %w(rEmove_api_friend Remove_app_friend)
       when 'N' then return %w(aDd_api_friend send_app_friend_request)
