@@ -23,8 +23,10 @@ class UtilController < ApplicationController
     userids = @users.collect { |user| user.user_id }
     Gift.where('(api_gifts.user_id_giver in (?) or api_gifts.user_id_receiver in (?)) and deleted_at is not null and deleted_at < ?',
                userids, userids, 10.minutes.ago).includes(:api_gifts).references(:api_gifts).each do |g|
-      g.destroy
+      g.destroy!
     end
+    # todo: there is a problem with api gifts without gift. - raise exception to trace problem
+    Gift.check_gift_and_api_gift_rel
     # get params
     old_newest_gift_id = params[:newest_gift_id].to_i
     old_newest_status_update_at = params[:newest_status_update_at].to_i
@@ -202,6 +204,10 @@ class UtilController < ApplicationController
             case api_gift.provider
               when 'facebook' then
                 api_client = init_api_client_facebook(token)
+              when 'google_oauth2' then
+                api_client = nil # readonly api - no uploads
+              when 'linkedin' then
+                api_client = nil # image shared wih url to local picture store
               when 'twitter' then
                 api_client = init_api_client_twitter(token)
               else
@@ -214,32 +220,33 @@ class UtilController < ApplicationController
           # api client initialized
 
           # get new picture url from API
-          begin
-            # check api wall
-            case api_gift.provider
-              when 'facebook'
-                key, options = get_api_picture_url_facebook(api_gift, false, api_client)
-              when 'twitter'
-                key, options = get_api_picture_url_twitter(api_gift, false, api_client)
-              else
-                logger.error2 "No get_api_picture_url_#{api_gift.provider} method"
-                @errors << ['.mis_api_pic_not_implemented2', { :apiname => provider_downcase(api_gift.provider)} ]
-                next2
-            end
-            if key
-              @errors << [key, options]
+          if api_client
+            begin
+              # check api wall
+              case api_gift.provider
+                when 'facebook'
+                  key, options = get_api_picture_url_facebook(api_gift, false, api_client)
+                when 'twitter'
+                  key, options = get_api_picture_url_twitter(api_gift, false, api_client)
+                else
+                  logger.error2 "No get_api_picture_url_#{api_gift.provider} method"
+                  @errors << ['.mis_api_pic_not_implemented2', { :apiname => provider_downcase(api_gift.provider)} ]
+                  next
+              end
+              if key
+                @errors << [key, options]
+                next
+              end
+              # ok - post/picture os still on api wall and new api gift picture url has been received
               next
-            end
-            # ok - post/picture os still on api wall and new api gift picture url has been received
-            next
-          rescue ApiPostNotFoundException => e
-            # identical api error response if picture is deleted or if user is not allowed to see picture
-            logger.debug2 "api gift #{api_gift.id} has been deleted on #{api_gift.provider} wall."
-            api_gift.deleted_at_api = 'Y'
-            api_gift.save!
-            # Continue. Maybe picture url is available from an other api provider
-          end # rescue
-
+            rescue ApiPostNotFoundException => e
+              # identical api error response if picture is deleted or if user is not allowed to see picture
+              logger.debug2 "api gift #{api_gift.id} has been deleted on #{api_gift.provider} wall."
+              api_gift.deleted_at_api = 'Y'
+              api_gift.save!
+              # Continue. Maybe picture url is available from an other api provider
+            end # rescue
+          end
           # end check api wall
         end
 
@@ -437,6 +444,8 @@ class UtilController < ApplicationController
     # delete mark gift. Delete marked gifts will be ajax removed from other sessions within the next 5 minutes and will be physical deleted after 5 minutes
     gift.deleted_at = Time.new
     gift.save!
+    # todo: there is a problem with api gifts without gift. - raise exception to trace problem
+    Gift.check_gift_and_api_gift_rel
     if gift.received_at and gift.price and gift.price != 0.0
       # recalculate balance - todo: should only recalculate balance from previous gift and forward
       gift.giver.recalculate_balance if gift.giver

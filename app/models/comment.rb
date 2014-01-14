@@ -587,6 +587,7 @@ class Comment < ActiveRecord::Base
         logger.debug2  "send notifications to gifts giver and/or receiver" if debug_notifications
         users1 = []
         # old: users1.push(gift.giver) if gift.user_id_giver and from_userid != gift.user_id_giver
+        logger.debug2 "gift.direction = #{gift.direction}, gift_givers = #{gift_givers}, from_userid = #{from_userid}"
         if %w(giver both).index(gift.direction) and !gift_givers.index(from_userid)
           users1 += User.where('user_id in (?)', gift_givers) if gift_givers.size > 0
         end

@@ -428,6 +428,14 @@ class Gift < ActiveRecord::Base
   end # before_update
 
 
+  # todo: there is a problem with api gifts without gifts.
+  def self.check_gift_and_api_gift_rel
+    giftids = ApiGift.all.collect { |ag| ag.gift_id } - Gift.all.collect { |g| g.gift_id }
+    raise Exception.new "ApiGift without Gift. gift id #{giftids.join(', ')}" if giftids.size > 0
+  end
+
+
+
   # https://github.com/jmazzi/crypt_keeper gem encrypts all attributes and all rows in db with the same key
   # this extension to use different encryption for each attribute and each row
   # overwrite non model specific methods defined in /config/initializers/active_record_extensions.rb

@@ -247,6 +247,9 @@ class User < ActiveRecord::Base
   # change currency in page header.
   attr_accessor :new_currency
 
+  # cache inbox_new_notifications in @users.first - do not look up number of new notifications twice
+  attr_accessor :cache_new_notifications
+
 
   ##################
   # helper methods #
@@ -417,15 +420,15 @@ class User < ActiveRecord::Base
     end # outer if
     user.save!
     # check/add dummy friend row for user
-    friend = Friend.where('user_id_giver = ? and user_id_receiver = user_id_giver', user.user_id)
+    friend = Friend.where('user_id_giver = ? and user_id_receiver = user_id_giver', user.user_id).first
     if !friend
-      f = Friend.new
-      f.user_id_giver = u.user_id
-      f.user_id_receiver = u.user_id
+      friend = Friend.new
+      friend.user_id_giver = u.user_id
+      friend.user_id_receiver = u.user_id
     end
-    f.api_friend = 'Y'
-    f.app_friend = nil
-    f.save!
+    friend.api_friend = 'Y'
+    friend.app_friend = nil
+    friend.save!
     # cleanup any old flash message - there should never be any
     Flash.where("created_at < ?", 1.minute.ago).delete_all
     # user find/create ok - continue with login
@@ -796,8 +799,11 @@ class User < ActiveRecord::Base
   end # self.all_friends
 
   def self.app_friends (login_users)
+    login_users_text = login_users.collect { |u| "#{u.user_id} #{u.short_user_name}"}.join(', ')
     friends = User.all_friends(login_users).find_all do |f|
-      f.friend.friend?(login_users)
+      friend = f.friend.friend?(login_users)
+      logger.debug2 "#{f.friend.user_id} #{f.friend.short_user_name} is " + (friend ? '' : 'not ') + "friend with login users " + login_users_text
+      friend
     end
     Friend.define_sort_by_user_name(friends)
   end # self.app_friends
@@ -1028,7 +1034,8 @@ class User < ActiveRecord::Base
     # logger.debug2  "login_users.size = #{login_users.size}"
     return false if login_users.size == 0 # not logged in
     login_user = login_users.find { |user| user.provider == self.provider }
-    logger.debug2  "provider = #{self.provider}, login_user = #{login_user}"
+    return false unless login_user
+    logger.debug2  "provider = #{self.provider}, login_user.user_id = #{login_user.user_id}"
     return false unless login_user
     return true if login_user.user_id == self.user_id
     f = get_friend(login_user)
@@ -1296,8 +1303,12 @@ class User < ActiveRecord::Base
 
   # return nil if no notification - return number of notifications
   def self.inbox_new_notifications (login_users)
-    return @new_notifications if defined?(@new_notifications)
-    return @new_notifications = nil if login_users.length == 0
+    # check cache (first user in user array)
+    n = login_users.first.cache_new_notifications
+    return (n == 0 ? nil : n) if n
+    return nil if login_users.length == 0 # error
+    return nil if login_users.first.dummy_user? # not logged in
+    # lookup number of new notifications
     login_user_ids = login_users.collect { |user| user.user_id }
     notifications = Notification.where("to_user_id in (?) and noti_read = 'N'", login_user_ids)
     # don't count notifications for deleted or delete marked gifts
@@ -1312,11 +1323,8 @@ class User < ActiveRecord::Base
         true
       end
     end
-    if notifications.length > 0
-      @new_notifications = notifications.length
-    else
-      @new_notifications = nil
-    end
+    n = login_users.first.cache_new_notifications = notifications.length
+    (n == 0 ? nil : n)
   end # self.inbox_new_notifications
 
   # refresh user permisssions

@@ -96,7 +96,9 @@ class UsersController < ApplicationController
 
     if @friends_filter == true
       # simple friends search - just return login users friends
+      logger.debug2 'simple friends search - just return login users friends'
       users2 = User.app_friends(@users).sort_by_user_name.collect { |f| f.friend }
+      logger.debug2 "users2 = " + users2.collect { |u| u.user_id}.join(', ')
     else
       # all login users direct connections (friends and non friends)
       all_friends = User.all_friends(@users)
@@ -259,8 +261,8 @@ class UsersController < ApplicationController
       # this select only shows gifts for @user2.provider - that is not gifts across providers
       # todo: should show gift across providers if @user2.user_combination and @user2 in @users
       #       ( balance shared across login providers if user has selected this )
-      gifts = ApiGift.where('(user_id_giver = ? or user_id_receiver = ?) and gifts.deleted_at is null',
-                            @user2.user_id, @user2.user_id).references(:api_gifts).includes(:gift, :giver, :receiver).find_all do |ag|
+      api_gifts = ApiGift.where('(user_id_giver = ? or user_id_receiver = ?) and gifts.deleted_at is null',
+                            @user2.user_id, @user2.user_id).references(:gifts, :api_gifts).includes(:gift, :giver, :receiver).find_all do |ag|
         # apply status and direction filters
         ((status == 'all' or (status == 'open' and !ag.gift.received_at) or (status == 'closed' and ag.gift.received_at)) and
             (direction == 'both' or (direction == 'giver' and ag.user_id_giver == @user2.user_id) or (direction == 'receiver' and ag.user_id_receiver == @user2.user_id)))
@@ -272,7 +274,7 @@ class UsersController < ApplicationController
         end # if
       end # sort
       # return next 10 gifts - first 10 for http request - next 10 for ajax request
-      @api_gifts, @last_row_id = get_next_set_of_rows(gifts, last_row_id)
+      @api_gifts, @last_row_id = get_next_set_of_rows(api_gifts, last_row_id)
       logger.debug2  "@gifts.size = #{@api_gifts.size}, @last_row_id = #{@last_row_id}" if debug_ajax?
     end
 

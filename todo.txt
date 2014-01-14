@@ -179,24 +179,18 @@
 
 42) generalize invite_friends_url
 
-43) add open graph meta-tags for deep links
-    http://ogp.me/
-    linkedin uses meta property="og:description" as default description when inserting a link
-    meta property="og:image" should be deep link image url
-
-33) find optimal image format for each provider:
+33) find optimal image format for each provider. For API_OG_DEF_IMAGE hash
     facebook: todo
     google+: todo
     linkedin: 180 x 110 (done)
     twitter: todo
     must be tested from an public available server (dev1.gofreerev.com)
 
-34) util.missing_api_picture_urls
-    facebook - api_gift.get_facebook_post
-    implement missing api picture urls for linkedin & twitter
-
 35) users/show user2=login_user
     add link/button to set/remove user_combination for logged in users
+
+45) users/edit is not implemented
+    maybe use user/show and ajax for minor updates (post_on_wall_yn and set/clear user_combination)
 
 36) add mysql development environment on localhost.
     there are some select statements that are not working in mysql
@@ -229,19 +223,8 @@
     request will be slow until work table has been initialized
     maybe start initialize of work table as a post login task
 
-39) add custom logger
-    should replace logger.debug2 with logger2.debug, logger2.info, logger2.warn, logger2.error, logger2.fatal and logger2.unknown
-
-40) error with post without picture
-    uninitialized constant GiftsController::API_OG_DEFAULT_IMAGE
-    maybe not use default picture for all API's?
-    looks like facebook does not load picture from url - only use picture supplied from user
-    looks like linkedin always add a picture from url - use default picture
-
 41) insert "?" picture in /user div/ temporary real profile picture has been downloaded from API
-
-42) problem with images and locale.
-    should not use local in path to images
+    there is a minor profile picture problem first time when a new gofreerev user logs in
 
 43) problem after show-more-rows error
     javascript variable end_of_page is set to true and is never changed back to false
@@ -250,21 +233,11 @@
     maybe use document.ready to set end_of_page to false when user clicks on share link i page header
     google a solution
 
-44) users/show page - friend status for logged in user
+44) users/show page - add special friend status for logged in user
     status: You
     no friend actions
     maybe use add gofreerev friend button to set user_combination across login api's
 
-45) provider google is wrong in:
-    button text in users/index page - - use provider_downcase(provider) method
-
-46) users/index page
-    should show logged in users for friends=true filter
-    should not show logged in users for friends=false filter
-
-47) users/index page
-    invalid Add <provider> friend
-    is showing "Add linkedin friend" for google+ users
 
 48) change language LOV or link
 
@@ -321,6 +294,7 @@
 
 75) problem with api gifts without gifts
     check out where gifts are deleted
+    added Gift.check_gift_and_api_gift_rel test to util.new_messages_count and util.delete_gift
 
 78) facebook and open graph
     - replace api_client.put_picture and api_client.put_connections with something else to add open graph tags?
@@ -355,3 +329,8 @@
     there should be an post_gift_allowed? method and a post_image_allowed? method.
     post_gift_allowed ok if permission and post_on_wall setting is ok
     post_image_allowed ok if login in users and gift picture store setting is ok.
+
+94) post image upload
+    fix missing google+ picture if logged in with other login providers when picture was uploaded
+    that is - url from a google api_gift to a picture from from one of the other login providers
+    for example in util.delete_local_picture

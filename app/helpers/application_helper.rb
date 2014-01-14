@@ -157,7 +157,9 @@ module ApplicationHelper
   #end # format_direction
 
   def inbox_new_notifications
-    User.inbox_new_notifications(@users)
+    n = User.inbox_new_notifications(@users)
+    # logger.debug2 "users = " + @users.collect { |u| u.user_id }.join(', ') + ", n = #{n}"
+    n
   end
 
   def title
