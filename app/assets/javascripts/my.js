@@ -285,10 +285,11 @@ function update_new_messages_count() {
     restart_check_new_messages() ;
     var new_messages_count_div = document.getElementById("new_messages_count_div");
     if (!new_messages_count_div) return; // div not found
-    // if (new_messages_count_div.innerHTML == "") return;
-    var new_messages_count = document.getElementById("new_messages_count");
-    if (!new_messages_count) return;
-    new_messages_count.innerHTML = new_messages_count_div.innerHTML
+    // responsive layout - two page header layouts - two new message count divs
+    var new_messages_count = document.getElementById("new_messages_count1");
+    if (new_messages_count) new_messages_count.innerHTML = new_messages_count_div.innerHTML
+    var new_messages_count = document.getElementById("new_messages_count2");
+    if (new_messages_count) new_messages_count.innerHTML = new_messages_count_div.innerHTML
 }
 // update_new_messages_count
 function update_title() {
