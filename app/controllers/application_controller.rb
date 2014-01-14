@@ -637,9 +637,12 @@ class ApplicationController < ActionController::Base
     provider = 'facebook'
     oauth = Koala::Facebook::OAuth.new(API_ID[provider], API_SECRET[provider], API_CALLBACK_URL[provider])
     url = oauth.url_for_oauth_code(:permissions => 'status_update', :state => set_state('status_update'))
+    hide_url = "/util/hide_grant_write?provider=#{provider}"
     ['.gift_posted_3_html', {:apiname => provider_downcase(provider),
                              :url => url,
-                             :appname => APP_NAME}]
+                             :provider => provider,
+                             :appname => APP_NAME,
+                             :hide_url => hide_url}]
   end # grant_write_link_facebook
 
   # return [key, options] with @errors ajax to grant write access to linkedin wall
@@ -655,11 +658,16 @@ class ApplicationController < ActionController::Base
     request_token = api_client.request_token({:oauth_callback => API_CALLBACK_URL[provider]}, :scope => scope)
     api_client.authorize_from_access(request_token.token, request_token.secret)
     url = api_client.request_token.authorize_url
+    hide_url = "/util/hide_grant_write?provider=#{provider}"
     # save client - client object is used for authorization when/if user returns from linkedin with write permission to linkedin wall
     # too big for session cookie - to saved in task_data
     save_linkedin_api_client(api_client)
     # ajax inject link in gifts/index page
-    return ['.gift_posted_3_html', { :appname => APP_NAME, :apiname => provider, :url => url}]
+    ['.gift_posted_3_html', { :appname => APP_NAME,
+                              :apiname => provider_downcase(provider),
+                              :provider => provider,
+                              :url => url,
+                              :hide_url => hide_url}]
   end # grant_write_link_linkedin
 
   # return [key, options] with @errors ajax to grant write access to twitter wall
@@ -669,10 +677,15 @@ class ApplicationController < ActionController::Base
     provider = 'twitter'
     url = '/util/grant_write_twitter'
     confirm = t 'shared.translate_ajax_errors.confirm_grant_write', :apiname => provider_downcase(provider)
+    hide_url = "/util/hide_grant_write?provider=#{provider}"
+
     # ajax inject link in gifts/index page
     return ['.gift_posted_3b_html',
-            { :appname => APP_NAME, :apiname => provider_downcase(provider), :provider => provider,
-              :url => url, :confirm => confirm}]
+            { :appname => APP_NAME,
+              :apiname => provider_downcase(provider),
+              :provider => provider,
+              :url => url, :confirm => confirm,
+              :hide_url => hide_url}]
   end # grant_write_link_twitter
 
   def grant_write_link (provider)

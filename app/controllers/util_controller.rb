@@ -1321,6 +1321,32 @@ class UtilController < ApplicationController
     @errors << ['.grant_write_ok', {:appname => APP_NAME, :apiname => provider_downcase(provider)} ]
   end # grant_write_twitter
 
+  # hide grant_write_<provider> link in gifts/index page
+  # that is - set user.post_on_wall_yn to N and hide link
+  public
+  def hide_grant_write
+    @errors = []
+    @link = nil
+    # check provider
+    provider = params[:provider]
+    if !valid_provider?(provider)
+      @errors << ['.unknown_provider', {:apiname => provider }]
+      return
+    end
+    # get user
+    login_user, token, key, options = get_login_user_and_token(provider)
+    if key
+      @errors << [key, options]
+      return
+    end
+    # disable post on wall <=> do not ajax inject links to authorize post on wall permission
+    login_user.update_attribute :post_on_wall_yn, 'N'
+    # hide ajax injected link to grant write permission to api provider wall
+    @link = "grant_write_div_#{provider}"
+    # ok
+    @errors << ['.hide_grant_write_ok', {:appname => APP_NAME, :apiname => provider_downcase(provider)} ]
+  end # hide_grant_write
+
 
   # post on facebook wall - with or without picture
   # picture is temporary saved local, but is deleted when the picture has been posted in wall(s)
