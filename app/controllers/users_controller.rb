@@ -188,6 +188,9 @@ class UsersController < ApplicationController
       return
     end
 
+    @page_values = {}
+    @user_nav_links = []
+
     # recalculate balance once every day
     # todo: should only recalculate user balance from @user2.balance_at and to today
     if !@user2.balance_at or @user2.balance_at.to_yyyymmdd != Sequence.get_last_exchange_rate_date
@@ -206,7 +209,6 @@ class UsersController < ApplicationController
       end
     else
       tabs = [] # non friend - do not display any information (friends, balance and gifts information not allowed)
-      @page_values = {:tab => nil }
     end
     if tabs.size <= 1
       tab = tabs.first
@@ -230,7 +232,6 @@ class UsersController < ApplicationController
       # can be invalid last_row_id - can be too many get-more-rows ajax requests - max one request every 3 seconds - more info in log
       # return "empty" ajax response with dummy row with correct last_row_id to client
       logger.debug2  "return empty ajax response with dummy row with correct last_row_id to client"
-      @page_values = {:tab => tab }
       @api_gifts = @users2 = []
       @last_row_id = session[:last_row_id]
       respond_to do |format|
@@ -265,13 +266,13 @@ class UsersController < ApplicationController
       logger.debug2  "balance filters: status = #{status}, direction = #{direction}"
 
       # initialize array with user navigation links. 0-3 sections with links. Up to 9 links.
-      @user_nav_links = []
       @user_nav_links << ["tabs", tabs] if tabs.size > 1
       if %w(gifts balance).index(tab)
         @user_nav_links << ["deal_status", statuses]
         @user_nav_links << ["deal_direction", directions]
       end
-      @page_values = {:tab => tab, :status => status, :direction => direction}
+      @page_values[:status] = status
+      @page_values[:direction] = direction
 
       # find gifts with @user2 as giver or receiver
       # this select only shows gifts for @user2.provider - that is not gifts across providers
@@ -296,7 +297,14 @@ class UsersController < ApplicationController
 
     if tab == 'friends'
       # show friends for @user2 - sort by user_name
-      users = @user2.app_friends.collect { |f| f.friend }.sort { |a,b| a.user_name <=> b.user_name}
+      # users = @user2.app_friends.collect { |f| f.friend }.sort { |a,b| a.user_name <=> b.user_name}
+
+      logger.debug2 'simple friends search - just return login users friends'
+      logger.debug2 "user2 = #{@user2.user_id} #{@user2.short_user_name}"
+      users = User.app_friends([@user2]).sort_by_user_name.collect { |f| f.friend }
+      logger.debug2 "users = " + users.collect { |u| u.user_id}.join(', ')
+
+
       # users = User.all # uncomment to test ajax
       # return next 10 users - first 10 for http request - next 10 for ajax request
       @users2, @last_row_id = get_next_set_of_rows(users, last_row_id)
@@ -307,6 +315,8 @@ class UsersController < ApplicationController
       # show 4 last comments for each gift
       @first_comment_id = nil
     end # gifts
+
+    @page_values[:tab] = tab
 
     respond_to do |format|
       format.html {}

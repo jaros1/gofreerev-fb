@@ -11,7 +11,7 @@
   </tr>
   <% for noti in @notifications do
        loop
-       postfix = noti.to_user_id == @user.user_id ? 'to' : 'from' -%>
+       postfix = login_user_ids.index(noti.to_user_id) ? 'to' : 'from' -%>
       <tr>
         <td>
           <% if noti.from_user -%>
