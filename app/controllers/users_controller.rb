@@ -165,13 +165,28 @@ class UsersController < ApplicationController
       redirect_to :action => :index
       return
     end
-    if !login_user_ids.index(@user2.user_id) and @user2.mutual_friends(@users).size == 0
-      logger.debug2  "invalid request. No mutual friends for user with id #{id}"
+    logger.debug2  "@user2 = #{@user2.id} #{@user2.user_name}"
+    # check if login users are allowed to see @user2
+    if !(login_user = @users.find { |u| u.provider == @user2.provider })
+      logger.debug2 "invalid request. Not connected with a #{@user2.provider} account"
+      save_flash '.invalid_request'
+      redirect_to :action => :index
+      return
+    elsif login_user_ids.index(@user2.user_id)
+      # ok - login user
+    elsif Friend.where('user_id_giver = ? and user_id_receiver = ?',
+                       login_user.user_id, @user2.user_id).
+                 find { |f| f.api_friend == 'Y' }
+      # ok - api connection (but maybe not app friends)
+    elsif @user2.friend?(@users)
+      # ok - friends
+    elsif Friend.
+      logger.error2 "Check friend of friends is not implemented"
+      logger.debug2  "login_user = #{login_user.id} #{login_user.user_name}"
       save_flash '.invalid_request'
       redirect_to :action => :index
       return
     end
-    logger.debug2  "@user2 = #{@user2.id} #{@user2.user_name}"
 
     # recalculate balance once every day
     # todo: should only recalculate user balance from @user2.balance_at and to today

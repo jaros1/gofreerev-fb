@@ -982,8 +982,12 @@ class User < ActiveRecord::Base
     self.balance_at = today
     self.negative_interest = user_negative_interest_hash
     # todo: catch any exception and return false if transaction fails
+    Gift.check_gift_and_api_gift_rel
     transaction do
-      api_gifts.each { |api_gift| api_gift.gift.save! }
+      api_gifts.each do |api_gift|
+        logger.debug2 "api gift id = #{api_gift.id}"
+        api_gift.gift.save!
+      end
       self.save!
     end
     true
@@ -1464,7 +1468,13 @@ class User < ActiveRecord::Base
     return {} unless login_user
     return @mutual_friends[login_user.id] if @mutual_friends and @mutual_friends.has_key?(login_user.id)
     @mutual_friends = {} unless @mutual_friends
-    @mutual_friends[login_user.id] = (app_friends.collect { |f| f.friend } & login_user.app_friends.collect { |f| f.friend }).collect { |u| u.short_user_name }
+    friends1 = app_friends.collect { |f| f.friend }
+    friends2 = login_user.app_friends.collect { |f| f.friend }
+    friends3 = friends1 & friends2
+    logger.debug2 "user1 = #{short_user_name}, friends1 = " + friends1.collect { |u| u.short_user_name }.join(', ')
+    logger.debug2 "user2 = #{login_user.short_user_name}, friends2 = " + friends2.collect { |u| u.short_user_name }.join(', ')
+    logger.debug2 "friends3 = " + friends3.collect { |u| u.short_user_name }.join(', ')
+    @mutual_friends[login_user.id] = friends3.collect { |u| u.short_user_name }
   end
 
 
