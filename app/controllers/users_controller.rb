@@ -177,15 +177,21 @@ class UsersController < ApplicationController
     elsif Friend.where('user_id_giver = ? and user_id_receiver = ?',
                        login_user.user_id, @user2.user_id).
                  find { |f| f.api_friend == 'Y' }
-      # ok - api connection (but maybe not app friends)
+      # ok - api friend but maybe not app friends
     elsif @user2.friend?(@users)
       # ok - friends
-    elsif Friend.
-      logger.error2 "Check friend of friends is not implemented"
-      logger.debug2  "login_user = #{login_user.id} #{login_user.user_name}"
-      save_flash '.invalid_request'
-      redirect_to :action => :index
-      return
+    else
+      # not friend. Must have a mutual friend to allow user/show
+      friends1 = User.app_friends([login_user]).collect { |f| f.user_id_receiver }
+      friends2 = User.app_friends([@user2]).collect { |f| f.user_id_receiver }
+      mutual_friends = friends1 & friends2
+      if mutual_friends.size == 0
+        logger.warn2 "invalid request. Did not find any mutual friends between @user2 #{@user2.user_id} #{@user2.short_user_name} and login_user #{login_user.user_id} #{login_user.short_user_name}"
+        save_flash '.invalid_request'
+        redirect_to :action => :index
+        return
+      end
+      # ok - found mutual friends
     end
 
     @page_values = {}
