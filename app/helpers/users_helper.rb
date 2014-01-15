@@ -142,18 +142,5 @@ module UsersHelper
   end # user_nav_link
 
 
-  def api_profile_url (user)
-    return user.api_profile_url if user.api_profile_url.to_s =~ /^https?/
-    provider = user.provider
-    case provider
-      when 'facebook' then "#{API_URL[provider]}/#{user.uid}"
-      when 'google_oauth2' then "#{API_URL[provider]}#{user.uid}/posts"
-      else
-        # link to #{API_DOWNCASE_NAME[provider] || provider} user profile not implemented
-        msg = translate '.api_profile_link_not_implemented', :apiname => (API_DOWNCASE_NAME[provider] || provider)
-        logger.debug2 msg
-        "javascript: alert('#{msg}')"
-    end
-  end
 
 end
