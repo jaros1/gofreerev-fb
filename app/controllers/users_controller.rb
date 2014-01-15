@@ -206,6 +206,7 @@ class UsersController < ApplicationController
       end
     else
       tabs = [] # non friend - do not display any information (friends, balance and gifts information not allowed)
+      @page_values = {:tab => nil }
     end
     if tabs.size <= 1
       tab = tabs.first
@@ -238,7 +239,7 @@ class UsersController < ApplicationController
       return
     end
 
-    if %w(gifts balance)
+    if %w(gifts balance).index(tab)
       # show balance for @user2 - only friends can see balance information
       # show gifts for @user2 - only friends can see gifts for @user2
 
