@@ -423,8 +423,8 @@ class User < ActiveRecord::Base
     friend = Friend.where('user_id_giver = ? and user_id_receiver = user_id_giver', user.user_id).first
     if !friend
       friend = Friend.new
-      friend.user_id_giver = u.user_id
-      friend.user_id_receiver = u.user_id
+      friend.user_id_giver = user.user_id
+      friend.user_id_receiver = user.user_id
     end
     friend.api_friend = 'Y'
     friend.app_friend = nil

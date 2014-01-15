@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140115080928) do
+ActiveRecord::Schema.define(version: 20140115164157) do
 
   create_table "ajax_comments", force: true do |t|
     t.string   "user_id",    limit: 40, null: false
@@ -21,6 +21,19 @@ ActiveRecord::Schema.define(version: 20140115080928) do
   end
 
   add_index "ajax_comments", ["user_id"], name: "index_ajax_comments_on_user_id"
+
+  create_table "api_comments", force: true do |t|
+    t.string   "gift_id",    limit: 20
+    t.string   "comment_id", limit: 20
+    t.string   "provider",   limit: 20
+    t.string   "user_id",    limit: 40
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "api_comments", ["comment_id"], name: "index_api_comments_on_comm_id"
+  add_index "api_comments", ["gift_id"], name: "index_api_comments_on_gift_id"
+  add_index "api_comments", ["user_id"], name: "index_api_comments_on_user_id"
 
   create_table "api_gifts", force: true do |t|
     t.string   "gift_id",                     limit: 20
@@ -58,12 +71,10 @@ ActiveRecord::Schema.define(version: 20140115080928) do
     t.string   "accepted_yn",      limit: 1
     t.integer  "status_update_at",            null: false
     t.datetime "deleted_at"
-    t.string   "user_id",          limit: 40, null: false
   end
 
   add_index "comments", ["comment_id"], name: "index_comments_on_comment_id", unique: true
   add_index "comments", ["gift_id"], name: "index_comments_on_gift_id"
-  add_index "comments", ["user_id"], name: "index_comments_on_user_id"
 
   create_table "comments_notifications", id: false, force: true do |t|
     t.integer "comment_id"

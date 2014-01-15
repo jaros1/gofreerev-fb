@@ -18,7 +18,6 @@ NOTI_KEY_4 = "1" # version
 
 class Comment < ActiveRecord::Base
 
-  belongs_to :user, :class_name => 'User', :primary_key => :user_id, :foreign_key => :user_id
   belongs_to :gift, :class_name => 'Gift', :primary_key => :gift_id, :foreign_key => :gift_id
   has_and_belongs_to_many :notifications
 
@@ -559,6 +558,7 @@ class Comment < ActiveRecord::Base
       from_userid = user_id
       # after insert
     end
+    from_provider = from_userid.split('/').last
     from_user = User.find_by_user_id(from_userid)
     case
       when gift.direction == 'both' then
@@ -574,6 +574,9 @@ class Comment < ActiveRecord::Base
     noti_key_prefix = NOTI_KEY_1[noti_key_1] + '_' + NOTI_KEY_2[noti_key_2]
     logger.debug2  "noti_key_prefix = #{noti_key_prefix}" if debug_notifications
     # initialise helpers - arrays with giver user_id's, receiver user_id's and both
+
+    # todo: should only be givers and receivers with correct provider
+
     gift_givers = gift.api_gifts.collect { |api_gift| api_gift.user_id_giver }.find_all { |user_id2| user_id2 }
     gift_receivers = gift.api_gifts.collect { |api_gift| api_gift.user_id_receiver }.find_all { |user_id2| user_id2 }
     gifts_giver_and_receivers = gift_givers + gift_receivers
