@@ -732,6 +732,17 @@ class User < ActiveRecord::Base
     (Picture.find_picture_store(login_users) != nil)
   end # post_image_allowed?
 
+  # "permissions"=>{"data"=>[{"installed"=>1, "basic_info"=>1, "read_stream"=>1, "status_update"=>1, "photo_upload"=>1, "video_upload"=>1, "create_note"=>1 ...
+  def read_gifts_allowed?
+    permissions = self.permissions
+    case
+      when facebook?
+        permissions['read_stream'] == 1
+      else
+        logger.debug2  "read_wall_allowed? not implemented for #{user_id.first(2)} users"
+        false
+    end
+  end  # read_gifts_allowed?
 
   # write on api wall helpers
   WRITE_ON_WALL_YES = 1

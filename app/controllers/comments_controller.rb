@@ -44,12 +44,14 @@ class CommentsController < ApplicationController
         comment.errors.add :price, :invalid if params[:comment][:new_deal_yn] == 'Y' and invalid_price?(params[:comment][:price])
         if comment.errors.size == 0
           comment.save!
+          # select random api_comment if multiple shared providers between gift and comment users
           @api_comment = comment.api_comments.shuffle.first
           format.html { redirect_to comment, notice: 'Comment was successfully created.' }
           format.json { render json: comment, status: :created, location: comment }
           format.js
         else
           logger.debug2 "comment not saved. error = " + comment.errors.full_messages.join(', ')
+          @errors << comment.errors.full_messages.join(', ')
           format.html { render action: "new" }
           format.json { render json: comment.errors, status: :unprocessable_entity }
           format.js

@@ -595,23 +595,32 @@ class Comment < ActiveRecord::Base
     gift_givers = gift.api_gifts.collect { |api_gift| api_gift.user_id_giver }.find_all { |user_id2| user_id2 }
     gift_receivers = gift.api_gifts.collect { |api_gift| api_gift.user_id_receiver }.find_all { |user_id2| user_id2 }
     gifts_giver_and_receivers = gift_givers + gift_receivers
+
+    gift_givers_shared = gift_givers.find_all { |user_id| from_providers.index(user_id.split('/').last) }
+    gift_receivers_shared = gift_receivers.find_all { |user_id| from_providers.index(user_id.split('/').last) }
+
     # send notifications
     case
       when [1,2,5].index(noti_key_1)
         # new comment, new proposal and accepted proposal
+
         # 1) notifications to giver and/or receiver
         #    do not send notification to giver if user is in api_gifts.giver
         #    do not send notification to receiver if user is in api_gifts.receiver
-        logger.debug2  "send notifications to gifts giver and/or receiver" if debug_notifications
+        logger.debug2  "1: send notifications to gifts giver and/or receiver" if debug_notifications
         users1 = []
         # old: users1.push(gift.giver) if gift.user_id_giver and from_userid != gift.user_id_giver
-        logger.debug2 "gift.direction = #{gift.direction}, gift_givers = #{gift_givers}, from_userids = #{from_userids}"
+        logger.debug2 "1: gift.direction = #{gift.direction}"
+        logger.debug2 "1: gift_givers    = #{gift_givers.join(', ')}"
+        logger.debug2 "1: from_userids   = #{User.debug_info(from_users)}"
         shared_userids = gift_givers & from_userids
+        logger.debug2 "1: shared_userids = #{User.debug_info(shared_userids)}"
         if %w(giver both).index(gift.direction) and shared_userids.size == 0
-          users1 += User.where('user_id in (?)', gift_givers) if gift_givers.size > 0
+          raise "did not find any shared providers" if gift_givers_shared.size == 0
+          users1 += User.where('user_id in (?)', gift_givers_shared) if gift_givers_shared.size > 0
         end
         # old: users1.push(gift.receiver) if gift.user_id_receiver and from_userid != gift.user_id_receiver
-        logger.debug2 "gift.direction = #{gift.direction}, gift_receivers = #{gift_receivers}, from_userids = #{from_userids}"
+        logger.debug2 "1: gift.direction = #{gift.direction}, gift_receivers = #{gift_receivers}, from_userids = #{from_userids}"
         shared_userids = gift_receivers & from_userids
         if %w(receiver both).index(gift.direction) and shared_userids.size == 0
           users1 += User.where("user_id in (?)", gift_receivers) if gift_receivers.size > 0
@@ -623,6 +632,7 @@ class Comment < ActiveRecord::Base
         end
         users1_ids = users1.collect { |u| u.user_id }
         logger.debug2  "1: users1 = " + users1_ids.join(', ') if debug_notifications
+
         # 2) notifications to users that has commented the gift - "_other" is added to notification key!
         # users2 = gift.comments.includes(:user).collect { |c| c.user }.find_all { |user2| ![from_userid, to_user_id, gift.user_id_giver, gift.user_id_receiver].index(user2.user_id) }.uniq
         exclude_user_ids = [from_userid, to_user_id] + gifts_giver_and_receivers
@@ -679,7 +689,7 @@ class Comment < ActiveRecord::Base
               gl.show = 'Y'
             end
             if gl.new_record? or gl.changed?
-              logger.debug2  "added #{user.short_user_name} as follower" if debug_notifications
+              logger.debug2  "added #{user_id} as follower" if debug_notifications
               gl.save!
             end
           end # each user_id
