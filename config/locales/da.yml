@@ -222,6 +222,8 @@ da:
         invalid_request_no_comment_form: "Ugyldigt kald. System fejl. Kommentar form ej fundet."
         invalid_request_unknown_gift: "Ugyldigt kald. Systemfejl. Ukendt id for gave."
         invalid_request_invalid_gift: "Ugyldigt kald. Du har ikke adgang til dette opslag. Genopfrisk venligst siden."
+        no_providers: "Kunne ikke oprette kommentar. Ingen fælles login udbydere. Kan evt. være en system fejl."
+        exception: "System fejl. Kunne ikke oprette kommentar. %{error}. Se mere information i log."
      index:
         gift_id_is_missing: "Ugyldigt kald. Opslagsnr. mangler"
         gift_was_not_found: "Ugyldigt kald. Opslag blev ikke fundet"

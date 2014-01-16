@@ -6,43 +6,59 @@ class CommentsController < ApplicationController
   # POST /comments.json
   # Parameters: {"utf8"=>"✓", "comment"=>{"gift_id"=>"j0N0uppxbj1nmDfsWBbk", "new_deal_yn"=>"Y", "price"=>"1", "comment"=>"25"}, "commit"=>"Gem"}
   def create
-    # start with empty ajax response
     @errors = []
     @comment = nil
-    return add_error_and_format_ajax_resp(t '.invalid_request_no_comment_form') unless params.has_key?(:comment)
-    gift = Gift.find_by_gift_id(params[:comment][:gift_id])
-    return add_error_and_format_ajax_resp(t '.invalid_request_unknown_gift') unless gift
-    return add_error_and_format_ajax_resp(t '.invalid_request_invalid_gift') unless gift.visible_for?(@users)
-    # get user from @users. Must be giver, receiver or friend of giver or receiver.
-    user = @users.find { |user2| gift.visible_for?([user2]) }
-    logger.debug2  "user_id = #{user.user_id}"
-    @comment = Comment.new
-    @comment.gift_id = gift.gift_id if gift
-    @comment.user_id = user.user_id
-    @comment.comment = params[:comment][:comment].to_s.force_encoding('UTF-8')
-    if params[:comment][:new_deal_yn] == 'Y'
-      @comment.new_deal_yn = params[:comment][:new_deal_yn]
-      @comment.price = params[:comment][:price].gsub(',','.').to_f unless invalid_price?(params[:comment][:price])
-      @comment.currency = @users.first.currency
-    end
-
-    respond_to do |format|
-      # price= accepts only float and model can not return invalid price errors
-      @comment.valid?
-      @comment.errors.add :price, :invalid if params[:comment][:new_deal_yn] == 'Y' and invalid_price?(params[:comment][:price])
-      if @comment.errors.size == 0
-        @comment.save
-        logger.debug2  "comment saved"
-        format.html { redirect_to @comment, notice: 'Comment was successfully created.' }
-        format.json { render json: @comment, status: :created, location: @comment }
-        format.js
-      else
-        logger.debug2  "comment not saved. error = " + @comment.errors.full_messages.join(', ')
-        logger.debug2  "currency = #{@comment.currency}"
-        format.html { render action: "new" }
-        format.json { render json: @comment.errors, status: :unprocessable_entity }
-        format.js
+    begin
+      # start with empty ajax response
+      return add_error_and_format_ajax_resp(t '.invalid_request_no_comment_form') unless params.has_key?(:comment)
+      gift = Gift.find_by_gift_id(params[:comment][:gift_id])
+      return add_error_and_format_ajax_resp(t '.invalid_request_unknown_gift') unless gift
+      return add_error_and_format_ajax_resp(t '.invalid_request_invalid_gift') unless gift.visible_for?(@users)
+      # get user from @users. Must be giver, receiver or friend of giver or receiver.
+      user = @users.find { |user2| gift.visible_for?([user2]) }
+      logger.debug2 "user_id = #{user.user_id}"
+      @comment = Comment.new
+      @comment.gift_id = gift.gift_id if gift
+      @comment.comment = params[:comment][:comment].to_s.force_encoding('UTF-8')
+      if params[:comment][:new_deal_yn] == 'Y'
+        @comment.new_deal_yn = params[:comment][:new_deal_yn]
+        @comment.price = params[:comment][:price].gsub(',', '.').to_f unless invalid_price?(params[:comment][:price])
+        @comment.currency = @users.first.currency
       end
+      # add api_comments. provider must be in api_gifts and in login in @users
+      gift_providers = gift.api_gifts.collect { |ag| ag.provider }
+      @users.each do |user|
+        next unless gift_providers.index(user.provider)
+        api_comment = ApiComment.new
+        api_comment.gift_id = gift.gift_id
+        api_comment.comment_id = @comment.comment_id
+        api_comment.provider = user.provider
+        api_comment.user_id = user.user_id
+        @comment.api_comments << api_comment
+      end
+      return add_error_and_format_ajax_resp(t '.no_providers') if @comment.api_comments.size == 0
+
+      respond_to do |format|
+        # price= accepts only float and model can not return invalid price errors
+        @comment.valid?
+        @comment.errors.add :price, :invalid if params[:comment][:new_deal_yn] == 'Y' and invalid_price?(params[:comment][:price])
+        if @comment.errors.size == 0
+          @comment.save!
+          format.html { redirect_to @comment, notice: 'Comment was successfully created.' }
+          format.json { render json: @comment, status: :created, location: @comment }
+          format.js
+        else
+          logger.debug2 "comment not saved. error = " + @comment.errors.full_messages.join(', ')
+          format.html { render action: "new" }
+          format.json { render json: @comment.errors, status: :unprocessable_entity }
+          format.js
+        end
+      end
+    rescue Exception => e
+      logger.error2  "Exception: #{e.message.to_s}"
+      logger.error2  "Backtrace: " + e.backtrace.join("\n")
+      @comment = nil
+      @errors << t('.exception', :error => e.message)
     end
   end # create
 

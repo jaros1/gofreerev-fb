@@ -902,8 +902,8 @@ class UtilController < ApplicationController
       # ok
       nil
     rescue Exception => e
-      logger.debug2  "Exception: #{e.message.to_s}"
-      logger.debug2  "Backtrace: " + e.backtrace.join("\n")
+      logger.error2  "Exception: #{e.message.to_s}"
+      logger.error2  "Backtrace: " + e.backtrace.join("\n")
       raise
     end
   end # post_login_google_oauth2

@@ -18,6 +18,7 @@ NOTI_KEY_4 = "1" # version
 
 class Comment < ActiveRecord::Base
 
+  belongs_to :gift, :class_name => 'Gift', :primary_key => :gift_id, :foreign_key => :gift_id
   has_and_belongs_to_many :notifications
   has_many :api_comments, :class_name => 'ApiComment', :primary_key => :comment_id, :foreign_key => :comment_id, :dependent => :destroy
 
@@ -51,10 +52,6 @@ class Comment < ActiveRecord::Base
     return self['comment_id'] if self['comment_id']
     self['comment_id'] = new_comment_id
   end
-
-  # 2) user_id - required - not encrypted - readonly
-  validates_presence_of :user_id
-  attr_readonly :user_id
 
   # 3) comment - required - String in model - encrypted text in db
   def comment
@@ -187,13 +184,19 @@ class Comment < ActiveRecord::Base
   # config/locales/language.yml/inbox/index/cancelled_proposal_* (32 translations)
   # config/locales/language.yml/inbox/index/rejected_proposal_* (32 translations)
   # config/locales/language.yml/inbox/index/accepted_proposal_* (32 translations)
-  def send_notification (noti_key_1, noti_key_2, noti_key_3, from_user, to_user)
+  def send_notification (noti_key_1, noti_key_2, noti_key_3, from_users, to_user)
     raise "invalid noti_key_3" if [true, false].index(noti_key_3)
     logger.debug2  "noti_key_1 = #{noti_key_1} (#{NOTI_KEY_1[noti_key_1]}), " +
              "noti_key_2 = #{noti_key_2} (#{NOTI_KEY_2[noti_key_2]}), " +
              "noti_key_3 = #{noti_key_3} (#{NOTI_KEY_3[noti_key_3]}), " +
-             "from_user = #{from_user.short_user_name}, " +
-             "to_user = #{to_user.short_user_name}" if debug_notifications
+             "from_users = " + from_users.collect { |u| "#{u.user_id} #{u.short_user_name}" }.join(', ') +
+             ", to_user = #{to_user.short_user_name}" if debug_notifications
+    from_user = from_users.find { |u| u.provider == to_user.provider}
+    raise "invalid from_users / to_user. No shared providers was found" unless from_user
+    # todo: test if we always can find a api comment when sending notifications
+    api_comment = api_comments.find { |ac| ac.provider == to_user.provider }
+    raise "todo: test if we always can find a api comment when sending notifications" unless api_comment
+    logger.debug2 "warning: did not find api comment for #{to_user.provider}"
     if [3,4].index(noti_key_1)
       logger.debug2  "special handling of noti_key_1 = 3..5 ..." if debug_notifications
       # special handling of noti_type_1 = 3..5. noti_key_1 (noti_type):
@@ -515,11 +518,10 @@ class Comment < ActiveRecord::Base
       else
         noti_key_1 = 1 # comment
       end
-      from_userid = user_id
+      from_userids = api_comments.collect { |ac| ac.user_id }
       # after insert
     end
-    from_provider = from_userid.split('/').last
-    from_user = User.find_by_user_id(from_userid)
+    from_users = User.where('user_id in (?)', from_userids)
     case
       when gift.direction == 'both' then
         noti_key_2 = 3
@@ -591,33 +593,36 @@ class Comment < ActiveRecord::Base
         #logger.debug2  "3: users3 = " + users3_ids.join(', ') if debug_notifications
         # send notifications
         logger.debug2  "start: send notifications to gifts giver and receiver: " + users1.collect { |u| u.short_user_name }.join(', ') if debug_notifications
-        users1.each { |to_user| send_notification(noti_key_1, noti_key_2, 1, from_user, to_user) }
+        users1.each { |to_user| send_notification(noti_key_1, noti_key_2, 1, from_users, to_user) }
         logger.debug2  "end: send notifications to gifts giver, receiver and followers: " + users1.collect { |u| u.short_user_name }.join(', ') if debug_notifications
         logger.debug2  "start: send notifications to other users that also have commented the gift: " + users2.collect { |u| u.short_user_name }.join(', ') if debug_notifications
-        users2.each { |to_user| send_notification(noti_key_1, noti_key_2, 2, from_user, to_user) }
+        users2.each { |to_user| send_notification(noti_key_1, noti_key_2, 2, from_users, to_user) }
         logger.debug2  "end: send notifications to other users that also have commented the gift: " + users2.collect { |u| u.short_user_name }.join(', ') if debug_notifications
         logger.debug2  "start: send notifications to users that follows the gift: " + users3.collect { |u| u.short_user_name }.join(', ') if debug_notifications
-        users3.each { |to_user| send_notification(noti_key_1, noti_key_2, 3, from_user, to_user) }
+        users3.each { |to_user| send_notification(noti_key_1, noti_key_2, 3, from_users, to_user) }
         logger.debug2  "end: send notifications to users that follows the gift: " + users3.collect { |u| u.short_user_name }.join(', ') if debug_notifications
 
         # new comment and new proposal - add user as follower of gift - user will receive notifications until user stops following the gift
-        if noti_key_1 <= 2 and !gifts_giver_and_receivers.index(user_id)
-          gl = GiftLike.where("user_id = ? and gift_id = ?", user_id, gift.gift_id).first
-          if gl
-            gl.follow = 'Y' unless gl.follow
-          else
-            gl = GiftLike.new
-            gl.user_id = user_id
-            gl.gift_id = gift.gift_id
-            gl.like = 'N'
-            gl.follow = 'Y'
-            gl.show = 'Y'
-          end
-          if gl.new_record? or gl.changed?
-            logger.debug2  "added #{user.short_user_name} as follower" if debug_notifications
-            gl.save!
-          end
-        end
+        if noti_key_1 <= 2
+          # check for new user_id's - ignore giver and receiver user_id's
+          (api_comments.collect { |ac| ac.user_id} - gifts_giver_and_receivers).each do |user_id|
+            gl = GiftLike.where("user_id = ? and gift_id = ?", user_id, gift.gift_id).first
+            if gl
+              gl.follow = 'Y' unless gl.follow
+            else
+              gl = GiftLike.new
+              gl.user_id = user_id
+              gl.gift_id = gift.gift_id
+              gl.like = 'N'
+              gl.follow = 'Y'
+              gl.show = 'Y'
+            end
+            if gl.new_record? or gl.changed?
+              logger.debug2  "added #{user.short_user_name} as follower" if debug_notifications
+              gl.save!
+            end
+          end # each user_id
+        end # if
       when noti_key_1 == 3
         # cancelled proposal - send only notification to giver/receiver
         users1 = []
