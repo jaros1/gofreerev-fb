@@ -35,7 +35,7 @@
       </td>
     </tr>
 
-    <%= @gift = gift ; @comments = @gift.comments_with_filter(nil) ; render :partial => 'comments/comments3' %>
+    <%= @gift = gift ; @api_comments = @gift.api_comments_with_filter(nil) ; render :partial => 'comments/api_comments3' %>
 
     <tr id='<%= "gift-#{gift.id}-comment-new" %>'>
       <td colspan="2" style="text-align: right; vertical-align: top">
@@ -57,7 +57,7 @@
         <%# remote form for new comment. Sent to comments/create. Inserted in gift-<gift.id>-comments table.
         Post ajax processing done in my.js / add_post_ajax_comment_handler
     -%>
-        <% comment = Comment.new ; comment.gift_id = gift.gift_id ; comment.user_id = @user.user_id -%>
+        <% comment = Comment.new ; comment.gift_id = gift.gift_id -%>
         <%= form_for comment, :remote => true, :html => {:id => "gift-#{gift.id}-new-comment-form"} do |f| %>
             <%= f.hidden_field :gift_id, :id => "gift-#{gift.id}-comment-gift-id" %>
             <%= f.hidden_field :new_deal_yn, :id => "gift-#{gift.id}-comment-new-deal-yn" %>

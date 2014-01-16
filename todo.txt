@@ -334,3 +334,5 @@
     fix missing google+ picture if logged in with other login providers when picture was uploaded
     that is - url from a google api_gift to a picture from from one of the other login providers
     for example in util.delete_local_picture
+
+95) add ajax:error for new comment

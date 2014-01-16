@@ -29,7 +29,7 @@ module GiftHelper
     elsif gift.api_gifts.find { |api_gift| userids.index(api_gift.user_id_giver) or userids.index(api_gift.user_id_receiver)}
       # user is giver or receiver of this gift
       follow = 'Y'
-    elsif gift.comments.find { |comment| userids.index(comment.user_id )}
+    elsif gift.api_comments.find { |comment| userids.index(comment.user_id )}
       follow = 'Y'
     else
       follow = 'N'

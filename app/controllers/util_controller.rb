@@ -53,33 +53,33 @@ class UtilController < ApplicationController
       gifts2 = Gift.where('(api_gifts.user_id_giver in (?) or api_gifts.user_id_receiver in (?)) and ' +
                            'gifts.deleted_at is null and ' +
                            'comments.status_update_at > ?',
-                             friends, friends, old_newest_status_update_at).includes(:comments, :api_gifts).references(:api_gifts)
+                             friends, friends, old_newest_status_update_at).includes(:api_comments, :api_gifts).references(:api_gifts)
       comments2 = []
       gifts2.each do |gift|
-        comments2 = comments2 + gift.comments.find_all { |comment| comment.status_update_at > old_newest_status_update_at}
+        comments2 = comments2 + gift.api_comments.find_all { |comment| comment.status_update_at > old_newest_status_update_at}
       end
-      @comments = (comments1 + comments2).uniq
-      if @comments.size > 0 and params[:request_fullpath] =~ /^\/gifts\/([0-9]+)$/
+      @api_comments = (comments1 + comments2).uniq
+      if @api_comments.size > 0 and params[:request_fullpath] =~ /^\/gifts\/([0-9]+)$/
         # gifts/show/<nnn> page - return only ajax comments for actual gift (id=<nnn>)
         # logger.debug2  "new comments before gift_id filter = #{@comments.length}"
-        @comments = @comments.find_all { |c| c.gift.id.to_s == $1 }
+        @api_comments = @api_comments.find_all { |c| c.gift.id.to_s == $1 }
         # logger.debug2  "new comments after gift_id filter = #{@comments.length}"
       end
       # do not return comment just created by current user (problem with extra flash for new comments)
-      @comments = @comments.delete_if do |c|
+      @api_comments = @api_comments.delete_if do |c|
         (c.user_id == @user.user_id and c.created_at > 30.seconds.ago and c.created_at == c.updated_at)
       end
       # remove comments for hidden gifts - that is gifts user has selected not to see
-      if @comments.size > 0
-        old_size = @comments.size
-        giftids = @comments.collect { |c| c.gift_id }
+      if @api_comments.size > 0
+        old_size = @api_comments.size
+        giftids = @api_comments.collect { |c| c.gift_id }
         hide_giftids = GiftLike.where("user_id = ? and gift_id in (?)", @user.user_id, giftids).find_all { |gl| gl.show == 'N'}.collect { |gl| gl.gift_id }
         # remove comments for hidden gifts
-        @comments = @comments.find_all { |c| !hide_giftids.index(c.gift_id) } if hide_giftids.length > 0
-        new_size = @comments.size
+        @api_comments = @api_comments.find_all { |c| !hide_giftids.index(c.gift_id) } if hide_giftids.length > 0
+        new_size = @api_comments.size
         # logger.debug2  "#{old_size-new_size} comments for hidden gifts was removed" if old_size != new_size
       end
-      @comments = nil if @comments.size == 0
+      @api_comments = nil if @api_comments.size == 0
       # empty AjaxComment buffer - only return ajax comments once
       AjaxComment.destroy_all(:user_id => @user.user_id)
     end
@@ -97,15 +97,15 @@ class UtilController < ApplicationController
       @api_gifts = nil if @api_gifts.length == 0
     end
     # remove any ajax comments for gifts in gifts array - that is gifts that will be ajax inserted or replaced in gifts html table
-    if @comments and @api_gifts and @comments.size > 0 and @api_gifts.size > 0
+    if @api_comments and @api_gifts and @api_comments.size > 0 and @api_gifts.size > 0
       # logger.debug2  "remove any comments that is included in gifts"
       # logger.debug2  "old @comments.size = #{@comments.size}, comments = " + @comments.collect { |c| c.id }.join(', ') if @comments
-      @comments = @comments.delete_if { |c| @api_gifts.find_all { |g| c.gift_id == g.gift_id }.first }
-      @comments = nil if @comments.size == 0
+      @api_comments = @api_comments.delete_if { |c| @api_gifts.find_all { |g| c.gift_id == g.gift_id }.first }
+      @api_comments = nil if @api_comments.size == 0
       # logger.debug2  "new @comments.size = #{@comments.size}, comments = " + @comments.collect { |c| c.id }.join(', ') if @comments
     end
     logger.debug2  "@gifts.size = #{@api_gifts.size}, gifts = " + @api_gifts.collect { |g| g.id }.join(', ') if @api_gifts
-    logger.debug2  "@comments.size = #{@comments.size}, comments = " + @comments.collect { |c| c.id }.join(', ') if @comments
+    logger.debug2  "@comments.size = #{@api_comments.size}, comments = " + @api_comments.collect { |c| c.id }.join(', ') if @api_comments
     logger.debug2  "@new_newest_gift_id = #{@new_newest_gift_id}"
     logger.debug2  "@new_newest_status_update_at = #{@new_newest_status_update_at}"
     respond_to do |format|

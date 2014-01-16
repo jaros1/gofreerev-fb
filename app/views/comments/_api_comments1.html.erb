@@ -1,0 +1,4 @@
+<%# just comments without any extra functionality -%>
+<% for api_comment in @api_comments do loop -%>
+    <%= render :partial => 'comments/api_comment', :locals =>  { :api_comment => api_comment } %>
+<% end -%>

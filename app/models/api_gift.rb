@@ -246,7 +246,7 @@ class ApiGift < ActiveRecord::Base
     # find picture with error marked url - could be missing privs or maybe picture has been deleted on wall
     # sort picture created by login user before other pictures
     if user_id_giver and user_id_receiver
-      comment = gift.comments.find { |c| c.accepted_yn == 'Y' }
+      comment = gift.api_comments.find { |c| c.accepted_yn == 'Y' }
       creator = comment.user_id == user_id_giver ? user_id_receiver : user_id_giver
     else
       creator = user_id_giver || user_id_receiver

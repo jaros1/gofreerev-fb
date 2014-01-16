@@ -1,5 +1,5 @@
 <%# comments with an "show older comments link (ajax) -%>
-<% first_comment = @comments.first
+<% first_comment = @api_comments.first
    no_older_comments = first_comment ? first_comment.no_older_comments : 0
 -%>
 
@@ -22,4 +22,4 @@
     <% end -%>
   </td>
 </tr>
-<%= render :partial => 'comments/comments1' %>
+<%= render :partial => 'comments/api_comments1' %>

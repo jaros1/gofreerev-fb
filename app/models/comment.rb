@@ -18,8 +18,8 @@ NOTI_KEY_4 = "1" # version
 
 class Comment < ActiveRecord::Base
 
-  belongs_to :gift, :class_name => 'Gift', :primary_key => :gift_id, :foreign_key => :gift_id
   has_and_belongs_to_many :notifications
+  has_many :api_comments, :class_name => 'ApiComment', :primary_key => :comment_id, :foreign_key => :comment_id, :dependent => :destroy
 
   before_create :before_create
   before_update :before_update
@@ -139,53 +139,13 @@ class Comment < ActiveRecord::Base
   # 9) status_update_at - integer - keep track of comments changed after user has loaded gifts/index page
 
 
-  # number of older comments for gift
-  # used in gifts/index page to display "show <n> more comments"
-  attr_accessor :no_older_comments
 
   def debug_notifications
     true
   end # debug_notifications
 
-  def table_row_id
-    "gift-#{gift.id}-comment-#{id}"
-  end # table_row_id
 
-  # display cancel new deal check box?
-  # only for new not accepted/rejected agreement proposals
-  def show_cancel_new_deal_link? (users)
-    return false unless new_deal_yn == 'Y'
-    return false if accepted_yn
-    return false unless users.find { |user| user_id == user.user_id }
-    return false if gift.direction == 'both'
-    true
-  end # show_cancel_new_deal_link?
 
-  def show_accept_new_deal_link? (users)
-    return false unless new_deal_yn == 'Y'
-    return false if accepted_yn
-    return false if users.find { |user| user_id == user.user_id }
-    return false if gift.direction == 'both'
-    gift.api_gifts.each do |api_gift|
-      user = users.find { |user2| user2.provider == api_gift.provider }
-      return true if [api_gift.user_id_receiver, api_gift.user_id_giver].index(user.user_id)
-    end
-    false
-  end # show_accept_new_deal_link?
-
-  def show_reject_new_deal_link? (users)
-    show_accept_new_deal_link?(users)
-  end # show_reject_new_deal_link?
-
-  def show_delete_comment_link?(users)
-    return false unless users.class == Array and users.length > 0
-    gift.api_gifts.each do |api_gift|
-      user = users.find { |user2| user2.provider == api_gift.provider }
-      next unless user
-      return true if [api_gift.user_id_receiver, api_gift.user_id_giver].index(user.user_id)
-    end
-    false
-  end # show_delete_comment_link?
 
   def cancelled_proposal?
     noti_type = 3 if (new_deal_yn_was == 'Y' and !new_deal_yn and !accepted_yn)
@@ -401,7 +361,7 @@ class Comment < ActiveRecord::Base
       n.noti_read = 'N'
     elsif [4,5].index(noti_key_1) and noti_key_3 == 2
       raise "debug - this notification should only be sent once"
-    elsif n.comments.find { |c| c.user_id == from_user.user_id }
+    elsif n.api_comments.find { |c| c.user_id == from_user.user_id }
       # user already in unread notification messages "user array"
       # logger.debug2  "user already in unread notification message"
       nil
@@ -461,7 +421,7 @@ class Comment < ActiveRecord::Base
     logger.debug2  "cn.from_user.short_user_name = #{cn.from_user.short_user_name}" if cn and cn.from_user and debug_notifications
     logger.debug2  "cn.to_user.short_user_name = #{cn.to_user.short_user_name}" if cn and cn.to_user and debug_notifications
     # find no users before and after removing this comment from notification
-    old_no_users = n.comments.collect { |c| c.user_id }.uniq.size
+    old_no_users = n.api_comments.collect { |c| c.user_id }.uniq.size
     new_users = n.comments.find_all { |c| c.id != id }.collect { |c| c.user }.uniq
     new_no_users = new_users.size
     if new_no_users == 0
@@ -608,7 +568,7 @@ class Comment < ActiveRecord::Base
         # 2) notifications to users that has commented the gift - "_other" is added to notification key!
         # users2 = gift.comments.includes(:user).collect { |c| c.user }.find_all { |user2| ![from_userid, to_user_id, gift.user_id_giver, gift.user_id_receiver].index(user2.user_id) }.uniq
         exclude_user_ids = [from_userid, to_user_id] + gifts_giver_and_receivers
-        users2 = gift.comments.includes(:user).collect { |c| c.user }.find_all { |user2| !exclude_user_ids.index(user2.user_id) }.uniq
+        users2 = gift.api_comments.includes(:user).collect { |c| c.user }.find_all { |user2| !exclude_user_ids.index(user2.user_id) }.uniq
         users2_ids = users2.collect { |u| u.user_id }
         users_ids = (users1_ids + users2_ids).uniq
         logger.debug2  "2: users2 = " + users2_ids.join(', ') if debug_notifications

@@ -234,7 +234,7 @@ en:
         gift_not_friends: "Invalid request. You are not allowed to see this gift"
         comment_not_found: "Invalid request. Comment was not found"
         gift_comment_mismatch: "Invalid request. Gift and comment does not match"
-     comments2:
+     api_comments2:
         like_gift: "Like"
         unlike_gift: "Unlike"
         follow_gift: "Follow"
@@ -246,7 +246,7 @@ en:
         confirm_delete_gift_2: "Delete post?"
         show_older_comment: "Show older comment"
         show_older_comments: "Show %{no_older_comments} older comments"
-     comment_status:
+     api_comment_status:
         cancel_new_deal: "Cancel"
         confirm_cancel_new_deal: "Cancel proposal?"
         accept_new_deal: "Accept"

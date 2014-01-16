@@ -228,7 +228,7 @@ da:
         gift_not_friends: "Ugyldigt kald. Du må ikke se dette opslag"
         comment_not_found: "Ugyldigt kald. Kommentar blev ikke fundet"
         gift_comment_mismatch: "Ugyldigt kald. Opslag og kommentar passer ikke sammen"
-     comments2:
+     api_comments2:
         like_gift: "Synes om"
         unlike_gift: "Synes ikke længere om"
         follow_gift: "Følg opslag"
@@ -240,7 +240,7 @@ da:
         confirm_delete_gift_2: "Slet opslag?"
         show_older_comment: "Vis ældre kommentar"
         show_older_comments: "Vis %{no_older_comments} ældre kommentarer"
-     comment_status:
+     api_comment_status:
         cancel_new_deal: "Fortryd"
         confirm_cancel_new_deal: "Fortryd forslag?"
         accept_new_deal: "Godkend"

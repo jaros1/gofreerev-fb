@@ -1,8 +1,8 @@
 class Gift < ActiveRecord::Base
 
-  has_many :comments, :class_name => 'Comment', :primary_key => :gift_id, :foreign_key => :gift_id, :dependent => :destroy
-  has_many :likes, :class_name => 'GiftLike', :primary_key => :gift_id, :foreign_key => :gift_id, :dependent => :destroy
+  has_many :api_comments, :class_name => 'ApiComment', :primary_key => :gift_id, :foreign_key => :gift_id, :dependent => :destroy
   has_many :api_gifts, :class_name => 'ApiGift', :primary_key => :gift_id, :foreign_key => :gift_id, :dependent => :destroy
+  has_many :likes, :class_name => 'GiftLike', :primary_key => :gift_id, :foreign_key => :gift_id, :dependent => :destroy
 
   before_create :before_create
   before_update :before_update
@@ -355,8 +355,8 @@ class Gift < ActiveRecord::Base
   # return last 4 comments for gifts/index page if first_comment_id is nil
   # return next 10 old comments in ajax request ii first_comment_id is not null
   # used in gifts/index (html/first_comment_id == nil) and in comments/comments (ajax/first_comment_id != nil)
-  def comments_with_filter (first_comment_id = nil)
-    cs = comments.sort { |a,b| a.created_at <=> b.created_at }
+  def api_comments_with_filter (first_comment_id = nil)
+    cs = api_comments.sort { |a,b| a.created_at <=> b.created_at }
     (0..(cs.length-1)).each { |i| cs[i].no_older_comments = i }
     return cs.last(4) if first_comment_id == nil
     index = cs.find_index { |c| c.id.to_s == first_comment_id.to_s }

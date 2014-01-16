@@ -1,0 +1,13 @@
+<% if api_comment.comment.deleted_at -%>
+    <tr id="<%= api_comment.table_row_id %>" style="display: none">
+      <td></td>
+    </tr>
+<% else -%>
+    <tr id="<%= api_comment.table_row_id %>">
+      <td colspan="2" style="text-align: right; vertical-align: top">
+        <%= @comment = api_comment ; render 'comments/api_comment_status' %>
+      </td>
+      <td style="vertical-align: top;"><%= render '/shared/user_div', :user_div => api_comment.user %></td>
+      <td style="text-align: left; vertical-align: top"><%= my_sanitize api_comment.comment.comment %></td>
+    </tr>
+<% end -%>
