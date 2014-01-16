@@ -659,6 +659,7 @@ function autoresize_text_field(text) {
 // move new comment from last row to row before new comment row
 // clear comment text area and reset frequency for new message check
 function post_ajax_add_new_comment_handler(giftid) {
+    var fnc = 'post_ajax_add_new_comment_handler: ' ;
     var id = '#gift-' + giftid + '-new-comment-form';
     $(id).unbind("ajax:success");
     $(id).bind("ajax:success", function (evt, data, status, xhr) {
@@ -679,12 +680,12 @@ function post_ajax_add_new_comment_handler(giftid) {
             if (id2 && id2.match(re)) new_comment_tr = trs[i];
         } // for
         if (!new_comment_tr) {
-            alert("new comment row with format " + re + " was not found");
+            add2log(fnc + "new comment row with format " + re + " was not found. There could be more information in server log.");
             return;
         }
         add_new_comment_tr = document.getElementById("gift-" + giftid + "-comment-new");
         if (!add_new_comment_tr) {
-            alert("post_ajax_add_new_comment_handler: gift-" + giftid + "-comment-new was not found");
+            add2log(fnc + "gift-" + giftid + "-comment-new was not found");
             return;
         }
         // move new table row up before add new comment table row
@@ -696,11 +697,11 @@ function post_ajax_add_new_comment_handler(giftid) {
     });
     $(id).unbind("ajax:error");
     $(id).bind("ajax:error", function(jqxhr, textStatus, errorThrown){
-        add2log('new_comment.ajax.error');
+        add2log(fnc + 'ajax.error');
         add2log('jqxhr = ' + jqxhr);
         add2log('textStatus = ' + textStatus);
         add2log('errorThrown = ' + errorThrown);
-        add_to_tasks_errors('new_comment.ajax.error: ' + errorThrown + '. check server log for more information.') ;
+        add_to_tasks_errors(fnc + 'ajax.error: ' + errorThrown + '. check server log for more information.') ;
     });
 } // post_ajax_add_new_comment_handler
 

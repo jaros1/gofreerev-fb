@@ -135,12 +135,59 @@ class Comment < ActiveRecord::Base
 
   # 9) status_update_at - integer - keep track of comments changed after user has loaded gifts/index page
 
+  def table_row_id
+    "gift-#{gift.id}-comment-#{id}"
+  end # table_row_id
 
 
   def debug_notifications
     true
   end # debug_notifications
 
+  # helpers used in comments/comment_status partial - show/hide comment links
+
+  # display cancel new deal check box?
+  # only for new not accepted/rejected agreement proposals
+  def show_cancel_new_deal_link? (users)
+    return false unless new_deal_yn == 'Y'
+    return false if accepted_yn
+    login_user_ids = users.collect { |u| u.user_id }
+    comment_user_ids = api_comments.collect { |ac| ac.user_id }
+    user_ids = login_user_ids & comment_user_ids
+    return false if user_ids.size == 0
+    return false if gift.direction == 'both'
+    true
+  end # show_cancel_new_deal_link?
+
+  def show_accept_new_deal_link? (users)
+    return false unless new_deal_yn == 'Y'
+    return false if accepted_yn
+    login_user_ids = users.collect { |u| u.user_id }
+    comment_user_ids = api_comments.collect { |ac| ac.user_id }
+    user_ids = login_user_ids & comment_user_ids
+    return false if user_ids.size == 0
+    return false if gift.direction == 'both'
+    gift.api_gifts.each do |api_gift|
+      user = users.find { |user2| user2.provider == api_gift.provider }
+      return true if [api_gift.user_id_receiver, api_gift.user_id_giver].index(user.user_id)
+    end
+    false
+  end # show_accept_new_deal_link?
+
+  def show_reject_new_deal_link? (users)
+    show_accept_new_deal_link?(users)
+  end # show_reject_new_deal_link?
+
+  def show_delete_comment_link?(users)
+    return false unless users.class == Array and users.length > 0
+    return false if users.size == 1 and users.first.dummy_user?
+    gift.api_gifts.each do |api_gift|
+      user = users.find { |user2| user2.provider == api_gift.provider }
+      next unless user
+      return true if [api_gift.user_id_receiver, api_gift.user_id_giver].index(user.user_id)
+    end
+    false
+  end # show_delete_comment_link?
 
 
 
@@ -189,10 +236,15 @@ class Comment < ActiveRecord::Base
     logger.debug2  "noti_key_1 = #{noti_key_1} (#{NOTI_KEY_1[noti_key_1]}), " +
              "noti_key_2 = #{noti_key_2} (#{NOTI_KEY_2[noti_key_2]}), " +
              "noti_key_3 = #{noti_key_3} (#{NOTI_KEY_3[noti_key_3]}), " +
-             "from_users = " + from_users.collect { |u| "#{u.user_id} #{u.short_user_name}" }.join(', ') +
-             ", to_user = #{to_user.short_user_name}" if debug_notifications
+             "from_users = #{User.debug_info(from_users)}, "
+             ", to_user = #{to_user.debug_info}" if debug_notifications
     from_user = from_users.find { |u| u.provider == to_user.provider}
-    raise "invalid from_users / to_user. No shared providers was found" unless from_user
+    if !from_user
+      logger.debug2 "found no shared providers between from_users and to_user"
+      logger.debug2 "from_users = #{User.debug_info(from_users)}"
+      logger.debug2 "to_user = #{to_user.debug_info}"
+      raise "invalid from_users / to_user. No shared providers was found"
+    end
     # todo: test if we always can find a api comment when sending notifications
     api_comment = api_comments.find { |ac| ac.provider == to_user.provider }
     raise "todo: test if we always can find a api comment when sending notifications" unless api_comment
@@ -402,10 +454,10 @@ class Comment < ActiveRecord::Base
     ac.save!
     # add row to CommentNotification / keep track of number of users in notification message
     logger.debug2  "add CommentNotification for comment id #{id} and notification id #{n.id} #{n.noti_key}" if debug_notifications
-    cn = CommentNotification.where("comment_id = ? and notification_id = ?", id, n.id).first
+    cn = ApiCommentNotification.where("api_comment_id = ? and notification_id = ?", api_comment.id, n.id).first
     if !cn
-      cn = CommentNotification.new
-      cn.comment_id = id
+      cn = ApiCommentNotification.new
+      cn.api_comment_id = api_comment.id
       cn.notification_id = n.id
       cn.save!
     end
@@ -522,6 +574,7 @@ class Comment < ActiveRecord::Base
       # after insert
     end
     from_users = User.where('user_id in (?)', from_userids)
+    from_providers = from_users.collect { |u| u.provider }
     case
       when gift.direction == 'both' then
         noti_key_2 = 3
@@ -552,12 +605,15 @@ class Comment < ActiveRecord::Base
         logger.debug2  "send notifications to gifts giver and/or receiver" if debug_notifications
         users1 = []
         # old: users1.push(gift.giver) if gift.user_id_giver and from_userid != gift.user_id_giver
-        logger.debug2 "gift.direction = #{gift.direction}, gift_givers = #{gift_givers}, from_userid = #{from_userid}"
-        if %w(giver both).index(gift.direction) and !gift_givers.index(from_userid)
+        logger.debug2 "gift.direction = #{gift.direction}, gift_givers = #{gift_givers}, from_userids = #{from_userids}"
+        shared_userids = gift_givers & from_userids
+        if %w(giver both).index(gift.direction) and shared_userids.size == 0
           users1 += User.where('user_id in (?)', gift_givers) if gift_givers.size > 0
         end
         # old: users1.push(gift.receiver) if gift.user_id_receiver and from_userid != gift.user_id_receiver
-        if %w(receiver both).index(gift.direction) and !gift_receivers.index(from_userid)
+        logger.debug2 "gift.direction = #{gift.direction}, gift_receivers = #{gift_receivers}, from_userids = #{from_userids}"
+        shared_userids = gift_receivers & from_userids
+        if %w(receiver both).index(gift.direction) and shared_userids.size == 0
           users1 += User.where("user_id in (?)", gift_receivers) if gift_receivers.size > 0
         end
         if noti_key_1 == 5
@@ -592,15 +648,20 @@ class Comment < ActiveRecord::Base
         #logger.debug2  "3: users2 = " + users2_ids.join(', ') if debug_notifications
         #logger.debug2  "3: users3 = " + users3_ids.join(', ') if debug_notifications
         # send notifications
-        logger.debug2  "start: send notifications to gifts giver and receiver: " + users1.collect { |u| u.short_user_name }.join(', ') if debug_notifications
+        logger.debug2  "start1: send notification from #{User.debug_info(from_users)}" if debug_notifications
+        logger.debug2  "start1: send notifications to gifts giver and receiver: #{User.debug_info(users1)}"  if debug_notifications
         users1.each { |to_user| send_notification(noti_key_1, noti_key_2, 1, from_users, to_user) }
-        logger.debug2  "end: send notifications to gifts giver, receiver and followers: " + users1.collect { |u| u.short_user_name }.join(', ') if debug_notifications
-        logger.debug2  "start: send notifications to other users that also have commented the gift: " + users2.collect { |u| u.short_user_name }.join(', ') if debug_notifications
+        logger.debug2  "end1: send notifications to gifts giver, receiver and followers: #{User.debug_info(users1)}"  if debug_notifications
+
+        logger.debug2  "start2: send notification from #{User.debug_info(from_users)}"
+        logger.debug2  "start2: send notifications to other users that also have commented the gift: #{User.debug_info(users2)}" if debug_notifications
         users2.each { |to_user| send_notification(noti_key_1, noti_key_2, 2, from_users, to_user) }
-        logger.debug2  "end: send notifications to other users that also have commented the gift: " + users2.collect { |u| u.short_user_name }.join(', ') if debug_notifications
-        logger.debug2  "start: send notifications to users that follows the gift: " + users3.collect { |u| u.short_user_name }.join(', ') if debug_notifications
+        logger.debug2  "end2: send notifications to other users that also have commented the gift: #{User.debug_info(users2)}" if debug_notifications
+
+        logger.debug2  "start3: send notification from #{User.debug_info(from_users)}"
+        logger.debug2  "start3: send notifications to users that follows the gift: #{User.debug_info(users3)}" if debug_notifications
         users3.each { |to_user| send_notification(noti_key_1, noti_key_2, 3, from_users, to_user) }
-        logger.debug2  "end: send notifications to users that follows the gift: " + users3.collect { |u| u.short_user_name }.join(', ') if debug_notifications
+        logger.debug2  "end3: send notifications to users that follows the gift: #{User.debug_info(users3)}" if debug_notifications
 
         # new comment and new proposal - add user as follower of gift - user will receive notifications until user stops following the gift
         if noti_key_1 <= 2

@@ -1,5 +1,5 @@
 <% if @comment and @comment.errors.count == 0 %>
-$('#gifts').append('<%= j render("api_comment", :api_comment => @comment) %>');
+$('#gifts').append('<%= j render("api_comment", :comment => @comment) %>');
 <% end %>
 <% if @errors.size > 0 -%>
 $('#tasks_errors').append('<%= j render("shared/ajax_errors") %>');

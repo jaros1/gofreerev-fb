@@ -421,7 +421,7 @@ class Gift < ActiveRecord::Base
       # destroy all notifications for this gift
       comment_ids = comments.collect { |c| c.comment_id }
       return if comment_ids.size == 0
-      notification_ids = CommentNotification.where("comment_id in (?)", comment_ids).collect { |cn| cn.notification_id }.uniq
+      notification_ids = ApiCommentNotification.where("comment_id in (?)", comment_ids).collect { |cn| cn.notification_id }.uniq
       return if notification_ids.size == 0
       Notification.where("notification_id in (?)", notification_ids).each { |n| n.destroy }
     end # if

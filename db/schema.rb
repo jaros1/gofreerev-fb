@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140116103508) do
+ActiveRecord::Schema.define(version: 20140116104532) do
 
   create_table "ajax_comments", force: true do |t|
     t.string   "user_id",    limit: 40, null: false
@@ -41,7 +41,7 @@ ActiveRecord::Schema.define(version: 20140116103508) do
   end
 
   add_index "api_comments_notifications", ["api_comment_id", "notification_id"], name: "index_api_com_no_on_api_com_id", unique: true
-  add_index "api_comments_notifications", ["notification_id"], name: "index_comment_notifications_on_notification_id"
+  add_index "api_comments_notifications", ["notification_id"], name: "index_comm_noti_on_noti_id"
 
   create_table "api_gifts", force: true do |t|
     t.string   "gift_id",                     limit: 20

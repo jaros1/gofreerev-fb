@@ -653,6 +653,13 @@ class User < ActiveRecord::Base
   def short_or_full_user_name (login_users)
     friend?(login_users) ? short_user_name : user_name
   end # short_or_full_user_name
+  def debug_info
+    "#{user_id} #{short_user_name}"
+  end
+  def self.debug_info (users)
+    users.collect { |u| u.debug_info }.join(', ')
+  end
+
 
   def api_name_without_brackets
     API_DOWNCASE_NAME[provider] || provider

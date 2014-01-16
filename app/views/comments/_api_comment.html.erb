@@ -1,14 +1,15 @@
 <% logger.debug2 "api_comment.class = #{api_comment.class}" -%>
-<% if api_comment.comment.deleted_at -%>
-    <tr id="<%= api_comment.table_row_id %>" style="display: none">
+<% comment = api_comment.comment -%>
+<% if comment.deleted_at -%>
+    <tr id="<%= comment.table_row_id %>" style="display: none">
       <td></td>
     </tr>
 <% else -%>
-    <tr id="<%= api_comment.table_row_id %>">
+    <tr id="<%= comment.table_row_id %>">
       <td colspan="2" style="text-align: right; vertical-align: top">
-        <%= @comment = api_comment ; render 'comments/api_comment_status' %>
+        <%= @comment = comment ; render 'comments/api_comment_status' %>
       </td>
       <td style="vertical-align: top;"><%= render '/shared/user_div', :user_div => api_comment.user %></td>
-      <td style="text-align: left; vertical-align: top"><%= my_sanitize api_comment.comment.comment %></td>
+      <td style="text-align: left; vertical-align: top"><%= my_sanitize comment.comment %></td>
     </tr>
 <% end -%>
