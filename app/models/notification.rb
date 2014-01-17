@@ -1,5 +1,16 @@
 class Notification < ActiveRecord::Base
 
+  #create_table "notifications", force: true do |t|
+  #  t.string   "noti_id",      limit: 20, null: false
+  #  t.string   "to_user_id",   limit: 40, null: false
+  #  t.string   "from_user_id", limit: 40
+  #  t.string   "internal",     limit: 1,  null: false
+  #  t.text     "noti_key",                null: false
+  #  t.text     "noti_options"
+  #  t.string   "noti_read",    limit: 1,  null: false
+  #  t.datetime "created_at"
+  #  t.datetime "updated_at"
+  #end
 
   # relations
   belongs_to :from_user, :class_name => 'User', :primary_key => :user_id, :foreign_key => :from_user_id
@@ -39,10 +50,13 @@ class Notification < ActiveRecord::Base
   # attr_readonly :to_user_id # todo: uncomment
 
   
-  # 3) from_user_id - required - FK - not encrypted - readonly
-  attr_readonly
-  # attr_readonly :from_user_id # todo: uncomment
-
+  # 3) from_user_id - optional - FK - not encrypted - readonly
+  validates_each :from_user_id, :allow_blank => true do |record, attr, value|
+    if record.to_user_id == value
+      logger.error2 "from_user_id and to_user_id are identical. user #{value}"
+      record.errors.add attr, :invalid
+    end
+  end
 
   # 4) internal - required - Y/N - not encrypted
   validates_presence_of :internal

@@ -168,6 +168,7 @@ class Comment < ActiveRecord::Base
     return false if gift.direction == 'both'
     gift.api_gifts.each do |api_gift|
       user = users.find { |user2| user2.provider == api_gift.provider }
+      next unless user
       return true if [api_gift.user_id_receiver, api_gift.user_id_giver].index(user.user_id)
     end
     false
@@ -450,7 +451,7 @@ class Comment < ActiveRecord::Base
     end
     n.valid?
     # todo: error response from comment/create does not work
-    logger.debug2  "n.errors = " + n.errors.full_messages.join('. ') if not n.valid?
+    logger.error2  "n.errors = " + n.errors.full_messages.join('. ') if not n.valid?
     n.save!
     # add comment id to ajax comments - used in new messages count where new comments is ajax inserted in gifts/index page
     # buffer is returned to gifts/index page and cleared in util_controller.new_messages_count
@@ -601,7 +602,7 @@ class Comment < ActiveRecord::Base
           next if
           if gl.follow == 'Y'
             # user has selected to follow gift
-            users3 << gl.user if gl.user.user_id != from_userid and !users_ids.index(gl.user_id)
+            users3 << gl.user if !from_userids.index(gl.user.user_id) and !users_ids.index(gl.user_id)
           else
             # user has deselected to follow gift
             users1 = users1.delete_if { |u| u.user_id == gl.user_id }
