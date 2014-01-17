@@ -25,6 +25,12 @@ class ApiComment < ActiveRecord::Base
   attr_accessor :no_older_comments
 
 
+  def debug_notifications
+    true
+  end # debug_notifications
+
+
+
   # comment no longer relevant for unread notification n
   # used when comments are deleted, deal proposal is cancelled, rejected or accepted
   def remove_from_notification (n)
@@ -39,7 +45,7 @@ class ApiComment < ActiveRecord::Base
     logger.debug2  "cn.to_user.short_user_name = #{cn.to_user.short_user_name}" if cn and cn.to_user and debug_notifications
     # find no users before and after removing this comment from notification
     old_no_users = n.api_comments.collect { |c| c.user_id }.uniq.size
-    new_users = n.comments.find_all { |c| c.id != id }.collect { |c| c.user }.uniq
+    new_users = n.api_comments.find_all { |ac| ac.id != id }.collect { |ac| ac.user }.uniq
     new_no_users = new_users.size
     if new_no_users == 0
       # last user for this unread notification has been removed
@@ -81,5 +87,11 @@ class ApiComment < ActiveRecord::Base
     n.save!
   end # remove_from_notification
 
+  # remove api comment from unread notifications - for example after delete comment
+  def remove_from_notifications
+    notifications.find_all { |n| n.noti_read == 'N' }.each do |n|
+      remove_from_notification(n)
+    end # each n
+  end
 
 end

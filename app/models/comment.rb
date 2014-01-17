@@ -486,10 +486,8 @@ class Comment < ActiveRecord::Base
       logger.debug2  "cleanup any unread notifications" if debug_notifications
       # change number of users for any unread notifications
       api_comments.each do |api_comment|
-        api_comment.notifications.find_all { |n| n.noti_read == 'N' }.each do |n|
-          api_comment.remove_from_notification(n)
-        end # each n
-      end
+        api_comment.remove_from_notifications
+      end # each api_comment
     end # if
   end # before_update
 
