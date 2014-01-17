@@ -78,16 +78,17 @@ module GiftHelper
     link_to t('.delete_gift'), util_delete_gift_path(:gift_id => gift.id), :id => "gift-#{gift.id}-delete-link", :class => "gift-action-link", :remote => true, :method => :post, :data => { :confirm => t(confirm_delete_gift_key, confirm_delete_gift_options) }
   end # link_to_delete_gift
 
+
   def link_to_cancel_new_deal (comment)
-    link_to t('.cancel_new_deal'), util_cancel_new_deal_path(:comment_id => comment.id), :id => "gift-#{comment.gift.id}-comment-#{comment.id}-cancel-link", :remote => true, :method => :post, :data => { :confirm => t('.confirm_cancel_new_deal') }
+    link_to t('.cancel_new_deal'), util_cancel_new_deal_path(:comment_id => comment.id), :id => "gift-#{comment.gift.id}-comment-#{comment.id}-cancel-link", :class => 'comment-action-link', :remote => true, :method => :post, :data => { :confirm => t('.confirm_cancel_new_deal') }
   end
 
   def link_to_accept_new_deal (comment)
-    link_to t('.accept_new_deal'), util_accept_new_deal_path(:comment_id => comment.id), :id => "gift-#{comment.gift.id}-comment-#{comment.id}-accept-link", :remote => true, :method => :post, :data => { :confirm => t('.confirm_accept_new_deal') }
+    link_to t('.accept_new_deal'), util_accept_new_deal_path(:comment_id => comment.id), :id => "gift-#{comment.gift.id}-comment-#{comment.id}-accept-link", :class => 'comment-action-link', :remote => true, :method => :post, :data => { :confirm => t('.confirm_accept_new_deal') }
   end
 
   def link_to_reject_new_deal (comment)
-    link_to t('.reject_new_deal'), util_reject_new_deal_path(:comment_id => comment.id), :id => "gift-#{comment.gift.id}-comment-#{comment.id}-reject-link", :remote => true, :method => :post, :data => { :confirm => t('.confirm_reject_new_deal') }
+    link_to t('.reject_new_deal'), util_reject_new_deal_path(:comment_id => comment.id), :id => "gift-#{comment.gift.id}-comment-#{comment.id}-reject-link", :class => 'comment-action-link', :remote => true, :method => :post, :data => { :confirm => t('.confirm_reject_new_deal') }
   end
 
   def link_to_delete_comment (comment)

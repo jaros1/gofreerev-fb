@@ -588,7 +588,8 @@ class Comment < ActiveRecord::Base
 
         # 2) notifications to users that has commented the gift - "_other" is added to notification key!
         # users2 = gift.comments.includes(:user).collect { |c| c.user }.find_all { |user2| ![from_userid, to_user_id, gift.user_id_giver, gift.user_id_receiver].index(user2.user_id) }.uniq
-        exclude_user_ids = [from_userid, to_user_id] + gifts_giver_and_receivers
+        exclude_user_ids = from_userids + [to_user_id] + gifts_giver_and_receivers
+        logger.debug2 "2: exclude_user_ids = #{exclude_user_ids.join(', ')}"
         users2 = gift.api_comments.includes(:user).collect { |c| c.user }.find_all { |user2| !exclude_user_ids.index(user2.user_id) }.uniq
         users2_ids = users2.collect { |u| u.user_id }
         users_ids = (users1_ids + users2_ids).uniq
