@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140116104532) do
+ActiveRecord::Schema.define(version: 20140117075306) do
 
   create_table "ajax_comments", force: true do |t|
     t.string   "user_id",    limit: 40, null: false
@@ -82,6 +82,7 @@ ActiveRecord::Schema.define(version: 20140116104532) do
   end
 
   add_index "comments", ["comment_id"], name: "index_comments_on_comment_id", unique: true
+  add_index "comments", ["deleted_at"], name: "index_comments_on_deleted_at"
   add_index "comments", ["gift_id"], name: "index_comments_on_gift_id"
 
   create_table "exchange_rates", force: true do |t|

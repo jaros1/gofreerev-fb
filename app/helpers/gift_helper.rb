@@ -91,7 +91,7 @@ module GiftHelper
   end
 
   def link_to_delete_comment (comment)
-    link_to t('.delete_comment'), comment_path(comment.id), :id => "gift-#{comment.gift.id}-comment-#{comment.id}-delete-link", :remote => true, :method => :delete, :data => { :confirm => t('.confirm_delete_comment') }
+    link_to t('.delete_comment'), comment_path(comment.id), :id => "gift-#{comment.gift.id}-comment-#{comment.id}-delete-link", :class => 'comment-action-link', :remote => true, :method => :delete, :data => { :confirm => t('.confirm_delete_comment') }
   end
 
 end

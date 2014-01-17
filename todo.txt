@@ -334,3 +334,11 @@
     fix missing google+ picture if logged in with other login providers when picture was uploaded
     that is - url from a google api_gift to a picture from from one of the other login providers
     for example in util.delete_local_picture
+
+95) giver/receiver of gift should be allowed to delete comments
+
+96) my.js - split gift-action-link ajax handler in one for each gift action?
+    should use translated error messages in js error messages
+
+97) my.js - split comment-action-link ajax handler in one for each comment action?
+    should use translated error messages in js error messages

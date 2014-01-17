@@ -125,7 +125,10 @@ class CommentsController < ApplicationController
       return
     end
     # delete mark comment
-    # comment will be removed from gifts/index page now for current user
+    # delete marked comment will be ajax removed from gifts/index page for current user now
+    # delete marked comment will be ajax removed from gifts/index page for other users in util/new_messages_count request
+    # old delete marked comments will be deleted from database in util/new_messages_count
+    comment.deleted_at = Time.new
     comment.deleted_at = Time.new
     comment.save
     @link_id = comment.table_row_id

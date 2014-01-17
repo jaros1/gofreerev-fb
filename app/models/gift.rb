@@ -356,13 +356,34 @@ class Gift < ActiveRecord::Base
   # return next 10 old comments in ajax request ii first_comment_id is not null
   # used in gifts/index (html/first_comment_id == nil) and in comments/comments (ajax/first_comment_id != nil)
   def api_comments_with_filter (first_comment_id = nil)
-    cs = api_comments.sort { |a,b| a.created_at <=> b.created_at }
-    (0..(cs.length-1)).each { |i| cs[i].no_older_comments = i }
-    return cs.last(4) if first_comment_id == nil
-    index = cs.find_index { |c| c.id.to_s == first_comment_id.to_s }
+    # keep one api comment for each comment
+    acs = api_comments.sort do |a,b|
+      if a.comment_id == b.comment_id
+        rand <=> 0.5
+      else
+        a.comment_id <=> b.comment_id
+      end
+    end
+    old_comment_id = '#' * 20
+    acs = acs.find_all do |ac|
+      if ac.comment_id == old_comment_id
+        false
+      else
+        old_comment_id = ac.comment_id
+        true
+      end
+    end
+    # sort by created at
+    acs = acs.sort { |a,b| a.created_at <=> b.created_at }
+    # remember number of older comments. For show older comments link
+    (0..(acs.length-1)).each { |i| acs[i].no_older_comments = i }
+    # start be returning up to 4 comments for each gift
+    return acs.last(4) if first_comment_id == nil
+    # show older comments - return next 10 older comments
+    index = acs.find_index { |c| c.id.to_s == first_comment_id.to_s }
     # logger.debug2  "index = #{index}"
     return [] if index == nil or index == 0
-    cs[0..(index-1)].last(10)
+    acs[0..(index-1)].last(10)
   end # comments_with_filter
 
 

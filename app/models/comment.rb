@@ -178,18 +178,27 @@ class Comment < ActiveRecord::Base
     show_accept_new_deal_link?(users)
   end # show_reject_new_deal_link?
 
+  # ok to delete comment if login user(s) is giver, receiver or creator of comment
   def show_delete_comment_link?(users)
     return false unless users.class == Array and users.length > 0
     return false if users.size == 1 and users.first.dummy_user?
+    return false if accepted_yn == 'Y' # delete accepted proposal is not allow - delete gift is allowed
+    return false if deleted_at # comment has already been marked as deleted
+    # ok to delete if login user(s) is giver/reciever
     gift.api_gifts.each do |api_gift|
       user = users.find { |user2| user2.provider == api_gift.provider }
       next unless user
-      return true if [api_gift.user_id_receiver, api_gift.user_id_giver].index(user.user_id)
+      return true if [api_gift.user_id_receiver, api_gift.user_id_giver].index(user.user_id) # giver or receiver
     end
+    # ok to delete if login user(s) has created the comment
+    api_comments.each do |api_comment|
+      user = users.find { |user2| user2.provider == api_comment.provider}
+      next unless user
+      return true if api_comment.user_id == user.user_id # creator of comment
+    end
+    # not giver/receiver - not creator of comment - delete if not allowed
     false
   end # show_delete_comment_link?
-
-
 
   def cancelled_proposal?
     noti_type = 3 if (new_deal_yn_was == 'Y' and !new_deal_yn and !accepted_yn)
@@ -531,7 +540,7 @@ class Comment < ActiveRecord::Base
       # delete marked comment - will be removed from gift/index pages within the next 5 minutes
       self.status_update_at = Sequence.next_status_update_at
       logger.debug2  "cleanup any unread notifications" if debug_notifications
-      # change number of users for uny unread notifications
+      # change number of users for any unread notifications
       notifications.find_all { |n| n.noti_read == 'N' }.each do |n|
         remove_from_notification(n)
       end # each n

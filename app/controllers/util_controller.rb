@@ -82,6 +82,14 @@ class UtilController < ApplicationController
       @api_comments = nil if @api_comments.size == 0
       # empty AjaxComment buffer - only return ajax comments once
       AjaxComment.destroy_all(:user_id => @user.user_id)
+      # delete old deleted marked comments
+      Comment.where("deleted_at is not null and deleted_at < ?", 10.minutes.ago).each do |c|
+        begin
+          c.destroy!
+        rescue Exception => e
+          logger.warn2 "Error when deleting comment id #{c.id}. #{e.message}"
+        end # each c
+      end
     end
     # return newly created gifts. Input newest_gift_id when user page was loaded or newest gift_id in last new_messages_count request
     # return newly updated (or deleted) gifts. Input newest_status_update_at when user page was loaded or newest_status_update_at in last new_message:count request
