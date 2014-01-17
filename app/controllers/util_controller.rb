@@ -514,29 +514,55 @@ class UtilController < ApplicationController
   end # cancel_new_deal
 
   def reject_new_deal
-    comment_id = params[:comment_id]
-    comment = Comment.find_by_id(comment_id)
-    if !comment
-      logger.debug2  "Comment with id #{comment_id} was not found - silently ignore ajax request"
-      return
+    @errors = []
+    @link_id = nil
+    begin
+      comment_id = params[:comment_id]
+      comment = Comment.find_by_id(comment_id)
+      if !comment
+        # possible system error as delete marked comments are removed from gifts/index page within 5 minutes
+        logger.warn2  "Comment with id #{comment_id} was not found"
+        @errors << t('.comment_not_found')
+        return
+      end
+      gift = comment.gift
+      if gift.deleted_at
+        # gift has been marked as deleted
+        @errors << t('.gift_deleted')
+        return
+      end
+      if !gift.visible_for?(@users)
+        # possible system error
+        logger.error2  "#{@user.short_user_name} is not allowed to see gift id #{gift_id}"
+        @errors << t('.not_authorized')
+        return
+      end
+      if comment.deleted_at
+        # comment has been marked as deleted
+        @errors << t('.comment_deleted')
+        return
+      end
+      if !comment.show_reject_new_deal_link?(@users)
+        logger.debug2 "reject link not active for comment with id #{comment_id}"
+        @errors << t('.not_allowed')
+        return
+      end
+      # reject agreement proposal
+      comment.accepted_yn = 'N'
+      comment.save!
+      # hide links
+      # todo: other comment changes? Maybe an other layout, style, color for accepted gift/comments
+      # todo: change gift and comment for other users after reject (new messages count ajax)?
+      @link_id = "gift-#{gift.id}-comment-#{comment.id}-reject-link"
+      logger.debug2 "link_id = #{@link_id}"
+      @errors << t('.ok')
+    rescue Exception => e
+      @errors << t('.exception', :error => e.message.to_s)
+      logger.error2 "Exception: #{e.message.to_s}"
+      logger.error2 "Backtrace: " + e.backtrace.join("\n")
+      logger.error2 "@errors = #{@errors}"
+      @link = nil
     end
-    gift = comment.gift
-    if !gift.visible_for?(@users)
-      logger.debug2  "#{@user.short_user_name} is not allowed to see gift id #{gift_id} - silently ignore ajax request"
-      return
-    end
-    if !comment.show_reject_new_deal_link?(@users)
-      logger.debug2  "reject link not active for comment with id #{comment_id} - silently ignore ajax request"
-      return
-    end
-    # reject agreement proposal
-    comment.accepted_yn = 'N'
-    comment.save!
-    # hide links
-    # todo: other comment changes? Maybe an other layout, style, color for accepted gift/comments
-    # todo: change gift and comment for other users after reject (new messages count ajax)?
-    @link_id = "gift-#{gift.id}-comment-#{comment.id}-reject-link"
-    logger.debug2  "link_id = #{@link_id}"
   end # reject_new_deal
 
   def accept_new_deal

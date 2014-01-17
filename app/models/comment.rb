@@ -162,16 +162,10 @@ class Comment < ActiveRecord::Base
     return false unless new_deal_yn == 'Y'
     return false if accepted_yn
     login_user_ids = users.collect { |u| u.user_id }
-    comment_user_ids = api_comments.collect { |ac| ac.user_id }
-    user_ids = login_user_ids & comment_user_ids
-    return false if user_ids.size == 0
     return false if gift.direction == 'both'
-    gift.api_gifts.each do |api_gift|
-      user = users.find { |user2| user2.provider == api_gift.provider }
-      next unless user
-      return true if [api_gift.user_id_receiver, api_gift.user_id_giver].index(user.user_id)
-    end
-    false
+    gift_user_ids = gift.api_gifts.collect { |ag| ag.user_id_giver || ag.user_id_receiver }
+    user_ids = login_user_ids & gift_user_ids
+    (user_ids.size > 0)
   end # show_accept_new_deal_link?
 
   def show_reject_new_deal_link? (users)
@@ -673,10 +667,10 @@ class Comment < ActiveRecord::Base
         #users1.push(gift.receiver) if gift.user_id_receiver and from_userid != gift.user_id_receiver
       when [4].index(noti_key_1)
         # rejected/accepted proposal - send notification to creator of proposal / comment
-        users1 = []
-        to_user_id = user_id
-        users1.push(user)
-        users1.each { |to_user| send_notification(noti_key_1, noti_key_2, 1, from_user, to_user) }
+        api_comments.each do |ac|
+          to_user = ac.user
+          send_notification(noti_key_1, noti_key_2, 1, from_users, to_user)
+        end
     end # case
   end # after_create
 
