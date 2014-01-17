@@ -469,26 +469,48 @@ class UtilController < ApplicationController
 
   # Parameters: {"comment_id"=>"478"}
   def cancel_new_deal
-    comment_id = params[:comment_id]
-    comment = Comment.find_by_id(comment_id)
-    if !comment
-      logger.debug2  "Comment with id #{comment_id} was not found - silently ignore ajax request"
-      return
+    @errors = []
+    @link_id = nil
+    begin
+      comment_id = params[:comment_id]
+      comment = Comment.find_by_id(comment_id)
+      if !comment
+        logger.warn2  "Comment with id #{comment_id} was not found"
+        @errors << t('.comment_not_found')
+        return
+      end
+      gift = comment.gift
+      if gift.deleted_at
+        @errors << t('.gift_deleted')
+        return
+      end
+      if !gift.visible_for?(@users)
+        logger.debug2  "#{@user.short_user_name} is not allowed to see gift id #{gift_id}"
+        @errors << t('.not_authorized')
+        return
+      end
+      if comment.deleted_at
+        @errors << t('.comment_deleted')
+        return
+      end
+      if !comment.show_cancel_new_deal_link?(@users)
+        logger.debug2  "cancel link no longer active for comment with id #{comment_id}"
+        @errors << t('.not_allowed')
+      else
+        # cancel agreement proposal
+        comment.new_deal_yn = nil
+        comment.save!
+        @errors << t('.ok')
+      end
+      # hide link
+      @link_id = "gift-#{gift.id}-comment-#{comment.id}-cancel-link"
+    rescue Exception => e
+      @errors << t('.exception', :error => e.message.to_s)
+      logger.error2 "Exception: #{e.message.to_s}"
+      logger.error2 "Backtrace: " + e.backtrace.join("\n")
+      logger.error2 "@errors = #{@errors}"
+      @link = nil
     end
-    gift = comment.gift
-    if !gift.visible_for?(@users)
-      logger.debug2  "#{@user.short_user_name} is not allowed to see gift id #{gift_id} - silently ignore ajax request"
-      return
-    end
-    if !comment.show_cancel_new_deal_link?(@user)
-      logger.debug2  "cancel link no longer active for comment with id #{comment_id} - silently ignore ajax request"
-    else
-      # cancel agreement proposal
-      comment.new_deal_yn = nil
-      comment.save!
-    end
-    # hide link
-    @link_id = "gift-#{gift.id}-comment-#{comment.id}-cancel-link"
   end # cancel_new_deal
 
   def reject_new_deal

@@ -1,1 +1,2 @@
-document.getElementById('<%= @link_id %>').style.display = 'none' ;
+<% if @link_id %>document.getElementById('<%= @link_id %>').style.display = 'none' ;<% end %>
+<% if @errors.size > 0 %>$('#tasks_errors').append('<%= j render('shared/ajax_errors') %>');<% end %>

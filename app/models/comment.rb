@@ -245,7 +245,7 @@ class Comment < ActiveRecord::Base
     logger.debug2  "noti_key_1 = #{noti_key_1} (#{NOTI_KEY_1[noti_key_1]}), " +
              "noti_key_2 = #{noti_key_2} (#{NOTI_KEY_2[noti_key_2]}), " +
              "noti_key_3 = #{noti_key_3} (#{NOTI_KEY_3[noti_key_3]}), " +
-             "from_users = #{User.debug_info(from_users)}, "
+             "from_users = #{User.debug_info(from_users)}, " +
              ", to_user = #{to_user.debug_info}" if debug_notifications
     from_user = from_users.find { |u| u.provider == to_user.provider}
     if !from_user
@@ -257,7 +257,7 @@ class Comment < ActiveRecord::Base
     # todo: test if we always can find a api comment when sending notifications
     api_comment = api_comments.find { |ac| ac.provider == to_user.provider }
     raise "todo: test if we always can find a api comment when sending notifications" unless api_comment
-    logger.debug2 "warning: did not find api comment for #{to_user.provider}"
+    logger.warn2 "warning: did not find api comment for #{to_user.provider}" unless api_comment
     if [3,4].index(noti_key_1)
       logger.debug2  "special handling of noti_key_1 = 3..5 ..." if debug_notifications
       # special handling of noti_type_1 = 3..5. noti_key_1 (noti_type):
@@ -286,7 +286,9 @@ class Comment < ActiveRecord::Base
       regexp1 = init_noti_key_regexp(2, noti_key_2, 1) # notification to gift giver/receiver
       regexp2 = init_noti_key_regexp(2, noti_key_2, 2) # notification to other users
       regexp3 = init_noti_key_regexp(2, noti_key_2, 3) # notification to followers
-      new_proposal_notifications = notifications.find_all { |n| ((noti_key_1 == 3 and regexp1.match(n.noti_key)) or regexp2.match(n.noti_key) or regexp3.match(n.noti_key)) }
+      new_proposal_notifications = api_comment.notifications.find_all do |n|
+        ((noti_key_1 == 3 and regexp1.match(n.noti_key)) or regexp2.match(n.noti_key) or regexp3.match(n.noti_key))
+      end
       if new_proposal_notifications.size == 0
         logger.debug2  "no new proposal notifications was found for comment id #{id}" if debug_notifications
       else
@@ -307,11 +309,11 @@ class Comment < ActiveRecord::Base
           logger.debug2  "#{i+1}: case 3a, 4a, 5a - change unread new_proposal_other notification to new_comment notification" if debug_notifications
           # change or delete new_proposal_notification
           logger.debug2  "#{i+1}: change or delete new_proposal_notification" if debug_notifications
-          remove_from_notification(new_proposal_notification)
+          api_comment.remove_from_notification(new_proposal_notification)
           # add new comment notification corresponding to changed/deleted new proposal notification
           logger.debug2  "#{i+1}: add new comment notification corresponding to changed/deleted new proposal notification" if debug_notifications
           # initialize variables to be used in new comment notification that replaces removed new proposal notification
-          logger.debug2  "#(i+1}: initialize variables to be used in new comment notification that replaces removed new proposal notification" if debug_notifications
+          logger.debug2  "#{i+1}: initialize variables to be used in new comment notification that replaces removed new proposal notification" if debug_notifications
           tmp_noti_key_3 = case
                              when regexp1.match(new_proposal_notification.noti_key) then 1
                              when regexp2.match(new_proposal_notification.noti_key) then 2
@@ -328,7 +330,7 @@ class Comment < ActiveRecord::Base
           logger.debug2  "#{i+1}: noti_key_3 = #{noti_key_3}, tmp_noti_key_3 = #{tmp_noti_key_3}" if debug_notifications
           logger.debug2  "#{i+1}: from_user = #{from_user.short_user_name}, tmp_from_user = #{tmp_from_user ? tmp_from_user.short_user_name : nil}" if debug_notifications
           logger.debug2  "#{i+1}: to_user = #{to_user.short_user_name}, tmp_to_user = #{tmp_to_user.short_user_name}" if debug_notifications
-          send_notification(1, noti_key_2, tmp_noti_key_3, tmp_from_user, tmp_to_user)
+          send_notification(1, noti_key_2, tmp_noti_key_3, [tmp_from_user], tmp_to_user)
           logger.debug2  "#{i+1}: stop check: noti_key_1 = #{noti_key_1}, new_proposal_notification.noti_key = #{new_proposal_notification.noti_key}" if debug_notifications
           if [3,4].index(noti_key_1) and regexp1.match(new_proposal_notification.noti_key)
             logger.debug2  "#{i+1}: signal stop" if debug_notifications
@@ -508,13 +510,13 @@ class Comment < ActiveRecord::Base
       case
         when accepted_proposal?
           noti_key_1 = 5 # accepted
-          from_userid = gift.user_id_giver || gift.user_id_receiver
+          from_userids = gift.api_gifts.collect { |ag| ag.user_id_giver || ag.user_id_receiver }
         when rejected_proposal?
           noti_key_1 = 4 # rejected
-          from_userid = gift.user_id_giver || gift.user_id_receiver
+          from_userids = gift.api_gifts.collect { |ag| ag.user_id_giver || ag.user_id_receiver }
         when cancelled_proposal?
           noti_key_1 = 3 # cancelled
-          from_userid = user_id
+          from_userids = api_comments.collect { |ac| ac.user_id }
       end # case
       # after update
     else
@@ -568,7 +570,7 @@ class Comment < ActiveRecord::Base
         logger.debug2 "1: gift_givers    = #{gift_givers.join(', ')}"
         logger.debug2 "1: from_userids   = #{User.debug_info(from_users)}"
         shared_userids = gift_givers & from_userids
-        logger.debug2 "1: shared_userids = #{User.debug_info(shared_userids)}"
+        logger.debug2 "1: shared_userids = #{shared_userids.join(', ')}"
         if %w(giver both).index(gift.direction) and shared_userids.size == 0
           raise "did not find any shared providers" if gift_givers_shared.size == 0
           users1 += User.where('user_id in (?)', gift_givers_shared) if gift_givers_shared.size > 0
@@ -651,10 +653,24 @@ class Comment < ActiveRecord::Base
         end # if
       when noti_key_1 == 3
         # cancelled proposal - send only notification to giver/receiver
-        users1 = []
-        users1.push(gift.giver) if gift.user_id_giver and from_userid != gift.user_id_giver
-        users1.push(gift.receiver) if gift.user_id_receiver and from_userid != gift.user_id_receiver
-        users1.each { |to_user| send_notification(noti_key_1, noti_key_2, 1, from_user, to_user) }
+        logger.debug2 "cancelled proposal - send only notification to giver/receiver"
+        logger.debug2 "gift_givers    = #{ gift_givers.join(', ')}"
+        logger.debug2 "gift_receivers = #{ gift_receivers.join(', ')}"
+        logger.debug2 "from_userids   = #{from_userids.join(', ')}"
+        # after_create: gift_givers    = 100006399422155/facebook, 109316109373670614208/google_oauth2, 2179784783/twitter
+        # after_create: gift_receivers =
+        # after_create: from_userids   = 117657151428689087350/google_oauth2, 100006351370003/facebook
+        users1_ids_tmp = gifts_giver_and_receivers - from_userids
+        logger.debug2 "users1_ids_tmp/a = #{users1_ids_tmp.join(', ')}"
+        users1_ids_tmp = users1_ids_tmp.find_all { |user_id| from_providers.index(user_id.split('/').last) }
+        logger.debug2 "users1_ids_tmp/b = #{users1_ids_tmp.join(', ')}"
+        if users1_ids_tmp.size > 0
+          users1 = User.where('user_id in (?)', users1_ids_tmp)
+          users1.each { |to_user| send_notification(noti_key_1, noti_key_2, 1, from_users, to_user) }
+        end
+        #users1 = []
+        #users1.push(gift.giver) if gift.user_id_giver and from_userid != gift.user_id_giver
+        #users1.push(gift.receiver) if gift.user_id_receiver and from_userid != gift.user_id_receiver
       when [4].index(noti_key_1)
         # rejected/accepted proposal - send notification to creator of proposal / comment
         users1 = []

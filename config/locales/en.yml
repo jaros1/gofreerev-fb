@@ -634,4 +634,13 @@ en:
         not_app_friends_link_text: "Not friends"
         all_app_users_link_text: "All"
 
-
+  # util controller
+  util:
+     cancel_new_deal:
+        comment_not_found: "System error. Could not cancel proposal. Proposal was not found."
+        gift_deleted: "Could not cancel proposal. Post has been deleted. Please refresh page."
+        not_authorized: "System error. Could not cancel proposal. You are not allowed to see post. Please refresh page."
+        comment_deleted: "Proposal has been deleted and can not be cancelled. Please refresh page."
+        not_allowed: "Sorry. It is no longer possible to cancel proposal."
+        ok: "Proposal has been cancelled."
+        exception: "System error. Could not cancel proposal. %{error}. More information in server log."

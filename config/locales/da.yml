@@ -633,3 +633,13 @@ da:
         not_app_friends_link_text: "Ej venner"
         all_app_users_link_text: "Alle"
 
+  # util controller
+  util:
+     cancel_new_deal:
+        comment_not_found: "System fejl. Kunne ikke fortryde forslag. Forslag ej fundet."
+        gift_deleted: "Kan ikke fortryde forslag. Opslag er blevet slettet. Genopfrisk venligst siden."
+        not_authorized: "System fejl. Kunne ikke fortryde forslag. Der er ikke (længere) adgang til opslag. Genopfrisk venligst siden."
+        comment_deleted: "Kan ikke fortryde forslag da forslaget er blevet slettet. Genopfrisk venligst siden."
+        not_allowed: "Fortryd forslag er desværre ikke længere muligt."
+        ok: "Forslag er blevet annuleret."
+        exception: "System fejl. Kunne ikke fortryde forslag. %{error}. Mere information i server log."
