@@ -160,6 +160,8 @@ en:
         grant_write_ok: "%{appname} was granted access to write on your %{apiname} wall."
         hide_grant_write_ok: "%{appname} will in future not ask for permission to make postings on your %{apiname} wall. You can later allow %{appname} to make postings on your %{apiname} wall by checking \"Post?\" checkbox on \"Log in\" page."
 
+  # omniauth controllers (auth, facebook and linkedin):
+
   # auth controller
   auth:
      oauth_failure:
@@ -221,6 +223,25 @@ en:
         ok_status_update: "You have granted %{appname} permission to write on your %{apiname} wall."
         ok_read_stream: "%{appname} was granted access to read posts on your %{apiname} wall."
         ok_other: "System error. Unknown facebook request was accepted."
+
+  linkedin:
+     index:
+        no_client: "System failure. Could not open %{apiname} API client. %{appname} was not granted access to write on your %{apiname} wall."
+        auth_failed: "System failure. Could not authorize %{apiname} API client. %{appname} was not granted access to write on your %{apiname} wall. Error: \"%{error}\"."
+        find_or_create_from_auth_hash: "System error. Invalid response from user update after login"
+        ok_rw_nus: "%{appname} was granted access to write on your %{apiname} wall."
+
+  # about controller
+  about:
+     index:
+        about_header: "About %{appname}"
+        about_text_html: "etc etc etc."
+        betatest_header: "%{appname} betatest"
+        betatest_text_html: "etc etc etc."
+        cookies_header: "Cookies"
+        cookies_text_html: "etc etc etc."
+        disclaimer_header: "Disclaimer"
+        disclaimer_text_html: "etc etc etc."
 
   # comments controller
   comments:
@@ -518,13 +539,6 @@ en:
         accepted_proposal_giver_other_1_v1_to_msg: '%{givername} accepted %{receivername}-s bid on his/her offer "%{gifttext} ..."'
         accepted_proposal_receiver_1_v1_to_url: "/gifts/%{giftid}"
         accepted_proposal_receiver_1_v1_to_msg: '%{receivername} accepted your bid on his/her wish "%{gifttext} ..."'
-
-  linkedin:
-     index:
-        no_client: "System failure. Could not open %{apiname} API client. %{appname} was not granted access to write on your %{apiname} wall."
-        auth_failed: "System failure. Could not authorize %{apiname} API client. %{appname} was not granted access to write on your %{apiname} wall. Error: \"%{error}\"."
-        find_or_create_from_auth_hash: "System error. Invalid response from user update after login"
-        ok_rw_nus: "%{appname} was granted access to write on your %{apiname} wall."
 
   # user controller
   users:

@@ -153,6 +153,8 @@ da:
         grant_write_ok: "%{appname} fik tilladelse til at lave opslag på din %{apiname} væg."
         hide_grant_write_ok: "%{appname} vil fremover ikke bede om tilladelse til at lave opslag på din %{apiname} væg. Du kan på et senere tidspunkt give %{appname} lov til at lave opslag på din %{apiname} væg ved at sætte hak i Opslag? tjekbox på \"Log ind\" siden."
 
+  # omniauth controllers (auth, facebook and linkedin):
+
   # auth controller
   auth:
      oauth_failure:
@@ -215,6 +217,25 @@ da:
         ok_status_update: "%{appname} fik tilladelse til at lave opslag på din %{apiname} væg."
         ok_read_stream: "%{appname} fik tilladelse til at læse opslag på din %{apiname} væg."
         ok_other: "Ukendt facebook anmodning ok."
+
+  linkedin:
+     index:
+        no_client: "System fejl. Kunne ikke åbne %{apiname} API klient. %{appname} fik ikke tilladelse til at lave opslag på din %{apiname} væg."
+        auth_failed: "System fejl. Kunne ikke autoriserer %{apiname} API klient. %{appname} fik ikke tilladelse til at lave opslag på din %{apiname} væg. Fejl meddelelse \"%{error}\"."
+        find_or_create_from_auth_hash: "System fejl. Ugyldigt svar fra bruger opdatering efter login."
+        ok_rw_nus: "%{appname} fik tilladelse til at lave opslag på din %{apiname} væg."
+
+  # about controller
+  about:
+     index:
+        about_header: "About %{appname}"
+        about_text_html: "bl.a. bl.a bl.a."
+        betatest_header: "%{appname} betatest"
+        betatest_text_html: "bl.a. bl.a bl.a."
+        cookies_header: "Cookies"
+        cookies_text_html: "bl.a. bl.a bl.a."
+        disclaimer_header: "Disclaimer"
+        disclaimer_text_html: "bl.a. bl.a bl.a."
 
   # comments controller
   comments:
@@ -517,13 +538,6 @@ da:
         accepted_proposal_giver_other_1_v1_to_msg: '%{givername} accepterede %{receivername}-s bud på sit tilbud "%{gifttext} ..."'
         accepted_proposal_receiver_1_v1_to_url: "/gifts/%{giftid}"
         accepted_proposal_receiver_1_v1_to_msg: '%{receivername} accepterede dit bud på sit ønske "%{gifttext} ..."'
-
-  linkedin:
-     index:
-        no_client: "System fejl. Kunne ikke åbne %{apiname} API klient. %{appname} fik ikke tilladelse til at lave opslag på din %{apiname} væg."
-        auth_failed: "System fejl. Kunne ikke autoriserer %{apiname} API klient. %{appname} fik ikke tilladelse til at lave opslag på din %{apiname} væg. Fejl meddelelse \"%{error}\"."
-        find_or_create_from_auth_hash: "System fejl. Ugyldigt svar fra bruger opdatering efter login."
-        ok_rw_nus: "%{appname} fik tilladelse til at lave opslag på din %{apiname} væg."
 
   # user controller
   users:
