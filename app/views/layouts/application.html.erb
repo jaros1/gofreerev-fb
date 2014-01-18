@@ -31,7 +31,7 @@
   <header>
     <% if @cookie_note -%>
       <div id="cookie_note" title="<%= t '.cookie_note_title', :appname => APP_NAME %>" style="width: 100%">
-        <%= t '.cookie_note_text_html', :appname => APP_NAME %>
+        <%= t '.cookie_note_text_html', :appname => APP_NAME, :url => about_index_path(:anchor => 'cookies') %>
         <%= button_tag t('.cookie_accept_text'), :onclick => "{$.cookie('cookies','accepted',{path:'/',expires:3650});document.getElementById('cookie_note').style.display = 'none'}" %>
         <%= button_tag t('.cookie_reject_text'), :onclick => "{top.location.href='" + cookie_decline_cookies_path + "'}" %>
         <%= button_tag t('.cookie_ignore_text'), :onclick => "{document.getElementById('cookie_note').style.display = 'none'}" %>
@@ -84,6 +84,6 @@
     <div id="debug_log" style="width: 100%">
     </div>
 <% end -%>
-<div id="betatest"></div>
+<%= link_to '<div id="betatest"></div>'.html_safe, about_index_path(:anchor => 'betatest') %>
 </body>
 </html>

@@ -58,7 +58,7 @@ en:
   layouts:
      application:
         cookie_note_title: "%{appname} uses temporary cookies for log in. In temporary session cookie are stored information about start time, login API authorization, language, timezone. Temporary cookies are removed when the browser is closed. Cookie acceptance is the only information stored in a permanent cookie."
-        cookie_note_text_html: "%{appname} uses cookies as part of the service. See menu item \"%{appname}\""
+        cookie_note_text_html: "%{appname} uses cookies as part of the service. See <a href=\"%{url}\">cookies</a>."
         cookie_accept_text: "Accept"
         cookie_reject_text: "Reject"
         cookie_ignore_text: "Ignore"

@@ -49,7 +49,7 @@
             <%= link_to t('.header_log_in_link_text'), header_log_in_link_url %></td>
           <td title="<%= t '.header_log_out_link_title', :appname => APP_NAME, :apiname => @user.api_name_without_brackets %>">
             <%= link_to_logout %></td>
-          <td><%= APP_NAME %></td>
+          <td><%= link_to APP_NAME, about_index_path %></td>
         </tr>
       </table>
     </div>
@@ -72,7 +72,7 @@
             <%= link_to t('.header_log_in_link_text'), header_log_in_link_url %></td>
           <td title="<%= t '.header_log_out_link_title', :appname => APP_NAME, :apiname => @user.api_name_without_brackets %>">
             <%= link_to_logout %></td>
-          <td><%= APP_NAME %></td>
+          <td><%= link_to APP_NAME, about_index_path %></td>
         </tr>
       </table>
     </div>
