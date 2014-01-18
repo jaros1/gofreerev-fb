@@ -239,9 +239,9 @@ en:
         betatest_header: "%{appname} betatest"
         betatest_text_html: "etc etc etc."
         cookies_header: "Cookies"
-        cookies_text_html: "etc etc etc."
+        cookies_text_html: "%{appname} uses an encrypted cookie whose function is to keep track of logged in users. The encrypted cookie contains the login provider user ID and access token as well as some internal variables used to improve the user experience (eg, time zone, warning or error message). %{appname} cookie is not used for advertising or tracking across web sites. Login information is removed by pressing the log out and cookie expires when the browser is closed."
         disclaimer_header: "Disclaimer"
-        disclaimer_text_html: "etc etc etc."
+        disclaimer_text_html: "MIT License disclaimer. The software is provided \"as is\", without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose and noninfringement. In no event shall %{appname} be liable for any claim, damages or other liability, whether in an action of contract, tort or otherwise, arising from, out of or in connection with %{appname} or the use or other dealings in %{appname}."
 
   # comments controller
   comments:

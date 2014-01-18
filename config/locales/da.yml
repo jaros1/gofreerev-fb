@@ -233,9 +233,9 @@ da:
         betatest_header: "%{appname} betatest"
         betatest_text_html: "bl.a. bl.a bl.a."
         cookies_header: "Cookies"
-        cookies_text_html: "bl.a. bl.a bl.a."
-        disclaimer_header: "Disclaimer"
-        disclaimer_text_html: "bl.a. bl.a bl.a."
+        cookies_text_html: "%{appname} anvender en krypteret cookie hvis funktion er at holde styr på ind loggede brugere. Den krypterede cookie indeholder brugerid og adgangs \"token\" til login udbyder(e) samt nogle interne variable der anvendes til at forbedre bruger oplevelsen (fx. tidszone, evt. advarsel eller fejl besked mm.). %{appname} cookie anvendes ikke til reklamer eller sporing på tværs af web sites. Adgangsoplysninger fjernes ved tryk på log ud og cookie fjernes når browseren lukkes."
+        disclaimer_header: "Ansvarsfraskrivelse"
+        disclaimer_text_html: "MIT License ansvarsfraskrivelse. Softwaren leveres \"som den er\", uden garanti af nogen art, udtrykkelige eller stiltiende, herunder, men ikke begrænset til garantier for salgbarhed, egnethed til et bestemt formål og ikke-krænkelse. Under ingen omstændigheder skal %{appname} være ansvarlig for ethvert krav, skader eller andet ansvar, enten i en aktion af kontrakten, tort eller andet, der skyldes, ud af eller i forbindelse med %{appname} eller brug eller andre transaktioner i %{appname}."
 
   # comments controller
   comments:
