@@ -165,7 +165,22 @@ class Comment < ActiveRecord::Base
     return false if gift.direction == 'both'
     gift_user_ids = gift.api_gifts.collect { |ag| ag.user_id_giver || ag.user_id_receiver }
     user_ids = login_user_ids & gift_user_ids
-    (user_ids.size > 0)
+    return false if user_ids.size == 0 # login user(s) are not creator(s) of gift
+    # user(s) is creator of gift.
+    # recheck friend relation with creator of new proposal
+    # friends relation can have changed - or maybe not logged in with the correct users to accept deal proposal
+    users2 = users.find_all { |u| user_ids.index(u.user_id)}
+    special_case = false # special case - users friend but not users2 friend
+    api_comments.each do |api_comment|
+      return true if api_comment.user.friend?(users2) # login user is friend with creator of deal proposal
+      special_case = true if users.size != users2.size and api_comment.user.friend?(users)
+    end
+    if special_case
+      logger.info2 "special case. login user(s) are not friend with creator(s) of new deal proposal"
+    else
+      logger.debug2 "login user(s) are not friend with creator(s) of new deal proposal"
+    end
+    false
   end # show_accept_new_deal_link?
 
   def show_reject_new_deal_link? (users)
@@ -496,9 +511,9 @@ class Comment < ActiveRecord::Base
   # config/locales/language.yml/inbox/index/accepted_proposal_* (32 translations)
   # this method is also called from after_update for noti types 3 .. 5 (cancel, reject and accept). update = true
   def after_create (update = false)
-    # find noti_type and noti_userid.
-    # noti_type: 1:new comment, 2:new proposal, 3:cancelled proposal, 4:rejected proposal, 5:accepted proposal
-    # noti_userid: user behind action - newer send notification to this user.
+    # find noti_key_1 and noti_userids. noti_key1 is part of translate key for notification
+    # - noti_key_1: 1:new comment, 2:new proposal, 3:cancelled proposal, 4:rejected proposal, 5:accepted proposal
+    # - from_userids: sender of notification
     if update
       # called from after_update callback
       case
@@ -523,8 +538,10 @@ class Comment < ActiveRecord::Base
       from_userids = api_comments.collect { |ac| ac.user_id }
       # after insert
     end
+    # from_users & from_providers - sender of notification
     from_users = User.where('user_id in (?)', from_userids)
     from_providers = from_users.collect { |u| u.provider }
+    # direction - noti_key_2 - part of translate key for notification
     case
       when gift.direction == 'both' then
         noti_key_2 = 3
@@ -535,6 +552,7 @@ class Comment < ActiveRecord::Base
       else
         raise "system error: gift without giver or receiver"
     end
+    # noti_key prefix - part 1 & 2 in notification message translate key
     logger.debug2  "noti_key_1 = #{noti_key_1}, noti_key_2 = #{noti_key_2}"
     noti_key_prefix = NOTI_KEY_1[noti_key_1] + '_' + NOTI_KEY_2[noti_key_2]
     logger.debug2  "noti_key_prefix = #{noti_key_prefix}" if debug_notifications
@@ -577,15 +595,16 @@ class Comment < ActiveRecord::Base
         end
         if noti_key_1 == 5
           # special rejected/accepted notification to owner of comment
-          to_user_id = user_id
-          users1.push(user)
+          to_userids = api_comments.collect { |ac| ac.user_id}
+          api_comments.collect { |ac| users1.push(ac.user) }
+          # users1.push(user)
         end
         users1_ids = users1.collect { |u| u.user_id }
         logger.debug2  "1: users1 = " + users1_ids.join(', ') if debug_notifications
 
         # 2) notifications to users that has commented the gift - "_other" is added to notification key!
         # users2 = gift.comments.includes(:user).collect { |c| c.user }.find_all { |user2| ![from_userid, to_user_id, gift.user_id_giver, gift.user_id_receiver].index(user2.user_id) }.uniq
-        exclude_user_ids = from_userids + [to_user_id] + gifts_giver_and_receivers
+        exclude_user_ids = from_userids + to_userids + gifts_giver_and_receivers
         logger.debug2 "2: exclude_user_ids = #{exclude_user_ids.join(', ')}"
         users2 = gift.api_comments.includes(:user).collect { |c| c.user }.find_all { |user2| !exclude_user_ids.index(user2.user_id) }.uniq
         users2_ids = users2.collect { |u| u.user_id }
@@ -687,12 +706,21 @@ class Comment < ActiveRecord::Base
       # send notifications
       after_create(true)
       if accepted_yn == 'Y'
-        # accepted proposal - update gift (user, price, received_at etc)
+        # accepted proposal - update gift (price, received_at etc) and api_gifts (giver or receivers)
+        # copy users from api_comment to api_gifts. Insert dummy user for providers with no match
         gift.reload
-        if !gift.user_id_giver
-          gift.user_id_giver = user_id
-        else
-          gift.user_id_receiver = user_id
+        providers_hash = {}
+        api_comments.each do |ac|
+          providers_hash[ac.provider] = ac.user_id
+        end
+        gift.api_gifts.each do |ag|
+          user_id_accept = providers_hash[ag.provider] || "gofreerev/#{ag.provider}"
+          if ag.user_id_giver
+            ag.user_id_receiver = user_id_accept
+          else
+            ag.user_id_giver = user_id_accept
+          end
+          ag.save!
         end
         if price
           gift.price = price
@@ -701,13 +729,17 @@ class Comment < ActiveRecord::Base
         end
         gift.received_at = updated_at # todo: move to gift callback
         gift.status_update_at = Sequence.next_status_update_at  # todo: move to gift callback
+        gift.direction = 'both'
         gift.save!
         # mark users for balance recalculation - ensures that balance is recalculated even if accept new deal post processing should fail for some reason
-        [ gift.giver, gift.receiver].each do |u|
-          u.reload
-          u.balance_at = Date.yesterday
-          u.save
-        end # each
+        gift.api_gifts.each do |ag|
+          [ ag.giver, ag.receiver].each do |u|
+            next if u.dummy_user?
+            u.reload
+            u.balance_at = Date.yesterday
+            u.save
+          end # each u
+        end # each ag
       end # if accepted
     end # if cancelled, rejected or accepted
   end # after_update

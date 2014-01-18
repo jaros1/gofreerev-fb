@@ -467,7 +467,54 @@ class UtilController < ApplicationController
   # comment link ajax methods
   #
 
+  # helper for cancel_new_deal, reject_new_deal and accept_new_deal
+  # input: params[:comment_id] and action in %w(cancel reject accept)
+  # returns array [comment, key, options] - key and options are used for error messages
+  private
+  def check_new_deal_action (action)
+    comment = key = options = nil
+    actions = %w(cancel reject accept)
+    if !actions.index(action)
+      logger.error2 "Invalid call. action #{action}. allowed actions are #{actions.join(', ')}"
+      return [comment, '.invalid_action', {:action => action} ]
+    end
+    comment_id = params[:comment_id]
+    comment = Comment.find_by_id(comment_id)
+    if !comment
+      logger.warn2 "Comment with id #{comment_id} was not found. Possible error as deleted comments are ajax removed from gifts/index page within 5 minutes"
+      return [comment, '.comment_not_found', {}]
+    end
+    gift = comment.gift
+    return [comment, '.gift_deleted', {}] if gift.deleted_at
+    if !gift.visible_for?(@users)
+      if action == 'cancel'
+        # cancel proposal - changed friend relation
+        logger.debug2 "#{@user.short_user_name} is no longer allowed to see gift id #{gift_id}. Must be removed friend. Could be system error"
+      else
+        # rejected or accept proposal
+        logger.error2 "System error. #{@user.short_user_name} is not allowed to see gift id #{gift_id}"
+      end
+      return [comment, '.not_authorized', {}]
+    end
+    return [comment, gift, '.comment_deleted', {}] if comment.deleted_at
+    show_action = case action
+                    when 'cancel' then
+                      comment.show_cancel_new_deal_link?(@users)
+                    when 'reject' then
+                      comment.show_reject_new_deal_link?(@users)
+                    when 'accept' then
+                      comment.show_accept_new_deal_link?(@users)
+                  end # case
+    if !show_action
+      logger.debug2  "#{action} link no longer active for comment with id #{comment_id}"
+      return [comment, '.not_allowed', {}]
+    end
+    # ok
+    comment
+  end # check_new_deal_action
+
   # Parameters: {"comment_id"=>"478"}
+  public
   def cancel_new_deal
     @errors = []
     @link_id = nil
@@ -566,44 +613,47 @@ class UtilController < ApplicationController
   end # reject_new_deal
 
   def accept_new_deal
-    comment_id = params[:comment_id]
-    comment = Comment.find_by_id(comment_id)
-    if !comment
-      logger.debug2  "Comment with id #{comment_id} was not found - silently ignore ajax request"
-      return
-    end
-    gift = comment.gift
-    if !gift.visible_for?(@users)
-      logger.debug2  "#{@user.short_user_name} is not allowed to see gift id #{gift_id} - silently ignore ajax request"
-      return
-    end
-    if !comment.show_accept_new_deal_link?(@user)
-      logger.debug2  "accept link not active for comment with id #{comment_id} - silently ignore ajax request"
-      return
-    end
-    # accept agreement proposal - mark proposal as accepted - callbacks sent notifications and updates gift
-    # logger.debug2  "comment.currency = #{comment.currency}"
-    comment.accepted_yn = 'Y'
-    comment.save!
-    if gift.price and gift.price != 0.0
-      # create social didivend and recalculate new balance for giver and receiver
-      gift.reload
-      gift.create_social_dividend
-      gift.giver.recalculate_balance
-      gift.receiver.recalculate_balance
-      # todo: change @user balance in page header
-    end
+    @errors = []
+    @api_gifts = nil
+    begin
+      # validate new deal action
+      comment, key, options = check_new_deal_action('accept')
+      if key
+        @errors << t(key, options)
+        return
+      end
+      # accept agreement proposal - mark proposal as accepted - callbacks sent notifications and updates gift
+      # logger.debug2  "comment.currency = #{comment.currency}"
+      comment.accepted_yn = 'Y'
+      comment.save!
+      gift = comment.gift
+      if gift.price and gift.price != 0.0
+        # create social didivend and recalculate new balance for giver and receiver
+        gift.reload
+        gift.create_social_dividend
+        gift.giver.recalculate_balance
+        gift.receiver.recalculate_balance
+        # todo: change @user balance in page header
+      end
 
-    # use a discount version af new_messages_count to ajax replace accepted deal in gifts/index page for current user
-    # that is without @new_messages_count, @comments, only with this accepted gift and without new values for new-newest-gift-id andnew-newest-status-update-at
-    # only client insert_update_gifts JS function is called
-    # next new_mesage_count request will ajax replace this gift once more, but that is a minor problem
-    gift.reload
-    @api_gifts = [gift]
-    respond_to do |format|
-      format.html {}
-      format.json { render json: @comment, status: :created, location: @comment }
-      format.js {}
+      # use a discount version af new_messages_count to ajax replace accepted deal in gifts/index page for current user
+      # that is without @new_messages_count, @comments, only with this accepted gift and without new values for new-newest-gift-id andnew-newest-status-update-at
+      # only client insert_update_gifts JS function is called
+      # next new_mesage_count request will ajax replace this gift once more, but that is a minor problem
+      gift.reload
+      @api_gifts = [gift]
+      # todo: drop this? always a JS request!
+      respond_to do |format|
+        format.html {}
+        format.json { render json: @comment, status: :created, location: @comment }
+        format.js {}
+      end
+    rescue Exception => e
+      @errors << t('.exception', :error => e.message.to_s)
+      logger.error2 "Exception: #{e.message.to_s}"
+      logger.error2 "Backtrace: " + e.backtrace.join("\n")
+      logger.error2 "@errors = #{@errors}"
+      @api_gifts = nil
     end
   end # accept_new_deal
 

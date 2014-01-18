@@ -342,3 +342,10 @@
 
 97) my.js - split comment-action-link ajax handler in one for each comment action?
     should use translated error messages in js error messages
+
+98) deal proposal and changed friend relations
+    cancel deal proposal when friends are removed
+    could be rejected friends in users/index page
+    could be changed api friend relation in post login task
+
+99) accept deal - check friend relation

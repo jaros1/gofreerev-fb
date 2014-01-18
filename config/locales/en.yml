@@ -637,6 +637,7 @@ en:
   # util controller
   util:
      cancel_new_deal:
+        invalid_action: "System error. Could not cancel proposal. Invalid action. More information in server log."
         comment_not_found: "System error. Could not cancel proposal. Proposal was not found."
         gift_deleted: "Could not cancel proposal. Post has been deleted. Please refresh page."
         not_authorized: "System error. Could not cancel proposal. You are not allowed to see post. Please refresh page."
@@ -645,6 +646,7 @@ en:
         ok: "Proposal has been cancelled."
         exception: "System error. Could not cancel proposal. %{error}. More information in server log."
      reject_new_deal:
+        invalid_action: "System error. Could not reject proposal. Invalid action. More information in server log."
         comment_not_found: "System error. Could not reject proposal. Proposal was not found."
         gift_deleted: "Could not reject proposal. Post has been deleted. Please refresh page."
         not_authorized: "System error. Could not reject proposal. You are not allowed to see post. Please refresh page."
@@ -652,3 +654,12 @@ en:
         not_allowed: "Sorry. It is no longer possible to reject proposal. Please refresh page."
         ok: "Proposal has been rejected."
         exception: "System error. Could not reject proposal. %{error}. More information in server log."
+     accept_new_deal:
+        invalid_action: "System error. Could not accept proposal. Invalid action. More information in server log."
+        comment_not_found: "System error. Could not accept proposal. Proposal was not found."
+        gift_deleted: "Could not godkende proposal. Post has been deleted. Please refresh page."
+        not_authorized: "System error. Could not godkende proposal. You are not allowed to see post. Please refresh page."
+        comment_deleted: "Proposal has been deleted and can not be accepted. Please refresh page."
+        not_allowed: "Sorry. It is no longer possible to accept proposal. Please refresh page."
+        ok: "Proposal has been accepted."
+        exception: "System error. Could not accept proposal. %{error}. More information in server log."

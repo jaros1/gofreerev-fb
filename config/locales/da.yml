@@ -636,6 +636,7 @@ da:
   # util controller
   util:
      cancel_new_deal:
+        invalid_action: "System fejl. Kunne ikke fortryde forslag. Ugyldig aktion. Mere information i server log."
         comment_not_found: "System fejl. Kunne ikke fortryde forslag. Forslag ej fundet."
         gift_deleted: "Kan ikke fortryde forslag. Opslag er blevet slettet. Genopfrisk venligst siden."
         not_authorized: "System fejl. Kunne ikke fortryde forslag. Der er ikke (længere) adgang til opslag. Genopfrisk venligst siden."
@@ -644,6 +645,7 @@ da:
         ok: "Forslag er blevet annuleret."
         exception: "System fejl. Kunne ikke fortryde forslag. %{error}. Mere information i server log."
      reject_new_deal:
+        invalid_action: "System fejl. Kunne ikke afvise forslag. Ugyldig aktion. Mere information i server log."
         comment_not_found: "System fejl. Kunne ikke afvise forslag. Forslag ej fundet."
         gift_deleted: "Kan ikke afvise forslag. Opslag er blevet slettet. Genopfrisk venligst siden."
         not_authorized: "System fejl. Kunne ikke afvise forslag. Der er ikke adgang til opslag. Genopfrisk venligst siden."
@@ -651,3 +653,13 @@ da:
         not_allowed: "Afvis forslag er desværre ikke længere muligt. Genopfrish venligst siden."
         ok: "Forslag er blevet afvist."
         exception: "System fejl. Kunne ikke afvise forslag. %{error}. Mere information i server log."
+     accept_new_deal:
+        invalid_action: "System fejl. Kunne ikke godkende forslag. Ugyldig aktion. Mere information i server log."
+        comment_not_found: "System fejl. Kunne ikke godkende forslag. Forslag ej fundet."
+        gift_deleted: "Kan ikke godkende forslag. Opslag er blevet slettet. Genopfrisk venligst siden."
+        not_authorized: "System fejl. Kunne ikke godkende forslag. Der er ikke adgang til opslag. Genopfrisk venligst siden."
+        comment_deleted: "Kan ikke godkende forslag da forslaget er blevet slettet. Genopfrisk venligst siden."
+        not_allowed: "Det er desværre ikke længere muligt at godkende forslag. Genopfrish venligst siden."
+        ok: "Forslag er blevet godkendt."
+        exception: "System fejl. Kunne ikke godkende forslag. %{error}. Mere information i server log."
+
