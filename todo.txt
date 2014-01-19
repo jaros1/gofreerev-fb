@@ -31,6 +31,7 @@
     for example notification every 1, 2, 4, 7, 14, 28 day
     one notification every day if user connects to app.
     don't send any more notifications if user has not been connected for 28 days
+    check out facebook, linkedin & twitter notification possibilities
 
  5) close account and delete all data in app
 
@@ -42,10 +43,6 @@
     no other information is shared access login api's
 
  8) add accept conditions for new users?
-
- 9) add disclaimer
-
-10) add cookie policy note
 
 11) new deal / cancel / accept / reject error handling:
     new deal can fail if gift user has accepted an other offer
@@ -347,5 +344,3 @@
     cancel deal proposal when friends are removed
     could be rejected friends in users/index page
     could be changed api friend relation in post login task
-
-99) accept deal - check friend relation
