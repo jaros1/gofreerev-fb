@@ -432,21 +432,21 @@ class Gift < ActiveRecord::Base
 
   def show_follow_gift_link? (users)
     userids = users.collect { |user| user.user_id }
-    if GiftLike.where('gift_id = ? and user_id in (?) and follow = ?', gift_id, userids, 'Y').first
+    if GiftLike.where('gift_id = ? and user_id in (?)', gift_id, userids).find_all { |gl| gl.follow == 'Y' }.first
       # user has selected to follow this gift
-      true
-    elsif GiftLike.where('gift_id = ? and user_id in (?) and follow = ?', gift_id, userids, 'N').first
-      # user has selected not to follow this gift
       false
+    elsif GiftLike.where('gift_id = ? and user_id in (?)', gift_id, userids).find_all { |gl| gl.follow == 'N' }.first
+      # user has selected not to follow this gift
+      true
     elsif api_gifts.find { |api_gift| userids.index(api_gift.user_id_giver) or userids.index(api_gift.user_id_receiver)}
       # user is giver or receiver of this gift
-      true
+      false
     elsif api_comments.find { |comment| userids.index(comment.user_id )}
       # user has commented this gift
-      true
+      false
     else
       # other users - do not follow
-      false
+      true
     end
   end # show_follow_gift_link?
 

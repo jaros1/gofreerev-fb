@@ -1,6 +1,9 @@
 <% if @gift_link_id -%>
-document.getElementById('<%= @gift_link_id %>').href = '<%= @gift_link_href %>' ;
-document.getElementById('<%= @gift_link_id %>').innerHTML = '<%= @gift_link_text %>' ;
+if (document.getElementById('<%= @gift_link_id %>')) {
+    document.getElementById('<%= @gift_link_id %>').href = '<%= @gift_link_href %>';
+    document.getElementById('<%= @gift_link_id %>').innerHTML = '<%= @gift_link_text %>';
+}
+else alert('<%= @gift_link_id %> was not found');
 <% end -%>
 <% if @errors2.size > 0 %>
 <% logger.debug2 "js = #{j(render('shared/ajax_errors2'))}" -%>

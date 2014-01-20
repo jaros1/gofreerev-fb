@@ -1,10 +1,6 @@
 # encoding: utf-8
 module GiftHelper
 
-  def gift_action_link (gift, key, path)
-    link_to t(key), path, :id => "gift-#{gift.id}-like-unlike-link", :class => "gift-action-link", :remote => true, :method => :post
-  end
-
   # show like/unlike link for gift under gift text and picture
   def link_to_gift_like_unlike (gift)
     if gift.show_like_gift_link?(@users)
@@ -12,7 +8,7 @@ module GiftHelper
     else
       key, path = '.unlike_gift', util_unlike_gift_path(:gift_id => gift.id)
     end
-    gift_action_link(gift, key, path)
+    link_to t(key), path, :id => "gift-#{gift.id}-like-unlike-link", :class => "gift-action-link", :remote => true, :method => :post
   end # link_to_gift_like_unlike
 
   # show follow/do not follow link for gift under gift text and picture
@@ -23,7 +19,7 @@ module GiftHelper
     else
       key, path = '.unfollow_gift', util_unfollow_gift_path(:gift_id => gift.id)
     end
-    gift_action_link(gift, key, path)
+    link_to t(key), path, :id => "gift-#{gift.id}-follow-unfollow-link", :class => "gift-action-link", :remote => true, :method => :post
   end # link_to_gift_follow_unfollow
 
   def link_to_gift_hide (gift)

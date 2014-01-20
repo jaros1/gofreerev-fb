@@ -1082,9 +1082,9 @@ function create_gift_links_errors_table (table_id) {
     var re1 = new RegExp('^gift-[0-9]+-links-errors$') ;
     if (!table_id.match(re1)) return false ; // not a gift link error
     giftid = table_id.split('-')[1] ;
-    // add2log('giftid = ' + giftid) ;
+    add2log('giftid = ' + giftid) ;
     ref_id = 'gift-' + giftid + '-links' ;
-    // add2log('ref_id = ' + ref_id) ;
+    add2log('ref_id = ' + ref_id) ;
     ref = document.getElementById(ref_id) ;
     if (!ref) {
         add2log(ref_id + ' was not found. ' + msg) ;
@@ -1096,20 +1096,20 @@ function create_gift_links_errors_table (table_id) {
         add2log('row after ' + ref_id + ' was not found. ' + msg) ;
         return false ;
     }
-    // add2log('create new tr') ;
+    add2log('create new tr') ;
     new_tr = document.createElement('tr') ;
-    // add2log('insert new td')
+    add2log('insert new td')
     for (j=0 ; j <= 2 ; j++) {
         new_td = new_tr.insertCell(j) ;
         new_td.innerHTML = '' ;
     }
-    // add2log('initialize tr[2]')
+    add2log('initialize tr[2]')
     new_td.innerHTML = '<table id="' + table_id + '"></table>' ;
     new_td.setAttribute("colspan",2);
-    // add2log('insertBefore') ;
+    add2log('insertBefore') ;
     ref.parentNode.insertBefore(new_tr, ref) ;
     // ok - new gift link error table has been created
-    // add2log('ok. ' + table_id + ' has been created') ;
+    add2log('ok. ' + table_id + ' has been created') ;
     return true ;
 } // create_gift_links_errors_table
 
@@ -1183,7 +1183,7 @@ function move_tasks_errors2() {
         }
         msg = cells[0].innerHTML ;
         to_table_id = cells[1].innerHTML ;
-        // add2log('msg = ' + msg + ', to_table_id = ' + to_table_id) ;
+        add2log('msg = ' + msg + ', to_table_id = ' + to_table_id) ;
         // use to_table if to_table already exists
         to_table = document.getElementById(to_table_id) ;
         if (to_table) {
@@ -1192,7 +1192,7 @@ function move_tasks_errors2() {
             continue ;
         }
         // check for gift link errors
-        // add2log('to_table_id = ' + to_table_id) ;
+        add2log('to_table_id = ' + to_table_id) ;
         if (!re1) re1 = new RegExp('^gift-[0-9]+-links-errors$') ;
         // add2log('re1 = ' + re1) ;
         if (create_gift_links_errors_table(to_table_id)) {

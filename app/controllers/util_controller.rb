@@ -433,59 +433,94 @@ class UtilController < ApplicationController
   end # unlike_gift
 
   def follow_gift
-    gift_id = params[:gift_id]
-    gift = Gift.find_by_id(gift_id)
-    if !gift
-      logger.debug2  "Gift with id #{gift_id} was not found - silently ignore ajax request"
-      return
+    @errors2 = []
+    @gift_link_id = @gift_link_href = @gift_link_text = nil
+    gift = nil
+    begin
+      gift, key, options = check_gift_action('follow')
+      if key
+        options = options || {}
+        options[:raise] = I18n::MissingTranslationData
+        @errors2 << { :msg => t(key, options), :id => gift ? "gift-#{gift.id}-links-errors" : "tasks_errors" }
+        logger.debug2 "@errors2 = #{@errors2}"
+        render 'gift_link_action'
+        return
+      end
+      # follow gift
+      @users.each do |user|
+        gl = GiftLike.where("user_id = ? and gift_id = ?", user.user_id, gift.gift_id).first
+        if gl
+          gl.follow = 'Y'
+        else
+          gl = GiftLike.new
+          gl.user_id = user.user_id
+          gl.gift_id = gift.gift_id
+          gl.like = 'N'
+          gl.show = 'Y'
+          gl.follow = 'Y'
+        end
+        gl.save!
+      end # each user
+      # change link
+      @gift_link_id = "gift-#{gift.id}-follow-unfollow-link"
+      @gift_link_href = util_unfollow_gift_path(:gift_id => gift.id)
+      @gift_link_text = t('gifts.api_gift.unfollow_gift')
+      logger.debug2 "@gift_link_id   = #{@gift_link_id}"
+      logger.debug2 "@gift_link_href = #{@gift_link_href}"
+      logger.debug2 "@gift_link_text = #{@gift_link_text}"
+      render 'gift_link_action'
+    rescue Exception => e
+      @errors2 << {:msg => t('.exception', :error => e.message.to_s, :raise => I18n::MissingTranslationData),
+                   :id => gift ? "gift-#{gift.id}-links-errors" : "tasks_errors"}
+      logger.error2 "Exception: #{e.message.to_s}"
+      logger.error2 "Backtrace: " + e.backtrace.join("\n")
+      logger.error2 "@errors = #{@errors}"
+      @gift_link_id = @gift_link_href = @gift_link_text = nil
+      render 'gift_link_action'
     end
-    if !gift.visible_for?(@users)
-      logger.debug2  "#{@user.short_user_name} is not allowed to see gift id #{gift_id} - silently ignore ajax request"
-      return
-    end
-    gl = GiftLike.where("user_id = ? and gift_id = ?", @user.user_id, gift.gift_id).first
-    if gl
-      gl.follow = 'Y'
-    else
-      gl = GiftLike.new
-      gl.user_id = @user.user_id
-      gl.gift_id = gift.gift_id
-      gl.like = 'N'
-      gl.follow = 'Y'
-      gl.show = 'Y'
-    end
-    gl.save!
-    # change link
-    @gift_link_id = "gift-#{gift.id}-follow-unfollow-link"
-    @gift_link_href = util_unfollow_gift_path(:gift_id => gift.id)
-    @gift_link_text = t('gifts.api_gift.unfollow_gift')
   end # follow_gift
 
   def unfollow_gift
-    gift_id = params[:gift_id]
-    gift = Gift.find_by_id(gift_id)
-    if !gift
-      logger.debug2  "Gift with id #{gift_id} was not found - silently ignore ajax request"
-      return
+    @errors2 = []
+    @gift_link_id = @gift_link_href = @gift_link_text = nil
+    gift = nil
+    begin
+      gift, key, options = check_gift_action('unfollow')
+      if key
+        options = options || {}
+        options[:raise] = I18n::MissingTranslationData
+        @errors2 << { :msg => t(key, options), :id => gift ? "gift-#{gift.id}-links-errors" : "tasks_errors" }
+        logger.debug2 "@errors2 = #{@errors2}"
+        render 'gift_link_action'
+        return
+      end
+      # unfollow gift
+      @users.each do |user|
+        gl = GiftLike.where("user_id = ? and gift_id = ?", user.user_id, gift.gift_id).first
+        if !gl
+          gl = GiftLike.new
+          gl.user_id = user.user_id
+          gl.gift_id = gift.gift_id
+          gl.like = 'N'
+          gl.show = 'Y'
+        end
+        gl.follow = 'N'
+        gl.save!
+      end # each user
+      # change link
+      @gift_link_id = "gift-#{gift.id}-follow-unfollow-link"
+      @gift_link_href = util_follow_gift_path(:gift_id => gift.id)
+      @gift_link_text = t('gifts.api_gift.follow_gift')
+      render 'gift_link_action'
+    rescue Exception => e
+      @errors2 << {:msg => t('.exception', :error => e.message.to_s, :raise => I18n::MissingTranslationData),
+                   :id => gift ? "gift-#{gift.id}-links-errors" : "tasks_errors"}
+      logger.error2 "Exception: #{e.message.to_s}"
+      logger.error2 "Backtrace: " + e.backtrace.join("\n")
+      logger.error2 "@errors = #{@errors}"
+      @gift_link_id = @gift_link_href = @gift_link_text = nil
+      render 'gift_link_action'
     end
-    if !gift.visible_for?(@users)
-      logger.debug2  "#{@user.short_user_name} is not allowed to see gift id #{gift_id} - silently ignore ajax request"
-      return
-    end
-    gl = GiftLike.where("user_id = ? and gift_id = ?", @user.user_id, gift.gift_id).first
-    if !gl
-      gl = GiftLike.new
-      gl.user_id = @user.user_id
-      gl.gift_id = gift.gift_id
-      gl.like = 'N'
-      gl.show = 'Y'
-    end
-    gl.follow = 'N'
-    gl.save!
-    # change link
-    @gift_link_id = "gift-#{gift.id}-follow-unfollow-link"
-    @gift_link_href = util_follow_gift_path(:gift_id => gift.id)
-    @gift_link_text = t('gifts.api_gift.follow_gift')
   end # unfollow_gift
 
   def hide_gift
