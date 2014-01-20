@@ -972,20 +972,28 @@ function show_more_rows_ajax(table_name, debug) {
 
 
 // clear error messages in page header before ajax request. For example before submitting new gift
-function clear_flash_and_ajax_errors() {
-    // clear old flash message if any
-    var notification = document.getElementById('notification');
-    if (notification) notification.innerHTML = '' ;
-    // empty table with task (error) messages if any
-    var tasks_errors = document.getElementById('tasks_errors') ;
-    if (!tasks_errors) return ;
-    var rows = tasks_errors.rows ;
+
+function clear_ajax_errors(table_id) {
+    // empty table with ajax messages if any
+    var table = document.getElementById(table_id) ;
+    if (!table) return ;
+    var rows = table.rows ;
     var row ;
     for (var i=rows.length-1 ; i>= 0 ; i--) {
         row = rows[i] ;
         row.parentNode.removeChild(row) ;
     } // for
+} // clear_ajax_errors
+
+function clear_flash_and_ajax_errors() {
+    // clear old flash message if any
+    var notification = document.getElementById('notification');
+    if (notification) notification.innerHTML = '' ;
+    // empty table with task (error) messages if any
+    clear_ajax_errors('tasks_errors') ;
 } // clear_flash_and_ajax_errors
+
+
 
 function get_js_timezone() {
   return -(new Date().getTimezoneOffset()) / 60.0 ;
@@ -1025,6 +1033,19 @@ $(document).ready(function() {
     $(".gift-action-link").unbind("ajax:beforeSend") ;
     $(".gift-action-link").unbind("ajax:error") ;
     $(".gift-action-link").bind("ajax:beforeSend", function(xhr, settings){
+        // clear any old ajax error messages if any
+        // clear within page ajax error messages if any
+        // add2log('gift-action-link::ajax:beforeSend. xhr = ' + xhr + ', settings = ' + settings) ;
+        var url = xhr.target ;
+        // add2log('gift-action-link::ajax:beforeSend. url = ' + url) ;
+        var url_a = ('' + url + '').split('=') ;
+        // add2log('gift-action-link::ajax:beforeSend. url_a.length = ' + url_a.length) ;
+        var giftid = url_a[url_a.length-1] ;
+        // add2log('gift-action-link::ajax:beforeSend. giftid = ' + giftid) ;
+        var table_id = 'gift-' + giftid + '-links-errors' ;
+        var table = document.getElementById(table_id) ;
+        if (table) clear_ajax_errors(table_id) ;
+        // clear page header error messages if any
         clear_flash_and_ajax_errors() ;
     })
     $(".gift-action-link").bind("ajax:error", function(jqxhr, textStatus, errorThrown){

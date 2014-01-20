@@ -147,37 +147,37 @@
         add2log('re1 = ' + re1) ;
         if (to_table_id.match(re1)) {
             // create errors table for gift-<giftid>-links ajax errors after row with links
-            add2log('add table with gift link ajax error messages') ;
+            // add2log('add table with gift link ajax error messages') ;
             giftid = to_table_id.split('-')[1] ;
-            add2log('giftid = ' + giftid) ;
+            // add2log('giftid = ' + giftid) ;
             ref_id = 'gift-' + giftid + '-links' ;
-            add2log('ref_id = ' + ref_id) ;
+            // add2log('ref_id = ' + ref_id) ;
             ref = document.getElementById(ref_id) ;
             if (!ref) {
                 add_to_tasks_errors(ref_id + ' was not found. ' + msg) ;
                 continue ;
             }
-            add2log(ref_id + ' blev fundet') ;
+            // add2log(ref_id + ' blev fundet') ;
             ref = ref.nextSibling ;
             if (!ref) {
                 add_to_tasks_errors('row after ' + ref_id + ' was not found. ' + msg) ;
                 continue ;
             }
-            add2log('create new tr') ;
+            // add2log('create new tr') ;
             new_tr = document.createElement('tr') ;
-            add2log('insert new td')
+            // add2log('insert new td')
             for (j=0 ; j <= 2 ; j++) {
                 new_td = new_tr.insertCell(j) ;
                 new_td.innerHTML = '' ;
             }
-            add2log('initialize tr[2]')
+            // add2log('initialize tr[2]')
             new_td.innerHTML = '<table id="' + to_table_id + '"></table>' ;
             new_td.setAttribute("colspan",2);
-            add2log('insertBefore') ;
+            // add2log('insertBefore') ;
             ref.parentNode.insertBefore(new_tr, ref) ;
-            add2log('insert error message into ' + to_table_id) ;
+            // add2log('insert error message into ' + to_table_id) ;
             add_to_tasks_errors2(to_table_id, msg) ;
-            add2log('remove old row') ;
+            // add2log('remove old row') ;
             row.parentNode.removeChild(row) ;
             continue ; //  //
         }
