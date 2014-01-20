@@ -1028,34 +1028,6 @@ $(document).ready(function() {
     })
 })
 
-// error callback for gift actions (like, unlike, follow, unfollow etc - write to debug log + page header
-$(document).ready(function() {
-    $(".gift-action-link").unbind("ajax:beforeSend") ;
-    $(".gift-action-link").unbind("ajax:error") ;
-    $(".gift-action-link").bind("ajax:beforeSend", function(xhr, settings){
-        // clear any old ajax error messages if any
-        // clear within page ajax error messages if any
-        // add2log('gift-action-link::ajax:beforeSend. xhr = ' + xhr + ', settings = ' + settings) ;
-        var url = xhr.target ;
-        // add2log('gift-action-link::ajax:beforeSend. url = ' + url) ;
-        var url_a = ('' + url + '').split('=') ;
-        // add2log('gift-action-link::ajax:beforeSend. url_a.length = ' + url_a.length) ;
-        var giftid = url_a[url_a.length-1] ;
-        // add2log('gift-action-link::ajax:beforeSend. giftid = ' + giftid) ;
-        var table_id = 'gift-' + giftid + '-links-errors' ;
-        var table = document.getElementById(table_id) ;
-        if (table) clear_ajax_errors(table_id) ;
-        // clear page header error messages if any
-        clear_flash_and_ajax_errors() ;
-    })
-    $(".gift-action-link").bind("ajax:error", function(jqxhr, textStatus, errorThrown){
-        add2log('.gift-action-link.error');
-        add2log('jqxhr = ' + jqxhr);
-        add2log('textStatus = ' + textStatus);
-        add2log('errorThrown = ' + errorThrown);
-        add_to_tasks_errors('gift-action-link.error: ' + errorThrown + '. check server log for more information.') ;
-    })
-})
 
 // error callback for comment actions (cancel, accept, reject, delete - write to debug log + page header
 $(document).ready(function() {
@@ -1103,6 +1075,137 @@ function add_to_tasks_errors (error) {
     cell.innerHTML = error ;
     ajax_flash_new_table_rows('tasks_errors', 1);
 }
+
+// create missing gift-<giftid>-links-errors table if possible
+// is created under current gift link row in gifts table
+function create_gift_links_errors_table (table_id) {
+    var re1 = new RegExp('^gift-[0-9]+-links-errors$') ;
+    if (!table_id.match(re1)) return false ; // not a gift link error
+    giftid = table_id.split('-')[1] ;
+    // add2log('giftid = ' + giftid) ;
+    ref_id = 'gift-' + giftid + '-links' ;
+    // add2log('ref_id = ' + ref_id) ;
+    ref = document.getElementById(ref_id) ;
+    if (!ref) {
+        add2log(ref_id + ' was not found. ' + msg) ;
+        return false ;
+    }
+    // add2log(ref_id + ' blev fundet') ;
+    ref = ref.nextSibling ;
+    if (!ref) {
+        add2log('row after ' + ref_id + ' was not found. ' + msg) ;
+        return false ;
+    }
+    // add2log('create new tr') ;
+    new_tr = document.createElement('tr') ;
+    // add2log('insert new td')
+    for (j=0 ; j <= 2 ; j++) {
+        new_td = new_tr.insertCell(j) ;
+        new_td.innerHTML = '' ;
+    }
+    // add2log('initialize tr[2]')
+    new_td.innerHTML = '<table id="' + table_id + '"></table>' ;
+    new_td.setAttribute("colspan",2);
+    // add2log('insertBefore') ;
+    ref.parentNode.insertBefore(new_tr, ref) ;
+    // ok - new gift link error table has been created
+    // add2log('ok. ' + table_id + ' has been created') ;
+    return true ;
+} // create_gift_links_errors_table
+
+// error callback for gift actions (like, unlike, follow, unfollow etc - write to debug log + page header
+$(document).ready(function() {
+    $(".gift-action-link").unbind("ajax:beforeSend") ;
+    $(".gift-action-link").unbind("ajax:error") ;
+    $(".gift-action-link").bind("ajax:beforeSend", function(xhr, settings){
+        // clear any old ajax error messages if any
+        // clear within page ajax error messages if any
+        // add2log('gift-action-link::ajax:beforeSend. xhr = ' + xhr + ', settings = ' + settings) ;
+        var url = xhr.target ;
+        // add2log('gift-action-link::ajax:beforeSend. url = ' + url) ;
+        var url_a = ('' + url + '').split('=') ;
+        // add2log('gift-action-link::ajax:beforeSend. url_a.length = ' + url_a.length) ;
+        var giftid = url_a[url_a.length-1] ;
+        // add2log('gift-action-link::ajax:beforeSend. giftid = ' + giftid) ;
+        var table_id = 'gift-' + giftid + '-links-errors' ;
+        var table = document.getElementById(table_id) ;
+        if (table) clear_ajax_errors(table_id) ;
+        // clear page header error messages if any
+        clear_flash_and_ajax_errors() ;
+    })
+    $(".gift-action-link").bind("ajax:error", function(jqxhr, textStatus, errorThrown){
+        add2log('.gift-action-link.error');
+        add2log('jqxhr = ' + jqxhr);
+        add2log('jqxhr.target = ' + jqxhr.target);
+        add2log('textStatus = ' + textStatus);
+        add2log('errorThrown = ' + errorThrown);
+        // inject gift action ajax error into page if possible. Otherwise use tasks_errors table in page header
+        var url = jqxhr.target ;
+        // add2log('gift-action-link::ajax:beforeSend. url = ' + url) ;
+        var url_a = ('' + url + '').split('=') ;
+        // add2log('gift-action-link::ajax:beforeSend. url_a.length = ' + url_a.length) ;
+        var giftid = url_a[url_a.length-1] ;
+        // add2log('gift-action-link::ajax:beforeSend. giftid = ' + giftid) ;
+        var table_id = 'gift-' + giftid + '-links-errors' ;
+        var table = document.getElementById(table_id) ;
+        if (!table && !create_gift_links_errors_table(table_id)) {
+            // inject ajax error message in page header
+            add_to_tasks_errors('gift-action-link.error: ' + errorThrown + '. check server log for more information.') ;
+        }
+        else {
+            // inject ajax error message in gift link error table in page
+            add_to_tasks_errors2(table_id, 'gift-action-link.error: ' + errorThrown + '. check server log for more information.') ;
+        }
+
+    })
+})
+
+// try to move ajax error messages from tasks_errors2 to more specific location in page
+// first column is error message. Second column is id for error table in page
+// tasks_errors table in page header will be used of more specific location can not be found
+function move_tasks_errors2() {
+    var from_table = document.getElementById('tasks_errors2') ;
+    if (!from_table) {
+        add_to_tasks_errors('tasks_errors2 was not found') ;
+        return ;
+    }
+    var rows = from_table.rows ;
+    var lng = rows.length ;
+    var row, cells, msg, to_table_id, to_table ;
+    var re1, giftid, ref_id, ref, new_tr, new_td, j ;
+    // add2log(lng + ' rows in tasks_errors2 table') ;
+    for (var i=lng-1 ; i >= 0 ; i--) {
+        row = rows[i] ;
+        cells = row.cells ;
+        if (cells.length != 2) {
+            add_to_tasks_errors('Invalid number of cells in tasks_errors row ' + i + '. Extected 2 cells. Found ' + cells.length + ' cells') ;
+            continue ;
+        }
+        msg = cells[0].innerHTML ;
+        to_table_id = cells[1].innerHTML ;
+        // add2log('msg = ' + msg + ', to_table_id = ' + to_table_id) ;
+        // use to_table if to_table already exists
+        to_table = document.getElementById(to_table_id) ;
+        if (to_table) {
+            add_to_tasks_errors2(to_table_id, msg) ;
+            row.parentNode.removeChild(row) ;
+            continue ;
+        }
+        // check for gift link errors
+        // add2log('to_table_id = ' + to_table_id) ;
+        if (!re1) re1 = new RegExp('^gift-[0-9]+-links-errors$') ;
+        // add2log('re1 = ' + re1) ;
+        if (create_gift_links_errors_table(to_table_id)) {
+            // a gift link ajax error and table for gift link error message has been created
+            add_to_tasks_errors2(to_table_id, msg) ;
+            // add2log('remove old row') ;
+            row.parentNode.removeChild(row) ;
+            continue ; //  //
+        }
+        add_to_tasks_errors('create ' + to_table_id + ' table for ajax error message ' + msg) ;
+    } // for
+    // alert('move_tasks_errors2. lng = ' + lng);
+} // move_tasks_errors2
 
 // ajax enable/disable gift file field in gifts/index page
 // enable after granting write permission to aåi wall
