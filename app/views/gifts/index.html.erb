@@ -179,7 +179,7 @@
             add_to_tasks_errors2(to_table_id, msg) ;
             add2log('remove old row') ;
             row.parentNode.removeChild(row) ;
-            continue ;
+            continue ; //
         }
         add_to_tasks_errors('create ' + to_table_id + ' table for ajax error messages') ;
       } // for
