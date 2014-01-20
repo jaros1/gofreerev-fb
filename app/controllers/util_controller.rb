@@ -399,7 +399,7 @@ class UtilController < ApplicationController
     @gift_link_id = @gift_link_href = @gift_link_text = nil
     gift = nil
     begin
-      gift, key, options = check_gift_action('like')
+      gift, key, options = check_gift_action('unlike')
       if key
         options = options || {}
         options[:raise] = I18n::MissingTranslationData
@@ -409,13 +409,18 @@ class UtilController < ApplicationController
         return
       end
       # unlike gift
-      raise "unlike gift not implemented"
-      gl.like = 'N';
-      gl.save!
+      @users.each do |user|
+        gl = GiftLike.where("user_id = ? and gift_id = ?", user.user_id, gift.gift_id).first
+        if gl and gl.like == 'Y'
+          gl.like = 'N';
+          gl.save!
+        end
+      end # each user
       # change link
       @gift_link_id = "gift-#{gift.id}-like-unlike-link"
-      @gift_link_href = util_unlike_gift_path(:gift_id => gift.id)
-      @gift_link_text = t('gifts.api_gift.unlike_gift')
+      @gift_link_href = util_like_gift_path(:gift_id => gift.id)
+      @gift_link_text = t('gifts.api_gift.like_gift')
+      render 'gift_link_action'
     rescue Exception => e
       @errors2 << {:msg => t('.exception', :error => e.message.to_s, :raise => I18n::MissingTranslationData),
                    :id => gift ? "gift-#{gift.id}-links-errors" : "tasks_errors"}
