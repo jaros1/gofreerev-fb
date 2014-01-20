@@ -651,6 +651,20 @@ da:
 
   # util controller
   util:
+     like_gift:
+        invalid_action: "System fejl. Kunne ikke \"synes om\" opslag. Ugyldig aktion. Mere information i server log."
+        gift_deleted: "Kan ikke \"synes om\" opslag. Opslag er blevet slettet. Genopfrisk venligst siden."
+        not_authorized: "System fejl. Kunne ikke \"synes om\" opslag. Der er ikke (længere) adgang til opslag. Genopfrisk venligst siden."
+        comment_deleted: "Kan ikke \"synes om\" opslag da forslaget er blevet slettet. Genopfrisk venligst siden."
+        not_allowed: "\"synes om\" opslag er desværre ikke længere muligt. Genopfrisk venligst siden."
+        exception: "System fejl. Kunne ikke \"synes om\" opslag. %{error}. Mere information i server log."
+     unlike_gift:
+        invalid_action: "System fejl. Kunne ikke fjerne \"synes om\" opslag. Ugyldig aktion. Mere information i server log."
+        gift_deleted: "Kan ikke fjerne \"synes om\" opslag. Opslag er blevet slettet. Genopfrisk venligst siden."
+        not_authorized: "System fejl. Kunne ikke fjerne \"synes om\" opslag. Der er ikke (længere) adgang til opslag. Genopfrisk venligst siden."
+        comment_deleted: "Kan ikke fjerne \"synes om\" opslag da forslaget er blevet slettet. Genopfrisk venligst siden."
+        not_allowed: "Fjern \"synes om\" opslag er desværre ikke længere muligt. Genopfrisk venligst siden."
+        exception: "System fejl. Kunne ikke fjerne \"synes om\" opslag. %{error}. Mere information i server log."
      cancel_new_deal:
         invalid_action: "System fejl. Kunne ikke fortryde forslag. Ugyldig aktion. Mere information i server log."
         comment_not_found: "System fejl. Kunne ikke fortryde forslag. Forslag ej fundet."

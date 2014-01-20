@@ -406,8 +406,6 @@ class Gift < ActiveRecord::Base
   end # show_new_deal_checkbox?
 
   def show_delete_gift_link? (users)
-    return false unless users.class == Array and users.length > 0
-    return false if User.dummy_users?(users)
     api_gifts.each do |api_gift|
       user = users.find { |user2| user2.provider == api_gift.provider }
       next unless user
@@ -415,6 +413,46 @@ class Gift < ActiveRecord::Base
     end
     return false
   end # show_delete_gift_link?
+
+  def show_hide_gift_link? (users)
+    !show_delete_gift_link?(users)
+  end # show_hide_gift_link?
+
+  def show_like_gift_link? (users)
+    user_ids = users.collect { |u| u.user_id }
+    GiftLike.where('gift_id = ? and user_id in (?)', gift_id, user_ids).each do |gl|
+      return false if gl.like == 'Y'
+    end # each gl
+    true
+  end # show_like_gift_link?
+
+  def show_unlike_gift_link? (users)
+    !show_like_gift_link?(users)
+  end # show_unlike_link?
+
+  def show_follow_gift_link? (users)
+    userids = users.collect { |user| user.user_id }
+    if GiftLike.where('gift_id = ? and user_id in (?) and follow = ?', gift_id, userids, 'Y').first
+      # user has selected to follow this gift
+      true
+    elsif GiftLike.where('gift_id = ? and user_id in (?) and follow = ?', gift_id, userids, 'N').first
+      # user has selected not to follow this gift
+      false
+    elsif api_gifts.find { |api_gift| userids.index(api_gift.user_id_giver) or userids.index(api_gift.user_id_receiver)}
+      # user is giver or receiver of this gift
+      true
+    elsif api_comments.find { |comment| userids.index(comment.user_id )}
+      # user has commented this gift
+      true
+    else
+      # other users - do not follow
+      false
+    end
+  end # show_follow_gift_link?
+
+  def show_unfollow_gift_link? (users)
+    !show_follow_gift_link?(users)
+  end # show_unfollow_gift_link?
 
   def rel_path_picture_exists?
     return false unless app_picture_rel_path

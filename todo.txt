@@ -34,8 +34,8 @@
     check out facebook, linkedin & twitter notification possibilities
 
  5) close account and delete all data in app
-
- 6) add more detailed description of what user information is saved in app. privacy note. Maybe with cookie note.
+    account - recalculate all relevant user balances (closed deals)
+    notification to users with changed balance?
 
  7) One balance for user with more than one login api.
     user must select "Share balance" in users/show screen to set user.user_combination
@@ -44,12 +44,11 @@
 
  8) add accept conditions for new users?
 
-11) new deal / cancel / accept / reject error handling:
-    new deal can fail if gift user has accepted an other offer
-    cancel can fail if gift user has accepted a deal or has rejected new deal from user
-    accept can fail if other user has cancelled the offer
-    reject can fail if other user has cancelled the offer
-    write short error msg in gift-xxx-comment-yyy-status div after errors
+11) new deal / cancel / accept / reject error handling
+    errors are written to tasks errors table in top of page
+    but that is a problem as user maybe not sees error message
+    add ajax:error - tasks error table is in top of page and user may not see error message
+    better to ajax inject error messages as if it was a new comment above new comment line
 
 12) make script to compare language files (en, da etc). Find missing keys
     check out https://github.com/tigrish/i18n-spec
@@ -61,9 +60,6 @@
     ok when few closed deals for a user, but can be a performance issue with many closed deals for a user.
     allow recalculating balance from a specific date or from a specific gift.id
     should only recalculate balance from last closed deal
-
-15) delete user account - recalculate all relevant user balances (closed deals)
-    notification to users with changed balance?
 
 16) batch processing:
     accept new deal - set new_balance_at = yesterday - for both users - user is marked for recalculate balance (ok)
@@ -95,17 +91,6 @@
     linkedin (todo)
     twitter (todo)
 
-23) check how to post on twitter
-
-24) add ajax:error for comment post. Should write an error message in tasks_errors table.
-    or better as a comment line
-    tasks error table is in top of page and user may not see error message
-
-25) missing_api_picture_urls
-    test that missing api_picture_urls functionaly still works
-    make a test with picture upload to two api's and delete picture from one api
-    gifts/index should show api_gift with picture (if authorization allows it)
-
 26) delete api_gifts and gifts with temp picture urls - that is picture on server
     normally temp pictures will be removed in util.delete_local_picture, but errors can occur
     should be a job for util.new_messages_count or util.missing_api_picture_urls
@@ -113,7 +98,8 @@
     1) delete old local picturs.
     2) report missing picture to util.missing_api_picture_urls,
     3) cleanup in util.missing_api_picture_urls
-    3/1-2014: temp folder was empty on development server
+    3/1-2014: temp folder was empty in laptop dev. environment
+    19/1-2014: 3 pictures found in temp folder in laptop dev. environment
 
 27) accept deal: must add giver/receiver for all api gift rows
     gift created by user a logged with 3 api providers
@@ -125,10 +111,8 @@
     use dummy user "gofreerev/<provider>" if no provider match between login user(s) and comment user(s)
 
 29) where to send notifications for a user with multiple logins?
-
-30) dont send notification when charlie comments his own gift
-    notification is from charlie/facebook to charlie/linkedin
-    and from charlie/linkedin to charlie/facebook
+    solution. one notification for each provider.
+    Maybe find some way to combine "identical" notifications in inbox/index page
 
 31) stress test. make a db with really many rows and test performance.
     There maybe are missing an index or two
@@ -344,3 +328,12 @@
     cancel deal proposal when friends are removed
     could be rejected friends in users/index page
     could be changed api friend relation in post login task
+
+99) inject ajax error messages to more specific area in gifts/index page
+    could by error tables within page
+    - gift-<giftid>-links-errors
+    - gift-<giftid>-comment-new-errors
+    - gift-<giftid>-comment-<commentid>-errors
+    problem: many extra tables in gifts/index page that always never will be used
+    could add a hidden destination column to @error injection in gifts/index page
+    error as injected in page header and then moved to more specific location

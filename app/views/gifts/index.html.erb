@@ -110,6 +110,83 @@
 
 </script>
 
+<script>
+  // move ajax error messages from tasks_errors2 to location in page
+  // first column is error message. Second column is id for error table in page
+  function move_tasks_errors2() {
+      var from_table = document.getElementById('tasks_errors2') ;
+      if (!from_table) {
+          add_to_tasks_errors('tasks_errors2 was not found') ;
+          return ;
+      }
+      var rows = from_table.rows ;
+      var lng = rows.length ;
+      var row, cells, msg, to_table_id, to_table ;
+      var re1, giftid, ref_id, ref, new_tr, new_td, j ;
+      add2log(lng + ' rows in tasks_errors2 table') ;
+      for (var i=lng-1 ; i >= 0 ; i--) {
+        row = rows[i] ;
+        cells = row.cells ;
+        if (cells.length != 2) {
+            add_to_tasks_errors('Invalid number of cells in tasks_errors row ' + i + '. Extected 2 cells. Found ' + cells.length + ' cells') ;
+            continue ;
+        }
+        msg = cells[0].innerHTML ;
+        to_table_id = cells[1].innerHTML ;
+        add2log('msg = ' + msg + ', to_table_id = ' + to_table_id) ;
+        // use to_table if to_table already exists
+        to_table = document.getElementById(to_table_id) ;
+        if (to_table) {
+            add_to_tasks_errors2(to_table_id, msg) ;
+            row.parentNode.removeChild(row) ;
+            continue ;
+        }
+        // check for gift link errors
+        add2log('to_table_id = ' + to_table_id) ;
+        if (!re1) re1 = new RegExp('^gift-[0-9]+-links-errors$') ;
+        add2log('re1 = ' + re1) ;
+        if (to_table_id.match(re1)) {
+            // create errors table for gift-<giftid>-links ajax errors after row with links
+            add2log('add table with gift link ajax error messages') ;
+            giftid = to_table_id.split('-')[1] ;
+            add2log('giftid = ' + giftid) ;
+            ref_id = 'gift-' + giftid + '-links' ;
+            add2log('ref_id = ' + ref_id) ;
+            ref = document.getElementById(ref_id) ;
+            if (!ref) {
+                add_to_tasks_errors(ref_id + ' was not found. ' + msg) ;
+                continue ;
+            }
+            add2log(ref_id + ' blev fundet') ;
+            ref = ref.nextSibling ;
+            if (!ref) {
+                add_to_tasks_errors('row after ' + ref_id + ' was not found. ' + msg) ;
+                continue ;
+            }
+            add2log('create new tr') ;
+            new_tr = document.createElement('tr') ;
+            add2log('insert new td')
+            for (j=0 ; j <= 2 ; j++) {
+                new_td = new_tr.insertCell(j) ;
+                new_td.innerHTML = '' ;
+            }
+            add2log('initialize tr[2]')
+            new_td.innerHTML = '<table id="' + to_table_id + '"></table>' ;
+            new_td.setAttribute("colspan",2);
+            add2log('insertBefore') ;
+            ref.parentNode.insertBefore(new_tr, ref) ;
+            add2log('insert error message into ' + to_table_id) ;
+            add_to_tasks_errors2(to_table_id, msg) ;
+            add2log('remove old row') ;
+            row.parentNode.removeChild(row) ;
+            continue ;
+        }
+        add_to_tasks_errors('create ' + to_table_id + ' table for ajax error messages') ;
+      } // for
+      // alert('move_tasks_errors2. lng = ' + lng);
+  } // move_tasks_errors2
+</script>
+
 
 
 

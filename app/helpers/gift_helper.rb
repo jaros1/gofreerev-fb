@@ -1,55 +1,29 @@
 # encoding: utf-8
 module GiftHelper
 
+  def gift_action_link (gift, key, path)
+    link_to t(key), path, :id => "gift-#{gift.id}-like-unlike-link", :class => "gift-action-link", :remote => true, :method => :post
+  end
+
   # show like/unlike link for gift under gift text and picture
   def link_to_gift_like_unlike (gift)
-    # check like status
-    gl = GiftLike.where("user_id = ? and gift_id = ?", @user.user_id, gift.gift_id).first
-    like = gl.like if gl and %w(Y N).index(gl.like)
-    like = 'N' unless like
-    if like == 'N'
-      link_to t('.like_gift'), util_like_gift_path(:gift_id => gift.id), :id => "gift-#{gift.id}-like-unlike-link", :class => "gift-action-link", :remote => true, :method => :post
+    if gift.show_like_gift_link?(@users)
+      key, path = '.like_gift', util_like_gift_path(:gift_id => gift.id)
     else
-      link_to t('.unlike_gift'), util_unlike_gift_path(:gift_id => gift.id), :id => "gift-#{gift.id}-like-unlike-link", :class => "gift-action-link", :remote => true, :method => :post
+      key, path = '.unlike_gift', util_unlike_gift_path(:gift_id => gift.id)
     end
+    gift_action_link(gift, key, path)
   end # link_to_gift_like_unlike
 
   # show follow/do not follow link for gift under gift text and picture
   # default is to follow gift as giver, receiver or commenter
   def link_to_gift_follow_unfollow (gift)
-    # 1 - check of user has selected to follow gift
-    return nil if User.dummy_users?(@users)
-    userids = @users.collect { |user| user.user_id }
-    if GiftLike.where('gift_id = ? and user_id in (?) and follow = ?', gift.gift_id, userids, 'Y').count > 0
-      # user has selected to follow this gift
-      follow = 'Y'
-    elsif GiftLike.where('gift_id = ? and user_id in (?) and follow = ?', gift.gift_id, userids, 'N').count > 0
-      # user has selected not to follow this gift
-      follow = 'N'
-    elsif gift.api_gifts.find { |api_gift| userids.index(api_gift.user_id_giver) or userids.index(api_gift.user_id_receiver)}
-      # user is giver or receiver of this gift
-      follow = 'Y'
-    elsif gift.api_comments.find { |comment| userids.index(comment.user_id )}
-      follow = 'Y'
+    if gift.show_follow_gift_link?(@users)
+      key, path = '.follow_gift', util_follow_gift_path(:gift_id => gift.id)
     else
-      follow = 'N'
+      key, path = '.unfollow_gift', util_unfollow_gift_path(:gift_id => gift.id)
     end
-    ## check like status
-    #gl = GiftLike.where("user_id = ? and gift_id = ?", @user.user_id, gift.gift_id).first
-    #follow = gl.follow if gl
-    #if !follow
-    #  if [gift.user_id_giver, gift.user_id_receiver].index(@user.user_id)
-    #    follow = 'Y'
-    #  else
-    #    c = Comment.where("user_id = ? and gift_id = ?", @user.user_id, gift.gift_id).first
-    #    follow = c ? 'Y' : 'N'
-    #  end
-    #end
-    if follow == 'N'
-      link_to t('.follow_gift'), util_follow_gift_path(:gift_id => gift.id), :id => "gift-#{gift.id}-follow-unfollow-link", :class => "gift-action-link", :remote => true, :method => :post
-    else
-      link_to t('.unfollow_gift'), util_unfollow_gift_path(:gift_id => gift.id), :id => "gift-#{gift.id}-follow-unfollow-link", :class => "gift-action-link", :remote => true, :method => :post
-    end
+    gift_action_link(gift, key, path)
   end # link_to_gift_follow_unfollow
 
   def link_to_gift_hide (gift)

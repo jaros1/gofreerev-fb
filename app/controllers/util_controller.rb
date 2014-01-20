@@ -302,57 +302,129 @@ class UtilController < ApplicationController
   # gift link ajax methods
   #
 
-  def like_gift
+  private
+  def check_gift_action (action)
+    gift = nil
+    actions = %w(like unlike follow unfollow hide delete)
+    if !actions.index(action)
+      logger.error2 "Invalid call. action #{action}. allowed actions are #{actions.join(', ')}"
+      return [gift, '.invalid_action', {:action => action}]
+    end
     gift_id = params[:gift_id]
     gift = Gift.find_by_id(gift_id)
     if !gift
-      logger.debug2  "Gift with id #{gift_id} was not found - silently ignore ajax request"
-      return
+      logger.debug2 "Gift with id #{gift_id} was not found"
+      return [gift, '.gift_not_found', {}]
     end
+    return [comment, '.gift_deleted', {}] if gift.deleted_at
     if !gift.visible_for?(@users)
-      logger.debug2  "#{@user.short_user_name} is not allowed to see gift id #{gift_id} - silently ignore ajax request"
-      return
+      logger.debug2 "#{@user.short_user_name} is not allowed to see gift id #{gift_id}"
+      return [gift, '.not_authorized', {}]
     end
-    gl = GiftLike.where("user_id = ? and gift_id = ?", @user.user_id, gift.gift_id).first
-    if gl
-      gl.like = 'Y'
+    if true
+      show_action = case action
+                      when 'like' then
+                        gift.show_like_gift_link?(@users)
+                      when 'unlike' then
+                        gift.show_unlike_gift_link?(@users)
+                      when 'follow' then
+                        gift.show_follow_gift_link?(@users)
+                      when 'unfollow' then
+                        gift.show_unfollow_gift_link?(@users)
+                      when 'hide' then
+                        gift.show_hide_gift_link?(@users)
+                      when 'hide' then
+                        gift.show_delete_gift_link?(@users)
+                    end # case
     else
-      gl = GiftLike.new
-      gl.user_id = @user.user_id
-      gl.gift_id = gift.gift_id
-      gl.like = 'Y'
-      gl.show = 'Y'
-      gl.follow = nil
+      method_name = "show_#{action}_gift_link?".to_sym
+      show_action = gift.send(method_name, @users)
     end
-    gl.save!
-    # change link
-    @gift_link_id = "gift-#{gift.id}-like-unlike-link"
-    @gift_link_href = util_unlike_gift_path(:gift_id => gift.id)
-    @gift_link_text = t('gifts.api_gift.unlike_gift')
+    if !show_action
+      logger.debug2 "#{action} link no longer active for gift with id #{gift_id}"
+      return [gift, '.not_allowed', {}]
+    end
+    # ok
+    gift
+  end # check_gift_action
+
+  public
+  def like_gift
+    @errors2 = []
+    @gift_link_id = @gift_link_href = @gift_link_text = nil
+    gift = nil
+    begin
+      gift, key, options = check_gift_action('like')
+      if key
+        options = options || {}
+        options[:raise] = I18n::MissingTranslationData
+        @errors2 << { :msg => t(key, options), :id => gift ? "gift-#{gift.id}-links-errors" : "tasks_errors" }
+        logger.debug2 "@errors2 = #{@errors2}"
+        render 'gift_link_action'
+        return
+      end
+      # like gift
+      @users.each do |user|
+        gl = GiftLike.where("user_id = ? and gift_id = ?", user.user_id, gift.gift_id).first
+        if gl
+          gl.like = 'Y'
+        else
+          gl = GiftLike.new
+          gl.user_id = user.user_id
+          gl.gift_id = gift.gift_id
+          gl.like = 'Y'
+          gl.show = 'Y'
+          gl.follow = nil
+        end
+        gl.save!
+      end # each user
+      # change link
+      @gift_link_id = "gift-#{gift.id}-like-unlike-link"
+      @gift_link_href = util_unlike_gift_path(:gift_id => gift.id)
+      @gift_link_text = t('gifts.api_gift.unlike_gift')
+      render 'gift_link_action'
+    rescue Exception => e
+      @errors2 << { :msg => t('.exception', :error => e.message.to_s, :raise => I18n::MissingTranslationData),
+                    :id => gift ? "gift-#{gift.id}-links-errors" : "tasks_errors" }
+      logger.error2 "Exception: #{e.message.to_s}"
+      logger.error2 "Backtrace: " + e.backtrace.join("\n")
+      logger.error2 "@errors = #{@errors}"
+      @gift_link_id = @gift_link_href = @gift_link_text = nil
+      render 'gift_link_action'
+    end
   end # like_gift
 
   def unlike_gift
-    gift_id = params[:gift_id]
-    gift = Gift.find_by_id(gift_id)
-    if !gift
-      logger.debug2  "Gift with id #{gift_id} was not found - silently ignore ajax request"
-      return
+    @errors2 = []
+    @gift_link_id = @gift_link_href = @gift_link_text = nil
+    gift = nil
+    begin
+      gift, key, options = check_gift_action('like')
+      if key
+        options = options || {}
+        options[:raise] = I18n::MissingTranslationData
+        @errors2 << { :msg => t(key, options), :id => gift ? "gift-#{gift.id}-links-errors" : "tasks_errors" }
+        logger.debug2 "@errors2 = #{@errors2}"
+        render 'gift_link_action'
+        return
+      end
+      # unlike gift
+      raise "unlike gift not implemented"
+      gl.like = 'N';
+      gl.save!
+      # change link
+      @gift_link_id = "gift-#{gift.id}-like-unlike-link"
+      @gift_link_href = util_unlike_gift_path(:gift_id => gift.id)
+      @gift_link_text = t('gifts.api_gift.unlike_gift')
+    rescue Exception => e
+      @errors2 << {:msg => t('.exception', :error => e.message.to_s, :raise => I18n::MissingTranslationData),
+                   :id => gift ? "gift-#{gift.id}-links-errors" : "tasks_errors"}
+      logger.error2 "Exception: #{e.message.to_s}"
+      logger.error2 "Backtrace: " + e.backtrace.join("\n")
+      logger.error2 "@errors = #{@errors}"
+      @gift_link_id = @gift_link_href = @gift_link_text = nil
+      render 'gift_link_action'
     end
-    if !gift.visible_for?(@users)
-      logger.debug2  "#{@user.short_user_name} is not allowed to see gift id #{gift_id} - silently ignore ajax request"
-      return
-    end
-    gl = GiftLike.where("user_id = ? and gift_id = ?", @user.user_id, gift.gift_id).first
-    if !gl or gl.like != 'Y'
-      logger.debug2  "Non previous like was found for user #{@user.short_user_name} and gift id #{gift_id}"
-      return
-    end
-    gl.like = 'N' ;
-    gl.save!
-    # change link
-    @gift_link_id = "gift-#{gift.id}-like-unlike-link"
-    @gift_link_href = util_like_gift_path(:gift_id => gift.id)
-    @gift_link_text = t('gifts.api_gift.like_gift')
   end # unlike_gift
 
   def follow_gift
@@ -497,15 +569,16 @@ class UtilController < ApplicationController
       return [comment, '.not_authorized', {}]
     end
     return [comment, gift, '.comment_deleted', {}] if comment.deleted_at
-    show_action = case action
-                    when 'cancel' then
-                      comment.show_cancel_new_deal_link?(@users)
-                    when 'reject' then
-                      comment.show_reject_new_deal_link?(@users)
-                    when 'accept' then
-                      comment.show_accept_new_deal_link?(@users)
-                  end # case
-    if !show_action
+    #show_action = case action
+    #                when 'cancel' then
+    #                  comment.show_cancel_new_deal_link?(@users)
+    #                when 'reject' then
+    #                  comment.show_reject_new_deal_link?(@users)
+    #                when 'accept' then
+    #                  comment.show_accept_new_deal_link?(@users)
+    #              end # case
+    method_name = "show_#{action}_new_deal_link?".to_sym
+    if !comment.send(method_name, @users)
       logger.debug2  "#{action} link no longer active for comment with id #{comment_id}"
       return [comment, '.not_allowed', {}]
     end
@@ -519,40 +592,23 @@ class UtilController < ApplicationController
     @errors = []
     @link_id = nil
     begin
-      comment_id = params[:comment_id]
-      comment = Comment.find_by_id(comment_id)
-      if !comment
-        logger.warn2  "Comment with id #{comment_id} was not found"
-        @errors << t('.comment_not_found')
+      # validate new deal reject action
+      comment, key, options = check_new_deal_action('reject')
+      if key
+        options = options || {}
+        options[:raise] = I18n::MissingTranslationData
+        @errors << t(key, options)
         return
       end
       gift = comment.gift
-      if gift.deleted_at
-        @errors << t('.gift_deleted')
-        return
-      end
-      if !gift.visible_for?(@users)
-        logger.debug2  "#{@user.short_user_name} is not allowed to see gift id #{gift_id}"
-        @errors << t('.not_authorized')
-        return
-      end
-      if comment.deleted_at
-        @errors << t('.comment_deleted')
-        return
-      end
-      if !comment.show_cancel_new_deal_link?(@users)
-        logger.debug2  "cancel link no longer active for comment with id #{comment_id}"
-        @errors << t('.not_allowed')
-      else
-        # cancel agreement proposal
-        comment.new_deal_yn = nil
-        comment.save!
-        @errors << t('.ok')
-      end
+      # cancel agreement proposal
+      comment.new_deal_yn = nil
+      comment.save!
+      @errors << t('.ok')
       # hide link
       @link_id = "gift-#{gift.id}-comment-#{comment.id}-cancel-link"
     rescue Exception => e
-      @errors << t('.exception', :error => e.message.to_s)
+      @errors << t('.exception', :error => e.message.to_s, :raise => I18n::MissingTranslationData)
       logger.error2 "Exception: #{e.message.to_s}"
       logger.error2 "Backtrace: " + e.backtrace.join("\n")
       logger.error2 "@errors = #{@errors}"
@@ -564,36 +620,15 @@ class UtilController < ApplicationController
     @errors = []
     @link_id = nil
     begin
-      comment_id = params[:comment_id]
-      comment = Comment.find_by_id(comment_id)
-      if !comment
-        # possible system error as delete marked comments are removed from gifts/index page within 5 minutes
-        logger.warn2  "Comment with id #{comment_id} was not found"
-        @errors << t('.comment_not_found')
+      # validate new deal reject action
+      comment, key, options = check_new_deal_action('reject')
+      if key
+        options = options || {}
+        options[:raise] = I18n::MissingTranslationData
+        @errors << t(key, options)
         return
       end
       gift = comment.gift
-      if gift.deleted_at
-        # gift has been marked as deleted
-        @errors << t('.gift_deleted')
-        return
-      end
-      if !gift.visible_for?(@users)
-        # possible system error
-        logger.error2  "#{@user.short_user_name} is not allowed to see gift id #{gift_id}"
-        @errors << t('.not_authorized')
-        return
-      end
-      if comment.deleted_at
-        # comment has been marked as deleted
-        @errors << t('.comment_deleted')
-        return
-      end
-      if !comment.show_reject_new_deal_link?(@users)
-        logger.debug2 "reject link not active for comment with id #{comment_id}"
-        @errors << t('.not_allowed')
-        return
-      end
       # reject agreement proposal
       comment.accepted_yn = 'N'
       comment.save!
@@ -604,7 +639,7 @@ class UtilController < ApplicationController
       logger.debug2 "link_id = #{@link_id}"
       @errors << t('.ok')
     rescue Exception => e
-      @errors << t('.exception', :error => e.message.to_s)
+      @errors << t('.exception', :error => e.message.to_s, :raise => I18n::MissingTranslationData)
       logger.error2 "Exception: #{e.message.to_s}"
       logger.error2 "Backtrace: " + e.backtrace.join("\n")
       logger.error2 "@errors = #{@errors}"
@@ -619,6 +654,8 @@ class UtilController < ApplicationController
       # validate new deal action
       comment, key, options = check_new_deal_action('accept')
       if key
+        options = options || {}
+        options[:raise] = I18n::MissingTranslationData
         @errors << t(key, options)
         return
       end
@@ -649,7 +686,7 @@ class UtilController < ApplicationController
         format.js {}
       end
     rescue Exception => e
-      @errors << t('.exception', :error => e.message.to_s)
+      @errors << t('.exception', :error => e.message.to_s, :raise => I18n::MissingTranslationData)
       logger.error2 "Exception: #{e.message.to_s}"
       logger.error2 "Backtrace: " + e.backtrace.join("\n")
       logger.error2 "@errors = #{@errors}"
