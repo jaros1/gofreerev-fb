@@ -1169,6 +1169,36 @@ $(document).ready(function() {
     })
 })
 
+function create_new_com_errors_table(table_id) {
+    // table_id = gift-890-comment-new-errors
+    var pgm = 'create_new_com_errors_table: ' ;
+    var re1 = new RegExp('^gift-[0-9]+-comment-new-errors$') ;
+    if (!table_id.match(re1)) return false ; // not a new comment error
+    giftid = table_id.split('-')[1] ;
+    add2log(pgm + 'giftid = ' + giftid) ;
+    ref_id = 'gift-' + giftid + '-comment-new-price-tr' ;
+    add2log(pgm + 'ref_id = ' + ref_id) ;
+    ref = document.getElementById(ref_id) ;
+    if (!ref) {
+        add2log(pgm + ref_id + ' was not found. ') ;
+        return false ;
+    }
+    // find table with gift-<giftid>-comment-new-price-tr row
+    var tbody = ref.parentNode ;
+    var rows = tbody.rows ;
+    add2log(pgm + rows.length + ' rows in table') ;
+    if (rows.length != 3) {
+        add2log(pgm + 'Expected 3 rows in table with ' + ref_id + '. Found ' + rows.length + ' rows.') ;
+        return false ;
+    }
+    // add new table row with table for ajax error messages
+    var row = tbody.insertRow(rows.length) ;
+    var cell = row.insertCell(0) ;
+    cell.setAttribute("colspan",2);
+    cell.innerHTML = '<table id="' + table_id + '"></table>' ;
+    return true ;
+} // create_new_com_errors_table
+
 // try to move ajax error messages from tasks_errors2 to more specific location in page
 // first column is error message. Second column is id for error table in page
 // tasks_errors table in page header will be used of more specific location can not be found
@@ -1187,7 +1217,7 @@ function move_tasks_errors2() {
         row = rows[i] ;
         cells = row.cells ;
         if (cells.length != 2) {
-            add_to_tasks_errors('Invalid number of cells in tasks_errors row ' + i + '. Extected 2 cells. Found ' + cells.length + ' cells') ;
+            add_to_tasks_errors('Invalid number of cells in tasks_errors row ' + i + '. Expected 2 cells. Found ' + cells.length + ' cells') ;
             continue ;
         }
         msg = cells[0].innerHTML ;
@@ -1195,23 +1225,20 @@ function move_tasks_errors2() {
         add2log('msg = ' + msg + ', to_table_id = ' + to_table_id) ;
         // use to_table if to_table already exists
         to_table = document.getElementById(to_table_id) ;
-        if (to_table) {
-            add_to_tasks_errors2(to_table_id, msg) ;
-            row.parentNode.removeChild(row) ;
-            continue ;
+        if (!to_table) {
+            // create missing table
+            if (!create_gift_links_errors_table(to_table_id) &&
+                !create_new_com_errors_table(to_table_id)) {
+                // could not create inside page error table
+                add_to_tasks_errors(msg + ' (inject not implemented for error message with id ' + to_table_id + ').') ;
+                continue
+            }
+            // error table was created
+            to_table = document.getElementById(to_table_id) ;
         }
-        // check for gift link errors
-        add2log('to_table_id = ' + to_table_id) ;
-        if (!re1) re1 = new RegExp('^gift-[0-9]+-links-errors$') ;
-        // add2log('re1 = ' + re1) ;
-        if (create_gift_links_errors_table(to_table_id)) {
-            // a gift link ajax error and table for gift link error message has been created
-            add_to_tasks_errors2(to_table_id, msg) ;
-            // add2log('remove old row') ;
-            row.parentNode.removeChild(row) ;
-            continue ; //  //
-        }
-        add_to_tasks_errors('error message inject not implemented for "' + to_table_id + '". Error message: \"' + msg + '"') ;
+        // move error message
+        add_to_tasks_errors2(to_table_id, msg) ;
+        row.parentNode.removeChild(row) ;
     } // for
     // alert('move_tasks_errors2. lng = ' + lng);
 } // move_tasks_errors2
