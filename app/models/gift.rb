@@ -1,11 +1,13 @@
 class Gift < ActiveRecord::Base
 
   has_many :api_comments, :class_name => 'ApiComment', :primary_key => :gift_id, :foreign_key => :gift_id, :dependent => :destroy
+  # todo: :dependent => :destroy does not work for api_gifts. Has added a after_destroy callback to fix this problem
   has_many :api_gifts, :class_name => 'ApiGift', :primary_key => :gift_id, :foreign_key => :gift_id, :dependent => :destroy
   has_many :likes, :class_name => 'GiftLike', :primary_key => :gift_id, :foreign_key => :gift_id, :dependent => :destroy
 
   before_create :before_create
   before_update :before_update
+  after_destroy :after_destroy
 
   # https://github.com/jmazzi/crypt_keeper - text columns are encrypted in database
   # encrypt_add_pre_and_postfix/encrypt_remove_pre_and_postfix added in setters/getters for better encryption
@@ -484,13 +486,23 @@ class Gift < ActiveRecord::Base
     end # if
   end # before_update
 
+  def after_destroy
+    # :dependent => :destroy does not work for api_gifts relation
+    logger.debug2 "before cleanup api gifts. gift_id = #{gift_id}"
+    ApiGift.where('gift_id = ?', gift_id).delete_all
+    logger.debug2 "after cleanup api gifts. gift_id = #{gift_id}"
+  end
 
   # todo: there is a problem with api gifts without gifts.
   def self.check_gift_and_api_gift_rel
-    giftids = ApiGift.all.collect { |ag| ag.gift_id } - Gift.all.collect { |g| g.gift_id }
-    raise Exception.new "ApiGift without Gift. gift id #{giftids.join(', ')}" if giftids.size > 0
+    giftids = nil
+    uncached do
+      giftids = (ApiGift.all.collect { |ag| ag.gift_id } - Gift.all.collect { |g| g.gift_id }).uniq
+    end
+    return if giftids.size == 0
+    logger.fatal2 "ApiGift without Gift. gift id's #{giftids.join(', ')}"
+    Process.kill('INT', Process.pid) # stop rails server
   end
-
 
 
   # https://github.com/jmazzi/crypt_keeper gem encrypts all attributes and all rows in db with the same key

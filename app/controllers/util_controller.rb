@@ -20,13 +20,18 @@ class UtilController < ApplicationController
     # gift was marked as deleted in util/delete_gift request
     # gift has been ajax removed from  gifts pages for other sessions in previous util/new_message_count requests
     # now is the time to destroy old delete marked gifts
+    Gift.check_gift_and_api_gift_rel
     userids = @users.collect { |user| user.user_id }
     Gift.where('(api_gifts.user_id_giver in (?) or api_gifts.user_id_receiver in (?)) and deleted_at is not null and deleted_at < ?',
                userids, userids, 10.minutes.ago).includes(:api_gifts).references(:api_gifts).each do |g|
+      # todo: there is a problem with api gifts without gift. - raise exception to trace problem
+      Gift.check_gift_and_api_gift_rel
+      logger.debug2 "before destroy gift id #{g.id}"
       g.destroy!
+      logger.debug2 "after destroy gift id #{g.id}"
+      Gift.check_gift_and_api_gift_rel
+
     end
-    # todo: there is a problem with api gifts without gift. - raise exception to trace problem
-    Gift.check_gift_and_api_gift_rel
     # get params
     old_newest_gift_id = params[:newest_gift_id].to_i
     old_newest_status_update_at = params[:newest_status_update_at].to_i
@@ -316,7 +321,7 @@ class UtilController < ApplicationController
       logger.debug2 "Gift with id #{gift_id} was not found"
       return [gift, '.gift_not_found', {}]
     end
-    return [comment, '.gift_deleted', {}] if gift.deleted_at
+    return [gift, '.gift_deleted', {}] if gift.deleted_at
     if !gift.visible_for?(@users)
       logger.debug2 "#{@user.short_user_name} is not allowed to see gift id #{gift_id}"
       return [gift, '.not_authorized', {}]
@@ -555,6 +560,7 @@ class UtilController < ApplicationController
       end
       # hide gift - web page
       @gift_id = gift.id
+      render 'hide_delete_gift'
     rescue Exception => e
       # todo: refactor exception handling - almust identical for all gift action links
       @errors2 << {:msg => t('.exception', :error => e.message.to_s, :raise => I18n::MissingTranslationData),
@@ -595,6 +601,7 @@ class UtilController < ApplicationController
       end
       # remove gift from gift from current gifts table
       @gift_id = gift.id
+      render 'hide_delete_gift'
     rescue Exception => e
       # todo: refactor exception handling - almust identical for all gift action links
       @errors2 << {:msg => t('.exception', :error => e.message.to_s, :raise => I18n::MissingTranslationData),

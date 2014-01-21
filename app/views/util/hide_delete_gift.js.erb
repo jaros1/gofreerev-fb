@@ -1,5 +1,6 @@
 <% if @gift_id -%>
 <%# ok response - hide all rows with format gift-<gift_id>- %>
+<% logger.debug2 "ok response - remove gift #{@gift_id} rows" -%>
 (function () {
     var re = new RegExp("^gift-<%= @gift_id %>-");
     var gifts = document.getElementById('gifts');
@@ -14,6 +15,7 @@
 <% end -%>
 <% if @errors2.size > 0 %>
 <%# error response - inject error into tasks_errors2 table and move error to placeholder table within gifts/index page -%>
+<% logger.debug2 "error response - @errors2 = #{@errors2}" -%>
 $('#tasks_errors2').append('<%= j render('shared/ajax_errors2') %>');
 move_tasks_errors2();
 <% end %>

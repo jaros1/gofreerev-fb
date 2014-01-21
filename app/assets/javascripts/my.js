@@ -1049,13 +1049,15 @@ $(document).ready(function() {
 // normally tasks errors and messages are injected from server
 // this function is used for client side errors - for example from error in callback functions (ajax:error)
 function add_to_tasks_errors2 (table_id, error) {
+    var pgm = 'add_to_tasks_errors2: ' ;
     var table = document.getElementById(table_id) ;
     if (!table) {
-        add2log('add_to_tasks_errors2: ' + table_id + ' was not found.') ;
-        add2log('add_to_tasks_errors2: error was ' + error + '') ;
+        add2log(pgm + table_id + ' was not found.') ;
+        add2log(pgm + 'error was ' + error + '') ;
         return ;
     }
-    var length = table.length ;
+    var length = table.rows.size ;
+    add2log(pgm + 'length = ' + length) ;
     var row = table.insertRow(length) ;
     var cell = row.insertCell(0) ;
     cell.innerHTML = error ;
@@ -1098,6 +1100,7 @@ function create_gift_links_errors_table (table_id) {
     }
     add2log('create new tr') ;
     new_tr = document.createElement('tr') ;
+    new_tr.id = table_id + '-tr' ;
     add2log('insert new td')
     for (j=0 ; j <= 2 ; j++) {
         new_td = new_tr.insertCell(j) ;

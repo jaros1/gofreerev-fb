@@ -652,6 +652,48 @@ en:
 
   # util controller
   util:
+     like_gift:
+        invalid_action: "System error. Could not \"like\" post. Invalid action. More information in server log."
+        gift_deleted: "Can not \"like\" post. Post has been deleted. Please refresh the page."
+        not_authorized: "System error. Could not \"like\" post. You are no longer allowed to see the post. Please refresh the page."
+        comment_deleted: "Can not \"like\" post. The post has been deleted. Please refresh the page."
+        not_allowed: "\"like\" post is not longer possible. Please refresh the page."
+        exception: "System error. Could not \"like\" post. %{error}. More information in server log."
+     unlike_gift:
+        invalid_action: "System error. Could not remove \"like\" post. Invalid action. More information in server log."
+        gift_deleted: "Can not remove \"like\" post. Post has been deleted. Please refresh the page."
+        not_authorized: "System error. Could not remove \"like\" post. You are no longer allowed to see the post. Please refresh the page."
+        comment_deleted: "Can not remove \"like\" post. The post has been deleted. Please refresh the page."
+        not_allowed: "Remove \"like\" post is not longer possible. Please refresh the page."
+        exception: "System error. Could not remove \"like\" post. %{error}. More information in server log."
+     follow_gift:
+        invalid_action: "System error. Could not \"follow\" post. Invalid action. More information in server log."
+        gift_deleted: "Can not \"follow\" post. post has been deleted. Please refresh the page."
+        not_authorized: "System error. Could not \"follow\" post. You are no longer allowed to see the post. Please refresh the page."
+        comment_deleted: "Can not \"follow\" post. The post has been deleted. Please refresh the page."
+        not_allowed: "\"follow\" post is not longer possible. Please refresh the page."
+        exception: "System error. Could not \"follow\" post. %{error}. More information in server log."
+     unfollow_gift:
+        invalid_action: "System error. Could not remove \"follow\" post. Invalid action. More information in server log."
+        gift_deleted: "Can not remove \"follow\" post. post has been deleted. Please refresh the page."
+        not_authorized: "System error. Could not remove \"follow\" post. You are no longer allowed to see the post. Please refresh the page."
+        comment_deleted: "Can not remove \"follow\" post. The post has been deleted. Please refresh the page."
+        not_allowed: "Remove \"follow\" is not longer possible. Please refresh the page."
+        exception: "System error. Could not remove \"follow\" post. %{error}. More information in server log."
+     hide_gift:
+        invalid_action: "System error. Could not skjule post. Invalid action. More information in server log."
+        gift_deleted: "Can not skjule post. post has been deleted. Please refresh the page."
+        not_authorized: "System error. Could not skjule post. You are no longer allowed to see the post. Please refresh the page."
+        comment_deleted: "Can not skjule post, The post has been deleted. Please refresh the page."
+        not_allowed: "Skjul post is not longer possible. Please refresh the page."
+        exception: "System error. Could not skjule post. %{error}. More information in server log."
+     delete_gift:
+        invalid_action: "System error. Could not delete post. Invalid action. More information in server log."
+        gift_deleted: "Can not delete post. post has been deleted. Please refresh the page."
+        not_authorized: "System error. Could not delete post. You are no longer allowed to see the post. Please refresh the page."
+        comment_deleted: "Can not delete post. The post has been deleted. Please refresh the page."
+        not_allowed: "Delete post is not longer possible. Please refresh the page."
+        exception: "System error. Could not delete post. %{error}. More information in server log."
      cancel_new_deal:
         invalid_action: "System error. Could not cancel proposal. Invalid action. More information in server log."
         comment_not_found: "System error. Could not cancel proposal. Proposal was not found."

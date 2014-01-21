@@ -342,3 +342,4 @@
      should remove gift and ajax error message from page
      the same problem for ajax delete gift in other pages (new_messages_count)
 
+101) ajax inject create comment errors to row above or below new comment row.
