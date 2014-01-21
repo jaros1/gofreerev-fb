@@ -175,6 +175,9 @@ function csv_comment(giftid)
         return false;
     }
     // comment is ok - add post ajax handler and submit
+    var table_id = 'gift-' + giftid + '-comment-new-errors' ;
+    var table = document.getElementById(table_id) ;
+    if (table) clear_ajax_errors(table_id) ;
     clear_flash_and_ajax_errors() ;
     post_ajax_add_new_comment_handler(giftid) ;
     return true ;
@@ -1208,7 +1211,7 @@ function move_tasks_errors2() {
             row.parentNode.removeChild(row) ;
             continue ; //  //
         }
-        add_to_tasks_errors('create ' + to_table_id + ' table for ajax error message ' + msg) ;
+        add_to_tasks_errors('error message inject not implemented for "' + to_table_id + '". Error message: \"' + msg + '"') ;
     } // for
     // alert('move_tasks_errors2. lng = ' + lng);
 } // move_tasks_errors2

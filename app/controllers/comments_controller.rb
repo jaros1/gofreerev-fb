@@ -6,14 +6,16 @@ class CommentsController < ApplicationController
   # POST /comments.json
   # Parameters: {"utf8"=>"✓", "comment"=>{"gift_id"=>"j0N0uppxbj1nmDfsWBbk", "new_deal_yn"=>"Y", "price"=>"1", "comment"=>"25"}, "commit"=>"Gem"}
   def create
-    @errors = []
+    @errors2 = []
     @api_comment = nil
+    gift_row_id = nil
     begin
       # start with empty ajax response
-      return add_error_and_format_ajax_resp(t '.invalid_request_no_comment_form') unless params.has_key?(:comment)
+      return add_create_comment_error(nil, '.invalid_request_no_comment_form') unless params.has_key?(:comment)
       gift = Gift.find_by_gift_id(params[:comment][:gift_id])
-      return add_error_and_format_ajax_resp(t '.invalid_request_unknown_gift') unless gift
-      return add_error_and_format_ajax_resp(t '.invalid_request_invalid_gift') unless gift.visible_for?(@users)
+      return add_create_comment_error(nil, '.invalid_request_unknown_gift') unless gift
+      return add_create_comment_error(nil, '.invalid_request_invalid_gift') unless gift.visible_for?(@users)
+      gift_row_id = gift.id
       # get user from @users. Must be giver, receiver or friend of giver or receiver.
       user = @users.find { |user2| gift.visible_for?([user2]) }
       logger.debug2 "user_id = #{user.user_id}"
@@ -36,32 +38,22 @@ class CommentsController < ApplicationController
         api_comment.user_id = user.user_id
         comment.api_comments << api_comment
       end
-      return add_error_and_format_ajax_resp(t '.no_providers') if comment.api_comments.size == 0
+      return add_create_comment_error(gift_row_id, '.no_providers') if comment.api_comments.size == 0
 
-      respond_to do |format|
-        # price= accepts only float and model can not return invalid price errors
-        comment.valid?
-        comment.errors.add :price, :invalid if params[:comment][:new_deal_yn] == 'Y' and invalid_price?(params[:comment][:price])
-        if comment.errors.size == 0
-          comment.save!
-          # select random api_comment if multiple shared providers between gift and comment users
-          @api_comment = comment.api_comments.shuffle.first
-          format.html { redirect_to comment, notice: 'Comment was successfully created.' }
-          format.json { render json: comment, status: :created, location: comment }
-          format.js
-        else
-          logger.debug2 "comment not saved. error = " + comment.errors.full_messages.join(', ')
-          @errors << comment.errors.full_messages.join(', ')
-          format.html { render action: "new" }
-          format.json { render json: comment.errors, status: :unprocessable_entity }
-          format.js
-        end
+      # validate comment - price= accepts only float and model can not return invalid price errors
+      comment.valid?
+      comment.errors.add :price, :invalid if params[:comment][:new_deal_yn] == 'Y' and invalid_price?(params[:comment][:price])
+      if comment.errors.size > 1
+        add_create_comment_error(gift_row_id, '.comment_error', {:error => comment.errors.full_messages.join(', ') })
+      else
+        comment.save!
       end
+
     rescue Exception => e
       logger.error2  "Exception: #{e.message.to_s}"
       logger.error2  "Backtrace: " + e.backtrace.join("\n")
       @api_comment = nil
-      @errors << t('.exception', :error => e.message)
+      add_create_comment_error(gift_row_id, '.exception', :error => e.message)
     end
   end # create
 
@@ -133,5 +125,12 @@ class CommentsController < ApplicationController
     comment.save
     @link_id = comment.table_row_id
   end # destroy
+
+  private
+  def add_create_comment_error (gift_row_id, key, options = {})
+    table = gift_row_id ? "gift-#{gift_row_id}-comment-new-errors" : "tasks_errors"
+    logger.debug2 "table = #{table}, key = #{key}"
+    @errors2 << { :msg => t(key, options), :id => table }
+  end
 
 end
