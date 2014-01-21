@@ -1,0 +1,19 @@
+<% if @gift_id -%>
+<%# ok response - hide all rows with format gift-<gift_id>- %>
+(function () {
+    var re = new RegExp("^gift-<%= @gift_id %>-");
+    var gifts = document.getElementById('gifts');
+    var trs = gifts.rows;
+    var lng = trs.length;
+    var tr;
+    for (var i = 0; i < lng; i++) {
+        tr = trs[i];
+        if (tr.id && tr.id.match(re)) tr.style.display = 'None';
+    }
+})();
+<% end -%>
+<% if @errors2.size > 0 %>
+<%# error response - inject error into tasks_errors2 table and move error to placeholder table within gifts/index page -%>
+$('#tasks_errors2').append('<%= j render('shared/ajax_errors2') %>');
+move_tasks_errors2();
+<% end %>
