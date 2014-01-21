@@ -478,11 +478,9 @@ class Gift < ActiveRecord::Base
       # update status_update_at so that gift will be ajax deleted in other sessions
       self.status_update_at = Sequence.next_status_update_at
       # destroy all notifications for this gift
-      comment_ids = comments.collect { |c| c.comment_id }
-      return if comment_ids.size == 0
-      notification_ids = ApiCommentNotification.where("comment_id in (?)", comment_ids).collect { |cn| cn.notification_id }.uniq
-      return if notification_ids.size == 0
-      Notification.where("notification_id in (?)", notification_ids).each { |n| n.destroy }
+      api_comments.each do |api_comment|
+        api_comment.remove_from_notifications
+      end # each api_comment
     end # if
   end # before_update
 

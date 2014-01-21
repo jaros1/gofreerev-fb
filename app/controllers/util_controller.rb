@@ -321,7 +321,7 @@ class UtilController < ApplicationController
       logger.debug2 "#{@user.short_user_name} is not allowed to see gift id #{gift_id}"
       return [gift, '.not_authorized', {}]
     end
-    if true
+    if false
       show_action = case action
                       when 'like' then
                         gift.show_like_gift_link?(@users)
@@ -556,6 +556,7 @@ class UtilController < ApplicationController
       # hide gift - web page
       @gift_id = gift.id
     rescue Exception => e
+      # todo: refactor exception handling - almust identical for all gift action links
       @errors2 << {:msg => t('.exception', :error => e.message.to_s, :raise => I18n::MissingTranslationData),
                    :id => gift ? "gift-#{gift.id}-links-errors" : "tasks_errors"}
       logger.error2 "Exception: #{e.message.to_s}"
@@ -567,28 +568,43 @@ class UtilController < ApplicationController
   end # hide_gift
 
   def delete_gift
-    gift_id = params[:gift_id]
-    gift = Gift.find_by_id(gift_id)
-    if !gift
-      logger.debug2  "Gift with id #{gift_id} was not found - silently ignore ajax request"
-      return
+    @errors2 = []
+    @gift_id = nil
+    gift = nil
+    begin
+      # validate delete gift
+      gift, key, options = check_gift_action('delete')
+      if key
+        options = options || {}
+        options[:raise] = I18n::MissingTranslationData
+        @errors2 << { :msg => t(key, options), :id => gift ? "gift-#{gift.id}-links-errors" : "tasks_errors" }
+        logger.debug2 "@errors2 = #{@errors2}"
+        render 'hide_delete_gift'
+        return
+      end
+      # delete mark gift. Delete marked gifts will be ajax removed from other sessions within the
+      # next 5 minutes and will be physical deleted after 5 minutes
+      gift.deleted_at = Time.new
+      gift.save!
+      # todo: there is a problem with api gifts without gift. - raise exception to trace problem
+      Gift.check_gift_and_api_gift_rel
+      if gift.received_at and gift.price and gift.price != 0.0
+        # recalculate balance - todo: should only recalculate balance from previous gift and forward
+        gift.giver.recalculate_balance if gift.giver
+        gift.receiver.recalculate_balance if gift.receiver
+      end
+      # remove gift from gift from current gifts table
+      @gift_id = gift.id
+    rescue Exception => e
+      # todo: refactor exception handling - almust identical for all gift action links
+      @errors2 << {:msg => t('.exception', :error => e.message.to_s, :raise => I18n::MissingTranslationData),
+                   :id => gift ? "gift-#{gift.id}-links-errors" : "tasks_errors"}
+      logger.error2 "Exception: #{e.message.to_s}"
+      logger.error2 "Backtrace: " + e.backtrace.join("\n")
+      logger.error2 "@errors = #{@errors}"
+      @gift_id = nil
+      render 'hide_delete_gift'
     end
-    if !gift.show_delete_gift_link?(@users)
-      logger.debug2  "user is not allowed to delete gift id #{gift_id} - silently ignore ajax request"
-      return
-    end
-    # delete mark gift. Delete marked gifts will be ajax removed from other sessions within the next 5 minutes and will be physical deleted after 5 minutes
-    gift.deleted_at = Time.new
-    gift.save!
-    # todo: there is a problem with api gifts without gift. - raise exception to trace problem
-    Gift.check_gift_and_api_gift_rel
-    if gift.received_at and gift.price and gift.price != 0.0
-      # recalculate balance - todo: should only recalculate balance from previous gift and forward
-      gift.giver.recalculate_balance if gift.giver
-      gift.receiver.recalculate_balance if gift.receiver
-    end
-    # remove gift from gift from current gifts table
-    @gift_id = gift.id
   end # delete_gift
 
   #

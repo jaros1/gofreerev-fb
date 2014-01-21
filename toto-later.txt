@@ -255,3 +255,7 @@ Low priority todo list. Minor errors, wishlist etc.
     that is - use url to facebook picture or use local perm store
     user logged in with facebook and linked will use facebook as picture store
     user only logged with linkedin will use local perm picture store
+
+65) minor small problem with delete gift and cleanup previous ajax errors.
+    $(".gift-action-link").bind("ajax:beforeSend) function is not called for delete gift.
+    I suspect that rails confirm dialog maybe uses beforesend ajax event

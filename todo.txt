@@ -337,3 +337,8 @@
     problem: many extra tables in gifts/index page that always never will be used
     could add a hidden destination column to @error injection in gifts/index page
     error as injected in page header and then moved to more specific location
+
+100) check gift action link ajax error + delete or hide gift.
+     should remove gift and ajax error message from page
+     the same problem for ajax delete gift in other pages (new_messages_count)
+

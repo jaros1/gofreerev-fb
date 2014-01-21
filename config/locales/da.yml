@@ -679,6 +679,20 @@ da:
         comment_deleted: "Kan ikke fjerne \"følg\" opslag da forslaget er blevet slettet. Genopfrisk venligst siden."
         not_allowed: "Fjern \"følg\" opslag er desværre ikke længere muligt. Genopfrisk venligst siden."
         exception: "System fejl. Kunne ikke fjerne \"følg\" opslag. %{error}. Mere information i server log."
+     hide_gift:
+        invalid_action: "System fejl. Kunne ikke skjule opslag. Ugyldig aktion. Mere information i server log."
+        gift_deleted: "Kan ikke skjule opslag. Opslag er blevet slettet. Genopfrisk venligst siden."
+        not_authorized: "System fejl. Kunne ikke skjule opslag. Der er ikke (længere) adgang til opslag. Genopfrisk venligst siden."
+        comment_deleted: "Kan ikke skjule opslag da forslaget er blevet slettet. Genopfrisk venligst siden."
+        not_allowed: "Skjul opslag er desværre ikke længere muligt. Genopfrisk venligst siden."
+        exception: "System fejl. Kunne ikke skjule opslag. %{error}. Mere information i server log."
+     delete_gift:
+        invalid_action: "System fejl. Kunne ikke slette opslag. Ugyldig aktion. Mere information i server log."
+        gift_deleted: "Kan ikke slette opslag. Opslag er blevet slettet. Genopfrisk venligst siden."
+        not_authorized: "System fejl. Kunne ikke slette opslag. Der er ikke (længere) adgang til opslag. Genopfrisk venligst siden."
+        comment_deleted: "Kan ikke slette opslag da forslaget er blevet slettet. Genopfrisk venligst siden."
+        not_allowed: "Slet opslag er desværre ikke længere muligt. Genopfrisk venligst siden."
+        exception: "System fejl. Kunne ikke slette opslag. %{error}. Mere information i server log."
      cancel_new_deal:
         invalid_action: "System fejl. Kunne ikke fortryde forslag. Ugyldig aktion. Mere information i server log."
         comment_not_found: "System fejl. Kunne ikke fortryde forslag. Forslag ej fundet."

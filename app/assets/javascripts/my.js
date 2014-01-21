@@ -1120,16 +1120,19 @@ $(document).ready(function() {
     $(".gift-action-link").bind("ajax:beforeSend", function(xhr, settings){
         // clear any old ajax error messages if any
         // clear within page ajax error messages if any
-        // add2log('gift-action-link::ajax:beforeSend. xhr = ' + xhr + ', settings = ' + settings) ;
+        // todo: this event handler is not call for delete gift. Suspect rails confirm dialog is the problem.
+        var pgm = 'gift-action-link::ajax:beforeSend. ' ;
+        // add2log(pgm + 'xhr = ' + xhr + ', settings = ' + settings) ;
         var url = xhr.target ;
-        // add2log('gift-action-link::ajax:beforeSend. url = ' + url) ;
+        // add2log(pgm + 'url = ' + url) ;
         var url_a = ('' + url + '').split('=') ;
-        // add2log('gift-action-link::ajax:beforeSend. url_a.length = ' + url_a.length) ;
+        // add2log(pgm + 'url_a.length = ' + url_a.length) ;
         var giftid = url_a[url_a.length-1] ;
-        // add2log('gift-action-link::ajax:beforeSend. giftid = ' + giftid) ;
+        // add2log(pgm + 'giftid = ' + giftid) ;
         var table_id = 'gift-' + giftid + '-links-errors' ;
         var table = document.getElementById(table_id) ;
         if (table) clear_ajax_errors(table_id) ;
+        // else add2log(pgm + table_id + ' was not found.') ;
         // clear page header error messages if any
         clear_flash_and_ajax_errors() ;
     })
