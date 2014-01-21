@@ -657,56 +657,6 @@ function autoresize_text_field(text) {
     resize();
 }
 
-// post ajax processing after adding a comment.
-// comments/create.js.rb inserts new comment as last row i gifts table
-// move new comment from last row to row before new comment row
-// clear comment text area and reset frequency for new message check
-function post_ajax_add_new_comment_handler(giftid) {
-    var fnc = 'post_ajax_add_new_comment_handler: ' ;
-    var id = '#gift-' + giftid + '-new-comment-form';
-    $(id).unbind("ajax:success");
-    $(id).bind("ajax:success", function (evt, data, status, xhr) {
-        var checkbox, gifts, trs, re, i, new_comment_tr, id2, add_new_comment_tr, tbody;
-        // reset new comment line
-        document.getElementById('gift-' + giftid + '-comment-new-price').value = '';
-        document.getElementById('gift-' + giftid + '-comment-new-textarea').value = '';
-        document.getElementById('gift-' + giftid + '-comment-new-price-tr').style.display = 'none';
-        checkbox = document.getElementById('gift-' + giftid + '-new-deal-check-box');
-        if (checkbox) checkbox.checked = false;
-        // find new comment table row last in gifts table
-        gifts = document.getElementById("gifts");
-        trs = gifts.rows;
-        re = new RegExp("^gift-" + giftid + "-comment-[0-9]+$");
-        i = trs.length - 1;
-        for (i = trs.length - 1; ((i >= 0) && !new_comment_tr); i--) {
-            id2 = trs[i].id;
-            if (id2 && id2.match(re)) new_comment_tr = trs[i];
-        } // for
-        if (!new_comment_tr) {
-            add2log(fnc + "new comment row with format " + re + " was not found. There could be more information in server log.");
-            return;
-        }
-        add_new_comment_tr = document.getElementById("gift-" + giftid + "-comment-new");
-        if (!add_new_comment_tr) {
-            add2log(fnc + "gift-" + giftid + "-comment-new was not found");
-            return;
-        }
-        // move new table row up before add new comment table row
-        new_comment_tr.parentNode.removeChild(new_comment_tr);
-        add_new_comment_tr.parentNode.insertBefore(new_comment_tr, add_new_comment_tr); // error: Node was not found
-        // save timestamp for last new ajax comment
-        last_user_ajax_comment_at = new Date();
-        restart_check_new_messages();
-    });
-    $(id).unbind("ajax:error");
-    $(id).bind("ajax:error", function(jqxhr, textStatus, errorThrown){
-        add2log(fnc + 'ajax.error');
-        add2log('jqxhr = ' + jqxhr);
-        add2log('textStatus = ' + textStatus);
-        add2log('errorThrown = ' + errorThrown);
-        add_to_tasks_errors(fnc + 'ajax.error: ' + errorThrown + '. check server log for more information.') ;
-    });
-} // post_ajax_add_new_comment_handler
 
 
 // post ajax processing after inserting older comments for a gift.
@@ -1165,7 +1115,6 @@ $(document).ready(function() {
             // inject ajax error message in gift link error table in page
             add_to_tasks_errors2(table_id, 'gift-action-link.error: ' + errorThrown + '. check server log for more information.') ;
         }
-
     })
 })
 
@@ -1196,8 +1145,72 @@ function create_new_com_errors_table(table_id) {
     var cell = row.insertCell(0) ;
     cell.setAttribute("colspan",2);
     cell.innerHTML = '<table id="' + table_id + '"></table>' ;
+    add2log(pgm + table_id + ' has been created') ;
     return true ;
 } // create_new_com_errors_table
+
+// post ajax processing after adding a comment.
+// comments/create.js.rb inserts new comment as last row i gifts table
+// move new comment from last row to row before new comment row
+// clear comment text area and reset frequency for new message check
+function post_ajax_add_new_comment_handler(giftid) {
+    var fnc = 'post_ajax_add_new_comment_handler: ' ;
+    var id = '#gift-' + giftid + '-new-comment-form';
+    $(id).unbind("ajax:success");
+    $(id).bind("ajax:success", function (evt, data, status, xhr) {
+        var checkbox, gifts, trs, re, i, new_comment_tr, id2, add_new_comment_tr, tbody;
+        // reset new comment line
+        document.getElementById('gift-' + giftid + '-comment-new-price').value = '';
+        document.getElementById('gift-' + giftid + '-comment-new-textarea').value = '';
+        document.getElementById('gift-' + giftid + '-comment-new-price-tr').style.display = 'none';
+        checkbox = document.getElementById('gift-' + giftid + '-new-deal-check-box');
+        if (checkbox) checkbox.checked = false;
+        // find new comment table row last in gifts table
+        gifts = document.getElementById("gifts");
+        trs = gifts.rows;
+        re = new RegExp("^gift-" + giftid + "-comment-[0-9]+$");
+        i = trs.length - 1;
+        for (i = trs.length - 1; ((i >= 0) && !new_comment_tr); i--) {
+            id2 = trs[i].id;
+            if (id2 && id2.match(re)) new_comment_tr = trs[i];
+        } // for
+        if (!new_comment_tr) {
+            add2log(fnc + "new comment row with format " + re + " was not found. There could be more information in server log.");
+            return;
+        }
+        add_new_comment_tr = document.getElementById("gift-" + giftid + "-comment-new");
+        if (!add_new_comment_tr) {
+            add2log(fnc + "gift-" + giftid + "-comment-new was not found");
+            return;
+        }
+        // move new table row up before add new comment table row
+        new_comment_tr.parentNode.removeChild(new_comment_tr);
+        add_new_comment_tr.parentNode.insertBefore(new_comment_tr, add_new_comment_tr); // error: Node was not found
+        // save timestamp for last new ajax comment
+        last_user_ajax_comment_at = new Date();
+        restart_check_new_messages();
+    });
+    $(id).unbind("ajax:error");
+    $(id).bind("ajax:error", function(jqxhr, textStatus, errorThrown){
+        add2log(fnc + 'ajax.error');
+        add2log('jqxhr = ' + jqxhr);
+        add2log('textStatus = ' + textStatus);
+        add2log('errorThrown = ' + errorThrown);
+
+        var table_id = 'gift-' + giftid + '-comment-new-errors' ;
+
+        var table = document.getElementById(table_id) ;
+        if (!table && !create_new_com_errors_table(table_id)) {
+            // inject ajax error message in page header
+            add_to_tasks_errors(fnc + 'ajax.error: ' + errorThrown + '. check server log for more information.') ;
+        }
+        else {
+            // inject ajax error message in new comment error table in page
+            add_to_tasks_errors2(table_id, fnc + 'ajax.error: ' + errorThrown + '. check server log for more information.') ;
+        }
+    });
+} // post_ajax_add_new_comment_handler
+
 
 // try to move ajax error messages from tasks_errors2 to more specific location in page
 // first column is error message. Second column is id for error table in page
