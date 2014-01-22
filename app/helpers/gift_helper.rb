@@ -62,7 +62,10 @@ module GiftHelper
   end
 
   def link_to_delete_comment (comment)
-    link_to t('.delete_comment'), comment_path(comment.id), :id => "gift-#{comment.gift.id}-comment-#{comment.id}-delete-link", :class => 'comment-action-link', :remote => true, :method => :delete, :data => { :confirm => t('.confirm_delete_comment') }
+    # the giftid param is used as extra information in url for comment-action-link click event
+    # cleanup any old ajax error messages before new ajax delete comment request
+    # see $(".comment-action-link").bind("click" in my.js
+    link_to t('.delete_comment'), comment_path(comment.id, :giftid => comment.gift.id), :id => "gift-#{comment.gift.id}-comment-#{comment.id}-delete-link", :class => 'comment-action-link', :remote => true, :method => :delete, :data => { :confirm => t('.confirm_delete_comment') }
   end
 
 end

@@ -982,21 +982,6 @@ $(document).ready(function() {
 })
 
 
-// error callback for comment actions (cancel, accept, reject, delete - write to debug log + page header
-$(document).ready(function() {
-    $(".comment-action-link").unbind("ajax:beforeSend") ;
-    $(".comment-action-link").unbind("ajax:error") ;
-    $(".comment-action-link").bind("ajax:beforeSend", function(xhr, settings){
-        clear_flash_and_ajax_errors() ;
-    })
-    $(".comment-action-link").bind("ajax:error", function(jqxhr, textStatus, errorThrown){
-        add2log('.comment-action-link.error');
-        add2log('jqxhr = ' + jqxhr);
-        add2log('textStatus = ' + textStatus);
-        add2log('errorThrown = ' + errorThrown);
-        add_to_tasks_errors('comment-action-link.error: ' + errorThrown + '. check server log for more information.') ;
-    })
-})
 
 
 // normally tasks errors and messages are injected from server
