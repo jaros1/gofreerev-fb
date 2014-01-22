@@ -145,6 +145,32 @@
         return true;
     } // create_com_link_errors_table
 
+    // translate comment action url (...) to name for related table for ajax error messages
+    function comment_action_url_table_id (url) {
+        var pgm = 'comment_action_url_table_id: ' ;
+        add2log(pgm + 'url = ' + url) ;
+        var giftid, commentid ;
+        var re1a = new RegExp('/comments/[0-9]+\\?giftid=[0-9]+$') ; // format /comments/729?giftid=891
+        if (url.match(re1a)) {
+            add2log(pgm + 'delete comment url') ;
+            var re1b = new RegExp('[\\?/=]') ;
+            var url_a = url.split(re1b) ;
+            add2log(pgm + 'url_a.length = ' + url_a.length) ;
+            var url_lng = url_a.length ;
+            giftid = url_a[url_lng-1] ;
+            commentid = url_a[url_lng-3] ;
+        }
+        var table_id ;
+        if (giftid && commentid) {
+            add2log(pgm + 'giftid = ' + giftid + ', commentid = ' + commentid) ;
+            table_id = 'gift-' + giftid + '-comment-' + commentid + '-errors' ;
+        }
+        else {
+            add2log(pgm + 'unknown url') ;
+        }
+        return table_id ;
+    } // comment_action_url_table_id
+
     // error callback for comment actions (cancel, accept, reject, delete - write to debug log + page header
     // using click event instead of beforeSend or ajaxSend as rails confirm box seems to "disable" use of the 2 events
     $(document).ready(function () {
@@ -159,35 +185,32 @@
             // http://localhost/da/da/comments/729?giftid=891
 
             // find giftid and commentid in url
-            var giftid, commentid ;
-            var re1a = new RegExp('/comments/[0-9]+\\?giftid=[0-9]+$') ; // format /comments/729?giftid=891
-            if (url.match(re1a)) {
-                add2log(pgm + 'delete comment url') ;
-                var re1b = new RegExp('[\\?/=]') ;
-                var url_a = url.split(re1b) ;
-                add2log(pgm + 'url_a.length = ' + url_a.length) ;
-                var url_lng = url_a.length ;
-                giftid = url_a[url_lng-1] ;
-                commentid = url_a[url_lng-3] ;
-                add2log(pgm + 'giftid = ' + giftid + ', commentid = ' + commentid) ;
+            var table_id = comment_action_url_table_id(url) ;
+            add2log(pgm + 'table_id = ' + table_id) ;
+            if (table_id && document.getElementById(table_id)) clear_ajax_errors(table_id) ;
+            clear_flash_and_ajax_errors();
+        }) // click
+        $(".comment-action-link").bind("ajax:error", function (jqxhr, textStatus, errorThrown) {
+            var pgm = 'comment-action-link::ajax:error ' ;
+            add2log(pgm + 'jqxhr = ' + jqxhr);
+            add2log(pgm + 'textStatus = ' + textStatus);
+            add2log(pgm + 'errorThrown = ' + errorThrown);
+
+            // add2log(pgm + 'xhr = ' + xhr + ', settings = ' + settings) ;
+            var url = '' + jqxhr.target + '' ;
+            add2log(pgm + 'url = "' + url + '"') ;
+
+            var table_id = comment_action_url_table_id(url) ;
+            add2log(pgm + 'table_id = ' + table_id) ;
+            if (table_id && create_com_link_errors_table(table_id)) {
+                // could find table_id and table for ajax error messages has been created
+                add_to_tasks_errors2(table_id, errorThrown + '. check server log for more information.') ;
             }
             else {
-                add2log(pgm + 'unknown url') ;
+                // could not find table id or table for ajax error messages could not be created
+                add_to_tasks_errors('comment-action-link.error: ' + errorThrown + '. check server log for more information.');
             }
-            if (giftid && commentid) {
-                // clear old ajax error messages if any before new ajax request
-                var table_id = 'gift-' + giftid + '-comment-' + commentid + '-errors' ;
-                if (document.getElementById(table_id)) clear_ajax_errors(table_id) ;
-            }
-            clear_flash_and_ajax_errors();
-        })
-        $(".comment-action-link").bind("ajax:error", function (jqxhr, textStatus, errorThrown) {
-            add2log('.comment-action-link.error');
-            add2log('jqxhr = ' + jqxhr);
-            add2log('textStatus = ' + textStatus);
-            add2log('errorThrown = ' + errorThrown);
-            add_to_tasks_errors('comment-action-link.error: ' + errorThrown + '. check server log for more information.');
-        })
+        }) // ajax:error
     })
 
     // try to move ajax error messages from tasks_errors2 to more specific location in page

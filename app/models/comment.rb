@@ -155,9 +155,9 @@ class Comment < ActiveRecord::Base
         logger.debug2 'One or more invalid user ids in updated_at'
         rec.errors.add attr, :invalid
       else
-        allowed_user_ids = api_comments.collect { |ac| ac.user_id } +
-            gift.api_gifts.collect { |ag| ag.user_id_giver } +
-            gift.api_gifts.collect { |ag| ag.user_id_receiver }
+        allowed_user_ids = rec.api_comments.collect { |ac| ac.user_id } +
+            rec.gift.api_gifts.collect { |ag| ag.user_id_giver } +
+            rec.gift.api_gifts.collect { |ag| ag.user_id_receiver }
         invalid_user_ids = user_ids - allowed_user_ids
         if invalid_user_ids.size > 0
           logger.debug2 "invalid user ids #{invalid_user_ids-join(', ')} in updated_at"
