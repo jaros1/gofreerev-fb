@@ -274,6 +274,8 @@ da:
         confirm_reject_new_deal: "Afvis forslag?"
         delete_comment: "Slet"
         confirm_delete_comment: "Slet kommentar?"
+     destroy:
+        exception: "System fejl. Kunne ikke slette kommentar. %{error}. Se mere information i log."
 
   cookie:
      decline_cookies:

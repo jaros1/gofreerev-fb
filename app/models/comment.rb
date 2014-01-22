@@ -140,20 +140,29 @@ class Comment < ActiveRecord::Base
   # ( used when sending notification - do not send notification to logged in users = users in updated_by field )
   validates_each :updated_by do |rec, attr, value|
     if rec.new_record?
-      rec.errors.add attr, :invalid if value.to_s != '' # updated_at must be blank after create
+      if value.to_s != ''
+        logger.debug2 'updated_at must be blank after create'
+        rec.errors.add attr, :invalid
+      end
     elsif value.to_s == ''
+      logger.debug2 'updated_at is required'
       rec.errors.add attr, :required # updated_at is required after update
     else
       # check users
-      user_ids = value.split('/')
+      user_ids = value.split(',')
       users = User.where('user_id in (?)', user_ids)
       if users.size != user_ids.size
+        logger.debug2 'One or more invalid user ids in updated_at'
         rec.errors.add attr, :invalid
       else
         allowed_user_ids = api_comments.collect { |ac| ac.user_id } +
             gift.api_gifts.collect { |ag| ag.user_id_giver } +
             gift.api_gifts.collect { |ag| ag.user_id_receiver }
-        rec.errors.add attr, :invalid if (user_ids - allowed_user_ids).size > 0
+        invalid_user_ids = user_ids - allowed_user_ids
+        if invalid_user_ids.size > 0
+          logger.debug2 "invalid user ids #{invalid_user_ids-join(', ')} in updated_at"
+          rec.errors.add attr, :invalid
+        end
       end
     end
   end # validates_each :updated_by

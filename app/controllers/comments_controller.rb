@@ -11,10 +11,10 @@ class CommentsController < ApplicationController
     gift_row_id = nil
     begin
       # start with empty ajax response
-      return add_create_comment_error(nil, '.invalid_request_no_comment_form') unless params.has_key?(:comment)
+      return append_create_comment_error(nil, '.invalid_request_no_comment_form') unless params.has_key?(:comment)
       gift = Gift.find_by_gift_id(params[:comment][:gift_id])
-      return add_create_comment_error(nil, '.invalid_request_unknown_gift') unless gift
-      return add_create_comment_error(nil, '.invalid_request_invalid_gift') unless gift.visible_for?(@users)
+      return append_create_comment_error(nil, '.invalid_request_unknown_gift') unless gift
+      return append_create_comment_error(nil, '.invalid_request_invalid_gift') unless gift.visible_for?(@users)
       gift_row_id = gift.id
       # get user from @users. Must be giver, receiver or friend of giver or receiver.
       user = @users.find { |user2| gift.visible_for?([user2]) }
@@ -38,13 +38,13 @@ class CommentsController < ApplicationController
         api_comment.user_id = user.user_id
         comment.api_comments << api_comment
       end
-      return add_create_comment_error(gift_row_id, '.no_providers') if comment.api_comments.size == 0
+      return append_create_comment_error(gift_row_id, '.no_providers') if comment.api_comments.size == 0
 
       # validate comment - price= accepts only float and model can not return invalid price errors
       comment.valid?
       comment.errors.add :price, :invalid if params[:comment][:new_deal_yn] == 'Y' and invalid_price?(params[:comment][:price])
       if comment.errors.size > 1
-        add_create_comment_error(gift_row_id, '.comment_error', {:error => comment.errors.full_messages.join(', ') })
+        append_create_comment_error(gift_row_id, '.comment_error', {:error => comment.errors.full_messages.join(', ') })
       else
         comment.save!
       end
@@ -56,7 +56,7 @@ class CommentsController < ApplicationController
       logger.error2  "Exception: #{e.message.to_s}"
       logger.error2  "Backtrace: " + e.backtrace.join("\n")
       @api_comment = nil
-      add_create_comment_error(gift_row_id, '.exception', :error => e.message)
+      append_create_comment_error(gift_row_id, '.exception', :error => e.message)
     end
   end # create
 
@@ -107,31 +107,53 @@ class CommentsController < ApplicationController
 
   # ajax request from gifts/index page
   def destroy
-    id = params[:id]
-    comment = Comment.find_by_id(id)
-    if !comment
-      logger.debug2  "Comment with id #{id} was not found - silently ignore ajax request"
-      render :nothing => true
-      return
+    comment = nil
+    @errors2 = []
+    @link_id = nil
+    begin
+      id = params[:id]
+      comment = Comment.find_by_id(id)
+      if !comment
+        logger.debug2 "Comment with id #{id} was not found"
+        append_destroy_comment_error(comment, '.unknown_comment')
+        return
+      end
+      if !comment.show_delete_comment_link?(@users)
+        logger.debug2 "User can not delete comment with #{id}"
+        append_destroy_comment_error(comment, '.invalid_comment')
+        return
+      end
+      # delete mark comment
+      # delete marked comment will be ajax removed from gifts/index page for current user now
+      # delete marked comment will be ajax removed from gifts/index page for other users in util/new_messages_count request
+      # old delete marked comments will be deleted from database in util/new_messages_count
+      comment.deleted_at = Time.new
+      comment.updated_by = login_user_ids.join(',')
+      if comment.errors.size > 1
+        append_destroy_comment_error(comment, '.comment_error', {:error => comment.errors.full_messages.join(', ') })
+      else
+        comment.save!
+      end
+      # hide row with comment
+      @link_id = comment.table_row_id
+    rescue Exception => e
+      logger.error2 "Exception: #{e.message.to_s}"
+      logger.error2 "Backtrace: " + e.backtrace.join("\n")
+      @link_id = nil
+      append_destroy_comment_error(comment, '.exception', :error => e.message)
     end
-    if !comment.show_delete_comment_link?(@users)
-      logger.debug2  "User can not delete comment with #{id} - silently ignore ajax request"
-      render :nothing => true
-      return
-    end
-    # delete mark comment
-    # delete marked comment will be ajax removed from gifts/index page for current user now
-    # delete marked comment will be ajax removed from gifts/index page for other users in util/new_messages_count request
-    # old delete marked comments will be deleted from database in util/new_messages_count
-    comment.deleted_at = Time.new
-    comment.updated_by = login_user_ids.join(',')
-    comment.save
-    @link_id = comment.table_row_id
   end # destroy
 
   private
-  def add_create_comment_error (gift_row_id, key, options = {})
+  def append_create_comment_error (gift_row_id, key, options = {})
     table = gift_row_id ? "gift-#{gift_row_id}-comment-new-errors" : "tasks_errors"
+    logger.debug2 "table = #{table}, key = #{key}"
+    @errors2 << { :msg => t(key, options), :id => table }
+  end
+
+  private
+  def append_destroy_comment_error (comment, key, options = {})
+    table = comment ? "gift-#{comment.gift.id}-comment-#{comment.id}-errors" : "tasks_errors"
     logger.debug2 "table = #{table}, key = #{key}"
     @errors2 << { :msg => t(key, options), :id => table }
   end

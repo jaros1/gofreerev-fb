@@ -280,6 +280,8 @@ en:
         confirm_reject_new_deal: "Reject proposal?"
         delete_comment: "Delete"
         confirm_delete_comment: "Delete comment?"
+     destroy:
+        exception: "System error. Could not delete comment. %{error}. More information available in log."
 
   cookie:
      decline_cookies:
