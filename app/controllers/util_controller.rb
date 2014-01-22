@@ -682,6 +682,7 @@ class UtilController < ApplicationController
       gift = comment.gift
       # cancel agreement proposal
       comment.new_deal_yn = nil
+      comment.updated_by = login_user_ids.join(',')
       comment.save!
       @errors << t('.ok')
       # hide link
@@ -710,6 +711,7 @@ class UtilController < ApplicationController
       gift = comment.gift
       # reject agreement proposal
       comment.accepted_yn = 'N'
+      comment.updated_by = login_user_ids.join(',')
       comment.save!
       # hide links
       # todo: other comment changes? Maybe an other layout, style, color for accepted gift/comments
@@ -741,6 +743,7 @@ class UtilController < ApplicationController
       # accept agreement proposal - mark proposal as accepted - callbacks sent notifications and updates gift
       # logger.debug2  "comment.currency = #{comment.currency}"
       comment.accepted_yn = 'Y'
+      comment.updated_by = login_user_ids.join(',')
       comment.save!
       gift = comment.gift
       if gift.price and gift.price != 0.0

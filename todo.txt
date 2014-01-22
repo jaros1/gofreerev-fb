@@ -343,3 +343,23 @@
      the same problem for ajax delete gift in other pages (new_messages_count)
 
 101) ajax inject create comment errors to row above or below new comment row.
+
+102) gift id 890 error when dick comments has deal with sandra
+     after_create: start3: send notification from 100006351370003/facebook Dick B
+     after_create: start3: send notifications to users that follows the gift: 117657151428689087350/google_oauth2 Jan R
+     send_notification: noti_key_1 = 1 (new_comment), noti_key_2 = 3 (giver_and_receiver), noti_key_3 = 3 (_follow),
+                        from_users = 100006351370003/facebook Dick B, , to_user = 117657151428689087350/google_oauth2 Jan R
+     send_notification: found no shared providers between from_users and to_user
+     send_notification: from_users = 100006351370003/facebook Dick B
+     send_notification: to_user = 117657151428689087350/google_oauth2 Jan R
+        (2.8ms)  rollback transaction
+     rescue in create: Exception: invalid from_users / to_user. No shared providers was found
+     rescue in create: Backtrace: /Disk-0/OLAP-hosting/Ruby/railsapps/gofreerev-fb/app/models/comment.rb:264:in `send_notification'
+     /Disk-0/OLAP-hosting/Ruby/railsapps/gofreerev-fb/app/models/comment.rb:648:in `block in after_create'
+     user case:
+     - login user is 100006351370003/facebook Dick B - that is not logged in as a google+ user
+     - google giver was 109316109373670614208/google_oauth2 - Gofreerev Aps
+     - google receiver was 117657151428689087350/google_oauth2 - Jan Roslind
+     - should send notification to facebook giver and receiver
+     - send notification to google giver and receiver, Empty from user or dummy google user as from user
+     - do not send notification to 117657151428689087350/google_oauth2 Jan R as follower

@@ -134,6 +134,30 @@ class Comment < ActiveRecord::Base
 
   # 9) status_update_at - integer - keep track of comments changed after user has loaded gifts/index page
 
+  # 10) deleted_at - datetime - when was comment marked as deleted
+
+  # 11) updated_by - string - comma seperated string with userids for update (delete comment, cancel/reject,/accept deal proposal)
+  # ( used when sending notification - do not send notification to logged in users = users in updated_by field )
+  validates_each :updated_by do |rec, attr, value|
+    if rec.new_record?
+      rec.errors.add attr, :invalid if value.to_s != '' # updated_at must be blank after create
+    elsif value.to_s == ''
+      rec.errors.add attr, :required # updated_at is required after update
+    else
+      # check users
+      user_ids = value.split('/')
+      users = User.where('user_id in (?)', user_ids)
+      if users.size != user_ids.size
+        rec.errors.add attr, :invalid
+      else
+        allowed_user_ids = api_comments.collect { |ac| ac.user_id } +
+            gift.api_gifts.collect { |ag| ag.user_id_giver } +
+            gift.api_gifts.collect { |ag| ag.user_id_receiver }
+        rec.errors.add attr, :invalid if (user_ids - allowed_user_ids).size > 0
+      end
+    end
+  end # validates_each :updated_by
+
   def table_row_id
     "gift-#{gift.id}-comment-#{id}"
   end # table_row_id
@@ -256,17 +280,50 @@ class Comment < ActiveRecord::Base
              "noti_key_3 = #{noti_key_3} (#{NOTI_KEY_3[noti_key_3]}), " +
              "from_users = #{User.debug_info(from_users)}, " +
              ", to_user = #{to_user.debug_info}" if debug_notifications
-    from_user = from_users.find { |u| u.provider == to_user.provider}
-    if !from_user
-      logger.debug2 "found no shared providers between from_users and to_user"
-      logger.debug2 "from_users = #{User.debug_info(from_users)}"
-      logger.debug2 "to_user = #{to_user.debug_info}"
-      raise "invalid from_users / to_user. No shared providers was found"
+    if from_users.size > 1
+      from_users.each { |from_user| send_notification(noti_key_1, noti_key_2, noti_key_3, [from_user], to_user) }
+      return
     end
+    from_user = from_users.first
+
+    ## find from user. 3 user cases:
+    ## a) one and only one from user - use this even if provider for from and to users does not match (cross provider notification)
+    ## b) many from users shared provider exist - use from user with same provider as to user
+    ## c) many from users and shared provider does not exist - todo: create test case
+    #if from_users.size == 1
+    #  # case a
+    #  from_user = from_users.first
+    #elsif (from_user = from_users.find { |u| u.provider == to_user.provider})
+    #  # case b - ok
+    #  nil
+    #else
+    #  # case c
+    #  logger.debug2 "case c: found no shared providers between from_users and to_user"
+    #  logger.debug2 "from_users = #{User.debug_info(from_users)}"
+    #  logger.debug2 "to_user = #{to_user.debug_info}"
+    #  raise "invalid from_users / to_user. No shared providers was found"
+    #end
+    #if from_user.provider != to_user.provider
+    #  logger.debug2 "case a: found no shared providers between from_users and to_user"
+    #  logger.debug2 "from_users = #{User.debug_info(from_users)}"
+    #  logger.debug2 "to_user = #{to_user.debug_info}"
+    #end
+
+    if [1,2].index(noti_key_1)
+      # new comment/proposal. api comment row has just been created for from_user
+      api_comment = api_comments.find { |ac| ac.user_id == from_user.user_id }
+    else
+      api_comment = api_comments.find { |ac| ac.provider == to_user.provider }
+    end
+
     # todo: test if we always can find a api comment when sending notifications
-    api_comment = api_comments.find { |ac| ac.provider == to_user.provider }
-    raise "todo: test if we always can find a api comment when sending notifications" unless api_comment
+    # raise "todo: test if we always can find a api comment when sending notifications" unless api_comment
     logger.warn2 "warning: did not find api comment for #{to_user.provider}" unless api_comment
+    logger.warn2 "warning: did not find api comment for #{to_user.provider}" unless api_comment
+    logger.warn2 "warning: did not find api comment for #{to_user.provider}" unless api_comment
+
+
+
     if [3,4].index(noti_key_1)
       logger.debug2  "special handling of noti_key_1 = 3..5 ..." if debug_notifications
       # special handling of noti_type_1 = 3..5. noti_key_1 (noti_type):
@@ -519,14 +576,15 @@ class Comment < ActiveRecord::Base
       case
         when accepted_proposal?
           noti_key_1 = 5 # accepted
-          from_userids = gift.api_gifts.collect { |ag| ag.user_id_giver || ag.user_id_receiver }
+          # from_userids = gift.api_gifts.collect { |ag| ag.user_id_giver || ag.user_id_receiver }
         when rejected_proposal?
           noti_key_1 = 4 # rejected
-          from_userids = gift.api_gifts.collect { |ag| ag.user_id_giver || ag.user_id_receiver }
+          # from_userids = gift.api_gifts.collect { |ag| ag.user_id_giver || ag.user_id_receiver }
         when cancelled_proposal?
           noti_key_1 = 3 # cancelled
-          from_userids = api_comments.collect { |ac| ac.user_id }
+          # from_userids = api_comments.collect { |ac| ac.user_id }
       end # case
+      from_userids = updated_by.split(',')
       # after update
     else
       # after insert
@@ -560,8 +618,12 @@ class Comment < ActiveRecord::Base
 
     # todo: should only be givers and receivers with correct provider
 
-    gift_givers = gift.api_gifts.collect { |api_gift| api_gift.user_id_giver }.find_all { |user_id2| user_id2 }
-    gift_receivers = gift.api_gifts.collect { |api_gift| api_gift.user_id_receiver }.find_all { |user_id2| user_id2 }
+    gift_givers = gift.api_gifts.
+        find_all { |ag| ag.giver and !ag.giver.dummy_user? }.
+        collect { |api_gift| api_gift.user_id_giver }
+    gift_receivers = gift.api_gifts.
+        find_all { |ag| ag.receiver and !ag.receiver.dummy_user? }.
+        collect { |api_gift| api_gift.user_id_receiver }
     gifts_giver_and_receivers = gift_givers + gift_receivers
 
     gift_givers_shared = gift_givers.find_all { |user_id| from_providers.index(user_id.split('/').last) }
@@ -573,37 +635,55 @@ class Comment < ActiveRecord::Base
         # new comment, new proposal and accepted proposal
 
         # 1) notifications to giver and/or receiver
-        #    do not send notification to giver if user is in api_gifts.giver
-        #    do not send notification to receiver if user is in api_gifts.receiver
+        #    do not send notification to logged in users (from_users)
+        #    - that is api_comments.user's for 1/2 new comment/proposal
+        #    - that is updated_by user's for 5 accept proposal
         logger.debug2  "1: send notifications to gifts giver and/or receiver" if debug_notifications
-        users1 = []
-        # old: users1.push(gift.giver) if gift.user_id_giver and from_userid != gift.user_id_giver
-        logger.debug2 "1: gift.direction = #{gift.direction}"
-        logger.debug2 "1: gift_givers    = #{gift_givers.join(', ')}"
-        logger.debug2 "1: from_userids   = #{User.debug_info(from_users)}"
-        shared_userids = gift_givers & from_userids
-        logger.debug2 "1: shared_userids = #{shared_userids.join(', ')}"
-        if %w(giver both).index(gift.direction) and shared_userids.size == 0
-          raise "did not find any shared providers" if gift_givers_shared.size == 0
-          users1 += User.where('user_id in (?)', gift_givers_shared) if gift_givers_shared.size > 0
+        users1_ids = gifts_giver_and_receivers - from_userids
+        if users1_ids.size == 0
+          users1 = []
+        else
+          users1 = User.where('user_id in (?)', users1_ids)
+          raise 'one or more invalid userids in giver and receivers' if users1.size != users1_ids.size
         end
-        # old: users1.push(gift.receiver) if gift.user_id_receiver and from_userid != gift.user_id_receiver
-        logger.debug2 "1: gift.direction = #{gift.direction}, gift_receivers = #{gift_receivers}, from_userids = #{from_userids}"
-        shared_userids = gift_receivers & from_userids
-        if %w(receiver both).index(gift.direction) and shared_userids.size == 0
-          users1 += User.where("user_id in (?)", gift_receivers) if gift_receivers.size > 0
-        end
+
+        ## old: users1.push(gift.giver) if gift.user_id_giver and from_userid != gift.user_id_giver
+        #logger.debug2 "1a: gift.direction = #{gift.direction}"
+        #logger.debug2 "1a: gift_givers    = #{gift_givers.join(', ')}"
+        #logger.debug2 "1a: from_userids   = #{User.debug_info(from_users)}"
+        #shared_userids = gift_givers & from_userids
+        #logger.debug2 "1a: shared_userids = #{shared_userids.join(', ')}"
+        #if %w(giver both).index(gift.direction) and shared_userids.size == 0
+        #  raise "did not find any shared providers" if gift_givers_shared.size == 0
+        #  users1 += User.where('user_id in (?)', gift_givers_shared) if gift_givers_shared.size > 0
+        #end
+        #
+        ## old: users1.push(gift.receiver) if gift.user_id_receiver and from_userid != gift.user_id_receiver
+        #logger.debug2 "1b: gift.direction = #{gift.direction}"
+        #logger.debug2 "1b: gift_receivers = #{gift_receivers.join(', ')}"
+        #logger.debug2 "1b: from_userids   = #{User.debug_info(from_users)}"
+        #shared_userids = gift_receivers & from_userids
+        #logger.debug2 "1b: shared_userids = #{shared_userids.join(', ')}"
+        #if %w(receiver both).index(gift.direction) and shared_userids.size == 0
+        #  users1 += User.where("user_id in (?)", gift_receivers_shared) if gift_receivers_shared.size > 0
+        #end
+
         if noti_key_1 == 5
           # special rejected/accepted notification to owner of comment
           to_userids = api_comments.collect { |ac| ac.user_id}
           api_comments.collect { |ac| users1.push(ac.user) }
           # users1.push(user)
+        else
+          to_userids = []
         end
-        users1_ids = users1.collect { |u| u.user_id }
+        #users1_ids = users1.collect { |u| u.user_id }
         logger.debug2  "1: users1 = " + users1_ids.join(', ') if debug_notifications
 
         # 2) notifications to users that has commented the gift - "_other" is added to notification key!
         # users2 = gift.comments.includes(:user).collect { |c| c.user }.find_all { |user2| ![from_userid, to_user_id, gift.user_id_giver, gift.user_id_receiver].index(user2.user_id) }.uniq
+        logger.error2 "2: from_userids is invalid. Expected Array. Found #{from_userids.class}" unless from_userids.class == Array
+        logger.error2 "2: to_userids is invalid. Expected Array. Found #{to_userids.class}" unless to_userids.class == Array
+        logger.error2 "2: gifts_giver_and_receivers is invalid. Expected Array. Found #{gifts_giver_and_receivers.class}" unless gifts_giver_and_receivers.class == Array
         exclude_user_ids = from_userids + to_userids + gifts_giver_and_receivers
         logger.debug2 "2: exclude_user_ids = #{exclude_user_ids.join(', ')}"
         users2 = gift.api_comments.includes(:user).collect { |c| c.user }.find_all { |user2| !exclude_user_ids.index(user2.user_id) }.uniq

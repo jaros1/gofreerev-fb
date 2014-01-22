@@ -49,6 +49,9 @@ class CommentsController < ApplicationController
         comment.save!
       end
 
+      # return new comment to browser
+      @api_comment = comment.api_comments.shuffle.first
+
     rescue Exception => e
       logger.error2  "Exception: #{e.message.to_s}"
       logger.error2  "Backtrace: " + e.backtrace.join("\n")
@@ -121,7 +124,7 @@ class CommentsController < ApplicationController
     # delete marked comment will be ajax removed from gifts/index page for other users in util/new_messages_count request
     # old delete marked comments will be deleted from database in util/new_messages_count
     comment.deleted_at = Time.new
-    comment.deleted_at = Time.new
+    comment.updated_by = login_user_ids.join(',')
     comment.save
     @link_id = comment.table_row_id
   end # destroy

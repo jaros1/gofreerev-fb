@@ -5,38 +5,3 @@ $('#gifts').append('<%= j render("api_comment", :api_comment => @api_comment) %>
 $('#tasks_errors2').append('<%= j render('shared/ajax_errors2') %>');
 move_tasks_errors2();
 <% end -%>
-//<tr id='gift-891-comment-new'>
-//    <td colspan="2" style="text-align: right; vertical-align: top">
-//        <div id="gift-891-comment-new-status">
-//            <table>
-//                <tr>
-//                    <td>Foreslå aftale</td>
-//                    <td><input id="gift-891-new-deal-check-box" name="gift-891-new-deal-check-box" onclick="check_uncheck_new_deal_checkbox(this,891)" type="checkbox" value="x" /></td>
-//                </tr>
-//            </table>
-//        </div>
-//    </td>
-//    <td colspan="2">
-//        <form accept-charset="UTF-8" action="/da/comments" class="new_comment" data-remote="true" id="gift-891-new-comment-form" method="post"><div style="margin:0;padding:0;display:inline"><input name="utf8" type="hidden" value="&#x2713;" /></div>
-//            <input id="gift-891-comment-gift-id" name="comment[gift_id]" type="hidden" value="KLXgmUJ3rfOV1FWWF1aK" />
-//            <input id="gift-891-comment-new-deal-yn" name="comment[new_deal_yn]" type="hidden" />
-//
-//            <table style="border-spacing: 0;">
-//                <tr id="gift-891-comment-new-price-tr" style="display: none">
-//                    <td colspan="2">
-//                        <input id="gift-891-comment-new-price" name="comment[price]" placeholder="Pris" size="10" type="text" />
-//                    frie DKK
-//                    </td>
-//                </tr>
-//                <tr>
-//                    <td><textarea class="new_com_text" cols="60" id="gift-891-comment-new-textarea" name="comment[comment]" onfocus="autoresize_text_field(this)" placeholder="Skriv en kommentar..." rows="1">
-//                    </textarea></td>
-//                    <td><input class="submit_comment_large" name="commit" onclick="return csv_comment(891)" type="submit" value="Gem" /></td>
-//                </tr>
-//                <tr colspan="2" class="submit_comment_small">
-//                    <td><input name="commit" onclick="return csv_comment(891)" type="submit" value="Gem" /></td>
-//                </tr>
-//            </table>
-//        </form>
-//    </td>
-//</tr>

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140117075306) do
+ActiveRecord::Schema.define(version: 20140122080221) do
 
   create_table "ajax_comments", force: true do |t|
     t.string   "user_id",    limit: 40, null: false
@@ -79,6 +79,7 @@ ActiveRecord::Schema.define(version: 20140117075306) do
     t.string   "accepted_yn",      limit: 1
     t.integer  "status_update_at",            null: false
     t.datetime "deleted_at"
+    t.string   "updated_by"
   end
 
   add_index "comments", ["comment_id"], name: "index_comments_on_comment_id", unique: true
