@@ -1,24 +1,19 @@
 <% if @link_id -%>
-document.getElementById("<%= @link_id %>").parentNode.removeChild(document.getElementById("<%= @link_id %>")) ;
+(function () {
+    var row_id = '<%= @link_id %>' ;
+    var row = document.getElementById(row_id) ;
+    if (!row) add2log('comments/destroy - did not find comment row with id ' + row_id) ;
+    else {
+        var tbody = row.parentNode ;
+        var next_row = row.nextSibling ;
+        tbody.removeChild(row) ;
+        // remove ajax error table for comment if it exists
+        var row_id_error = row_id + '-errors' ;
+        if (document.getElementById(row_id_error)) tbody.removeChild(next_row) ;
+    }
+})();
 <% end -%>
 <% if @errors2.size > 0 -%>
 $('#tasks_errors2').append('<%= j render('shared/ajax_errors2') %>');
 move_tasks_errors2();
 <% end -%>
-//<tr id="gift-891-comment-729">
-//    <td colspan="2" style="text-align: right; vertical-align: top">
-//        <div id="gift-891-comment-729-status" style="text-align: right;">
-//            <table style="text-align: left; margin-left: auto; margin-right: 10px;">
-//                <tr>
-//                    <td><a class="comment-action-link" data-confirm="Slet kommentar?" data-method="delete" data-remote="true" href="/da/da/comments/729" id="gift-891-comment-729-delete-link" rel="nofollow">Slet</a></td>
-//                </tr>
-//            </table>
-//        </div>
-//
-//    </td>
-//    <td style="vertical-align: top;"><div title="Dick B. Saldo . Klik her for at se brugeroplysninger."
-//    onclick="top.location.href = '/da/da/users/784'">
-//        <div><img class="small_pro_pic" src="https://fbcdn-profile-a.akamaihd.net/hprofile-ak-ash2/1117300_100006351370003_335066692_q.jpg" /></div>
-//    </div></td>
-//    <td style="text-align: left; vertical-align: top">b</td>
-//</tr>
