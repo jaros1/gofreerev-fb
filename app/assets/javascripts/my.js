@@ -1056,9 +1056,9 @@ function create_gift_links_errors_table (table_id) {
 
 // error callback for gift actions (like, unlike, follow, unfollow etc - write to debug log + page header
 $(document).ready(function() {
-    $(".gift-action-link").unbind("ajax:beforeSend") ;
+    $(".gift-action-link").unbind("click") ;
     $(".gift-action-link").unbind("ajax:error") ;
-    $(".gift-action-link").bind("ajax:beforeSend", function(xhr, settings){
+    $(".gift-action-link").bind("click", function(xhr, settings){
         // clear any old ajax error messages if any
         // clear within page ajax error messages if any
         // todo: this event handler is not call for delete gift. Suspect rails confirm dialog is the problem.

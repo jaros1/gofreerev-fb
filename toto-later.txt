@@ -1,32 +1,27 @@
 Low priority todo list. Minor errors, wishlist etc.
 
-1) get and download profile pictures for all friends?
-   can take very long time for an user account with many friends
-   should check timestamp for old profile picture
-   only download profile pictures for friends once every day
-
-2) get friends friends?
+1) get friends friends?
    logged in as user a
    user a is friend with user b.
    b has 20  friends, but have never been logged in
-   a can not see b friends before b has logged in once.
+   a can not see b friends until b has logged in once.
 
-3) edit text on FB welcome pace - facebook/create
+2) edit text on FB welcome pace - facebook/create
    some features are not implemented yet / text should be rewritten
    text can be seen for FB user that not yet have accepted gofreerev
 
-4) remote links - disable on ajax submit and enable when ajax request has finished
+3) remote links - disable on ajax start and enable when ajax request has finished
 
-5) rails.validations.js - don't look like rails.validations is used
+4) rails.validations.js - don't look like rails.validations is used
    there was some problems with rails 4 and rails validations in summer 2013, but maybe rails 4 is supported now
 
-6) move show-more-rows functionality to a gem
+5) move show-more-rows functionality to a gem
 
-7) minor problem with hr lines in users/show
+6) minor problem with hr lines in users/show
    should be width=100%
    check table width = 100% with left aligned columns
 
-8) implement other login providers
+7) implement other login providers
    http://www.ebizmba.com/articles/social-networking-websites
    http://en.wikipedia.org/wiki/List_of_social_networking_websites
    https://github.com/intridea/omniauth/wiki/List-of-Strategies
@@ -51,24 +46,24 @@ Low priority todo list. Minor errors, wishlist etc.
    23) Last.fm
    24) Foursquare
 
-9) add/show deep link for old post?
+8) add/show deep link for old post?
    maybe only giver/receiver to add/show deep links
    that is - other uses can see but not share gofreerev gifts on other social media
 
-10) better logger.debug2 output
+9) better logger.debug2 output
     should display class.method: text class
 
-11) my.js - replace alert with add2log and add_to_tasks_errors
+10) my.js - replace alert with add2log and add_to_tasks_errors
     JS alert should only be used in a few situations
     But use may not see top of page and error notifications
 
-12) gift with picture. on click:
+11) gift with picture. on click:
     - show gift on facebook?
     - show gift on gofreerev?
     picture is very small in gofreerev and a redirect to api maybe the best option
     deep link make it easy to return from api to gofreerev
 
-13) deep link page - should be cached - without information about logged in user
+12) deep link page - should be cached - without information about logged in user
     http write page with an dummy page header and without title for user divs
     ajax get page header for logged in user
     ajax get user div titles for logged in user
@@ -78,124 +73,120 @@ Low priority todo list. Minor errors, wishlist etc.
     actual user information can be ajax injected in page
     after response - check if user is logged in and refresh specific user information
 
-14) deep link - remember last http get - clear deep link if link has not been used for x days
+13) deep link - remember last http get - clear deep link if link has not been used for x days
 
-15) deep link - cache should be expired after new comments or when status_update_at changes
+14) deep link - cache should be expired after new comments or when status_update_at changes
 
-16) minor problem with double locale in url. For example /da/da/users/999 for users/show links
+15) minor problem with double locale in url. For example /da/da/users/999 for users/show links
     only for resource controllers :facebook, :gifts, :users, :inbox, :comments
     not a problem for util controller
-    rails ignores the extra locale in url but is a little ugly
+    rails ignores the extra locale in url but is ugly
 
-17) check if there exists a translate library to be used for JS error messages
+16) check if there exists a translate library to be used for JS error messages
     Could be nice if rails locales could be used for javascript messages
     https://github.com/fnando/i18n-js (many issues - not updated for 8 months)
 
-18) format price
+17) format price
     use currency or use language to format prices?
     we are using currency now. See application controller.fetch_user
 
-19) ajax change currency?
+18) ajax change currency?
     mark each user div with user ids
     send ajax request with new currency and array with user ids in page
     receive table with new user div title with balance information in new currency
     use javascript to change title for user divs in page
 
-20) make request for priv links (status_update and read_stream) dynamic.
-    set state with js and ajax before calling api
+19) make request for priv links (status_update and read_stream) dynamic.
+    set state (random string) with js and ajax before calling api
     In that way the request priv. links will work even if user has used back bottom in browser
     there is a special problem with linkedin where "client" is temporary saved in task table
 
-21) page header. log out link. different title for one and more than one logged in user
+20) page header. log out link. different title for one and more than one logged in user
     returns to login provider if only one login provider
     returns to auth/index page if more than one login provider
 
-22) search app source for @user. @users should be used if possible.
+21) search app source for @user. @users should be used if possible.
 
-23) new gift form. disable/enable file upload
+22) new gift form. disable/enable file upload
     works with javascript, but title is not changed
     minor problem as write permission to api wall normally is not changed
     minor problem as mouse over text normally is not read by user
 
-24) add ignore / don't show missing write permission link
-    that is - user don't want to see message any more
-    could be an box with a X to close/hide message
-    add post on wall Y/N field to user. Should be a Y/N for user and each provider.
-    default is Y - warning with missing priv - ajax inject link to request missing priv
-    N - do not show warning with missing priv - do not post on provider wall
-
-25) add model validation for gift.received_at:
+23) add model validation for gift.received_at:
     1) direction = both
     2) giver and receiver in api_gifts
 
-26) check direction. added as field to gifts. check direction in source
+24) check direction. added as field to gifts. check direction in source
 
-27) check modernizr.js - where is it being user for - where is it loaded
+25) check modernizr.js - where is it being user for - where is it loaded
     modernizr.js can also be used to polyfilla old browsers
     enable html5 in old browsers
 
-28) jquery: add unbind before bind to prevent doublet ajax event handlers
+26) jquery: add unbind before bind to prevent doublet ajax event handlers
 
-29) mobile: html5 - add picture direct from camera - google html media capture - http://mobilehtml5.org/
+27) mobile: html5 - add picture direct from camera - google html media capture - http://mobilehtml5.org/
 
-30) mbile: how does browse file dialog look like on a mobile device?
+28) mobile: how does browse file dialog look like on a mobile device?
+    could be as ugly as js confirm box on devices with a small width
 
-31) add timestamp to lines in tasks_errors for easier test & debugging
+29) add timestamp to lines in tasks_errors for easier test & debugging
     timestamp - server timestamp or client timestamp?
     Maybe only timestamp if DEBUG_AJAX = true
-    will make it easier to report problems and find matching lines in server log
+    will make it easier to report problems and find relevant lines in server log
 
-32) picture size problem. First gifts/index request for a new day
+30) picture size problem. First gifts/index request for a new day
     charlie gift 383. picture not resizing to width 100px.
     picture was resized to normal size after 2 minutes (looks like the next new_messages_count solved the problem)
     Only a problem with temporary local pictures.
     possible a problem with rails server and only one server instance
     test on dev1 server
 
-33) page size: move documentation in html pages to <%# -%> tags for smaller pages and intact documentation
+31) page size: move documentation in html pages to <%# -%> tags for smaller pages and intact documentation
 
-34) page size: shorten inline javascript code in html pages
+32) page size: shorten inline javascript code in html pages
     add helper JS functions
     for example /shared/show_more_rows
 
-35) responsive design - missing opera plugin to set screen width.
+33) responsive design - missing opera plugin to set screen width.
 
-36) responsive testing tools: http://www.gonzoblog.nl/2012/03/21/10-testing-tools-for-responsive-web-design/
+34) responsive testing tools: http://www.gonzoblog.nl/2012/03/21/10-testing-tools-for-responsive-web-design/
     http://mattkersley.com/responsive/ can be used. Not working for localhost / gofreerev
     http://responsivepx.com can be used. Not working for localhost / gofreerev.
     Many other tools not working for localhost / gofreerev
 
-37) JS confirm dialog to big on 320 width screen
+35) JS confirm dialog to big on 320 width screen
     JS confirm dialog can not be styled. Needs a custom dialog box
     http://lesseverything.com/blog/archives/2012/07/18/customizing-confirmation-dialog-in-rails/
     http://www.pjmccormick.com/nicer-rails-confirm-dialogs-and-not-just-delete-methods
     Not working in rails 4 - I am must be doing some ting wrong
     Tried with JS - tried with coffee script - without success
 
-38) minor javascript problem with ajax util/currencies to get full list of currencies onfocus
+36) minor javascript problem with ajax util/currencies to get full list of currencies onfocus
     user has to click twice on currency LOV to change currency.
     the problem is that LOV object is changing at first click
 
-39) add no post_login_<provider> task error message with hint how to fix this problem
+37) add no post_login_<provider> task error message with hint how to fix this problem
     no friend information is downloaded from provider and app does not work without a friend network
 
-40) md5 alternatives? md5 is to easy to break
+38) don't insert same task twice in task queue
 
-41) don't insert same task twice in task queue
-
-42) add som kind of effect when removing gifts and comments from page
+39) add som kind of effect when removing gifts and comments from page
     check jquery books - check jquery ui effect demo sites - check css3 transitions
 
-43) advance dialog box when deleting gift
+40) Use a spinner instead of a upload process bar. More generic and uses less space.
+
+41) add spinner when fetching more rows from server
+
+42) advance dialog box when deleting gift
     a) removed from gift from share page with unchanged balance (hide from gifts/index - show in users/show)
     b) delete gift with changed balance (delete from gifts/index and users/show
     c) cancel
     No easy was to implement this. See gift_helper.link_to_delete_gift
 
-44) refactor styles to stylesheets - use stylesheets and not inline styles.
+43) refactor styles to stylesheets - use stylesheets and not inline styles.
     responsive design added
 
-45) add number of friends to user_div mouse over text?
+44) add number of friends to user_div mouse over text?
     add number of mutual friends to user_div mouse over text?
 
 46) add category to gift?

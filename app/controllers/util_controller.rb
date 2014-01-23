@@ -588,6 +588,7 @@ class UtilController < ApplicationController
         render 'hide_delete_gift'
         return
       end
+      raise "debug"
       # delete mark gift. Delete marked gifts will be ajax removed from other sessions within the
       # next 5 minutes and will be physical deleted after 5 minutes
       gift.deleted_at = Time.new
@@ -745,15 +746,17 @@ class UtilController < ApplicationController
   end # reject_new_deal
 
   def accept_new_deal
-    @errors = []
+    @errors2 = []
     @api_gifts = nil
+    table_id = 'tasks_errors' # tasks errors table in top of page
     begin
       # validate new deal action
       comment, key, options = check_new_deal_action('accept')
+      table_id = "gift-#{comment.gift.id}-comment-#{comment.id}-errors" if comment # ajax error table under comment row
       if key
         options = options || {}
         options[:raise] = I18n::MissingTranslationData
-        @errors << t(key, options)
+        @errors2 << { :msg => t(key, options), :id => table_id }
         return
       end
       # accept agreement proposal - mark proposal as accepted - callbacks sent notifications and updates gift
@@ -784,10 +787,11 @@ class UtilController < ApplicationController
         format.js {}
       end
     rescue Exception => e
-      @errors << t('.exception', :error => e.message.to_s, :raise => I18n::MissingTranslationData)
+      @errors2 << { :msg => t('.exception', :error => e.message.to_s, :raise => I18n::MissingTranslationData),
+                    :id => table_id }
       logger.error2 "Exception: #{e.message.to_s}"
       logger.error2 "Backtrace: " + e.backtrace.join("\n")
-      logger.error2 "@errors = #{@errors}"
+      logger.error2 "@errors2 = #{@errors2}"
       @api_gifts = nil
     end
   end # accept_new_deal
