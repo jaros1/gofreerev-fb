@@ -49,23 +49,41 @@ module GiftHelper
   end # link_to_delete_gift
 
 
+  def link_to_comment_options (comment, action)
+    key = action == 'delete' ? 'delete_comment' : "#{action}_new_deal"
+    { :id => "gift-#{comment.gift.id}-comment-#{comment.id}-#{action}-link",
+      :class => 'comment-action-link',
+      :remote => true,
+      :method => action == 'delete' ? :delete : :post,
+      :data => { :confirm => t(".confirm_#{key}")}
+    }
+  end
+
+  # the giftid param is used as extra information in url for comment-action-link event (cancel, accept, reject, delete)
+  # cleanup any old ajax error messages before new ajax delete comment request
+  # see $(".comment-action-link").bind("click" in my.js
   def link_to_cancel_new_deal (comment)
-    link_to t('.cancel_new_deal'), util_cancel_new_deal_path(:comment_id => comment.id), :id => "gift-#{comment.gift.id}-comment-#{comment.id}-cancel-link", :class => 'comment-action-link', :remote => true, :method => :post, :data => { :confirm => t('.confirm_cancel_new_deal') }
+    link_to t('.cancel_new_deal'),
+            util_cancel_new_deal_path(:comment_id => comment.id, :giftid => comment.gift.id),
+            link_to_comment_options(comment, 'cancel')
   end
 
   def link_to_accept_new_deal (comment)
-    link_to t('.accept_new_deal'), util_accept_new_deal_path(:comment_id => comment.id), :id => "gift-#{comment.gift.id}-comment-#{comment.id}-accept-link", :class => 'comment-action-link', :remote => true, :method => :post, :data => { :confirm => t('.confirm_accept_new_deal') }
+    link_to t('.accept_new_deal'),
+            util_accept_new_deal_path(:comment_id => comment.id, :giftid => comment.gift.id),
+            :id => "gift-#{comment.gift.id}-comment-#{comment.id}-accept-link", :class => 'comment-action-link', :remote => true, :method => :post, :data => { :confirm => t('.confirm_accept_new_deal') }
   end
 
   def link_to_reject_new_deal (comment)
-    link_to t('.reject_new_deal'), util_reject_new_deal_path(:comment_id => comment.id), :id => "gift-#{comment.gift.id}-comment-#{comment.id}-reject-link", :class => 'comment-action-link', :remote => true, :method => :post, :data => { :confirm => t('.confirm_reject_new_deal') }
+    link_to t('.reject_new_deal'),
+            util_reject_new_deal_path(:comment_id => comment.id, :giftid => comment.gift.id),
+            :id => "gift-#{comment.gift.id}-comment-#{comment.id}-reject-link", :class => 'comment-action-link', :remote => true, :method => :post, :data => { :confirm => t('.confirm_reject_new_deal') }
   end
 
   def link_to_delete_comment (comment)
-    # the giftid param is used as extra information in url for comment-action-link click event
-    # cleanup any old ajax error messages before new ajax delete comment request
-    # see $(".comment-action-link").bind("click" in my.js
-    link_to t('.delete_comment'), comment_path(comment.id, :giftid => comment.gift.id), :id => "gift-#{comment.gift.id}-comment-#{comment.id}-delete-link", :class => 'comment-action-link', :remote => true, :method => :delete, :data => { :confirm => t('.confirm_delete_comment') }
+    link_to t('.delete_comment'),
+            comment_path(comment.id, :giftid => comment.gift.id),
+            link_to_comment_options(comment, 'delete')
   end
 
 end
