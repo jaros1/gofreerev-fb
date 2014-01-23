@@ -189,64 +189,55 @@ Low priority todo list. Minor errors, wishlist etc.
 44) add number of friends to user_div mouse over text?
     add number of mutual friends to user_div mouse over text?
 
-46) add category to gift?
+45) add category to gift?
     could make it easier to find relevant gifts
     But more information to fill when posting gifts
-    Could be an information that can be added after create
+    Could be an information that can be added after create and maybe by other users
 
-47) allow new proposal for giver/receiver so that giver/receiver can change price?
+46) allow new proposal for giver/receiver so that giver/receiver can change price?
     Or allow edit price for a not closed gift?
 
-48) comments: timestamps for cancel, reject and accept deal?
+47) comments: timestamps for cancel, reject and accept deal?
 
-49) Model changes - like/unlike comment?
+48) Model changes - like/unlike comment?
 
-50) edit gift. Can not edit post on api. Allow to edit post in app?
+49) edit gift. Can not edit post on api. Allow to edit post in app?
 
-51) How much sync. of comments in api and comments in app?
-    write comment to fb - don't download comments from fb=
+50) How much sync. of comments in api and comments in app?  now none sync. of comments. post comments on API walls?
 
-52) mark new notifications with color in inbox.
+51) mark new notifications with color in inbox.
 
-53) convert javascript to coffeescript?
+52) convert javascript to coffeescript?
 
-54) wrap fb api (koala) in a generic exception handler with dump of request and exception after error
+53) wrap fb api (koala) in a generic exception handler with dump of request and exception after error
     maybe already implemented!
 
-55) gets only small picture api url from fb. See gift.get_api_picture_url method
+54) gets only small picture api url from fb. See gift.get_api_picture_url method
     It should possible to get url for a larger picture from facebook api
 
-56) gifts/index: post on api wall checkbox. Only if user has granted post-on-wall prio.
-    multiple checkboxes if user is connected with write permission to multiple api walls
+55) gifts/index: post on api wall checkbox. Only if user has granted post-on-wall prio.
+    multiple checkboxes if user is connected with write permission to multiple api walls.
+    Maybe mouse over text with names of login providers walls where upload is enabled
 
-57) auto cleanup and close of inactive accounts?!
+56) auto cleanup and close of inactive accounts?!
     there is no reason to keep data for users that does not use the app ( other than delete of user and gifts changes other users balance )
 
-58) add a counter to a gift. Normally 1 gift, but can be any number or nil. Eg. nil for a service.
+57) add a counter to a gift. Normally 1 gift, but can be any number or nil. Eg. nil for a service.
     Clone a closed gift, keep the original gift and decrease counter. Close deal when counter reaches zero.
     Maybe link all the stories if accepted by the receiver
 
-59) when closing a deal and paying with money.
+58) when closing a deal and paying with money.
     select between anonymous money without a linked story or link the money to one or more stores / other gifts
     anonymous money - no links between gifts - no story updates
     linked money - story updates
 
-60) link stories. Insert link for one story in an other story.
+59) link stories. Insert link for one story in an other story.
     how to handle security? Should only see gifts from/to friends
 
-61) post comments on API walls?
+60) picture store. add :host for hosted pictures
 
-62) picture store. add :host for hosted pictures
-
-63) it should be possible to get larger facebook pictures
-    right click menu in facebook gives a public available full size picture url
-
-64) API_GIFT_PICTURE_STORE - allow array with values?
+61) API_GIFT_PICTURE_STORE - allow array with values?
     for example API_GIFT_PICTURE_STORE[:linkedin] = [:facebook, :local]
     that is - use url to facebook picture or use local perm store
     user logged in with facebook and linked will use facebook as picture store
     user only logged with linkedin will use local perm picture store
-
-65) minor small problem with delete gift and cleanup previous ajax errors.
-    $(".gift-action-link").bind("ajax:beforeSend) function is not called for delete gift.
-    I suspect that rails confirm dialog maybe uses beforesend ajax event
