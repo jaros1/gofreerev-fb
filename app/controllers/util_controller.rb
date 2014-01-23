@@ -648,16 +648,20 @@ class UtilController < ApplicationController
       return [comment, '.not_authorized', {}]
     end
     return [comment, gift, '.comment_deleted', {}] if comment.deleted_at
-    #show_action = case action
-    #                when 'cancel' then
-    #                  comment.show_cancel_new_deal_link?(@users)
-    #                when 'reject' then
-    #                  comment.show_reject_new_deal_link?(@users)
-    #                when 'accept' then
-    #                  comment.show_accept_new_deal_link?(@users)
-    #              end # case
-    method_name = "show_#{action}_new_deal_link?".to_sym
-    if !comment.send(method_name, @users)
+    if true
+      show_action = case action
+                      when 'cancel' then
+                        comment.show_cancel_new_deal_link?(@users)
+                      when 'reject' then
+                        comment.show_reject_new_deal_link?(@users)
+                      when 'accept' then
+                        comment.show_accept_new_deal_link?(@users)
+                    end # case
+    else
+      method_name = "show_#{action}_new_deal_link?".to_sym
+      show_action = comment.send(method_name, @users)
+    end
+    if !show_action
       logger.debug2  "#{action} link no longer active for comment with id #{comment_id}"
       return [comment, '.not_allowed', {}]
     end
@@ -668,15 +672,18 @@ class UtilController < ApplicationController
   # Parameters: {"comment_id"=>"478"}
   public
   def cancel_new_deal
-    @errors = []
+    @errors2 = []
     @link_id = nil
+    table_id = 'tasks_errors' # tasks errors table in top of page
     begin
       # validate new deal reject action
-      comment, key, options = check_new_deal_action('reject')
+      comment, key, options = check_new_deal_action('cancel')
+      table_id = "gift-#{comment.gift.id}-comment-#{comment.id}-errors" if comment # ajax error table under comment row
       if key
         options = options || {}
         options[:raise] = I18n::MissingTranslationData
-        @errors << t(key, options)
+        @errors2 << { :msg => t(key, options), :id => table_id }
+        render 'cancel_reject_new_deal'
         return
       end
       gift = comment.gift
@@ -684,28 +691,34 @@ class UtilController < ApplicationController
       comment.new_deal_yn = nil
       comment.updated_by = login_user_ids.join(',')
       comment.save!
-      @errors << t('.ok')
+      @errors2 << { :msg => t('.ok'), :id => table_id }
       # hide link
       @link_id = "gift-#{gift.id}-comment-#{comment.id}-cancel-link"
+      render 'cancel_reject_new_deal'
     rescue Exception => e
-      @errors << t('.exception', :error => e.message.to_s, :raise => I18n::MissingTranslationData)
+      @errors2 << { :msg => t('.exception', :error => e.message.to_s, :raise => I18n::MissingTranslationData),
+                    :id => table_id }
       logger.error2 "Exception: #{e.message.to_s}"
       logger.error2 "Backtrace: " + e.backtrace.join("\n")
-      logger.error2 "@errors = #{@errors}"
+      logger.error2 "@errors2 = #{@errors2}"
       @link = nil
+      render 'cancel_reject_new_deal'
     end
   end # cancel_new_deal
 
   def reject_new_deal
-    @errors = []
+    @errors2 = []
     @link_id = nil
+    table_id = 'tasks_errors' # tasks errors table in top of page
     begin
       # validate new deal reject action
       comment, key, options = check_new_deal_action('reject')
+      table_id = "gift-#{comment.gift.id}-comment-#{comment.id}-errors" if comment # ajax error table under comment row
       if key
         options = options || {}
         options[:raise] = I18n::MissingTranslationData
-        @errors << t(key, options)
+        @errors2 << { :msg => t(key, options), :id => table_id }
+        render 'cancel_reject_new_deal'
         return
       end
       gift = comment.gift
@@ -718,13 +731,16 @@ class UtilController < ApplicationController
       # todo: change gift and comment for other users after reject (new messages count ajax)?
       @link_id = "gift-#{gift.id}-comment-#{comment.id}-reject-link"
       logger.debug2 "link_id = #{@link_id}"
-      @errors << t('.ok')
+      @errors2 << { :msg => t('.ok'), :id => table_id }
+      render 'cancel_reject_new_deal'
     rescue Exception => e
-      @errors << t('.exception', :error => e.message.to_s, :raise => I18n::MissingTranslationData)
+      @errors2 << { :msg => t('.exception', :error => e.message.to_s, :raise => I18n::MissingTranslationData),
+                    :id => table_id }
       logger.error2 "Exception: #{e.message.to_s}"
       logger.error2 "Backtrace: " + e.backtrace.join("\n")
-      logger.error2 "@errors = #{@errors}"
+      logger.error2 "@errors2 = #{@errors2}"
       @link = nil
+      render 'cancel_reject_new_deal'
     end
   end # reject_new_deal
 
