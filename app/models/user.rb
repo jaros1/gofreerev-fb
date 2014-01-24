@@ -1456,6 +1456,7 @@ class User < ActiveRecord::Base
     if limit and (newest_gift_id > 0 or newest_status_update_at > 0)
       logger.warn2 ":newest_gift_id and :newest_status_update_at are used in util.new_messages_count to get new, changed and deleted gifts"
       logger.warn2 ":limit should not be used in combination with :newest_gift_id and :newest_status_update_at"
+      limit = nil
     end
 
     # initialize list of gifts
@@ -1473,68 +1474,126 @@ class User < ActiveRecord::Base
       # called from users or gifts controller - to not return delete mark gifts in response
       deleted = ' and gifts.deleted_at is null'
     end
+    # Use a larger limit in sql statement. correct limit for multi provider login and for hidden gifts
+    sql_limit = limit
+    if sql_limit
+      # correct for multi provider posts
+      if sql_limit == 1
+        sql_limit = login_users.size
+      else
+        # 1.50 <=> half of gift post is multi provider posts
+        sql_limit = sql_limit * login_users.size * 1.50
+      end
+      # correct for hidden posts. 1.10 <=> 10 % hidden posts
+      sql_limit = sql_limit * 1.10
+      sql_limit = sql_limit.ceil
+    end
+
     if newest_gift_id == 0 and newest_status_update_at == 0
-      # called from gifts/index page
+      # called from gifts/index page - newest_gift_id and newest_status_update_at are not relevant
       ags = ApiGift.
           where('(user_id_giver in (?) or user_id_receiver in (?)) and status_update_at < ?' + deleted,
                           friends, friends, last_status_update_at).
-          limit(limit).
+          limit(sql_limit).
           references(:gifts, :api_gifts).
           includes(:gift, :giver, :receiver).
           order('gifts.status_update_at desc')
+      eod = (!sql_limit or sql_limit and ags.size < sql_limit)
     else
+      # called from util/new_messages_count - limit and last_status_update_at are not relevant
       ags = ApiGift.
-          where('(gifts.id > ? or status_update_at > ?) and (user_id_giver in (?) or user_id_receiver in (?))  and status_update_at < ?' + deleted,
-                          newest_gift_id, newest_status_update_at, friends, friends, last_status_update_at).
-          limit(limit).
+          where('(gifts.id > ? or status_update_at > ?) and (user_id_giver in (?) or user_id_receiver in (?))' + deleted,
+                          newest_gift_id, newest_status_update_at, friends, friends).
           references(:gifts, :api_gifts).
           includes(:gift, :giver, :receiver).
           order('gifts.status_update_at desc')
+      eod = true
+    end
+    # execute query now
+    ags = ags.to_a
+
+    return [ags, nil] if ags.size == 0 # no (more) rows
+    if eod
+      new_last_status_update_at = nil
+    else
+      new_last_status_update_at = ags.last.gift.status_update_at
     end
 
-    if login_users.size == 1
-      return [ags, nil] if ags.size == 0
-      return [ags, nil] if limit and ags.size < limit
+    if login_users.size > 1
+      # remove any multi provider gift doublets
+
+      # multiple logins - find and remove any doublet gifts
+      # priority:
+      # 1) sort by status_update_at desc (also order by condition in select statement)
+      # 2) closed gift before open gift
+      # 3) api gift with picture
+      # 4) api picture url with error and creator of gift in login_users - recheck picture with login user privs.
+      # 5) api gift without picture
+      ags = ags.sort do |a, b|
+        if b.gift.status_update_at != a.gift.status_update_at
+          # 1) keep sort by status_update_at desc (also order by condition in select statement)
+          b.gift.status_update_at <=> b.gift.status_update_at
+        elsif a.status_sort != b.status_sort
+          a.status_sort <=> b.status_sort # 2) closed gift before open gift
+        else
+          a.picture_sort(login_users) <=> b.picture_sort(login_users) # 3, 4 and 5
+        end
+      end # ags sort 1
+
+      # delete doublets if creator of gift was using multi provider login
+      old_gift_id = -1
+      ags = ags.delete_if do |ag|
+        if ag.gift.id == old_gift_id
+          true
+        else
+          old_gift_id = ag.gift.id
+          false
+        end
+      end # delete_if
+      # end - remove any multi provider gift doublets
+    end
+
+    # remove any hidden gifts (show=N) from api gifts list
+    userids = login_users.collect { |u| u.user_id }
+    giftids = ags.collect { |ag| ag.gift_id }
+    hide_giftids = GiftLike.
+        where("user_id in (?) and gift_id in (?)", userids, giftids).
+        find_all { |gl| gl.show == 'N'}.
+        collect { |gl| gl.gift_id }.
+        uniq
+    if hide_giftids.size > 0
+      # remove hidden gifts
+      logger.debug2 "remove hidden gifts: #{hide_giftids.join(', ')}"
+      old_size = ags.size
+      ags = ags.find_all { |ag| !hide_giftids.index(ag.gift_id) }
+      new_size = ags.size
+      logger.debug2 "#{old_size-new_size} hidden gifts was removed"
+    end
+
+    return [ags, nil] if eod # no more rows from db
+
+    while ags.size < limit and new_last_status_update_at do
+      # too few rows - get more rows - stop when limit is reached or when no more rows in database
+      new_limit = limit - ags.size
+      logger.debug2 "too few rows. limit = #{limit}, ags.size = #{ags.size}, new limit = #{new_limit}"
+      ags2, new_last_status_update_at = User.api_gifts login_users,
+                                                       :last_status_update_at => new_last_status_update_at,
+                                                       :limit => new_limit,
+                                                       :newest_gift_id => newest_gift_id,
+                                                       :newest_status_update_at => newest_status_update_at,
+                                                       :include_delete_marked_gifts => include_delete_marked_gifts
+      ags = ags + ags2
+    end
+
+    if ags.size > limit
+      # too many rows - return first limit rows
+      logger.debug "too many rows. limit = #{limit}, ags.size = #{ags.size}, ignore last #{ags.size-limit} rows"
+      ags = ags.first(limit)
       return [ags, ags.last.gift.status_update_at]
     end
 
-    # multiple logins - find and remove any doublet gifts
-    # priority:
-    # 1) sort by gift id
-    # 2) closed gift before open gift
-    # 3) api gift with picture
-    # 4) api picture url with error and creator of gift in login_users - recheck picture with login user privs.
-    # 5) api gift without picture
-    ags = ags.sort do |a, b|
-      if a.gift.id != b.gift.id
-        a.gift.id <=> b.gift.id # 1) sort by gift id
-      elsif a.status_sort != b.status_sort
-        a.status_sort <=> b.status_sort # 2) closed gift before open gift
-      else
-        a.picture_sort(login_users) <=> b.picture_sort(login_users) # 3, 4 and 5
-      end
-    end # ags sort 1
-
-    # delete doublets if creator of gift was using multi provider login
-    old_gift_id = -1
-    ags = ags.delete_if do |ag|
-      if ag.gift.id == old_gift_id
-        true
-      else
-        old_gift_id = ag.gift.id
-        false
-      end
-    end # delete_if
-
-    # sort api gifts
-    ags = ags.sort do |a,b|
-      #if (a.gift.received_at || a.created_at) ==  (b.gift.received_at || b.created_at)
-      #  b.id <=> a.id
-      #else
-      #  (b.gift.received_at || b.created_at) <=>  (a.gift.received_at || a.created_at)
-      #end
-      b.gift.status_update_at <=> a.gift.status_update_at
-    end # ags sort 2
+    # correct number of rows
+    return [ags, new_last_status_update_at]
 
     # done
     ags
