@@ -374,6 +374,8 @@ da:
         app_friendship_accepted_v1_to_msg: "%{from_user} accepterede din venneanmodning. Du og %{from_user} er nu %{appname} venner"
         app_friendship_accepted_v1_to_url: "/users/%{from_id}"
         # there must be 8 keys for each comment notification - no users (1, 2, 3, n) * (url, msg)
+        new_comment_giver_1_v1_from_url: "/gifts/%{giftid}"
+        new_comment_giver_1_v1_from_msg: 'Du kommenterede %{givername}-s tilbud "%{gifttext} ..."'
         new_comment_giver_1_v1_to_url: "/gifts/%{giftid}"
         new_comment_giver_1_v1_to_msg: '%{username1} har kommenteret dit tilbud "%{gifttext} ..."'
         new_comment_giver_2_v1_to_url: "/gifts/%{giftid}"
@@ -390,16 +392,18 @@ da:
         new_comment_receiver_3_v1_to_msg: '%{username1}, %{username2} og %{username3} har kommenteret dit ønske "%{gifttext} ..."'
         new_comment_receiver_n_v1_to_url: "/gifts/%{giftid}"
         new_comment_receiver_n_v1_to_msg: '%{username1}, %{username2} og %{no_other_users} andre har kommenteret dit ønske "%{gifttext} ..."'
-        new_comment_giver_and_receiver_1_v1_to_url: "/gifts/%{giftid}"
-        new_comment_giver_and_receiver_1_v1_to_msg: '%{username1} har kommenteret aftale "%{gifttext} ..."'
         new_comment_giver_and_receiver_1_v1_from_url: "/gifts/%{giftid}"
         new_comment_giver_and_receiver_1_v1_from_msg: 'Du kommenterede aftalen imellem %{givername} og %{receivername} "%{gifttext} ..."'
+        new_comment_giver_and_receiver_1_v1_to_url: "/gifts/%{giftid}"
+        new_comment_giver_and_receiver_1_v1_to_msg: '%{username1} har kommenteret aftale "%{gifttext} ..."'
         new_comment_giver_and_receiver_2_v1_to_url: "/gifts/%{giftid}"
         new_comment_giver_and_receiver_2_v1_to_msg: '%{username1} og %{username2} har kommenteret aftale "%{gifttext} ..."'
         new_comment_giver_and_receiver_3_v1_to_url: "/gifts/%{giftid}"
         new_comment_giver_and_receiver_3_v1_to_msg: '%{username1}, %{username2} og %{username3} har kommenteret aftale "%{gifttext} ..."'
         new_comment_giver_and_receiver_n_v1_to_url: "/gifts/%{giftid}"
         new_comment_giver_and_receiver_n_v1_to_msg: '%{username1}, %{username2} or %{no_other_users} andre har kommenteret aftale "%{gifttext} ..."'
+        new_comment_giver_other_1_v1_from_url: "/gifts/%{giftid}"
+        new_comment_giver_other_1_v1_from_msg: 'Du kommenterede %{givername}-s tilbud "%{gifttext} ..."'
         new_comment_giver_other_1_v1_to_url: "/gifts/%{giftid}"
         new_comment_giver_other_1_v1_to_msg: '%{username1} har også kommenteret %{givername}-s tilbud "%{gifttext} ..."'
         new_comment_giver_other_2_v1_to_url: "/gifts/%{giftid}"
@@ -498,10 +502,10 @@ da:
         new_proposal_receiver_follow_3_v1_to_msg: '%{username1}, %{username2} og %{username3} har bud på %{receivername}-s ønske "%{gifttext} ..."'
         new_proposal_receiver_follow_n_v1_to_url: "/gifts/%{giftid}"
         new_proposal_receiver_follow_n_v1_to_msg: '%{username1}, %{username2} og %{no_other_users} andre har bud på %{receivername}-s ønske "%{gifttext} ..."'
-        cancelled_proposal_giver_1_v1_to_url: "/gifts/%{giftid}"
-        cancelled_proposal_giver_1_v1_to_msg: '%{username1} vil alligevel ikke bruge dit tilbud "%{gifttext} ..."'
         cancelled_proposal_giver_1_v1_from_url: "/gifts/%{giftid}"
         cancelled_proposal_giver_1_v1_from_msg: 'Du fortryd dit bud på %{givername}-s tilbud "%{gifttext} ..."'
+        cancelled_proposal_giver_1_v1_to_url: "/gifts/%{giftid}"
+        cancelled_proposal_giver_1_v1_to_msg: '%{username1} vil alligevel ikke bruge dit tilbud "%{gifttext} ..."'
         cancelled_proposal_giver_2_v1_to_url: "/gifts/%{giftid}"
         cancelled_proposal_giver_2_v1_to_msg: '%{username1} og %{username2} vil alligevel ikke bruge dit tilbud "%{gifttext} ..."'
         cancelled_proposal_giver_3_v1_to_url: "/gifts/%{giftid}"

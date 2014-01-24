@@ -284,8 +284,5 @@
     In that way updated gifts will be at top of page and will be ajax injected to top of page
     how to keep actual user view point when ajax injecting new rows in top of page?
 
-64) check missing inbox keys.
-    - da.inbox.index.rejected_proposal_giver_2_v1_to_url & da.inbox.index.rejected_proposal_giver_2_v1_to_msg
-
 65) check if notification cleanup stil is running. Find 68 notifications for 3 login users.
 
