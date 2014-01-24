@@ -500,6 +500,8 @@ da:
         new_proposal_receiver_follow_n_v1_to_msg: '%{username1}, %{username2} og %{no_other_users} andre har bud på %{receivername}-s ønske "%{gifttext} ..."'
         cancelled_proposal_giver_1_v1_to_url: "/gifts/%{giftid}"
         cancelled_proposal_giver_1_v1_to_msg: '%{username1} vil alligevel ikke bruge dit tilbud "%{gifttext} ..."'
+        cancelled_proposal_giver_1_v1_from_url: "/gifts/%{giftid}"
+        cancelled_proposal_giver_1_v1_from_msg: 'Du fortryd dit bud på %{givername}-s tilbud "%{gifttext} ..."'
         cancelled_proposal_giver_2_v1_to_url: "/gifts/%{giftid}"
         cancelled_proposal_giver_2_v1_to_msg: '%{username1} og %{username2} vil alligevel ikke bruge dit tilbud "%{gifttext} ..."'
         cancelled_proposal_giver_3_v1_to_url: "/gifts/%{giftid}"

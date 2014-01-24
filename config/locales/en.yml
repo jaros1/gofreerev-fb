@@ -505,6 +505,8 @@ en:
         new_proposal_receiver_follow_n_v1_to_msg: '%{username1}, %{username2} and %{no_other_users} other persons have bids on %{receivername}-s wish "%{gifttext} ..."'
         cancelled_proposal_giver_1_v1_to_url: "/gifts/%{giftid}"
         cancelled_proposal_giver_1_v1_to_msg: '%{username1} no longer wants to use your offer "%{gifttext} ..."'
+        cancelled_proposal_giver_1_v1_from_url: "/gifts/%{giftid}"
+        cancelled_proposal_giver_1_v1_from_msg: 'You cancelled your proposal for %{givername}-s offer "%{gifttext} ..."'
         cancelled_proposal_giver_2_v1_to_url: "/gifts/%{giftid}"
         cancelled_proposal_giver_2_v1_to_msg: '%{username1} and %{username2} no longer want to use your offer "%{gifttext} ..."'
         cancelled_proposal_giver_3_v1_to_url: "/gifts/%{giftid}"
