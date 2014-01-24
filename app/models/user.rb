@@ -1498,7 +1498,6 @@ class User < ActiveRecord::Base
           references(:gifts, :api_gifts).
           includes(:gift, :giver, :receiver).
           order('gifts.status_update_at desc')
-      eod = (!sql_limit or sql_limit and ags.size < sql_limit)
     else
       # called from util/new_messages_count - limit and last_status_update_at are not relevant
       ags = ApiGift.
@@ -1507,10 +1506,16 @@ class User < ActiveRecord::Base
           references(:gifts, :api_gifts).
           includes(:gift, :giver, :receiver).
           order('gifts.status_update_at desc')
-      eod = true
     end
     # execute query now
     ags = ags.to_a
+    # check for eod - end of data
+    if newest_gift_id == 0 and newest_status_update_at == 0
+      eod = (!sql_limit or sql_limit and ags.size < sql_limit)
+    else
+      eod = true
+    end
+    logger.debug2 "sql_limit = #{sql_limit}, ags.size = #{ags.size}, eod = #{eod}"
 
     return [ags, nil] if ags.size == 0 # no (more) rows
     if eod
@@ -1541,6 +1546,7 @@ class User < ActiveRecord::Base
       end # ags sort 1
 
       # delete doublets if creator of gift was using multi provider login
+      old_size = ags.size
       old_gift_id = -1
       ags = ags.delete_if do |ag|
         if ag.gift.id == old_gift_id
@@ -1550,6 +1556,8 @@ class User < ActiveRecord::Base
           false
         end
       end # delete_if
+      new_size = ags.size
+      logger.debug2 "removed #{old_size-new_size} doublet api gifts. old size #{old_size}. new size #{new_size}"
       # end - remove any multi provider gift doublets
     end
 
@@ -1567,7 +1575,7 @@ class User < ActiveRecord::Base
       old_size = ags.size
       ags = ags.find_all { |ag| !hide_giftids.index(ag.gift_id) }
       new_size = ags.size
-      logger.debug2 "#{old_size-new_size} hidden gifts was removed"
+      logger.debug2 "#{old_size-new_size} hidden gifts was removed. old size = #{old_size}, new_size = #{new_size}"
     end
 
     return [ags, nil] if eod # no more rows from db
@@ -1587,12 +1595,13 @@ class User < ActiveRecord::Base
 
     if ags.size > limit
       # too many rows - return first limit rows
-      logger.debug "too many rows. limit = #{limit}, ags.size = #{ags.size}, ignore last #{ags.size-limit} rows"
+      logger.debug2 "too many rows. limit = #{limit}, ags.size = #{ags.size}, ignore last #{ags.size-limit} rows"
       ags = ags.first(limit)
       return [ags, ags.last.gift.status_update_at]
     end
 
     # correct number of rows
+    logger.debug2 "correct number of rows. limit = #{limit}, last_status_update_at = #{new_last_status_update_at}"
     return [ags, new_last_status_update_at]
 
     # done
