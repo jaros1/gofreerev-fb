@@ -300,3 +300,9 @@
      for example to setup tables for ajax error messages within gifts/index page
      it could be nice if jquery has information about html element that started the ajax request
      $(classname).bind('click', funciton ... - find id for html element with classname with triggered this bind handler
+
+63) new gift.status_update_at after new comments?
+    In that way updated gifts will be at top of page and will be ajax injected to top of page
+    how to keep actual user view point when ajax injecting new rows in top of page?
+
+64)

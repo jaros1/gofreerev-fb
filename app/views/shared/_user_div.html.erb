@@ -1,5 +1,4 @@
-<% logger.debug2 "user_div = #{user_div}, @users = #{@users}"
-   friend = user_div.friend?(@users)
+<% friend = user_div.friend?(@users)
    div_title = '.title' + (friend ? '' : '_non') + '_friend'
    username = user_div.short_or_full_user_name(@users)
    balance = friend ? format_user_balance(user_div, @users) : nil

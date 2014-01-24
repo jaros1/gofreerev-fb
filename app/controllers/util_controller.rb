@@ -106,7 +106,9 @@ class UtilController < ApplicationController
       # return new newest_gift_id value and any new gifts visible to user
       @new_newest_gift_id = new_newest_gift_id
       @new_newest_status_update_at = new_newest_status_update_at
-      @api_gifts = User.api_gifts(@users, old_newest_gift_id, old_newest_status_update_at, true) # include delete marked gifts
+      @api_gifts = User.api_gifts(@users, :newest_gift_id => old_newest_gift_id,
+                                          :newest_status_update_at => old_newest_status_update_at,
+                                          :include_delete_marked_gifts => true) # include delete marked gifts
       @api_gifts = nil if @api_gifts.length == 0
     end
     # remove any ajax comments for gifts in gifts array - that is gifts that will be ajax inserted or replaced in gifts html table
@@ -588,7 +590,6 @@ class UtilController < ApplicationController
         render 'hide_delete_gift'
         return
       end
-      raise "debug"
       # delete mark gift. Delete marked gifts will be ajax removed from other sessions within the
       # next 5 minutes and will be physical deleted after 5 minutes
       gift.deleted_at = Time.new

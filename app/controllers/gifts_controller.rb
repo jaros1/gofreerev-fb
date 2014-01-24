@@ -209,6 +209,7 @@ class GiftsController < ApplicationController
     else
       last_row_id = nil
     end
+
     if last_row_id and get_next_set_of_rows_error?(last_row_id)
       # problem with ajax request.
       # can be invalid last_row_id - can be too many get-more-rows ajax requests - max one request every 3 seconds - more info in log
@@ -252,8 +253,20 @@ class GiftsController < ApplicationController
     # list of gifts with @user as giver or receiver + gifts med @user.friends as giver or receiver
     newest_status_update_at = Sequence.status_update_at
     newest_gift = Gift.last
-    # get list with gifts
-    gifts = User.api_gifts(@users)
+
+    # get list with gifts:
+    # - return one gift in first http request (last_row_id is blank)
+    # - return 10 gifts in next ajax requests (last_row_id is not blank = status_update_at for last row in gifts/index page)
+    limit = last_row_id ? 10 : 1
+    @api_gifts, @last_row_id = User.api_gifts(@users, :last_status_update_at => last_row_id, :limit => limit)
+
+    session[:last_row_id] = @last_row_id # control - is checked in next ajax request
+    if last_row_id
+      session[:last_row_at] = Time.new.to_f
+    else
+      # first http request at startup - ajax request for the next 10 rows in a split second
+      session[:last_row_at] = GET_MORE_ROWS_INTERVAL.seconds.ago.to_f
+    end
 
     # use this gifts select for ajax debug - returns all gifts
     # gifts = Gift.where('user_id_giver is not null or user_id_receiver is not null').order('id desc') # uncomment to test ajax
@@ -281,8 +294,9 @@ class GiftsController < ApplicationController
       logger.debug2 "@errors = #{@errors}"
     end
 
-    @api_gifts, @last_row_id = get_next_set_of_rows(gifts, last_row_id)
-    # session[:last_row_at] = GET_MORE_ROWS_INTERVAL.seconds.ago.to_f if !last_row_id # first http request at startup - ajax request for the next 10 rows in a split second
+    if false
+      @api_gifts, @last_row_id = get_next_set_of_rows(gifts, last_row_id)
+    end
 
     # show 4 last comments for each gift
     @first_comment_id = nil

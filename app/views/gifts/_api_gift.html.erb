@@ -35,7 +35,7 @@
       </td>
     </tr>
 
-    <%= @gift = gift ; @api_comments = @gift.api_comments_with_filter(nil) ; logger.debug2 "@api_comments = #{@api_comments}" ; render :partial => 'comments/api_comments3', :locals => { :api_comments3 => @api_comments } %>
+    <%= @gift = gift ; @api_comments = @gift.api_comments_with_filter(nil) ; render :partial => 'comments/api_comments3', :locals => { :api_comments3 => @api_comments } %>
 
     <tr id='<%= "gift-#{gift.id}-comment-new" %>'>
       <td colspan="2" style="text-align: right; vertical-align: top">
