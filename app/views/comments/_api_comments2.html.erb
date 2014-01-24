@@ -3,22 +3,22 @@
    no_older_comments = first_comment ? first_comment.no_older_comments : 0
 -%>
 
-<tr id='<%= "gift-#{@gift.id}-links" %>'>
+<tr id='<%= "gift-#{gift.id}-links" %>'>
   <td colspan="2"></td>
   <td colspan="2">
-    <%= link_to_gift_like_unlike(@gift) %>
-    - <%= link_to_gift_follow_unfollow(@gift) %>
-    <% if @gift.show_delete_gift_link?(@users) -%>
-        - <%= link_to_delete_gift(@gift) %>
+    <%= link_to_gift_like_unlike(gift) %>
+    - <%= link_to_gift_follow_unfollow(gift) %>
+    <% if gift.show_delete_gift_link?(@users) -%>
+        - <%= link_to_delete_gift(gift) %>
     <% else -%>
-        - <%= link_to_gift_hide(@gift) %>
+        - <%= link_to_gift_hide(gift) %>
     <% end -%>
     <% if no_older_comments > 0 -%>
       - <%= link_to (no_older_comments == 1 ? t('.show_older_comment') : t('.show_older_comments', :no_older_comments => no_older_comments)),
-                    comments_path(:gift_id => @gift.id, :first_comment_id => first_comment.id),
+                    comments_path(:gift_id => gift.id, :first_comment_id => first_comment.id),
                     :remote => true,
-                    :id => "gift-#{@gift.id}-show-older-comments-link-#{first_comment.id}" ,
-                    :onclick => "post_ajax_add_older_comments_handler(#{@gift.id},#{first_comment.id})"  %>
+                    :id => "gift-#{gift.id}-show-older-comments-link-#{first_comment.id}" ,
+                    :onclick => "post_ajax_add_older_comments_handler(#{gift.id},#{first_comment.id})"  %>
     <% end -%>
   </td>
 </tr>

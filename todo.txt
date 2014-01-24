@@ -272,14 +272,20 @@
 
 61) deal proposal and changed friend relations
     cancel deal proposal when friends are removed
-    could be rejected friends in users/index page
+    could be remove friends in users/index page
     could be changed api friend relation in post login task
 
 62) jquery. url from xhr object is used to find html element that triggered the ajax event
-     for example to setup tables for ajax error messages within gifts/index page
-     it could be nice if jquery has information about html element that started the ajax request
-     $(classname).bind('click', funciton ... - find id for html element with classname with triggered this bind handler
+    for example to setup tables for ajax error messages within gifts/index page
+    it could be nice if jquery has information about html element that started the ajax request
+    $(classname).bind('click', funciton ... - find id for html element with classname with triggered this bind handler
 
 63) new gift.status_update_at after new comments?
     In that way updated gifts will be at top of page and will be ajax injected to top of page
     how to keep actual user view point when ajax injecting new rows in top of page?
+
+64) check missing inbox keys.
+    - da.inbox.index.rejected_proposal_giver_2_v1_to_url & da.inbox.index.rejected_proposal_giver_2_v1_to_msg
+
+65) check if notification cleanup stil is running. Find 68 notifications for 3 login users.
+

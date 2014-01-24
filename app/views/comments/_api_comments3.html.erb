@@ -5,7 +5,7 @@
   <td colspan="4"></td>
 </tr>
 <% end -%>
-<%= render :partial => 'comments/api_comments2', :locals => { :api_comments2 => api_comments3 }  %>
+<%= render :partial => 'comments/api_comments2', :locals => { :api_comments2 => api_comments3, :gift => @gift }  %>
 <% if @first_comment_id -%>
 <tr id="<%= "gift-#{@gift.id}-older-comments-block-end-#{@first_comment_id}" %>">
   <td colspan="4"></td>

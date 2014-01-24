@@ -765,7 +765,6 @@ class UtilController < ApplicationController
       if gift.price and gift.price != 0.0
         # create social didivend and recalculate new balance for giver and receiver
         gift.reload
-        gift.create_social_dividend
         gift.giver.recalculate_balance
         gift.receiver.recalculate_balance
         # todo: change @user balance in page header

@@ -392,6 +392,8 @@ da:
         new_comment_receiver_n_v1_to_msg: '%{username1}, %{username2} og %{no_other_users} andre har kommenteret dit ønske "%{gifttext} ..."'
         new_comment_giver_and_receiver_1_v1_to_url: "/gifts/%{giftid}"
         new_comment_giver_and_receiver_1_v1_to_msg: '%{username1} har kommenteret aftale "%{gifttext} ..."'
+        new_comment_giver_and_receiver_1_v1_from_url: "/gifts/%{giftid}"
+        new_comment_giver_and_receiver_1_v1_from_msg: 'Du kommenterede aftalen imellem %{givername} og %{receivername} "%{gifttext} ..."'
         new_comment_giver_and_receiver_2_v1_to_url: "/gifts/%{giftid}"
         new_comment_giver_and_receiver_2_v1_to_msg: '%{username1} og %{username2} har kommenteret aftale "%{gifttext} ..."'
         new_comment_giver_and_receiver_3_v1_to_url: "/gifts/%{giftid}"

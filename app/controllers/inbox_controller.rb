@@ -16,14 +16,16 @@ class InboxController < ApplicationController
     # temporary workaround. remove notifications for delete or delete marked gifts.
     # todo: delete notifications when gift has been delete marked
     @notifications = @notifications.find_all do |noti|
-      url1 = t ".#{noti.noti_key}_to_url", noti.noti_options
-      url2 = t ".#{noti.noti_key}_from_url", noti.noti_options
-      if url1 =~ /^\/gifts\/([0-9]+)$/
+      if noti.noti_options[:giftid].to_s =~ /^[0-9]+$/
+        gift = Gift.find_by_id(noti.noti_options[:giftid])
+        # todo: delete notification for delete marked gift?
+        gift and !gift.deleted_at
+      elsif t(".#{noti.noti_key}_to_url", noti.noti_options) =~ /^\/gifts\/([0-9]+)$/
         # gift/comment notification
         gift = Gift.find_by_id($1)
         # todo: delete notification for delete marked gift?
         gift and !gift.deleted_at
-      elsif url2 =~ /^\/gifts\/([0-9]+)$/
+      elsif t(".#{noti.noti_key}_from_url", noti.noti_options) =~ /^\/gifts\/([0-9]+)$/
         # gift/comment notification
         gift = Gift.find_by_id($1)
         # todo: delete notification for delete marked gift?
