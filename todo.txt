@@ -167,27 +167,6 @@
     post ok, but new gift fields was first cleared after 5-10 seconds when response came from post_on_facebook task
     increased sleep period before submitting do_tasks from 100 to 200 milliseconds (gifts/create.js.erb)
 
-35) performance tuning. gifts/index ajax get 10 rows takes 7 seconds on localhost.
-    is a problem for user that can se many gifts in gifts/index page
-    Observations:
-    - render api_gifts takes 2 seconds. check out user_div (62 ms) and comments2 (40 ms)
-    - try something like "select * from table where sort_id < last_sort_id limit 10" with index on sort_id
-    - should only fetch relevant rows
-    second test 4/1-2014
-    - render 10 rows takes 2 seconds (total 368 rows)
-    - big selects to get gift_likes, one select for each provider
-    check out rails performance tools:
-    - http://37signals.com/svn/posts/3091-pssst-your-rails-application-has-a-secret-to-tell-you
-    - http://www.cheynewallace.com/ruby-on-rails-performance-tuning/
-    - http://pivotallabs.com/rubyrails-performance-tools/
-    - https://github.com/MiniProfiler/rack-mini-profiler
-    could add a work table with api gifts ids that is initialized in first http request
-    get rows from work table in the following show-more-rows ajax requests
-    add a expire timestamp for data i work table. For example cleanup after xx minutes
-    maybe initialize work table in a ajax tasks so that user don't have to wait for work table to be initialized
-    request will be slow until work table has been initialized
-    maybe start initialize of work table as a post login task
-
 36) insert "?" picture in /user div/ temporary real profile picture has been downloaded from API
     there is a minor profile picture problem first time when a new gofreerev user logs in
 
@@ -304,5 +283,3 @@
 63) new gift.status_update_at after new comments?
     In that way updated gifts will be at top of page and will be ajax injected to top of page
     how to keep actual user view point when ajax injecting new rows in top of page?
-
-64)

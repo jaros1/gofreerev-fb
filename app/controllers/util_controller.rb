@@ -101,14 +101,15 @@ class UtilController < ApplicationController
     # 0 if not called from gifts/index page
     new_newest_gift_id = Gift.last.id if old_newest_gift_id > 0
     new_newest_status_update_at = Sequence.status_update_at if old_newest_status_update_at > 0
-    if old_newest_gift_id > 0 and ( new_newest_gift_id > old_newest_gift_id or new_newest_status_update_at > old_newest_status_update_at )
+    if old_newest_gift_id > 0 and (new_newest_gift_id > old_newest_gift_id or new_newest_status_update_at > old_newest_status_update_at)
       # called from gifts/index page and new gifts created since page load or last new_messages_count request
       # return new newest_gift_id value and any new gifts visible to user
       @new_newest_gift_id = new_newest_gift_id
       @new_newest_status_update_at = new_newest_status_update_at
-      @api_gifts = User.api_gifts(@users, :newest_gift_id => old_newest_gift_id,
-                                          :newest_status_update_at => old_newest_status_update_at,
-                                          :include_delete_marked_gifts => true) # include delete marked gifts
+      @api_gifts, last_status_update_at = User.api_gifts(@users,
+                                                         :newest_gift_id => old_newest_gift_id,
+                                                         :newest_status_update_at => old_newest_status_update_at,
+                                                         :include_delete_marked_gifts => true) # include delete marked gifts
       @api_gifts = nil if @api_gifts.length == 0
     end
     # remove any ajax comments for gifts in gifts array - that is gifts that will be ajax inserted or replaced in gifts html table
@@ -123,11 +124,6 @@ class UtilController < ApplicationController
     logger.debug2  "@comments.size = #{@api_comments.size}, comments = " + @api_comments.collect { |c| c.id }.join(', ') if @api_comments
     logger.debug2  "@new_newest_gift_id = #{@new_newest_gift_id}"
     logger.debug2  "@new_newest_status_update_at = #{@new_newest_status_update_at}"
-    respond_to do |format|
-      format.html {}
-      format.json { render json: @comment, status: :created, location: @comment }
-      format.js {}
-    end
   end # new_messages_count
 
   # get array of gift ids with invalid picture url

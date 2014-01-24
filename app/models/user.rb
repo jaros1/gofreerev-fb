@@ -1370,62 +1370,62 @@ class User < ActiveRecord::Base
   end # get_api_permissions
 
 
-  # find gifts user can see. user friends must be giver or receiver of gifts
-  # params newest_gift_id and newest_status_update_at are normally 0 (for example when called from gifts/index)
-  # but is newest gift_id and status_update_at when called from util/new_messages_count (that is - ajax - get only new, updated or deleted gifts)
-  def api_gifts (options = {})
-
-    newest_gift_id              = options[:newest_gift_id] || 0
-    newest_status_update_at     = options[:newest_status_update_at] || 0
-    include_delete_marked_gifts = options[:include_delete_marked_gifts] || false
-
-    # initialize list of gifts
-    # list of gifts with @user as giver or receiver + list of gifts med @user.friends as giver or receiver
-    # where clause is used for non encrypted fields. find_all is used for encrypted fields
-
-    # find friends
-    friends = app_friends.collect { |u| u.user_id_receiver }
-    friends.push(user_id)
-    # find api gifts
-    if include_delete_marked_gifts
-      # called from util.new_messages_count - include delete marked gifts in response - will be ajax replaced with invisible rows
-      deleted = ""
-    else
-      # called from users or gifts controller - to not return delete mark gifts in response
-      deleted = ' and gifts.deleted_at is null'
-    end
-    if newest_gift_id == 0 and newest_status_update_at == 0
-      ags = ApiGift.where('(user_id_giver in (?) or user_id_receiver in (?)) and status_update_at < ?' + deleted,
-                      friends, friends, 860).limit(10).references(:gifts, :api_gifts).includes(:gift, :giver, :receiver)
-    else
-      ags = ApiGift.where('(gifts.id > ? or status_update_at > ?) and (user_id_giver in (?) or user_id_receiver in (?))  and status_update_at < ?' + deleted,
-                      newest_gift_id, newest_status_update_at, friends, friends, 860).limit(10).references(:gifts, :api_gifts).includes(:gift, :giver, :receiver)
-    end
-    # sort api gifts
-    ags = ags.sort do |a,b|
-      #if (a.gift.received_at || a.created_at) ==  (b.gift.received_at || b.created_at)
-      #  b.id <=> a.id
-      #else
-      #  (b.gift.received_at || b.created_at) <=>  (a.gift.received_at || a.created_at)
-      #end
-      b.gift.status_update_at <=> a.gift.status_update_at
-    end
-    return ags if ags.length == 0
-
-    # remove any hidden gifts (show=N) from api gifts list
-    giftids = ags.collect { |ag| ag.gift_id }
-    hide_giftids = GiftLike.
-        where("user_id = ? and gift_id in (?)", user_id, giftids).
-        find_all { |gl| gl.show == 'N'}.
-        collect { |gl| gl.gift_id }
-    return ags if hide_giftids.length == 0
-
-    # remove hidden gifts
-    ags = ags.find_all { |ag| !hide_giftids.index(ag.gift_id) }
-
-    ags
-
-  end # api_gifts
+  ## find gifts user can see. user friends must be giver or receiver of gifts
+  ## params newest_gift_id and newest_status_update_at are normally 0 (for example when called from gifts/index)
+  ## but is newest gift_id and status_update_at when called from util/new_messages_count (that is - ajax - get only new, updated or deleted gifts)
+  #def api_gifts (options = {})
+  #
+  #  newest_gift_id              = options[:newest_gift_id] || 0
+  #  newest_status_update_at     = options[:newest_status_update_at] || 0
+  #  include_delete_marked_gifts = options[:include_delete_marked_gifts] || false
+  #
+  #  # initialize list of gifts
+  #  # list of gifts with @user as giver or receiver + list of gifts med @user.friends as giver or receiver
+  #  # where clause is used for non encrypted fields. find_all is used for encrypted fields
+  #
+  #  # find friends
+  #  friends = app_friends.collect { |u| u.user_id_receiver }
+  #  friends.push(user_id)
+  #  # find api gifts
+  #  if include_delete_marked_gifts
+  #    # called from util.new_messages_count - include delete marked gifts in response - will be ajax replaced with invisible rows
+  #    deleted = ""
+  #  else
+  #    # called from users or gifts controller - to not return delete mark gifts in response
+  #    deleted = ' and gifts.deleted_at is null'
+  #  end
+  #  if newest_gift_id == 0 and newest_status_update_at == 0
+  #    ags = ApiGift.where('(user_id_giver in (?) or user_id_receiver in (?)) and status_update_at < ?' + deleted,
+  #                    friends, friends, 860).limit(10).references(:gifts, :api_gifts).includes(:gift, :giver, :receiver)
+  #  else
+  #    ags = ApiGift.where('(gifts.id > ? or status_update_at > ?) and (user_id_giver in (?) or user_id_receiver in (?))  and status_update_at < ?' + deleted,
+  #                    newest_gift_id, newest_status_update_at, friends, friends, 860).limit(10).references(:gifts, :api_gifts).includes(:gift, :giver, :receiver)
+  #  end
+  #  # sort api gifts
+  #  ags = ags.sort do |a,b|
+  #    #if (a.gift.received_at || a.created_at) ==  (b.gift.received_at || b.created_at)
+  #    #  b.id <=> a.id
+  #    #else
+  #    #  (b.gift.received_at || b.created_at) <=>  (a.gift.received_at || a.created_at)
+  #    #end
+  #    b.gift.status_update_at <=> a.gift.status_update_at
+  #  end
+  #  return ags if ags.length == 0
+  #
+  #  # remove any hidden gifts (show=N) from api gifts list
+  #  giftids = ags.collect { |ag| ag.gift_id }
+  #  hide_giftids = GiftLike.
+  #      where("user_id = ? and gift_id in (?)", user_id, giftids).
+  #      find_all { |gl| gl.show == 'N'}.
+  #      collect { |gl| gl.gift_id }
+  #  return ags if hide_giftids.length == 0
+  #
+  #  # remove hidden gifts
+  #  ags = ags.find_all { |ag| !hide_giftids.index(ag.gift_id) }
+  #
+  #  ags
+  #
+  #end # api_gifts
 
 
   # as instance method gifts, but extended to be used for multiple provider logins

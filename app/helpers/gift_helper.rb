@@ -39,8 +39,25 @@ module GiftHelper
     # - confirm_delete_gift_2 if delete gift does not effect user balance
     confirm_delete_gift_options = { :price => gift.price, :currency => gift.currency }
     if gift.received_at and gift.price and gift.price != 0.0
-      keyno = 1
-      confirm_delete_gift_options[:user_name] = gift.user_id_giver == @user.user_id ? gift.receiver.short_user_name : gift.giver.short_user_name
+      # todo: check if login users are givers or
+      directions = []
+      gift.api_gifts.each do |ag|
+        directions << 'giver' if login_user_ids.index(ag.user_id_giver)
+        directions << 'receiver' if login_user_ids.index(ag.user_id_receiver)
+      end
+      directions = directions.uniq
+      return nil if directions.size == 0 # error
+      if directions.size == 2
+        # no confirm box - login users are giver and receiver of gift
+        keyno = 2
+      else
+        keyno = 1
+        direction = directions.first
+        user_names = gift.api_gifts.
+            collect { |ag| direction == 'giver' ?  ag.receiver.short_user_name : ag.giver.short_user_name}.
+            join(', ')
+        confirm_delete_gift_options[:user_name] = user_names
+      end
     else
       keyno = 2
     end
