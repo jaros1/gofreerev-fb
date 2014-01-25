@@ -663,6 +663,15 @@ en:
      edit:
         invalid_request: "Invalid request."
         page_header_text_html: "<p>Update user information</p>"
+        post_on_wall_title: "Use this checkbox to enable or disable post on %{apiname} wall."
+        post_on_wall_prompt: "Post on wall?"
+        share_balance_title: "Use this checkbox to enable and disable shared balance accross login providers. You should be logged in with all the login providers that you are using in %{appname} when you are updating this choice."
+        share_balance_prompt: "Share balance?"
+        log_out_title: "Close your %{apiname} connection to %{appname}. Remember to use \"log out\" function in %{apiname} if your also wish to log out of %{apiname}."
+        log_out_prompt: "Log ud"
+        log_out_link_text: "log out"
+        delete_account_title: "Delete all downloaded and entered data for your %{appname} %{apiname} account. May take a while if the case of lot of information and posts. It is only your data at %{appname} that will be deleted. Any post that %{appname} has made on your %{apiname} wall will not be deleted. Go to %{apiname} and remove %{appname} from list of apps when data has been deleted. Thank you for visiting %{appname}."
+        delete_account_prompt: "Delete account"
 
   # util controller
   util:

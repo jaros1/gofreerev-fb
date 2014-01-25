@@ -289,3 +289,7 @@
     - log out
     - delete account + log out
     - cross provider balance y/n checkbox
+
+67) refactor: replace provider_downcase(user.provider) with user.apiname
+
+68) refactor: maybe also a user.app_api_hash with appname and apiname

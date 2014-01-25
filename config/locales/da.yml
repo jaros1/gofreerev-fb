@@ -662,6 +662,15 @@ da:
      edit:
         invalid_request: "Ugyldigt kald."
         page_header_text_html: "<p>Opdater bruger oplysninger</p>"
+        post_on_wall_title: "Brug denne tjekboks til at slå opslag på %{apiname} til og fra."
+        post_on_wall_prompt: "Opslag på væg?"
+        share_balance_title: "Brug denne tjekboks til at slå fælles saldo på tværs af login udbydere til og fra. Du bør være logget ind med samtlige de login udbydere du anvender i %{appname} når du opdaterer dette valg."
+        share_balance_prompt: "Fælles saldo?"
+        log_out_title: "Afbryd adgang til %{appname} ved hjælp af din %{apiname} konto. Husk også at bruge \"log ud\" funktionalitet i %{apiname} hvis du ligeledes ønsker at logge ud af %{apiname}."
+        log_out_prompt: "Log ud"
+        log_out_link_text: "log ud"
+        delete_account_title: "Slet alle downloadede og indtastede oplysninger for din %{apiname} konto hos %{appname}. Kan tage et stykke tid hvis det drejer sig om mange oplysninger og opslag. Det er kun dine data hos %{appname} der vil blive slettet. Evt. opslag som %{appname} har lavet på din %{apiname} væg vil ikke blive slettet. Når sletning er færdig bør du gå til %{apiname} og fjern %{appname} fra listen over tilladte apps. Tak for besøget."
+        delete_account_prompt: "Slet konto"
 
   # util controller
   util:

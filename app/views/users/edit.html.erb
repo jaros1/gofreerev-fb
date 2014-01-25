@@ -5,18 +5,27 @@
 </table>
 <br/>
 <table>
-  <tr>
-    <td>Post on wall?</td>
+  <tr title="<%= t '.post_on_wall_title', :apiname => provider_downcase(@user2.provider) %>">
+    <td><%= t '.post_on_wall_prompt', :appname => APP_NAME, :apiname => provider_downcase(@user2.provider) %></td>
     <td>:</td>
     <td><%= post_on_wall_checkbox(@user2.provider, @post_on_wall) %></td>
   </tr>
-  <tr><td>Share balance?</td><td>:</td><td>x</td></tr>
-  <tr>
-    <td>Log out</td>
+  <tr title="<%= t '.share_balance_title', :appname => APP_NAME %>">
+    <td><%= t '.share_balance_prompt', :appname => APP_NAME %></td>
     <td>:</td>
-    <td><%= link_to t("auth.index.log_out_link_text"), auth_destroy_path(:id => @user2.provider, :return_to => users_path(:friends => 'me')), :method => :delete %></td>
+    <td>x</td></tr>
+  <tr title="<%= t '.log_out_title', :appname => APP_NAME, :apiname => provider_downcase(@user2.provider) %>">
+    <td><%= t '.log_out_prompt', :appname => APP_NAME, :apiname => provider_downcase(@user2.provider) %></td>
+    <td>:</td>
+    <td><%= link_to t('.log_out_link_text'), auth_destroy_path(:id => @user2.provider, :return_to => users_path(:friends => 'me')), :method => :delete %></td>
   </tr>
-  <tr><td>Close account</td><td>:</td><td>x</td></tr>
+  <tr title="<%= t '.delete_account_title', :appname => APP_NAME, :apiname => provider_downcase(@user2.provider) %>">
+    <td><%= t '.delete_account_prompt', :appname => APP_NAME, :apiname => provider_downcase(@user2.provider) %></td>
+    <td>:</td>
+    <td>
+      <%= link_to 'delete account', user_path(:id => @user2.id), :remote => true, :method => :delete, :data => { :confirm => 'Delete account?' } %>
+    </td>
+  </tr>
 </table>
 <br>
 <div style="width: 100%"><hr></div>
