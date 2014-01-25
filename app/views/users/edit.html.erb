@@ -1,2 +1,19 @@
-<h1>Users#edit</h1>
-<p>Find me in app/views/users/edit.html.erb</p>
+<%= t '.page_header_text_html' %>
+
+<table>
+  <%= render :partial => 'user', :locals => {:user => @user2, :edit => true} %>
+</table>
+<br/>
+<table>
+  <tr>
+    <td>Post on wall?</td>
+    <td>:</td>
+    <td><%= post_on_wall_checkbox(@user2.provider, @post_on_wall) %></td>
+  </tr>
+  <tr><td>Share balance?</td><td>:</td><td>x</td></tr>
+  <tr><td>Log out</td><td>:</td><td>x</td></tr>
+  <tr><td>Close account</td><td>:</td><td>x</td></tr>
+</table>
+<br>
+<div style="width: 100%"><hr></div>
+

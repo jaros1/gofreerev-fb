@@ -634,7 +634,7 @@ en:
         user_balance_prompt: "Balance"
         friend_status_title_1: "%{no_mutual_friends} mutual friend: %{mutual_friends}"
         friend_status_title_n: "%{no_mutual_friends} mutual friends: %{mutual_friends}"
-        friend_status_text_m: "My account"
+        friend_status_text_m: "My %{apiname} account"
         friend_status_text_y: "Friend"
         friend_status_text_n: "Not a friend"
         friend_status_text_a: "%{apiname} friend but not a %{appname} friend"
@@ -660,6 +660,9 @@ en:
         app_friends_link_text: "Friends"
         not_app_friends_link_text: "Not friends"
         all_app_users_link_text: "All"
+     edit:
+        invalid_request: "Invalid request."
+        page_header_text_html: "<p>Update user information</p>"
 
   # util controller
   util:

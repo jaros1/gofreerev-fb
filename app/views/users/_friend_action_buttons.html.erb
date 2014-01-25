@@ -1,4 +1,6 @@
-<% if login_user_ids.index(friend_action_buttons.user_id) -%>
+<% if defined?(edit) and edit == true -%>
+<%# user/edit page - no not show edit user link -%>
+<% elsif login_user_ids.index(friend_action_buttons.user_id) -%>
     <%= link_to t('.edit_user'), edit_user_path(friend_action_buttons) %>
 <% else -%>
     <% for friendship_action in friend_action_buttons.friend_status_actions(@users) do-%>

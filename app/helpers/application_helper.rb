@@ -227,4 +227,9 @@ module ApplicationHelper
     end
   end
 
+  def post_on_wall_checkbox (provider, post_on_wall)
+    return nil unless [1,2].index(post_on_wall)
+    check_box_tag "post_#{provider}", 1, (post_on_wall == 2), :onchange => "post_on_wall_ajax(this)"
+  end
+
 end # ApplicationHelper

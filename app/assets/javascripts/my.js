@@ -1393,6 +1393,21 @@ $(document).ready(function() {
     }
 });
 
+// send post_on_wall choise to server - no feedback
+// used in auth/index and in users/edit pages
+function post_on_wall_ajax(checkbox) {
+    var provider = checkbox.name.substr(5) ;
+    var post_on_wall = checkbox.checked ;
+    // alert('checkbox = provider = ' + provider + ', post_on_wall = ' + post_on_wall) ;
+    $.ajax({
+        url: "/util/post_on_wall_yn.js",
+        type: "POST",
+        data: { provider: provider, post_on_wall: post_on_wall }
+    });
+} // post_on_wall_ajax
+
+
+
 // custom confirm box - for styling
 // http://lesseverything.com/blog/archives/2012/07/18/customizing-confirmation-dialog-in-rails/
 // http://www.pjmccormick.com/nicer-rails-confirm-dialogs-and-not-just-delete-methods

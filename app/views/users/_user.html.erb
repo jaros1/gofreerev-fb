@@ -1,3 +1,4 @@
+<% edit = false unless edit -%>
 <tr>
   <td rowspan="4" style="width: 102px;"><%= @size = 'large' ; render '/shared/user_div', :user_div => user %></td>
   <td><%= t '.user_name_prompt' %></td>
@@ -13,7 +14,8 @@
                       :no_mutual_friends => user.mutual_friends(@users).size,
                       :mutual_friends => user.mutual_friends(@users).join(', ') if !user.friend?(@user) %>">
     <%= t user.friend_status_translate_code(@users),
-             :appname => APP_NAME, :apiname => @user.api_name_without_brackets,
+             :appname => APP_NAME,
+             :apiname => user.api_name_without_brackets,
              :username => user.short_user_name,
              :no_mutual_friends => user.mutual_friends(@users).size,
              :mutual_friends => user.mutual_friends(@users) %>
@@ -26,7 +28,7 @@
 </tr>
 <tr>
   <td colspan="3">
-     <%= render :partial => "friend_action_buttons", :locals => {:friend_action_buttons => user} %>
+     <%= render :partial => "friend_action_buttons", :locals => {:friend_action_buttons => user, :edit => edit} %>
   </td>
 </tr>
 <tr>

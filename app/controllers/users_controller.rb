@@ -42,7 +42,30 @@ class UsersController < ApplicationController
   end
 
   def edit
-  end
+    # check user.id
+    id = params[:id]
+    @user2 = User.find_by_id(id)
+    if !@user2
+      logger.debug2  "invalid request. User with id #{id} was not found"
+      save_flash '.invalid_request'
+      redirect_to :action => :index, :friends => 'me'
+      return
+    end
+    logger.debug2  "@user2 = #{@user2.id} #{@user2.user_name}"
+    if !login_user_ids.index(@user2.user_id)
+      logger.debug2  "invalid request. Not logged in with user id #{id}"
+      save_flash '.invalid_request'
+      redirect_to :action => :index, :friends => 'me'
+      return
+    end
+    # ok. login user. edit allowed
+    # post_on_wall checkbox. 0 disable/hide, 1 unchecked, 2 checked
+    if !API_POST_PERMITTED[@user2.provider]
+      @post_on_wall = 0
+    else
+      @post_on_wall = @user2.post_on_wall_yn == 'Y' ? 2 : 1
+    end
+  end # edit
 
   def destroy
   end
