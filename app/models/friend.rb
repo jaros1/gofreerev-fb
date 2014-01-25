@@ -201,10 +201,12 @@ class Friend < ActiveRecord::Base
         # logger.debug2  "new friend entries"
         Friend.add_friend(login_user_id, friend_user_id)
       else
+        # keep dummy friend row for login user. user_id_giver == user_id_receiver
+        next if login_user_id == friend_user_id
         # old friend entry
         # logger.debug2  "old friend entry, name = #{hash[:new_name]}, old api friend = #{hash[:old_api_friend]}, new api friend = #{hash[:new_api_friend]}"
         next if hash[:old_api_friend] == hash[:new_api_friend] # no change in api friend status
-                                                               # api friend status changed
+        # api friend status changed
         f1 = Friend.where("user_id_giver = ? and user_id_receiver = ?", login_user_id, friend_user_id).first
         f2 = Friend.where("user_id_giver = ? and user_id_receiver = ?", friend_user_id, login_user_id).first
         if (f1 == nil or f1.app_friend == nil) and (f2 == nil or f2.app_friend == nil)

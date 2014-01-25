@@ -419,7 +419,7 @@ class User < ActiveRecord::Base
       user.post_on_wall_yn = API_POST_PERMITTED[provider] ? 'Y' : 'N'
     end # outer if
     user.save!
-    # check/add dummy friend row for user
+    # check/add dummy friend row for user (user_id_giver == user_id_receiver)
     friend = Friend.where('user_id_giver = ? and user_id_receiver = user_id_giver', user.user_id).first
     if !friend
       friend = Friend.new
@@ -1073,9 +1073,11 @@ class User < ActiveRecord::Base
   #   G - gofreerev app friends and not login api friends
   #   R - app friendship request from login user to friend
   #   P - pending app friendship request to login user from friend (todo)
+  #   M - my account == friends
+  # code is used for friend_status_text_<code> translate key
   def friend_status_code (login_user)
     return 'N' unless login_user # not logged in user
-    return 'Y' if login_user.user_id == self.user_id
+    return 'M' if login_user.user_id == self.user_id
     f = get_friend(login_user)
     return 'N' unless f
     if f.api_friend == 'Y'
@@ -1103,14 +1105,19 @@ class User < ActiveRecord::Base
 
   def friend_status_translate_code (login_users)
     login_user = login_users.find { |u| u.provider == self.provider }
+    if !login_user
+      logger.error2 'Invalid friend_status_translate_code call. Cross provider friends are not allowed. ' +
+                        "Login users = #{User.debug_info(login_users)}. user = #{debug_info}}"
+      return '.friend_status_text_n'
+    end
     ".friend_status_text_#{friend_status_code(login_user).downcase}"
-  end
+  end # friend_status_translate_code
 
   def find_friend_request_noti (login_user)
     ns = Notification.where("from_user_id = ? and to_user_id = ? and noti_read = 'N'", login_user.user_id, self.user_id)
     return nil unless ns.size > 0
     n = ns.find { |n| n.noti_key == FRIEND_REQUEST_NOTI_KEY }
-  end
+  end # find_friend_request_noti
 
   # returns list with allowed friendship actions: add_api_friend, remove_api_friend, send_app_friend_request, cancel_app_friend_request, accept_app_friend_request, ignore_app_friend_request, remove_app_friend, block_app_user, unblock_app_user
   # used in users/show page / users/friend_action_buttons partial

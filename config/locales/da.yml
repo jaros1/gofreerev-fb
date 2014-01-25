@@ -633,6 +633,7 @@ da:
         user_balance_prompt: "Saldo"
         friend_status_title_1: "%{no_mutual_friends} fælles ven: %{mutual_friends}"
         friend_status_title_n: "%{no_mutual_friends} fælles venner: %{mutual_friends}"
+        friend_status_text_m: "Din konto"
         friend_status_text_y: "Venner"
         friend_status_text_n: "Ikke venner"
         friend_status_text_a: "%{apiname} venner, men ikke %{appname} venner"

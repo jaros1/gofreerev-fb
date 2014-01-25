@@ -177,9 +177,7 @@
     maybe use document.ready to set end_of_page to false when user clicks on share link i page header
     google a solution
 
-38) users/show page - add special friend status for logged in user
-    status: You
-    no friend actions
+38) users/show page - login_user = friend
     maybe use add gofreerev friend button to set user_combination across login api's
 
 39) add api friend
