@@ -204,7 +204,12 @@ class AuthController < ApplicationController
     if !@users.first.dummy_user?
       # user logged in with other login provider(s)
       save_flash '.logged_off', :appname => APP_NAME, :apiname => provider_downcase(provider)
-      redirect_to :action => :index
+      if params[:return_to]
+        # logout from users/edit page. return to users/index?friends=me
+        redirect_to params[:return_to]
+      else
+        redirect_to :action => :index
+      end
       return
     end
     if provider == 'all' or !(api_url = API_URL[provider])

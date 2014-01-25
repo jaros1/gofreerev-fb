@@ -11,7 +11,11 @@
     <td><%= post_on_wall_checkbox(@user2.provider, @post_on_wall) %></td>
   </tr>
   <tr><td>Share balance?</td><td>:</td><td>x</td></tr>
-  <tr><td>Log out</td><td>:</td><td>x</td></tr>
+  <tr>
+    <td>Log out</td>
+    <td>:</td>
+    <td><%= link_to t("auth.index.log_out_link_text"), auth_destroy_path(:id => @user2.provider, :return_to => users_path(:friends => 'me')), :method => :delete %></td>
+  </tr>
   <tr><td>Close account</td><td>:</td><td>x</td></tr>
 </table>
 <br>
