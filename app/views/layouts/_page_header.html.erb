@@ -42,7 +42,7 @@
               </sup>
             </b></td>
           <td title="<%= t '.header_friends_link_title', :appname => APP_NAME %>">
-            <%= link_to t('.header_friends_link_text'), users_path(:friends => true) %></td>
+            <%= link_to t('.header_friends_link_text'), users_path(:friends => 'yes') %></td>
         </tr>
         <tr>
           <td title="<%= t '.header_log_in_link_title', :appname => APP_NAME, :apiname => @user.api_name_without_brackets %>">
@@ -67,7 +67,7 @@
               </sup>
             </b></td>
           <td title="<%= t '.header_friends_link_title', :appname => APP_NAME %>">
-            <%= link_to t('.header_friends_link_text'), users_path(:friends => true) %></td>
+            <%= link_to t('.header_friends_link_text'), users_path(:friends => 'yes') %></td>
           <td title="<%= t '.header_log_in_link_title', :appname => APP_NAME, :apiname => @user.api_name_without_brackets %>">
             <%= link_to t('.header_log_in_link_text'), header_log_in_link_url %></td>
           <td title="<%= t '.header_log_out_link_title', :appname => APP_NAME, :apiname => @user.api_name_without_brackets %>">

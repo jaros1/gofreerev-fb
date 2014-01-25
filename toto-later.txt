@@ -17,10 +17,6 @@ Low priority todo list. Minor errors, wishlist etc.
 
 5) move show-more-rows functionality to a gem
 
-6) minor problem with hr lines in users/show
-   should be width=100%
-   check table width = 100% with left aligned columns
-
 7) implement other login providers
    http://www.ebizmba.com/articles/social-networking-websites
    http://en.wikipedia.org/wiki/List_of_social_networking_websites

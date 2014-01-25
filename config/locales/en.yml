@@ -82,8 +82,8 @@ en:
   # shared partials
   shared:
      user_div:
-        title_non_friend: "%{username}. Click here to see user info."
-        title_friend: "%{username}. Balance %{balance}. Click here to see user info."
+        title_non_friend: "%{username}/%{apiname}. Click here to see user info."
+        title_friend: "%{username}/%{apiname}. Balance %{balance}. Click here to see user info."
      invite_friends:
         no_friends_was_found_html: "<p>There was not found any %{appname} friends. Invite some of your good friends to use %{appname}.<br />Either by sending a personal message or by using the link below to invite your friends to use Gofreerev.<br>A personal message is the best as many people will ignore or reject game invitations.</p>"
         invite_friends_prompt: "Invite friends:"

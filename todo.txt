@@ -284,3 +284,8 @@
 
 65) check if notification cleanup stil is running. Find 68 notifications for 3 login users.
 
+66) edit user options
+    - post on wall y/n checkbox
+    - log out
+    - delete account + log out
+    - cross provider balance y/n checkbox

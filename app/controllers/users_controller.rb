@@ -48,16 +48,16 @@ class UsersController < ApplicationController
   end
 
   def index
-    # friends filter: true: show friends, false: show not friends (*), nil: show all users (')
+    # friends filter: yes:show friends, no:show not friends, me:show my accounts, all:show all users (')
     # * = only show friends of friends - not all Gofreerev users
-    @friends_filter = params[:friends]
-    @friends_filter = case @friends_filter
-                        when nil then nil
-                        when "" then nil
-                        when "true" then true
-                        when "false" then false
-                        else true
-                     end # case
+    friends_filter_values = %w(yes no me all)
+    friends_filter = params[:friends] || friends_filter_values.first
+    if !friends_filter_values.index(friends_filter)
+      logger.error2 "invalid request. friends = #{friends_filter}. allowed values are #{friends_filter_values.join(', ')}"
+      friends_filter = friends_filter_values.first
+    end
+    @friends_filter = friends_filter
+
     # http request: return first 10 friends (last_row_id = nil)
     # ajax request: return next 10 friends (last_row_id != nil)
     last_row_id = params[:last_row_id].to_s
@@ -94,12 +94,17 @@ class UsersController < ApplicationController
     #end
     # logger.debug2  "friends_filter = #{@friends_filter}, found #{user_friends.size} friends"
 
-    if @friends_filter == true
+    if @friends_filter == 'me'
+      users2 = @users.sort do |a, b|
+        a.api_name_without_brackets <=> b.api_name_without_brackets
+      end
+    elsif @friends_filter == 'yes'
       # simple friends search - just return login users friends
       logger.debug2 'simple friends search - just return login users friends'
       users2 = User.app_friends(@users).sort_by_user_name.collect { |f| f.friend }
       logger.debug2 "users2 = " + users2.collect { |u| u.user_id}.join(', ')
     else
+      # friends filter no or all
       # all login users direct connections (friends and non friends)
       all_friends = User.all_friends(@users)
       all_friends_user_ids = all_friends.collect { |f| f.user_id_receiver }
@@ -123,7 +128,7 @@ class UsersController < ApplicationController
       User.where("user_id in (?)", friends_friends_userids).each do |user|
         friend = user.friend?(@users)
         # logger.debug2  "user = #{user.user_id}, friend = #{friend}"
-        next if @friends_filter == false and friend # don't show friends
+        next if @friends_filter == 'no' and friend # don't show friends
         users2 << user
       end # each user
       # logger.debug2  "users2.size = #{users2.size}"

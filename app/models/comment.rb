@@ -162,8 +162,12 @@ class Comment < ActiveRecord::Base
         if shared_user_ids.size == 0
           logger.debug2 "updated_by is invalid. updated_at = #{value}. Allowed userids #{allowed_user_ids.join(', ')}"
           rec.errors.add attr, :invalid
-        else
+        elsif shared_user_ids.size < user_ids.size
+          logger.warn "comment.updated_by was invalid and one or more userids has been removed"
+          logger.warn "please set correct comment.updated_by when updating comment status"
+          logger.warn "old value = #{value}"
           rec.updated_by = shared_user_ids.join(',')
+          logger.warn "new value = #{rec.updated_by}"
         end
       end
     end

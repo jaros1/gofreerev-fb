@@ -88,26 +88,26 @@ module UsersHelper
   end # app_friends_tex
 
   def app_friends_link (friends_filter)
-    if friends_filter == true
+    if %w(yes me).index(friends_filter)
       t('.app_friends_link_text')
     else
-      link_to t('.app_friends_link_text'), users_path(:friends => true)
+      link_to t('.app_friends_link_text'), users_path(:friends => 'yes')
     end
   end # show_app_friends_link
 
   def not_app_friends_link (friends_filter)
-    if friends_filter == false
+    if friends_filter == 'no'
       t('.not_app_friends_link_text')
     else
-      link_to t('.not_app_friends_link_text'), users_path(:friends => false)
+      link_to t('.not_app_friends_link_text'), users_path(:friends => 'no')
     end
   end # not_app_friends_link
 
   def app_friends_friends_link (friends_filter)
-    if friends_filter == nil
+    if friends_filter == 'all'
       t('.all_app_users_link_text')
     else
-      link_to t('.all_app_users_link_text'), users_path
+      link_to t('.all_app_users_link_text'), users_path(:friends => 'all')
     end
   end # all_friends_friends_link
 

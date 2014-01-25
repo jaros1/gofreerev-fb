@@ -83,8 +83,8 @@ da:
   # shared partials
   shared:
      user_div:
-        title_non_friend: "%{username}. Klik her for at se brugeroplysninger."
-        title_friend: "%{username}. Saldo %{balance}. Klik her for at se brugeroplysninger."
+        title_non_friend: "%{username}/%{apiname}. Klik her for at se brugeroplysninger."
+        title_friend: "%{username}/%{apiname}. Saldo %{balance}. Klik her for at se brugeroplysninger."
      invite_friends:
         no_friends_was_found_html: "<p>Der blev ikke fundet nogle %{appname} venner. Du skal invitere en eller flere af dine gode<br />venner til at bruge %{appname}. Enten ved at sende en invitation med nedenstående link<br />eller ved at sende en personlig invitation til at bruge %{appname}. En personlig invitation<br />er det bedste da mange mennesker vil afvise uopfordrede spil invitationer.</p>"
         invite_friends_prompt: "Inviter venner:"
