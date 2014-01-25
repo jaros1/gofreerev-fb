@@ -88,12 +88,16 @@ class UsersController < ApplicationController
         return
       end
 
-      @errors << t('.ok_html', :appname => APP_NAME, :apiname => provider_downcase(user2.provider))
+      raise "not implemented"
+
+      @errors << t('.ok_html', :appname => APP_NAME,
+                               :apiname => provider_downcase(user2.provider),
+                               :url => (API_APP_SETTING_URL[user2.provider] || '#').html_safe)
 
     rescue Exception => e
       logger.debug2 "Exception: #{e.message.to_s}"
       logger.debug2 "Backtrace: " + e.backtrace.join("\n")
-      @errors << t(".exception", :error => e.messages.to_s)
+      @errors << t(".exception", :error => e.message.to_s)
     end
   end # destroy
 

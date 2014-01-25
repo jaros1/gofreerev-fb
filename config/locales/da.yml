@@ -675,7 +675,8 @@ da:
         delete_account_prompt: "Slet konto"
      destroy:
         invalid_request: "Ugyldigt kald. Kunne ikke slette konto."
-        ok_html: "Dine data for din %{apiname} konto her hos %{appname} er blevet slettet. Tak for besøget. Brug <a href=\"%{href}\">link</a>"
+        ok_html: "Dine data for din %{apiname} konto her hos %{appname} er blevet slettet. Tak for besøget. Brug <a href=\"%{url}\">link</a> for også at fjerne %{appname} adgang hos %{apiname}."
+        exception: "System fejl ved sletning af konto. %{error}. Flere oplysninger i server log."
 
   # util controller
   util:

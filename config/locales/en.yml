@@ -676,6 +676,8 @@ en:
         delete_account_prompt: "Delete account"
      destroy:
         invalid_request: "Invalid request. Could not delete user account."
+        ok_html: "Your %{appname} %{apiname} data has been deleted. Thank you for visiting %{appname}. Use <a href=\"%{url}\">link</a> to remove %{appname} access at %{apiname}."
+        exception: "System error when deleting your account. %{error}. More information in server log."
 
   # util controller
   util:
