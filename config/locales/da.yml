@@ -673,6 +673,9 @@ da:
         access_prompt: "Adgang"
         delete_account_title: "Slet alle downloadede og indtastede oplysninger for din %{apiname} konto hos %{appname}. Kan tage et stykke tid hvis det drejer sig om mange oplysninger og opslag. Det er kun dine data hos %{appname} der vil blive slettet. Evt. opslag som %{appname} har lavet på din %{apiname} væg vil ikke blive slettet. Når sletning er færdig bør du gå til %{apiname} og fjern %{appname} fra listen over tilladte apps. Tak for besøget."
         delete_account_prompt: "Slet konto"
+     destroy:
+        invalid_request: "Ugyldigt kald. Kunne ikke slette konto."
+        ok_html: "Dine data for din %{apiname} konto her hos %{appname} er blevet slettet. Tak for besøget. Brug <a href=\"%{href}\">link</a>"
 
   # util controller
   util:

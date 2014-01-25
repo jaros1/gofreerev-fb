@@ -1062,7 +1062,7 @@ $(document).ready(function() {
         // clear any old ajax error messages if any
         // clear within page ajax error messages if any
         // todo: this event handler is not call for delete gift. Suspect rails confirm dialog is the problem.
-        var pgm = 'gift-action-link::ajax:beforeSend. ' ;
+        var pgm = 'gift-action-link::click. ' ;
         // add2log(pgm + 'xhr = ' + xhr + ', settings = ' + settings) ;
         var url = xhr.target ;
         // add2log(pgm + 'url = ' + url) ;

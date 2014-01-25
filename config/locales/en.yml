@@ -674,6 +674,8 @@ en:
         access_prompt: "Access"
         delete_account_title: "Delete all downloaded and entered data for your %{appname} %{apiname} account. May take a while if the case of lot of information and posts. It is only your data at %{appname} that will be deleted. Any post that %{appname} has made on your %{apiname} wall will not be deleted. Go to %{apiname} and remove %{appname} from list of apps when data has been deleted. Thank you for visiting %{appname}."
         delete_account_prompt: "Delete account"
+     destroy:
+        invalid_request: "Invalid request. Could not delete user account."
 
   # util controller
   util:

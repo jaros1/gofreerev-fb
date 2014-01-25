@@ -67,8 +67,35 @@ class UsersController < ApplicationController
     end
   end # edit
 
+  # delete user data and close account ajax request
   def destroy
-  end
+    @errors = []
+    begin
+
+      # check user.id
+      id = params[:id]
+      user2 = User.find_by_id(id)
+      if !user2
+        logger.debug2 "invalid request. User with id #{id} was not found"
+        @errors << t('.invalid_request')
+        return
+      end
+      logger.debug2 "user2 = #{user2.debug_info}"
+      if !login_user_ids.index(user2.user_id)
+        logger.debug2 "invalid request. Not logged in with user id #{id}"
+        save_flash '.invalid_request'
+        redirect_to :action => :index, :friends => 'me'
+        return
+      end
+
+      @errors << t('.ok_html', :appname => APP_NAME, :apiname => provider_downcase(user2.provider))
+
+    rescue Exception => e
+      logger.debug2 "Exception: #{e.message.to_s}"
+      logger.debug2 "Backtrace: " + e.backtrace.join("\n")
+      @errors << t(".exception", :error => e.messages.to_s)
+    end
+  end # destroy
 
   def index
     # friends filter: yes:show friends, no:show not friends, me:show my accounts, all:show all users (')

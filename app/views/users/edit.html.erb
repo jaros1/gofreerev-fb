@@ -1,3 +1,24 @@
+<script>
+    // error callback for delete-account - write to debug log + page header
+    $(document).ready(function() {
+        $("#delete-account").unbind("click") ;
+        $("#delete-account").unbind("ajax:error") ;
+        $("#delete-account").bind("click", function(xhr, settings){
+            // clear page header error messages if any
+            clear_flash_and_ajax_errors() ;
+        })
+        $("#delete-account").bind("ajax:error", function(jqxhr, textStatus, errorThrown){
+            add2log('#delete-account::ajax:error');
+            add2log('jqxhr = ' + jqxhr);
+            add2log('jqxhr.target = ' + jqxhr.target);
+            add2log('textStatus = ' + textStatus);
+            add2log('errorThrown = ' + errorThrown);
+            // inject ajax error message in page header
+            add_to_tasks_errors('Error when deleting account: ' + errorThrown + '. check server log for more information.') ;
+        })
+    })
+</script>
+
 <%= t '.page_header_text_html' %>
 
 <table>
@@ -28,10 +49,11 @@
     <td><%= t '.delete_account_prompt', :appname => APP_NAME, :apiname => provider_downcase(@user2.provider) %></td>
     <td>:</td>
     <td>
-      <%= link_to 'delete account', user_path(:id => @user2.id), :remote => true, :method => :delete, :data => { :confirm => 'Delete account?' } %>
+      <%= link_to 'delete account', user_path(:id => @user2.id), :id => 'delete-account', :remote => true, :method => :delete, :data => { :confirm => 'Delete account?' } %>
     </td>
   </tr>
 </table>
 <br>
 <div style="width: 100%"><hr></div>
+
 
