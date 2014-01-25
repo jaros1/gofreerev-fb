@@ -1281,7 +1281,7 @@ class UtilController < ApplicationController
               friend_user.user_id = friend_user_id
               friend_user.user_name = friend_name
               friend_user.api_profile_url = friend.url.to_s
-              friend_user.api_profile_picture_url = friend.profile_image_url
+              friend_user.api_profile_picture_url = friend.profile_image_url.to_s
               friend_user.no_api_friends = friend.friends_count
               friend_user.post_on_wall_yn = 'Y'
               friend_user.save!

@@ -158,10 +158,12 @@ class Comment < ActiveRecord::Base
         allowed_user_ids = rec.api_comments.collect { |ac| ac.user_id } +
             rec.gift.api_gifts.collect { |ag| ag.user_id_giver } +
             rec.gift.api_gifts.collect { |ag| ag.user_id_receiver }
-        invalid_user_ids = user_ids - allowed_user_ids
-        if invalid_user_ids.size > 0
-          logger.debug2 "invalid user ids #{invalid_user_ids-join(', ')} in updated_at"
+        shared_user_ids = user_ids & allowed_user_ids
+        if shared_user_ids.size == 0
+          logger.debug2 "updated_by is invalid. updated_at = #{value}. Allowed userids #{allowed_user_ids.join(', ')}"
           rec.errors.add attr, :invalid
+        else
+          rec.updated_by = shared_user_ids.join(',')
         end
       end
     end
