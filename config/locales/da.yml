@@ -669,6 +669,8 @@ da:
         log_out_title: "Afbryd adgang til %{appname} ved hjælp af din %{apiname} konto. Husk også at bruge \"log ud\" funktionalitet i %{apiname} hvis du ligeledes ønsker at logge ud af %{apiname}."
         log_out_prompt: "Log ud"
         log_out_link_text: "log ud"
+        access_title: "Brug dette link til at kontrollerer hvilken adgang du har givet %{appname}. Side åbnes i et nyt faneblad i din browser."
+        access_prompt: "Adgang"
         delete_account_title: "Slet alle downloadede og indtastede oplysninger for din %{apiname} konto hos %{appname}. Kan tage et stykke tid hvis det drejer sig om mange oplysninger og opslag. Det er kun dine data hos %{appname} der vil blive slettet. Evt. opslag som %{appname} har lavet på din %{apiname} væg vil ikke blive slettet. Når sletning er færdig bør du gå til %{apiname} og fjern %{appname} fra listen over tilladte apps. Tak for besøget."
         delete_account_prompt: "Slet konto"
 

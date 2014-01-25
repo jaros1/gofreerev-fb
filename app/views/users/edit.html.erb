@@ -19,6 +19,11 @@
     <td>:</td>
     <td><%= link_to t('.log_out_link_text'), auth_destroy_path(:id => @user2.provider, :return_to => users_path(:friends => 'me')), :method => :delete %></td>
   </tr>
+  <tr title="<%= t '.access_title', :appname => APP_NAME, :apiname => provider_downcase(@user2.provider) %>">
+    <td><%= t '.access_prompt' %></td>
+    <td>:</td>
+    <td><%= link_to provider_downcase(@user2.provider), API_APP_SETTING_URL[@user2.provider] || '#', :target => '_blank' %></td>
+  </tr>
   <tr title="<%= t '.delete_account_title', :appname => APP_NAME, :apiname => provider_downcase(@user2.provider) %>">
     <td><%= t '.delete_account_prompt', :appname => APP_NAME, :apiname => provider_downcase(@user2.provider) %></td>
     <td>:</td>
