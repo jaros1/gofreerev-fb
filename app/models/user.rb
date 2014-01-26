@@ -661,19 +661,26 @@ class User < ActiveRecord::Base
   end
 
 
-  def api_name_without_brackets
+  def apiname
     API_DOWNCASE_NAME[provider] || provider
   end
 
-  def api_name_with_brackets
-    "(#{api_name_without_brackets})"
+  def apiname_with_brackets
+    "(#{apiname})"
   end
 
 
   # add login api to user name
   def user_name_with_api
-    "#{user_name} #{api_name_with_brackets}"
+    "#{user_name} #{apiname_with_brackets}"
   end # user_name_with_api
+
+  # used in many translates
+  def app_and_apiname_hash
+    { :appname => APP_NAME,
+      :apiname => apiname }
+  end
+
 
   def currency_with_text
     return nil unless currency

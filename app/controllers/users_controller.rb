@@ -90,9 +90,7 @@ class UsersController < ApplicationController
 
       raise "not implemented"
 
-      @errors << t('.ok_html', :appname => APP_NAME,
-                               :apiname => provider_downcase(user2.provider),
-                               :url => (API_APP_SETTING_URL[user2.provider] || '#').html_safe)
+      @errors << t('.ok_html', user2.app_and_apiname_hash.merge(:url => API_APP_SETTING_URL[user2.provider] || '#'))
 
     rescue Exception => e
       logger.debug2 "Exception: #{e.message.to_s}"
@@ -150,7 +148,7 @@ class UsersController < ApplicationController
 
     if @friends_filter == 'me'
       users2 = @users.sort do |a, b|
-        a.api_name_without_brackets <=> b.api_name_without_brackets
+        a.apiname <=> b.apiname
       end
     elsif @friends_filter == 'yes'
       # simple friends search - just return login users friends

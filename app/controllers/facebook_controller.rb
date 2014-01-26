@@ -164,7 +164,7 @@ class FacebookController < ApplicationController
         user.permissions = permissions
         user.save!
       end
-      save_flash ".ok_#{context}", :appname => APP_NAME, :apiname => provider_downcase(provider)
+      save_flash ".ok_#{context}", user.app_and_apiname_hash
       redirect_to :controller => :gifts
     else
       # login failed

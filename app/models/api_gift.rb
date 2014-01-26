@@ -367,6 +367,18 @@ class ApiGift < ActiveRecord::Base
   end
 
 
+  def apiname
+    API_DOWNCASE_NAME[provider] || provider
+  end
+
+  # used in many translates
+  def app_and_apiname_hash
+    { :appname => APP_NAME,
+      :apiname => apiname }
+  end
+
+
+
   # https://github.com/jmazzi/crypt_keeper gem encrypts all attributes and all rows in db with the same key
   # this extension to use different encryption for each attribute and each row
   # overwrite non model specific methods defined in /config/initializers/active_record_extensions.rb

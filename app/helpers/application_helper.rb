@@ -205,13 +205,13 @@ module ApplicationHelper
         url
       else
         # invite provider friends is not implemented
-        msg = t 'shared.invite_friends.not_implemented', :apiname => provider_downcase(provider)
+        msg = t 'shared.invite_friends.not_implemented', login_user.app_and_apiname_hash
         "javascript: alert('#{msg}')"
     end # case
   end # invite_friends_url
 
   def invite_friends_link (login_user)
-    link_to provider_camelize(login_user.provider), invite_friends_url(login_user), :title => t('shared.invite_friends.invite_friends_link_title', :appname => APP_NAME, :apiname => login_user.api_name_without_brackets)
+    link_to provider_camelize(login_user.provider), invite_friends_url(login_user), :title => t('shared.invite_friends.invite_friends_link_title', :appname => APP_NAME, :apiname => login_user.apiname)
   end
 
   def ajax_tasks?

@@ -3,7 +3,7 @@
   <td rowspan="4" style="width: 102px;"><%= @size = 'large' ; render '/shared/user_div', :user_div => user %></td>
   <td><%= t '.user_name_prompt' %></td>
   <td>:</td>
-  <td title="<%= t '.user_name_title', :username => user.short_or_full_user_name(@user), :apiname => user.api_name_without_brackets %>">
+  <td title="<%= t '.user_name_title', :username => user.short_or_full_user_name(@user), :apiname => user.apiname %>">
     <%= link_to user.user_name, api_profile_url(user), {:target => '_blank'} %>
   </td>
 </tr>
@@ -15,7 +15,7 @@
                       :mutual_friends => user.mutual_friends(@users).join(', ') if !user.friend?(@user) %>">
     <%= t user.friend_status_translate_code(@users),
              :appname => APP_NAME,
-             :apiname => user.api_name_without_brackets,
+             :apiname => user.apiname,
              :username => user.short_user_name,
              :no_mutual_friends => user.mutual_friends(@users).size,
              :mutual_friends => user.mutual_friends(@users) %>

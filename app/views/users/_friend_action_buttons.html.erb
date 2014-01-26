@@ -5,7 +5,7 @@
 <% else -%>
     <% for friendship_action in friend_action_buttons.friend_status_actions(@users) do-%>
       <%= friendship_action_downcase = friendship_action.downcase
-          button_text = t ".#{friendship_action_downcase}", :apiname => provider_downcase(friend_action_buttons.provider), :appname => APP_NAME
+          button_text = t ".#{friendship_action_downcase}", friend_action_buttons.app_and_apiname_hash
           # first letter uppercase => confirm box
           if friendship_action[0] == friendship_action_downcase[0]
             confirm = nil

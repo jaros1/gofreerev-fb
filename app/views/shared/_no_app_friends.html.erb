@@ -1,5 +1,5 @@
 <div style="width: 100%">
-  <%= t 'shared.invite_friends.no_friends_was_found_html', :appname => APP_NAME, :apiname => @user.api_name_without_brackets %>
+  <%= t 'shared.invite_friends.no_friends_was_found_html', :appname => APP_NAME, :apiname => @user.apiname %>
   <table>
     <tr>
       <%= hr = true ; render :partial => 'shared/invite_friends' %>

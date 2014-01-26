@@ -293,3 +293,107 @@
 67) refactor: replace provider_downcase(user.provider) with user.apiname
 
 68) refactor: maybe also a user.app_api_hash with appname and apiname
+
+69) a number of "invalid" inbox notification keys. Could be missing keys. Could be wrong notifications
+
+    missing translate key. key .accepted_proposal_giver_follow_2_v1_to_url, noti.id 542,
+    options {:giftid=>"894", :gifttext=>"x", :no_users=>"2", :no_other_users=>"0", :username1=>"Gofreerev A", :username2=>"Jan R", :username3=>"", :givername=>"Gofreerev A", :receivername=>""},
+    error translation missing: en.inbox.index.accepted_proposal_giver_follow_2_v1_to_url
+
+    missing translate key. key .accepted_proposal_giver_follow_2_v1_to_msg, noti.id 542,
+    options {:giftid=>"894", :gifttext=>"x", :no_users=>"2", :no_other_users=>"0", :username1=>"Gofreerev A", :username2=>"Jan R", :username3=>"", :givername=>"Gofreerev A", :receivername=>""},
+    error translation missing: en.inbox.index.accepted_proposal_giver_follow_2_v1_to_msg
+
+    Notification 542 to 100006397022113/facebook Charlie S
+
+    1) gift 894
+       created Fri, 24 Jan 2014 10:35:02 UTC +00:00
+       created by givers 100006399422155/facebook Sandra Q, 109316109373670614208/google_oauth2 and 2179784783/twitter Jan R
+    2) new deal proposal comment id 754
+       created 2014-01-24 10:35:19
+       created by 100006397022113/facebook Charlie S
+    3) accept deal proposal comment id 754
+       accepted 2014-01-24 10:35:37
+       accepted by 100006399422155/facebook Sandra Q
+
+
+    giver = 100006399422155/facebook Sandra Q,               receiver = 100006397022113/facebook Charlie S
+    giver = 109316109373670614208/google_oauth2 Gofreerev A, receiver = gofreerev/google_oauth2 Gofreerev G
+    giver = 2179784783/twitter Jan R,                        receiver = gofreerev/twitter Gofreerev T
+    Deal between Sandra Q and Charlie S - dummy receivers for google+ and twitter
+
+    Notification 541 :
+
+    ============================================================================
+
+    missing translate key. key .accepted_proposal_giver_2_v1_to_url, noti.id 541,
+    options {:giftid=>"894", :gifttext=>"x", :no_users=>"2", :no_other_users=>"0", :username1=>"Gofreerev A", :username2=>"Jan R", :username3=>"", :givername=>"Sandra Q", :receivername=>""},
+    error translation missing: en.inbox.index.accepted_proposal_giver_2_v1_to_url
+
+    missing translate key. key .accepted_proposal_giver_2_v1_to_msg, noti.id 541,
+    options {:giftid=>"894", :gifttext=>"x", :no_users=>"2", :no_other_users=>"0", :username1=>"Gofreerev A", :username2=>"Jan R", :username3=>"", :givername=>"Sandra Q", :receivername=>""},
+    error translation missing: en.inbox.index.accepted_proposal_giver_2_v1_to_msg
+
+    missing translate key. key .new_comment_giver_follow_1_v1_from_url, noti.id 341,
+    options {:giftid=>"425", :gifttext=>"e", :no_users=>"1", :no_other_users=>"-1", :username1=>"Charlie S", :username2=>"", :username3=>"", :givername=>"", :receivername=>""},
+    error translation missing: en.inbox.index.new_comment_giver_follow_1_v1_from_url
+
+    missing translate key. key .new_comment_giver_follow_1_v1_from_msg, noti.id 341,
+    options {:giftid=>"425", :gifttext=>"e", :no_users=>"1", :no_other_users=>"-1", :username1=>"Charlie S", :username2=>"", :username3=>"", :givername=>"", :receivername=>""},
+    error translation missing: en.inbox.index.new_comment_giver_follow_1_v1_from_msg
+
+    missing translate key. key .new_comment_giver_follow_1_v1_from_url, noti.id 340,
+    options {:giftid=>"425", :gifttext=>"e", :no_users=>"1", :no_other_users=>"-1", :username1=>"Charlie S", :username2=>"", :username3=>"", :givername=>"", :receivername=>""},
+    error translation missing: en.inbox.index.new_comment_giver_follow_1_v1_from_url
+
+    missing translate key. key .new_comment_giver_follow_1_v1_from_msg, noti.id 340,
+    options {:giftid=>"425", :gifttext=>"e", :no_users=>"1", :no_other_users=>"-1", :username1=>"Charlie S", :username2=>"", :username3=>"", :givername=>"", :receivername=>""},
+    error translation missing: en.inbox.index.new_comment_giver_follow_1_v1_from_msg
+
+    missing translate key. key .new_comment_giver_follow_1_v1_from_url, noti.id 339,
+    options {:giftid=>"425", :gifttext=>"e", :no_users=>"1", :no_other_users=>"-1", :username1=>"Charlie S", :username2=>"", :username3=>"", :givername=>"", :receivername=>""},
+    error translation missing: en.inbox.index.new_comment_giver_follow_1_v1_from_url
+
+    missing translate key. key .new_comment_giver_follow_1_v1_from_msg, noti.id 339,
+    options {:giftid=>"425", :gifttext=>"e", :no_users=>"1", :no_other_users=>"-1", :username1=>"Charlie S", :username2=>"", :username3=>"", :givername=>"", :receivername=>""},
+    error translation missing: en.inbox.index.new_comment_giver_follow_1_v1_from_msg
+
+    missing translate key. key .accepted_proposal_giver_1_v1_from_url, noti.id 297,
+    options {:giftid=>"265", :gifttext=>"accept test 12", :no_users=>"0", :no_other_users=>"-2", :username1=>"", :username2=>"", :username3=>"", :givername=>"Charlie S", :receivername=>"Karen S"},
+    error translation missing: en.inbox.index.accepted_proposal_giver_1_v1_from_url
+
+    missing translate key. key .accepted_proposal_giver_1_v1_from_msg, noti.id 297,
+    options {:giftid=>"265", :gifttext=>"accept test 12", :no_users=>"0", :no_other_users=>"-2", :username1=>"", :username2=>"", :username3=>"", :givername=>"Charlie S", :receivername=>"Karen S"},
+    error translation missing: en.inbox.index.accepted_proposal_giver_1_v1_from_msg
+
+    missing translate key. key .accepted_proposal_giver_1_v1_from_url, noti.id 293,
+    options {:giftid=>"263", :gifttext=>"accept test 10", :no_users=>"0", :no_other_users=>"-2", :username1=>"", :username2=>"", :username3=>"", :givername=>"Charlie S", :receivername=>"Karen S"},
+    error translation missing: en.inbox.index.accepted_proposal_giver_1_v1_from_url
+
+    missing translate key. key .accepted_proposal_giver_1_v1_from_msg, noti.id 293,
+    options {:giftid=>"263", :gifttext=>"accept test 10", :no_users=>"0", :no_other_users=>"-2", :username1=>"", :username2=>"", :username3=>"", :givername=>"Charlie S", :receivername=>"Karen S"},
+    error translation missing: en.inbox.index.accepted_proposal_giver_1_v1_from_msg
+
+    missing translate key. key .accepted_proposal_giver_1_v1_from_url, noti.id 277,
+    options {:giftid=>"255", :gifttext=>"test accept 2", :no_users=>"0", :no_other_users=>"-2", :username1=>"", :username2=>"", :username3=>"", :givername=>"Charlie S", :receivername=>"Karen S"},
+    error translation missing: en.inbox.index.accepted_proposal_giver_1_v1_from_url
+
+    missing translate key. key .accepted_proposal_giver_1_v1_from_msg, noti.id 277,
+    options {:giftid=>"255", :gifttext=>"test accept 2", :no_users=>"0", :no_other_users=>"-2", :username1=>"", :username2=>"", :username3=>"", :givername=>"Charlie S", :receivername=>"Karen S"},
+    error translation missing: en.inbox.index.accepted_proposal_giver_1_v1_from_msg
+
+    missing translate key. key .accepted_proposal_giver_1_v1_from_url, noti.id 275,
+    options {:giftid=>"254", :gifttext=>"test accept", :no_users=>"0", :no_other_users=>"-2", :username1=>"", :username2=>"", :username3=>"", :givername=>"Charlie S", :receivername=>"Karen S"},
+    error translation missing: en.inbox.index.accepted_proposal_giver_1_v1_from_url
+
+    missing translate key. key .accepted_proposal_giver_1_v1_from_msg, noti.id 275,
+    options {:giftid=>"254", :gifttext=>"test accept", :no_users=>"0", :no_other_users=>"-2", :username1=>"", :username2=>"", :username3=>"", :givername=>"Charlie S", :receivername=>"Karen S"},
+    error translation missing: en.inbox.index.accepted_proposal_giver_1_v1_from_msg
+
+    missing translate key. key .accepted_proposal_giver_1_v1_from_url, noti.id 273,
+    options {:giftid=>"253", :gifttext=>"Cykel", :no_users=>"0", :no_other_users=>"-2", :username1=>"", :username2=>"", :username3=>"", :givername=>"Charlie S", :receivername=>"Karen S"},
+    error translation missing: en.inbox.index.accepted_proposal_giver_1_v1_from_url
+
+    missing translate key. key .accepted_proposal_giver_1_v1_from_msg, noti.id 273,
+    options {:giftid=>"253", :gifttext=>"Cykel", :no_users=>"0", :no_other_users=>"-2", :username1=>"", :username2=>"", :username3=>"", :givername=>"Charlie S", :receivername=>"Karen S"},
+    error translation missing: en.inbox.index.accepted_proposal_giver_1_v1_from_msg

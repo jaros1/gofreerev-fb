@@ -209,7 +209,7 @@ class UtilController < ApplicationController
             token = tokens[api_gift.provider]
             if !token
               logger.warn2 "received api_gift.id #{api_gift.id} for provider #{api_gift.provider}, but user is not connected with provider #{api_gift.provider}"
-              @errors << ['.mis_api_pic_no_token', { :apiname => provider_downcase(api_gift.provider)}]
+              @errors << ['.mis_api_pic_no_token', api_gift.app_and_apiname_hash]
               next
             end
             case api_gift.provider
@@ -223,7 +223,7 @@ class UtilController < ApplicationController
                 api_client = init_api_client_twitter(token)
               else
                 logger.error2 "initialize api client for #{api_gift.provider} not implemented, api_gift.id = #{api_gift.id}"
-                @errors << ['.mis_api_pic_not_implemented1', { :apiname => provider_downcase(api_gift.provider)} ]
+                @errors << ['.mis_api_pic_not_implemented1', api_gift.app_and_apiname_hash ]
                 next
             end
             api_clients[api_gift.provider] = api_client
@@ -241,7 +241,7 @@ class UtilController < ApplicationController
                   key, options = get_api_picture_url_twitter(api_gift, false, api_client)
                 else
                   logger.error2 "No get_api_picture_url_#{api_gift.provider} method"
-                  @errors << ['.mis_api_pic_not_implemented2', { :apiname => provider_downcase(api_gift.provider)} ]
+                  @errors << ['.mis_api_pic_not_implemented2', api_gift.app_and_apiname_hash ]
                   next
               end
               if key
@@ -1402,7 +1402,7 @@ class UtilController < ApplicationController
           # unexpected error - found post, but did not get a valid picture url
           logger.debug2 "Did not get a picture url from api. Must be problem with missing access token, picture != Y or deleted_at_api == Y"
           logger.debug2 "res1 = #{res1}"
-          return ['.no_api_picture_url', {:apiname => login_user.api_name_without_brackets}]
+          return ['.no_api_picture_url', {:apiname => login_user.apiname}]
         end
       end
       api_gift.save!
@@ -1431,13 +1431,13 @@ class UtilController < ApplicationController
         if login_user.read_gifts_allowed?
           # error - this should not happen.
           key = api_gift.picture? ? '.fb_pic_post_unknown_problem' : '.fb_msg_post_unknown_problem'
-          return [key, {:appname => APP_NAME, :apiname => login_user.api_name_without_brackets}]
+          return [key, {:appname => APP_NAME, :apiname => login_user.apiname}]
         else
           # message with link to grant missing read stream priv.
           oauth = Koala::Facebook::OAuth.new(API_ID[provider], API_SECRET[provider], API_CALLBACK_URL[provider])
           url = oauth.url_for_oauth_code(:permissions => 'read_stream', :state => set_state('read_stream'))
           key = api_gift.picture? ? '.fb_pic_post_missing_permission_html' : '.fb_msg_post_missing_permission_html'
-          return [key, {:appname => APP_NAME, :apiname => login_user.api_name_without_brackets, :url => url}]
+          return [key, {:appname => APP_NAME, :apiname => login_user.apiname, :url => url}]
         end
       else
         # unhandled koala / facebook exception
@@ -1568,7 +1568,7 @@ class UtilController < ApplicationController
     # hide ajax injected link to grant write permission to twitter wall
     @link = "grant_write_div_#{provider}"
     # ok
-    @errors << ['.grant_write_ok', {:appname => APP_NAME, :apiname => provider_downcase(provider)} ]
+    @errors << ['.grant_write_ok', login_user.app_and_apiname_hash ]
   end # grant_write_twitter
 
   # hide grant_write_<provider> link in gifts/index page
@@ -1594,7 +1594,7 @@ class UtilController < ApplicationController
     # hide ajax injected link to grant write permission to api provider wall
     @link = "grant_write_div_#{provider}"
     # ok
-    @errors << ['.hide_grant_write_ok', {:appname => APP_NAME, :apiname => provider_downcase(provider)} ]
+    @errors << ['.hide_grant_write_ok', login_user.app_and_apiname_hash ]
   end # hide_grant_write
 
 
@@ -1711,12 +1711,12 @@ class UtilController < ApplicationController
         api_gift.picture = 'N'
         api_gift.save!
         return [".gift_posted_#{gift_posted_on_wall_api_wall}_html",
-                {:apiname => login_user.api_name_without_brackets, :error => error}]
+                {:apiname => login_user.apiname, :error => error}]
       elsif !api_gift.picture? or api_gift.picture? and Picture.perm_app_url?(picture_url)
         # post ok - no picture or picture with perm app url
         # no need to check read permission to gift on api wall
         # return posted message
-        return [".gift_posted_#{gift_posted_on_wall_api_wall}_html", :apiname => login_user.api_name_without_brackets, :error => error]
+        return [".gift_posted_#{gift_posted_on_wall_api_wall}_html", :apiname => login_user.apiname, :error => error]
       else
         # post ok - gift posted in facebook wall
         # check read permissioin to gift and get picture url with best size > 200 x 200
@@ -1727,7 +1727,7 @@ class UtilController < ApplicationController
 
         # post ok and no permission problems
         # no errors - return posted message
-        return [".gift_posted_#{gift_posted_on_wall_api_wall}_html", :apiname => login_user.api_name_without_brackets, :error => error]
+        return [".gift_posted_#{gift_posted_on_wall_api_wall}_html", :apiname => login_user.apiname, :error => error]
       end
 
     rescue Exception => e

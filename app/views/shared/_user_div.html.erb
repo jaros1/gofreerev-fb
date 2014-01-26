@@ -3,7 +3,7 @@
    username = user_div.short_or_full_user_name(@users)
    balance = friend ? format_user_balance(user_div, @users) : nil
 -%>
-<div title="<%= t div_title, :username => username, :balance => balance, :apiname => provider_downcase(user_div.provider) %>"
+<div title="<%= t div_title, :username => username, :balance => balance, :apiname => user_div.apiname %>"
      onclick="top.location.href = '<%= @page_header ? users_path(:friends => 'me') : url_for(user_div) %>'">
   <div><%= image_tag((user_div.api_profile_picture_url || 'no-picture.jpg'), :class => "#{@size ? @size : 'small'}_pro_pic", :alt => nil) %></div>
   <% if @page_header -%>
@@ -13,7 +13,7 @@
             <td><%= h @user.short_user_name %></td>
           </tr>
           <tr>
-            <td><%= @user.api_name_with_brackets %></td>
+            <td><%= @user.apiname_with_brackets %></td>
           </tr>
         </table>
       </div>

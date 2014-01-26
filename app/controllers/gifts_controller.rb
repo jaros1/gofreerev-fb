@@ -27,7 +27,7 @@ class GiftsController < ApplicationController
     if picture and !User.post_on_wall_authorized?(@users)
       @errors << t('.file_upload_not_allowed',
                    :appname => APP_NAME,
-                   :apiname => (@users.length > 1 ? 'login provider' : @users.first.api_name_without_brackets))
+                   :apiname => (@users.length > 1 ? 'login provider' : @users.first.apiname))
       picture = false
     end
     if picture

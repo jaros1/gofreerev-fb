@@ -25,3 +25,7 @@ Capfile.1
 # Ignore database
 /config/database.yml
 
+# Ignore secret config information
+/keys
+
+
