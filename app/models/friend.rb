@@ -93,18 +93,29 @@ class Friend < ActiveRecord::Base
   ##################
 
   def self.add_friend(userid1, userid2)
+    logger.debug2 "userid1 = #{userid1}, userid2 = #{userid2}"
     transaction do
+      # check for any old information about blocked or deselect app friend
+      # ( information is kept even if user delete and recreates account )
+      f2 = Friend.where('user_id_giver = ? and user_id_receiver = ?', userid2, userid1).first
       f1 = Friend.new
       f1.user_id_giver = userid1
       f1.user_id_receiver = userid2
       f1.api_friend = 'Y'
-      f1.app_friend = nil # nil = default = use api_friend as app_friend status
+      if f2
+        f1.app_friend = case f2.app_friend
+                          when 'B' then 'N' # other user has blocked user1 = login user
+                          when 'N' then 'N' # other user has deselect user1 = login user
+                          else nil
+                        end
+      else
+        f1.app_friend = nil
+      end
       f1.save!
-      f2 = Friend.new
+      f2 = Friend.new unless f2
       f2.user_id_giver = userid2
       f2.user_id_receiver = userid1
       f2.api_friend = 'Y'
-      f2.app_friend = nil # nil = default = use api_friend as app_friend status
       f2.save!
     end # transaction
   end # self.add_friend

@@ -91,7 +91,9 @@ class UsersController < ApplicationController
 
       if !user.deleted_at
         user.update_attribute(:deleted_at, Time.new)
-        @errors << t('.ok_html', user.app_and_apiname_hash.merge(:url => API_APP_SETTING_URL[user.provider] || '#'))
+        other_user = @users.find { |u| u.id != user.id and !u.deleted_at }
+        key = other_user ? '.ok2_html' : '.ok1_html'
+        @errors << t(key, user.app_and_apiname_hash.merge(:url => API_APP_SETTING_URL[user.provider] || '#'))
         add_task "User.delete_user(#{user.id})",5
         @trigger_tasks_form = true
         return

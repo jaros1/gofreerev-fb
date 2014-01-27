@@ -1082,10 +1082,17 @@ class User < ActiveRecord::Base
   #   R - app friendship request from login user to friend
   #   P - pending app friendship request to login user from friend (todo)
   #   M - my account == friends
+  #   D - my account == friends & delete account in progress
   # code is used for friend_status_text_<code> translate key
   def friend_status_code (login_user)
     return 'N' unless login_user # not logged in user
-    return 'M' if login_user.user_id == self.user_id
+    if login_user.user_id == self.user_id
+      if login_user.deleted_at
+        return 'D' # my account - delete in progress
+      else
+        return 'M' # my account
+      end
+    end
     f = get_friend(login_user)
     return 'N' unless f
     if f.api_friend == 'Y'
@@ -1731,15 +1738,10 @@ class User < ActiveRecord::Base
             g = Gift.where('gift_id = ?', ag.gift_id).includes(:api_gifts).first
             g.delete if g.api_gifts.size == 0
           end
-          Friend.where('user_id_giver = ?', user.user_id).each do |f|
-            if f.user_id_giver == f.user_id_receiver
-              f.delete
-            else
-              f.delete
-              # todo: keep app_friend == 'B' information. that is other user has blocked friends request for this user
-              f = Friend.where('user_id_giver = ? and user_id_receiver = ?', f.user_id_receiver, f.user_id_giver).first
-              f.delete if f
-            end
+          # delete friends information. keep information about blocked and deselected app friends
+          Friend.where('user_id_giver = ?', user.user_id).delete_all
+          Friend.where('user_id_receiver = ?', user.user_id).each do |f|
+            f.delete unless %w(N B).index(f.app_friend)
           end
           user.delete
         end # 2 loops

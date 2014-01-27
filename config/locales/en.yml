@@ -642,6 +642,7 @@ en:
         friend_status_title_1: "%{no_mutual_friends} mutual friend: %{mutual_friends}"
         friend_status_title_n: "%{no_mutual_friends} mutual friends: %{mutual_friends}"
         friend_status_text_m: "My %{apiname} account"
+        friend_status_text_d: "Your deleted %{apiname} account"
         friend_status_text_y: "Friend"
         friend_status_text_n: "Not a friend"
         friend_status_text_a: "%{apiname} friend but not a %{appname} friend"
@@ -683,7 +684,8 @@ en:
         delete_account_prompt: "Delete account"
      destroy:
         invalid_request: "Invalid request. Could not delete user account."
-        ok_html: "Your data for your %{apiname} account here at %{appname} is being deleted. Account will be deleted within the next 5-10 minutes. Thank you for visiting %{appname}. Use <a href=\"%{url}\">link</a> to remove %{appname} access at %{apiname}."
+        ok1_html: "Your data for your %{apiname} account here at %{appname} is being deleted. Account will be deleted within the next 5-10 minutes. Thank you for visiting %{appname}. Use <a href=\"%{url}\">link</a> to remove %{appname} access at %{apiname}."
+        ok2_html: "Your data for your %{apiname} account here at %{appname} is being deleted. Account will be deleted within the next 5-10 minutes. Note that you are logged in with multiple login providers and you may want to repeat \"Delete account\" for your other %{appname} accounts. Thank you for visiting %{appname}. Use <a href=\"%{url}\">link</a> to remove %{appname} access at %{apiname}."
         pending_html: "Your data for your %{apiname} account here at %{appname} is being deleted. Please wait. Use <a href=\"%{url}\">link</a> to remove %{appname} access at %{apiname}."
         completed_html: "Your data for your %{apiname} account here at %{appname} has been deleted. You are no longer logged in to %{appname} with your %{apiname} account. Use <a href=\"%{url}\">link</a> to remove %{appname} access at %{apiname}."
         exception: "System error when deleting your account. %{error}. More information in server log."

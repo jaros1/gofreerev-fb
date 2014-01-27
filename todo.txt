@@ -398,5 +398,14 @@
     options {:giftid=>"253", :gifttext=>"Cykel", :no_users=>"0", :no_other_users=>"-2", :username1=>"", :username2=>"", :username3=>"", :givername=>"Charlie S", :receivername=>"Karen S"},
     error translation missing: en.inbox.index.accepted_proposal_giver_1_v1_from_msg
 
-70) delete user
-    start with user.delete_at and check that all actions are blocked
+70) delete user - keep block friend information - that is other users that has blocked the deleted user
+
+71) add deleted_at to api_gift and api_comment for partial delete of gift and comment
+    ( gift and comment created with multi provider login )
+
+72) change User.api_gifts to include api_gifts,deleted_at information.
+    that is - ajax remove gift from gifts/index page
+
+73) change util/new_messages_count to include delete marked api comments
+
+74) add deleted status

@@ -641,6 +641,7 @@ da:
         friend_status_title_1: "%{no_mutual_friends} fælles ven: %{mutual_friends}"
         friend_status_title_n: "%{no_mutual_friends} fælles venner: %{mutual_friends}"
         friend_status_text_m: "Min %{apiname} konto"
+        friend_status_text_d: "Din slettede %{apiname} konto "
         friend_status_text_y: "Venner"
         friend_status_text_n: "Ikke venner"
         friend_status_text_a: "%{apiname} venner, men ikke %{appname} venner"
@@ -682,9 +683,10 @@ da:
         delete_account_prompt: "Slet konto"
      destroy:
         invalid_request: "Ugyldigt kald. Kunne ikke slette konto."
-        ok_html: "Dine data for din %{apiname} konto her hos %{appname} er ved at blive slettet. Sletning vil ske indenfor de næste 5-10 minutter. Tak for besøget. Brug <a href=\"%{url}\">link</a> for også at fjerne %{appname} adgang hos %{apiname}."
+        ok1_html: "Dine data for din %{apiname} konto her hos %{appname} er ved at blive slettet. Sletning vil ske indenfor de næste 5-10 minutter. Tak for besøget. Brug <a href=\"%{url}\">link</a> for også at fjerne %{appname} adgang hos %{apiname}."
+        ok2_html: "Dine data for din %{apiname} konto her hos %{appname} er ved at blive slettet. Sletning vil ske indenfor de næste 5-10 minutter. Bemærk at du er logget ind med flere login udbydere og du ønsker evt. at gentage \"Slet konto\" for disse. Tak for besøget. Brug <a href=\"%{url}\">link</a> for også at fjerne %{appname} adgang hos %{apiname}."
         pending_html: "Dine data for din %{apiname} konto her hos %{appname} er ved at blive slettet. Vent venligst. Brug <a href=\"%{url}\">link</a> for også at fjerne %{appname} adgang hos %{apiname}."
-        completed_html: "Dine data for din %{apiname} konto her hos %{appname} er blevet slettet. Log ind vha. din %{apiname} konto er blevet afbrudt. Brug <a href=\"%{url}\">link</a> for også at fjerne %{appname} adgang hos %{apiname}."
+        completed_html: "Dine data for din %{apiname} konto her hos %{appname} er blevet slettet. Forbindelse til %{appname} vha. din %{apiname} konto er blevet afbrudt. Brug <a href=\"%{url}\">link</a> for også at fjerne %{appname} adgang hos %{apiname}."
         exception: "System fejl ved sletning af konto. %{error}. Flere oplysninger i server log."
 
   # util controller
