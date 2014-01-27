@@ -447,6 +447,7 @@ class User < ActiveRecord::Base
         logger.error2 "error: invalid user id"
         return ['.profile_image_invalid_user', {:user_id => user_id}]
       end
+      return nil if user.deleted_at # ignore deleted marked users
       if url.to_s == ""
         logger.warn2 "error: no image received from provider / post_login ajax request"
         return ['.profile_image_blank', {:provider => user.provider}]
@@ -1639,6 +1640,121 @@ class User < ActiveRecord::Base
     logger.debug2 "friends3 = " + friends3.collect { |u| u.short_user_name }.join(', ')
     @mutual_friends[login_user.id] = friends3.collect { |u| u.short_user_name }
   end
+
+
+  # ajax task. return nil or [key, options] array
+  # called twice.
+  # First in users/edit page when user account has been marked as deleted - delete mark gifts and comments so that gifts and comments can be ajax removed from gifts/index pages
+  # Second after 6 minutes in util/new_messages_count to delete other data and user account
+  def self.delete_user(id)
+    begin
+      user = User.find_by_id(id)
+      return ['.delete_user_id_not_found', {}] unless user
+      return ['.delete_user_invalid_id', {}] unless user.deleted_at
+
+      # start logical delete
+      affected_users = []
+      user.update_attribute(:user_combination, nil) if user.user_combination
+      # delete mark gifts
+      ApiGift.where('? in (user_id_giver, user_id_receiver)', user.user_id).each do |ag|
+        # delete gift or delete api gift
+        # check gift has api_gifts from other login providers - ignore dummy users
+        g = ag.gift
+        api_gifts = g.api_gifts.find_all do |ag2|
+          if ag2.id == ag.id
+            false
+          elsif ag2.giver and ag2.giver.dummy_user?
+            false
+          elsif ag2.receiver and ag2.receiver.dummy_user?
+            false
+          else
+            true
+          end
+        end # find_all
+        if api_gifts.size == 0
+          # no other providers was found for this gift
+          # marked as deleted. Will be ajax deleted in gifts/index pages within 5 minutes
+          if g.received_at and g.price and g.price != 0.0
+            # todo: send notification to affected user about deleted account
+            raise "notification to affected user about deleted account not implemented"
+          end
+          g.deleted_at = Time.new
+          g.save!
+        else
+          # found other providers for this gift.
+          # todo. No deleted_at timestamp for api_gift. Can not ajax remove api gift from gifts/index pages
+          ag.destroy!
+        end
+      end
+      # delete mark comments
+      ApiComment.where('user_id = ? and gifts.deleted_at is not null',
+                       user.user_id).includes(:gift, :comment).references(:gift).each do |ac|
+        c = ac.comment
+        # check if comment has api_comments from other login providers
+        api_comments = c.api_comments.find_all { |ac2| ac2.id != ac.id }
+        if api_comments.size == 0
+          # no other login provider involved for this comment
+          # mark comment as deleted - will be ajax removed from gifts/index pages within 5 minutes
+          c.deleted_at = Time.new
+          c.save!
+        else
+          # other login providers found for this login provider
+          # todo: cancel deal proposal if deal proposal and it was made from this and only this provider
+          # todo. no deleted_at timestamp for api_comment. Can not ajax remove api comment from gifts/index page
+          ac.destroy!
+        end
+      end
+      # end logical delete
+
+      # check for physical delete
+      delete =  (Time.new - user.deleted_at > 6.minutes)
+      if (delete)
+        # start physical delete
+        # user account has been deleted marked more than 6 minutes ago
+        # physical delete all data for user account
+        # repeat twice just in case that new data is created doing delete operation
+        # should not happen as update operations are disabled for delete marked users
+        1.upto(2) do
+          AjaxComment.where('user_id = ?', user.user_id).delete_all
+          GiftLike.where('user_id = ?', user.user_id).delete_all
+          Notification.where('to_user_id = ? or from_user_id = ?', user.user_id, user.user_id).each do |n|
+            n.api_comments.delete # delete rows in comments_notifications table - not comments
+            n.delete
+          end
+          ApiComment.where('user_id = ?', user.user_id).each do |ac|
+            ac.delete
+            c = Comment.where('comment_id = ?', ac.comment_id).includes(:api_comments).first
+            c.delete if c.api_comments.size == 0
+          end
+          ApiGift.where('user_id_giver = ? or user_id_receiver = ?', user.user_id, user.user_id).each do |ag|
+            ag.delete
+            g = Gift.where('gift_id = ?', ag.gift_id).includes(:api_gifts)
+            g.delete if g.api_gifts.size == 0
+          end
+          Friend.where('user_id_giver = ?', user.user_id).each do |f|
+            if f.user_id_giver == f.user_id_receiver
+              f.delete
+            else
+              f.delete
+              # todo: keep app_friend == 'B' information. that is other user has blocked friends request for this user
+              f = Friend.where('user_id_giver = ? and user_id_receiver = ?', f.user_id_receiver, f.user_id_giver)
+              f.delete if f
+            end
+          end
+          user.delete
+        end # 2 loops
+        # end physical delete
+      end
+
+      # logical and/or physical delete ok
+      nil
+
+    rescue Exception => e
+      logger.debug2 "Exception: #{e.message.to_s} (#{e.class})"
+      logger.debug2 "Backtrace: " + e.backtrace.join("\n")
+      raise
+    end
+  end # self.delete_user
 
 
   ##############

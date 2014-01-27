@@ -152,6 +152,8 @@ da:
         confirm_grant_write: "Tillad opslag på din %{apiname} væg?"
         grant_write_ok: "%{appname} fik tilladelse til at lave opslag på din %{apiname} væg."
         hide_grant_write_ok: "%{appname} vil fremover ikke bede om tilladelse til at lave opslag på din %{apiname} væg. Du kan på et senere tidspunkt give %{appname} lov til at lave opslag på din %{apiname} væg ved at sætte hak i Opslag? tjekbox på \"Log ind\" siden."
+        delete_user_id_not_found: "Kan ikke slette bruger konto. Bruger konto blev ikke fundet. Kontoen er evt. allerede blevet slettet."
+        delete_user_invalid_id: "Ugyldigt kald. Kan ikke slette bruger konto da den ikke er blevet slet mærkeret."
 
   # omniauth controllers (auth, facebook and linkedin):
 
@@ -682,6 +684,7 @@ da:
         invalid_request: "Ugyldigt kald. Kunne ikke slette konto."
         ok_html: "Dine data for din %{apiname} konto her hos %{appname} er ved at blive slettet. Sletning vil ske indenfor de næste 5-10 minutter. Tak for besøget. Brug <a href=\"%{url}\">link</a> for også at fjerne %{appname} adgang hos %{apiname}."
         pending_html: "Dine data for din %{apiname} konto her hos %{appname} er ved at blive slettet. Vent venligst. Brug <a href=\"%{url}\">link</a> for også at fjerne %{appname} adgang hos %{apiname}."
+        completed_html: "Dine data for din %{apiname} konto her hos %{appname} er blevet slettet. Tak for besøget. Brug <a href=\"%{url}\">link</a> for også at fjerne %{appname} adgang hos %{apiname}."
         exception: "System fejl ved sletning af konto. %{error}. Flere oplysninger i server log."
 
   # util controller

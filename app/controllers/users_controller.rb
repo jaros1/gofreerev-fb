@@ -70,184 +70,48 @@ class UsersController < ApplicationController
   # delete user data and close account ajax request
   def destroy
     @errors = []
+    @trigger_tasks_form = false
     begin
 
       # check user.id
       id = params[:id]
-      user2 = User.find_by_id(id)
-      if !user2
+      user = User.find_by_id(id)
+      if !user
         logger.debug2 "invalid request. User with id #{id} was not found"
         @errors << t('.invalid_request')
         return
       end
-      logger.debug2 "user2 = #{user2.debug_info}"
-      if !login_user_ids.index(user2.user_id)
+      logger.debug2 "user2 = #{user.debug_info}"
+      if !login_user_ids.index(user.user_id)
         logger.debug2 "invalid request. Not logged in with user id #{id}"
         save_flash '.invalid_request'
         redirect_to :action => :index, :friends => 'me'
         return
       end
 
-      if !user2.deleted_at
-        user2.update_attribute(:deleted_at, Time.new)
-        @errors << t('.ok_html', user2.app_and_apiname_hash.merge(:url => API_APP_SETTING_URL[user2.provider] || '#'))
+      if !user.deleted_at
+        user.update_attribute(:deleted_at, Time.new)
+        @errors << t('.ok_html', user.app_and_apiname_hash.merge(:url => API_APP_SETTING_URL[user.provider] || '#'))
+        add_task "User.delete_user(#{user.id})",5
+        @trigger_tasks_form = true
         return
       end
 
-      if user2.deleted_at > 6.minutes.ago
-        @errors << t('.pending_html', user2.app_and_apiname_hash.merge(:url => API_APP_SETTING_URL[user2.provider] || '#'))
+      if user.deleted_at > 6.minutes.ago
+        @errors << t('.pending_html', user.app_and_apiname_hash.merge(:url => API_APP_SETTING_URL[user.provider] || '#'))
         return
       end
 
-      raise "not implemented"
-
-
-      @errors << t('.ok_html', user2.app_and_apiname_hash.merge(:url => API_APP_SETTING_URL[user2.provider] || '#'))
-      return
-
-
-      transaction do
-
-        # todo: find list of affected users
-        # - balance changed for users with closed deal with this user
-        # - remove any unread deal proposal notifications
-        # - send cancel proposal notification for read deal proposal notification (if all involved users has been deleted)
-
-        # mark user as deleted
-        # user can not be deleted until deleted gifts and comments has been ajax removed from gifts/index pages
-        user2.update_attribute(:deleted_at, Time.new)
-        user2.update_attribute(:user_combination, nil) if user2.user_combination
-
-        AjaxComment.delete_all('user_id = ?', user2.user_id)
-
-        ApiGift.where('? in (user_id_giver, user_id_receiver)', user2.user_id).each do |ag|
-          # delete gift or delete api gift
-          # check gift has api_gifts from other login providers - ignore dummy users
-          g = ag.gift
-          api_gifts = g.api_gifts.find_all do |ag2|
-            if ag2.id == ag.id
-              false
-            elsif ag2.giver and ag2.giver.dummy_user?
-              false
-            elsif ag2.receiver and ag2.receiver.dummy_user?
-              false
-            else
-              true
-            end
-          end # find_all
-          if api_gifts.size == 0
-            # no other providers was found for this gift
-            # marked as deleted. Will be ajax deleted in gifts/index pages within 5 minutes
-            g.deleted_at = Time.new
-            g.save!
-          else
-            # found other providers for this gift.
-            # todo. No deleted_at timestamp for api_gift. Can not ajax remove api gift from gifts/index pages
-            ag.destroy!
-          end
-        end
-
-        ApiComment.where('user_id = ? and gifts.deleted_at is not null',
-                         user2.user_id).includes(:gift, :comment).references(:gift).each do |ac|
-          c = ac.comment
-          # check if comment has api_comments from other login providers
-          api_comments = c.api_comments.find_all { |ac2| ac2.id != ac.id }
-          if api_comments.size == 0
-            # no other login provider involved for this comment
-            # mark comment as deleted - will be ajax removed from gifts/index pages within 5 minutes
-            c.deleted_at = Time.new
-            c.save!
-          else
-            # other login providers found for this login provider
-            # todo: cancel deal proposal if deal proposal and it was made from this and only this provider
-            # todo. no deleted_at timestamp for api_comment. Can not ajax remove api comment from gifts/index page
-            ac.destroy!
-          end
-        end
-
-        Notification.where('to_user_id = ?', user2.user_id).delete_all
-
-        # wait until user is destroyed before deleting friends
-        # friend information is needed for ajax delete of gifts and comments in gifts/index pages
-
-        raise "debug - not implemented"
-
-        create_table "ajax_comments", force: true do |t|
-          t.string   "user_id",    limit: 40, null: false
-          t.string   "comment_id", limit: 20, null: false
-          t.datetime "created_at"
-          t.datetime "updated_at"
-        end
-
-        add_index "ajax_comments", ["user_id"], name: "index_ajax_comments_on_user_id"
-
-
-        create_table "api_comments_notifications", id: false, force: true do |t|
-          t.integer "notification_id"
-          t.integer "api_comment_id"
-        end
-
-        add_index "api_comments_notifications", ["api_comment_id", "notification_id"], name: "index_api_com_no_on_api_com_id", unique: true
-        add_index "api_comments_notifications", ["notification_id"], name: "index_comm_noti_on_noti_id"
-
-
-        create_table "friends", force: true do |t|
-          t.string   "user_id_giver",    limit: 40
-          t.string   "user_id_receiver", limit: 40
-          t.datetime "created_at"
-          t.datetime "updated_at"
-          t.text     "api_friend"
-          t.text     "app_friend"
-          t.string   "friend_id",        limit: 20
-        end
-
-        add_index "friends", ["friend_id"], name: "index_friends_on_friend_id", unique: true
-        add_index "friends", ["user_id_giver", "user_id_receiver"], name: "index_friends_on_giver", unique: true
-        add_index "friends", ["user_id_receiver", "user_id_giver"], name: "index_friends_on_receiver", unique: true
-
-
-
-
-
-        create_table "tasks", force: true do |t|
-          t.string   "session_id", limit: 32,               null: false
-          t.text     "task",                                null: false
-          t.datetime "created_at"
-          t.datetime "updated_at"
-          t.integer  "priority",              default: 5
-          t.string   "ajax",       limit: 1,  default: "Y"
-          t.text     "task_data"
-        end
-
-        add_index "tasks", ["session_id"], name: "index_tasks_on_session_id"
-
-        create_table "users", force: true do |t|
-          t.string   "user_id",                 limit: 40
-          t.text     "user_name"
-          t.datetime "created_at"
-          t.datetime "updated_at"
-          t.text     "currency"
-          t.text     "balance"
-          t.date     "balance_at"
-          t.text     "permissions"
-          t.text     "no_api_friends"
-          t.text     "negative_interest"
-          t.integer  "user_combination"
-          t.text     "api_profile_url"
-          t.text     "api_profile_picture_url"
-          t.string   "post_on_wall_yn",         limit: 1
-        end
-
-        add_index "users", ["user_combination"], name: "index_users_user_combination"
-        add_index "users", ["user_id"], name: "index_users_on_user_id", unique: true
-
-
-
+      key, options = User.delete_user(user.id)
+      if key
+        key = "shared.translate_ajax_errors#{key}"
+        @errors << t(key, options)
+        return
       end
 
-      raise "not implemented"
-
-      @errors << t('.ok_html', user2.app_and_apiname_hash.merge(:url => API_APP_SETTING_URL[user2.provider] || '#'))
+      # delete completed
+      @errors << t('.completed_html', user.app_and_apiname_hash.merge(:url => API_APP_SETTING_URL[user.provider] || '#'))
+      logout(user.provider)
 
     rescue Exception => e
       logger.debug2 "Exception: #{e.message.to_s}"

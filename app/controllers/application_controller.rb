@@ -385,6 +385,9 @@ class ApplicationController < ActionController::Base
     # save language for translate
     session[:language] = language if !filter_locale(session[:language]) and filter_locale(language)
     set_locale
+
+    return nil if user.deleted_at # no post login tasks for delete marked users
+
     # check currency after new login - keep current currency
     @users = User.where('user_id in (?)', login_user_ids)
     if @users.collect { |user2| user2.currency }.uniq.length > 1
@@ -392,7 +395,6 @@ class ApplicationController < ActionController::Base
       user.currency = old_user.currency
       user.save!
     end
-    # schedule post login tasks.
 
     if image.to_s != ""
       if image =~ /^http/ and !image.index("''") and !image.index('"')

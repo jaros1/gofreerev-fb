@@ -159,6 +159,8 @@ en:
         confirm_grant_write: "Allow post on your %{apiname} wall?"
         grant_write_ok: "%{appname} was granted access to write on your %{apiname} wall."
         hide_grant_write_ok: "%{appname} will in future not ask for permission to make postings on your %{apiname} wall. You can later allow %{appname} to make postings on your %{apiname} wall by checking \"Post?\" checkbox on \"Log in\" page."
+        delete_user_id_not_found: "Can not delete user account. User was not found. Maybe user account already has been deleted."
+        delete_user_invalid_id: "Invalid request. Can not delete user account. User account has not been delete marked."
 
   # omniauth controllers (auth, facebook and linkedin):
 
