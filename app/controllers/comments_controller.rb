@@ -6,19 +6,20 @@ class CommentsController < ApplicationController
   # POST /comments.json
   # Parameters: {"utf8"=>"✓", "comment"=>{"gift_id"=>"j0N0uppxbj1nmDfsWBbk", "new_deal_yn"=>"Y", "price"=>"1", "comment"=>"25"}, "commit"=>"Gem"}
   def create
+    # start with empty ajax response
     @errors2 = []
     @api_comment = nil
     gift_row_id = nil
     begin
-      # start with empty ajax response
-      return append_create_comment_error(nil, '.invalid_request_no_comment_form') unless params.has_key?(:comment)
+      return append_create_comment_error(gift_row_id, '.invalid_request_no_comment_form') unless params.has_key?(:comment)
       gift = Gift.find_by_gift_id(params[:comment][:gift_id])
-      return append_create_comment_error(nil, '.invalid_request_unknown_gift') unless gift
-      return append_create_comment_error(nil, '.invalid_request_invalid_gift') unless gift.visible_for?(@users)
+      return append_create_comment_error(gift_row_id, '.invalid_request_unknown_gift') unless gift
+      return append_create_comment_error(gift_row_id, '.invalid_request_invalid_gift') unless gift.visible_for?(@users)
       gift_row_id = gift.id
       # get user from @users. Must be giver, receiver or friend of giver or receiver.
       user = @users.find { |user2| gift.visible_for?([user2]) }
       logger.debug2 "user_id = #{user.user_id}"
+      return append_create_comment_error(gift_row_id, '.deleted_user') if user.deleted_at
       comment = Comment.new
       comment.gift_id = gift.gift_id if gift
       comment.comment = params[:comment][:comment].to_s.force_encoding('UTF-8')
@@ -123,6 +124,13 @@ class CommentsController < ApplicationController
         append_destroy_comment_error(comment, '.invalid_comment')
         return
       end
+      @users.remove_deleted_users
+      if !comment.show_delete_comment_link?(@users)
+        logger.debug2 "One or more user accounts are being deleted. User can not delete comment with #{id}"
+        append_destroy_comment_error(comment, '.deleted_user')
+        return
+      end
+
       # delete mark comment
       # delete marked comment will be ajax removed from gifts/index page for current user now
       # delete marked comment will be ajax removed from gifts/index page for other users in util/new_messages_count request

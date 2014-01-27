@@ -251,6 +251,7 @@ en:
         invalid_request_no_comment_form: "Invalid request. System error. Comment form was not found."
         invalid_request_unknown_gift: "Invalid request. System error. Unknown id for gift."
         invalid_request_invalid_gift: "Invalid request. You have no access to this post. Please refresh web page."
+        deleted_user: "You account is being deleted and you can not create comments"
         no_providers: "Comment was not created. No shared login providers. Could be a system error."
         exception: "System error. Comment was not created. %{error}. More information available in log."
      index:
@@ -281,6 +282,9 @@ en:
         delete_comment: "Delete"
         confirm_delete_comment: "Delete comment?"
      destroy:
+        unknown_comment: "Could not delete comment. Comment was not found. Please refresh page."
+        invalid_comment: "Delete comment was not allowed. Please refresh page."
+        deleted_user: "Could not delete comment. Your account is being deleted."
         exception: "System error. Could not delete comment. %{error}. More information available in log."
 
   cookie:
@@ -290,6 +294,7 @@ en:
   # gift controller
   gifts:
      create:
+        deleted_user: "You account is being deleted and you can not create new posts"
         file_upload_not_allowed: "File upload not allowed. %{appname} lack access to write on your %{apiname} wall."
         unsupported_filetype: "Unsupported filetype %{filetype} ii file upload. Supported filetypes are jpg, gif, png and bmp."
         file_is_too_big: "File is too big. Max allowed picture size is %{maxsize}."
@@ -676,7 +681,8 @@ en:
         delete_account_prompt: "Delete account"
      destroy:
         invalid_request: "Invalid request. Could not delete user account."
-        ok_html: "Your %{appname} %{apiname} data has been deleted. Thank you for visiting %{appname}. Use <a href=\"%{url}\">link</a> to remove %{appname} access at %{apiname}."
+        ok_html: "Your data for your %{apiname} account here at %{appname} is being deleted. Account will be deleted within the next 5-10 minutes. Thank you for visiting %{appname}. Use <a href=\"%{url}\">link</a> to remove %{appname} access at %{apiname}."
+        pending_html: "Your data for your %{apiname} account here at %{appname} is being deleted. Please wait. Use <a href=\"%{url}\">link</a> to remove %{appname} access at %{apiname}."
         exception: "System error when deleting your account. %{error}. More information in server log."
 
   # util controller
@@ -685,6 +691,7 @@ en:
         invalid_action: "System error. Could not \"like\" post. Invalid action. More information in server log."
         gift_deleted: "Can not \"like\" post. Post has been deleted. Please refresh the page."
         not_authorized: "System error. Could not \"like\" post. You are no longer allowed to see the post. Please refresh the page."
+        deleted_user: "Can not \"like\" post. Your user account is being deleted."
         comment_deleted: "Can not \"like\" post. The post has been deleted. Please refresh the page."
         not_allowed: "\"like\" post is not longer possible. Please refresh the page."
         exception: "System error. Could not \"like\" post. %{error}. More information in server log."
@@ -692,6 +699,7 @@ en:
         invalid_action: "System error. Could not remove \"like\" post. Invalid action. More information in server log."
         gift_deleted: "Can not remove \"like\" post. Post has been deleted. Please refresh the page."
         not_authorized: "System error. Could not remove \"like\" post. You are no longer allowed to see the post. Please refresh the page."
+        deleted_user: "Can not remove \"like\" post. Your user account is being deleted."
         comment_deleted: "Can not remove \"like\" post. The post has been deleted. Please refresh the page."
         not_allowed: "Remove \"like\" post is not longer possible. Please refresh the page."
         exception: "System error. Could not remove \"like\" post. %{error}. More information in server log."
@@ -699,6 +707,7 @@ en:
         invalid_action: "System error. Could not \"follow\" post. Invalid action. More information in server log."
         gift_deleted: "Can not \"follow\" post. post has been deleted. Please refresh the page."
         not_authorized: "System error. Could not \"follow\" post. You are no longer allowed to see the post. Please refresh the page."
+        deleted_user: "Can not \"follow\" post. Your user account is being deleted."
         comment_deleted: "Can not \"follow\" post. The post has been deleted. Please refresh the page."
         not_allowed: "\"follow\" post is not longer possible. Please refresh the page."
         exception: "System error. Could not \"follow\" post. %{error}. More information in server log."
@@ -706,20 +715,23 @@ en:
         invalid_action: "System error. Could not remove \"follow\" post. Invalid action. More information in server log."
         gift_deleted: "Can not remove \"follow\" post. post has been deleted. Please refresh the page."
         not_authorized: "System error. Could not remove \"follow\" post. You are no longer allowed to see the post. Please refresh the page."
+        deleted_user: "Can not remove \"follow\" post. Your user account is being deleted."
         comment_deleted: "Can not remove \"follow\" post. The post has been deleted. Please refresh the page."
         not_allowed: "Remove \"follow\" is not longer possible. Please refresh the page."
         exception: "System error. Could not remove \"follow\" post. %{error}. More information in server log."
      hide_gift:
-        invalid_action: "System error. Could not skjule post. Invalid action. More information in server log."
-        gift_deleted: "Can not skjule post. post has been deleted. Please refresh the page."
-        not_authorized: "System error. Could not skjule post. You are no longer allowed to see the post. Please refresh the page."
-        comment_deleted: "Can not skjule post, The post has been deleted. Please refresh the page."
-        not_allowed: "Skjul post is not longer possible. Please refresh the page."
-        exception: "System error. Could not skjule post. %{error}. More information in server log."
+        invalid_action: "System error. Could not hide post. Invalid action. More information in server log."
+        gift_deleted: "Can not hide post. post has been deleted. Please refresh the page."
+        not_authorized: "System error. Could not hide post. You are no longer allowed to see the post. Please refresh the page."
+        deleted_user: "Can not hide post. Your user account is being deleted."
+        comment_deleted: "Can not hide post, The post has been deleted. Please refresh the page."
+        not_allowed: "Hide post is not longer possible. Please refresh the page."
+        exception: "System error. Could not hide post. %{error}. More information in server log."
      delete_gift:
         invalid_action: "System error. Could not delete post. Invalid action. More information in server log."
         gift_deleted: "Can not delete post. post has been deleted. Please refresh the page."
         not_authorized: "System error. Could not delete post. You are no longer allowed to see the post. Please refresh the page."
+        deleted_user: "Can not delete post. Your user account is being deleted."
         comment_deleted: "Can not delete post. The post has been deleted. Please refresh the page."
         not_allowed: "Delete post is not longer possible. Please refresh the page."
         exception: "System error. Could not delete post. %{error}. More information in server log."
@@ -728,6 +740,7 @@ en:
         comment_not_found: "System error. Could not cancel proposal. Proposal was not found."
         gift_deleted: "Could not cancel proposal. Post has been deleted. Please refresh page."
         not_authorized: "System error. Could not cancel proposal. You are not allowed to see post. Please refresh page."
+        deleted_user: "Could not cancel proposal. Your user account is being deleted."
         comment_deleted: "Proposal has been deleted and can not be cancelled. Please refresh page."
         not_allowed: "Sorry. It is no longer possible to cancel proposal. Please refresh page."
         ok: "Proposal has been cancelled."
@@ -737,6 +750,7 @@ en:
         comment_not_found: "System error. Could not reject proposal. Proposal was not found."
         gift_deleted: "Could not reject proposal. Post has been deleted. Please refresh page."
         not_authorized: "System error. Could not reject proposal. You are not allowed to see post. Please refresh page."
+        deleted_user: "Could not reject proposal. Your user account is being deleted."
         comment_deleted: "Proposal has been deleted and can not be rejected. Please refresh page."
         not_allowed: "Sorry. It is no longer possible to reject proposal. Please refresh page."
         ok: "Proposal has been rejected."
@@ -744,8 +758,9 @@ en:
      accept_new_deal:
         invalid_action: "System error. Could not accept proposal. Invalid action. More information in server log."
         comment_not_found: "System error. Could not accept proposal. Proposal was not found."
-        gift_deleted: "Could not godkende proposal. Post has been deleted. Please refresh page."
-        not_authorized: "System error. Could not godkende proposal. You are not allowed to see post. Please refresh page."
+        gift_deleted: "Could not accept proposal. Post has been deleted. Please refresh page."
+        not_authorized: "System error. Could not accept proposal. You are not allowed to see post. Please refresh page."
+        deleted_user: "Could not accept proposal. Your user account is being deleted."
         comment_deleted: "Proposal has been deleted and can not be accepted. Please refresh page."
         not_allowed: "Sorry. It is no longer possible to accept proposal. Please refresh page."
         ok: "Proposal has been accepted."

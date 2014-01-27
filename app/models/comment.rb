@@ -189,7 +189,7 @@ class Comment < ActiveRecord::Base
   def show_cancel_new_deal_link? (users)
     return false unless new_deal_yn == 'Y'
     return false if accepted_yn
-    login_user_ids = users.collect { |u| u.user_id }
+    login_user_ids = users.find_all { |u| !u.deleted_at }.collect { |u| u.user_id }
     comment_user_ids = api_comments.collect { |ac| ac.user_id }
     user_ids = login_user_ids & comment_user_ids
     return false if user_ids.size == 0
@@ -200,7 +200,7 @@ class Comment < ActiveRecord::Base
   def show_accept_new_deal_link? (users)
     return false unless new_deal_yn == 'Y'
     return false if accepted_yn
-    login_user_ids = users.collect { |u| u.user_id }
+    login_user_ids = users.and !user2.deleted_at.collect { |u| u.user_id }
     return false if gift.direction == 'both'
     gift_user_ids = gift.api_gifts.collect { |ag| ag.user_id_giver || ag.user_id_receiver }
     user_ids = login_user_ids & gift_user_ids

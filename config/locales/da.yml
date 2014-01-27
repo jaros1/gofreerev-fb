@@ -245,6 +245,7 @@ da:
         invalid_request_no_comment_form: "Ugyldigt kald. System fejl. Kommentar form ej fundet."
         invalid_request_unknown_gift: "Ugyldigt kald. Systemfejl. Ukendt id for gave."
         invalid_request_invalid_gift: "Ugyldigt kald. Du har ikke adgang til dette opslag. Genopfrisk venligst siden."
+        deleted_user: "Din konto er ved at blive slettet og du kan ikke oprette nye kommentarer"
         no_providers: "Kunne ikke oprette kommentar. Ingen fælles login udbydere. Kan evt. være en system fejl."
         exception: "System fejl. Kunne ikke oprette kommentar. %{error}. Se mere information i log."
      index:
@@ -275,6 +276,9 @@ da:
         delete_comment: "Slet"
         confirm_delete_comment: "Slet kommentar?"
      destroy:
+        unknown_comment: "Kunne ikke slette kommentar. Kommentar blev ikke fundet. Genopfrisk venligst siden."
+        invalid_comment: "Sletning af kommentar er ikke mulig. Genopfrisk venligst siden."
+        deleted_user: "Sletning af kommentar er ikke mulig. Din konto er ved at blive slettet."
         exception: "System fejl. Kunne ikke slette kommentar. %{error}. Se mere information i log."
 
   cookie:
@@ -284,6 +288,7 @@ da:
   # gift controller - general texts
   gifts:
      create:
+        deleted_user: "Din konto er ved at blive slettet og du kan ikke oprette nye opslag"
         file_upload_not_allowed: "Fil upload ej tilladt. %{appname} mangler adgang til at skrive på din %{apiname} væg."
         unsupported_filetype: "Usupporteret filtype %{filetype} i fil upload. Supporterede filtyper er jpg, gif, png og bmp."
         file_is_too_big: "Fil er for stor. Højst tilladte størrelse på billede er %{maxsize}."
@@ -675,7 +680,8 @@ da:
         delete_account_prompt: "Slet konto"
      destroy:
         invalid_request: "Ugyldigt kald. Kunne ikke slette konto."
-        ok_html: "Dine data for din %{apiname} konto her hos %{appname} er blevet slettet. Tak for besøget. Brug <a href=\"%{url}\">link</a> for også at fjerne %{appname} adgang hos %{apiname}."
+        ok_html: "Dine data for din %{apiname} konto her hos %{appname} er ved at blive slettet. Sletning vil ske indenfor de næste 5-10 minutter. Tak for besøget. Brug <a href=\"%{url}\">link</a> for også at fjerne %{appname} adgang hos %{apiname}."
+        pending_html: "Dine data for din %{apiname} konto her hos %{appname} er ved at blive slettet. Vent venligst. Brug <a href=\"%{url}\">link</a> for også at fjerne %{appname} adgang hos %{apiname}."
         exception: "System fejl ved sletning af konto. %{error}. Flere oplysninger i server log."
 
   # util controller
@@ -684,6 +690,7 @@ da:
         invalid_action: "System fejl. Kunne ikke \"synes om\" opslag. Ugyldig aktion. Mere information i server log."
         gift_deleted: "Kan ikke \"synes om\" opslag. Opslag er blevet slettet. Genopfrisk venligst siden."
         not_authorized: "System fejl. Kunne ikke \"synes om\" opslag. Der er ikke (længere) adgang til opslag. Genopfrisk venligst siden."
+        deleted_user: "Kan ikke \"synes om\" opslag. Din konto er ved at blive slettet."
         comment_deleted: "Kan ikke \"synes om\" opslag da forslaget er blevet slettet. Genopfrisk venligst siden."
         not_allowed: "\"synes om\" opslag er desværre ikke længere muligt. Genopfrisk venligst siden."
         exception: "System fejl. Kunne ikke \"synes om\" opslag. %{error}. Mere information i server log."
@@ -691,6 +698,7 @@ da:
         invalid_action: "System fejl. Kunne ikke fjerne \"synes om\" opslag. Ugyldig aktion. Mere information i server log."
         gift_deleted: "Kan ikke fjerne \"synes om\" opslag. Opslag er blevet slettet. Genopfrisk venligst siden."
         not_authorized: "System fejl. Kunne ikke fjerne \"synes om\" opslag. Der er ikke (længere) adgang til opslag. Genopfrisk venligst siden."
+        deleted_user: "Kan ikke fjerne \"synes om\" opslag. Din konto er ved at blive slettet."
         comment_deleted: "Kan ikke fjerne \"synes om\" opslag da forslaget er blevet slettet. Genopfrisk venligst siden."
         not_allowed: "Fjern \"synes om\" opslag er desværre ikke længere muligt. Genopfrisk venligst siden."
         exception: "System fejl. Kunne ikke fjerne \"synes om\" opslag. %{error}. Mere information i server log."
@@ -698,6 +706,7 @@ da:
         invalid_action: "System fejl. Kunne ikke \"følge\" opslag. Ugyldig aktion. Mere information i server log."
         gift_deleted: "Kan ikke \"følge\" opslag. Opslag er blevet slettet. Genopfrisk venligst siden."
         not_authorized: "System fejl. Kunne ikke \"følge\" opslag. Der er ikke (længere) adgang til opslag. Genopfrisk venligst siden."
+        deleted_user: "Kan ikke \"følge\" opslag. Din konto er ved at blive slettet."
         comment_deleted: "Kan ikke \"følge\" opslag da forslaget er blevet slettet. Genopfrisk venligst siden."
         not_allowed: "\"følg\" opslag er desværre ikke længere muligt. Genopfrisk venligst siden."
         exception: "System fejl. Kunne ikke \"følge\" opslag. %{error}. Mere information i server log."
@@ -705,6 +714,7 @@ da:
         invalid_action: "System fejl. Kunne ikke fjerne \"følg\" opslag. Ugyldig aktion. Mere information i server log."
         gift_deleted: "Kan ikke fjerne \"følg\" opslag. Opslag er blevet slettet. Genopfrisk venligst siden."
         not_authorized: "System fejl. Kunne ikke fjerne \"følg\" opslag. Der er ikke (længere) adgang til opslag. Genopfrisk venligst siden."
+        deleted_user: "Kan ikke fjerne \"følg\" opslag. Din konto er ved at blive slettet."
         comment_deleted: "Kan ikke fjerne \"følg\" opslag da forslaget er blevet slettet. Genopfrisk venligst siden."
         not_allowed: "Fjern \"følg\" opslag er desværre ikke længere muligt. Genopfrisk venligst siden."
         exception: "System fejl. Kunne ikke fjerne \"følg\" opslag. %{error}. Mere information i server log."
@@ -712,6 +722,7 @@ da:
         invalid_action: "System fejl. Kunne ikke skjule opslag. Ugyldig aktion. Mere information i server log."
         gift_deleted: "Kan ikke skjule opslag. Opslag er blevet slettet. Genopfrisk venligst siden."
         not_authorized: "System fejl. Kunne ikke skjule opslag. Der er ikke (længere) adgang til opslag. Genopfrisk venligst siden."
+        deleted_user: "Kan ikke skjule opslag. Din konto er ved at blive slettet."
         comment_deleted: "Kan ikke skjule opslag da forslaget er blevet slettet. Genopfrisk venligst siden."
         not_allowed: "Skjul opslag er desværre ikke længere muligt. Genopfrisk venligst siden."
         exception: "System fejl. Kunne ikke skjule opslag. %{error}. Mere information i server log."
@@ -719,6 +730,7 @@ da:
         invalid_action: "System fejl. Kunne ikke slette opslag. Ugyldig aktion. Mere information i server log."
         gift_deleted: "Kan ikke slette opslag. Opslag er blevet slettet. Genopfrisk venligst siden."
         not_authorized: "System fejl. Kunne ikke slette opslag. Der er ikke (længere) adgang til opslag. Genopfrisk venligst siden."
+        deleted_user: "Kan ikke slette opslag. Din konto er ved at blive slettet."
         comment_deleted: "Kan ikke slette opslag da forslaget er blevet slettet. Genopfrisk venligst siden."
         not_allowed: "Slet opslag er desværre ikke længere muligt. Genopfrisk venligst siden."
         exception: "System fejl. Kunne ikke slette opslag. %{error}. Mere information i server log."
@@ -727,6 +739,7 @@ da:
         comment_not_found: "System fejl. Kunne ikke fortryde forslag. Forslag ej fundet."
         gift_deleted: "Kan ikke fortryde forslag. Opslag er blevet slettet. Genopfrisk venligst siden."
         not_authorized: "System fejl. Kunne ikke fortryde forslag. Der er ikke (længere) adgang til opslag. Genopfrisk venligst siden."
+        deleted_user: "Kan ikke fortryde forslag. Din konto er ved at blive slettet."
         comment_deleted: "Kan ikke fortryde forslag da forslaget er blevet slettet. Genopfrisk venligst siden."
         not_allowed: "Fortryd forslag er desværre ikke længere muligt. Genopfrisk venligst siden."
         ok: "Forslag er blevet annuleret."
@@ -736,6 +749,7 @@ da:
         comment_not_found: "System fejl. Kunne ikke afvise forslag. Forslag ej fundet."
         gift_deleted: "Kan ikke afvise forslag. Opslag er blevet slettet. Genopfrisk venligst siden."
         not_authorized: "System fejl. Kunne ikke afvise forslag. Der er ikke adgang til opslag. Genopfrisk venligst siden."
+        deleted_user: "Kan ikke afvise forslag. Din konto er ved at blive slettet."
         comment_deleted: "Kan ikke afvise forslag da forslaget er blevet slettet. Genopfrisk venligst siden."
         not_allowed: "Afvis forslag er desværre ikke længere muligt. Genopfrish venligst siden."
         ok: "Forslag er blevet afvist."
@@ -745,6 +759,7 @@ da:
         comment_not_found: "System fejl. Kunne ikke godkende forslag. Forslag ej fundet."
         gift_deleted: "Kan ikke godkende forslag. Opslag er blevet slettet. Genopfrisk venligst siden."
         not_authorized: "System fejl. Kunne ikke godkende forslag. Der er ikke adgang til opslag. Genopfrisk venligst siden."
+        deleted_user: "Kan ikke godkende forslag. Din konto er ved at blive slettet."
         comment_deleted: "Kan ikke godkende forslag da forslaget er blevet slettet. Genopfrisk venligst siden."
         not_allowed: "Det er desværre ikke længere muligt at godkende forslag. Genopfrish venligst siden."
         ok: "Forslag er blevet godkendt."

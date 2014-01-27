@@ -15,6 +15,15 @@ class GiftsController < ApplicationController
     # start with empty ajax response
     @errors = []
     @api_gifts = []
+
+    # check if user account is being deleted (do not create new gift)
+    users2 = @users.find_all { |u| !u.deleted_at }
+    if users2.size == 0
+      @errors << t('.deleted_user')
+      return
+    end
+    @users = users2 if @users.size != users2.size
+
     # initialize gift
     gift = Gift.new
     gift.price = params[:gift][:price].gsub(',', '.').to_f unless invalid_price?(params[:gift][:price])

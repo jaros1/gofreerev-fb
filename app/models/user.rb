@@ -1141,6 +1141,7 @@ class User < ActiveRecord::Base
       logger.error2 "Invalid call. expected user or array of users. login_user_or_login_users = #{login_user_or_login_users}"
       return []
     end
+    return [] if login_user.deleted_at
     case friend_status_code(login_user)
       when 'Y' then return %w(rEmove_api_friend Remove_app_friend)
       when 'N' then return %w(aDd_api_friend send_app_friend_request)

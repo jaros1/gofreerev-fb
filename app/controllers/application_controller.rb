@@ -96,6 +96,12 @@ class ApplicationController < ActionController::Base
       end
     end
 
+    # add remove_deleted_users
+    @users.define_singleton_method :remove_deleted_users do
+      self.delete_if { |u| u.deleted_at }
+    end
+
+
     # shortcut for @users.first. Random user is selected for a user with multiple provider logins
     # todo: remove @user - should only use @users array
     @user = @users.first

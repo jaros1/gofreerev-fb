@@ -397,3 +397,6 @@
     missing translate key. key .accepted_proposal_giver_1_v1_from_msg, noti.id 273,
     options {:giftid=>"253", :gifttext=>"Cykel", :no_users=>"0", :no_other_users=>"-2", :username1=>"", :username2=>"", :username3=>"", :givername=>"Charlie S", :receivername=>"Karen S"},
     error translation missing: en.inbox.index.accepted_proposal_giver_1_v1_from_msg
+
+70) delete user
+    start with user.delete_at and check that all actions are blocked

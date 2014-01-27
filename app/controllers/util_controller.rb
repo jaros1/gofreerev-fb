@@ -321,9 +321,15 @@ class UtilController < ApplicationController
     end
     return [gift, '.gift_deleted', {}] if gift.deleted_at
     if !gift.visible_for?(@users)
-      logger.debug2 "#{@user.short_user_name} is not allowed to see gift id #{gift_id}"
+      logger.debug2 "#{User.debug_info(@users)} is/are not allowed to see gift id #{gift_id}"
       return [gift, '.not_authorized', {}]
     end
+    @users.remove_deleted_users
+    if !gift.visible_for?(@users)
+      logger.debug2 "Found one or more deleted accounts. Remaining users #{User.debug_info(@users)} is/are not allowed to see gift id #{gift_id}"
+      return [gift, '.deleted_user', {}]
+    end
+
     if false
       show_action = case action
                       when 'like' then
@@ -645,8 +651,13 @@ class UtilController < ApplicationController
       end
       return [comment, '.not_authorized', {}]
     end
+    @users.remove_deleted_users
+    if !gift.visible_for?(@users)
+      logger.debug2 "Found one or more deleted accounts. Remaining users #{User.debug_info(@users)} is/are not allowed to see gift id #{gift_id}"
+      return [comment, '.deleted_user', {}]
+    end
     return [comment, gift, '.comment_deleted', {}] if comment.deleted_at
-    if true
+    if false
       show_action = case action
                       when 'cancel' then
                         comment.show_cancel_new_deal_link?(@users)
@@ -1543,6 +1554,7 @@ class UtilController < ApplicationController
       @errors << [key, options]
       return
     end
+
 
     # update user
     login_user.update_attribute('post_on_wall_yn', post_on_wall)
