@@ -685,6 +685,7 @@ en:
         invalid_request: "Invalid request. Could not delete user account."
         ok_html: "Your data for your %{apiname} account here at %{appname} is being deleted. Account will be deleted within the next 5-10 minutes. Thank you for visiting %{appname}. Use <a href=\"%{url}\">link</a> to remove %{appname} access at %{apiname}."
         pending_html: "Your data for your %{apiname} account here at %{appname} is being deleted. Please wait. Use <a href=\"%{url}\">link</a> to remove %{appname} access at %{apiname}."
+        completed_html: "Your data for your %{apiname} account here at %{appname} has been deleted. You are no longer logged in to %{appname} with your %{apiname} account. Use <a href=\"%{url}\">link</a> to remove %{appname} access at %{apiname}."
         exception: "System error when deleting your account. %{error}. More information in server log."
 
   # util controller

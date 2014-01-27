@@ -1728,7 +1728,7 @@ class User < ActiveRecord::Base
           end
           ApiGift.where('user_id_giver = ? or user_id_receiver = ?', user.user_id, user.user_id).each do |ag|
             ag.delete
-            g = Gift.where('gift_id = ?', ag.gift_id).includes(:api_gifts)
+            g = Gift.where('gift_id = ?', ag.gift_id).includes(:api_gifts).first
             g.delete if g.api_gifts.size == 0
           end
           Friend.where('user_id_giver = ?', user.user_id).each do |f|
@@ -1737,7 +1737,7 @@ class User < ActiveRecord::Base
             else
               f.delete
               # todo: keep app_friend == 'B' information. that is other user has blocked friends request for this user
-              f = Friend.where('user_id_giver = ? and user_id_receiver = ?', f.user_id_receiver, f.user_id_giver)
+              f = Friend.where('user_id_giver = ? and user_id_receiver = ?', f.user_id_receiver, f.user_id_giver).first
               f.delete if f
             end
           end

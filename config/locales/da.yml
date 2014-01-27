@@ -684,7 +684,7 @@ da:
         invalid_request: "Ugyldigt kald. Kunne ikke slette konto."
         ok_html: "Dine data for din %{apiname} konto her hos %{appname} er ved at blive slettet. Sletning vil ske indenfor de næste 5-10 minutter. Tak for besøget. Brug <a href=\"%{url}\">link</a> for også at fjerne %{appname} adgang hos %{apiname}."
         pending_html: "Dine data for din %{apiname} konto her hos %{appname} er ved at blive slettet. Vent venligst. Brug <a href=\"%{url}\">link</a> for også at fjerne %{appname} adgang hos %{apiname}."
-        completed_html: "Dine data for din %{apiname} konto her hos %{appname} er blevet slettet. Tak for besøget. Brug <a href=\"%{url}\">link</a> for også at fjerne %{appname} adgang hos %{apiname}."
+        completed_html: "Dine data for din %{apiname} konto her hos %{appname} er blevet slettet. Log ind vha. din %{apiname} konto er blevet afbrudt. Brug <a href=\"%{url}\">link</a> for også at fjerne %{appname} adgang hos %{apiname}."
         exception: "System fejl ved sletning af konto. %{error}. Flere oplysninger i server log."
 
   # util controller
