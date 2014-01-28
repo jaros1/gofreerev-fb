@@ -409,3 +409,5 @@
 73) change util/new_messages_count to include delete marked api comments
 
 74) add deleted status
+
+75) no language in inbox urls. Should keep current language code in all links

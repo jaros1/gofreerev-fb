@@ -557,6 +557,8 @@ da:
         accepted_proposal_giver_other_1_v1_to_msg: '%{givername} accepterede %{receivername}-s bud på sit tilbud "%{gifttext} ..."'
         accepted_proposal_receiver_1_v1_to_url: "/gifts/%{giftid}"
         accepted_proposal_receiver_1_v1_to_msg: '%{receivername} accepterede dit bud på sit ønske "%{gifttext} ..."'
+        deleted_account_v1_to_url: "/users/%{userid}?tab=balance"
+        deleted_account_v1_to_msg: "Din saldo er blevet opdateret forbi %{username} har slettet sin %{apiname} konto her hos %{appname} og en eller flere af dine aftaler med %{username} er blevet slettet."
 
   # user controller
   users:

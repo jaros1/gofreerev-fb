@@ -1681,10 +1681,6 @@ class User < ActiveRecord::Base
         if api_gifts.size == 0
           # no other providers was found for this gift
           # marked as deleted. Will be ajax deleted in gifts/index pages within 5 minutes
-          if g.received_at and g.price and g.price != 0.0
-            # todo: send notification to affected user about deleted account
-            raise "notification to affected user about deleted account not implemented"
-          end
           g.deleted_at = Time.new
           g.save!
         else
@@ -1692,6 +1688,34 @@ class User < ActiveRecord::Base
           # todo. No deleted_at timestamp for api_gift. Can not ajax remove api gift from gifts/index pages
           ag.destroy!
         end
+        if g.received_at and g.price and g.price != 0.0
+          # send notification to affected user about changed balance
+          other_user_id = user.user_id == ag.user_id_giver ? ag.user_id_receiver : ag.user_id_giver
+          other_user = User.find_by_user_id(other_user_id)
+          if !other_user.dummy_user? and !affected_users.index(other_user_id)
+            #create_table "notifications", force: true do |t|
+            #  t.string   "noti_id",      limit: 20, null: false
+            #  t.string   "to_user_id",   limit: 40, null: false
+            #  t.string   "from_user_id", limit: 40
+            #  t.string   "internal",     limit: 1,  null: false
+            #  t.text     "noti_key",                null: false
+            #  t.text     "noti_options"
+            #  t.string   "noti_read",    limit: 1,  null: false
+            #  t.datetime "created_at"
+            #  t.datetime "updated_at"
+            #end
+            n = Notification.new
+            n.to_user_id = other_user_id
+            n.from_user_id = nil
+            n.internal = 'Y'
+            n.noti_key = 'deleted_account_v1'
+            n.noti_options = user.app_and_apiname_hash.merge(:userid => other_user_id, :username => user.user_name)
+            n.noti_read = 'N'
+            n.save!
+            affected_users << other_user_id
+          end
+        end
+
       end
       # delete mark comments
       ApiComment.where('user_id = ? and gifts.deleted_at is not null',

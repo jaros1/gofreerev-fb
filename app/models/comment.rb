@@ -142,11 +142,11 @@ class Comment < ActiveRecord::Base
     if rec.new_record?
       if value.to_s != ''
         logger.debug2 'updated_at must be blank after create'
-        rec.errors.add attr, :invalid
+        rec.errors.add attr, :present
       end
     elsif value.to_s == ''
       logger.debug2 'updated_at is required'
-      rec.errors.add attr, :required # updated_at is required after update
+      rec.errors.add attr, :blank # updated_at is required after update
     else
       # check users
       user_ids = value.split(',')
@@ -200,7 +200,7 @@ class Comment < ActiveRecord::Base
   def show_accept_new_deal_link? (users)
     return false unless new_deal_yn == 'Y'
     return false if accepted_yn
-    login_user_ids = users.and !user2.deleted_at.collect { |u| u.user_id }
+    login_user_ids = users.find_all { |u| !u.deleted_at }.collect { |u| u.user_id }
     return false if gift.direction == 'both'
     gift_user_ids = gift.api_gifts.collect { |ag| ag.user_id_giver || ag.user_id_receiver }
     user_ids = login_user_ids & gift_user_ids

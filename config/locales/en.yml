@@ -558,6 +558,8 @@ en:
         accepted_proposal_giver_other_1_v1_to_msg: '%{givername} accepted %{receivername}-s bid on his/her offer "%{gifttext} ..."'
         accepted_proposal_receiver_1_v1_to_url: "/gifts/%{giftid}"
         accepted_proposal_receiver_1_v1_to_msg: '%{receivername} accepted your bid on his/her wish "%{gifttext} ..."'
+        deleted_account_v1_to_url: "/users/%{userid}?tab=balance"
+        deleted_account_v1_to_msg: "Your balance has been updated because %{username} has deleted his/hers %{appname} %{apiname} account and one or more of your deals with %{username} have been deleted."
 
   # user controller
   users:
