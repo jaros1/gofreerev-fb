@@ -770,5 +770,6 @@ en:
         deleted_user: "Could not accept proposal. Your user account is being deleted."
         comment_deleted: "Proposal has been deleted and can not be accepted. Please refresh page."
         not_allowed: "Sorry. It is no longer possible to accept proposal. Please refresh page."
+        invalid_updated_by: "System error. Dit not found any valid \"updated by\" users."
         ok: "Proposal has been accepted."
         exception: "System error. Could not accept proposal. %{error}. More information in server log."

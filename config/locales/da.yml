@@ -769,6 +769,7 @@ da:
         deleted_user: "Kan ikke godkende forslag. Din konto er ved at blive slettet."
         comment_deleted: "Kan ikke godkende forslag da forslaget er blevet slettet. Genopfrisk venligst siden."
         not_allowed: "Det er desværre ikke længere muligt at godkende forslag. Genopfrish venligst siden."
+        invalid_updated_by: "System fejl. Fandt ingen lovlige \"opdateret af\" brugere."
         ok: "Forslag er blevet godkendt."
         exception: "System fejl. Kunne ikke godkende forslag. %{error}. Mere information i server log."
 

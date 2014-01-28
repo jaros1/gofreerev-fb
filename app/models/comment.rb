@@ -328,7 +328,7 @@ class Comment < ActiveRecord::Base
       # new comment/proposal. api comment row has just been created for from_user
       api_comment = api_comments.find { |ac| ac.user_id == from_user.user_id }
     else
-      api_comment = api_comments.find { |ac| ac.provider == to_user.provider }
+      api_comment = api_comments.find { |ac| ac.provider == from_user.provider }
     end
 
     # todo: test if we always can find a api comment when sending notifications
@@ -613,7 +613,7 @@ class Comment < ActiveRecord::Base
     end
     # from_users & from_providers - sender of notification
     from_users = User.where('user_id in (?)', from_userids)
-    from_providers = from_users.collect { |u| u.provider }
+    from_providers = from_userids.collect { |u| u.split('/').last }
     # direction - noti_key_2 - part of translate key for notification
     case
       when gift.direction == 'both' then
@@ -626,20 +626,23 @@ class Comment < ActiveRecord::Base
         raise "system error: gift without giver or receiver"
     end
     # noti_key prefix - part 1 & 2 in notification message translate key
-    logger.debug2  "noti_key_1 = #{noti_key_1}, noti_key_2 = #{noti_key_2}"
+    logger.debug2 "noti_key_1 = #{noti_key_1}, noti_key_2 = #{noti_key_2}"
     noti_key_prefix = NOTI_KEY_1[noti_key_1] + '_' + NOTI_KEY_2[noti_key_2]
-    logger.debug2  "noti_key_prefix = #{noti_key_prefix}" if debug_notifications
+    logger.debug2 "noti_key_prefix = #{noti_key_prefix}" if debug_notifications
+    logger.debug2 "from_users = #{User.debug_info(from_users)}"
+    logger.debug2 "from_providers = #{from_providers.join(', ')}"
     # initialise helpers - arrays with giver user_id's, receiver user_id's and both
-
-    # todo: should only be givers and receivers with correct provider
-
+    # todo: drop dummy_user? check - dummy users are added in after_update callback
     gift_givers = gift.api_gifts.
-        find_all { |ag| ag.giver and !ag.giver.dummy_user? }.
+        find_all { |ag| ag.giver and !ag.giver.dummy_user? and from_providers.index(ag.provider) }.
         collect { |api_gift| api_gift.user_id_giver }
     gift_receivers = gift.api_gifts.
-        find_all { |ag| ag.receiver and !ag.receiver.dummy_user? }.
+        find_all { |ag| ag.receiver and !ag.receiver.dummy_user? and from_providers.index(ag.provider) }.
         collect { |api_gift| api_gift.user_id_receiver }
-    gifts_giver_and_receivers = gift_givers + gift_receivers
+    gift_giver_and_receivers = gift_givers + gift_receivers
+    logger.debug2 "gift_givers = #{gift_givers.join(', ')}"
+    logger.debug2 "gift_receivers = #{gift_receivers.join(', ')}"
+    logger.debug2 "gifts_giver_and_receivers = #{gift_giver_and_receivers.join(', ')}"
 
     gift_givers_shared = gift_givers.find_all { |user_id| from_providers.index(user_id.split('/').last) }
     gift_receivers_shared = gift_receivers.find_all { |user_id| from_providers.index(user_id.split('/').last) }
@@ -654,7 +657,7 @@ class Comment < ActiveRecord::Base
         #    - that is api_comments.user's for 1/2 new comment/proposal
         #    - that is updated_by user's for 5 accept proposal
         logger.debug2  "1: send notifications to gifts giver and/or receiver" if debug_notifications
-        users1_ids = gifts_giver_and_receivers - from_userids
+        users1_ids = gift_giver_and_receivers - from_userids
         if users1_ids.size == 0
           users1 = []
         else
@@ -698,8 +701,8 @@ class Comment < ActiveRecord::Base
         # users2 = gift.comments.includes(:user).collect { |c| c.user }.find_all { |user2| ![from_userid, to_user_id, gift.user_id_giver, gift.user_id_receiver].index(user2.user_id) }.uniq
         logger.error2 "2: from_userids is invalid. Expected Array. Found #{from_userids.class}" unless from_userids.class == Array
         logger.error2 "2: to_userids is invalid. Expected Array. Found #{to_userids.class}" unless to_userids.class == Array
-        logger.error2 "2: gifts_giver_and_receivers is invalid. Expected Array. Found #{gifts_giver_and_receivers.class}" unless gifts_giver_and_receivers.class == Array
-        exclude_user_ids = from_userids + to_userids + gifts_giver_and_receivers
+        logger.error2 "2: gifts_giver_and_receivers is invalid. Expected Array. Found #{gift_giver_and_receivers.class}" unless gift_giver_and_receivers.class == Array
+        exclude_user_ids = from_userids + to_userids + gift_giver_and_receivers
         logger.debug2 "2: exclude_user_ids = #{exclude_user_ids.join(', ')}"
         users2 = gift.api_comments.includes(:user).collect { |c| c.user }.find_all { |user2| !exclude_user_ids.index(user2.user_id) }.uniq
         users2_ids = users2.collect { |u| u.user_id }
@@ -741,7 +744,7 @@ class Comment < ActiveRecord::Base
         # new comment and new proposal - add user as follower of gift - user will receive notifications until user stops following the gift
         if noti_key_1 <= 2
           # check for new user_id's - ignore giver and receiver user_id's
-          (api_comments.collect { |ac| ac.user_id} - gifts_giver_and_receivers).each do |user_id|
+          (api_comments.collect { |ac| ac.user_id} - gift_giver_and_receivers).each do |user_id|
             gl = GiftLike.where("user_id = ? and gift_id = ?", user_id, gift.gift_id).first
             if gl
               gl.follow = 'Y' unless gl.follow
@@ -768,7 +771,7 @@ class Comment < ActiveRecord::Base
         # after_create: gift_givers    = 100006399422155/facebook, 109316109373670614208/google_oauth2, 2179784783/twitter
         # after_create: gift_receivers =
         # after_create: from_userids   = 117657151428689087350/google_oauth2, 100006351370003/facebook
-        users1_ids_tmp = gifts_giver_and_receivers - from_userids
+        users1_ids_tmp = gift_giver_and_receivers - from_userids
         logger.debug2 "users1_ids_tmp/a = #{users1_ids_tmp.join(', ')}"
         users1_ids_tmp = users1_ids_tmp.find_all { |user_id| from_providers.index(user_id.split('/').last) }
         logger.debug2 "users1_ids_tmp/b = #{users1_ids_tmp.join(', ')}"
@@ -803,10 +806,11 @@ class Comment < ActiveRecord::Base
       if accepted_yn == 'Y'
         # accepted proposal - update gift (price, received_at etc) and api_gifts (giver or receivers)
         # copy users from api_comment to api_gifts. Insert dummy user for providers with no match
-        gift.reload
+        # provider must by in from gift.updated_by (see validation in util.accept_deal)
+        accepted_by_providers = updated_by.split(',').collect { |userid2| userid2.split('/').last }
         providers_hash = {}
         api_comments.each do |ac|
-          providers_hash[ac.provider] = ac.user_id
+          providers_hash[ac.provider] = ac.user_id if accepted_by_providers.index(ac.provider)
         end
         gift.api_gifts.each do |ag|
           user_id_accept = providers_hash[ag.provider] || "gofreerev/#{ag.provider}"

@@ -30,7 +30,12 @@ class UtilController < ApplicationController
       g.destroy!
       logger.debug2 "after destroy gift id #{g.id}"
       Gift.check_gift_and_api_gift_rel
-
+    end
+    # cleanup delete marked users - only write messages to log
+    User.where('deleted_at is not null and deleted_at < ?', 6.minutes.ago).each do |u|
+      logger.debug2 "Physical delete user with id #{u.id}"
+      key, options = User.delete_user(u)
+      logger.debug2 t("users.destroy#{key}", options) if key
     end
     # get params
     old_newest_gift_id = params[:newest_gift_id].to_i
@@ -769,10 +774,42 @@ class UtilController < ApplicationController
       end
       # accept agreement proposal - mark proposal as accepted - callbacks sent notifications and updates gift
       # logger.debug2  "comment.currency = #{comment.currency}"
-      comment.accepted_yn = 'Y'
-      comment.updated_by = login_user_ids.join(',')
-      comment.save!
+      # find correct updated_by users
+      # 1) user_id must be in api_gifts
+      # 2) user_id must be in @users
+      # 3) provider must be in api comments
+      api_comment_providers = comment.api_comments.collect { |ac| ac.provider }
+      updated_by = []
       gift = comment.gift
+      api_gift = nil
+      gift.api_gifts.each do |ag|
+        user_id = ag.user_id_giver || ag.user_id_receiver
+        if !login_user_ids.index(user_id)
+          # logger.debug2 "ignoring user_id #{user_id} - not logged in"
+          nil # ignore api gift row not created by login users
+        elsif !api_comment_providers.index(ag.provider)
+          # logger.debug2 "ingoring user_id #{user_id} - no new proposal for this provider"
+          nil # ignore api gift rows without new proposal from other user
+        else
+          # ok - match between gift creator, current logged in user and new deal proposal provider
+          # logger.debug2 "found valid updated_by user_id #{user_id}"
+          updated_by << user_id
+          api_gift = ag
+        end
+      end
+      if updated_by.size == 0
+        # system error - should have been rejected in check_new_deal_action('accept')
+        logger.error2 "Could not find valid updated_by user ids. gift id #{gift.id}, comment id #{comment.id}"
+        logger.error2 "gift created by " + gift.api_gifts.collect { |ag| ag.user_id_giver || ag.user_id_receiver }.join(', ')
+        logger.error2 "logged in users " + @users.collect { |u| u.user_id }.join(', ')
+        logger.error2 "new deal providers " + api_comment_providers.join(', ')
+        @errors2 << { :msg => t('.invalid_updated_by'), :id => table_id }
+        return
+      end
+      comment.accepted_yn = 'Y'
+      comment.updated_by = updated_by.join(',')
+      comment.save!
+      gift.reload
       if gift.price and gift.price != 0.0
         # create social didivend and recalculate new balance for giver and receiver
         gift.reload
@@ -787,14 +824,8 @@ class UtilController < ApplicationController
       # that is without @new_messages_count, @comments, only with this accepted gift and without new values for new-newest-gift-id andnew-newest-status-update-at
       # only client insert_update_gifts JS function is called
       # next new_mesage_count request will ajax replace this gift once more, but that is a minor problem
-      gift.reload
-      @api_gifts = [gift]
-      # todo: drop this? always a JS request!
-      respond_to do |format|
-        format.html {}
-        format.json { render json: @comment, status: :created, location: @comment }
-        format.js {}
-      end
+      api_gift.reload
+      @api_gifts = [api_gift]
     rescue Exception => e
       @errors2 << { :msg => t('.exception', :error => e.message.to_s, :raise => I18n::MissingTranslationData),
                     :id => table_id }
