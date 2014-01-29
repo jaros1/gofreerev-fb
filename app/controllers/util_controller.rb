@@ -930,9 +930,9 @@ class UtilController < ApplicationController
   def get_user_friends_and_token(provider)
     logger.debug2  "provider = #{provider}"
     # get user and token
-    friends_hash = nil
+    friends_hash = new_user = nil
     login_user, token, key, options = get_login_user_and_token(provider)
-    return [login_user, friends_hash, token, key, options] if key
+    return [login_user, friends_hash, token, new_user, key, options] if key
     login_user_id = login_user.user_id
     # initialize hash with old friends
     old_friends_list = Friend.where('user_id_giver = ?', login_user_id).includes(:friend)
@@ -950,8 +950,9 @@ class UtilController < ApplicationController
                                      :new_api_friend => 'N',
                                      :new_record => false}
     end
+    new_user = friends_hash.size == 1
     # ok
-    return [login_user, friends_hash, token]
+    return [login_user, friends_hash, token, new_user]
   end # get_user_friends_and_token
 
 
@@ -989,7 +990,7 @@ class UtilController < ApplicationController
     begin
       # get facebook user, friends and api token
       provider = "facebook"
-      login_user, friends_hash, token, key, options = get_user_friends_and_token(provider)
+      login_user, friends_hash, token, new_user, key, options = get_user_friends_and_token(provider)
       return [key, options] if key
       login_user_id = login_user.user_id
 
@@ -1063,6 +1064,9 @@ class UtilController < ApplicationController
       logger.debug2 "image = #{image}"
       key, options = User.update_profile_image(login_user_id, image)
       return [key, options] if key # error when updating profile picture information
+      
+      # special post login message to new users
+      return ['.post_login_new_user', login_user.app_and_apiname_hash ]if new_user
 
       # ok
       nil
@@ -1083,7 +1087,7 @@ class UtilController < ApplicationController
     begin
       # get google user, friends and api token
       provider = "google_oauth2"
-      login_user, friends_hash, token, key, options = get_user_friends_and_token(provider)
+      login_user, friends_hash, token, new_user, key, options = get_user_friends_and_token(provider)
       return [key, options] if key
       login_user_id = login_user.user_id
 
@@ -1184,6 +1188,9 @@ class UtilController < ApplicationController
       # 3) update balance
       login_user.recalculate_balance if login_user.balance_at != Date.today
 
+      # special post login message to new users
+      return ['.post_login_new_user', login_user.app_and_apiname_hash ]if new_user
+
       # ok
       nil
     rescue Exception => e
@@ -1205,7 +1212,7 @@ class UtilController < ApplicationController
 
       # get linkedin user, friends and api token
       provider = "linkedin"
-      login_user, friends_hash, token, key, options = get_user_friends_and_token(provider)
+      login_user, friends_hash, token, new_user, key, options = get_user_friends_and_token(provider)
       return [key, options] if key
       login_user_id = login_user.user_id
 
@@ -1278,6 +1285,9 @@ class UtilController < ApplicationController
       # 3) update balance
       login_user.recalculate_balance if login_user.balance_at != Date.today
 
+      # special post login message to new users
+      return ['.post_login_new_user', login_user.app_and_apiname_hash ]if new_user
+
       # ok
       nil
 
@@ -1299,7 +1309,7 @@ class UtilController < ApplicationController
 
       # get twitter user, friends and api token
       provider = "twitter"
-      login_user, friends_hash, token, key, options = get_user_friends_and_token(provider)
+      login_user, friends_hash, token, new_user, key, options = get_user_friends_and_token(provider)
       return [key, options] if key
       login_user_id = login_user.user_id
 
@@ -1358,6 +1368,9 @@ class UtilController < ApplicationController
 
       # 3) update balance
       login_user.recalculate_balance if login_user.balance_at != Date.today
+
+      # special post login message to new users
+      return ['.post_login_new_user', login_user.app_and_apiname_hash ]if new_user
 
       # ok
       nil

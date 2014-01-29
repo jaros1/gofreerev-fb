@@ -33,59 +33,43 @@
     don't send any more notifications if user has not been connected for 28 days
     check out facebook, linkedin & twitter notification possibilities
 
- 5) close account and delete all data in app
-    account - recalculate all relevant user balances (closed deals)
-    notification to users with changed balance?
+ 5) add accept conditions for new users?
 
- 6) One balance for user with more than one login api.
-    user must select "Share balance" in users/show screen to set user.user_combination
-    recalculate balance will calculate one shared balance
-    no other information is shared access login api's
-
- 7) add accept conditions for new users?
-
- 8) make script to compare language files (en, da etc). Find missing keys
+ 6) make script to compare language files (en, da etc). Find missing keys
     check out https://github.com/tigrish/i18n-spec
     could be used to verify that all keys exists
 
- 9) recalculate user balance at request or once every day
+ 7) recalculate user balance at request or once every day
 
-10) user.recalculate_balance recalculates balance for all closed deals with user as giver or receiver.
+ 8) user.recalculate_balance recalculates balance for all closed deals with user as giver or receiver.
     ok when few closed deals for a user, but can be a performance issue with many closed deals for a user.
     allow recalculating balance from a specific date or from a specific gift.id
     should only recalculate balance from last closed deal
 
-11) batch processing:
+ 9) batch processing:
     accept new deal - set new_balance_at = yesterday - for both users - user is marked for recalculate balance (ok)
     batch processing - recalculate balance for all users where new_balance_at != today (todo)
 
-12) check texts in views/fb/create.html.erb and create_da_html.erb
+10) check texts in views/fb/create.html.erb and create_da_html.erb
 
-13) show a more informative page when not logged in
+11) show a more informative page when not logged in
     ensure that all not logged users is rendered to same page (auth/index)
     this page is also index by search engines and should be informative
     maybe the same texts as in /fb/create.html.erb and create_da_html.erb pages
 
-14) check todo's in source
+12) check todo's in source
 
-15) add language to url (ok)
+13) add language to url (ok)
     use url helpers in views so that locale is included in all links
-    allow users to select language in app
-    share is a minor problem with double language /en/en/ in url for restful controllers
+    there is a minor problem with double language /en/en/ in url for restful controllers
 
-16) difference between facegook & linkedin friends and google+ & twitter friends
+14) difference between facegook & linkedin friends and google+ & twitter friends
     facebook & linkedin friends are mutual friends
     google+ and twitter friends are not mutual friends
     added constant hash API_MUTUAL_FRIENDS with true/false for each login provider
     how to handle not mutual friends in gofreerev? (google+ and twitter)
 
-17) invite friends to user gofreerev.
-    facebook (ok) - todo: retest
-    google+ (todo) -
-    linkedin (todo)
-    twitter (todo)
-
-18) delete api_gifts and gifts with temp picture urls - that is picture on server
+15) delete api_gifts and gifts with temp picture urls - that is picture on server
     normally temp pictures will be removed in util.delete_local_picture, but errors can occur
     should be a job for util.new_messages_count or util.missing_api_picture_urls
     process could be:
@@ -95,45 +79,34 @@
     3/1-2014: temp folder was empty in laptop dev. environment
     19/1-2014: 3 pictures found in temp folder in laptop dev. environment
 
-19) accept deal: must add giver/receiver for all api gift rows
-    gift created by user a logged with 3 api providers
-    gift accepted by user b logged in with 2 api providers.
-    how to set user_id_giver / user_id_receiver for the last api_gift?
-    match login users with comment user
-    check user_combination for comment user to test if other user also uses multiple logins
-    map api gifts provider for provider (login users <=> comment users)
-    use dummy user "gofreerev/<provider>" if no provider match between login user(s) and comment user(s)
+16) find some way to combine or group "identical" notifications in inbox/index page
 
-20) where to send notifications for a user with multiple logins?
-    solution. one notification for each provider.
-    Maybe find some way to combine "identical" notifications in inbox/index page
-
-21) stress test. make a db with really many rows and test performance.
+17) stress test. make a db with really many rows and test performance.
     There maybe are missing an index or two
     there maybe are some sql to rewrite
 
-22) some problems in user.recalculate balance after splitting gifts in gifts and api_gifts
+18) some problems in user.recalculate balance after splitting gifts in gifts and api_gifts
     check /auth/facebook and post_login error for price
 
-23) twitter returns to  127.0.0.1 - not to localhost
+19) twitter returns to  127.0.0.1 - not to localhost
     127.0.0.1 should redirect to localhost
     or change app setup on twitter
 
-24) check session variables
+20) check session variables
     session variables should only be used from accessor methods in app. controller
     gives a better overview and an easier to maintain code
 
-25) tests - needs new users.yml file - encryption now is with old userids
+21) tests - needs new users.yml file - encryption now is with old userids
 
-26) wrong flash message if user cancel request for read_stream permission
+22) wrong flash message if user cancel request for read_stream permission
     looks like success response from facebook to facebook controller,
     but read_stream priv has not been granted.
     must double check permissions after returning from facebook priv. request page
     or old/new facebook priv. could be checked in post_login_facebook with ajax messages
 
-27) deep link - return nice error page if deep link has been removed
+23) deep link - return nice error page if deep link has been removed
 
-28) test case:
+24) test case:
     create deal [ a.provider1, a.provider2] as giver, [ b.provider1, b.provider2 ] as receiver, price > 0
     login as a.provider1 and b.provider2
     problem with user/show balance. logged users are giver and receiver at the same time
@@ -142,95 +115,77 @@
     check code with login_user_ids.index(ag.user_id_giver)
     check code with api_gift = api_gifts.find { |ag| [ ag.user_id_giver, ag.user_id_receiver].index(???)
 
-29) generalize invite_friends_url
+25) generalize invite_friends_url
+    invite friends to user gofreerev.
+    facebook (ok)
+    google+ (todo) -
+    linkedin (todo)
+    twitter (todo)
 
-30) find optimal image format for each provider. For API_OG_DEF_IMAGE hash
+26) find optimal image format for each provider. For API_OG_DEF_IMAGE hash
     facebook: todo
     google+: todo
     linkedin: 180 x 110 (done)
     twitter: todo
     must be tested from an public available server (dev1.gofreerev.com)
 
-31) users/show user2=login_user
-    add link/button to set/remove user_combination for logged in users
-
-32) users/edit is not implemented
-    maybe use user/show and ajax for minor updates (post_on_wall_yn and set/clear user_combination)
-
-33) add mysql development environment on localhost.
+27) add mysql development environment on localhost.
     there are some select statements that are not working in mysql
     maybe is only was problem with "" around table names!
 
-34) dev1 - first post for a new day takes long time to complete
-    suspect exchange rate lookup
-    don't know if I was waiting for process or waiting for apache to start a new instance of rails
-    post ok, but new gift fields was first cleared after 5-10 seconds when response came from post_on_facebook task
-    increased sleep period before submitting do_tasks from 100 to 200 milliseconds (gifts/create.js.erb)
-
-36) insert "?" picture in /user div/ temporary real profile picture has been downloaded from API
+28) insert "?" picture in /user div/ temporary real profile picture has been downloaded from API
     there is a minor profile picture problem first time when a new gofreerev user logs in
 
-37) problem after show-more-rows error
+29) problem after show-more-rows error
     javascript variable end_of_page is set to true and is never changed back to false
     share link does not set end_of_page variable back to false
     /gifts/index does set end_of_page back to true
     maybe use document.ready to set end_of_page to false when user clicks on share link i page header
     google a solution
 
-38) users/show page - login_user = friend
-    maybe use add gofreerev friend button to set user_combination across login api's
-
-39) add api friend
+30) remove api friend:
     - facebook: link to profile
     - linkedin: todo
     - google+: todo
     - twitter: todo
 
-40) remove api friend:
-    - facebook: link to profile
-    - linkedin: todo
-    - google+: todo
-    - twitter: todo
+31) check notifications and change notification test cases to support multiple logins
 
-41) check notifications and change notification test cases to support multiple logins
-
-42) check app on windows 8.1 / IE
+32) check app on windows 8.1 / IE
     maybe it is possible to run older IE versions under windows 8.1?
-    expects that some javascript does not work with IE
+    expects some javascript errors under IE
 
-43) better github page
+33) better github page
+    check how to add wiki pages
 
-44) links on app setup pages to github page (wiki, report bugs etc)
+34) links on app setup pages to github page (wiki, report bugs etc)
+    check app setup for facebook, google+, linkedin and twitter
 
-45) post on linkedin from localhost
+35) post on linkedin from localhost
     can not upload picture with localhost url to linkedin
     add a special error message for this case?
 
-46) invalid deep link requests
+36) invalid deep link requests
     should display an error page
     must not redirect for not logged in users
 
-47) find ip-adr for login providers
-    dev1 should only be open for login providers and testers
-    not for public
-
-48) add server site cleanup for api_gifts with temp url
+37) add server site cleanup for api_gifts with temp url
     created in gifts/create - removed in util.delete_local_picture after post_on_<provider> tasks
 
-49) profile picture store = :api.
+38) profile picture store = :api.
     should display no-picture.jpg if user profile picture was not found
 
-50) check if user div onclick events could be handled on a higher level - for example on document
+39) check if user div onclick events could be handled on a higher level - for example on document
     can not use user_id in id. user divs are repeated many times for each user.
     use data-id attribute for user.id
 
-51) link from post on gofreerev to post on facebook. api_gift.api_gift_id => url
+40) link from post on gofreerev to post on facebook. api_gift.api_gift_id => url
     but only if FB friend
 
-52) link from post on gofreerev to post on linkedin. updateUrl
+41) link from post on gofreerev to post on linkedin. updateUrl
     but only if LinkedIn connection
 
-53) facebook and open graph
+42) facebook and open graph
     - replace api_client.put_picture and api_client.put_connections with something else to add open graph tags?
     - facebook object api: https://developers.facebook.com/docs/opengraph/using-object-api/
     - koala with og.likes:
@@ -239,55 +194,55 @@
       can be used, but requires :local gift picture store and activity is  only shown in activity log / not on wall
     - facebook object debugger: https://developers.facebook.com/tools/debug/
 
-54) check response from FastImage.type(gift_file.path) if site is temporary unavailable
+43) check response from FastImage.type(gift_file.path) if site is temporary unavailable
     should not error mark pictures if a api picture server is temporary out of service
     FastImage.type returns nil if server is temporary unavailable
     Must combine FastImage = nil with a http get page notfound check
     http://stackoverflow.com/questions/2695020/how-can-i-use-ruby-to-check-if-a-domain-exists
 
-55) found class wrapword in source - used in api_gift.html.erb - could be a workaround for response web pages with small width
+44) found class wrapword in source - used in api_gift.html.erb - could be a workaround for response web pages with small width
 
-56) user/show: add provider filter if logged in with more when one provider
+45) user/show: add provider filter if logged in with more when one provider
 
-57) add share icons to api_gift (one icon for each api provider)
+46) add share icons to api_gift (one icon for each api provider)
     share with a deep link
     allow all to share og allow only creator to share?
     http://jquery-plugins.net/tag/social-share-button
 
-58) inject text into picture
+47) inject text into picture
     most relevant for twitter where description is truncated to about 70 characters to include deep link
     but could be an option for all login providers
     for example a merge text and picture checkbox when posting new gift
     could be relevant for other login providers where text overlay in pictures is being used
 
-59) my.js - split gift-action-link ajax handler in one for each gift action?
+48) my.js - split gift-action-link ajax handler in one for each gift action?
     should use translated error messages in js error messages
     or use url information to customize ajax:error messages
 
-60) my.js - split comment-action-link ajax handler in one for each comment action?
+49) my.js - split comment-action-link ajax handler in one for each comment action?
     should use translated error messages in js error messages
     or use url information to customize ajax:error messages
 
-61) deal proposal and changed friend relations
+50) deal proposal and changed friend relations
     cancel deal proposal when friends are removed
     could be remove friends in users/index page
     could be changed api friend relation in post login task
 
-62) jquery. url from xhr object is used to find html element that triggered the ajax event
+51) jquery. url from xhr object is used to find html element that triggered the ajax event
     for example to setup tables for ajax error messages within gifts/index page
-    it could be nice if jquery has information about html element that started the ajax request
-    $(classname).bind('click', funciton ... - find id for html element with classname with triggered this bind handler
+    it could be nice if jquery has information about the html element that started the ajax request
+    $(classname).bind('click', function ... - find id for html element with classname with triggered this bind handler
 
-63) new gift.status_update_at after new comments?
+52) new gift.status_update_at after new comments?
     In that way updated gifts will be at top of page and will be ajax injected to top of page
     how to keep actual user view point when ajax injecting new rows in top of page?
 
-65) check if notification cleanup still is running. Find 68 notifications for 3 login users.
+53) check if notification cleanup still is running. Find 68 notifications for 3 login users.
 
-66) edit user options
+54) edit user options
     - cross provider balance y/n checkbox
 
-69) a number of "invalid" inbox notification keys. Could be missing keys. Could be wrong notifications
+55) a number of "invalid" inbox notification keys. Could be missing keys. Could be wrong notifications
 
     missing translate key. key .accepted_proposal_giver_follow_2_v1_to_url, noti.id 542,
     options {:giftid=>"894", :gifttext=>"x", :no_users=>"2", :no_other_users=>"0", :username1=>"Gofreerev A", :username2=>"Jan R", :username3=>"", :givername=>"Gofreerev A", :receivername=>""},
@@ -391,31 +346,49 @@
     options {:giftid=>"253", :gifttext=>"Cykel", :no_users=>"0", :no_other_users=>"-2", :username1=>"", :username2=>"", :username3=>"", :givername=>"Charlie S", :receivername=>"Karen S"},
     error translation missing: en.inbox.index.accepted_proposal_giver_1_v1_from_msg
 
-71) add deleted_at to api_gift and api_comment for partial delete of gift and comment
+56) add deleted_at to api_gift and api_comment for partial delete of gift and comment
     ( gift and comment created with multi provider login )
 
-72) change User.api_gifts to include api_gifts,deleted_at information.
+57) change User.api_gifts to include api_gifts,deleted_at information.
     that is - ajax remove gift from gifts/index page
 
-73) change util/new_messages_count to include delete marked api comments
+58) change util/new_messages_count to include delete marked api comments
     that is - ajax remove comment from gifts/index page
 
-75) no language in inbox urls. Should keep current language code in all links
+59) no language in inbox urls. Should keep current language code in all links
 
-76) delete account notifications.
+60) delete account notifications.
     add some more information
     - number of deals
     - sum prices for deleted deals
 
-77) accept deal in gifts/show does not work 100%
+61) accept deal in gifts/show does not work 100%
     deal is accepted but gift is removed from gifts/show without being ajax replaced with closed deal
 
-78) add language LOV to page header if width > xxx
+62) add language LOV to page header if width > xxx
 
-79) edit/user share balance
+63) edit/user share balance
 
-80) performance problem in users/index page - 12 seconds for 10 rows at dev1 / my FB account
+64) performance problem in users/index page - 12 seconds for 10 rows at dev1 / my FB account
 
-81) can not change currency to USD: Currency was not changed. No currency rates was found
+65) can not change currency to USD: Currency was not changed. No currency rates was found
 
-82) refactor #user_currency_new and #user_currency_new2 handlers into one class based event handler
+66) refactor #user_currency_new and #user_currency_new2 handlers into one class based event handler
+
+67) "false" ajax:error message if user clicks in a link before ajax request has finished.
+    something like ajax:error - more information in server log - server log is ok
+    maybe cancel ajax requests or ignore ajax:error message when changing page
+    check if there is an "before leave page" event
+
+68) add special post_login_<xxx> messages for first time visitters
+    flash: is now downloading information of your friends. You will could see your friends within gofreerev in a few moments.
+    ajax after post_login: added friends information for <n> friends. Please refresh page or gå to friends page to manage your friends.
+
+69) add profile picture for a new user in auth, facebook and linkedin controllers to prevent blank profile picture after login
+
+70) ajax comment inject does not work in IE. No error messages in IE. Must write some more information to debug log.
+
+71) security warning in IE. img url is http, page is https
+    created when site_url was http.
+    is not showed in https page
+    use relative path for locale pictures

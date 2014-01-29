@@ -124,6 +124,7 @@ en:
         profile_image_cp2_failed: "System error. Could not insert new profile picture received from %{provider}: \"%{error}\""
         post_login_user_id_not_found: "Warning. Did not find user id. Could not get friend list from %{provider}"
         post_login_token_not_found: "Warning. Did not find access token. Could not get friend list from %{provider}"
+        post_login_new_user: "Your friend list is ready. Please refresh page to see any posts from your friends."
         google_access_not_configured: "Error when fetching friend list from Google+ API. Access Not Configured. Check list: 1) Status is ON for Google+ API in Google Cloud Console"
         google_insufficient_permission: "Error when fetching friend list from Google+ API. API. Insufficient Permission. Check list: 1) scope plus.login maybe is missing in provider setup for google+"
         google_other_errors: "Error when fetching friend list from Google+ API. \"%{error}\""
@@ -183,6 +184,7 @@ en:
         callback_user_name_missing: "Login failed. Did not receive username from %{provider}"
         find_or_create_from_auth_hash: "System error. Invalid response from user update after login"
         login_ok: "%{apiname} log in ok."
+        login_ok_new_user: "%{apiname} log in ok. Welcome to %{appname}. Your friends list is being downloaded and will be ready for use in a few moments."
      index:
         visit_th: "Visit API"
         visit_title: "Go to %{apiname} without logging in / out. Opens in a new browser tab. Note that %{appname} will still be open in this tab. Remember to log out when out are finish using %{appname}."
@@ -691,9 +693,11 @@ en:
         access_prompt: "Access"
         delete_account_title: "Delete all downloaded and entered data for your %{appname} %{apiname} account. May take a while if the case of lot of information and posts. It is only your data at %{appname} that will be deleted. Any post that %{appname} has made on your %{apiname} wall will not be deleted. Go to %{apiname} and remove %{appname} from list of apps when data has been deleted. Thank you for visiting %{appname}."
         delete_account_prompt: "Delete account"
+        delete_account_link_text: "delete"
+        delete_account_link_confirm: "Delete account! All your posts, comments and downloaded information in %{appname} will be deleted. Continue?"
      destroy:
         invalid_request: "Invalid request. Could not delete user account."
-        ok1_html: "Your data for your %{apiname} account here at %{appname} is being deleted. Account will be deleted within the next 5-10 minutes. Thank you for visiting %{appname}. Use <a href=\"%{url}\">link</a> to remove %{appname} access at %{apiname}."
+        ok1_html: "Your data for your %{apiname} account here at %{appname} is being deleted. Account will be deleted within the next 5-10 minutes. Thank you for visiting %{appname}. Use <a href=\"%{url}\">link</a> to remove %{appname} from your app settings on %{apiname}."
         ok2_html: "Your data for your %{apiname} account here at %{appname} is being deleted. Account will be deleted within the next 5-10 minutes. Note that you are logged in with multiple login providers and you may want to repeat \"Delete account\" for your other %{appname} accounts. Thank you for visiting %{appname}. Use <a href=\"%{url}\">link</a> to remove %{appname} access at %{apiname}."
         pending_html: "Your data for your %{apiname} account here at %{appname} is being deleted. Please wait. Use <a href=\"%{url}\">link</a> to remove %{appname} access at %{apiname}."
         completed_html: "Your data for your %{apiname} account here at %{appname} has been deleted. You are no longer logged in to %{appname} with your %{apiname} account. Use <a href=\"%{url}\">link</a> to remove %{appname} access at %{apiname}."

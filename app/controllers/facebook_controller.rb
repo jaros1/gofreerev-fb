@@ -164,6 +164,10 @@ class FacebookController < ApplicationController
         user.permissions = permissions
         user.save!
       end
+      if context == 'login'
+        no_friends = user.friends.size-1
+        context = 'login_new_user' if no_friends == 0
+      end
       save_flash ".ok_#{context}", user.app_and_apiname_hash
       redirect_to :controller => :gifts
     else

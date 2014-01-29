@@ -60,7 +60,14 @@ class AuthController < ApplicationController
                 :profile_url => auth_hash.get_profile_url
     if !res
       # login ok
-      save_flash '.login_ok', :apiname => provider_camelize(provider)
+      user_id = login_user_ids.find { |userid2| userid2.split('/').last == provider }
+      user = User.find_by_user_id(user_id)
+      no_friends = user.friends.size-1
+      if no_friends == 0
+        save_flash '.login_ok_new_user', @user.app_and_apiname_hash
+      else
+        save_flash '.login_ok', @user.app_and_apiname_hash
+      end
       redirect_to :controller => :gifts, :action => :index
     else
       # login failed

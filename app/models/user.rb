@@ -345,7 +345,7 @@ class User < ActiveRecord::Base
     # todo: should escape username - ERB::Util.html_escape(user_name) does not work from activemodel
     return '.callback_user_name_missing_google' if user_name == "" and provider.first(6) == 'google'
     return ['.callback_user_name_missing',  { :provider => provider } ] if user_name == ""
-    # missing profile image is a minor problem - only check here - profile image information is updated in a post login task
+    # missing profile image is a minor problem - only check here - profile image information is normally updated in a post login task
     # facebook: profile image from omniauth login is not used (wrong dimensions) -
     #           profile image from koala request in post_login_facebook is used
     image = options[:image].to_s
@@ -417,6 +417,7 @@ class User < ActiveRecord::Base
       user.balance = { BALANCE_KEY => 0.0 }
       user.balance_at = Date.parse(Sequence.get_last_exchange_rate_date)
       user.post_on_wall_yn = API_POST_PERMITTED[provider] ? 'Y' : 'N'
+      user.api_profile_picture_url = image # temporary set image for new user - will be replaced in post_login_<providfer>
     end # outer if
     user.save!
     # check/add dummy friend row for user (user_id_giver == user_id_receiver)

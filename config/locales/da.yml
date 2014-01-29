@@ -117,6 +117,7 @@ da:
         too_few_exchange_rates: "Advarsel. Opslag af dagens valuta kurser fra %{bank} fejlede. Forventede >= %{expected} kurser. Modtag %{found} kurser"
         post_login_user_id_not_found: "Advarsel. Fandt ikke bruger id. Kunne ikke hente venneliste fra %{provider}"
         post_login_token_not_found: "Advarsel. Fandt ikke adgangs \"billet\". Kunne ikke hente venneliste fra %{provider}"
+        post_login_new_user: "Din venneliste er klar til brug. Genopfrisk siden så du kan se eventuelle opslag fra dine venner."
         google_access_not_configured: "Fejl ved hentning af venneliste fra Google+ API. Access Not Configured. Tjek liste ved API opsætning: 1) Tjek log for mere information, 2) At application_name og application_version sættes når Google::APIClient initialiseres, 3) Status er ON for Google+ API i Google Cloud Console"
         google_insufficient_permission: "Fejl ved hentning af venneliste fra Google+ API. Insufficient Permission. Tjek liste ved API opsætning: 1) scope plus.login mangler i provider opsætning for google"
         google_other_errors: "Fejl ved hentning af venneliste fra Google+ API. \"%{error}\""
@@ -176,6 +177,7 @@ da:
         callback_user_name_missing: "Login fejlede. Modtag ikke brugernavn fra %{provider}"
         find_or_create_from_auth_hash: "System fejl. Ugyldigt svar fra bruger opdatering efter login."
         login_ok: "%{apiname} log ind ok."
+        login_ok_new_user: "%{apiname} log ind ok. Velkommen til %{appname}. Din venneliste er ved at blive hentet og vil være klar til brug lige om lidt."
      index:
         visit_th: "Besøg"
         visit_title: "Gå til %{apiname} uden at logge ind / ud. Link åbnes i et nyt faneblad i din browser. Bemærk at %{appname} stadigvæk vil være åben i dette faneblad. Husk at logge ud når du er færdig med at bruge %{appname}."
@@ -219,6 +221,7 @@ da:
         user_denied_read_stream: "%{appname} fik ikke tilladelse til at læse opslag på din facebook væg."
         user_denied_other: "Systemfejl. Ukendt facebook anmodning blev afvist."
         ok_login: "Facebook login ok."
+        ok_login_new_user: "Facebook login ok. Velkommen til %{appname}. Din venneliste er ved at blive hentet og vil være klar til brug lige om lidt."
         ok_status_update: "%{appname} fik tilladelse til at lave opslag på din %{apiname} væg."
         ok_read_stream: "%{appname} fik tilladelse til at læse opslag på din %{apiname} væg."
         ok_other: "Ukendt facebook anmodning ok."
@@ -690,6 +693,8 @@ da:
         access_prompt: "Adgang"
         delete_account_title: "Slet alle downloadede og indtastede oplysninger for din %{apiname} konto hos %{appname}. Kan tage et stykke tid hvis det drejer sig om mange oplysninger og opslag. Det er kun dine data hos %{appname} der vil blive slettet. Evt. opslag som %{appname} har lavet på din %{apiname} væg vil ikke blive slettet. Når sletning er færdig bør du gå til %{apiname} og fjern %{appname} fra listen over tilladte apps. Tak for besøget."
         delete_account_prompt: "Slet konto"
+        delete_account_link_text: "slet"
+        delete_account_link_confirm: "Slet konto! Alle dine opslag, kommentarer og downloadede oplysninger i %{appname} vil blive slettet. Fortsæt?"
      destroy:
         invalid_request: "Ugyldigt kald. Kunne ikke slette konto."
         ok1_html: "Dine data for din %{apiname} konto her hos %{appname} er ved at blive slettet. Sletning vil ske indenfor de næste 5-10 minutter. Tak for besøget. Brug <a href=\"%{url}\">link</a> for også at fjerne %{appname} adgang hos %{apiname}."
