@@ -744,11 +744,11 @@ function check_uncheck_new_deal_checkbox(checkbox, giftid)
 // for smaller page and faster startup time
 // todo: minor problem. User has to click twice on currency LOV to change currency. First to get full currency list and second to change currency
 $(document).ready(function() {
-    $("#user_currency_new").bind('focus', function () {
+    $(".user_currency_new").bind('focus', function () {
         var id_select = document.getElementById("user_currency_new");
         if (id_select.length > 1) {
             // list of currencies is already initialised
-            $("#user_currency_new").unbind('focus');
+            $(".user_currency_new").unbind('focus');
         }
         else {
             // get full list of currencies from server
@@ -757,30 +757,30 @@ $(document).ready(function() {
                 url: '/util/currencies.js',
                 dataType: "text",
                 success: function (msg) {
-                    $("#user_currency_new").unbind('focus');
+                    $(".user_currency_new").unbind('focus');
                     if (msg == 0) {
                         // Query returned empty.
                         add2log('Did not get any currencies from server');  // todo: or just ignore error!
                     } else {
                         // Query Has values.
-                        $('#user_currency_new').replaceWith(msg);
-                        $("#user_currency_new").click;
+                        $('.user_currency_new').replaceWith(msg);
+                        $(".user_currency_new").click;
                     }
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
-                    $("#user_currency_new").unbind('focus');
+                    $(".user_currency_new").unbind('focus');
                     add2log('error: jqXHR = ' + jqXHR + ', textStatus = ' + textStatus + ', errorThrown = ' + errorThrown);
                 }
             });
 
         }
-    }); // $("#user_currency_new").bind('focus', function () {
+    }); // $(".user_currency_new").bind('focus', function () {
 })
 
 // disable user_currency_new LOV for deep link for not logged in users (gifts/show/<deep_link_id>)
 function disable_user_currency_new_lov() {
     setInterval(function() {
-        $("#user_currency_new").unbind('focus') ;
+        $(".user_currency_new").unbind('focus') ;
     }, 100) ;
 } // disable_user_currency_new_lov
 

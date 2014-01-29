@@ -18,39 +18,6 @@
         })
     })
 
-    $(document).ready(function() {
-        $("#user_currency_new2").bind('focus', function () {
-            var id_select = document.getElementById("user_currency_new2");
-            if (id_select.length > 1) {
-                // list of currencies is already initialised
-                $("#user_currency_new2").unbind('focus');
-            }
-            else {
-                // get full list of currencies from server
-                $.ajax({
-                    type: 'GET',
-                    url: '/util/currencies.js',
-                    dataType: "text",
-                    success: function (msg) {
-                        $("#user_currency_new2").unbind('focus');
-                        if (msg == 0) {
-                            // Query returned empty.
-                            add2log('Did not get any currencies from server');  // todo: or just ignore error!
-                        } else {
-                            // Query Has values.
-                            $('#user_currency_new2').replaceWith(msg);
-                            $("#user_currency_new2").click;
-                        }
-                    },
-                    error: function (jqXHR, textStatus, errorThrown) {
-                        $("#user_currency_new2").unbind('focus');
-                        add2log('error: jqXHR = ' + jqXHR + ', textStatus = ' + textStatus + ', errorThrown = ' + errorThrown);
-                    }
-                });
-
-            }
-        }); // $("#user_currency_new2").bind('focus', function () {
-    })
 
     function update_language(self) {
         add2log('location = ' + window.location.href + ', self.value = ' + self.value) ;
@@ -79,7 +46,7 @@
   <tr title="<%= t '.currency_title', @user2.app_and_apiname_hash %>">
     <td><%= t '.currency_prompt', @user2.app_and_apiname_hash %></td>
     <td>:</td>
-    <td><%= select_tag :user_currency_new2, options_for_select(selected_currency, [@user.currency]), :onchange => 'update_currency(this)' %></td>
+    <td><%= select_tag :user_currency_new2, options_for_select(selected_currency, [@user.currency]), {:class => 'user_currency_new', :onchange => 'update_currency(this)'} %></td>
   </tr>
   <tr title="<%= t '.share_balance_title', :appname => APP_NAME %>">
     <td><%= t '.share_balance_prompt', :appname => APP_NAME %></td>

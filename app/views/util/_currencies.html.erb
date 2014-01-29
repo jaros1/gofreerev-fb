@@ -1,1 +1,1 @@
-<%= select_tag :user_currency_new, options_for_select(currencies, [@user.currency]), :onchange => 'update_currency(this)' %>
+<%= select_tag :user_currency_new, options_for_select(currencies, [@user.currency]), {:class => 'user_currency_new', :onchange => 'update_currency(this)'} %>

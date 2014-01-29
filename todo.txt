@@ -282,12 +282,9 @@
     In that way updated gifts will be at top of page and will be ajax injected to top of page
     how to keep actual user view point when ajax injecting new rows in top of page?
 
-65) check if notification cleanup stil is running. Find 68 notifications for 3 login users.
+65) check if notification cleanup still is running. Find 68 notifications for 3 login users.
 
 66) edit user options
-    - post on wall y/n checkbox
-    - log out
-    - delete account + log out
     - cross provider balance y/n checkbox
 
 69) a number of "invalid" inbox notification keys. Could be missing keys. Could be wrong notifications
@@ -413,10 +410,7 @@
 77) accept deal in gifts/show does not work 100%
     deal is accepted but gift is removed from gifts/show without being ajax replaced with closed deal
 
-78) width 320
-    - no change currency LOV
-    - no space for a change language url in header
-    use edit user page?
+78) add language LOV to page header if width > xxx
 
 79) edit/user share balance
 
