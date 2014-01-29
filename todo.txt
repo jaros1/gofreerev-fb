@@ -290,10 +290,6 @@
     - delete account + log out
     - cross provider balance y/n checkbox
 
-67) refactor: replace provider_downcase(user.provider) with user.apiname
-
-68) refactor: maybe also a user.app_api_hash with appname and apiname
-
 69) a number of "invalid" inbox notification keys. Could be missing keys. Could be wrong notifications
 
     missing translate key. key .accepted_proposal_giver_follow_2_v1_to_url, noti.id 542,
@@ -398,8 +394,6 @@
     options {:giftid=>"253", :gifttext=>"Cykel", :no_users=>"0", :no_other_users=>"-2", :username1=>"", :username2=>"", :username3=>"", :givername=>"Charlie S", :receivername=>"Karen S"},
     error translation missing: en.inbox.index.accepted_proposal_giver_1_v1_from_msg
 
-70) delete user - keep block friend information - that is other users that has blocked the deleted user
-
 71) add deleted_at to api_gift and api_comment for partial delete of gift and comment
     ( gift and comment created with multi provider login )
 
@@ -407,8 +401,7 @@
     that is - ajax remove gift from gifts/index page
 
 73) change util/new_messages_count to include delete marked api comments
-
-74) add deleted status
+    that is - ajax remove comment from gifts/index page
 
 75) no language in inbox urls. Should keep current language code in all links
 
@@ -420,3 +413,15 @@
 77) accept deal in gifts/show does not work 100%
     deal is accepted but gift is removed from gifts/show without being ajax replaced with closed deal
 
+78) width 320
+    - no change currency LOV
+    - no space for a change language url in header
+    use edit user page?
+
+79) edit/user share balance
+
+80) performance problem in users/index page - 12 seconds for 10 rows at dev1 / my FB account
+
+81) can not change currency to USD: Currency was not changed. No currency rates was found
+
+82) refactor #user_currency_new and #user_currency_new2 handlers into one class based event handler

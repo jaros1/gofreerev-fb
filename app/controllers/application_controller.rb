@@ -737,4 +737,6 @@ class ApplicationController < ActionController::Base
   end
   helper_method :get_flash
 
+
+
 end # ApplicationController

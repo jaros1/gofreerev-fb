@@ -232,4 +232,12 @@ module ApplicationHelper
     check_box_tag "post_#{provider}", 1, (post_on_wall == 2), :onchange => "post_on_wall_ajax(this)"
   end
 
+  # return select list with language code and language text
+  # used in page header and in users/edit page
+  def selected_languages
+    codes = Rails.application.config.i18n.available_locales.collect { |locale| locale.to_s }
+    codes.collect { |code| [t("shared.languages.#{code}"), code]}.sort { |a,b| a[1] <=> b[1] }
+  end
+
+
 end # ApplicationHelper

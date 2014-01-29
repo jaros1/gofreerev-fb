@@ -31,15 +31,13 @@ function default_pre_update_currency() {
     return false; // stop
 } // default_pre_update_currency
 pre_update_currency = default_pre_update_currency ;
-function update_currency() {
+function update_currency(self) {
     // check if submit is ok (are there other unsaved data in page?)
-    var user_currency_new_id;
     var user_currency_old_id;
-    user_currency_new_id = document.getElementById('user_currency_new');
     user_currency_old_id = document.getElementById('user_currency_old');
     if (!pre_update_currency()) {
         // unsaved pending data - abort currency change
-        user_currency_new_id.value = user_currency_old_id.value ;
+        self.value = user_currency_old_id.value ;
         return;
     }
     // get selected currency
@@ -47,7 +45,7 @@ function update_currency() {
     var update_currency_div_id;
     var update_currency_form_id;
     var user_currency_id;
-    user_currency_new = user_currency_new_id.value;
+    user_currency_new = self.value;
     // copy selected currency to hidden form and submit
     update_currency_div_id = document.getElementById('update_currency_div');
     update_currency_form_id = update_currency_div_id.getElementsByTagName('Form')[0];

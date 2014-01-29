@@ -161,6 +161,9 @@ en:
         hide_grant_write_ok: "%{appname} will in future not ask for permission to make postings on your %{apiname} wall. You can later allow %{appname} to make postings on your %{apiname} wall by checking \"Post?\" checkbox on \"Log in\" page."
         delete_user_id_not_found: "Can not delete user account. User was not found. Maybe user account already has been deleted."
         delete_user_invalid_id: "Invalid request. Can not delete user account. User account has not been delete marked."
+     languages:
+        da: "Danish"
+        en: "Engelsk"
 
   # omniauth controllers (auth, facebook and linkedin):
 
@@ -239,13 +242,13 @@ en:
         about_header: "About %{appname}"
         about_text_html: "%{appname} is a demo app with bid on key concepts (gift network, free money and negative rate) from Charles Eisenstein's book Sacred Economics. %{appname} is \"green\" software in the sense that it runs on a small 7w plug computer and try to reduce the environmental impact by promoting recycling. %{appname} is open source and is freely available under the MIT license on Github. It is my hope that others can use and improve my ideas in this and in other open source projects."
         betatest_header: "%{appname} betatest"
-        betatest_text_html: "%{appname} is under development, not all features are implemented and %{appname} is not yet ready for beta testing. However, feedback is welcome."
+        betatest_text_html: "%{appname} is under development, not all features are implemented and %{appname} is not quite yet ready for beta testing. However feedback are welcome at <a href='https://github.com/jaros1/gofreerev-fb/issues' target='_blank'>GitHub</a> or <a href=\"mailto:dev1@gofreerev.com\">email</a>."
         cookies_header: "Cookies"
         cookies_text_html: "%{appname} uses an encrypted cookie whose function is to keep track of logged in users. The encrypted cookie contains the login provider user ID and access token as well as some internal variables used to improve the user experience (eg, time zone, warning or error message). %{appname} cookie is not used for advertising or tracking across web sites. Login information is removed by pressing the log out and cookie expires when the browser is closed."
         disclaimer_header: "Disclaimer"
         disclaimer_text_html: "MIT License disclaimer. The software is provided \"as is\", without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose and noninfringement. In no event shall %{appname} be liable for any claim, damages or other liability, whether in an action of contract, tort or otherwise, arising from, out of or in connection with %{appname} or the use or other dealings in %{appname}."
         privacy_header: "Privacy"
-        privacy_text_html: "The following information is downloaded to %{appname}. From your login provider user profile is downloaded user ID, name, links to profile and profile picture, language, country, friends and friends list. From friend list is downloaded user ID, name, link to profiles and profile picture and friends for each of your friends. From the browser is uploaded current time zone. In the game %{appname} saves posts, comments, and your current balance in free money. All information download or entered in %{appname} is stored encrypted, are not used for advertising or personalization and are not given to third parties.<br><br>In %{appname} friends lists determine who can see what. You can see posts and current balance in free money for your friends. I posts from your friends, you can see comments from friends of friends. The only thing you can see for friends of friends is their name, profile picture and link to their login provider profile. There is no such thing as public in %{appname}. Posts are created across multiple login providers at the same time follow the above rules. Notice that you in such a post can see comments from your friend's friends from another login provider.<br><br>Created posts and comments can be deleted at any time, either singly or by closing your %{appname} account. Please note that downloaded and entered data is not deleted when you remove or block %{appname} at your login provider. Close therefore first your account in %{appname} and then remove or block %{appname} at your login provider."
+        privacy_text_html: "The following information is downloaded to %{appname}. From your login provider user profile is downloaded user ID, name, links to profile and profile picture, language, country, friends and friends list. From friend list is downloaded user ID, name, link to profiles and profile picture and friends for each of your friends. From the browser is uploaded current time zone. In the game %{appname} saves posts, comments, and your current balance in free money. All information download or entered in %{appname} is stored encrypted, are not used for advertising or personalization and are not given to third parties.<br><br>In %{appname} friends lists determine who can see what. You can see posts and current balance in free money for your friends. I posts from your friends, you can see comments from friends of friends. The only thing you can see for friends of friends is their name, profile picture and link to their login provider profile. There is no such thing as public in %{appname}. Posts are created across multiple login providers at the same time follow the above rules. Notice that you in such a post can see comments from your friend's friends from another login provider.<br><br>Created posts and comments can be deleted at any time, either singly or by closing your %{appname} account. Please note that downloaded and entered data is not deleted when you remove or block %{appname} at your login provider. Close therefore first <a href='/users?friends=me'>your account</a> in %{appname} and then remove or block %{appname} at your login provider."
 
   # comments controller
   comments:
@@ -673,6 +676,10 @@ en:
      edit:
         invalid_request: "Invalid request."
         page_header_text_html: "<p>Update user information</p>"
+        language_title: "Select languahe"
+        language_prompt: "Language"
+        currency_title: "Select the currency you want to use for prices and balance (internal all amounts are stored in USD)."
+        currency_prompt: "Currency"
         post_on_wall_title: "Use this checkbox to enable or disable post on %{apiname} wall."
         post_on_wall_prompt: "Post on wall?"
         share_balance_title: "Use this checkbox to enable and disable shared balance accross login providers. You should be logged in with all the login providers that you are using in %{appname} when you are updating this choice."

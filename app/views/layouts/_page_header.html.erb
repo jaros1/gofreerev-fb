@@ -21,7 +21,7 @@
       <tr>
         <td>
           <%= hidden_field_tag :user_currency_old, @user.currency %>
-          <%= select_tag :user_currency_new, options_for_select(selected_currency, [@user.currency]), :onchange => 'update_currency()' %>
+          <%= select_tag :user_currency_new, options_for_select(selected_currency, [@user.currency]), :onchange => 'update_currency(this)' %>
         </td>
       </tr>
     </table>

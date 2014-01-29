@@ -13,12 +13,11 @@ Gofreerev reads user id, name, profile url, profile picture and friends list fro
 Status
 ======
 
-Project in development mode. Not ready for test.
+Project in development mode. Getting ready for betatest. Demo available at https://dev1.gofreerev.com/
 
 
 Resources
 =========
 
 I could need some help with:
-- Styling. Responsive layout implemented, but no other styling.
-- Gems. I have implemented "show-more-rows" ajax expanding pages. It should be possible to move this feature to a gem so that it can be used in other projects.
+- Styling and layout. Responsive layout implemented, but no other styling.

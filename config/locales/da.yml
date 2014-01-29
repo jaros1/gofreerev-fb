@@ -154,6 +154,9 @@ da:
         hide_grant_write_ok: "%{appname} vil fremover ikke bede om tilladelse til at lave opslag på din %{apiname} væg. Du kan på et senere tidspunkt give %{appname} lov til at lave opslag på din %{apiname} væg ved at sætte hak i Opslag? tjekbox på \"Log ind\" siden."
         delete_user_id_not_found: "Kan ikke slette bruger konto. Bruger konto blev ikke fundet. Kontoen er evt. allerede blevet slettet."
         delete_user_invalid_id: "Ugyldigt kald. Kan ikke slette bruger konto da den ikke er blevet slet mærkeret."
+     languages:
+        da: "Dansk"
+        en: "Engelsk"
 
   # omniauth controllers (auth, facebook and linkedin):
 
@@ -233,13 +236,13 @@ da:
         about_header: "Om %{appname}"
         about_text_html: "%{appname} er en demo app med bud på centrale begreber (gavenetværk, frie penge og negativ rente) fra Charles Eisenstein's bog Sacred Economics. %{appname} er \"grønt\" software i den forstand at det kører på en lille 7w plugcomputer og prøver at mindske miljøbelastningen ved at fremme genbrug. %{appname} er open source og er frit tilgængelig under MIT license på Github. Det er mit håb at andre kan bruge og forbedre mine ideer i dette og i andre open source projekter."
         betatest_header: "%{appname} betatest"
-        betatest_text_html: "%{appname} er under udvikling, ikke alle funktioner er implementeret og %{appname} er endnu ikke klar til betatest. Men feedback er velkommen."
+        betatest_text_html: "%{appname} er under udvikling, ikke alle funktioner er implementeret og %{appname} er endnu ikke helt klar til betatest. Men feedback er velkommen på <a href='https://github.com/jaros1/gofreerev-fb/issues' target='_blank'>GitHub</a> eller <a href=\"mailto:dev1@gofreerev.com\">email</a>."
         cookies_header: "Cookies"
         cookies_text_html: "%{appname} anvender en krypteret cookie hvis funktion er at holde styr på ind loggede brugere. Den krypterede cookie indeholder brugerid og adgangs \"token\" til login udbyder(e) samt nogle interne variable der anvendes til at forbedre bruger oplevelsen (fx. tidszone, evt. advarsel eller fejl besked mm.). %{appname} cookie anvendes ikke til reklamer eller sporing på tværs af web sites. Adgangsoplysninger fjernes ved tryk på log ud og cookie fjernes når browseren lukkes."
         disclaimer_header: "Ansvarsfraskrivelse"
         disclaimer_text_html: "MIT License ansvarsfraskrivelse. Softwaren leveres \"som den er\", uden garanti af nogen art, udtrykkelige eller stiltiende, herunder, men ikke begrænset til garantier for salgbarhed, egnethed til et bestemt formål og ikke-krænkelse. Under ingen omstændigheder skal %{appname} være ansvarlig for ethvert krav, skader eller andet ansvar, enten i en aktion af kontrakten, tort eller andet, der skyldes, ud af eller i forbindelse med %{appname} eller brug eller andre transaktioner i %{appname}."
         privacy_header: "Data politik"
-        privacy_text_html: "Følgende oplysninger downloades til brug i %{appname}. Fra bruger profil hos din login udbyder hentes brugerid, navn, links til profil og profil billede, sprog, land, antal venner og venneliste. Fra venneliste hentes brugerid, navn, link til profiler og profil billede samt antal venner for hver af dine venner. Fra browser hentes aktuelle tidszone. I spillet gemmes oprettede opslag, kommentarer og din løbende saldo i frie penge. Alle oplysninger download eller indtastet i %{appname} opbevares krypteret, anvendes ikke til reklamer eller personalisering og vidergives ikke til trediepart.<br><br>I %{appname} er vennelister bestemmende for hvem der kan se hvad. Man kan se opslag og løbende saldo i frie penge for ens venner. I opslag fra ens venner vil man kunne se kommentarer fra venners venner. Det eneste man kan se om venners venner er deres navn, profil billede og link til deres profil hos login udbyder. Der er ikke noget der hedder offentligt i %{appname}. Opslag der oprettes på tværs af flere login udvidere på en gang følger ovenstående regler. Det betyder dog at man i et sådan opslag fra en ven kan se kommentarer fra ens vens venner hos en anden login udbyder.<br><br>Oprettede opslag og kommentarer kan til enhver tid slettes enten enkelvis eller ved at lukke din %{appname} konto. Vær opmærksom at downloadede og indtastede data ikke slettes forbi du fjerner eller blokkerer %{appname} hos din login udbyder. Luk derfor først din konto i %{appname} og fjern eller blokker dernæst %{appname} hos din login udbyder."
+        privacy_text_html: "Følgende oplysninger downloades til brug i %{appname}. Fra bruger profil hos din login udbyder hentes brugerid, navn, links til profil og profil billede, sprog, land, antal venner og venneliste. Fra venneliste hentes brugerid, navn, link til profiler og profil billede samt antal venner for hver af dine venner. Fra browser hentes aktuelle tidszone. I spillet gemmes oprettede opslag, kommentarer og din løbende saldo i frie penge. Alle oplysninger download eller indtastet i %{appname} opbevares krypteret, anvendes ikke til reklamer eller personalisering og vidergives ikke til trediepart.<br><br>I %{appname} er vennelister bestemmende for hvem der kan se hvad. Man kan se opslag og løbende saldo i frie penge for ens venner. I opslag fra ens venner vil man kunne se kommentarer fra venners venner. Det eneste man kan se om venners venner er deres navn, profil billede og link til deres profil hos login udbyder. Der er ikke noget der hedder offentligt i %{appname}. Opslag der oprettes på tværs af flere login udvidere på en gang følger ovenstående regler. Det betyder dog at man i et sådan opslag fra en ven kan se kommentarer fra ens vens venner hos en anden login udbyder.<br><br>Oprettede opslag og kommentarer kan til enhver tid slettes enten enkelvis eller ved at lukke din %{appname} konto. Vær opmærksom at downloadede og indtastede data ikke slettes forbi du fjerner eller blokkerer %{appname} hos din login udbyder. Luk derfor først <a href='/users?friends=me'>din konto</a> i %{appname} og fjern eller blokker dernæst %{appname} hos din login udbyder."
 
   # comments controller
   comments:
@@ -672,6 +675,10 @@ da:
      edit:
         invalid_request: "Ugyldigt kald."
         page_header_text_html: "<p>Opdater bruger oplysninger</p>"
+        language_title: "Vælg sprog"
+        language_prompt: "Sprog"
+        currency_title: "Vælg hvilken valuta du ønsker at bruge for priser og saldo  (intern gemmes alle beløb i USD)."
+        currency_prompt: "Valuta"
         post_on_wall_title: "Brug denne tjekboks til at slå opslag på %{apiname} til og fra."
         post_on_wall_prompt: "Opslag på væg?"
         share_balance_title: "Brug denne tjekboks til at slå fælles saldo på tværs af login udbydere til og fra. Du bør være logget ind med samtlige de login udbydere du anvender i %{appname} når du opdaterer dette valg."
