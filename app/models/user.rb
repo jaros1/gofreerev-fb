@@ -360,8 +360,17 @@ class User < ActiveRecord::Base
       logger.debug2 "invalid profile url '#{profile_url}' was received from login provider #{provider}"
       profile_url = nil
     end
+    # create/update user
     user_id = "#{uid}/#{provider}"
     user = User.find_by_user_id(user_id)
+    if MAX_USERS > 0 and (!user or !user.last_login_at or user.last_login_at < 2.day.ago)
+      # check max number of active Gofreerev accounts
+      no_active_users = User.where('last_login_at > ?', 2.day.ago).count
+      if no_active_users > 100
+        logger.error2 "Login rejected - max number of active user limit #{MAX_USERS}"
+        return ['.too_many_users', {:appname => APP_NAME, :max_users => 100}]
+      end
+    end
     user = User.new unless user
     user.user_id = user_id
     user.user_name = user_name
@@ -387,6 +396,9 @@ class User < ActiveRecord::Base
     end # case
     user.api_profile_url = profile_url if profile_url
     if user.new_record?
+      # check max number of active users
+      us = (User.where(:user_id => ApiGift.select("user_id_giver")) + User.where(:user_id => ApiGift.select("user_id_receiver"))).uniq
+
       # initialize currency from country - for example google and twitter
       country_code = options[:country].to_s
       if country_code == ''
@@ -419,6 +431,7 @@ class User < ActiveRecord::Base
       user.post_on_wall_yn = API_POST_PERMITTED[provider] ? 'Y' : 'N'
       user.api_profile_picture_url = image # temporary set image for new user - will be replaced in post_login_<providfer>
     end # outer if
+    user.last_login_at = Time.new
     user.save!
     # check/add dummy friend row for user (user_id_giver == user_id_receiver)
     friend = Friend.where('user_id_giver = ? and user_id_receiver = user_id_giver', user.user_id).first

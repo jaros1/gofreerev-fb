@@ -392,3 +392,10 @@
     created when site_url was http.
     is not showed in https page
     use relative path for locale pictures
+
+72) find some way to limit numbers of users
+    for example number of users with gifts
+
+73)
+
+74) problem with missing profile pictures om dev1 / jr

@@ -9,6 +9,9 @@ ENV_PREFIX = "#{ENV_APP_NAME}_#{ENV_RAILSENV}_" # GOFREEREV_DEV_
 APP_NAME     = 'Gofreerev'     # app name used in views and error messages
 SITE_URL     = ENV["#{ENV_PREFIX}SITE_URL"] # 'http://localhost/' # must end with /
 
+# max number of active users (last login within the last 24 hours)
+MAX_USERS     = ENV["#{ENV_PREFIX}MAX_USERS"].to_i # 100
+
 # where can you find source for this open source project?
 CVS_NAME = 'GitHub'
 CVS_URL = 'https://github.com/jaros1/gofreerev-fb'
