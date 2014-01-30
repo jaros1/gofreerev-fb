@@ -78,6 +78,7 @@ class ApiGift < ActiveRecord::Base
   validates_inclusion_of :picture, :allow_blank => true, :in => %w(Y N) ;
   validates_each :picture, :allow_blank => true do |record, attr, value|
     record.errors.add attr, :invalid if value == 'Y' and record.api_picture_url.to_s == ""
+    record.errors.add attr, :invalid if value == 'N' and record.api_picture_url.to_s != ""
   end
 
   # 6) api_gift_id - String in model - encrypted text in db - api id for the gift / status update on the wall
@@ -103,6 +104,9 @@ class ApiGift < ActiveRecord::Base
 
   # 7) api_picture_url - String in Model - encrypted text in db
   validates_presence_of :api_picture_url, :if => Proc.new { |rec| rec.picture? }
+  validates_each :api_picture_url, :allow_blank => true do |rec, attr, value|
+    rec.errors.add attr, :invalid unless Picture.app_url?(value) or Picture.api_url?(value)
+  end
   def api_picture_url
     # logger.debug2  "api_picture_url = #{read_attribute(:api_picture_url)} (#{read_attribute(:api_picture_url).class.name})"
     return nil unless (extended_api_picture_url = read_attribute(:api_picture_url))

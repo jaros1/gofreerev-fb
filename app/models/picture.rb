@@ -5,7 +5,7 @@ PICTURE_OS_ROOT = Rails.root.join('public', 'images').to_s
 PICTURE_TEMP_OS_ROOT = "#{PICTURE_OS_ROOT}/temp"
 PICTURE_PERM_OS_ROOT = "#{PICTURE_OS_ROOT}/perm"
 
-PICTURE_URL_ROOT = "#{SITE_URL}/images".gsub('//images', '/images')
+PICTURE_URL_ROOT = "/images"
 PICTURE_TEMP_URL_ROOT = "#{PICTURE_URL_ROOT}/temp"
 PICTURE_PERM_URL_ROOT = "#{PICTURE_URL_ROOT}/perm"
 
@@ -109,6 +109,7 @@ class Picture < ActiveRecord::Base
   def self.api_url? (url)
     url = url.to_s
     return false if url == ""
+    return false unless url =~ /^https?:\/\//
     !Picture.app_url?(url)
   end
   def self.app_rel_path? (rel_path)

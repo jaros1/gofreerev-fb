@@ -393,9 +393,6 @@
     is not showed in https page
     use relative path for locale pictures
 
-72) find some way to limit numbers of users
-    for example number of users with gifts
+72) problem with missing profile pictures om dev1 / jr
 
-73)
-
-74) problem with missing profile pictures om dev1 / jr
+73) invalid api_gift.api_picture_url - looks like description + deep_link
