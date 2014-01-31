@@ -1016,13 +1016,13 @@ class UtilController < ApplicationController
       api_request1 = 'me?fields=permissions,picture'
       # logger.debug2  "api_request1 = #{api_request}"
       api_response1 = api_client.get_object api_request1
-      logger.debug2  "api_response1 = #{api_response1.to_s}"
+      # logger.debug2  "api_response1 = #{api_response1.to_s}"
       #fetch_user: api_response = {"id"=>"100006397022113", "friends"=>{"data"=>[{"name"=>"David Amfcdabcjbif Martinazzisen", "id"=>"100006341230296"}, {"name"=>"Dick Amfceacglc Bushakson", "id"=>"100006351370003"}, {"name"=>"Karen Amfchcebfhjf Smithescu", "id"=>"100006383526806"}, {"name"=>"Sandra Amfciidbbaee Qinsen", "id"=>"100006399422155"}], "paging"=>{"next"=>"https://graph.facebook.com/100006397022113/friends?access_token=CAAFjZBGzzOkcBAFgvgvY7DmLBrzbKFuOiULN248i3AWlSNWqzzTLLINmRjDSM2djyQriVkcKnVJ80pRz3TiJ1koCNcOPU1ioy40aHHuAZCSXovba3pz74db08a6obnrABFZCgEMwX8cKStw25hwvyqkF1YHiV8d2yV5YoFytaI9hGYyCgk3&limit=5000&offset=5000&__after_id=100006399422155"}}, "permissions"=>{"data"=>[{"installed"=>1, "basic_info"=>1, "status_update"=>1, "photo_upload"=>1, "video_upload"=>1, "email"=>1, "create_note"=>1, "share_item"=>1, "publish_stream"=>1, "publish_actions"=>1, "user_friends"=>1, "bookmarked"=>1}], "paging"=>{"next"=>"https://graph.facebook.com/100006397022113/permissions?access_token=CAAFjZBGzzOkcBAFgvgvY7DmLBrzbKFuOiULN248i3AWlSNWqzzTLLINmRjDSM2djyQriVkcKnVJ80pRz3TiJ1koCNcOPU1ioy40aHHuAZCSXovba3pz74db08a6obnrABFZCgEMwX8cKStw25hwvyqkF1YHiV8d2yV5YoFytaI9hGYyCgk3&limit=5000&offset=5000"}}}
       # get friend list with profile pictures
       api_request2 = 'me/friends?fields=name,id,picture'
       # logger.debug2  "api_request2 = #{api_request2}"
       api_response2 = api_client.get_object api_request2
-      logger.debug2  "api_response2 = #{api_response2.to_s}"
+      # logger.debug2  "api_response2 = #{api_response2.to_s}"
 
       # 1) update number of friends and permissions
       login_user.no_api_friends = api_response2.size

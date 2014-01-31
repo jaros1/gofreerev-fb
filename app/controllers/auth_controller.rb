@@ -64,9 +64,9 @@ class AuthController < ApplicationController
       user = User.find_by_user_id(user_id)
       no_friends = user.friends.size-1
       if no_friends == 0
-        save_flash '.login_ok_new_user', @user.app_and_apiname_hash
+        save_flash '.login_ok_new_user', user.app_and_apiname_hash
       else
-        save_flash '.login_ok', @user.app_and_apiname_hash
+        save_flash '.login_ok', user.app_and_apiname_hash
       end
       redirect_to :controller => :gifts, :action => :index
     else

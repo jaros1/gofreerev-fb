@@ -405,6 +405,6 @@
 77) add try+catch for all ajax:success event handlers to catch any JS errors
     firefox only return "parseerror" and no other information if there is any error in client side JS code
 
-78) post_login_facebook - get profile picture url for friends
-
+78) delete account - after friends delete - delete users without last_login_at and without any friends.
+    that is friends of deleted users that are not used ny other users.
 
