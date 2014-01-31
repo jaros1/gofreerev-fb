@@ -240,7 +240,8 @@ function start_check_new_messages()
                 // + new gifts to be inserted in top of page gifts/index page
                 // + new comments to be inserted in gifts/index page
                 // + todo: changed gifts and comments to be replaced in gifts/index page
-                // is post ajax processed in JS functions update_new_messages_count, update_title and insert_new_comments
+                // is post ajax processed in #check-new-messages-link::ajax:success event handler
+                // (update_new_messages_count, update_title, insert_new_comments and insert_update_gifts)
                 var check_new_messages_link = document.getElementById("check-new-messages-link");
                 // update newest_gift_id and newest_status_update_at before ajax request.
                 // only newer gifts (>newest_gift_id) are ajax inserted in gifts/index page
@@ -267,6 +268,8 @@ function start_check_new_messages()
 
 
 // new_messages_count ajax event handlers
+// ajax:error - catch server side errors
+// ajax:success - catch any errors in post ajax JS code
 $(document).ready(function() {
     var link = "#check-new-messages-link" ;
     var pgm, msg ;
@@ -347,7 +350,7 @@ function update_new_messages_count() {
     var new_messages_count = document.getElementById("new_messages_count2");
     if (new_messages_count) new_messages_count.innerHTML = new_messages_count_div.innerHTML
 }
-// update_new_messages_count
+// update_new_messages_count in page title - displayed in process line on desktop computers
 function update_title() {
     var pgm = 'update_title: ' ;
     var new_messages_count_div = document.getElementById("new_messages_count_div");
@@ -1237,6 +1240,7 @@ function post_ajax_add_new_comment_handler(giftid) {
     $(id).bind("ajax:error", function(jqxhr, textStatus, errorThrown){
         add2log(fnc + 'ajax.error');
         add2log('jqxhr = ' + jqxhr);
+        add2log('jqxhr.target = ' + jqxhr.target) ;
         add2log('textStatus = ' + textStatus);
         add2log('errorThrown = ' + errorThrown);
 

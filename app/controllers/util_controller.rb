@@ -1971,7 +1971,7 @@ class UtilController < ApplicationController
 
       # create client for twitter api requests
       client = init_api_client_twitter(token)
-      logger.debug2 "token = #{token}"
+      # logger.debug2 "token = #{token}"
 
       # tweet with deep link in tweet message
       # tweet format: [offers/seeks] + gift.description + " - " + SITE_URL/gifts/xx/123456789012345678901234567890

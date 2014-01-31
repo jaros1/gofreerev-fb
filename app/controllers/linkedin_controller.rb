@@ -27,7 +27,7 @@ class LinkedinController < ApplicationController
       save_flash '.auth_failed', :apiname => provider_downcase('linkedin'), :appname => APP_NAME, :error => e.message
       raise
     end
-    logger.debug2  "x = #{token} (#{token.class})"
+    # logger.debug2  "x = #{token} (#{token.class})"
     if token.class == Array and token.length == 2 and token[0].class == String and token[1].class == String and token[0] != "" and token[1] != ''
       logger.debug2  "login ok. Get name, .... from linkedin"
       # get basic user information from linkedin before 2. login with write permission (rw_nus) to linkedin wall

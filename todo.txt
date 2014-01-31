@@ -398,4 +398,10 @@
     should ajax inject error message inside page under gift links/comment row
     check gift and comments links
 
-75) check "new_message_count" in source. Now two fields in page header
+76) IE dev1 sharon login started from FB fails with cross site request forgery
+    but no error when FB login starts from Gofreerev.
+    no cross site request forgery problem for firefox dev1 when login starts from facebook
+
+77) add try+catch for all ajax:success event handlere to catch any JS errors
+    firefox only return "parseerror" and no other information if there is any error in ajax:success code
+
