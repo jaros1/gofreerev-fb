@@ -5,6 +5,9 @@ class ActiveSupport::Logger
   def debug2 (text)
     debug "#{caller_locations(1,1)[0].label}: #{text}"
   end
+  def secret2 (text)
+    debug "#{caller_locations(1,1)[0].label}: #{text}" if Rails.root.to_s.first(5) == '/Disk'
+  end
   def info2 (text)
     info "#{caller_locations(1,1)[0].label}: #{text}"
   end

@@ -429,8 +429,8 @@ class User < ActiveRecord::Base
       user.balance = { BALANCE_KEY => 0.0 }
       user.balance_at = Date.parse(Sequence.get_last_exchange_rate_date)
       user.post_on_wall_yn = API_POST_PERMITTED[provider] ? 'Y' : 'N'
-      user.api_profile_picture_url = image # temporary set image for new user - will be replaced in post_login_<providfer>
     end # outer if
+    user.api_profile_picture_url = image unless user.api_profile_picture_url # profile image is normally set in post_login_<provider>
     user.last_login_at = Time.new
     user.save!
     # check/add dummy friend row for user (user_id_giver == user_id_receiver)
@@ -1079,7 +1079,7 @@ class User < ActiveRecord::Base
     return false if login_users.size == 0 # not logged in
     login_user = login_users.find { |user| user.provider == self.provider }
     return false unless login_user
-    logger.debug2  "provider = #{self.provider}, login_user.user_id = #{login_user.user_id}"
+    # logger.debug2  "provider = #{self.provider}, login_user.user_id = #{login_user.user_id}"
     return false unless login_user
     return true if login_user.user_id == self.user_id
     f = get_friend(login_user)

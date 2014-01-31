@@ -402,6 +402,9 @@
     but no error when FB login starts from Gofreerev.
     no cross site request forgery problem for firefox dev1 when login starts from facebook
 
-77) add try+catch for all ajax:success event handlere to catch any JS errors
-    firefox only return "parseerror" and no other information if there is any error in ajax:success code
+77) add try+catch for all ajax:success event handlers to catch any JS errors
+    firefox only return "parseerror" and no other information if there is any error in client side JS code
+
+78) post_login_facebook - get profile picture url for friends
+
 

@@ -1009,22 +1009,24 @@ class UtilController < ApplicationController
 
       # setup facebook api client - get permissions and friends
 
-      # get user information - permissions, friends and picture  - koala gem is used for facebook api requests
+      # get user information - permissions and picture  - koala gem is used for facebook api requests
       # logger.debug2  'get user id and name'
-      api = init_api_client_facebook(token)
-      api_request = 'me?fields=permissions,friends,picture'
-      # logger.debug2  "api_request = #{api_request}"
-      api_response = api.get_object api_request
-      logger.debug2  "api_response = #{api_response.to_s}"
+      # logger.secret2 "token = #{token}"
+      api_client = init_api_client_facebook(token)
+      api_request1 = 'me?fields=permissions,picture'
+      # logger.debug2  "api_request1 = #{api_request}"
+      api_response1 = api_client.get_object api_request1
+      logger.debug2  "api_response1 = #{api_response1.to_s}"
       #fetch_user: api_response = {"id"=>"100006397022113", "friends"=>{"data"=>[{"name"=>"David Amfcdabcjbif Martinazzisen", "id"=>"100006341230296"}, {"name"=>"Dick Amfceacglc Bushakson", "id"=>"100006351370003"}, {"name"=>"Karen Amfchcebfhjf Smithescu", "id"=>"100006383526806"}, {"name"=>"Sandra Amfciidbbaee Qinsen", "id"=>"100006399422155"}], "paging"=>{"next"=>"https://graph.facebook.com/100006397022113/friends?access_token=CAAFjZBGzzOkcBAFgvgvY7DmLBrzbKFuOiULN248i3AWlSNWqzzTLLINmRjDSM2djyQriVkcKnVJ80pRz3TiJ1koCNcOPU1ioy40aHHuAZCSXovba3pz74db08a6obnrABFZCgEMwX8cKStw25hwvyqkF1YHiV8d2yV5YoFytaI9hGYyCgk3&limit=5000&offset=5000&__after_id=100006399422155"}}, "permissions"=>{"data"=>[{"installed"=>1, "basic_info"=>1, "status_update"=>1, "photo_upload"=>1, "video_upload"=>1, "email"=>1, "create_note"=>1, "share_item"=>1, "publish_stream"=>1, "publish_actions"=>1, "user_friends"=>1, "bookmarked"=>1}], "paging"=>{"next"=>"https://graph.facebook.com/100006397022113/permissions?access_token=CAAFjZBGzzOkcBAFgvgvY7DmLBrzbKFuOiULN248i3AWlSNWqzzTLLINmRjDSM2djyQriVkcKnVJ80pRz3TiJ1koCNcOPU1ioy40aHHuAZCSXovba3pz74db08a6obnrABFZCgEMwX8cKStw25hwvyqkF1YHiV8d2yV5YoFytaI9hGYyCgk3&limit=5000&offset=5000"}}}
+      # get friend list with profile pictures
+      api_request2 = 'me/friends?fields=name,id,picture'
+      # logger.debug2  "api_request2 = #{api_request2}"
+      api_response2 = api_client.get_object api_request2
+      logger.debug2  "api_response2 = #{api_response2.to_s}"
 
       # 1) update number of friends and permissions
-      if api_response['friends']
-        login_user.no_api_friends = api_response['friends']['data'].size
-      else
-        login_user.no_api_friends = 0
-      end
-      login_user.permissions = api_response['permissions']['data'][0]
+      login_user.no_api_friends = api_response2.size
+      login_user.permissions = api_response1['permissions']['data'][0]
       login_user.permissions = {} if login_user.permissions == []
       login_user.save!
 
@@ -1035,17 +1037,16 @@ class UtilController < ApplicationController
       # compare Friend model data with friends array from API
       # only friends using Gofreerev are relevant
       # friends not using Gofreerev are ignored
-
-      if api_response.has_key?('friends')
-        api_friends_list = api_response['friends']['data']
-      else
-        api_friends_list = [] # no api friends
-      end
-
+      api_friends_list = api_response2
       api_friends_list.each do |friend|
         # logger.debug2 "friend = #{friend}"
         friend_user_id = friend["id"] + '/facebook'
         friend["name"] = friend["name"].force_encoding('UTF-8')
+        if friend["picture"] and friend["picture"]["data"]
+          friend_picture = friend["picture"]["data"]["url"]
+        else
+          friend_picture = nil
+        end
         if friends_hash.has_key?(friend_user_id)
           # OK - user already in hash
           nil
@@ -1056,12 +1057,18 @@ class UtilController < ApplicationController
             friend_user = User.new
             friend_user.user_id = friend_user_id
             friend_user.user_name = friend["name"]
+            friend_user.api_profile_picture_url = friend_picture
             friend_user.post_on_wall_yn = 'Y'
             friend_user.save!
           end
-          friends_hash[friend_user_id] = {:user => friend_user, :old_name => friend_user.user_name, :old_api_friend => 'N', :new_record => true}
+          friends_hash[friend_user_id] = {:user => friend_user,
+                                          :old_name => friend_user.user_name,
+                                          :old_api_profile_picture_url => friend_user.api_profile_picture_url,
+                                          :old_api_friend => 'N',
+                                          :new_record => true}
         end
         friends_hash[friend_user_id][:new_name] = friend["name"]
+        friends_hash[friend_user_id][:new_api_profile_picture_url] = friend_picture
         friends_hash[friend_user_id][:new_api_friend] = 'Y'
       end # each
 
@@ -1069,11 +1076,11 @@ class UtilController < ApplicationController
       Friend.update_friends_from_hash :login_user_id => login_user_id,
                                       :friends_hash => friends_hash,
                                       :mutual_friends => true,
-                                      :fields => %w(name)
+                                      :fields => %w(name api_profile_picture_url)
       # facebook friend list updated
 
       # 3) update profile picture
-      image = api_response['picture']['data']['url'] if api_response['picture'] and api_response['picture']['data']
+      image = api_response1['picture']['data']['url'] if api_response1['picture'] and api_response1['picture']['data']
       logger.debug2 "image = #{image}"
       key, options = User.update_profile_image(login_user_id, image)
       return [key, options] if key # error when updating profile picture information
