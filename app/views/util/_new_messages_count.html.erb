@@ -1,9 +1,12 @@
 <%# check for new messages. html code to be inserted in current html page %>
+<%
+   logger.debug2 "@api_comments = #{@api_comments}"
+-%>
 <div id="new_messages_count_div"><%= @new_messages_count %></div>
 <div id="new_comments_div">
   <table>
     <tbody id="new_comments_tbody">
-    <%= render :partial => 'comments/api_comments1' if @api_comments %>
+    <%= render :partial => 'comments/api_comments1', :locals => { :api_comments1 => @api_comments } if @api_comments %>
     </tbody>
   </table>
 </div>

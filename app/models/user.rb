@@ -842,7 +842,7 @@ class User < ActiveRecord::Base
     login_users_text = login_users.collect { |u| "#{u.user_id} #{u.short_user_name}"}.join(', ')
     friends = User.all_friends(login_users).find_all do |f|
       friend = f.friend.friend?(login_users)
-      logger.debug2 "#{f.friend.user_id} #{f.friend.short_user_name} is " + (friend ? '' : 'not ') + "friend with login users " + login_users_text
+      # logger.debug2 "#{f.friend.user_id} #{f.friend.short_user_name} is " + (friend ? '' : 'not ') + "friend with login users " + login_users_text
       friend
     end
     Friend.define_sort_by_user_name(friends)

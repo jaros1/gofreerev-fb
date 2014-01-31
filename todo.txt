@@ -387,12 +387,15 @@
 69) add profile picture for a new user in auth, facebook and linkedin controllers to prevent blank profile picture after login
 
 70) ajax comment inject does not work in IE. No error messages in IE. Must write some more information to debug log.
-
-71) security warning in IE. img url is http, page is https
-    created when site_url was http.
-    is not showed in https page
-    use relative path for locale pictures
+    ajax comment does neither work in dev. environment
 
 72) problem with missing profile pictures om dev1 / jr
 
-73) invalid api_gift.api_picture_url - looks like description + deep_link
+73) invalid api_gifts.api_picture_url - looks like description + deep_link
+    added validation to api_gifts.api_picture_url
+
+74) missing ajax:error in chrome if server is not running
+    should ajax inject error message inside page under gift links/comment row
+    check gift and comments links
+
+75) check "new_message_count" in source. Now two fields in page header

@@ -265,6 +265,57 @@ function start_check_new_messages()
         });
 } // start_check_new_messages
 
+
+// new_messages_count ajax event handlers
+$(document).ready(function() {
+    var link = "#check-new-messages-link" ;
+    var pgm, msg ;
+    $(link).unbind("ajax:error") ;
+    $(link).bind("ajax:error", function(jqxhr, textStatus, errorThrown){
+        pgm = link + '::ajax:error: ' ;
+        add2log(pgm);
+        add2log('jqxhr = ' + jqxhr);
+        add2log('jqxhr.target = ' + jqxhr.target);
+        add2log('textStatus = ' + textStatus);
+        add2log('errorThrown = ' + errorThrown);
+        add_to_tasks_errors(pgm + errorThrown + '. check server log for more information.') ;
+    })
+    $(link).unbind("ajax:success");
+    $(link).bind("ajax:success", function (evt, data, status, xhr) {
+        pgm = link + '::ajax:success: ' ;
+        try {update_new_messages_count() }
+        catch (err) {
+            msg = pgm + 'update_new_messages_count failed: ' + err ;
+            add2log(pgm + 'update_new_messages_count failed: ' + err) ;
+            add_to_tasks_errors(msg) ;
+            return ;
+        }
+        try { update_title() }
+        catch (err) {
+            msg = pgm + 'update_title failed: ' + err ;
+            add2log(pgm + 'update_new_messages_count failed: ' + err) ;
+            add_to_tasks_errors(msg) ;
+            return ;
+        }
+        try { insert_new_comments() }
+        catch (err) {
+            msg = pgm + 'insert_new_comments failed: ' + err ;
+            add2log(pgm + 'update_new_messages_count failed: ' + err) ;
+            add_to_tasks_errors(msg) ;
+            return ;
+        }
+        try { insert_update_gifts() }
+        catch (err) {
+            msg = pgm + 'insert_update_gifts failed: ' + err ;
+            add2log(pgm + 'update_new_messages_count failed: ' + err) ;
+            add_to_tasks_errors(msg) ;
+            return ;
+        }
+    }); // ajax:success
+})
+
+
+
 function restart_check_new_messages()
 {
     var old_check_new_messages_interval = check_new_messages_interval ;
@@ -283,9 +334,13 @@ start_check_new_messages() ;
 // update new message count in page header +  insert new comments in page
 function update_new_messages_count() {
     // restart setInterval function if refresh period has changed
+    var pgm = 'update_new_messages_count: ' ;
     restart_check_new_messages() ;
     var new_messages_count_div = document.getElementById("new_messages_count_div");
-    if (!new_messages_count_div) return; // div not found
+    if (!new_messages_count_div) {
+        add2log(pgm + 'new_messages_count_div not found') ;
+        return;
+    }
     // responsive layout - two page header layouts - two new message count divs
     var new_messages_count = document.getElementById("new_messages_count1");
     if (new_messages_count) new_messages_count.innerHTML = new_messages_count_div.innerHTML
@@ -294,9 +349,13 @@ function update_new_messages_count() {
 }
 // update_new_messages_count
 function update_title() {
-    var new_mesaages_count = document.getElementById('new_messages_count');
-    var no_new_messages = new_mesaages_count.innerHTML;
-    // alert(no_new_messages) ;
+    var pgm = 'update_title: ' ;
+    var new_messages_count_div = document.getElementById("new_messages_count_div");
+    if (!new_messages_count_div) {
+        add2log(pgm + 'new_messages_count_div not found') ;
+        return;
+    }
+    var no_new_messages = new_messages_count_div.innerHTML ;
     if (no_new_messages == '')
         var new_title = 'Gofreerev';
     else
@@ -312,30 +371,31 @@ function insert_new_comments() {
     var old_comments2_comment_id, inserted, old_comments2_tr_id_split, new_comments_length;
     var summary ; // for debug info.
     var gifts, old_comments2_add_new_comment_tr ;
-    if (debug) alert('insert_new_comments') ;
+    var pgm = 'insert_new_comments: ' ;
+    add2log(pgm + 'start') ;
     gifts = document.getElementById("gifts") ;
     if (!gifts) {
         // no gifts table - not gifts/index page
-        if (debug) alert('no gifts table - not gifts/index page') ;
+        add2log('no gifts table - not gifts/index page') ;
         return ;
     }
     new_comments_tbody = document.getElementById("new_comments_tbody");
     if (!new_comments_tbody) {
-        if (debug) alert('new_comments_tbody was not found');
+        add2log('new_comments_tbody was not found');
         return; // ignore error silently
     }
     new_comments_trs = new_comments_tbody.rows;
     new_comments_length = new_comments_trs.length ;
     if (new_comments_length == 0) {
         // no new comments
-        if (debug) alert('no new comments') ;
+        add2log('no new comments') ;
         return;
     }
     // find old gift rows (header, links, comments, footers)
     old_comments1_trs = gifts.rows ;
     if (old_comments1_trs.length == 0) {
         // no old gifts
-        if (debug) alert('no old gifts') ;
+        add2log('no old gifts') ;
         return
     }
     old_comments1_tbody = old_comments1_trs[0].parentNode ;
@@ -347,7 +407,7 @@ function insert_new_comments() {
         new_comment_tr = new_comments_trs[i];
         new_comment_id = new_comment_tr.id;
         if (!new_comment_id || !new_comment_id.match(re1)) {
-            if (debug) alert('invalid id format ' + new_comment_id) ;
+            add2log('invalid id format ' + new_comment_id) ;
             continue ;
         }
         new_comment_id_split = new_comment_id.split("-");
@@ -355,7 +415,7 @@ function insert_new_comments() {
         new_comment_comment_id = parseInt(new_comment_id_split[3]);
         summary = summary + '. ' + i + ', id = ' + new_comment_id ;
         summary = summary + '. ' + i + ', split[3] = ' + new_comment_id_split[3] ;
-        if (debug) alert('i = ' + i + ', gift id = ' + new_comment_gift_id + ', comment id = ' + new_comment_comment_id);
+        add2log('i = ' + i + ', gift id = ' + new_comment_gift_id + ', comment id = ' + new_comment_comment_id);
         // find any old comments with format gift-218-comment-174
         re2 = new RegExp("^gift-" + new_comment_gift_id + "-comment-[0-9]+$") ;
         old_comments2_trs = [];
@@ -369,17 +429,17 @@ function insert_new_comments() {
         } // end old comments loop
         if (!old_comments2_add_new_comment_tr) {
             // gift was not found - that is ok
-            if (debug) alert('Gift ' + new_comment_gift_id + ' was not found') ;
+            add2log('Gift ' + new_comment_gift_id + ' was not found') ;
             continue ;
         }
         old_comments2_length = old_comments2_trs.length;
-        // alert('old length = ' + old_length + ', new length = ' + new_length);
+        // add2log('old length = ' + old_length + ', new length = ' + new_length);
         if (old_comments2_length == 0) {
             // insert first comment for gift before add new comment row
             new_comments_tbody.removeChild(new_comment_tr) ;
             old_comments1_tbody.insertBefore(new_comment_tr, old_comments2_add_new_comment_tr);
             ajax_flash(new_comment_tr.id) ;
-            if (debug) alert('First comment ' + new_comment_comment_id + ' for gift ' + new_comment_gift_id);
+            add2log('First comment ' + new_comment_comment_id + ' for gift ' + new_comment_gift_id);
             continue;
         }
         // insert new comment in old comment table (sorted by ascending comment id)
@@ -390,7 +450,7 @@ function insert_new_comments() {
             old_comments2_tr_id = old_comments2_tr.id;
             old_comments2_tr_id_split = old_comments2_tr_id.split('-') ;
             old_comments2_comment_id = parseInt(old_comments2_tr_id_split[3]);
-            if (debug) alert('j = ' + j + ', new comment id = ' + new_comment_comment_id + ', old id = ' + old_comments2_tr_id + ', old comment id = ' + old_comments2_comment_id);
+            add2log('j = ' + j + ', new comment id = ' + new_comment_comment_id + ', old id = ' + old_comments2_tr_id + ', old comment id = ' + old_comments2_comment_id);
             if (new_comment_comment_id > old_comments2_comment_id) {
                 // insert after current row
                 new_comments_tbody.removeChild(new_comment_tr) ;
@@ -403,7 +463,7 @@ function insert_new_comments() {
             if (new_comment_comment_id == old_comments2_comment_id) {
                 // new comment already in old comments table
                 // replace old comment with new comment
-                // alert('comment ' + new_comment_comment_id + ' is already in page');
+                // add2log('comment ' + new_comment_comment_id + ' is already in page');
                 old_comments2_tr.id = "" ;
                 new_comments_tbody.removeChild(new_comment_tr) ;
                 old_comments2_tr.parentNode.insertBefore(new_comment_tr, old_comments2_tr.nextSibling);
@@ -417,16 +477,16 @@ function insert_new_comments() {
         } // end old comments loop
         if (!inserted) {
             // insert before first old comment
-            // alert('insert new comment ' + new_comment_id + ' first in old comments table');
+            // add2log('insert new comment ' + new_comment_id + ' first in old comments table');
             old_comments2_tr = old_comments2_trs[0];
-            if (debug) alert('old_comments2_tr = ' + old_comments2_tr) ;
+            add2log('old_comments2_tr = ' + old_comments2_tr) ;
             new_comments_tbody.removeChild(new_comment_tr) ;
             old_comments2_tr.parentNode.insertBefore(new_comment_tr, old_comments2_tr);
             ajax_flash(new_comment_tr.id) ;
             summary = summary + '. ' + i + ': comment ' + new_comment_comment_id + ' inserted (d) for gift id ' + new_comment_gift_id  ;
         } // if
     } // end new comments loop
-    if (debug) alert(summary) ;
+    add2log(summary) ;
 } // insert_new_comments
 
 // tasks_sleep: missing: no tasks - number: sleep (milliseconds) before executing tasks - for example post status on api walls
