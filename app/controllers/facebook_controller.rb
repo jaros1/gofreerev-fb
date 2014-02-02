@@ -93,6 +93,7 @@ class FacebookController < ApplicationController
     # Cross-site Request Forgery check
     if invalid_state?
       save_flash ".invalid_state_#{context}", :appname => APP_NAME
+      logger.warn2 "session[:session_id] = #{session[:session_id]}, params[:status] = #{params[:state]}, session[:state] = #{session[:state]}"
       redirect_to :controller => (%w(login other).index(context) ? :auth : :gifts)
       logout(provider)
       clear_state

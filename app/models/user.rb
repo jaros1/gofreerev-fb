@@ -1172,7 +1172,7 @@ class User < ActiveRecord::Base
   def friend_status_actions (login_user_or_login_users)
     if login_user_or_login_users.class == User
       login_user = login_user_or_login_users
-    elsif login_user_or_login_users.class == Array
+    elsif [Array, ActiveRecord::Relation::ActiveRecord_Relation_User].index(login_user_or_login_users.class)
       login_user = login_user_or_login_users.find { |u| u.provider == self.provider}
     end
     if login_user.class != User
@@ -1669,6 +1669,7 @@ class User < ActiveRecord::Base
 
   # cache mutual friends lookup in @mutual_friends hash index by login_user.id
   def mutual_friends (login_users)
+    # raise "debug"
     raise "invalid call" unless [Array, ActiveRecord::Relation::ActiveRecord_Relation_User].index(login_users.class)
     login_user = login_users.find { |user| self.provider == user.provider }
     return {} unless login_user

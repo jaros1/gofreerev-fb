@@ -510,9 +510,11 @@ class ApplicationController < ActionController::Base
   def set_state (context)
     state = session[:state].to_s
     state = session[:state] = String.generate_random_string(30) unless state.length == 30
+    logger.debug2 "session[:session_id] = #{session[:session_id]}, session[:state] = #{session[:state]}"
     "#{state}-#{context}"
   end
   def clear_state
+    logger.debug2 "clear state"
     session.delete(:state)
     get_linkedin_api_client() if logged_in?
   end

@@ -424,21 +424,6 @@
 81) gift giver pic mouse over text should have information about multiple provider givers
     gift receiver pic mouse over text should have information about multiple provider receivers
 
-82) permission problem for comment picture
-    comment can be from an provider where current user is not logged in as
-    but that is maybe not different from that you can not se information about non friends
-    error message is "invalid call" and users/index list is shown
-    should not be clickable
-    comment could also be from a non friend of friend for example after friends changes
-    should not be clickable
-
-83) maybe cache friends and friends of friends information at page start like currencies
-    is used in gifts/index, gifts/show and users/index pages
-    could solve bad performens in users/index page
-
-84) gift.api_comments or gift.api_comments_with_friends?
-    It looks like gift.api_comments_with_friends? gives the best performance in gift/index page
-
 85) google+ and twitter. add people list/follow in friends with api status F
     allow invite + friend request to people you follow.
     add flag on user profile to generally block app friend requests either for all login providers
@@ -460,4 +445,12 @@
     select * from api_gifts
     where user_id_giver in (select ...) and user_id_giver not in (1,2,3)
     or    user_id_receiver in (select ...) and user_id_receiver not in (1,2,3)
+
+89) check users/user friend status title mouseover text
+    maybe mutual friend count/check should be user.friends_hash cache
+    maybe drop mutual friend count for friends status text
+
+90) check set_timezone task
+    it looks like it is running to often
+
 
