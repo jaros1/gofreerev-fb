@@ -1,6 +1,6 @@
 <%= t ".balance_tab_header_text_html", :username => @user2.short_or_full_user_name(@users) %>
 <br/>
-<% if @user2.friend?(@users) and @api_gifts.size > 0 -%>
+<% if (@user2.friend?(@users) <= 2) and @api_gifts.size > 0 -%>
     <div style="width: 100%">
       <table id="gifts" style="border-spacing: 0;">
         <%= render :partial => 'show_balance_header' %>

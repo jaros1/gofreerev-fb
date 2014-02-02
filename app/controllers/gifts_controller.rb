@@ -300,7 +300,7 @@ class GiftsController < ApplicationController
           @errors << [key, options] if key
         end # if
       end # each user
-      logger.debug2 "@errors = #{@errors}"
+      logger.secret2 "@errors = #{@errors}" # use logger.secret2 - @errors can have request write on wall priv. links
     end
 
     if false

@@ -1,5 +1,5 @@
 <% for error in @errors do -%>
-    <% key, options = error ; logger.debug2  "key = #{key}, options = #{options}" -%>
+    <% key, options = error -%>
     <tr>
       <td><%= t key, my_sanitize_hash(options) %></td>
     </tr>

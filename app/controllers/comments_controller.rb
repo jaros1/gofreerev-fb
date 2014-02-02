@@ -84,7 +84,7 @@ class CommentsController < ApplicationController
     @error = t '.gift_comment_mismatch' if !@error and first_comment and first_comment.gift_id != @gift.gift_id
 
     if !@error
-      @api_comments = @gift.api_comments_with_filter(params[:first_comment_id])
+      @api_comments = @gift.api_comments_with_filter(@users, params[:first_comment_id])
     end
 
     respond_to do |format|

@@ -211,8 +211,8 @@ class Comment < ActiveRecord::Base
     users2 = users.find_all { |u| user_ids.index(u.user_id)}
     special_case = false # special case - users friend but not users2 friend
     api_comments.each do |api_comment|
-      return true if api_comment.user.friend?(users2) # login user is friend with creator of deal proposal
-      special_case = true if users.size != users2.size and api_comment.user.friend?(users)
+      return true if (api_comment.user.friend?(users2) <= 2) # login user is friend with creator of deal proposal
+      special_case = true if users.size != users2.size and (api_comment.user.friend?(users) <= 2)
     end
     if special_case
       logger.info2 "special case. login user(s) are not friend with creator(s) of new deal proposal"

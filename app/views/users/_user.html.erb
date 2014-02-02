@@ -12,7 +12,7 @@
   <td>:</td>
   <td title="<%= t '.friend_status_title_' + (user.mutual_friends(@users).size == 1 ? '1' : 'n'),
                       :no_mutual_friends => user.mutual_friends(@users).size,
-                      :mutual_friends => user.mutual_friends(@users).join(', ') if !user.friend?(@user) %>">
+                      :mutual_friends => user.mutual_friends(@users).join(', ') if user.friend?(@user) > 2 %>">
     <%= t user.friend_status_translate_code(@users),
              :appname => APP_NAME,
              :apiname => user.apiname,
@@ -24,7 +24,7 @@
 <tr>
   <td><%= t '.user_balance_prompt' %></td>
   <td>:</td>
-  <td><%= format_user_balance(user, @user) if user.friend?(@user) %></td>
+  <td><%= format_user_balance(user, @user) if user.friend?(@user) <= 2 %></td>
 </tr>
 <tr>
   <td colspan="3">

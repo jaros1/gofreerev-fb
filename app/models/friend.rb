@@ -145,6 +145,7 @@ class Friend < ActiveRecord::Base
     app_friend == 'Y'
   end
 
+
   # friends_hash is hash with old and new friend from util_controller.post_login_<provider> api request
   # mutual_friends = true: facebook, linkedin - update friend list for login user and for friend
   # mutual friends = false: google+, twitter - update only friend list for login user

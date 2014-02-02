@@ -20,9 +20,10 @@ class User < ActiveRecord::Base
   has_many :offers, :class_name => 'ApiGift', :primary_key => :user_id, :foreign_key => :user_id_giver, :dependent => :destroy
   has_many :wishes, :class_name => 'ApiGift', :primary_key => :user_id, :foreign_key => :user_id_receiver, :dependent => :destroy
   has_many :friends, :class_name => 'Friend', :primary_key => :user_id, :foreign_key => :user_id_giver, :dependent => :destroy
+  # has_many :users, :through => :friends # user record for each friend
   has_many :sent_notifications, :class_name => 'Notification', :primary_key => :user_id, :foreign_key => :from_user_id, :dependent => :destroy
   has_many :received_notifications, :class_name => 'Notification', :primary_key => :user_id, :foreign_key => :to_user_id, :dependent => :destroy
-  has_many :comments, :class_name => 'Comment', :primary_key => :user_id, :foreign_key => :user_id, :dependent => :destroy
+  has_many :api_comments, :class_name => 'ApiComment', :primary_key => :user_id, :foreign_key => :user_id, :dependent => :destroy
   has_many :gift_likes, :class_name => 'GiftLike', :primary_key => :user_id, :foreign_key => :user_id, :dependent => :destroy
 
 
@@ -249,6 +250,13 @@ class User < ActiveRecord::Base
 
   # cache inbox_new_notifications in @users.first - do not look up number of new notifications twice
   attr_accessor :cache_new_notifications
+
+  # cache friends information (util.fetch_users)
+  # friends categories:
+  # 1) logged in user
+  # 2) friends            - show detailed info
+  # 3) friends of friends - show few info (including deselected api friends)
+  attr_accessor :friends_hash
 
 
   ##################
@@ -641,7 +649,9 @@ class User < ActiveRecord::Base
     user_id.split('/').first == 'gofreerev'
   end
   def self.dummy_users? (login_users)
-    raise "invalid call" unless login_users.class == Array and login_users.size > 0
+    # logger.debug2 "login_users.class = #{login_users.class}"
+    raise "invalid call" unless [Array, ActiveRecord::Relation::ActiveRecord_Relation_User].index(login_users.class)
+    raise "invalid call" unless login_users.size > 0
     login_users.each do |login_user|
       return false unless login_user.dummy_user?
     end
@@ -666,7 +676,7 @@ class User < ActiveRecord::Base
     "#{a.first} #{a.last.first(1)}"
   end
   def short_or_full_user_name (login_users)
-    friend?(login_users) ? short_user_name : user_name
+    friend?(login_users) <= 2 ? short_user_name : user_name
   end # short_or_full_user_name
   def debug_info
     "#{user_id} #{short_user_name}"
@@ -831,8 +841,10 @@ class User < ActiveRecord::Base
     end # find all
   end # app_friends
 
-  def self.all_friends (login_users)
+  # return all friends for login_users - no filters on
+  def self.friends (login_users, options = {})
     return [] if login_users.size == 0
+    return [] if login_users.size == 1 and login_users.first.dummy_user?
     login_user_ids = login_users.collect { |login_user| login_user.user_id }
     friends = Friend.where("user_id_giver in (?)", login_user_ids).includes(:friend)
     Friend.define_sort_by_user_name(friends)
@@ -840,8 +852,8 @@ class User < ActiveRecord::Base
 
   def self.app_friends (login_users)
     login_users_text = login_users.collect { |u| "#{u.user_id} #{u.short_user_name}"}.join(', ')
-    friends = User.all_friends(login_users).find_all do |f|
-      friend = f.friend.friend?(login_users)
+    friends = User.friends(login_users).find_all do |f|
+      friend = (f.friend.friend?(login_users) <= 2)
       # logger.debug2 "#{f.friend.user_id} #{f.friend.short_user_name} is " + (friend ? '' : 'not ') + "friend with login users " + login_users_text
       friend
     end
@@ -850,12 +862,16 @@ class User < ActiveRecord::Base
 
   # find number of app friends. instance method for actual user and class method for logged in users
   # show special messages to user if no app friends was found
-  def no_app_friends
-    return @no_app_friends if @no_app_friends
-    @no_app_friends = app_friends.size
-  end
+  #def no_app_friends
+  #  return @no_app_friends if @no_app_friends
+  #  @no_app_friends = app_friends.size
+  #end
   def self.no_app_friends (login_users)
-    User.app_friends(login_users).size
+    no_app_friends = 0
+    login_users.each do |login_user|
+      no_app_friends += login_user.friends_hash.find_all { |key, value| value <= 2 }.size
+    end
+    no_app_friends
   end
 
   # recalculate user balance
@@ -1071,21 +1087,21 @@ class User < ActiveRecord::Base
     @reverse_friend = Friend.where("user_id_giver = ? and user_id_receiver = ?", self.user_id, login_user.user_id).first
   end
 
-  # simple friend check - true or false without any details
+  # simple friend check from friends_hash cache
+  # 1) logged in user
+  # 2) friends                - show detailed info
+  # 3) deselected api friends - show few info
+  # 4) friends of friends     - show few info
+  # 5) others                 - not clickable user div - for example comments from other login providers
   def friend? (login_users)
     # logger.debug2  "login_users.class = #{login_users.class}"
-    return false unless [Array, ActiveRecord::Relation::ActiveRecord_Relation_User].index(login_users.class) # not logged in
+    return 5 unless [Array, ActiveRecord::Relation::ActiveRecord_Relation_User].index(login_users.class) # not logged in
     # logger.debug2  "login_users.size = #{login_users.size}"
-    return false if login_users.size == 0 # not logged in
+    return 5 if login_users.size == 0 # not logged in
+    return 5 if login_users.first.dummy_user?
     login_user = login_users.find { |user| user.provider == self.provider }
-    return false unless login_user
-    # logger.debug2  "provider = #{self.provider}, login_user.user_id = #{login_user.user_id}"
-    return false unless login_user
-    return true if login_user.user_id == self.user_id
-    f = get_friend(login_user)
-    return false unless f
-    app_friend = f.app_friend || f.api_friend
-    (app_friend == 'Y')
+    return 5 unless login_user
+    return login_user.friends_hash[user_id] || 5
   end # friend?
 
   # friend status code. "this" is friend. login_user is login user.
@@ -1500,8 +1516,13 @@ class User < ActiveRecord::Base
     # list of gifts with @user as giver or receiver + list of gifts med @user.friends as giver or receiver
     # where clause is used for non encrypted fields. find_all is used for encrypted fields
 
-    # find friends
-    friends = User.app_friends(login_users).collect { |u| u.user_id_receiver }
+    # find friends from friends_hash (cached in util.fetch_users)
+    friends_ids = []
+    login_users.each do |login_user|
+      # logger.debug "friends_ids = #{friends_ids}"
+      # logger.debug "friends_hash = #{login_user.friends_hash}"
+      friends_ids += login_user.friends_hash.find_all { |key,value| value <= 2}.collect { |a| a[0] }
+    end
 
     # find api gifts
     if include_delete_marked_gifts
@@ -1530,7 +1551,7 @@ class User < ActiveRecord::Base
       # called from gifts/index page - newest_gift_id and newest_status_update_at are not relevant
       ags = ApiGift.
           where('(user_id_giver in (?) or user_id_receiver in (?)) and status_update_at < ?' + deleted,
-                          friends, friends, last_status_update_at).
+                          friends_ids, friends_ids, last_status_update_at).
           limit(sql_limit).
           references(:gifts, :api_gifts).
           includes(:gift, :giver, :receiver).
@@ -1585,7 +1606,7 @@ class User < ActiveRecord::Base
       # delete doublets if creator of gift was using multi provider login
       old_size = ags.size
       old_gift_id = -1
-      ags = ags.delete_if do |ag|
+      ags.delete_if do |ag|
         if ag.gift.id == old_gift_id
           true
         else
@@ -1782,6 +1803,21 @@ class User < ActiveRecord::Base
             f.delete unless %w(N B).index(f.app_friend)
           end
           user.delete
+          # remove inactive users that is no longer used
+          # that is friends of deleted user not used by any other users
+          inactive_user_ids = User.all.where('last_login_at is null').find_all { |u| !u.dummy_user? }.collect { |u| u.user_id }
+          friend_user_ids = Friend.where('user_id_giver <> user_id_receiver').collect { |u| u.user_id_giver }.uniq
+          delete_user_ids = inactive_user_ids - friend_user_ids
+          User.where('user_id in (?)', delete_user_ids).each do |u|
+            begin
+              u.destroy!
+            rescue Exception => e
+              # write exception and continue cleanup
+              logger.debug2 "Could not delete inactive user #{u.debug_info}."
+              logger.debug2 "Exception: #{e.message.to_s} (#{e.class})"
+              logger.debug2 "Backtrace: " + e.backtrace.join("\n")
+            end
+          end
         end # 2 loops
         # end physical delete
       end

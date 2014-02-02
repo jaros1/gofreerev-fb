@@ -376,9 +376,10 @@
 66) refactor #user_currency_new and #user_currency_new2 handlers into one class based event handler
 
 67) "false" ajax:error message if user clicks in a link before ajax request has finished.
-    something like ajax:error - more information in server log - server log is ok
+    something like "tasks_form.error: error. check server log for more information."
     maybe cancel ajax requests or ignore ajax:error message when changing page
-    check if there is an "before leave page" event
+    check if there is an "before leave page" event that can be used to cancel ajax request
+    or disable error from ajax:error handlers
 
 68) add special post_login_<xxx> messages for first time visitters
     flash: is now downloading information of your friends. You will could see your friends within gofreerev in a few moments.
@@ -405,6 +406,58 @@
 77) add try+catch for all ajax:success event handlers to catch any JS errors
     firefox only return "parseerror" and no other information if there is any error in client side JS code
 
-78) delete account - after friends delete - delete users without last_login_at and without any friends.
-    that is friends of deleted users that are not used ny other users.
+78) users/index
+    - Y/N for gofreerev app. user
+    - add invite link for non gofreerev app users
+    - do not show add Gofreerev friend bottom for non gofreerev app users
+    - show if user is an active gofreerev user or not - no reason for friend request to non active gofreerev users
+
+79) users/index. add filters:
+    - provider
+    - gofreerev user Y/N
+
+80) google+ / twitter
+    allow people you follow to send a app friend invitation
+    show users that is following you under non friends in users/index
+    A is following B. B is following A. is 2*follow = api friendship?
+
+81) gift giver pic mouse over text should have information about multiple provider givers
+    gift receiver pic mouse over text should have information about multiple provider receivers
+
+82) permission problem for comment picture
+    comment can be from an provider where current user is not logged in as
+    but that is maybe not different from that you can not se information about non friends
+    error message is "invalid call" and users/index list is shown
+    should not be clickable
+    comment could also be from a non friend of friend for example after friends changes
+    should not be clickable
+
+83) maybe cache friends and friends of friends information at page start like currencies
+    is used in gifts/index, gifts/show and users/index pages
+    could solve bad performens in users/index page
+
+84) gift.api_comments or gift.api_comments_with_friends?
+    It looks like gift.api_comments_with_friends? gives the best performance in gift/index page
+
+85) google+ and twitter. add people list/follow in friends with api status F
+    allow invite + friend request to people you follow.
+    add flag on user profile to generally block app friend requests either for all login providers
+    or for each login provider.
+    google+ has a collection = connected for people in circles that uses the app.
+    allow invite to use gofreerev to not connected "friends"
+
+86) allow device fingerprint guest user login?
+    that is login without username/password
+    no friends information!
+    could use user ip location and distance to other gofreerev users instead of a friend list
+
+87) allow device fingerprint for users that reject cookies?
+    must have cookie store on server for users with device fingerprint login
+
+88) User.api_gifts
+    maybe problem with very big select if really many friends for logged in users
+    on other option could be 2 sub queries combined with filter for deselected friends
+    select * from api_gifts
+    where user_id_giver in (select ...) and user_id_giver not in (1,2,3)
+    or    user_id_receiver in (select ...) and user_id_receiver not in (1,2,3)
 

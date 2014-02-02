@@ -12,6 +12,10 @@ SITE_URL     = ENV["#{ENV_PREFIX}SITE_URL"] # 'http://localhost/' # must end wit
 # max number of active users (last login within the last 24 hours)
 MAX_USERS     = ENV["#{ENV_PREFIX}MAX_USERS"].to_i # 100
 
+# force ssl to protect cookie information? (true or false)
+# FORCE_SSL must be true for public web server
+FORCE_SSL = Rails.env.production? or (ENV["#{ENV_PREFIX}FORCE_SSL"] == 'true')
+
 # where can you find source for this open source project?
 CVS_NAME = 'GitHub'
 CVS_URL = 'https://github.com/jaros1/gofreerev-fb'

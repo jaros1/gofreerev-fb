@@ -4,11 +4,14 @@ require 'money/bank/google_currency'
 #noinspection RubyResolve
 class ApplicationController < ActionController::Base
 
+  # protect cookie information on public web servers
+  force_ssl if: :ssl_configured?
+
   # Prevent CSRF attacks by raising an exception.
   # For APIs, you may want to use :null_session instead.
   protect_from_forgery with: :exception
   before_filter :request_url_for_header
-  before_filter :fetch_user
+  before_filter :fetch_users
   before_action :set_locale
   before_action :get_timezone
 
@@ -55,10 +58,10 @@ class ApplicationController < ActionController::Base
 
   # fetch user info. Used in page heading etc
   private
-  def fetch_user
+  def fetch_users
     # language support
     # logger.debug2  "start. sessionid = #{request.session_options[:id]}"
-    logger.debug2  "I18n.locale = #{I18n.locale}"
+    # logger.debug2  "I18n.locale = #{I18n.locale}"
 
     # cookie note in page header for the first n seconds for a new session
     # eu cookie law - also called Directive on Privacy and Electronic Communications
@@ -71,19 +74,71 @@ class ApplicationController < ActionController::Base
 
     # fetch user(s)
     if login_user_ids.length > 0
-      @users = User.where("user_id in (?)", login_user_ids).includes(:friends).shuffle
+      @users = User.where("user_id in (?)", login_user_ids)
     else
       @users = []
     end
 
     # check for deleted users - user(s) deleted in an other session/browser
     if login_user_ids.length != @users.length
-      login_user_ids = @users.collect { |user| user.user_id }
+      login_user_ids_tmp = @users.collect { |user| user.user_id }
       tokens = session[:tokens] || {}
       new_tokens = {}
       @users.each { |user| new_tokens[user.provider] = tokens[user.provider] }
-      session[:user_ids] = login_user_ids
+      session[:user_ids] = login_user_ids_tmp
       session[:tokens] = new_tokens
+    end
+
+    # friends information is used many different places
+    # cache friends information once and for all in @users array (user.friends_hash)
+    # friends categories:
+    # 1) logged in user
+    # 2) friends                - show detailed info
+    # 3) deselected api friends - show few info
+    # 4) friends of friends     - show few info
+    # 5) others                 - not clickable user div - for example comments from other login providers
+    begin
+      logger.debug2 "get friends. login_user_ids = #{login_user_ids.join(', ')}"
+      friends = Friend.where("user_id_giver in (?)", login_user_ids)
+      app_friends_ids = [] # for friends of friends lookup
+      non_app_friends_ids = [] # deselected api friends
+      friends.each do |f|
+        if (f.app_friend || f.api_friend) == 'Y'
+          app_friends_ids << f.user_id_receiver
+        else
+          non_app_friends_ids << f.user_id_receiver
+        end
+      end
+      logger.debug2 "get friends of friends"
+      friends_of_friends_ids = Friend.
+          where('user_id_giver in (?)', app_friends_ids).
+          find_all { |f| (f.app_friend || f.api_friend) == 'Y' }.
+          collect { |f| f.user_id_receiver }
+      friends_hash = {}
+      login_user_ids.each do |user_id|
+        provider = user_id.split('/').last
+        friends_hash[provider] = {}
+        friends_hash[provider][user_id] = 1 # logged in user
+      end
+      app_friends_ids.each do |user_id|
+        provider = user_id.split('/').last
+        next if friends_hash[provider].has_key?(user_id)
+        friends_hash[provider][user_id] = 2 # app friend
+      end
+      non_app_friends_ids.each do |user_id|
+        provider = user_id.split('/').last
+        next if friends_hash[provider].has_key?(user_id)
+        friends_hash[provider][user_id] = 3 # deselected api friend
+      end
+      friends_of_friends_ids.each do |user_id|
+        provider = user_id.split('/').last
+        next if friends_hash[provider].has_key?(user_id)
+        friends_hash[provider][user_id] = 4 # friend of friend
+      end
+      # copy to users array
+      @users.each do |user|
+        user.friends_hash = friends_hash[user.provider]
+      end
     end
 
     # add sort_by_provider method instance method to @users array.
@@ -143,7 +198,7 @@ class ApplicationController < ActionController::Base
     params[:locale] = nil if params.has_key?(:locale) and request.xhr?
     session[:language] = params[:locale] if filter_locale(params[:locale])
     I18n.locale = filter_locale(params[:locale]) || filter_locale(session[:language]) || filter_locale(I18n.default_locale) || 'en'
-    logger.debug2  "I18n.locale = #{I18n.locale}. params[:locale] = #{params[:locale]}, session[:language] = #{session[:language]}, "
+    # logger.debug2  "I18n.locale = #{I18n.locale}. params[:locale] = #{params[:locale]}, session[:language] = #{session[:language]}, "
   end
 
   private
@@ -168,7 +223,7 @@ class ApplicationController < ActionController::Base
   # see js functions imgonload and report_missing_api_picture_urls
   private
   def get_missing_api_picture_urls
-    logger.debug2 "login_user_ids = #{login_user_ids}"
+    # logger.debug2 "login_user_ids = #{login_user_ids}"
     return 'missing_api_picture_urls = [] ;' unless login_user_ids.size > 0
     # all api gifts with @users as giver or receiver
     api_gifts = ApiGift.where("(user_id_giver in (?) or user_id_receiver in (?)) and " +
@@ -737,6 +792,10 @@ class ApplicationController < ActionController::Base
   end
   helper_method :get_flash
 
-
+  # protect cookie information on public web servers
+  private
+  def ssl_configured?
+    FORCE_SSL
+  end
 
 end # ApplicationController

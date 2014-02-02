@@ -13,6 +13,7 @@ class ApiComment < ActiveRecord::Base
   belongs_to :user, :class_name => 'User', :primary_key => :user_id, :foreign_key => :user_id
   belongs_to :comment, :class_name => 'Comment', :primary_key => :comment_id, :foreign_key => :comment_id
   has_and_belongs_to_many :notifications
+  has_many :friends, :through => :user
 
 
   # 4) user_id - required - not encrypted - readonly

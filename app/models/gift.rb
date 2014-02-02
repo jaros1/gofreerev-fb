@@ -358,15 +358,25 @@ class Gift < ActiveRecord::Base
   # return last 4 comments for gifts/index page if first_comment_id is nil
   # return next 10 old comments in ajax request ii first_comment_id is not null
   # used in gifts/index (html/first_comment_id == nil) and in comments/comments (ajax/first_comment_id != nil)
-  def api_comments_with_filter (first_comment_id = nil)
-    # keep one api comment for each comment
-    acs = api_comments.sort do |a,b|
-      if a.comment_id == b.comment_id
+  def api_comments_with_filter (login_users, first_comment_id = nil)
+    # keep one api comment for each comment (multi provider comments).
+    # sort:
+    # 1) comments from friends
+    # 2) comments from friends of friends (clickable user div)
+    # 3) random sort
+    logger.debug2 "get comments for gift id #{id}. sort"
+    acs = api_comments.includes(:user).sort do |a,b|
+      a_friend = (a.user.friend?(login_users) <= 2) ? 1 : 2
+      b_friend = (b.user.friend?(login_users) <= 2) ? 1 : 2
+      if a_friend != b_friend
+        a_friend <=> b_friend
+      elsif a.comment_id == b.comment_id
         rand <=> 0.5
       else
         a.comment_id <=> b.comment_id
       end
     end
+    logger.debug2 "get comments for gift id #{id}. remove doubles"
     old_comment_id = '#' * 20
     acs = acs.find_all do |ac|
       if ac.comment_id == old_comment_id

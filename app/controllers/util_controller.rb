@@ -1112,10 +1112,9 @@ class UtilController < ApplicationController
       login_user_id = login_user.user_id
 
       # get new google api friends
-      # logger.debug2  "token = #{token}"
       api_client = init_api_client_google_oauth2(token)
       plus = api_client.discovered_api('plus')
-      # logger.debug2 "token = #{token}"
+      logger.secret2 "token = #{token}"
 
       # find people in login user circles
       # https://developers.google.com/api-client-library/ruby/guide/pagination

@@ -5,8 +5,8 @@ class ActiveSupport::Logger
   def debug2 (text)
     debug "#{caller_locations(1,1)[0].label}: #{text}"
   end
-  def secret2 (text)
-    debug "#{caller_locations(1,1)[0].label}: #{text}" if Rails.root.to_s.first(5) == '/Disk'
+  def secret2 (text) # used for special protected information - for example token - disabled on public web servers
+    debug "#{caller_locations(1,1)[0].label}: #{text}" unless FORCE_SSL
   end
   def info2 (text)
     info "#{caller_locations(1,1)[0].label}: #{text}"

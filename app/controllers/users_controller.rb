@@ -170,6 +170,7 @@ class UsersController < ApplicationController
     # logger.debug2  "friends_filter = #{@friends_filter}, found #{user_friends.size} friends"
 
     if @friends_filter == 'me'
+      # show login users - link from user div in page header for logged in users
       users2 = @users.sort do |a, b|
         a.apiname <=> b.apiname
       end
@@ -181,10 +182,10 @@ class UsersController < ApplicationController
     else
       # friends filter no or all
       # all login users direct connections (friends and non friends)
-      all_friends = User.all_friends(@users)
+      all_friends = User.friends(@users)
       all_friends_user_ids = all_friends.collect { |f| f.user_id_receiver }
       # find user friends
-      user_friends = all_friends.find_all { |f| f.friend.friend?(@users)}
+      user_friends = all_friends.find_all { |f| f.friend.friend?(@users) <= 2 }
       # friends_filter = nil (all users) or false (only non friends)
       # find friends of friends
       friends_userids = user_friends.collect { |f| f.user_id_receiver }
@@ -201,7 +202,7 @@ class UsersController < ApplicationController
       users2 = []
       # logger.debug2  "friends_friends_userids = #{friends_friends_userids.join(', ')}"
       User.where("user_id in (?)", friends_friends_userids).each do |user|
-        friend = user.friend?(@users)
+        friend = (user.friend?(@users) <= 2)
         # logger.debug2  "user = #{user.user_id}, friend = #{friend}"
         next if @friends_filter == 'no' and friend # don't show friends
         users2 << user
@@ -258,7 +259,7 @@ class UsersController < ApplicationController
                        login_user.user_id, @user2.user_id).
                  find { |f| f.api_friend == 'Y' }
       # ok - api friend but maybe not app friends
-    elsif @user2.friend?(@users)
+    elsif (@user2.friend?(@users) <= 2)
       # ok - friends
     else
       # not friend. Must have a mutual friend to allow user/show
@@ -287,7 +288,7 @@ class UsersController < ApplicationController
     # get params: tab, last_row_id and todo: filters
 
     # tab: blank = friends or balance - only friends can see balance
-    if @user2.friend?(@users)
+    if (@user2.friend?(@users) <= 2)
       if @users.find { |user| user.user_id == @user2.user_id }
         tabs = %w(gifts balance) # my account - friends information available in Friends menu
       else
