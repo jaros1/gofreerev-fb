@@ -2,7 +2,7 @@ class AuthController < ApplicationController
 
   skip_before_filter :verify_authenticity_token, :only => [:check] # no crsf token when facebook starts the App with post /facebook
   after_filter :allow_iframe
-  before_filter :clear_state
+  before_filter :clear_state_cookie_store
 
   # log in/out index page
   def index

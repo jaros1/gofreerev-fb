@@ -61,9 +61,6 @@ class FacebookController < ApplicationController
       # user_id  = 1705481075
       # autologin redirect to https://www.facebook.com/dialog/oauth? to get code without showing create.html erb page
       viewname = 'autologin'
-      set_state('login')
-      redirect_to :action => :autologin
-      return
     else
       # create.html.erb shows an intro page with an authorize link
       viewname = __method__
@@ -73,7 +70,7 @@ class FacebookController < ApplicationController
     # More permissions will be requested later when they are needed and the user can understand why
     # @auth_url =  oauth.url_for_oauth_code(:permissions=>"read_stream")
     logger.debug2  "session[:state] = #{session[:state]}"
-    @auth_url =  oauth.url_for_oauth_code :state => set_state('login')
+    @auth_url =  oauth.url_for_oauth_code :state => set_state_tasks_store('login')
     logger.debug2  "@auth_url1 = #{@auth_url}"
     @auth_url = @auth_url.gsub('&amp;', '&') # fix invalid escape in auth url
     logger.debug2  "@auth_url2 = #{@auth_url}"
@@ -83,19 +80,6 @@ class FacebookController < ApplicationController
     logger.debug2 "session[:session_id] = #{session[:session_id]}, session[:state] = #{session[:state]}"
 
   end # create
-
-
-  def autologin
-    logger.debug2 'autologin'
-    logger.debug2 "session[:session_id] = #{session[:session_id]}, session[:state] = #{session[:state]}"
-    oauth = Koala::Facebook::OAuth.new(API_ID[provider], API_SECRET[provider], API_CALLBACK_URL[provider])
-    @auth_url =  oauth.url_for_oauth_code :state => session[:state]
-    logger.debug2  "@auth_url1 = #{@auth_url}"
-    @auth_url = @auth_url.gsub('&amp;', '&') # fix invalid escape in auth url
-    render_with_language 'autologin'
-    logger.debug2 "session[:session_id] = #{session[:session_id]}, session[:state] = #{session[:state]}"
-    return
-  end
 
 
   # get /facebook - is called after authorization (create)
@@ -113,15 +97,13 @@ class FacebookController < ApplicationController
     context = 'other' unless %w(login status_update read_stream).index(context)
 
     # Cross-site Request Forgery check
-    if invalid_state?
+    if invalid_state_tasks_store?
       save_flash ".invalid_state_#{context}", :appname => APP_NAME
-      logger.warn2 "session[:session_id] = #{session[:session_id]}, params[:state] = #{params[:state]}, session[:state] = #{session[:state]}"
       redirect_to :controller => (%w(login other).index(context) ? :auth : :gifts)
       logout(provider)
-      clear_state
       return
     end # if invalid_state?
-    clear_state
+    clear_state_cookie_store
 
     if params[:error_reason] == 'user_denied'
       # user cancelled or denied api request

@@ -2,11 +2,6 @@ GofreerevFb::Application.routes.draw do
 
   filter :locale
 
-  post "facebook/create"
-  get "facebook/autologin"
-  get "facebook/index"
-  get 'facebook', :to => 'facebook#index'
-
   get "about/index"
   get 'cookie/decline_cookies'
   get "linkedin/index"
@@ -58,7 +53,7 @@ GofreerevFb::Application.routes.draw do
 
   # Example resource route (maps HTTP verbs to controller actions automatically):
   scope "(:locale)" do
-    resources :gifts, :users, :inbox, :comments
+    resources :gifts, :users, :inbox, :comments, :facebook
   end
 
   # Example resource route with options:

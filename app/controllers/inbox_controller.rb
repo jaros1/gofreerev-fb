@@ -1,7 +1,7 @@
 class InboxController < ApplicationController
 
   before_filter :login_required
-  before_filter :clear_state
+  before_filter :clear_state_cookie_store
 
   def index
     # get messages - new messages are shown first in page - max 20 notifications - no need for paginate or ajax expanding page

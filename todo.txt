@@ -405,6 +405,7 @@
     session[:state] is set in facebook/create and read in facebook/index
     it looks like firefox saves session cookie before redirect to facebook in facebook/autologin
     but that IE does not save session cookie update before redirect to facebook in facebook/autologin
+    IE10 does not keep cookie facebook
 
 77) add try+catch for all ajax:success event handlers to catch any JS errors
     firefox only return "parseerror" and no other information if there is any error in client side JS code

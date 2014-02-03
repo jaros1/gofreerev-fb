@@ -507,23 +507,61 @@ class ApplicationController < ActionController::Base
   # used in FbController
   # todo: ajax set state in links (request status_update and read_stream) so
   #       that old pages (used has used back bottom in browser) still is working
-  def set_state (context)
+  # three methods that saves state in session cookie store
+  private
+  def set_state_cookie_store (context)
     state = session[:state].to_s
     state = session[:state] = String.generate_random_string(30) unless state.length == 30
     logger.debug2 "session[:session_id] = #{session[:session_id]}, session[:state] = #{session[:state]}"
     "#{state}-#{context}"
   end
-  def clear_state
+  def clear_state_cookie_store
     logger.debug2 "clear state"
     session.delete(:state)
     get_linkedin_api_client() if logged_in?
   end
-  def invalid_state?
+  def invalid_state_cookie_store?
     logger.debug2 "session[:session_id] = #{session[:session_id]}, session[:state] = #{session[:state]}, params[:state] = #{params[:state]}"
     state = params[:state].to_s
     return true unless session[:state].to_s == state.first(30)
     false
   end
+
+
+  # special store for state when login starts from facebook (facebook/create => facebok/autologin => .. => facebook/index )
+  # the problem is that for example IE10 does not update session cookie before redirection to facebook for login
+  # save state in tasks table with sessionid and a simple device fingerprint
+  private
+  def set_state_tasks_store (context)
+    task_name = 'facebook_state'
+    t = Task.find_by_session_id_and_task(session[:session_id], task_name)
+    t.destroy if t
+    t = Task.new
+    t.session_id = session[:session_id]
+    t.task = task_name
+    t.priority = 5
+    t.ajax = 'N'
+    state = String.generate_random_string(30)
+    t.task_data = { :user_agent => request.user_agent, :remote_ip => request.remote_ip, :state => state }.to_yaml
+    t.save!
+    "#{state}-#{context}"
+  end # set_state_tasks_store
+  def invalid_state_tasks_store?
+    task_name = 'facebook_state'
+    t = Task.find_by_session_id_and_task(session[:session_id], task_name)
+    t.destroy if t
+    return true unless t
+    return true if t.created_at < 1.minute.ago
+    task_data = YAML::load(t.task_data)
+    logger.debug2 "task_data = #{task_data}"
+    logger.debug2 "params[:state] = #{params[:state]}, user agent = #{request.user_agent}, remote_ip = #{request.remote_ip}"
+    return true unless task_data[:state].to_s.first(30) == params[:state].to_s.first(30)
+    return true unless task_data[:user_agent].to_s == request.user_agent.to_s
+    return true unless task_data[:remote_ip].to_s == request.remote_ip.to_s
+    false
+  end # invalid_state_tasks_store?
+
+
 
   # save/get linkedin oauth client
   # save is called after gifts/create and LinkedIn::Errors::AccessDeniedError from linkedin - post in linkedin wall not allowed
@@ -549,6 +587,10 @@ class ApplicationController < ActionController::Base
     t.destroy
     client
   end # get_linkedin_client
+
+
+  # save/get "state" -
+  private
 
   private
   def login_user_ids
@@ -700,7 +742,7 @@ class ApplicationController < ActionController::Base
   def grant_write_link_facebook
     provider = 'facebook'
     oauth = Koala::Facebook::OAuth.new(API_ID[provider], API_SECRET[provider], API_CALLBACK_URL[provider])
-    url = oauth.url_for_oauth_code(:permissions => 'status_update', :state => set_state('status_update'))
+    url = oauth.url_for_oauth_code(:permissions => 'status_update', :state => set_state_cookie_store('status_update'))
     hide_url = "/util/hide_grant_write?provider=#{provider}"
     ['.gift_posted_3_html', {:apiname => provider_downcase(provider),
                              :url => url,

@@ -1,7 +1,7 @@
 # encoding: utf-8
 class GiftsController < ApplicationController
 
-  before_filter :clear_state, :if => lambda {|c| !request.xhr?}
+  before_filter :clear_state_cookie_store, :if => lambda {|c| !request.xhr?}
   before_filter :login_required, :except => :show # allow deep link without login
 
   def new

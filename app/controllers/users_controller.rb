@@ -1,7 +1,7 @@
 class UsersController < ApplicationController
 
   before_filter :login_required
-  before_filter :clear_state
+  before_filter :clear_state_cookie_store
 
   def new
   end
