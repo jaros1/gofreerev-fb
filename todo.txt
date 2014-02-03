@@ -434,7 +434,7 @@
 
 87) allow device fingerprint for users that reject cookies?
     must have cookie store on server for users with device fingerprint login
-    could not find anything about device fingerprint session store or fingerprint plugins for rails
+    could not find anything about device fingerprint session store or a device fingerprint plugins for rails
 
 88) User.api_gifts
     maybe problem with very big select if really many friends for logged in users
@@ -449,5 +449,15 @@
 
 90) check set_timezone task
     it looks like it is running too often
+
+91) users/index status mouse over with number of mutual friends was been dropped
+    maybe add a ajax mouse over title - that is - calculate number of mutual friends when needed and not always
+    good performance at startup and nice to have
+
+92) facebook invite friend to use all
+    user.last_login_at can normally be used to check if friend is using app or not
+    facebook also have a callback url when a user removes a app
+    http://thinkdiff.net/facebook/track-users-who-are-removing-your-facebook-application/
+
 
 

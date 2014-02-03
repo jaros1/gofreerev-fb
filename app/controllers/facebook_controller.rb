@@ -6,7 +6,7 @@ class FacebookController < ApplicationController
 
   # post /facebook = facebook/create is called when facebook starts the APP.
   # / will route to this method if :fb_locale and :signed_request are in params (see routes.rb root and /lib/role_constraints.rb)
-  # Signatur 1: when an unauthorized user starts the app from facebook
+  # Signature 1: when an unauthorized user starts the app from facebook
   #   input: signed_request encoded JSON hash with (user, issued_at and algorithm)
   #          1) user 	      A JSON array containing the locale string, country string and the age object (containing the min and max numbers of the age range) for the current person using the app.
   #          2) algorithm 	A JSON string containing the mechanism used to sign the request.
@@ -16,7 +16,7 @@ class FacebookController < ApplicationController
   #                     "user"=>{"country"=>"dk", "locale"=>"da_DK", "age"=>{"min"=>21}}}
   #   action: redirect to https://www.facebook.com/dialog/oauth?client_id=<client_id>&redirect_uri=<current_url>&scope=read_stream for FB app logn / authorization
   #           must be a redirect to top frame (top.location.href)
-  # Signatur 2: when an authorized user starts the app from facebook
+  # Signature 2: when an authorized user starts the app from facebook
   #   input: signed_request encoded JSON hash with (user, issued_at, algorithm, expires, oauth_token and user_id)
   #   example: hash = { "algorithm"=>"HMAC-SHA256",
   #                     "expires"=>1373374800,
@@ -25,6 +25,13 @@ class FacebookController < ApplicationController
   #                     "user"=>{"country"=>"dk", "locale"=>"da_DK", "age"=>{"min"=>21}},
   #                     "user_id"=>"1705481075"}
   #   action:
+  # Signature 3: when an authorized user deauthorise gofreerev in facebook (advanced settings - deauthorise dallback url)
+  #   input: signed_request encoded JSON hash with (user, issued_at, algorithm, and user_id)
+  #   example: hash = {"algorithm"=>"HMAC-SHA256",
+  #                    "issued_at"=>1391445050,
+  #                    "user"=>{"country"=>"dk", "locale"=>"en_GB"},
+  #                    "user_id"=>"1705481075"}
+
   def create
 
     signed_request = params[:signed_request]
@@ -40,7 +47,7 @@ class FacebookController < ApplicationController
     # unpack unsigned request
     oauth = Koala::Facebook::OAuth.new(API_ID[provider], API_SECRET[provider], API_CALLBACK_URL[provider])
     hash = oauth.parse_signed_request(signed_request)
-    # logger.debug2  "hash = #{hash}"
+    logger.debug2  "hash = #{hash}"
     # hash = {"algorithm"=>"HMAC-SHA256", "issued_at"=>1373284394, "user"=>{"country"=>"dk", "locale"=>"da_DK", "age"=>{"min"=>21}}}
 
     # save language (only if language was nil)
@@ -54,6 +61,8 @@ class FacebookController < ApplicationController
     #               "oauth_token"=>"CAAFjZBGzzOkcBAM3vNXbvDtDm3qcV7RQ3HwSRZAC9PRUiSvA8zLAnFFUwEmuV5t6fWohIPn8ZCDUrTZCUFtlUdOK1aSPhL1nvobmEBNucZBu9KLWqb4wRcB6jZBy6K49pZCQOaXRl0C8cj4ZCAYfdZC9tZCLC8wZAFhs9GWJMGIkO91AwZDZD",
     #               "user"=>{"country"=>"dk", "locale"=>"da_DK", "age"=>{"min"=>21}}, "user_id"=>"1705481075"}
     if hash.has_key?('oauth_token') && hash.has_key?('user_id')
+      # signature 2 - authorization in progress - show autologin page and redirect to facebook to complete authorization
+      signature = 2
       logger.debug2  'user has already authorized gofreerev'
       # logger.debug2  "oauth_token = #{hash['oauth_token']}"
       logger.debug2  "user_id #{hash['user_id']}"
@@ -61,25 +70,30 @@ class FacebookController < ApplicationController
       # user_id  = 1705481075
       # autologin redirect to https://www.facebook.com/dialog/oauth? to get code without showing create.html erb page
       viewname = 'autologin'
+    elsif hash.has_key?('user_id')
+      # signature 3 - used has deauthorization gofreerev in facebook
+      signature = 3
+      viewname = 'deauthorize'
     else
+      # signature 1 - new unauthorized user
+      signature = 1
       # create.html.erb shows an intro page with an authorize link
       viewname = __method__
     end
 
-    # FB authorization with minimal permissions (information already public)
-    # More permissions will be requested later when they are needed and the user can understand why
-    # note that there are problems with cookie store and IE10 when login starts from facebook (session[:state] not preserved)
-    # tasks table is used for temporary store of state in facebook/index => autologin => FB => facebook/index sequence
-    # @auth_url =  oauth.url_for_oauth_code(:permissions=>"read_stream")
-    logger.debug2  "session[:state] = #{session[:state]}"
-    @auth_url =  oauth.url_for_oauth_code :state => set_state_tasks_store('login')
-    logger.debug2  "@auth_url1 = #{@auth_url}"
-    @auth_url = @auth_url.gsub('&amp;', '&') # fix invalid escape in auth url
-    logger.debug2  "@auth_url2 = #{@auth_url}"
+    if signature != 3
+      # FB authorization with minimal permissions (information already public)
+      # More permissions will be requested later when they are needed and the user can understand why
+      # note that there are problems with cookie store and IE10 when login starts from facebook (session[:state] not preserved)
+      # tasks table is used for temporary store of state in facebook/index => autologin => FB => facebook/index sequence
+      # @auth_url =  oauth.url_for_oauth_code(:permissions=>"read_stream")
+      @auth_url =  oauth.url_for_oauth_code :state => set_state_tasks_store('login')
+      @auth_url = @auth_url.gsub('&amp;', '&') # fix invalid escape in auth url
+      logger.debug2  "@auth_url = #{@auth_url}"
+    end
 
     # show_friend page with an introduction and a authorize link - use create-<language>.html.erb if the view exists
     render_with_language viewname
-    logger.debug2 "session[:session_id] = #{session[:session_id]}, session[:state] = #{session[:state]}"
 
   end # create
 
