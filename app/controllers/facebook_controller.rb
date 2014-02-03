@@ -68,6 +68,8 @@ class FacebookController < ApplicationController
 
     # FB authorization with minimal permissions (information already public)
     # More permissions will be requested later when they are needed and the user can understand why
+    # note that there are problems with cookie store and IE10 when login starts from facebook (session[:state] not preserved)
+    # tasks table is used for temporary store of state in facebook/index => autologin => FB => facebook/index sequence
     # @auth_url =  oauth.url_for_oauth_code(:permissions=>"read_stream")
     logger.debug2  "session[:state] = #{session[:state]}"
     @auth_url =  oauth.url_for_oauth_code :state => set_state_tasks_store('login')
@@ -97,6 +99,8 @@ class FacebookController < ApplicationController
     context = 'other' unless %w(login status_update read_stream).index(context)
 
     # Cross-site Request Forgery check
+    # note that there are problems with cookie store and IE10 when login starts from facebook (session[:state] not preserved)
+    # tasks table is used for temporary store of state in facebook/index => autologin => FB => facebook/index sequence
     if invalid_state_tasks_store?
       save_flash ".invalid_state_#{context}", :appname => APP_NAME
       redirect_to :controller => (%w(login other).index(context) ? :auth : :gifts)

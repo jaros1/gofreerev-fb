@@ -504,7 +504,7 @@ class ApplicationController < ActionController::Base
   # protection from Cross-site Request Forgery
   # state is set before calling login provider
   # state is checked when returning from login provider
-  # used in FbController
+  # used in LinkedInController
   # todo: ajax set state in links (request status_update and read_stream) so
   #       that old pages (used has used back bottom in browser) still is working
   # three methods that saves state in session cookie store
@@ -530,7 +530,7 @@ class ApplicationController < ActionController::Base
 
   # special store for state when login starts from facebook (facebook/create => facebok/autologin => .. => facebook/index )
   # the problem is that for example IE10 does not update session cookie before redirection to facebook for login
-  # save state in tasks table with sessionid and a simple device fingerprint
+  # save state in tasks table with sessionid and a simple device fingerprint (user agent + ip adr)
   private
   def set_state_tasks_store (context)
     task_name = 'facebook_state'
