@@ -1667,22 +1667,23 @@ class User < ActiveRecord::Base
   end # self.gifts
 
 
-  # cache mutual friends lookup in @mutual_friends hash index by login_user.id
-  def mutual_friends (login_users)
-    # raise "debug"
-    raise "invalid call" unless [Array, ActiveRecord::Relation::ActiveRecord_Relation_User].index(login_users.class)
-    login_user = login_users.find { |user| self.provider == user.provider }
-    return {} unless login_user
-    return @mutual_friends[login_user.id] if @mutual_friends and @mutual_friends.has_key?(login_user.id)
-    @mutual_friends = {} unless @mutual_friends
-    friends1 = app_friends.collect { |f| f.friend }
-    friends2 = login_user.app_friends.collect { |f| f.friend }
-    friends3 = friends1 & friends2
-    logger.debug2 "user1 = #{short_user_name}, friends1 = " + friends1.collect { |u| u.short_user_name }.join(', ')
-    logger.debug2 "user2 = #{login_user.short_user_name}, friends2 = " + friends2.collect { |u| u.short_user_name }.join(', ')
-    logger.debug2 "friends3 = " + friends3.collect { |u| u.short_user_name }.join(', ')
-    @mutual_friends[login_user.id] = friends3.collect { |u| u.short_user_name }
-  end
+  ## cache mutual friends lookup in @mutual_friends hash index by login_user.id
+  ## dropped - not working optimal and too slow
+  #def mutual_friends (login_users)
+  #  # raise "debug"
+  #  raise "invalid call" unless [Array, ActiveRecord::Relation::ActiveRecord_Relation_User].index(login_users.class)
+  #  login_user = login_users.find { |user| self.provider == user.provider }
+  #  return {} unless login_user
+  #  return @mutual_friends[login_user.id] if @mutual_friends and @mutual_friends.has_key?(login_user.id)
+  #  @mutual_friends = {} unless @mutual_friends
+  #  friends1 = app_friends.collect { |f| f.friend }
+  #  friends2 = login_user.app_friends.collect { |f| f.friend }
+  #  friends3 = friends1 & friends2
+  #  logger.debug2 "user1 = #{short_user_name}, friends1 = " + friends1.collect { |u| u.short_user_name }.join(', ')
+  #  logger.debug2 "user2 = #{login_user.short_user_name}, friends2 = " + friends2.collect { |u| u.short_user_name }.join(', ')
+  #  logger.debug2 "friends3 = " + friends3.collect { |u| u.short_user_name }.join(', ')
+  #  @mutual_friends[login_user.id] = friends3.collect { |u| u.short_user_name }
+  #end
 
 
   # ajax task. return nil or [key, options] array

@@ -434,6 +434,7 @@
 
 87) allow device fingerprint for users that reject cookies?
     must have cookie store on server for users with device fingerprint login
+    could not find anything about device fingerprint session store or fingerprint plugins for rails
 
 88) User.api_gifts
     maybe problem with very big select if really many friends for logged in users
@@ -447,6 +448,6 @@
     maybe drop mutual friend count for friends status text
 
 90) check set_timezone task
-    it looks like it is running to often
+    it looks like it is running too often
 
 

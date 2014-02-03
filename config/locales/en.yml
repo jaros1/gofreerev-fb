@@ -646,8 +646,6 @@ en:
         user_name_title: "Use this link to see %{username}'s profile on %{apiname} (new tab in browser)"
         friend_status_prompt: "Status"
         user_balance_prompt: "Balance"
-        friend_status_title_1: "%{no_mutual_friends} mutual friend: %{mutual_friends}"
-        friend_status_title_n: "%{no_mutual_friends} mutual friends: %{mutual_friends}"
         friend_status_text_m: "My %{apiname} account"
         friend_status_text_d: "Your deleted %{apiname} account"
         friend_status_text_y: "Friend"

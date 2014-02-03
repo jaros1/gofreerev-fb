@@ -210,9 +210,7 @@ class UsersController < ApplicationController
       # logger.debug2  "users2.size = #{users2.size}"
       # sort: number of mutual friends desc, user name ascending, id ascending
       users2 = users2.sort do |a, b|
-        if a.mutual_friends(@users).size != b.mutual_friends(@users).size
-          b.mutual_friends(@users).size <=> a.mutual_friends(@users).size
-        elsif a.user_name != b.user_name
+        if a.user_name != b.user_name
           a.user_name <=> b.user_name
         else
           a.id <=> b.id

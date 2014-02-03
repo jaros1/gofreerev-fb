@@ -10,15 +10,8 @@
 <tr>
   <td><%= t '.friend_status_prompt' %></td>
   <td>:</td>
-  <td title="<%= t '.friend_status_title_' + (user.mutual_friends(@users).size == 1 ? '1' : 'n'),
-                      :no_mutual_friends => user.mutual_friends(@users).size,
-                      :mutual_friends => user.mutual_friends(@users).join(', ') if user.friend?(@user) > 2 %>">
-    <%= t user.friend_status_translate_code(@users),
-             :appname => APP_NAME,
-             :apiname => user.apiname,
-             :username => user.short_user_name,
-             :no_mutual_friends => user.mutual_friends(@users).size,
-             :mutual_friends => user.mutual_friends(@users) %>
+  <td>
+    <%= t user.friend_status_translate_code(@users), user.app_and_apiname_hash %>
   </td>
 </tr>
 <tr>
