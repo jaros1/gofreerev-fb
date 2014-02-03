@@ -487,7 +487,7 @@ class ApplicationController < ActionController::Base
     end
     login_user_ids = login_user_ids().clone
     login_user_ids.delete_if { |user_id| user_id.split('/').last == provider}
-    tokens = session[:tokens]
+    tokens = session[:tokens] || {}
     tokens.delete(provider)
     session[:user_ids] = login_user_ids
     session[:tokens] = tokens

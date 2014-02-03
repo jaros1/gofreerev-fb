@@ -866,6 +866,8 @@ class UtilController < ApplicationController
   # - get currency rates for a new date (ok)
   # - upload post and optional picture to login provider (ok)
   def do_tasks
+    # todo: debug why IE is not setting state before redirecting to facebook in facebook/autologin
+    logger.debug2 "session[:session_id] = #{session[:session_id]}, session[:state] = #{session[:state]}"
     # save timezone received from javascript
     set_timezone(params[:timezone])
     # cleanup old tasks

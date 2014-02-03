@@ -402,6 +402,9 @@
 76) IE dev1 sharon login started from FB fails with cross site request forgery
     but no error when FB login starts from Gofreerev.
     no cross site request forgery problem for firefox dev1 when login starts from facebook
+    session[:state] is set in facebook/create and read in facebook/index
+    it looks like firefox saves session cookie before redirect to facebook in facebook/autologin
+    but that IE does not save session cookie update before redirect to facebook in facebook/autologin
 
 77) add try+catch for all ajax:success event handlers to catch any JS errors
     firefox only return "parseerror" and no other information if there is any error in client side JS code

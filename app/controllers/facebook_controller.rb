@@ -71,6 +71,8 @@ class FacebookController < ApplicationController
     logger.debug2  "session[:state] = #{session[:state]}"
     @auth_url =  oauth.url_for_oauth_code :state => set_state('login')
     logger.debug2  "@auth_url = #{@auth_url}"
+    @auth_url = @auth_url.gsub('&amp;', '&') # fix invalid escape in auth url
+    logger.debug2  "@auth_url = #{@auth_url}"
 
     # show_friend page with an introduction and a authorize link - use create-<language>.html.erb if the view exists
     render_with_language viewname
