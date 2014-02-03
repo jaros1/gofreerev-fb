@@ -115,7 +115,8 @@ class FacebookController < ApplicationController
     # Cross-site Request Forgery check
     # note that there are problems with cookie store and IE10 when login starts from facebook (session[:state] not preserved)
     # tasks table is used for temporary store of state in facebook/index => autologin => FB => facebook/index sequence
-    if invalid_state_tasks_store?
+    if context == 'login' and invalid_state_tasks_store? or # state in tasks store (special IE10 workaround)
+        context != 'login' and invalid_state_cookie_store? # state in normal session cookie store
       save_flash ".invalid_state_#{context}", :appname => APP_NAME
       redirect_to :controller => (%w(login other).index(context) ? :auth : :gifts)
       logout(provider)
