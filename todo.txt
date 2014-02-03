@@ -458,6 +458,10 @@
     user.last_login_at can normally be used to check if friend is using app or not
     facebook also have a callback url when a user removes a app
     http://thinkdiff.net/facebook/track-users-who-are-removing-your-facebook-application/
+    delete data for an deauthorized user?
+
+93) post_on_facebook add check for deauthorized user
+    Gift posted in here but not on your facebook wall (type: OAuthException, code: 190, error_subcode: 458, message: Error validating access token: The user has not authorized application 193177257554775. [HTTP 400])
 
 
 

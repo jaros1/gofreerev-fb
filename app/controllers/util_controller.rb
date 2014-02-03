@@ -1771,6 +1771,18 @@ class UtilController < ApplicationController
             gift_posted_on_wall_api_wall = 1 # unknown error. no translation
             api_gift.clear_deep_link
           end
+        elsif e.fb_error_type == 'OAuthException' && e.fb_error_code == 190
+          # user has deauthorized gofreerev / removed gofreerev in facebook app setting page
+          # Koala::Facebook::ClientError
+          # fb_error_type    = OAuthException (String)
+          # fb_error_code    = 190 (Fixnum)
+          # fb_error_subcode = 458 (Fixnum)
+          # fb_error_message = Error validating access token: The user has not authorized application 193177257554775. (String)
+          # http_status      = 400 (Fixnum)
+          # response_body    = {"error":{"message":"Error validating access token: The user has not authorized application 193177257554775.","type":"OAuthException","code":190,"error_subcode":458}}
+          # logout and return error message to user
+          logout(provider)
+          gift_posted_on_wall_api_wall = 8
         else
           # unhandled exceptions
           gift_posted_on_wall_api_wall = 1 # unknown error. no translation
@@ -1790,7 +1802,7 @@ class UtilController < ApplicationController
         api_gift.picture = 'N'
         api_gift.save!
         return [".gift_posted_#{gift_posted_on_wall_api_wall}_html",
-                {:apiname => login_user.apiname, :error => error}]
+                login_user.app_and_apiname_hash.merge(:error => error) ]
       elsif !api_gift.picture? or api_gift.picture? and Picture.perm_app_url?(picture_url)
         # post ok - no picture or picture with perm app url
         # no need to check read permission to gift on api wall
