@@ -26,6 +26,7 @@ class FacebookController < ApplicationController
   #                     "user_id"=>"1705481075"}
   #   action:
   def create
+
     signed_request = params[:signed_request]
     logger.debug2  "signed_request = #{signed_request}"
     # signed_request = 9m_Xew0oojeuzMjIZFqwx9lI_UI4AqC-vMWXL9o45g4.eyJhbGdvcml0aG0iOiJITUFDLVNIQTI1NiIsImlzc3VlZF9hdCI6MTM3MzI4NDA4OCwidXNlciI6eyJjb3VudHJ5IjoiZGsiLCJsb2NhbGUiOiJkYV9ESyIsImFnZSI6eyJtaW4iOjIxfX19
@@ -60,6 +61,9 @@ class FacebookController < ApplicationController
       # user_id  = 1705481075
       # autologin redirect to https://www.facebook.com/dialog/oauth? to get code without showing create.html erb page
       viewname = 'autologin'
+      set_state('login')
+      redirect_to :action => :autologin
+      return
     else
       # create.html.erb shows an intro page with an authorize link
       viewname = __method__
@@ -70,19 +74,35 @@ class FacebookController < ApplicationController
     # @auth_url =  oauth.url_for_oauth_code(:permissions=>"read_stream")
     logger.debug2  "session[:state] = #{session[:state]}"
     @auth_url =  oauth.url_for_oauth_code :state => set_state('login')
-    logger.debug2  "@auth_url = #{@auth_url}"
+    logger.debug2  "@auth_url1 = #{@auth_url}"
     @auth_url = @auth_url.gsub('&amp;', '&') # fix invalid escape in auth url
-    logger.debug2  "@auth_url = #{@auth_url}"
+    logger.debug2  "@auth_url2 = #{@auth_url}"
 
     # show_friend page with an introduction and a authorize link - use create-<language>.html.erb if the view exists
     render_with_language viewname
+    logger.debug2 "session[:session_id] = #{session[:session_id]}, session[:state] = #{session[:state]}"
+
   end # create
+
+
+  def autologin
+    logger.debug2 'autologin'
+    logger.debug2 "session[:session_id] = #{session[:session_id]}, session[:state] = #{session[:state]}"
+    oauth = Koala::Facebook::OAuth.new(API_ID[provider], API_SECRET[provider], API_CALLBACK_URL[provider])
+    @auth_url =  oauth.url_for_oauth_code :state => session[:state]
+    logger.debug2  "@auth_url1 = #{@auth_url}"
+    @auth_url = @auth_url.gsub('&amp;', '&') # fix invalid escape in auth url
+    render_with_language 'autologin'
+    logger.debug2 "session[:session_id] = #{session[:session_id]}, session[:state] = #{session[:state]}"
+    return
+  end
 
 
   # get /facebook - is called after authorization (create)
   # rejected: Parameters: {"error_reason"=>"user_denied", "error"=>"access_denied", "error_description"=>"The user denied your request."}
   # accepted: Parameters: {"code"=>"AQA6165EwuVn3EVKkzy2TOocej1wBb_t-9jEuhJQFFK7GH2PDkDbbSOOd9lhoqIYibusDfPpWOwaUg6XYiR2lcmP2tLgG0RPgRxL6qwFBZalg0j6wXSO8bZmjKn-yf9O_GOH9wm5ugMKLUihU7mjfLAbR58FrJ8wdgnej2aG9KLQvKNenb16Hf_ULI016u3DGHM-zGvmyb8xAgAAabOHkDQNT5C3lIO0eXTGMwo66zLrnn0jkENguAnAUuZrVym9OMiBV1f9ocg8WfgprflPq-BHOSHdhuHgYISHxO_nTs1dT7Ku5z551ZyBq1hG15aG4"}
   def index
+
     # where is request comming from?
     # login - login starter from facebook - previous request was post facebook/create
     # status_update - return from status_update priv. request (link in gifts/index page - inserted from util.post_on_facebook)
@@ -95,7 +115,7 @@ class FacebookController < ApplicationController
     # Cross-site Request Forgery check
     if invalid_state?
       save_flash ".invalid_state_#{context}", :appname => APP_NAME
-      logger.warn2 "session[:session_id] = #{session[:session_id]}, params[:status] = #{params[:state]}, session[:state] = #{session[:state]}"
+      logger.warn2 "session[:session_id] = #{session[:session_id]}, params[:state] = #{params[:state]}, session[:state] = #{session[:state]}"
       redirect_to :controller => (%w(login other).index(context) ? :auth : :gifts)
       logout(provider)
       clear_state

@@ -519,9 +519,8 @@ class ApplicationController < ActionController::Base
     get_linkedin_api_client() if logged_in?
   end
   def invalid_state?
+    logger.debug2 "session[:session_id] = #{session[:session_id]}, session[:state] = #{session[:state]}, params[:state] = #{params[:state]}"
     state = params[:state].to_s
-    return true unless state =~ /^[a-zA-Z0-9]{30}-/
-    return true unless state.length > 31
     return true unless session[:state].to_s == state.first(30)
     false
   end
