@@ -404,9 +404,6 @@ class User < ActiveRecord::Base
     end # case
     user.api_profile_url = profile_url if profile_url
     if user.new_record?
-      # check max number of active users
-      us = (User.where(:user_id => ApiGift.select("user_id_giver")) + User.where(:user_id => ApiGift.select("user_id_receiver"))).uniq
-
       # initialize currency from country - for example google and twitter
       country_code = options[:country].to_s
       if country_code == ''
@@ -440,6 +437,7 @@ class User < ActiveRecord::Base
     end # outer if
     user.api_profile_picture_url = image unless user.api_profile_picture_url # profile image is normally set in post_login_<provider>
     user.last_login_at = Time.new
+    user.deauthorized_at = nil
     user.save!
     # check/add dummy friend row for user (user_id_giver == user_id_receiver)
     friend = Friend.where('user_id_giver = ? and user_id_receiver = user_id_giver', user.user_id).first
