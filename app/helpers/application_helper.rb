@@ -179,8 +179,32 @@ module ApplicationHelper
     }
   end # format_gift_param
 
-  # todo: generalize
-  # todo: different url for each API (FB, GP, LI etc)
+  
+  def invite_friend_url (friend)
+    provider = friend.provider
+    case provider
+      when 'facebook'
+        # url - friend request url
+        title = t 'shared.invite_friends.invite_friends_message_title', :appname => APP_NAME
+        message = t 'shared.invite_friends.invite_friends_message_body'
+        # no koala gem method for generation a invite friends url
+        # https://developers.facebook.com/docs/reference/dialogs/requests/
+        url = "https://#{Koala.config.dialog_host}/dialog/apprequests" +
+            "?app_id=#{API_ID[provider]}" +
+            "&redirect_uri=#{CGI.escape(SITE_URL + @request_fullpath)}" +
+            "&message=#{CGI.escape(message.to_str)}" +
+            "&title=#{CGI.escape(title.to_str)}" +
+            "&to=#{friend.uid}"
+        # logger.debug2  "url = #{url}"
+        url
+      else
+        # invite provider friends is not implemented
+        msg = t 'shared.invite_friends.not_implemented', friend.app_and_apiname_hash
+        "javascript: alert('#{msg}')"
+    end # case
+  end
+
+  # todo: generalize, different url for each API (FB, GP, LI etc)
   def invite_friends_url (login_user)
     if login_user.class != User
       # invalid call - login_user was missing in invite_friends_url call
@@ -195,6 +219,7 @@ module ApplicationHelper
         title = t 'shared.invite_friends.invite_friends_message_title', :appname => APP_NAME
         message = t 'shared.invite_friends.invite_friends_message_body'
         # no koala gem method for generation a invite friends url
+        # https://developers.facebook.com/docs/reference/dialogs/requests/
         url = "https://#{Koala.config.dialog_host}/dialog/apprequests" +
             "?app_id=#{API_ID[provider]}" +
             "&redirect_uri=#{CGI.escape(SITE_URL + @request_fullpath)}" +

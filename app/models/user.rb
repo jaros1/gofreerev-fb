@@ -656,17 +656,8 @@ class User < ActiveRecord::Base
     true
   end
 
-  def facebook?
-    return false unless user_id
-    provider == 'facebook'
-  end # facebook
-  def google_plus?
-    return false unless user_id
-    provider == 'google'
-  end # facebook
-  def linkedin?
-    return false unless user_id
-    provider == 'linkedin'
+  def app_user?
+    last_login_at and !deleted_at and !deauthorized_at
   end
 
   def short_user_name
@@ -765,11 +756,11 @@ class User < ActiveRecord::Base
   # "permissions"=>{"data"=>[{"installed"=>1, "basic_info"=>1, "read_stream"=>1, "status_update"=>1, "photo_upload"=>1, "video_upload"=>1, "create_note"=>1 ...
   def read_gifts_allowed?
     permissions = self.permissions
-    case
-      when facebook?
+    case provider
+      when 'facebook'
         permissions['read_stream'] == 1
       else
-        logger.debug2  "read_wall_allowed? not implemented for #{user_id.first(2)} users"
+        logger.error2  "read_wall_allowed? not implemented for #{provider} users"
         false
     end
   end  # read_gifts_allowed?
@@ -1179,12 +1170,20 @@ class User < ActiveRecord::Base
     end
     return [] if login_user.deleted_at
     case friend_status_code(login_user)
-      when 'Y' then return %w(rEmove_api_friend Remove_app_friend)
-      when 'N' then return %w(aDd_api_friend send_app_friend_request)
-      when 'A' then return %w(rEmove_api_friend send_app_friend_request)
-      when 'G' then return %w(aDd_api_friend Remove_app_friend)
-      when 'R' then return %w(aDd_api_friend send_app_friend_request cancel_app_friend_request)
-      when 'P' then return %w(aDd_api_friend accept_app_friend_request ignore_app_friend_request block_app_user)
+      # dropped add/remove api friend bottoms
+      #when 'Y' then return %w(rEmove_api_friend Remove_app_friend)
+      #when 'N' then return %w(aDd_api_friend send_app_friend_request)
+      #when 'A' then return %w(rEmove_api_friend send_app_friend_request)
+      #when 'G' then return %w(aDd_api_friend Remove_app_friend)
+      #when 'R' then return %w(aDd_api_friend send_app_friend_request cancel_app_friend_request)
+      #when 'P' then return %w(aDd_api_friend accept_app_friend_request ignore_app_friend_request block_app_user)
+      #when 'B' then return %w(unblock_app_user)
+      when 'Y' then return %w(Remove_app_friend)
+      when 'N' then return %w(send_app_friend_request)
+      when 'A' then return %w(send_app_friend_request)
+      when 'G' then return %w(Remove_app_friend)
+      when 'R' then return %w(send_app_friend_request cancel_app_friend_request)
+      when 'P' then return %w(accept_app_friend_request ignore_app_friend_request block_app_user)
       when 'B' then return %w(unblock_app_user)
     end
   end # friend_status_actions

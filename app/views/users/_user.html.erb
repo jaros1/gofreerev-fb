@@ -14,14 +14,22 @@
     <%= t user.friend_status_translate_code(@users), user.app_and_apiname_hash %>
   </td>
 </tr>
-<tr>
-  <td><%= t '.user_balance_prompt' %></td>
-  <td>:</td>
-  <td><%= format_user_balance(user, @user) if user.friend?(@user) <= 2 %></td>
-</tr>
+<% if user.app_user? -%>
+    <tr>
+      <td><%= t '.user_balance_prompt' %></td>
+      <td>:</td>
+      <td><%= format_user_balance(user, @users) if user.friend?(@user) <= 2 %></td>
+    </tr>
+<% else -%>
+    <tr title="<%= t '.invite_friend_title', user.app_and_apiname_hash.merge(:username => user.user_name) %>">
+      <td><%= t '.invite_friend_prompt' %></td>
+      <td>:</td>
+      <td><%= link_to t('.invite_friend_link_text'), invite_friend_url(user) %></td>
+    </tr>
+<% end -%>
 <tr>
   <td colspan="3">
-     <%= render :partial => "friend_action_buttons", :locals => {:friend_action_buttons => user, :edit => edit} %>
+    <%= render :partial => "friend_action_buttons", :locals => {:friend_action_buttons => user, :edit => edit} %>
   </td>
 </tr>
 <tr>
