@@ -81,7 +81,14 @@ class FacebookController < ApplicationController
       viewname = __method__
     end
 
-    if signature != 3
+    if signature == 3
+      # FB deauthorize - user has deleted gofreerev from app settings page
+      # todo: delete a inactive deauthorized facebook account after x days
+      # todo: double check that user has deauthorized gofreerev. http://stackoverflow.com/questions/5623035/facebook-app-users-list. Maybe user.is_app_user can be used
+      user_id = "#{hash['user_id']}/facebook"
+      user = User.find_by_user_id(user_id)
+      user.update_attribute(:deauthorized_at, Time.new) if user
+    else
       # FB authorization with minimal permissions (information already public)
       # More permissions will be requested later when they are needed and the user can understand why
       # note that there are problems with cookie store and IE10 when login starts from facebook (session[:state] not preserved)
