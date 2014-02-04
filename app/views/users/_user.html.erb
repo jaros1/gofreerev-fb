@@ -20,6 +20,11 @@
       <td>:</td>
       <td><%= format_user_balance(user, @users) if user.friend?(@user) <= 2 %></td>
     </tr>
+    <tr>
+      <td><%= t '.last_login_prompt' %></td>
+      <td>:</td>
+      <td><%= format_user_last_login(user) %></td>
+    </tr>
 <% else -%>
     <tr title="<%= t '.invite_friend_title', user.app_and_apiname_hash.merge(:username => user.user_name) %>">
       <td><%= t '.invite_friend_prompt' %></td>

@@ -113,6 +113,16 @@ module ApplicationHelper
     format_price(to_amount) + to_currency + ' (' + balance.find_all { |name, value| name != BALANCE_KEY }.collect { |name,value| format_price(value) + ' ' + name }.join(', ') + ')'
   end # format_user_balance
 
+  def format_user_last_login (friend)
+    return nil unless friend.last_login_at
+    dif = Time.new - friend.last_login_at
+    months = (dif / 1.month).floor
+    weeks = (dif / 1.week).floor
+    days = (dif / 1.day).floor
+    hours = ((dif - days.days) / 1.hour).floor
+    t '.last_login_text', :months => months, :weeks => weeks, :days => days, :hours => hours
+  end
+
   # todo: add date format
   def format_date (date)
     return nil unless date
@@ -198,9 +208,10 @@ module ApplicationHelper
         # logger.debug2  "url = #{url}"
         url
       else
-        # invite provider friends is not implemented
-        msg = t 'shared.invite_friends.not_implemented', friend.app_and_apiname_hash
-        "javascript: alert('#{msg}')"
+        # invite friend is not implemented for this provider - return link to api user profile
+        # todo: use email to send a invitation to use gofreerev?
+        # todo: check JS libraries for Google+, Linkedin and Twitter.
+        api_profile_url(friend)
     end # case
   end
 

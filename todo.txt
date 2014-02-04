@@ -464,3 +464,9 @@
     - add gofreerev user / not gofreerev user / last login x weeks ago
     - add invite link to non gofreerev users
     - filter: gofreerev: users, non users, all
+
+94) check out js api for facebook, linkedin, google+ and twitter
+    some not supported server site operations could be implementyed with client side JS
+
+95) an alternative to app invitation could be an email
+    but that requires emails in

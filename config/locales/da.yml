@@ -649,7 +649,7 @@ da:
         user_balance_prompt: "Saldo"
         friend_status_text_m: "Min %{apiname} konto"
         friend_status_text_d: "Din slettede %{apiname} konto "
-        friend_status_text_y: "Venner"
+        friend_status_text_y: "Venner (%{apiname})"
         friend_status_text_n: "Ikke venner"
         friend_status_text_a: "%{apiname} venner, men ikke %{appname} venner"
         friend_status_text_g: "%{appname} venner, men ikke %{apiname} venner"
@@ -659,6 +659,8 @@ da:
         invite_friend_title: "%{username} anvender endnu ikke %{appname}. Brug link til at inviterer %{username} til at bruge %{appname}."
         invite_friend_prompt: "Inviter"
         invite_friend_link_text: "link"
+        last_login_prompt: "Sidst set"
+        last_login_text: "%{days} dag(e) siden"
         api_profile_link_not_implemented: "link til %{apiname} bruger profil er endnu ikke implementeret"
      friend_action_buttons:
         add_api_friend: "Tilføj %{apiname} ven"
@@ -786,4 +788,3 @@ da:
         invalid_updated_by: "System fejl. Fandt ingen lovlige \"opdateret af\" brugere."
         ok: "Forslag er blevet godkendt."
         exception: "System fejl. Kunne ikke godkende forslag. %{error}. Mere information i server log."
-
