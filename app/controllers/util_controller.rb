@@ -31,8 +31,14 @@ class UtilController < ApplicationController
       logger.debug2 "after destroy gift id #{g.id}"
       Gift.check_gift_and_api_gift_rel
     end
-    # cleanup delete marked users - only write messages to log
-    User.where('deleted_at is not null and deleted_at < ?', 6.minutes.ago).each do |u|
+    # cleanup inactive, deauthorized and deleted users
+    # - delete deleted users after 6 minutes (CLEANUP_USER_DELETED) - delete link in users/edit page
+    # - delete deauthorized users after 14 days (CLEANUP_USER_DEAUTHORIZED) - user has deauthorized Gofreerev from app settings page at api
+    # - delete inactive users after 1 year (CLEANUP_USER_INACTIVE) - no user logins in 1 year
+    User.where('last_login_at is not null and deleted_at is null and ' +
+               '(deauthorized_at is not null and deauthorized_at < ? or last_login_at < ?)',
+               CLEANUP_USER_DEAUTHORIZED.ago, CLEANUP_USER_INACTIVE.ago).update_all(:deleted_at => Time.new)
+    User.where('deleted_at is not null and deleted_at < ?', CLEANUP_USER_DELETED.ago).each do |u|
       logger.debug2 "Physical delete user with id #{u.id}"
       key, options = User.delete_user(u)
       logger.debug2 t("users.destroy#{key}", options) if key

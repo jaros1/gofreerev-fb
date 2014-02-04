@@ -1558,7 +1558,7 @@ class User < ActiveRecord::Base
       # called from util/new_messages_count - limit and last_status_update_at are not relevant
       ags = ApiGift.
           where('(gifts.id > ? or status_update_at > ?) and (user_id_giver in (?) or user_id_receiver in (?))' + deleted,
-                          newest_gift_id, newest_status_update_at, friends, friends).
+                          newest_gift_id, newest_status_update_at, friends_ids, friends_ids).
           references(:gifts, :api_gifts).
           includes(:gift, :giver, :receiver).
           order('gifts.status_update_at desc')

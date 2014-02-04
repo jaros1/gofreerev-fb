@@ -82,8 +82,10 @@ class FacebookController < ApplicationController
     end
 
     if signature == 3
-      # FB deauthorize - user has deleted gofreerev from app settings page
-      # todo: delete a inactive deauthorized facebook account after x days
+      # FB deauthorize - user has removed Gofreerev from app settings page in facebook
+      # a deleted marked user account (users/edit delete link) will be deleted within 6 minutes (CLEANUP_USER_DELETED)
+      # a deauthorized user acccount will be deleted after 14 days (CLEANUP_USER_DEAUTHORIZED)
+      # a inactive user account will be deleted after 1 year (CLEANUP_USER_INACTIVE)
       # todo: double check that user has deauthorized gofreerev. http://stackoverflow.com/questions/5623035/facebook-app-users-list. Maybe user.is_app_user can be used
       user_id = "#{hash['user_id']}/facebook"
       user = User.find_by_user_id(user_id)

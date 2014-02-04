@@ -59,3 +59,7 @@ GET_MORE_ROWS_INTERVAL = 3.0
 # user can accept, reject or ignore cookie note
 SHOW_COOKIE_NOTE = 30 # nil or number of seconds to display cookie note in header
 
+# user account cleanup
+CLEANUP_USER_DELETED      = 6.minutes
+CLEANUP_USER_DEAUTHORIZED = 14.days
+CLEANUP_USER_INACTIVE     = 1.year
