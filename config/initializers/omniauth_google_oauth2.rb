@@ -7,6 +7,6 @@ class OmniAuth::AuthHash
     image = nil if image.to_s == ""
     image = nil if image and image !~ /^https?:/
     return nil unless image
-    "#{image}?sz=50" # profile picture size 50 x 50
+    image.split('?').first + '?sz=100' # # profile picture size 100 x 100
   end
 end
