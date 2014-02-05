@@ -7,8 +7,28 @@
 
 <%# t '.page_header_text_html' %>
 
+<%# responsive user filter menu. 4 lines on small display, 2 lines on medium display and 1 line on big display %>
 <br/>
 <div style="width: 100%" class="friends-filter-1-line">
+  <table>
+    <tr>
+      <%= render :partial => 'menu_friends_yes_no_links' %>
+      <% if @page_values[:friends] != 'me' -%>
+          <td>&nbsp;&nbsp;</td>
+          <%= render :partial => 'menu_app_user_yes_no_links' %>
+      <% end -%>
+      <% if @page_values[:friends] != 'me' -%>
+          <td>&nbsp;&nbsp;</td>
+          <%= render :partial => 'menu_api_user_links' %>
+      <% end -%>
+      <td>&nbsp;&nbsp;</td>
+      <%= render :partial => 'shared/invite_friends_links' %>
+    </tr>
+    </tr>
+  </table>
+</div>
+
+<div style="width: 100%" class="friends-filter-2-lines">
   <table>
     <tr>
       <td>
@@ -39,7 +59,8 @@
     </tr>
   </table>
 </div>
-<div style="width: 100%" class="friends-filter-2-lines">
+
+<div style="width: 100%" class="friends-filter-4-lines">
   <table>
     <tr>
       <%= render :partial => 'menu_friends_yes_no_links' %>

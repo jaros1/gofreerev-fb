@@ -241,9 +241,22 @@ form {
 }
 
 /* users/index */
-
-/* friends filter: 2 lines on small display - 1 line on big display */
+/* friends filter: 4 lines on small display - 2 lines on medium display and 1 line on big display */
 @media screen and (max-width: 532px) {
+    .friends-filter-4-lines {
+        display: inline;
+    }
+    .friends-filter-2-lines {
+        display: none;
+    }
+    .friends-filter-1-line {
+        display: none;
+    }
+}
+@media screen and (min-width: 533px) and (max-width: 1023px) {
+    .friends-filter-4-lines {
+        display: none;
+    }
     .friends-filter-2-lines {
         display: inline;
     }
@@ -251,7 +264,10 @@ form {
         display: none;
     }
 }
-@media screen and (min-width: 533px) {
+@media screen and (min-width: 1024px) {
+    .friends-filter-4-lines {
+        display: none;
+    }
     .friends-filter-2-lines {
         display: none;
     }

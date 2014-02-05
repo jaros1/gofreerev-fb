@@ -451,7 +451,6 @@
     good performance at startup and nice to have for the users when selecting friends
 
 93) users/index
-    - fix responsive layout width >= nnn
     - add me to friends filter
     - logged accounts should be shown under friends
     - check for empty combinations (me + not app users, me + not friends etc)
@@ -462,3 +461,6 @@
 95) non facebook invites:
     an alternative to app invitation could be an email
     but that requires email adr. is read from api when invitation is send
+
+96) problem with responsive header width 800 - 890 (da)
+    make currency LOV smaller or change breaks for 1/2 lines menu
