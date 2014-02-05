@@ -81,35 +81,81 @@ module UsersHelper
                         :number_of_days => number_of_days
   end # gift_balance_calculation_doc
 
-  # helpers for friends filter and invide friends link
+  # helpers for friends filter and invite friends link
   # shown in one or 2 lines depending on screen width
   def friends_filter_text
     t '.friends_filter_prompt', :appname => APP_NAME, :appname_camelized => APP_NAME.camelize
   end # app_friends_tex
 
-  def app_friends_link (friends_filter)
-    if %w(yes me).index(friends_filter)
+  def app_friends_link (page_values)
+    if %w(yes me).index(page_values[:friends])
       t('.app_friends_link_text')
     else
-      link_to t('.app_friends_link_text'), users_path(:friends => 'yes')
+      link_to t('.app_friends_link_text'), users_path(page_values.merge(:friends => 'yes'))
     end
   end # show_app_friends_link
 
-  def not_app_friends_link (friends_filter)
-    if friends_filter == 'no'
+  def not_app_friends_link (page_values)
+    if page_values[:friends] == 'no'
       t('.not_app_friends_link_text')
     else
-      link_to t('.not_app_friends_link_text'), users_path(:friends => 'no')
+      link_to t('.not_app_friends_link_text'), users_path(page_values.merge(:friends => 'no'))
     end
   end # not_app_friends_link
 
-  def app_friends_friends_link (friends_filter)
-    if friends_filter == 'all'
+  def app_friends_friends_link (page_values)
+    if page_values[:friends] == 'all'
       t('.all_app_users_link_text')
     else
-      link_to t('.all_app_users_link_text'), users_path(:friends => 'all')
+      link_to t('.all_app_users_link_text'), users_path(page_values.merge(:friends => 'all'))
     end
   end # all_friends_friends_link
+
+  def app_user_filter_text
+    t '.app_user_filter_prompt', :appname => APP_NAME, :appname_camelized => APP_NAME.camelize
+  end
+
+  def app_user_yes_link (page_values)
+    if %w(yes).index(page_values[:appuser])
+      t('.app_user_yes_link_text')
+    else
+      link_to t('.app_user_yes_link_text'), users_path(page_values.merge(:appuser => 'yes'))
+    end
+  end
+
+  def app_user_no_link (page_values)
+    if %w(no).index(page_values[:appuser])
+      t('.app_user_no_link_text')
+    else
+      link_to t('.app_user_no_link_text'), users_path(page_values.merge(:appuser => 'no'))
+    end
+  end
+
+  def app_user_all_link (page_values)
+    if %w(all).index(page_values[:appuser])
+      t('.app_user_all_link_text')
+    else
+      link_to t('.app_user_all_link_text'), users_path(page_values.merge(:appuser => 'all'))
+    end
+  end
+
+  def api_user_link (provider, page_values)
+    if provider == 'all'
+      if page_values[:apiname] == 'all'
+        t '.api_user_all_link_text'
+      else
+        link_to t('.api_user_all_link_text'), users_path(page_values.merge(:apiname => 'all'))
+      end
+    else
+      if provider == page_values[:apiname]
+        provider_camelize(provider)
+      else
+        link_to provider_camelize(provider), users_path(page_values.merge(:apiname => provider))
+      end
+    end
+  end
+
+
 
   # user_nav_link is used in users/show nav links - up to 9 links in up to 3 sections
   # nav links is displayed in 1, 2 or 3 lines in users/show page depending on screen width

@@ -675,6 +675,7 @@ en:
         edit_user: "Edit"
      index:
         page_header_text_html: "Add/remove friends<br /><br />"
+     menu_friends_yes_no_links:
         friends_filter_prompt: "%{appname_camelized}:" # appname, appname_camelized
         app_friends_link_text: "Friends"
         not_app_friends_link_text: "Not friends"

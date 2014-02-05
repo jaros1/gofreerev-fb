@@ -440,33 +440,25 @@
     maybe problem with very big select if really many friends for logged in users
     on other option could be 2 sub queries combined with filter for deselected friends
     select * from api_gifts
-    where user_id_giver in (select ...) and user_id_giver not in (1,2,3)
-    or    user_id_receiver in (select ...) and user_id_receiver not in (1,2,3)
-
-89) check users/user friend status title mouseover text
-    maybe mutual friend count/check should be user.friends_hash cache
-    maybe drop mutual friend count for friends status text
+    where user_id_giver in (select ...) and user_id_giver not in (1,2,3, ..)
+    or    user_id_receiver in (select ...) and user_id_receiver not in (1,2,3, ..)
 
 90) check set_timezone task
     it looks like it is running too often
 
 91) users/index status mouse over with number of mutual friends was been dropped
     maybe add a ajax mouse over title - that is - calculate number of mutual friends when needed and not always
-    good performance at startup and nice to have
-
-92) facebook invite friend to use all
-    user.last_login_at can normally be used to check if friend is using app or not
-    facebook also have a callback url when a user removes a app
-    http://thinkdiff.net/facebook/track-users-who-are-removing-your-facebook-application/
-    delete data for an deauthorized user?
+    good performance at startup and nice to have for the users when selecting friends
 
 93) users/index
-    - add gofreerev user / not gofreerev user / last login x weeks ago
-    - add invite link to non gofreerev users
-    - filter: gofreerev: users, non users, all
+    - fix responsive layout width >= nnn
+    - add me to friends filter
+    - logged accounts should be shown under friends
+    - check for empty combinations (me + not app users, me + not friends etc)
 
-94) check out js api for facebook, linkedin, google+ and twitter
-    some not supported server site operations could be implementyed with client side JS
+94) check out JS API's for facebook, linkedin, google+ and twitter
+    some not supported server site operations could be implemented with client side JS
 
-95) an alternative to app invitation could be an email
-    but that requires emails in
+95) non facebook invites:
+    an alternative to app invitation could be an email
+    but that requires email adr. is read from api when invitation is send

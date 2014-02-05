@@ -11,27 +11,51 @@
 <div style="width: 100%" class="friends-filter-1-line">
   <table>
     <tr>
-      <td><%= friends_filter_text %></td>
-      <td><u><%= app_friends_link(@friends_filter) %></u></td>
-      <td><u><%= not_app_friends_link(@friends_filter) %></u></td>
-      <td><u><%= app_friends_friends_link(@friends_filter) %></u></td>
-      <td>&nbsp;&nbsp;|&nbsp;&nbsp;</td>
-      <%= render :partial => 'shared/invite_friends' %>
+      <td>
+        <table>
+          <tr>
+            <%= render :partial => 'menu_friends_yes_no_links' %>
+          </tr>
+          <% if @page_values[:friends] != 'me' -%>
+              <tr>
+                <%= render :partial => 'menu_app_user_yes_no_links' %>
+              </tr>
+          <% end -%>
+        </table>
+      </td>
+      <td>&nbsp;&nbsp;</td>
+      <td>
+        <table>
+          <% if @page_values[:friends] != 'me' -%>
+              <tr>
+                <%= render :partial => 'menu_api_user_links' %>
+              </tr>
+          <% end -%>
+          <tr>
+            <%= render :partial => 'shared/invite_friends_links' %>
+          </tr>
+        </table>
+      </td>
     </tr>
   </table>
 </div>
 <div style="width: 100%" class="friends-filter-2-lines">
   <table>
     <tr>
-      <td><%= friends_filter_text %></td>
-      <td>
-        <u><%= app_friends_link(@friends_filter) %></u>
-        <u><%= not_app_friends_link(@friends_filter) %></u>
-        <u><%= app_friends_friends_link(@friends_filter) %></u>
-      </td>
+      <%= render :partial => 'menu_friends_yes_no_links' %>
     </tr>
+<% if @page_values[:friends] != 'me' -%>
     <tr>
-      <%= render :partial => 'shared/invite_friends' %>
+      <%= render :partial => 'menu_app_user_yes_no_links' %>
+    </tr>
+<% end -%>
+<% if @page_values[:friends] != 'me' -%>
+    <tr>
+      <%= render :partial => 'menu_api_user_links' %>
+    </tr>
+<% end -%>
+    <tr>
+      <%= render :partial => 'shared/invite_friends_links' %>
     </tr>
   </table>
 </div>
@@ -61,7 +85,7 @@
 
 <br/>
 <%# add remote link to get more rows and call javascript to setup end of page event and post ajax handling of the new rows. set DEBUG_AJAX to true in initializers/constraints.rb to get more ajax debug information -%>
-<%= link_to "show-more-lines", users_path(:last_row_id => @last_row_id, :friends => @friends_filter), :remote => true, :id => "show-more-rows-link", :style => "display: none" %>
+<%= link_to "show-more-lines", users_path(@page_values.merge(:last_row_id => @last_row_id)), :remote => true, :id => "show-more-rows-link", :style => "display: none" %>
 <%= render :partial => 'shared/show_more_rows', :locals => {:show_more_rows => 'users'} %>
 
 <hr>

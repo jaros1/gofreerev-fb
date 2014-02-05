@@ -657,7 +657,7 @@ class User < ActiveRecord::Base
   end
 
   def app_user?
-    last_login_at and !deleted_at and !deauthorized_at
+    (last_login_at and !deleted_at and !deauthorized_at)
   end
 
   def short_user_name

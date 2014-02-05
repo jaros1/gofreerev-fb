@@ -123,6 +123,12 @@ class UsersController < ApplicationController
   end # destroy
 
   def index
+    # page filters:
+    # - friends: yes no me all
+    # - appuser: yes no all
+    # - apiname: provider all
+    @page_values = {}
+
     # friends filter: yes:show friends, no:show not friends, me:show my accounts, all:show all users (')
     # * = only show friends of friends - not all Gofreerev users
     friends_filter_values = %w(yes no me all)
@@ -131,7 +137,31 @@ class UsersController < ApplicationController
       logger.error2 "invalid request. friends = #{friends_filter}. allowed values are #{friends_filter_values.join(', ')}"
       friends_filter = friends_filter_values.first
     end
-    @friends_filter = friends_filter
+    @page_values[:friends] = friends_filter
+
+    if @page_values[:friends] == 'me'
+      # show logged in users - ignore other filters
+      @page_values[:appuser] = @page_values[:apiname] = 'all'
+    else
+      # appuser filter: yes: show gofreerev users, no: show users that is not using gofreerev, all: show all users (*)
+      appuser_filter_values = %w(all yes no)
+      appuser_filter = params[:appuser] || appuser_filter_values.first
+      if !appuser_filter_values.index(appuser_filter)
+        logger.error2 "invalid request. appuser = #{appuser_filter}. allowed values are #{appuser_filter_values.join(', ')}"
+        appuser_filter = appuser_filter_values.first
+      end
+      @page_values[:appuser] = appuser_filter
+
+      # appname filter: all: show all users (*), provider: show only users for selected provider
+      apiname_filter_values = %w(all) + @users.collect {|u| u.provider }
+      apiname_filter = params[:apiname] || apiname_filter_values.first
+      if !apiname_filter_values.index(apiname_filter)
+        logger.error2 "invalid request. apiname = #{apiname_filter}. allowed values are #{apiname_filter_values.join(', ')}"
+        apiname_filter = apiname_filter_values.first
+      end
+      @page_values[:apiname] = apiname_filter
+    end
+
 
     # http request: return first 10 friends (last_row_id = nil)
     # ajax request: return next 10 friends (last_row_id != nil)
@@ -167,14 +197,14 @@ class UsersController < ApplicationController
     #    a.friend.user_name <=> b.friend.user_name
     #  end
     #end
-    # logger.debug2  "friends_filter = #{@friends_filter}, found #{user_friends.size} friends"
+    # logger.debug2  "@page_values = #{@page_values}, found #{user_friends.size} friends"
 
-    if @friends_filter == 'me'
+    if @page_values[:friends] == 'me'
       # show login users - link from user div in page header for logged in users
       users2 = @users.sort do |a, b|
         a.apiname <=> b.apiname
       end
-    elsif @friends_filter == 'yes'
+    elsif @page_values[:friends] == 'yes'
       # simple friends search - just return login users friends
       logger.debug2 'simple friends search - just return login users friends'
       users2 = User.app_friends(@users).sort_by_user_name.collect { |f| f.friend }
@@ -204,7 +234,7 @@ class UsersController < ApplicationController
       User.where("user_id in (?)", friends_friends_userids).each do |user|
         friend = (user.friend?(@users) <= 2)
         # logger.debug2  "user = #{user.user_id}, friend = #{friend}"
-        next if @friends_filter == 'no' and friend # don't show friends
+        next if @page_values[:friends] == 'no' and friend # don't show friends
         users2 << user
       end # each user
       # logger.debug2  "users2.size = #{users2.size}"
@@ -218,6 +248,13 @@ class UsersController < ApplicationController
       end # sort
       # friends_filter = nil (all users) or false (only non friends)
     end # friends_filter == true
+
+    # apply appuser and apiname filters
+    users2.delete_if do |u|
+      ( (@page_values[:appuser] == 'yes' and !u.app_user?) or
+        (@page_values[:appuser] == 'no' and u.app_user?) or
+        (@page_values[:apiname] != 'all' and u.provider != @page_values[:apiname]) )
+    end
 
     # use this users select for ajax test - returns all users
     # users = User.all # uncomment to test ajax
