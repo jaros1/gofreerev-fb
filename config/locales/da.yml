@@ -681,12 +681,12 @@ da:
         not_app_friends_link_text: "nej"
         all_app_users_link_text: "alle"
      menu_app_user_yes_no_links:
-        app_user_filter_prompt: "App user:"
+        app_user_filter_prompt: "App bruger:"
         app_user_yes_link_text: "ja"
         app_user_no_link_text: "nej"
         app_user_all_link_text: "alle"
      menu_api_user_links:
-        api_user_filter_prompt: "API users:"
+        api_user_filter_prompt: "API brugere:"
         api_user_all_link_text: "alle"
      edit:
         invalid_request: "Ugyldigt kald."

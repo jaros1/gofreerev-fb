@@ -676,10 +676,18 @@ en:
      index:
         page_header_text_html: "Add/remove friends<br /><br />"
      menu_friends_yes_no_links:
-        friends_filter_prompt: "%{appname_camelized}:" # appname, appname_camelized
-        app_friends_link_text: "Friends"
-        not_app_friends_link_text: "Not friends"
-        all_app_users_link_text: "All"
+        friends_filter_prompt: "Friends:" # appname, appname_camelized
+        app_friends_link_text: "yes"
+        not_app_friends_link_text: "no"
+        all_app_users_link_text: "all"
+     menu_app_user_yes_no_links:
+        app_user_filter_prompt: "App user:"
+        app_user_yes_link_text: "yes"
+        app_user_no_link_text: "no"
+        app_user_all_link_text: "all"
+     menu_api_user_links:
+        api_user_filter_prompt: "API users:"
+        api_user_all_link_text: "all"
      edit:
         invalid_request: "Invalid request."
         page_header_text_html: "<p>Update user information</p>"
