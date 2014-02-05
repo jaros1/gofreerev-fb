@@ -700,7 +700,7 @@ class User < ActiveRecord::Base
     return nil unless currency
     m = Money::Currency.table.find { |a| a[0] == currency.downcase.to_sym }
     return nil unless m
-    "#{m[1][:iso_code]} #{m[1][:name]}".first(25)
+    "#{m[1][:iso_code]} #{m[1][:name]}".first(CURRENCY_LOV_LENGTH)
   end # currency_with_text
 
   # has user granted app privs wall postings?

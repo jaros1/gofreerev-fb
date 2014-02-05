@@ -42,14 +42,14 @@ module ApplicationHelper
     Money::Currency.table.find_all do |a|
       !active_currencies or active_currencies.size == 0 or active_currencies.index(a[1][:iso_code]) or a[1][:iso_code] == BASE_CURRENCY
     end.collect do |a|
-      [ "#{a[1][:iso_code]} #{a[1][:name]}".first(25), a[1][:iso_code] ]
+      [ "#{a[1][:iso_code]} #{a[1][:name]}".first(CURRENCY_LOV_LENGTH), a[1][:iso_code] ]
     end
   end
   def selected_currency
     return [] unless @user
     a = Money::Currency.table.find { |a| a[1][:iso_code] == @user.currency }
     return [] unless a
-    [ [ "#{a[1][:iso_code]} #{a[1][:name]}".first(25), a[1][:iso_code] ]]
+    [ [ "#{a[1][:iso_code]} #{a[1][:name]}".first(CURRENCY_LOV_LENGTH), a[1][:iso_code] ]]
   end
 
   def header_log_in_link_url

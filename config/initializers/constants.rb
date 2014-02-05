@@ -45,6 +45,7 @@ BASE_CURRENCY = 'USD' # store exchange rates and internal balances in this curre
 BASE_COUNTRY = 'us' # default country if user country is unknown.
 BASE_LANGUAGE = 'en' # default language if user language is unknown
 BALANCE_KEY = 'BALANCE'
+CURRENCY_LOV_LENGTH = 20 # truncate currency lov after 20 characters
 
 DEBUG_AJAX = true # default false - set to true to get more ajax debug information - JS alerts, extra log messages etc
 
