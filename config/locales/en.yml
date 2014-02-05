@@ -677,9 +677,10 @@ en:
         page_header_text_html: "Add/remove friends<br /><br />"
      menu_friends_yes_no_links:
         friends_filter_prompt: "Friends:" # appname, appname_camelized
-        app_friends_link_text: "yes"
-        not_app_friends_link_text: "no"
-        all_app_users_link_text: "all"
+        friends_yes_link_text: "yes"
+        friends_no_link_text: "no"
+        friends_all_link_text: "all"
+        friends_me_link_text: "me"
      menu_app_user_yes_no_links:
         app_user_filter_prompt: "App user:"
         app_user_yes_link_text: "yes"

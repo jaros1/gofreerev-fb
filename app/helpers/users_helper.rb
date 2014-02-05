@@ -87,27 +87,35 @@ module UsersHelper
     t '.friends_filter_prompt', :appname => APP_NAME, :appname_camelized => APP_NAME.camelize
   end # app_friends_tex
 
-  def app_friends_link (page_values)
-    if %w(yes me).index(page_values[:friends])
-      t('.app_friends_link_text')
+  def app_friends_yes_link (page_values)
+    if %w(yes).index(page_values[:friends])
+      t('.friends_yes_link_text')
     else
-      link_to t('.app_friends_link_text'), users_path(page_values.merge(:friends => 'yes'))
+      link_to t('.friends_yes_link_text'), users_path(page_values.merge(:friends => 'yes'))
     end
   end # show_app_friends_link
 
-  def not_app_friends_link (page_values)
+  def app_friends_no_link (page_values)
     if page_values[:friends] == 'no'
-      t('.not_app_friends_link_text')
+      t('.friends_no_link_text')
     else
-      link_to t('.not_app_friends_link_text'), users_path(page_values.merge(:friends => 'no'))
+      link_to t('.friends_no_link_text'), users_path(page_values.merge(:friends => 'no'))
     end
   end # not_app_friends_link
 
-  def app_friends_friends_link (page_values)
+  def app_friends_all_link (page_values)
     if page_values[:friends] == 'all'
-      t('.all_app_users_link_text')
+      t('.friends_all_link_text')
     else
-      link_to t('.all_app_users_link_text'), users_path(page_values.merge(:friends => 'all'))
+      link_to t('.friends_all_link_text'), users_path(page_values.merge(:friends => 'all'))
+    end
+  end # all_friends_friends_link
+
+  def app_friends_me_link (page_values)
+    if page_values[:friends] == 'me'
+      t('.friends_me_link_text')
+    else
+      link_to t('.friends_me_link_text'), users_path(:friends => 'me')
     end
   end # all_friends_friends_link
 

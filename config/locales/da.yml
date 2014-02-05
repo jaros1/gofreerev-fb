@@ -677,9 +677,10 @@ da:
         page_header_text_html: "Tilføj/fjern venner<br /><br />"
      menu_friends_yes_no_links:
         friends_filter_prompt: "Venner:" # appname, appname_camelized
-        app_friends_link_text: "ja"
-        not_app_friends_link_text: "nej"
-        all_app_users_link_text: "alle"
+        friends_yes_link_text: "ja"
+        friends_no_link_text: "nej"
+        friends_all_link_text: "alle"
+        friends_me_link_text: "mig"
      menu_app_user_yes_no_links:
         app_user_filter_prompt: "App bruger:"
         app_user_yes_link_text: "ja"
