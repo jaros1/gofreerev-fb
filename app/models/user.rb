@@ -1095,9 +1095,13 @@ class User < ActiveRecord::Base
 
   # friend status code. "this" is friend. login_user is login user.
   #   Y - friends
+  #   F - follows
+  #   S - is stalked by
   #   N - not friends
   #   A - login api friends and not app friends
-  #   G - gofreerev app friends and not login api friends
+  #   G - gofreerev app friends and not login api friends (api friend = N)
+  #   H - gofreerev app friends and not login api friends (api friend = F)
+  #   I - gofreerev app friends and not login api friends (api friend = S)
   #   R - app friendship request from login user to friend
   #   P - pending app friendship request to login user from friend (todo)
   #   M - my account == friends
@@ -1114,25 +1118,34 @@ class User < ActiveRecord::Base
     end
     f = get_friend(login_user)
     return 'N' unless f
+    return f.app_friend if %w(R P B).index(f.app_friend) # app friendship request or blocked user
     if f.api_friend == 'Y'
       # api friend
       case f.app_friend
-        when nil then return 'Y' # default - api friends are also app friends
-        when 'Y' then return 'Y' #
+        when nil then return 'Y' # api and app friends
+        when 'Y' then return 'Y' # api and app friends
         when 'N' then return 'A' # user has been deselected as app friend by login user
-        when 'R' then return 'R' # pending friendship request from login user
-        when 'P' then return 'P'
-        when 'B' then return 'B' # friendship request has been blocked login user
+      end # case
+    elsif f.api_friend == 'F'
+      # login user follows friend
+      case f.app_friend
+        when nil then return 'F' # login user follows friend
+        when 'Y' then return 'H' # app friends + follower
+        when 'N' then return 'F' # user has been deselected as app friend by login user
+      end # case
+    elsif f.api_friend == 'S'
+      # login user is stalked by friend
+      case f.app_friend
+        when nil then return 'S' # login user is stalked by friend
+        when 'Y' then return 'I' # app friend + stalker
+        when 'N' then return 'S' # user has been deselected as app friend by login user
       end # case
     else
       # non api friend
       case f.app_friend
-        when nil then return 'N'
+        when nil then return 'N' # not api and not app friend
         when 'Y' then return 'G' # not login api friends - only friends within gofreerev app
         when 'N' then return 'N' # user has been deselected as app friend by login user
-        when 'R' then return 'R' # pending friendship request from login user
-        when 'P' then return 'P'
-        when 'B' then return 'B' # friendship request has been blocked login user
       end # case
     end
   end
@@ -1180,6 +1193,8 @@ class User < ActiveRecord::Base
       #when 'B' then return %w(unblock_app_user)
       when 'Y' then return %w(Remove_app_friend)
       when 'N' then return %w(send_app_friend_request)
+      when 'F' then return %w(send_app_friend_request)
+      when 'S' then return %w(send_app_friend_request)
       when 'A' then return %w(send_app_friend_request)
       when 'G' then return %w(Remove_app_friend)
       when 'R' then return %w(send_app_friend_request cancel_app_friend_request)

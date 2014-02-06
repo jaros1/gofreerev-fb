@@ -464,4 +464,12 @@
     linkedin (todo)
     twitter (todo)
 
-97)
+97) users/_user partial
+    only show friend action bottoms for app users
+
+99) allow friend request for friend status code F and S
+
+100) users/index and google+ users
+     should only show friends of friends
+     must not show friends of followers
+     must not show friends of stalkers

@@ -162,7 +162,6 @@ class UsersController < ApplicationController
       @page_values[:apiname] = apiname_filter
     end
 
-
     # http request: return first 10 friends (last_row_id = nil)
     # ajax request: return next 10 friends (last_row_id != nil)
     last_row_id = params[:last_row_id].to_s
