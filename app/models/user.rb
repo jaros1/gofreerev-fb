@@ -1182,6 +1182,7 @@ class User < ActiveRecord::Base
       return []
     end
     return [] if login_user.deleted_at
+    return [] unless last_login_at # never logged in - do not show any friend action
     case friend_status_code(login_user)
       # dropped add/remove api friend bottoms
       #when 'Y' then return %w(rEmove_api_friend Remove_app_friend)

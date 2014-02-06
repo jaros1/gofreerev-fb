@@ -246,6 +246,22 @@ module ApplicationHelper
     end # case
   end # invite_friends_url
 
+  def invite_friend (friend)
+    if %w(facebook).index(friend.provider)
+      # use API invite functionality - only facebook has implemented this
+      link_to t('.invite_friend_link_text'), invite_friend_url(friend)
+    else
+      # use client email with dummy email address
+      login_user = @users.find { |u| u.provider == friend.provider }
+      options = { :to_username => friend.user_name,
+                  :from_username => login_user.user_name,
+                  :url => "#{SITE_URL}#{I18n.locale}/auth"}
+      mail_to t('.invite_friend_mailto_email'), t('.invite_friend_mailto_link_text'),
+              :subject => t('.invite_friend_mailto_subject', friend.app_and_apiname_hash),
+              :body => t('.invite_friend_mailto_body', friend.app_and_apiname_hash.merge(options) )
+    end
+  end
+
   def invite_friends_link (login_user)
     link_to provider_camelize(login_user.provider), invite_friends_url(login_user), :title => t('shared.invite_friends.invite_friends_link_title', :appname => APP_NAME, :apiname => login_user.apiname)
   end

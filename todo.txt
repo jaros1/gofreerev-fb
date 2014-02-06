@@ -454,22 +454,9 @@
 94) check out JS API's for facebook, linkedin, google+ and twitter
     some not supported server site operations could be implemented with client side JS
 
-95) non facebook invites:
-    an alternative to app invitation could be an email
-    but that requires email adr. is read from api when invitation is send
+95) non facebook invites: no invite to use app functionality in linkedin, google+ and twitter
+    could let server send an email
+    could create a mailto tag with email, subject and body
 
-96) app user:
-    facebook (ok)
-    google+ (todo)
-    linkedin (todo)
-    twitter (todo)
-
-97) users/_user partial
-    only show friend action bottoms for app users
-
-99) allow friend request for friend status code F and S
-
-100) users/index and google+ users
-     should only show friends of friends
-     must not show friends of followers
-     must not show friends of stalkers
+98) users/index - friends of friends - why in list - show name(s) of friend
+    maybe the same as previous dropped mutual friends

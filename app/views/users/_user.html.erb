@@ -29,7 +29,7 @@
     <tr title="<%= t '.invite_friend_title', user.app_and_apiname_hash.merge(:username => user.user_name) %>">
       <td><%= t '.invite_friend_prompt' %></td>
       <td>:</td>
-      <td><%= link_to t('.invite_friend_link_text'), invite_friend_url(user) %></td>
+      <td><%= invite_friend(user) %></td>
     </tr>
 <% end -%>
 <tr>
