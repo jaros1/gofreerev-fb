@@ -33,9 +33,14 @@ class Friend < ActiveRecord::Base
   validates_presence_of :user_id_receiver
   validates_uniqueness_of :user_id_receiver, :scope => :user_id_giver
 
-  # 4) api_friend. String Y/N in model. Encrypted text in db. Required
-  # Y or N. Friends in FB or mutual connection in google+
+  # 4) api_friend. String in model. Encrypted text in db. Required
+  # Y - mutual API friends
+  # N - not API friends, but can be APP friends
+  # F - user_id_giver follows user_id_receiver
+  # S - user_id_giver is being stalked by user_id_receiver
+  # F and S are being used by google+ and twitter
   validates_presence_of :api_friend
+  validates_inclusion_of :api_friend, :allow_blank => true, :in => %w(Y N F S)
   def api_friend
     # logger.debug2  "gift.api_friend: api_friend = #{read_attribute(:api_friend)} (#{read_attribute(:api_friend).class.name})"
     return nil unless (extended_api_friend = read_attribute(:api_friend))
@@ -45,7 +50,6 @@ class Friend < ActiveRecord::Base
     # logger.debug2  "gift.api_friend=: api_friend = #{new_api_friend} (#{new_api_friend.class.name})"
     if new_api_friend
       check_type('api_friend', new_api_friend, 'String')
-      raise TypeError, "Allowed values for api_friend is Y and N" unless %w(Y N).index(new_api_friend)
       write_attribute :api_friend, encrypt_add_pre_and_postfix(new_api_friend, 'api_friend', 16)
     else
       write_attribute :api_friend, nil
@@ -92,51 +96,94 @@ class Friend < ActiveRecord::Base
   # helper methods #
   ##################
 
-  def self.add_friend(userid1, userid2)
-    logger.debug2 "userid1 = #{userid1}, userid2 = #{userid2}"
-    transaction do
-      # check for any old information about blocked or deselect app friend
-      # ( information is kept even if user delete and recreates account )
-      f2 = Friend.where('user_id_giver = ? and user_id_receiver = ?', userid2, userid1).first
-      f1 = Friend.new
-      f1.user_id_giver = userid1
-      f1.user_id_receiver = userid2
-      f1.api_friend = 'Y'
-      if f2
-        f1.app_friend = case f2.app_friend
-                          when 'B' then 'N' # other user has blocked user1 = login user
-                          when 'N' then 'N' # other user has deselect user1 = login user
-                          else nil
-                        end
-      else
-        f1.app_friend = nil
-      end
-      f1.save!
-      f2 = Friend.new unless f2
-      f2.user_id_giver = userid2
-      f2.user_id_receiver = userid1
-      f2.api_friend = 'Y'
-      f2.save!
-    end # transaction
-  end # self.add_friend
-
-  def self.remove_friend(userid1, userid2)
-    transaction do
-      f1 = Friend.where("user_id_giver = ? and user_id_receiver = ?", userid1, userid2).first
-      f2 = Friend.where("user_id_giver = ? and user_id_receiver = ?", userid2, userid1).first
-      if !f1.app_friend and !f2.app_friend
-        # default app_friend value (nil)
-        f1.destroy! if f1
-        f2.destroy! if f2
-        return
-      end
-      # non default app_friend value (N, B)
-      f1.api_friend = 'N'
-      f2.api_friend = 'N'
-      f1.save!
-      f2.save!
-    end # transaction
-  end # self.remove_friend
+  #def self.add_friend(userid1, userid2, api_friend)
+  #  logger.debug2 "userid1 = #{userid1}, userid2 = #{userid2}, api_friend"
+  #  transaction do
+  #    # check for any old information about blocked or deselect app friend
+  #    # ( information is kept even if user delete and recreates account )
+  #    f2 = Friend.where('user_id_giver = ? and user_id_receiver = ?', userid2, userid1).first
+  #    f1 = Friend.new
+  #    f1.user_id_giver = userid1
+  #    f1.user_id_receiver = userid2
+  #    f1.api_friend = api_friend
+  #    if f2
+  #      f1.app_friend = case f2.app_friend
+  #                        when 'B' then 'N' # other user has blocked user1 = login user
+  #                        when 'N' then 'N' # other user has deselect user1 = login user
+  #                        else nil
+  #                      end
+  #    else
+  #      f1.app_friend = nil
+  #    end
+  #    f1.save!
+  #    f2 = Friend.new unless f2
+  #    f2.user_id_giver = userid2
+  #    f2.user_id_receiver = userid1
+  #    f2.api_friend = 'N' unless f2.api_friend = 'N'
+  #    if api_friend = 'F'
+  #      # S + F = Y
+  #      f2.api_friend = case f2.api_friend
+  #                        when 'N'
+  #                          'F'
+  #                        when 'S'
+  #                          'Y'
+  #                        else
+  #                          api_friend
+  #                      end # case
+  #    else
+  #      f2.api_friend = api_friend
+  #    end
+  #    f2.save!
+  #  end # transaction
+  #end # self.add_friend
+  #
+  #def self.update_friend(login_user_id, friend_user_id, f1, f2, api_friend)
+  #  if !f1
+  #    # create missing friend (error)
+  #    f1 = Friend.new
+  #    f1.user_id_giver = login_user_id
+  #    f1.user_id_receiver = friend_user_id
+  #    f1.app_friend = nil
+  #  end
+  #  if !f2
+  #    # create missing friend (error)
+  #    f2 = Friend.new
+  #    f2.user_id_giver = friend_user_id
+  #    f2.user_id_receiver = login_user_id
+  #    f2.app_friend = nil
+  #  end
+  #  f1.api_friend = api_friend
+  #  f2 = case api_friend
+  #         when 'Y' then 'Y'
+  #         when 'F' then 'S'
+  #         when
+  #       end
+  #
+  #
+  #  # logger.debug2  "before save"
+  #  # logger.debug2  "update f1: giver = #{f1.user_id_giver}, receiver = #{f1.user_id_receiver}, api = #{f1.api_friend}, app = #{f1.app_friend}"
+  #  # logger.debug2  "update f2: giver = #{f2.user_id_giver}, receiver = #{f2.user_id_receiver}, api = #{f2.api_friend}, app = #{f2.app_friend}"
+  #  f1.save!
+  #  f2.save!
+  #end
+  #
+  #def self.remove_friend(userid1, userid2)
+  #  transaction do
+  #    f1 = Friend.where("user_id_giver = ? and user_id_receiver = ?", userid1, userid2).first
+  #    f2 = Friend.where("user_id_giver = ? and user_id_receiver = ?", userid2, userid1).first
+  #    if !f1.app_friend and !f2.app_friend
+  #      # default app_friend value (nil)
+  #      f1.destroy! if f1
+  #      f2.destroy! if f2
+  #      return
+  #    end
+  #    # non default app_friend value (N, B)
+  #    f1.api_friend = 'N'
+  #    f2.api_friend = 'N'
+  #    f1.save!
+  #    f2.save!
+  #  end # transaction
+  #end # self.remove_friend
 
   def api_friend?
     api_friend == 'Y'
@@ -146,15 +193,48 @@ class Friend < ActiveRecord::Base
   end
 
 
-  # friends_hash is hash with old and new friend from util_controller.post_login_<provider> api request
-  # mutual_friends = true: facebook, linkedin - update friend list for login user and for friend
-  # mutual friends = false: google+, twitter - update only friend list for login user
-  def self.update_friends_from_hash (options)
+  # google+ and twitter. api friend = Y is only used for mutual friends
+  # use F (follower) if login user is following then other user
+  # use S (stakler) if other user if following login user
+  # api friend: Y = F + S
+  private
+  def self.remove_follow (api_friend)
+    case api_friend
+      when 'Y'
+        # change friend api status from mutual friend to a stalker
+        'S'
+      when 'F'
+        # change friend api status from follow to not a friend
+        'N'
+      else
+        api_friend
+    end # case
+  end # remove_as_follower
+  private
+  def self.add_follow (api_friend)
+    case api_friend
+      when 'N'
+        # follow friend
+        'F'
+      when 'S'
+        # change friend status from a stalker to a mutual friend
+        'Y'
+      else
+        api_friend
+    end # case
+  end # add_as_follower
+
+
+  # friends_hash is hash with new friends list from util_controller.post_login_<provider> api request
+  # todo: describe fields in friends_hash
+  def self.update_api_friends_from_hash (options)
+    # get params
     login_user_id = options[:login_user_id]
-    friends_hash = options[:friends_hash]
-    mutual_friends = options[:mutual_friends]
+    new_friends = options[:friends_hash]
     fields = options[:fields] || %w(name)
+    # get provider - friends concept - mutual friends in facebook and linkedin - followers/stalkers in google+ and twitter
     provider = login_user_id.split('/').last
+    mutual_friends = API_MUTUAL_FRIENDS[provider] # true for facebook and linkedin, false for google+ and twitter
     if fields.index('api_profile_picture_url')
       # check picture store for profile pictures
       picture_store = API_PROFILE_PICTURE_STORE[provider] || :api
@@ -164,99 +244,139 @@ class Friend < ActiveRecord::Base
         picture_store = :api
       end
     end
+    # get old friends list
+    old_friends         = {} # f1 - friends and follows
+    reverse_old_friends = {} # f2 - friends and stalkers
+    Friend.where('(user_id_giver = ? or user_id_receiver = ?) and user_id_giver <> user_id_receiver',
+                 login_user_id, login_user_id).includes(:friend).each do |f|
+      if f.user_id_giver == login_user_id
+        old_friends[f.user_id_receiver] = f
+      else
+        reverse_old_friends[f.user_id_giver] = f
+      end
+    end
 
-    # update selected user fields - different api clients/providers returns different information about friends
-    friends_hash.each do |friend_user_id, hash|
-      friend_user = nil
-      if fields.index('name')
-        # update name
-        if hash[:old_name] != hash[:new_name]
-          friend_user = hash[:user]
-          friend_user.user_name = hash[:new_name].force_encoding('UTF-8')
+    new_user_ids = new_friends.keys - old_friends.keys
+    # check new users in friends list
+    new_users = {}
+    if new_user_ids.size > 0
+      User.where('user_id in (?)', new_user_ids).each do |user|
+        new_users[user.user_id] = user
+      end
+    end
+    # create new users with minimal information - not all fields are available for all login providers
+    (new_users.keys - new_user_ids).each do |user_id|
+      user = User.new
+      user.user_id = user_id
+      user.user_name               = new_friends[user_id][:name]
+      user.api_profile_url         = new_friends[user_id][:api_profile_url]
+      user.api_profile_picture_url = new_friends[user_id][:api_profile_picture_url]
+      user.no_api_friends          = new_friends[user_id][:no_api_friends]
+      user.post_on_wall_yn         = 'N'
+      user.save!
+      new_users[user_id] = user
+    end
+
+    # loop for all old and new friends
+    (old_friends.keys + new_friends.keys).each do |user_id|
+      # find old and new api friend status
+      if old_friends.has_key?(user_id)
+        old_api_friend = old_friends[user_id].api_friend || 'N'
+      else
+        old_api_friend = 'N'
+      end
+      if new_friends.has_key?(user_id)
+        if mutual_friends
+          new_api_friend = 'Y'
+        else
+          new_api_friend = Friend.add_follow(old_api_friend)
+        end
+      else
+        if mutual_friends
+          new_api_friend = 'N'
+        else
+          new_api_friend = Friend.remove_follow(old_api_friend)
         end
       end
-      if fields.index('api_profile_url')
-        # update api_profile_url
-        if hash[:old_api_profile_url] != hash[:new_api_profile_url]
-          friend_user = hash[:user] unless friend_user
-          friend_user.api_profile_url = hash[:new_api_profile_url]
-        end
+      # how does api friendship looks like from the other side?
+      if mutual_friends
+        new_reverse_api_friend = new_api_friend
+      else
+        new_reverse_api_friend = case new_api_friend
+                                   when 'S'
+                                     # login user is stalked by friend. Friend is following login user
+                                     'F'
+                                   when 'F'
+                                     # login user is following friend. Friend is stalked by login user
+                                     'S'
+                                   else
+                                     new_api_friend
+                                 end # case
       end
-      if fields.index('api_profile_picture_url')
-        # update api_profile_picture_url
-        if hash[:old_api_profile_picture_url] != hash[:new_api_profile_picture_url]
-          # check picture store
-          # do not overwrite old picture if local picture store and old picture url is an local url
-          local = (picture_store == :local and Picture.app_url?(hash[:old_api_profile_picture_url]))
-          if !hash[:old_api_profile_picture_url] or picture_store == :api or !local
-            friend_user = hash[:user] unless friend_user
-            friend_user.api_profile_picture_url = hash[:new_api_profile_picture_url]
+
+      # update friend user information
+      if %w(Y F).index(new_api_friend)
+        friend_user = new_users[user_id] || old_friends[user_id].friend
+        hash = new_friends[user_id]
+        if fields.index('name')
+          # update name
+          if friend_user.user_name != hash[:name]
+            friend_user.user_name = hash[:name].force_encoding('UTF-8')
           end
         end
-      end
-      if fields.index('no_api_friends')
-        # update no_api_friends
-        if hash[:old_no_api_friends] != hash[:new_no_api_friends]
-          # logger.debug2  "fetch_user: update api profile url: old url = #{hash[:old_no_api_friends]}, new url = #{hash[:new_no_api_friends]}"
-          friend_user = hash[:user] unless friend_user
-          friend_user.no_api_friends = hash[:new_no_api_friends]
+        if fields.index('api_profile_url')
+          # update api_profile_url
+          if friend_user.api_profile_url != hash[:api_profile_url]
+            friend_user.api_profile_url = hash[:api_profile_url]
+          end
         end
+        if fields.index('api_profile_picture_url')
+          # update api_profile_picture_url
+          if friend_user.api_profile_picture_url != hash[:api_profile_picture_url]
+            # check picture store
+            # do not overwrite old picture if local picture store and old picture url is an local url
+            local = (picture_store == :local and Picture.app_url?(hash[:api_profile_picture_url]))
+            if !hash[:api_profile_picture_url] or picture_store == :api or !local
+              friend_user.api_profile_picture_url = hash[:api_profile_picture_url]
+            end
+          end
+        end
+        if fields.index('no_api_friends')
+          # update no_api_friends
+          if friend_user.no_api_friends != hash[:no_api_friends]
+            # logger.debug2  "fetch_user: update api profile url: old url = #{hash[:old_no_api_friends]}, new url = #{hash[:new_no_api_friends]}"
+            friend_user.no_api_friends = hash[:no_api_friends]
+          end
+        end
+        friend_user.save! if friend_user.changed?
       end
-      friend_user.save! if friend_user
-    end # each
 
-    # update api_fiend
-    friends_hash.each do |friend_user_id, hash|
-      if hash[:new_record]
-        # new friend entries
-        # logger.debug2  "new friend entries"
-        Friend.add_friend(login_user_id, friend_user_id)
-      else
-        # keep dummy friend row for login user. user_id_giver == user_id_receiver
-        next if login_user_id == friend_user_id
-        # old friend entry
-        # logger.debug2  "old friend entry, name = #{hash[:new_name]}, old api friend = #{hash[:old_api_friend]}, new api friend = #{hash[:new_api_friend]}"
-        next if hash[:old_api_friend] == hash[:new_api_friend] # no change in api friend status
-        # api friend status changed
-        f1 = Friend.where("user_id_giver = ? and user_id_receiver = ?", login_user_id, friend_user_id).first
-        f2 = Friend.where("user_id_giver = ? and user_id_receiver = ?", friend_user_id, login_user_id).first
-        if (f1 == nil or f1.app_friend == nil) and (f2 == nil or f2.app_friend == nil)
-          # Default app_friend status - just delete
-          # logger.debug2  "Default app_friend status - just delete"
-          Friend.remove_friend(login_user_id, friend_user_id)
-          next
-        end
-                                                               # non default app_friend status - update - do not delete
-        if !f1
-          # create missing friend (error)
-          f1 = Friend.new
-          f1.user_id_giver = login_user_id
-          f1.user_id_receiver = friend_user_id
-          f1.app_friend = nil
-        end
-        if !f2
-          # create missing friend (error)
-          f2 = Friend.new
-          f1.user_id_giver = friend_user_id
-          f1.user_id_receiver = login_user_id
-          f2.app_friend = nil
-        end
-        f1.api_friend = f2.api_friend = hash[:new_api_friend]
-                                                               # logger.debug2  "before save"
-                                                               # logger.debug2  "update f1: giver = #{f1.user_id_giver}, receiver = #{f1.user_id_receiver}, api = #{f1.api_friend}, app = #{f1.app_friend}"
-                                                               # logger.debug2  "update f2: giver = #{f2.user_id_giver}, receiver = #{f2.user_id_receiver}, api = #{f2.api_friend}, app = #{f2.app_friend}"
-        f1.save!
-        f2.save!
-                                                               # logger.debug2  "after save"
-        f1.reload
-        f2.reload
-                                                               # logger.debug2  "update f1: giver = #{f1.user_id_giver}, receiver = #{f1.user_id_receiver}, api = #{f1.api_friend}, app = #{f1.app_friend}"
-                                                               # logger.debug2  "update f2: giver = #{f2.user_id_giver}, receiver = #{f2.user_id_receiver}, api = #{f2.api_friend}, app = #{f2.app_friend}"
-        raise "api_friend status was not updated" unless f1.api_friend == hash[:new_api_friend] and f2.api_friend == hash[:new_api_friend]
+      # update api friend status
+      f1 = old_friends[user_id]
+      if !f1
+        f1 = Friend.new
+        f1.user_id_giver = login_user_id
+        f1.user_id_receiver = user_id
+      end
+      f2 = reverse_old_friends[user_id]
+      if !f2
+        f2 = Friend.new
+        f2.user_id_giver = user_id
+        f2.user_id_receiver = login_user_id
+      end
+      f1.api_friend = new_api_friend
+      f2.api_friend = new_reverse_api_friend
+      if f1.new_record? or f1.changed? or f2.new_record? or f2.changed?
+        transaction do
+          f1.save! if f1.new_record? or f1.changed?
+          f2.save! if f2.new_record? or f2.changed?
+        end # transaction
       end # if
-    end # each
-    # facebook friend list updated
 
+      # todo: check of f1 and f2 can be deleted
+    end # each user_id
+
+    # todo: delete removed friends that is not used by any other users
   end # self.update_friends_from_hash
 
   def self.define_sort_by_user_name (friends)

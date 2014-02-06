@@ -1,6 +1,6 @@
 <% edit = false unless edit -%>
 <tr>
-  <td rowspan="4" style="width: 102px;"><%= @size = 'large' ; render '/shared/user_div', :user_div => user %></td>
+  <td rowspan="<%= user.app_user? ? 5 : 4 %>" style="width: 102px;"><%= @size = 'large' ; render '/shared/user_div', :user_div => user %></td>
   <td><%= t '.user_name_prompt' %></td>
   <td>:</td>
   <td title="<%= t '.user_name_title', :username => user.short_or_full_user_name(@user), :apiname => user.apiname %>">
