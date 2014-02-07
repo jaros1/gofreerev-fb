@@ -331,7 +331,7 @@ class Gift < ActiveRecord::Base
 
 
   def visible_for? (users)
-    if users.class != Array
+    if ![Array, ActiveRecord::Relation::ActiveRecord_Relation_User].index(users.class)
       return false
     elsif users.length == 0
       return false
@@ -403,7 +403,8 @@ class Gift < ActiveRecord::Base
   # display new deal check box?
   # only for open deals - and not for users deals (user is giver or receiver)
   def show_new_deal_checkbox? (users)
-    return false unless users.class == Array and users.size > 0
+    logger.debug2 "users.class = #{users.class}"
+    return false unless [Array, ActiveRecord::Relation::ActiveRecord_Relation_User].index(users.class) and users.size > 0
     return false if User.dummy_users?(users)
     return false if direction == 'both' # closed deal
     count = 0

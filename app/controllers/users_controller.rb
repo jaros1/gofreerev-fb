@@ -138,9 +138,8 @@ class UsersController < ApplicationController
       friends_filter = friends_filter_values.first
     end
     @page_values[:friends] = friends_filter
-
     if @page_values[:friends] == 'me'
-      # show logged in users - ignore other filters
+      # show logged in users - ignore appuser and apiname filters
       @page_values[:appuser] = @page_values[:apiname] = 'all'
     else
       # appuser filter: yes: show gofreerev users, no: show users that is not using gofreerev, all: show all users (*)
@@ -186,73 +185,31 @@ class UsersController < ApplicationController
       return
     end
 
-    # always use users friends as basic (friends_filter = true)
-    # todo: remove friend doubles - that is friends with same friend.user_combination?
-    # todo: but they maybe friend in one login provider and not friends for an other login provider
-    #user_friends = User.app_friends(@users).sort do |a,b|
-    #  if a.friend.user_name == b.friend.user_name
-    #    a.friend.id <=> b.friend.id
-    #  else
-    #    a.friend.user_name <=> b.friend.user_name
-    #  end
-    #end
-    # logger.debug2  "@page_values = #{@page_values}, found #{user_friends.size} friends"
-
-    if @page_values[:friends] == 'me'
-      # show login users - link from user div in page header for logged in users
-      users2 = @users.sort do |a, b|
-        a.apiname <=> b.apiname
-      end
-    elsif @page_values[:friends] == 'yes'
-      # simple friends search - just return login users friends
-      logger.debug2 'simple friends search - just return login users friends'
-      users2 = User.app_friends(@users).sort_by_user_name.collect { |f| f.friend }
-      logger.debug2 "users2 = " + users2.collect { |u| u.user_id}.join(', ')
+    # apply apiname filter before friends lookup
+    if @page_values[:apiname] == 'all'
+      users = @users
     else
-      # friends filter no or all
-      # all login users direct connections (friends and non friends)
-      all_friends = User.friends(@users)
-      all_friends_user_ids = all_friends.collect { |f| f.user_id_receiver }
-      # find user friends
-      user_friends = all_friends.find_all { |f| f.friend.friend?(@users) <= 2 }
-      # friends_filter = nil (all users) or false (only non friends)
-      # find friends of friends
-      friends_userids = user_friends.collect { |f| f.user_id_receiver }
-      friends_userids.delete_if { |user_id| login_user_ids.index(user_id) }
-      # logger.debug2  "friends_userids = " + friends_userids.join(', ')
-      friends = User.where("user_id in (?)", friends_userids).includes(:friends)
-      # logger.debug2  "friends = " + friends.collect { |u| u.short_user_name }.join(', ')
-      friends_friends_userids = all_friends_user_ids
-      friends.each do |u|
-        friends_friends_userids = (friends_friends_userids + u.friends.collect { |f| f.user_id_receiver }).uniq
-      end # each u
-      friends_friends_userids.delete_if { |user_id| login_user_ids.index(user_id) }
-      # find relevant users
-      users2 = []
-      # logger.debug2  "friends_friends_userids = #{friends_friends_userids.join(', ')}"
-      User.where("user_id in (?)", friends_friends_userids).each do |user|
-        friend = (user.friend?(@users) <= 2)
-        # logger.debug2  "user = #{user.user_id}, friend = #{friend}"
-        next if @page_values[:friends] == 'no' and friend # don't show friends
-        users2 << user
-      end # each user
-      # logger.debug2  "users2.size = #{users2.size}"
-      # sort: number of mutual friends desc, user name ascending, id ascending
-      users2 = users2.sort do |a, b|
-        if a.user_name != b.user_name
-          a.user_name <=> b.user_name
-        else
-          a.id <=> b.id
-        end
-      end # sort
-      # friends_filter = nil (all users) or false (only non friends)
-    end # friends_filter == true
+      user = @users.find { |u| u.provider == @page_values[:apiname] }
+      users = [user]
+    end
 
-    # apply appuser and apiname filters
+    # get users - use info from friends_hash
+    friends_categories = case @page_values[:friends]
+                           when 'me'
+                             [1]
+                           when 'yes'
+                             [1,2]
+                           when 'no'
+                             [3,4,5,6]
+                           when 'all'
+                             [1,2,3,4,5,6]
+                         end
+    users2 = User.app_friends(users,friends_categories).sort_by_user_name.collect { |f| f.friend }
+
+    # apply appuser filters after user lookup
     users2.delete_if do |u|
       ( (@page_values[:appuser] == 'yes' and !u.app_user?) or
-        (@page_values[:appuser] == 'no' and u.app_user?) or
-        (@page_values[:apiname] != 'all' and u.provider != @page_values[:apiname]) )
+        (@page_values[:appuser] == 'no' and u.app_user?) )
     end
 
     # use this users select for ajax test - returns all users
@@ -424,9 +381,9 @@ class UsersController < ApplicationController
       logger.debug2 'simple friends search - just return login users friends'
       logger.debug2 "user2 = #{@user2.user_id} #{@user2.short_user_name}"
 
-      users = User.app_friends(cache_friend_info([@user2])).sort_by_user_name.collect { |f| f.friend }
+      # todo: google+ - should show @user2's friends and followers - should not show users stalking user2
+      users = User.app_friends(cache_friend_info([@user2]), [2,3]).sort_by_user_name.collect { |f| f.friend }
       logger.debug2 "users = " + users.collect { |u| u.user_id}.join(', ')
-
 
       # users = User.all # uncomment to test ajax
       # return next 10 users - first 10 for http request - next 10 for ajax request

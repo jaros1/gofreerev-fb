@@ -458,3 +458,6 @@
     maybe the same issue as in previous dropped mutual friends
 
 99) add mouse over title for comment with new proposal check box
+
+100) check all User.app_friends calls and add user categories array
+     check all user.friends?(@users) calls

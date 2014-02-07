@@ -228,7 +228,7 @@ class Comment < ActiveRecord::Base
 
   # ok to delete comment if login user(s) is giver, receiver or creator of comment
   def show_delete_comment_link?(users)
-    return false unless users.class == Array and users.length > 0
+    return false unless [Array, ActiveRecord::Relation::ActiveRecord_Relation_User].index(users.class) and users.length > 0
     return false if users.size == 1 and users.first.dummy_user?
     return false if accepted_yn == 'Y' # delete accepted proposal is not allow - delete gift is allowed
     return false if deleted_at # comment has already been marked as deleted

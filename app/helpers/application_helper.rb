@@ -72,7 +72,7 @@ module ApplicationHelper
 
   def format_user_balance (user, login_users)
     # logger.debug2  "user = #{user.user_id}, login_users = " + login_users.collect { |user| user.user_id }.join(', ')
-    return nil unless user.class == User and login_users.class == Array
+    return nil unless user.class == User and [Array, ActiveRecord::Relation::ActiveRecord_Relation_User].index(login_users.class)
     return nil if login_users.length == 0
     if user.user_combination
       # combined user accounts - sum balance for combined user accounts

@@ -728,7 +728,7 @@ class User < ActiveRecord::Base
     end # case
   end # post_on_wall_authorized?
   def self.post_on_wall_authorized? (users)
-    return false unless users.class == Array and users.length > 0
+    return false unless [Array, ActiveRecord::Relation::ActiveRecord_Relation_User].index(users.class) and users.length > 0
     users.each do |user|
       next unless API_POST_PERMITTED[user.provider]
       return true if user.post_on_wall_authorized?
@@ -839,10 +839,18 @@ class User < ActiveRecord::Base
     Friend.define_sort_by_user_name(friends)
   end # self.all_friends
 
-  def self.app_friends (login_users)
+
+  # friends categories:
+  # 1) logged in user
+  # 2) mutual friends         - show detailed info
+  # 3) follows (F)            - show few info
+  # 4) stalked by (S)         - show few info
+  # 5) deselected api friends - show few info
+  # 6) friends of friends     - show few info
+  def self.app_friends (login_users, user_categories = [1,2]) # 1: logged in users + 2: mutual friends
     login_users_text = login_users.collect { |u| "#{u.user_id} #{u.short_user_name}"}.join(', ')
     friends = User.friends(login_users).find_all do |f|
-      friend = (f.friend.friend?(login_users) <= 2)
+      friend = user_categories.index(f.friend.friend?(login_users))
       # logger.debug2 "#{f.friend.user_id} #{f.friend.short_user_name} is " + (friend ? '' : 'not ') + "friend with login users " + login_users_text
       friend
     end
@@ -1076,21 +1084,23 @@ class User < ActiveRecord::Base
     @reverse_friend = Friend.where("user_id_giver = ? and user_id_receiver = ?", self.user_id, login_user.user_id).first
   end
 
-  # simple friend check from friends_hash cache
+  # simple friend check from friends_hash cache. Initialized in fetch_user / cache_friend_info in app. controller
   # 1) logged in user
-  # 2) friends                - show detailed info
-  # 3) deselected api friends - show few info
-  # 4) friends of friends     - show few info
-  # 5) others                 - not clickable user div - for example comments from other login providers
+  # 2) mutual friends         - show detailed info
+  # 3) follows (F)            - show few info
+  # 4) stalked by (S)         - show few info
+  # 5) deselected api friends - show few info
+  # 6) friends of friends     - show few info
+  # 7) others                 - not clickable user div - for example comments from other login providers
   def friend? (login_users)
     # logger.debug2  "login_users.class = #{login_users.class}"
-    return 5 unless [Array, ActiveRecord::Relation::ActiveRecord_Relation_User].index(login_users.class) # not logged in
+    return 7 unless [Array, ActiveRecord::Relation::ActiveRecord_Relation_User].index(login_users.class) # not logged in
     # logger.debug2  "login_users.size = #{login_users.size}"
-    return 5 if login_users.size == 0 # not logged in
-    return 5 if login_users.first.dummy_user?
+    return 7 if login_users.size == 0 # not logged in
+    return 7 if login_users.first.dummy_user?
     login_user = login_users.find { |user| user.provider == self.provider }
-    return 5 unless login_user
-    return login_user.friends_hash[user_id] || 5
+    return 7 unless login_user
+    return login_user.friends_hash[user_id] || 7
   end # friend?
 
   # friend status code. "this" is friend. login_user is login user.
