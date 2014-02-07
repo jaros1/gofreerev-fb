@@ -54,6 +54,55 @@ class ApplicationController < ActionController::Base
       @users << @user
     end
   end
+  
+  
+  
+  private
+  def cache_friend_info (users)
+    user_ids = users.collect { |u| u.user_id}
+    logger.debug2 "get friends. user_ids = #{user_ids.join(', ')}"
+    friends = Friend.where("user_id_giver in (?)", user_ids)
+    app_friends_ids = [] # for friends of friends lookup
+    non_app_friends_ids = [] # deselected api friends
+    friends.each do |f|
+      if (f.app_friend || f.api_friend) == 'Y'
+        app_friends_ids << f.user_id_receiver
+      else
+        non_app_friends_ids << f.user_id_receiver
+      end
+    end
+    logger.debug2 "get friends of friends"
+    friends_of_friends_ids = Friend.
+        where('user_id_giver in (?)', app_friends_ids).
+        find_all { |f| (f.app_friend || f.api_friend) == 'Y' }.
+        collect { |f| f.user_id_receiver }
+    friends_hash = {}
+    user_ids.each do |user_id|
+      provider = user_id.split('/').last
+      friends_hash[provider] = {}
+      friends_hash[provider][user_id] = 1 # logged in user
+    end
+    app_friends_ids.each do |user_id|
+      provider = user_id.split('/').last
+      next if friends_hash[provider].has_key?(user_id)
+      friends_hash[provider][user_id] = 2 # app friend
+    end
+    non_app_friends_ids.each do |user_id|
+      provider = user_id.split('/').last
+      next if friends_hash[provider].has_key?(user_id)
+      friends_hash[provider][user_id] = 3 # deselected api friend
+    end
+    friends_of_friends_ids.each do |user_id|
+      provider = user_id.split('/').last
+      next if friends_hash[provider].has_key?(user_id)
+      friends_hash[provider][user_id] = 4 # friend of friend
+    end
+    # copy to users array
+    users.each do |user|
+      user.friends_hash = friends_hash[user.provider]
+    end
+    users
+  end # cache_friend_info
 
 
   # fetch user info. Used in page heading etc
@@ -97,49 +146,7 @@ class ApplicationController < ActionController::Base
     # 3) deselected api friends - show few info
     # 4) friends of friends     - show few info
     # 5) others                 - not clickable user div - for example comments from other login providers
-    begin
-      logger.debug2 "get friends. login_user_ids = #{login_user_ids.join(', ')}"
-      friends = Friend.where("user_id_giver in (?)", login_user_ids)
-      app_friends_ids = [] # for friends of friends lookup
-      non_app_friends_ids = [] # deselected api friends
-      friends.each do |f|
-        if (f.app_friend || f.api_friend) == 'Y'
-          app_friends_ids << f.user_id_receiver
-        else
-          non_app_friends_ids << f.user_id_receiver
-        end
-      end
-      logger.debug2 "get friends of friends"
-      friends_of_friends_ids = Friend.
-          where('user_id_giver in (?)', app_friends_ids).
-          find_all { |f| (f.app_friend || f.api_friend) == 'Y' }.
-          collect { |f| f.user_id_receiver }
-      friends_hash = {}
-      login_user_ids.each do |user_id|
-        provider = user_id.split('/').last
-        friends_hash[provider] = {}
-        friends_hash[provider][user_id] = 1 # logged in user
-      end
-      app_friends_ids.each do |user_id|
-        provider = user_id.split('/').last
-        next if friends_hash[provider].has_key?(user_id)
-        friends_hash[provider][user_id] = 2 # app friend
-      end
-      non_app_friends_ids.each do |user_id|
-        provider = user_id.split('/').last
-        next if friends_hash[provider].has_key?(user_id)
-        friends_hash[provider][user_id] = 3 # deselected api friend
-      end
-      friends_of_friends_ids.each do |user_id|
-        provider = user_id.split('/').last
-        next if friends_hash[provider].has_key?(user_id)
-        friends_hash[provider][user_id] = 4 # friend of friend
-      end
-      # copy to users array
-      @users.each do |user|
-        user.friends_hash = friends_hash[user.provider]
-      end
-    end
+    cache_friend_info(@users)
 
     # add sort_by_provider method instance method to @users array.
     # used in a few views (invite users, auth/index)

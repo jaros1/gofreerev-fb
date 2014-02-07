@@ -420,12 +420,12 @@
 81) gift giver pic mouse over text should have information about multiple provider givers
     gift receiver pic mouse over text should have information about multiple provider receivers
 
-85) google+ and twitter. add people list/follow in friends with api status F
-    allow invite + friend request to people you follow.
-    add flag on user profile to generally block app friend requests either for all login providers
-    or for each login provider.
-    google+ has a collection = connected for people in circles that uses the app but it does not return any friends
-    allow invite to use gofreerev to not connected "friends"
+85) google+ and twitter.
+    how to prevent friend invitations from people you do not know?
+    F - you are following someone on google+ and twitter, and do not want to receive friend invitations from them
+    S - you are stalked by someone on google+ and twitter and do not want to receive friend invitations from them
+    block all and allow selected users
+    allow all and block selected users
 
 86) allow device fingerprint guest user login?
     that is login without username/password
@@ -454,9 +454,7 @@
 94) check out JS API's for facebook, linkedin, google+ and twitter
     some not supported server site operations could be implemented with client side JS
 
-95) non facebook invites: no invite to use app functionality in linkedin, google+ and twitter
-    could let server send an email
-    could create a mailto tag with email, subject and body
-
 98) users/index - friends of friends - why in list - show name(s) of friend
-    maybe the same as previous dropped mutual friends
+    maybe the same issue as in previous dropped mutual friends
+
+99) add mouse over title for comment with new proposal check box

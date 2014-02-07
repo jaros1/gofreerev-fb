@@ -1157,7 +1157,9 @@ class User < ActiveRecord::Base
                         "Login users = #{User.debug_info(login_users)}. user = #{debug_info}}"
       return '.friend_status_text_n'
     end
-    ".friend_status_text_#{friend_status_code(login_user).downcase}"
+    code = friend_status_code(login_user).downcase
+    logger.debug2 "code = #{code}"
+    ".friend_status_text_#{code}"
   end # friend_status_translate_code
 
   def find_friend_request_noti (login_user)
@@ -1198,9 +1200,14 @@ class User < ActiveRecord::Base
       when 'S' then return %w(send_app_friend_request)
       when 'A' then return %w(send_app_friend_request)
       when 'G' then return %w(Remove_app_friend)
+      when 'H' then return %w(Remove_app_friend)
+      when 'I' then return %w(Remove_app_friend)
       when 'R' then return %w(send_app_friend_request cancel_app_friend_request)
       when 'P' then return %w(accept_app_friend_request ignore_app_friend_request block_app_user)
       when 'B' then return %w(unblock_app_user)
+      else
+        logger.error2 "Unknown friend_status_code #{friend_status_code(login_user)}"
+        return []
     end
   end # friend_status_actions
   def allowed_friend_status_action (login_user, action)

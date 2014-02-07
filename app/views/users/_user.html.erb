@@ -11,7 +11,7 @@
   <td><%= t '.friend_status_prompt' %></td>
   <td>:</td>
   <td>
-    <%= t user.friend_status_translate_code(@users), user.app_and_apiname_hash %>
+    <%= t user.friend_status_translate_code(@users), user.app_and_apiname_hash.merge(:username => user.short_user_name) %>
   </td>
 </tr>
 <% if user.app_user? -%>

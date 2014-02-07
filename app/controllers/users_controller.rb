@@ -289,23 +289,24 @@ class UsersController < ApplicationController
       return
     elsif login_user_ids.index(@user2.user_id)
       # ok - login user
-    elsif Friend.where('user_id_giver = ? and user_id_receiver = ?',
-                       login_user.user_id, @user2.user_id).
-                 find { |f| f.api_friend == 'Y' }
-      # ok - api friend but maybe not app friends
-    elsif (@user2.friend?(@users) <= 2)
-      # ok - friends
+    #elsif Friend.where('user_id_giver = ? and user_id_receiver = ?',
+    #                   login_user.user_id, @user2.user_id).
+    #             find { |f| f.api_friend == 'Y' }
+    #  # ok - api friend but maybe not app friends
+    elsif (@user2.friend?(@users) <= 4)
+      # ok - friends or friend of friend
     else
-      # not friend. Must have a mutual friend to allow user/show
-      friends1 = User.app_friends([login_user]).collect { |f| f.user_id_receiver }
-      friends2 = User.app_friends([@user2]).collect { |f| f.user_id_receiver }
-      mutual_friends = friends1 & friends2
-      if mutual_friends.size == 0
-        logger.warn2 "invalid request. Did not find any mutual friends between @user2 #{@user2.user_id} #{@user2.short_user_name} and login_user #{login_user.user_id} #{login_user.short_user_name}"
-        save_flash '.invalid_request'
-        redirect_to :action => :index
-        return
-      end
+      ## not friend. Must have a mutual friend to allow user/show
+      #friends1 = User.app_friends([login_user]).collect { |f| f.user_id_receiver }
+      ## todo: google+ friend invitation to a stalker
+      #friends2 = User.app_friends([@user2]).collect { |f| f.user_id_receiver }
+      #mutual_friends = friends1 & friends2
+      #if mutual_friends.size == 0
+      logger.warn2 "invalid request. Did not find any mutual friends between @user2 #{@user2.user_id} #{@user2.short_user_name} and login_user #{login_user.user_id} #{login_user.short_user_name}"
+      save_flash '.invalid_request'
+      redirect_to :action => :index
+      #  return
+      #end
       # ok - found mutual friends
     end
 
@@ -422,7 +423,8 @@ class UsersController < ApplicationController
 
       logger.debug2 'simple friends search - just return login users friends'
       logger.debug2 "user2 = #{@user2.user_id} #{@user2.short_user_name}"
-      users = User.app_friends([@user2]).sort_by_user_name.collect { |f| f.friend }
+
+      users = User.app_friends(cache_friend_info([@user2])).sort_by_user_name.collect { |f| f.friend }
       logger.debug2 "users = " + users.collect { |u| u.user_id}.join(', ')
 
 
