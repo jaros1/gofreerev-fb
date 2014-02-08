@@ -122,6 +122,7 @@ en:
         profile_image_mv_failed: "System error. Could not insert new profile picture received from %{provider}: \"%{error}\""
         profile_image_cp1_failed: "System error. Could not insert new profile picture received from %{provider}: \"%{error}\""
         profile_image_cp2_failed: "System error. Could not insert new profile picture received from %{provider}: \"%{error}\""
+        post_login_task_not_found: "System error. No post login task util.post_login_%{provider} was found for login provider %{provider}. No friend list was downloaded from %{provider}."
         post_login_user_id_not_found: "Warning. Did not find user id. Could not get friend list from %{provider}"
         post_login_token_not_found: "Warning. Did not find access token. Could not get friend list from %{provider}"
         post_login_new_user: "Your friend list is ready. Please refresh page to see any posts from your friends."

@@ -1008,6 +1008,25 @@ class UtilController < ApplicationController
   end # get_gift_and_deep_link
 
 
+  # ajax inject error message to gifts/index page if post_login_<provider> task was not found
+  # there must be one post_login_<provider> task for each login provider to download friend list
+  private
+  def post_login_not_found(provider)
+    begin
+
+      # no post_login_<provider> task was found (app. controller.login)
+      # write error message to developer with instructions how to fix this problem
+      logger.error2 "util.post_login_#{provider} method was not found. please create a post login task to download friend list from login provider"
+      [ '.post_login_task_not_found', {:provider => provider}]
+
+    rescue Exception => e
+      logger.debug2  "Exception: #{e.message.to_s}"
+      logger.debug2  "Backtrace: " + e.backtrace.join("\n")
+      raise
+    end
+  end
+
+
   # post login task for facebook - get permissions and friends - using koala gem
   # called from do_tasks - ajax requests after login
   # must return nil or a valid input to translate

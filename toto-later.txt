@@ -59,7 +59,7 @@ Low priority todo list. Minor errors, wishlist etc.
     - show gift on gofreerev.
     deep link makes it easy to return from api to gofreerev
 
-12) maybe display number of post comments on api wall
+12) maybe get/display number of post comments on api wall
 
 13) deep link page - should be cached - without information about logged in user
     http write page with an dummy page header and without title for user divs
@@ -117,8 +117,6 @@ Low priority todo list. Minor errors, wishlist etc.
     modernizr.js can also be used to polyfilla old browsers
     enable html5 in old browsers
 
-26) jquery: add unbind before bind to prevent doublet ajax event handlers
-
 27) mobile: html5 - add picture direct from camera - google html media capture - http://mobilehtml5.org/
 
 28) mobile: how does browse file dialog look like on a mobile device?
@@ -128,6 +126,7 @@ Low priority todo list. Minor errors, wishlist etc.
     timestamp - server timestamp or client timestamp?
     Maybe only timestamp if DEBUG_AJAX = true
     will make it easier to report problems and find relevant lines in server log
+    maybe only debug log for a selected few ip-adr (testers)
 
 30) picture size problem. First gifts/index request for a new day
     charlie gift 383. picture not resizing to width 100px.
@@ -148,6 +147,7 @@ Low priority todo list. Minor errors, wishlist etc.
     http://mattkersley.com/responsive/ can be used. Not working for localhost / gofreerev
     http://responsivepx.com can be used. Not working for localhost / gofreerev.
     Many other tools not working for localhost / gofreerev
+    Neither working for dev1. Running in iframes and only auth/index page can be displayed
 
 35) JS confirm dialog to big on 320 width screen
     JS confirm dialog can not be styled. Needs a custom dialog box
@@ -159,9 +159,6 @@ Low priority todo list. Minor errors, wishlist etc.
 36) minor javascript problem with ajax util/currencies to get full list of currencies onfocus
     user has to click twice on currency LOV to change currency.
     the problem is that LOV object is changing at first click
-
-37) add no post_login_<provider> task error message with hint how to fix this problem
-    no friend information is downloaded from provider and app does not work without a friend network
 
 38) don't insert same task twice in task queue
 

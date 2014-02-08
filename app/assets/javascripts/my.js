@@ -728,6 +728,7 @@ function post_ajax_add_older_comments_handler(giftid, commentid) {
     // var id = '#gift-' + giftid + '-new-comment-form' ;
     var link_id = 'gift-' + giftid + '-show-older-comments-link-' + commentid;
     $(document).ready(function () {
+        $('#' + link_id).unbind("ajax:success") ;
         $('#' + link_id)
             .bind("ajax:success", function (evt, data, status, xhr) {
                 // find tr for old link, first added row and last added row
@@ -807,6 +808,7 @@ function check_uncheck_new_deal_checkbox(checkbox, giftid)
 // for smaller page and faster startup time
 // todo: minor problem. User has to click twice on currency LOV to change currency. First to get full currency list and second to change currency
 $(document).ready(function() {
+    $(".user_currency_new").unbind('focus') ;
     $(".user_currency_new").bind('focus', function () {
         var id_select = document.getElementById("user_currency_new");
         if (id_select.length > 1) {
@@ -1118,7 +1120,6 @@ function create_gift_links_errors_table (table_id) {
 // error callback for gift actions (like, unlike, follow, unfollow etc - write to debug log + page header
 $(document).ready(function() {
     $(".gift-action-link").unbind("click") ;
-    $(".gift-action-link").unbind("ajax:error") ;
     $(".gift-action-link").bind("click", function(xhr, settings){
         // clear any old ajax error messages if any
         // clear within page ajax error messages if any
@@ -1138,6 +1139,7 @@ $(document).ready(function() {
         // clear page header error messages if any
         clear_flash_and_ajax_errors() ;
     })
+    $(".gift-action-link").unbind("ajax:error") ;
     $(".gift-action-link").bind("ajax:error", function(jqxhr, textStatus, errorThrown){
         add2log('.gift-action-link.error');
         add2log('jqxhr = ' + jqxhr);
@@ -1330,7 +1332,6 @@ function comment_action_url_table_id (url) {
 // using click event instead of beforeSend or ajaxSend as rails confirm box seems to "disable" use of the 2 events
 $(document).ready(function () {
     $(".comment-action-link").unbind("click");
-    $(".comment-action-link").unbind("ajax:error");
     $(".comment-action-link").bind("click", function (xhr, settings) {
 
         var pgm = 'comment-action-link::click. ' ;
@@ -1345,6 +1346,7 @@ $(document).ready(function () {
         if (table_id && document.getElementById(table_id)) clear_ajax_errors(table_id) ;
         clear_flash_and_ajax_errors();
     }) // click
+    $(".comment-action-link").unbind("ajax:error");
     $(".comment-action-link").bind("ajax:error", function (jqxhr, textStatus, errorThrown) {
         var pgm = 'comment-action-link::ajax:error ' ;
         add2log(pgm + 'jqxhr = ' + jqxhr);
