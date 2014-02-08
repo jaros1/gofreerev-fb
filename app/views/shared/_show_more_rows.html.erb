@@ -47,5 +47,6 @@
 <%#
     // startup with 1 row in gifts/users - get next 10 more rows
 -%>
-    if (!end_of_page) show_more_rows() ;
+    if (end_of_page) stop_show_more_rows_spinner();
+    else show_more_rows() ;
 </script>

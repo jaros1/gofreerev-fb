@@ -911,14 +911,14 @@ function show_more_rows_scroll(table_name, interval, debug) {
 } // show_more_rows_scroll
 
 // show more rows - hide spinner and move spinner to bottom of giftsw/users table
-function stop_show_more_rows_spinner(table_name, debug) {
+function stop_show_more_rows_spinner() {
     var pgm = 'stop_show_more_rows_spinner: ' ;
     // add2log(pgm + 'stop') ;
-    // check if spinner show-more-rows spinner has already been created
+    // check if show-more-rows spinner is in page
     var spinner_id = 'show-more-rows-spinner' ;
     var spinner = document.getElementById(spinner_id) ;
     if (!spinner) {
-        add2log(pgm + 'error - show more rows spanner was not found') ;
+        add2log(pgm + 'warning - show more rows spinner was not found') ;
         return ;
     }
     // hide spinner
@@ -1031,12 +1031,12 @@ function show_more_rows_ajax(table_name, debug) {
     $(link).unbind("ajax:success");
     $(link).bind("ajax:success", function (evt, data, status, xhr) {
         show_more_rows_success(table_name, debug);
-        stop_show_more_rows_spinner(table_name, debug);
+        stop_show_more_rows_spinner();
     });
     $(link).unbind("ajax:error");
     $(link).bind("ajax:error", function (jqxhr, textStatus, errorThrown) {
         show_more_rows_error(jqxhr, textStatus, errorThrown, debug);
-        stop_show_more_rows_spinner(table_name, debug);
+        stop_show_more_rows_spinner();
     });
 } // show_more_rows_ajax
 
