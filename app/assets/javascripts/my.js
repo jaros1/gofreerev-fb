@@ -910,39 +910,15 @@ function show_more_rows_scroll(table_name, interval, debug) {
     }
 } // show_more_rows_scroll
 
-function start_show_more_rows_spinner (table_name, debug)
-{
-    var pgm = 'start_show_more_rows_spinner: '
-    add2log(pgm + 'start') ;
-    // check if spinner show-more-rows spinner has already been created
-    var spinner_id = 'show-more-rows-spinner' ;
-    var spinner = document.getElementById(spinner_id) ;
-    if (spinner) {
-        // spinner exists - start/display show-more-rows spinner
-        spinner.style.display = 'inline' ;
-        return ;
-    }
-    var table = document.getElementById(table_name) ;
-    if (!table) {
-        add2log(pgm + table_name + ' was not found') ;
-        return ;
-    }
-    var length = table.rows.length ;
-    add2log(pgm + 'length = ' + length) ;
-    var row = table.insertRow(length) ;
-    row.id = spinner_id ;
-    var cell = row.insertCell(0) ;
-    cell.innerHTML = '<img src="/images/ajax-loading.gif" />' ;
-} // start_show_more_rows_spinner
-
+// show more rows - hide spinner and move spinner to bottom of giftsw/users table
 function stop_show_more_rows_spinner(table_name, debug) {
     var pgm = 'stop_show_more_rows_spinner: ' ;
-    add2log(pgm + 'stop') ;
+    // add2log(pgm + 'stop') ;
     // check if spinner show-more-rows spinner has already been created
     var spinner_id = 'show-more-rows-spinner' ;
     var spinner = document.getElementById(spinner_id) ;
     if (!spinner) {
-        add2log(pgm + 'spanner was not found') ;
+        add2log(pgm + 'error - show more rows spanner was not found') ;
         return ;
     }
     // hide spinner
@@ -950,8 +926,39 @@ function stop_show_more_rows_spinner(table_name, debug) {
     // move spinner to last table row
     var tbody = spinner.parentNode ;
     tbody.removeChild(spinner) ;
-    tbody.appendChild(spinner) ;
+    tbody.append(spinner) ;
 } // stop_show_more_rows_spinner
+
+// shiow more rows - display spinner while fetching more rows
+function start_show_more_rows_spinner (table_name, debug)
+{
+    var pgm = 'start_show_more_rows_spinner: '
+    // add2log(pgm + 'start') ;
+    // check if spinner show-more-rows spinner has already been created
+    var spinner_id = 'show-more-rows-spinner' ;
+    var spinner = document.getElementById(spinner_id) ;
+    if (spinner) {
+        // spinner exists - start/display show-more-rows spinner
+        // add2log(pgm + 'start spinner') ;
+        spinner.style.display = 'inline' ;
+        return ;
+    }
+    // normally spinner will already exists in gifts/users table when html page is loaded
+    add2log(pgm + 'create spinner') ;
+    var table = document.getElementById(table_name) ;
+    if (!table) {
+        add2log(pgm + table_name + ' was not found') ;
+        return ;
+    }
+    var length = table.rows.length ;
+    var row = table.insertRow(length) ;
+    row.id = spinner_id ;
+    var cell = row.insertCell(0) ;
+    cell.innerHTML = '' ;
+    var img = new Image ;
+    img.src = "/images/ajax-loading.gif" ;
+    cell.appendChild(img) ;
+} // start_show_more_rows_spinner
 
 function show_more_rows_success (table_name, debug)
 {

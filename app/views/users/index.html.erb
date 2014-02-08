@@ -101,6 +101,11 @@
         <% for user in @users2 do -%>
             <%= render :partial => 'user', :locals => {:user => user} %>
         <% end -%>
+        <tr id="show-more-rows-spinner">
+          <td colspan="4">
+            <img src="/images/ajax-loading.gif" />
+          </td>
+        </tr>
       </table>
     </div>
 
@@ -115,3 +120,4 @@
     // no client side checks before changing currency in this page
     pre_update_currency = default_pre_update_currency;
 </script>
+
