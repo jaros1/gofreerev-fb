@@ -246,11 +246,7 @@ class UsersController < ApplicationController
       return
     elsif login_user_ids.index(@user2.user_id)
       # ok - login user
-    #elsif Friend.where('user_id_giver = ? and user_id_receiver = ?',
-    #                   login_user.user_id, @user2.user_id).
-    #             find { |f| f.api_friend == 'Y' }
-    #  # ok - api friend but maybe not app friends
-    elsif (@user2.friend?(@users) <= 4)
+    elsif (@user2.friend?(@users) <= 6)
       # ok - friends or friend of friend
     else
       ## not friend. Must have a mutual friend to allow user/show
@@ -442,8 +438,7 @@ class UsersController < ApplicationController
 
     # ok - all needed exchange rates was available - currency and balance was updated
     # logger.debug2  "ok - all needed exchange rates was available - currency and balance was updated"
-    # logger.debug2  "currency = #{@user.currency}, balance = #{@user.balance}"
-    # @user.save!
+    # logger.debug2  "currency = #{@users.first.currency}, balance = #{users.first.balance}"
 
     redirect_to params[:return_to]
   end  # update_user_currency

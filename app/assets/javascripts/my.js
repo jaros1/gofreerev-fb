@@ -65,7 +65,7 @@ function gifts_pre_update_currency() {
     var user_currency_id;
     user_currency_new_id = document.getElementById('user_currency_new');
     user_currency_new = user_currency_new_id.value;
-    if (user_currency_new == '<%= @user.currency %>') return false;
+    if (user_currency_new == '<%= @users.first.currency %>') return false;
     // check for pending new gift
     var pending_data = false;
     field_id = document.getElementById('gift_price');

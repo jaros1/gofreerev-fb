@@ -85,7 +85,7 @@ en:
         title_non_friend: "%{username}/%{apiname}. Click here to see user info."
         title_friend: "%{username}/%{apiname}. Balance %{balance}. Click here to see user info."
      invite_friends:
-        no_friends_was_found_html: "<p>There was not found any %{appname} friends. Invite some of your good friends to use %{appname}.<br />Either by sending a personal message or by using the link below to invite your friends to use Gofreerev.<br>A personal message is the best as many people will ignore or reject game invitations.</p>"
+        no_friends_was_found_html: "<p>There was not found any %{appname} friends. Invite some of your good friends to use %{appname}.<br />Either by sending a personal message or by using the link below to invite your friends to use %{appname}.<br>A personal message is the best as many people will ignore or reject game invitations.</p>"
         invite_friends_prompt: "Invite friends:"
         invite_friends_link_title: "Use this link to invite your %{apiname} friends to use %{appname}"
         invite_friends_message_title: "Invite your friends to play %{appname}" # facebook
@@ -327,14 +327,14 @@ en:
         direction_receiver_prompt: "Seeks: "
         description_title: "Text. Required. Describe what you offer or what you are looking for whether it is things or help. You decide whether you want to sell, buy, rent, lend or give things away for free. We are trading in virtuel free money. Since we are trading in virtuel money you are in practive always giving you give ting or receiving help for free. But your balance in free money changes. Posts are make on your wall and displayed to your friends or whom you have selected to view posts by this app. Your friends can comment on your post on your wall. The agreement should be finalized in here so your balance in free cash being updated."
         description_prompt: "Text:"
-        file_title_true: "Optional picture. Photos are an effective way to be seen by your friends. Picture upload takes some time as the picture is uploaded in 2 steps. First upload to %{appname} and than upload to %{apiname}. Please wait."
+        file_title_true: "Optional picture. Photos are an effective way to be seen by your friends. Picture upload takes some time as the picture is uploaded in 2 steps. First upload to %{appname} and then upload to your login provider wall. Please wait."
         file_title_false: "Sorry. Picture upload is not possible. Pictures are uploaded to your login provider wall and %{appname} lack permission to write on your wall. Photos are an effective way to be seen by your friends. You can use link in top of this page if you wish to give %{appname} access to write on your wall. You can go to \"Log in\" page and select \"Opslag?\" for one or more login providers if you wish that %{appname} should post on your login provider wall."
         file_prompt: "Picture:"
         gift_submit_button_text: "Create post"
         pending_gift_popup_msg: "Change currency? Select Cancel if you wish to complete your wall posting. Select OK to ship the not saved posting and change currency."
         description_required_text: "Text is required."
         price_invalid_text: "Price is invalid. Only numbers, max 2 decimals, thousands separator not allowed."
-        no_gifts_was_found_html: "<p>There was not found any posts. Neither you nor your friends have even created<br />any posts here in %{appname}. To get started, you must now create a few posts<br />with somehing you want to share with your friends or with something you are looking<br />for or are missing, and that you think your friends might be able to help you.</p>"
+        no_gifts_was_found_html: "<p>There was not found any posts. Neither you nor your friends have even created<br />any posts here in %{appname}. To get started, you must now create a few posts<br />with something you want to share with your friends or with something you are looking<br />for or are missing, and that you think your friends might be able to help you.</p>"
         comment_comment_required_text: "Comment is required"
         comment_price_invalid_text: "Price is invalid. Only numbers, max 2 decimals, thousands separator not allowed."
      table_header_row:
@@ -365,6 +365,7 @@ en:
         new_deal_check_box_prompt: "Agreement proposal"
         price_prompt: "Price"
         price_free: "free"
+        new_proposal_title: "Use agreement proposal checkbox if you wish to make a deal proposal to %{username}. Enter a optional price if you wish to use free money in this deal. %{username} will be notified about your proposal and can accept or reject your offer."
      show:
         invalid_gift_id: "Invalid request. Unknown post id"
         no_access: "Invalid request. You are not allowed to see this post"

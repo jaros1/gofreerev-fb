@@ -3,7 +3,6 @@ module ApplicationHelper
 
   # debug
   def dump_session_variables
-    logger.debug2  "@user = #{@user}"
     logger.debug2  "session.to_hash = #{session.to_hash}"
   end
 
@@ -46,8 +45,10 @@ module ApplicationHelper
     end
   end
   def selected_currency
-    return [] unless @user
-    a = Money::Currency.table.find { |a| a[1][:iso_code] == @user.currency }
+    return [] unless @users.size > 0
+    user = @users.first
+    return [] if user.dummy_user?
+    a = Money::Currency.table.find { |a| a[1][:iso_code] == user.currency }
     return [] unless a
     [ [ "#{a[1][:iso_code]} #{a[1][:name]}".first(CURRENCY_LOV_LENGTH), a[1][:iso_code] ]]
   end

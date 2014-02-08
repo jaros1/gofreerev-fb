@@ -17,7 +17,7 @@ Low priority todo list. Minor errors, wishlist etc.
 
 5) move show-more-rows functionality to a gem
 
-7) implement other login providers
+6) implement other login providers
    http://www.ebizmba.com/articles/social-networking-websites
    http://en.wikipedia.org/wiki/List_of_social_networking_websites
    https://github.com/intridea/omniauth/wiki/List-of-Strategies
@@ -45,38 +45,39 @@ Low priority todo list. Minor errors, wishlist etc.
 8) add/show deep link for old post?
    maybe only giver/receiver to add/show deep links
    that is - other uses can see but not share gofreerev gifts on other social media
+   add allow share checkbox to user/shpw page?
 
 9) better logger.debug2 output
-    should display class.method: text class
+   should display class.method: text class
 
 10) my.js - replace alert with add2log and add_to_tasks_errors
     JS alert should only be used in a few situations
-    But use may not see top of page and error notifications
+    But user may not see top of page and error notifications
 
-11) gift with picture. on click:
-    - show gift on facebook?
-    - show gift on gofreerev?
-    picture is very small in gofreerev and a redirect to api maybe the best option
-    deep link make it easy to return from api to gofreerev
+11) gift on click. Maybe small link icons.
+    - show gift on api wall.
+    - show gift on gofreerev.
+    deep link makes it easy to return from api to gofreerev
 
-12) deep link page - should be cached - without information about logged in user
+12) maybe display number of post comments on api wall
+
+13) deep link page - should be cached - without information about logged in user
     http write page with an dummy page header and without title for user divs
+    that is - no login user dependent information in startup page
+    after response - check if user is logged in and refresh specific user information
     ajax get page header for logged in user
     ajax get user div titles for logged in user
-    cache web pages with public deep links
-    cache must be when gift changes (new status, new comments etc)
-    that is - no login user dependent information in page
-    actual user information can be ajax injected in page
-    after response - check if user is logged in and refresh specific user information
+    is there any problems with ajax requests from search engine indexing? Expects javascript to be disabled.
+    is there any problems with ajax requests when api reads page? Expects javascript to be disabled.
+    cache must expire when gift changes (new status, new comments etc)
 
-13) deep link - remember last http get - clear deep link if link has not been used for x days
-
-14) deep link - cache should be expired after new comments or when status_update_at changes
+14) deep link - remember last http get - clear deep link if link has not been used for x days
 
 15) minor problem with double locale in url. For example /da/da/users/999 for users/show links
     only for resource controllers :facebook, :gifts, :users, :inbox, :comments
     not a problem for util controller
     rails ignores the extra locale in url but is ugly
+    replace resource routes with get/post spec?
 
 16) check if there exists a translate library to be used for JS error messages
     Could be nice if rails locales could be used for javascript messages
@@ -86,7 +87,7 @@ Low priority todo list. Minor errors, wishlist etc.
     use currency or use language to format prices?
     we are using currency now. See application controller.fetch_user
 
-18) ajax change currency?
+18) ajax change currency in page?
     mark each user div with user ids
     send ajax request with new currency and array with user ids in page
     receive table with new user div title with balance information in new currency
@@ -100,8 +101,6 @@ Low priority todo list. Minor errors, wishlist etc.
 20) page header. log out link. different title for one and more than one logged in user
     returns to login provider if only one login provider
     returns to auth/index page if more than one login provider
-
-21) search app source for @user. @users should be used if possible.
 
 22) new gift form. disable/enable file upload
     works with javascript, but title is not changed

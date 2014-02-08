@@ -11,9 +11,10 @@ module UsersHelper
     # format: new balance yyy user currency = old balance xxx +- (price - negative interest) * exchange rate
     balance_doc = gift.balance_doc(current_user)
     return nil unless balance_doc
-    exchange_rate1 = ExchangeRate.exchange(1.0, gift.currency, @user.currency, gift.received_at)
-    exchange_rate2 = ExchangeRate.exchange(1.0, 'USD', @user.currency, gift.received_at)
-    exchange_rate3 = ExchangeRate.exchange(1.0, 'USD', @user.currency, balance_doc[:previous_date])
+    users_currency = @users.first.currency
+    exchange_rate1 = ExchangeRate.exchange(1.0, gift.currency, users_currency, gift.received_at)
+    exchange_rate2 = ExchangeRate.exchange(1.0, 'USD', users_currency, gift.received_at)
+    exchange_rate3 = ExchangeRate.exchange(1.0, 'USD', users_currency, balance_doc[:previous_date])
     return nil unless exchange_rate1 and exchange_rate2 and exchange_rate3
     old_balance_hash = balance_doc[:previous_balance]
     old_balance = (old_balance_hash[BALANCE_KEY] * exchange_rate3).round(2)
@@ -76,7 +77,7 @@ module UsersHelper
                         :negative_interest => format_price(negative_interest),
                         :sign_currency_gain_loss => sign_gain_loss,
                         :currency_gain_loss => format_price(gain_loss),
-                        :new_currency => @user.currency,
+                        :new_currency => users_currency,
                         :old_currency => gift.currency,
                         :number_of_days => number_of_days
   end # gift_balance_calculation_doc

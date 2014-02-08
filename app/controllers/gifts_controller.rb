@@ -245,9 +245,6 @@ class GiftsController < ApplicationController
     @missing_api_picture_urls = get_missing_api_picture_urls()
 
     # initialize gift form in top of gifts/index page
-    #
-    # logger.debug2  "user_name = #{@user.user_name}" if @user
-    # logger.debug2  "access_token = #{session[:access_token]}"
     @gift = Gift.new
     @gift.direction = 'giver'
     if User.dummy_users?(@users)
@@ -259,7 +256,7 @@ class GiftsController < ApplicationController
     # logger.debug2  "index: description = #{@gift.description}"
 
     # initialize list of gifts
-    # list of gifts with @user as giver or receiver + gifts med @user.friends as giver or receiver
+    # list of gifts with @users as giver or receiver + gifts med @users.friends as giver or receiver
     newest_status_update_at = Sequence.status_update_at
     newest_gift = Gift.last
 

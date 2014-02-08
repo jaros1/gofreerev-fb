@@ -377,6 +377,10 @@ class Friend < ActiveRecord::Base
     end # each user_id
 
     # todo: delete removed friends that is not used by any other users
+
+    # new gofreerev user?
+    ((old_friends.size == 0) and (new_friends.size > 0))
+
   end # self.update_friends_from_hash
 
   def self.define_sort_by_user_name (friends)

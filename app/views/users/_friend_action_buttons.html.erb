@@ -18,6 +18,10 @@
           else
             target = '_blank'
           end
-          button_to button_text, {:controller => :users, :action => :update, :id => @user.id, :friend_id => friend_action_buttons.id, :friend_action => friendship_action_downcase, :return_to => @request_fullpath } , { :form => { :target => target }, :method=>:put, :data => { :confirm => confirm } } %>
+          button_to button_text,
+                    {:controller => :users, :action => :update, :id => @users.first.id,
+                     :friend_id => friend_action_buttons.id, :friend_action => friendship_action_downcase,
+                     :return_to => @request_fullpath } ,
+                    { :form => { :target => target }, :method=>:put, :data => { :confirm => confirm } } %>
     <% end -%>
 <% end -%>

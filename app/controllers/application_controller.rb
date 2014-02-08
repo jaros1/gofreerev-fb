@@ -49,10 +49,7 @@ class ApplicationController < ActionController::Base
 
   private
   def add_dummy_user
-    if @users.size == 0
-      @user = User.find_or_create_dummy_user('gofreerev')
-      @users << @user
-    end
+    @users << User.find_or_create_dummy_user('gofreerev') if @users.size == 0
   end
 
 
@@ -159,11 +156,7 @@ class ApplicationController < ActionController::Base
     @users.define_singleton_method :remove_deleted_users do
       self.delete_if { |u| u.deleted_at }
     end
-
-
-    # shortcut for @users.first. Random user is selected for a user with multiple provider logins
-    # todo: remove @user - should only use @users array
-    @user = @users.first
+    user = @users.first
 
     # debugging
     if @users.length == 0
@@ -179,11 +172,11 @@ class ApplicationController < ActionController::Base
     logger.debug2  "more when one currency found for logged in users: #{}" if currencies.length > 1
 
     # add some instance variables
-    if @user
-      Money.default_currency = Money::Currency.new(@user.currency)
+    if user
+      Money.default_currency = Money::Currency.new(user.currency)
       # todo: set decimal mark and thousands separator from language - not from currency
-      @user_currency_separator = Money::Currency.table[@user.currency.downcase.to_sym][:decimal_mark]
-      @user_currency_delimiter = Money::Currency.table[@user.currency.downcase.to_sym][:thousands_separator]
+      @user_currency_separator = Money::Currency.table[user.currency.downcase.to_sym][:decimal_mark]
+      @user_currency_delimiter = Money::Currency.table[user.currency.downcase.to_sym][:thousands_separator]
     end
     logger.debug2  "@user_currency_separator = #{@user_currency_separator}, @user_currency_delimiter = #{@user_currency_delimiter}"
 
@@ -648,9 +641,9 @@ class ApplicationController < ActionController::Base
     gift = api_gift.gift
     case gift.direction
       when 'giver'
-        t 'gifts.api_gift.direction_giver', :username => api_gift.giver.short_or_full_user_name(@user)
+        t 'gifts.api_gift.direction_giver', :username => api_gift.giver.short_or_full_user_name(@users)
       when 'receiver'
-        t 'gifts.api_gift.direction_receiver', :username => api_gift.receiver.short_or_full_user_name(@user)
+        t 'gifts.api_gift.direction_receiver', :username => api_gift.receiver.short_or_full_user_name(@users)
       when 'both'
         t 'gifts.api_gift.direction_giver_and_receiver', :givername => api_gift.giver.short_user_name, :receivername => api_gift.receiver.short_user_name
       else

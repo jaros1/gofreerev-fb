@@ -322,7 +322,7 @@ da:
         direction_receiver_prompt: "Søger: "
         description_title: "Tekst. Skal udfyldes. Beskriv det du tilbyder eller søger hvad enten det er ting eller hjælp. Du bestemmer selv om du vil sælge, udleje, udlåne eller forære ting væk gratis. Da der handles i virtuelle frie penge forærer man i praksis altid ting væk, men ens saldo i frie penge vokser. Opslag laves på din væg og vises til dine venner eller hvem du har valgt skal se opslag fra denne app. Dine venner kan kommenterer dit opslag på din væg. Aftalen bør sluttes herinde så din saldo i frie penge opdateres."
         description_prompt: "Tekst:"
-        file_title_true: "Vedlæg gerne et foto af det som du deler eller leder efter. Billeder er en effektiv måde at blive set på af ens venner. Upload kan godt tage lidt tid da billedet uploades i 2 trin. Først til %{appname} og dernæst videre til %{apiname}. Vent venligst."
+        file_title_true: "Vedlæg gerne et foto af det som du deler eller leder efter. Billeder er en effektiv måde at blive set på af ens venner. Upload kan godt tage lidt tid da billedet uploades i 2 trin. Først til %{appname} og dernæst videre til din væg hos din login udbyder. Vent venligst."
         file_title_false: "Der kan ikke vedlægges foto af det som du deler eller leder efter. Billeder uploades til din væg hos din login udbyder og %{appname} mangler lov til at skrive på din væg. Billeder er en effektiv måde at blive set på af ens venner. Benyt link øverst i denne side hvis du ønsker at give %{appname} mangler lov til at lave opslag på din væg. Gå til \"Log ind\" siden og sæt hak i \"Opslag?\" tjekbox ud for en eller flere login udbydere hvis du ønsker at %{appname} skal lave opslag hos din login udbyder."
         file_prompt: "Vedlæg:"
         gift_submit_button_text: "Opret opslag"
@@ -360,6 +360,7 @@ da:
         new_deal_check_box_prompt: "Foreslå aftale"
         price_prompt: "Pris"
         price_free: "frie"
+        new_proposal_title: "Anvend \"Foreslå aftale\" tjekboks hvis du ønsker at foreslå %{username} en aftale. Indtast en pris i frie penge hvis du ønsker at anvende frie penge i denne aftale. %{username} vil få besked om dit tilbud og kan accepterer eller afvise dit forslag."
      show:
         invalid_gift_id: "Ugyldigt kald. Ukendt opslag id"
         no_access: "Ugyldigt kald. Du har ikke adgang til at se dette opslag"

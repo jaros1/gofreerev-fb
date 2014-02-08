@@ -46,7 +46,7 @@
   <tr title="<%= t '.currency_title', @user2.app_and_apiname_hash %>">
     <td><%= t '.currency_prompt', @user2.app_and_apiname_hash %></td>
     <td>:</td>
-    <td><%= select_tag :user_currency_new2, options_for_select(selected_currency, [@user.currency]), {:class => 'user_currency_new', :onchange => 'update_currency(this)'} %></td>
+    <td><%= select_tag :user_currency_new2, options_for_select(selected_currency, [@users.first.currency]), {:class => 'user_currency_new', :onchange => 'update_currency(this)'} %></td>
   </tr>
   <tr title="<%= t '.share_balance_title', :appname => APP_NAME %>">
     <td><%= t '.share_balance_prompt', :appname => APP_NAME %></td>

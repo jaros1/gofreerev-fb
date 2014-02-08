@@ -58,7 +58,7 @@ class UtilController < ApplicationController
       # logger.debug2  "find comments to ajax insert in gifts/index or gifts/show pages"
       # two sources for comments to ajax insert into gifts table
       # source 1 - comments selected to be ajax inserted for this user - todo: check where AjaxCommment is initialized
-      com_ids = AjaxComment.where("user_id = ?", @user.user_id).collect { |ac| ac.comment_id }
+      com_ids = AjaxComment.where("user_id in (?)", login_user_ids).collect { |ac| ac.comment_id }
       com_ids.push('x') if com_ids.size == 0
       # logger.debug2  "com_ids.length = #{com_ids.length}"
       comments1 = Comment.includes(:gift).where('comment_id in (?)',com_ids)
@@ -66,7 +66,7 @@ class UtilController < ApplicationController
       friends = []
       @users.each do |user|
         friends = friends + user.app_friends.collect { |u| u.user_id_receiver }
-        friends.push(@user.user_id)
+        friends.push(user.user_id)
       end
       gifts2 = Gift.where('(api_gifts.user_id_giver in (?) or api_gifts.user_id_receiver in (?)) and ' +
                            'gifts.deleted_at is null and ' +
@@ -89,15 +89,14 @@ class UtilController < ApplicationController
                                             login_user_ids, 30.seconds.ago).collect { |ac| ac.comment_id}.uniq
         comments = comments.delete_if { |c| new_comment_ids.index(c.comment_id) } if new_comment_ids.size > 0
       end
-      #comments = comments.delete_if do |c|
-      #  (c.user_id == @user.user_id and c.created_at > 30.seconds.ago and c.created_at == c.updated_at)
-      #end
-      
+
       # remove comments for hidden gifts - that is gifts user has selected not to see
       if comments.size > 0
         old_size = comments.size
         giftids = comments.collect { |c| c.gift_id }
-        hide_giftids = GiftLike.where("user_id = ? and gift_id in (?)", @user.user_id, giftids).find_all { |gl| gl.show == 'N'}.collect { |gl| gl.gift_id }
+        hide_giftids = GiftLike.
+            where("user_id in (?) and gift_id in (?)", login_user_ids, giftids).
+            find_all { |gl| gl.show == 'N'}.collect { |gl| gl.gift_id }
         # remove comments for hidden gifts
         comments = comments.find_all { |c| !hide_giftids.index(c.gift_id) } if hide_giftids.length > 0
         new_size = comments.size
@@ -110,7 +109,7 @@ class UtilController < ApplicationController
         @api_comments = comments.collect { |c| c.api_comments.shuffle.first }
       end
       # empty AjaxComment buffer - only return ajax comments once
-      AjaxComment.destroy_all(:user_id => @user.user_id)
+      AjaxComment.where('user_id in (?)', login_user_ids).destroy_all
       # delete old deleted marked comments
       Comment.where("deleted_at is not null and deleted_at < ?", 10.minutes.ago).each do |c|
         begin
@@ -668,10 +667,10 @@ class UtilController < ApplicationController
     if !gift.visible_for?(@users)
       if action == 'cancel'
         # cancel proposal - changed friend relation
-        logger.debug2 "#{@user.short_user_name} is no longer allowed to see gift id #{gift_id}. Must be removed friend. Could be system error"
+        logger.debug2 "Login users are no longer allowed to see gift id #{gift_id}. Could be removed friend. Could be system error"
       else
         # rejected or accept proposal
-        logger.error2 "System error. #{@user.short_user_name} is not allowed to see gift id #{gift_id}"
+        logger.error2 "System error. Login users are not allowed to see gift id #{gift_id}"
       end
       return [comment, '.not_authorized', {}]
     end
@@ -836,7 +835,7 @@ class UtilController < ApplicationController
           api_gift.giver.recalculate_balance unless api_gift.giver.dummy_user?
           api_gift.receiver.recalculate_balance unless api_gift.receiver.dummy_user?
         end # each api_gift
-        # todo: change @user balance in page header
+        # todo: ajax inject change balance in page header
       end
 
       # use a discount version af new_messages_count to ajax replace accepted deal in gifts/index page for current user
