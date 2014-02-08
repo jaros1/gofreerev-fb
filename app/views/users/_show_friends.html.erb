@@ -4,4 +4,10 @@
   <% for user in @users2 do -%>
       <%= render :partial => 'user', :locals => { :user => user } %>
   <% end -%>
+  <tr id="show-more-rows-spinner">
+    <td colspan="4">
+      <img src="/images/ajax-loading.gif" />
+    </td>
+  </tr>
+
 </table>

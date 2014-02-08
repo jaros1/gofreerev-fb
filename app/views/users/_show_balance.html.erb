@@ -5,6 +5,11 @@
       <table id="gifts" style="border-spacing: 0;">
         <%= render :partial => 'show_balance_header' %>
         <%= render :partial => 'api_gifts' %>
+        <tr id="show-more-rows-spinner">
+          <td colspan="9">
+            <img src="/images/ajax-loading.gif" />
+          </td>
+        </tr>
       </table>
 <% end -%>
 </div>

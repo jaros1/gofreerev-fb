@@ -2,5 +2,10 @@
   <table id="gifts" style="border-spacing: 0;">
     <%= render :partial => 'gifts/table_header_row' %>
     <%= render :partial => 'gifts/api_gifts' %>
+    <tr id="show-more-rows-spinner">
+      <td colspan="4">
+        <img src="/images/ajax-loading.gif" />
+      </td>
+    </tr>
   </table>
 </div>
