@@ -160,14 +160,10 @@ Low priority todo list. Minor errors, wishlist etc.
     user has to click twice on currency LOV to change currency.
     the problem is that LOV object is changing at first click
 
-38) don't insert same task twice in task queue
-
 39) add som kind of effect when removing gifts and comments from page
     check jquery books - check jquery ui effect demo sites - check css3 transitions
 
 40) Use a spinner instead of a upload process bar. More generic and uses less space.
-
-41) add spinner when fetching more rows from server
 
 42) advance dialog box when deleting gift
     a) removed from gift from share page with unchanged balance (hide from gifts/index - show in users/show)

@@ -33,12 +33,17 @@ class Task < ActiveRecord::Base
 
   # send task to ajax queue before render response
   def self.add_task (session_id, task, priority=5)
+    at = Task.where('session_id = ? and task = ?', session_id, task).first
+    if at
+      logger.error2 "Task #{task} is already in task queue"
+      return
+    end
     at = Task.new
     at.session_id = session_id
     at.task = task
     at.priority = priority
     at.save!
-  end
+  end # self.add_task
   
   
 

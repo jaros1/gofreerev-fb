@@ -910,6 +910,49 @@ function show_more_rows_scroll(table_name, interval, debug) {
     }
 } // show_more_rows_scroll
 
+function start_show_more_rows_spinner (table_name, debug)
+{
+    var pgm = 'start_show_more_rows_spinner: '
+    add2log(pgm + 'start') ;
+    // check if spinner show-more-rows spinner has already been created
+    var spinner_id = 'show-more-rows-spinner' ;
+    var spinner = document.getElementById(spinner_id) ;
+    if (spinner) {
+        // spinner exists - start/display show-more-rows spinner
+        spinner.style.display = 'inline' ;
+        return ;
+    }
+    var table = document.getElementById(table_name) ;
+    if (!table) {
+        add2log(pgm + table_name + ' was not found') ;
+        return ;
+    }
+    var length = table.rows.length ;
+    add2log(pgm + 'length = ' + length) ;
+    var row = table.insertRow(length) ;
+    row.id = spinner_id ;
+    var cell = row.insertCell(0) ;
+    cell.innerHTML = '<img src="/images/ajax-loading.gif" />' ;
+} // start_show_more_rows_spinner
+
+function stop_show_more_rows_spinner(table_name, debug) {
+    var pgm = 'stop_show_more_rows_spinner: ' ;
+    add2log(pgm + 'stop') ;
+    // check if spinner show-more-rows spinner has already been created
+    var spinner_id = 'show-more-rows-spinner' ;
+    var spinner = document.getElementById(spinner_id) ;
+    if (!spinner) {
+        add2log(pgm + 'spanner was not found') ;
+        return ;
+    }
+    // hide spinner
+    spinner.style.display = 'none' ;
+    // move spinner to last table row
+    var tbody = spinner.parentNode ;
+    tbody.removeChild(spinner) ;
+    tbody.appendChild(spinner) ;
+} // stop_show_more_rows_spinner
+
 function show_more_rows_success (table_name, debug)
 {
     if (table_name == 'gifts') {
@@ -972,13 +1015,21 @@ function show_more_rows_error(jqxhr, textStatus, errorThrown, debug) {
 
 function show_more_rows_ajax(table_name, debug) {
     var link = '#show-more-rows-link'
+
+    $(link).unbind("click") ;
+    $(link).bind("click", function(xhr, settings){
+        start_show_more_rows_spinner(table_name, debug);
+    });
+
     $(link).unbind("ajax:success");
     $(link).bind("ajax:success", function (evt, data, status, xhr) {
         show_more_rows_success(table_name, debug);
+        stop_show_more_rows_spinner(table_name, debug);
     });
     $(link).unbind("ajax:error");
     $(link).bind("ajax:error", function (jqxhr, textStatus, errorThrown) {
         show_more_rows_error(jqxhr, textStatus, errorThrown, debug);
+        stop_show_more_rows_spinner(table_name, debug);
     });
 } // show_more_rows_ajax
 
