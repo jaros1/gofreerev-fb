@@ -276,13 +276,21 @@ $(document).ready(function() {
     $(link).unbind("ajax:error") ;
     $(link).bind("ajax:error", function(jqxhr, textStatus, errorThrown){
         pgm = link + '::ajax:error: ' ;
-        add2log(pgm);
-        add2log('jqxhr = ' + jqxhr);
-        add2log('jqxhr.target = ' + jqxhr.target);
-        add2log('textStatus = ' + textStatus);
-        add2log('errorThrown = ' + errorThrown);
-        add_to_tasks_errors(pgm + errorThrown + '. check server log for more information.') ;
-    })
+        try {
+            add2log(pgm);
+            add2log('jqxhr = ' + jqxhr);
+            add2log('jqxhr.target = ' + jqxhr.target);
+            add2log('textStatus = ' + textStatus);
+            add2log('errorThrown = ' + errorThrown);
+            add_to_tasks_errors(pgm + errorThrown + '. check server log for more information.') ;
+        }
+        catch (err) {
+            msg = pgm + 'failed with JS error: ' + err ;
+            add2log(msg) ;
+            add_to_tasks_errors(msg) ;
+            return ;
+        }
+    }) // ajax:error
     $(link).unbind("ajax:success");
     $(link).bind("ajax:success", function (evt, data, status, xhr) {
         pgm = link + '::ajax:success: ' ;
@@ -728,46 +736,55 @@ function post_ajax_add_older_comments_handler(giftid, commentid) {
     // var id = '#gift-' + giftid + '-new-comment-form' ;
     var link_id = 'gift-' + giftid + '-show-older-comments-link-' + commentid;
     $(document).ready(function () {
-        $('#' + link_id).unbind("ajax:success") ;
+        $('#' + link_id).unbind("ajax:success");
         $('#' + link_id)
             .bind("ajax:success", function (evt, data, status, xhr) {
                 // find tr for old link, first added row and last added row
-                var first_row_id = "gift-" + giftid + "-older-comments-block-start-" + commentid;
-                var last_row_id = "gift-" + giftid + "-older-comments-block-end-" + commentid;
-                // find link
-                var link = document.getElementById(link_id);
-                if (!link) return; // link not found
-                // find tr for link
-                var link_tr = link;
-                while (link_tr.tagName != 'TR') link_tr = link_tr.parentNode;
-                // find first and last added table row
-                var first_row = document.getElementById(first_row_id);
-                var last_row = document.getElementById(last_row_id);
-                if (!first_row || !last_row) return;
-                // copy table rows to JS array
-                var trs = [];
-                var tr = first_row.nextElementSibling;
-                while (tr.id != last_row_id) {
-                    if (tr.tagName == 'TR') trs.push(tr);
-                    tr = tr.nextElementSibling;
-                } // while
-                // delete table rows from html table
-                tr = first_row;
-                var next_tr = tr.nextElementSibling;
-                do {
-                    tr.parentNode.removeChild(tr);
-                    tr = next_tr;
-                    next_tr = tr.nextElementSibling;
-                } while (tr.id != last_row_id) ;
-                // insert table rows before old show-older-comments link
+                var pgm = link_id + '.ajax.success: ';
+                try {
+                    var first_row_id = "gift-" + giftid + "-older-comments-block-start-" + commentid;
+                    var last_row_id = "gift-" + giftid + "-older-comments-block-end-" + commentid;
+                    // find link
+                    var link = document.getElementById(link_id);
+                    if (!link) return; // link not found
+                    // find tr for link
+                    var link_tr = link;
+                    while (link_tr.tagName != 'TR') link_tr = link_tr.parentNode;
+                    // find first and last added table row
+                    var first_row = document.getElementById(first_row_id);
+                    var last_row = document.getElementById(last_row_id);
+                    if (!first_row || !last_row) return;
+                    // copy table rows to JS array
+                    var trs = [];
+                    var tr = first_row.nextElementSibling;
+                    while (tr.id != last_row_id) {
+                        if (tr.tagName == 'TR') trs.push(tr);
+                        tr = tr.nextElementSibling;
+                    } // while
+                    // delete table rows from html table
+                    tr = first_row;
+                    var next_tr = tr.nextElementSibling;
+                    do {
+                        tr.parentNode.removeChild(tr);
+                        tr = next_tr;
+                        next_tr = tr.nextElementSibling;
+                    } while (tr.id != last_row_id) ;
+                    // insert table rows before old show-older-comments link
 
-                var tbody = link_tr.parentNode;
-                while (trs.length > 0) {
-                    tr = trs.shift();
-                    tbody.insertBefore(tr, link_tr);
+                    var tbody = link_tr.parentNode;
+                    while (trs.length > 0) {
+                        tr = trs.shift();
+                        tbody.insertBefore(tr, link_tr);
+                    }
+                    // delete link  (and this event handler)
+                    link_tr.parentNode.removeChild(link_tr);
                 }
-                // delete link  (and this event handler)
-                link_tr.parentNode.removeChild(link_tr);
+                catch (err) {
+                    var msg = pgm + 'failed with JS error: ' + err;
+                    add2log(msg);
+                    add_to_tasks_errors(msg);
+                    return;
+                }
             }); // bind ajax:success
     }); // $(document).ready(function(){
 } // add_post_ajax_new_comment_handler
@@ -808,12 +825,13 @@ function check_uncheck_new_deal_checkbox(checkbox, giftid)
 // for smaller page and faster startup time
 // todo: minor problem. User has to click twice on currency LOV to change currency. First to get full currency list and second to change currency
 $(document).ready(function() {
-    $(".user_currency_new").unbind('focus') ;
-    $(".user_currency_new").bind('focus', function () {
+    var id = ".user_currency_new" ;
+    $(id).unbind('focus') ;
+    $(id).bind('focus', function () {
         var id_select = document.getElementById("user_currency_new");
         if (id_select.length > 1) {
             // list of currencies is already initialised
-            $(".user_currency_new").unbind('focus');
+            $(id).unbind('focus');
         }
         else {
             // get full list of currencies from server
@@ -822,18 +840,18 @@ $(document).ready(function() {
                 url: '/util/currencies.js',
                 dataType: "text",
                 success: function (msg) {
-                    $(".user_currency_new").unbind('focus');
+                    $(id).unbind('focus');
                     if (msg == 0) {
                         // Query returned empty.
                         add2log('Did not get any currencies from server');  // todo: or just ignore error!
                     } else {
                         // Query Has values.
-                        $('.user_currency_new').replaceWith(msg);
-                        $(".user_currency_new").click;
+                        $(id).replaceWith(msg);
+                        $(id).click;
                     }
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
-                    $(".user_currency_new").unbind('focus');
+                    $(id).unbind('focus');
                     add2log('error: jqXHR = ' + jqXHR + ', textStatus = ' + textStatus + ', errorThrown = ' + errorThrown);
                 }
             });
@@ -923,10 +941,11 @@ function stop_show_more_rows_spinner() {
     }
     // hide spinner
     spinner.style.display = 'none' ;
-    // move spinner to last table row
+    // move spinner to last table row -
+    // todo: does not work - tbody.appendChild does not add spinner as last row in table - new spinner is created for each show more rows request
     var tbody = spinner.parentNode ;
     tbody.removeChild(spinner) ;
-    tbody.append(spinner) ;
+    // tbody.appendChild(spinner) ;
 } // stop_show_more_rows_spinner
 
 // shiow more rows - display spinner while fetching more rows
@@ -1022,25 +1041,46 @@ function show_more_rows_error(jqxhr, textStatus, errorThrown, debug) {
 
 function show_more_rows_ajax(table_name, debug) {
     var link = '#show-more-rows-link'
-
     $(link).unbind("click") ;
     $(link).bind("click", function(xhr, settings){
-        start_show_more_rows_spinner(table_name, debug);
+        var pgm = link + '.click: ' ;
+        try { start_show_more_rows_spinner(table_name, debug) }
+        catch (err) {
+            var msg = pgm + 'failed with JS error: ' + err;
+            add2log(msg);
+            add_to_tasks_errors(msg);
+            return;
+        }
     });
-
     $(link).unbind("ajax:success");
     $(link).bind("ajax:success", function (evt, data, status, xhr) {
-        show_more_rows_success(table_name, debug);
-        stop_show_more_rows_spinner();
+        var pgm = link + '.ajax.success: ' ;
+        try {
+            show_more_rows_success(table_name, debug);
+            stop_show_more_rows_spinner();
+        }
+        catch (err) {
+            var msg = pgm + 'failed with JS error: ' + err;
+            add2log(msg);
+            add_to_tasks_errors(msg);
+            return;
+        }
     });
     $(link).unbind("ajax:error");
     $(link).bind("ajax:error", function (jqxhr, textStatus, errorThrown) {
-        show_more_rows_error(jqxhr, textStatus, errorThrown, debug);
-        stop_show_more_rows_spinner();
+        var pgm = link + '.ajax.error: ' ;
+        try {
+            show_more_rows_error(jqxhr, textStatus, errorThrown, debug);
+            stop_show_more_rows_spinner();
+        }
+        catch (err) {
+            var msg = pgm + 'failed with JS error: ' + err;
+            add2log(msg);
+            add_to_tasks_errors(msg);
+            return;
+        }
     });
 } // show_more_rows_ajax
-
-
 
 // <== implementing show-more-rows ajax / endless expanding page
 
@@ -1092,28 +1132,51 @@ function trigger_tasks_form (sleep) {
 // error callback for executing tasks - write to debug log + page header
 // debug log in bottom of page is shown if DEBUG_AJAX = true (constants.rb)
 $(document).ready(function() {
-    $("#tasks_form").unbind("ajax:error") ;
-    $("#tasks_form").bind("ajax:error", function(jqxhr, textStatus, errorThrown){
-        add2log('#tasks_form.error');
-        add2log('jqxhr = ' + jqxhr);
-        add2log('textStatus = ' + textStatus);
-        add2log('errorThrown = ' + errorThrown);
-        add_to_tasks_errors('tasks_form.error: ' + errorThrown + '. check server log for more information.') ;
+    var id = "#tasks_form" ;
+    $(id).unbind("ajax:error") ;
+    $(id).bind("ajax:error", function(jqxhr, textStatus, errorThrown){
+        var pgm = id + '.ajax.error: ' ;
+        try {
+            add2log('#tasks_form.error');
+            add2log('jqxhr = ' + jqxhr);
+            add2log('textStatus = ' + textStatus);
+            add2log('errorThrown = ' + errorThrown);
+            add_to_tasks_errors('tasks_form.error: ' + errorThrown + '. check server log for more information.') ;
+        }
+        catch (err) {
+            var msg = pgm + 'failed with JS error: ' + err;
+            add2log(msg);
+            add_to_tasks_errors(msg);
+            return;
+        }
     })
 })
 
+// write ajax error to tasks_errors table in page header
+function add_to_tasks_errors (error) {
+    var pgm = 'add_to_tasks_errors: ' ;
+    var table = document.getElementById('tasks_errors') ;
+    if (!table) {
+        add2log(pgm + 'tasks_errors table was not found.') ;
+        add2log(pgm + 'error was ' + error + '') ;
+        return ;
+    }
+    var length = table.length ;
+    var row = table.insertRow(length) ;
+    var cell = row.insertCell(0) ;
+    cell.innerHTML = error ;
+    ajax_flash_new_table_rows('tasks_errors', 1);
+} // add_to_tasks_errors
 
-
-
-// normally tasks errors and messages are injected from server
-// this function is used for client side errors - for example from error in callback functions (ajax:error)
+// write ajax error to ajax error table within page - for example ajax error tables under gift links or under each comment
+// called from move_tasks_errors2 and from gift/comment link ajax handlers
+// ajax error tables under gift links and comments are created dynamic when needed
 function add_to_tasks_errors2 (table_id, error) {
     var pgm = 'add_to_tasks_errors2: ' ;
     var table = document.getElementById(table_id) ;
     if (!table) {
         add2log(pgm + table_id + ' was not found.') ;
         add2log(pgm + 'error was ' + error + '') ;
-        return ;
     }
     var length = table.rows.size ;
     add2log(pgm + 'length = ' + length) ;
@@ -1123,19 +1186,6 @@ function add_to_tasks_errors2 (table_id, error) {
     ajax_flash_new_table_rows(table_id, 1);
 } // add_to_tasks_errors2
 
-function add_to_tasks_errors (error) {
-    var table = document.getElementById('tasks_errors') ;
-    if (!table) {
-        add2log('add_to_tasks_errors: tasks_errors table was not found.') ;
-        add2log('add_to_tasks_errors: error was ' + error + '') ;
-        return ;
-    }
-    var length = table.length ;
-    var row = table.insertRow(length) ;
-    var cell = row.insertCell(0) ;
-    cell.innerHTML = error ;
-    ajax_flash_new_table_rows('tasks_errors', 1);
-}
 
 // create missing gift-<giftid>-links-errors table if possible
 // is created under current gift link row in gifts table
@@ -1148,13 +1198,13 @@ function create_gift_links_errors_table (table_id) {
     add2log('ref_id = ' + ref_id) ;
     ref = document.getElementById(ref_id) ;
     if (!ref) {
-        add2log(ref_id + ' was not found. ' + msg) ;
+        add2log(ref_id + ' was not found. ') ;
         return false ;
     }
     // add2log(ref_id + ' blev fundet') ;
     ref = ref.nextSibling ;
     if (!ref) {
-        add2log('row after ' + ref_id + ' was not found. ' + msg) ;
+        add2log('row after ' + ref_id + ' was not found. ') ;
         return false ;
     }
     add2log('create new tr') ;
@@ -1177,51 +1227,70 @@ function create_gift_links_errors_table (table_id) {
 
 // error callback for gift actions (like, unlike, follow, unfollow etc - write to debug log + page header
 $(document).ready(function() {
-    $(".gift-action-link").unbind("click") ;
-    $(".gift-action-link").bind("click", function(xhr, settings){
+    var id = ".gift-action-link" ;
+    $(id).unbind("click") ;
+    $(id).bind("click", function(xhr, settings){
         // clear any old ajax error messages if any
         // clear within page ajax error messages if any
         // todo: this event handler is not call for delete gift. Suspect rails confirm dialog is the problem.
-        var pgm = 'gift-action-link::click. ' ;
-        // add2log(pgm + 'xhr = ' + xhr + ', settings = ' + settings) ;
-        var url = xhr.target ;
-        // add2log(pgm + 'url = ' + url) ;
-        var url_a = ('' + url + '').split('=') ;
-        // add2log(pgm + 'url_a.length = ' + url_a.length) ;
-        var giftid = url_a[url_a.length-1] ;
-        // add2log(pgm + 'giftid = ' + giftid) ;
-        var table_id = 'gift-' + giftid + '-links-errors' ;
-        var table = document.getElementById(table_id) ;
-        if (table) clear_ajax_errors(table_id) ;
-        // else add2log(pgm + table_id + ' was not found.') ;
-        // clear page header error messages if any
-        clear_flash_and_ajax_errors() ;
-    })
-    $(".gift-action-link").unbind("ajax:error") ;
-    $(".gift-action-link").bind("ajax:error", function(jqxhr, textStatus, errorThrown){
-        add2log('.gift-action-link.error');
-        add2log('jqxhr = ' + jqxhr);
-        add2log('jqxhr.target = ' + jqxhr.target);
-        add2log('textStatus = ' + textStatus);
-        add2log('errorThrown = ' + errorThrown);
-        // inject gift action ajax error into page if possible. Otherwise use tasks_errors table in page header
-        var url = jqxhr.target ;
-        // add2log('gift-action-link::ajax:beforeSend. url = ' + url) ;
-        var url_a = ('' + url + '').split('=') ;
-        // add2log('gift-action-link::ajax:beforeSend. url_a.length = ' + url_a.length) ;
-        var giftid = url_a[url_a.length-1] ;
-        // add2log('gift-action-link::ajax:beforeSend. giftid = ' + giftid) ;
-        var table_id = 'gift-' + giftid + '-links-errors' ;
-        var table = document.getElementById(table_id) ;
-        if (!table && !create_gift_links_errors_table(table_id)) {
-            // inject ajax error message in page header
-            add_to_tasks_errors('gift-action-link.error: ' + errorThrown + '. check server log for more information.') ;
+        var pgm = id + '.click: ' ;
+        try {
+            // add2log(pgm + 'xhr = ' + xhr + ', settings = ' + settings) ;
+            var url = xhr.target ;
+            // add2log(pgm + 'url = ' + url) ;
+            var url_a = ('' + url + '').split('=') ;
+            // add2log(pgm + 'url_a.length = ' + url_a.length) ;
+            var giftid = url_a[url_a.length-1] ;
+            // add2log(pgm + 'giftid = ' + giftid) ;
+            var table_id = 'gift-' + giftid + '-links-errors' ;
+            var table = document.getElementById(table_id) ;
+            if (table) clear_ajax_errors(table_id) ;
+            // else add2log(pgm + table_id + ' was not found.') ;
+            // clear page header error messages if any
+            clear_flash_and_ajax_errors() ;
         }
-        else {
-            // inject ajax error message in gift link error table in page
-            add_to_tasks_errors2(table_id, 'gift-action-link.error: ' + errorThrown + '. check server log for more information.') ;
+        catch (err) {
+            var msg = pgm + 'failed with JS error: ' + err;
+            add2log(msg);
+            add_to_tasks_errors(msg);
+            return;
         }
-    })
+    }) // click
+    $(id).unbind("ajax:error") ;
+    $(id).bind("ajax:error", function(jqxhr, textStatus, errorThrown){
+        var pgm = id + '.ajax.error: ' ;
+        try {
+            add2log(pgm);
+            add2log('jqxhr = ' + jqxhr);
+            add2log('jqxhr.target = ' + jqxhr.target);
+            add2log('textStatus = ' + textStatus);
+            add2log('errorThrown = ' + errorThrown);
+            var error = errorThrown + '. check server log for more information.' ;
+            // inject gift action ajax error into page if possible. Otherwise use tasks_errors table in page header
+            var url = jqxhr.target ;
+            // add2log('gift-action-link::ajax:beforeSend. url = ' + url) ;
+            var url_a = ('' + url + '').split('=') ;
+            // add2log('gift-action-link::ajax:beforeSend. url_a.length = ' + url_a.length) ;
+            var giftid = url_a[url_a.length-1] ;
+            // add2log('gift-action-link::ajax:beforeSend. giftid = ' + giftid) ;
+            var table_id = 'gift-' + giftid + '-links-errors' ;
+            var table = document.getElementById(table_id) ;
+            if (!table && !create_gift_links_errors_table(table_id)) {
+                // inject ajax error message in page header
+                add_to_tasks_errors(pgm + error) ;
+            }
+            else {
+                // inject ajax error message in gift link error table in within page
+                add_to_tasks_errors2(table_id, error) ;
+            }
+        }
+        catch (err) {
+            var msg = pgm + 'failed with JS error: ' + err;
+            add2log(msg);
+            add_to_tasks_errors(msg);
+            return;
+        }
+    }) // ajax:error
 })
 
 function create_new_com_errors_table(table_id) {
@@ -1260,62 +1329,81 @@ function create_new_com_errors_table(table_id) {
 // move new comment from last row to row before new comment row
 // clear comment text area and reset frequency for new message check
 function post_ajax_add_new_comment_handler(giftid) {
-    var fnc = 'post_ajax_add_new_comment_handler: ' ;
     var id = '#gift-' + giftid + '-new-comment-form';
     $(id).unbind("ajax:success");
     $(id).bind("ajax:success", function (evt, data, status, xhr) {
-        var checkbox, gifts, trs, re, i, new_comment_tr, id2, add_new_comment_tr, tbody;
-        // reset new comment line
-        document.getElementById('gift-' + giftid + '-comment-new-price').value = '';
-        document.getElementById('gift-' + giftid + '-comment-new-textarea').value = '';
-        document.getElementById('gift-' + giftid + '-comment-new-price-tr').style.display = 'none';
-        checkbox = document.getElementById('gift-' + giftid + '-new-deal-check-box');
-        if (checkbox) checkbox.checked = false;
-        // find new comment table row last in gifts table
-        gifts = document.getElementById("gifts");
-        trs = gifts.rows;
-        re = new RegExp("^gift-" + giftid + "-comment-[0-9]+$");
-        i = trs.length - 1;
-        for (i = trs.length - 1; ((i >= 0) && !new_comment_tr); i--) {
-            id2 = trs[i].id;
-            if (id2 && id2.match(re)) new_comment_tr = trs[i];
-        } // for
-        if (!new_comment_tr) {
-            add2log(fnc + "new comment row with format " + re + " was not found. There could be more information in server log.");
+        var pgm = id + '.ajax.success: ' ;
+        try {
+            var checkbox, gifts, trs, re, i, new_comment_tr, id2, add_new_comment_tr, tbody;
+            // reset new comment line
+            document.getElementById('gift-' + giftid + '-comment-new-price').value = '';
+            document.getElementById('gift-' + giftid + '-comment-new-textarea').value = '';
+            document.getElementById('gift-' + giftid + '-comment-new-price-tr').style.display = 'none';
+            checkbox = document.getElementById('gift-' + giftid + '-new-deal-check-box');
+            if (checkbox) checkbox.checked = false;
+            // find new comment table row last in gifts table
+            gifts = document.getElementById("gifts");
+            trs = gifts.rows;
+            re = new RegExp("^gift-" + giftid + "-comment-[0-9]+$");
+            i = trs.length - 1;
+            for (i = trs.length - 1; ((i >= 0) && !new_comment_tr); i--) {
+                id2 = trs[i].id;
+                if (id2 && id2.match(re)) new_comment_tr = trs[i];
+            } // for
+            if (!new_comment_tr) {
+                add2log(pgm + "new comment row with format " + re + " was not found. There could be more information in server log.");
+                return;
+            }
+            add_new_comment_tr = document.getElementById("gift-" + giftid + "-comment-new");
+            if (!add_new_comment_tr) {
+                add2log(pgm + "gift-" + giftid + "-comment-new was not found");
+                return;
+            }
+            // move new table row up before add new comment table row
+            new_comment_tr.parentNode.removeChild(new_comment_tr);
+            add_new_comment_tr.parentNode.insertBefore(new_comment_tr, add_new_comment_tr); // error: Node was not found
+            // save timestamp for last new ajax comment
+            last_user_ajax_comment_at = new Date();
+            restart_check_new_messages();
+        }
+        catch (err) {
+            var msg = pgm + 'failed with JS error: ' + err;
+            add2log(msg);
+            add_to_tasks_errors(msg);
             return;
         }
-        add_new_comment_tr = document.getElementById("gift-" + giftid + "-comment-new");
-        if (!add_new_comment_tr) {
-            add2log(fnc + "gift-" + giftid + "-comment-new was not found");
-            return;
-        }
-        // move new table row up before add new comment table row
-        new_comment_tr.parentNode.removeChild(new_comment_tr);
-        add_new_comment_tr.parentNode.insertBefore(new_comment_tr, add_new_comment_tr); // error: Node was not found
-        // save timestamp for last new ajax comment
-        last_user_ajax_comment_at = new Date();
-        restart_check_new_messages();
-    });
+
+    }); // ajax:success
     $(id).unbind("ajax:error");
     $(id).bind("ajax:error", function(jqxhr, textStatus, errorThrown){
-        add2log(fnc + 'ajax.error');
-        add2log('jqxhr = ' + jqxhr);
-        add2log('jqxhr.target = ' + jqxhr.target) ;
-        add2log('textStatus = ' + textStatus);
-        add2log('errorThrown = ' + errorThrown);
+        var pgm = id + '.ajax.error: ' ;
+        try {
+            add2log(pgm + 'ajax.error');
+            add2log('jqxhr = ' + jqxhr);
+            add2log('jqxhr.target = ' + jqxhr.target) ;
+            add2log('textStatus = ' + textStatus);
+            add2log('errorThrown = ' + errorThrown);
+            var error = errorThrown + '. check server log for more information.' ;
 
-        var table_id = 'gift-' + giftid + '-comment-new-errors' ;
+            var table_id = 'gift-' + giftid + '-comment-new-errors' ;
 
-        var table = document.getElementById(table_id) ;
-        if (!table && !create_new_com_errors_table(table_id)) {
-            // inject ajax error message in page header
-            add_to_tasks_errors(fnc + 'ajax.error: ' + errorThrown + '. check server log for more information.') ;
+            var table = document.getElementById(table_id) ;
+            if (!table && !create_new_com_errors_table(table_id)) {
+                // inject ajax error message in page header
+                add_to_tasks_errors(pgm + error) ;
+            }
+            else {
+                // inject ajax error message in new comment error table in page
+                add_to_tasks_errors2(table_id, error) ;
+            }
         }
-        else {
-            // inject ajax error message in new comment error table in page
-            add_to_tasks_errors2(table_id, fnc + 'ajax.error: ' + errorThrown + '. check server log for more information.') ;
+        catch (err) {
+            var msg = pgm + 'failed with JS error: ' + err;
+            add2log(msg);
+            add_to_tasks_errors(msg);
+            return;
         }
-    });
+    }); // ajax:error
 } // post_ajax_add_new_comment_handler
 
 function create_com_link_errors_table(table_id) {
@@ -1389,41 +1477,58 @@ function comment_action_url_table_id (url) {
 // error callback for comment actions (cancel, accept, reject, delete - write to debug log + page header
 // using click event instead of beforeSend or ajaxSend as rails confirm box seems to "disable" use of the 2 events
 $(document).ready(function () {
-    $(".comment-action-link").unbind("click");
-    $(".comment-action-link").bind("click", function (xhr, settings) {
+    var id = ".comment-action-link" ;
+    $(id).unbind("click");
+    $(id).bind("click", function (xhr, settings) {
+        var pgm = id + '.click: ' ;
+        try {
+            // add2log(pgm + 'xhr = ' + xhr + ', settings = ' + settings) ;
+            var url = '' + xhr.target + '' ;
+            add2log(pgm + 'url = "' + url + '"') ;
+            // http://localhost/da/da/comments/729?giftid=891
 
-        var pgm = 'comment-action-link::click. ' ;
-        // add2log(pgm + 'xhr = ' + xhr + ', settings = ' + settings) ;
-        var url = '' + xhr.target + '' ;
-        add2log(pgm + 'url = "' + url + '"') ;
-        // http://localhost/da/da/comments/729?giftid=891
-
-        // find giftid and commentid in url
-        var table_id = comment_action_url_table_id(url) ;
-        add2log(pgm + 'table_id = ' + table_id) ;
-        if (table_id && document.getElementById(table_id)) clear_ajax_errors(table_id) ;
-        clear_flash_and_ajax_errors();
-    }) // click
-    $(".comment-action-link").unbind("ajax:error");
-    $(".comment-action-link").bind("ajax:error", function (jqxhr, textStatus, errorThrown) {
-        var pgm = 'comment-action-link::ajax:error ' ;
-        add2log(pgm + 'jqxhr = ' + jqxhr);
-        add2log(pgm + 'textStatus = ' + textStatus);
-        add2log(pgm + 'errorThrown = ' + errorThrown);
-
-        // add2log(pgm + 'xhr = ' + xhr + ', settings = ' + settings) ;
-        var url = '' + jqxhr.target + '' ;
-        add2log(pgm + 'url = "' + url + '"') ;
-
-        var table_id = comment_action_url_table_id(url) ;
-        add2log(pgm + 'table_id = ' + table_id) ;
-        if (table_id && create_com_link_errors_table(table_id)) {
-            // could find table_id and table for ajax error messages has been created
-            add_to_tasks_errors2(table_id, errorThrown + '. check server log for more information.') ;
+            // find giftid and commentid in url
+            var table_id = comment_action_url_table_id(url) ;
+            add2log(pgm + 'table_id = ' + table_id) ;
+            if (table_id && document.getElementById(table_id)) clear_ajax_errors(table_id) ;
+            clear_flash_and_ajax_errors();
         }
-        else {
-            // could not find table id or table for ajax error messages could not be created
-            add_to_tasks_errors('comment-action-link.error: ' + errorThrown + '. check server log for more information.');
+        catch (err) {
+            var msg = pgm + 'failed with JS error: ' + err;
+            add2log(msg);
+            add_to_tasks_errors(msg);
+            return;
+        }
+    }) // click
+    $(id).unbind("ajax:error");
+    $(id).bind("ajax:error", function (jqxhr, textStatus, errorThrown) {
+        var pgm = id + '.ajax.error: ' ;
+        try {
+            add2log(pgm + 'jqxhr = ' + jqxhr);
+            add2log(pgm + 'textStatus = ' + textStatus);
+            add2log(pgm + 'errorThrown = ' + errorThrown);
+            var error = errorThrown + '. check server log for more information.' ;
+
+            // add2log(pgm + 'xhr = ' + xhr + ', settings = ' + settings) ;
+            var url = '' + jqxhr.target + '' ;
+            add2log(pgm + 'url = "' + url + '"') ;
+
+            var table_id = comment_action_url_table_id(url) ;
+            add2log(pgm + 'table_id = ' + table_id) ;
+            if (!table_id && !create_com_link_errors_table(table_id)) {
+                // could not find table id and table for ajax error messages could not be created
+                add_to_tasks_errors(pgm + error);
+            }
+            else {
+                // could find table_id or table for ajax error messages has been created
+                add_to_tasks_errors2(table_id, error) ;
+            }
+        }
+        catch (err) {
+            var msg = pgm + 'failed with JS error: ' + err;
+            add2log(msg);
+            add_to_tasks_errors(msg);
+            return;
         }
     }) // ajax:error
 })

@@ -362,9 +362,6 @@
     should ajax inject error message inside page under gift links/comment row
     check gift and comments links
 
-63) add try+catch for all ajax:success event handlers to catch any JS errors
-    firefox only return "parseerror" and no other information if there is any error in client side JS code
-
 64) gift giver pic mouse over text should have information about multiple provider givers
     gift receiver pic mouse over text should have information about multiple provider receivers
 
@@ -406,3 +403,11 @@
     maybe the same issue as in previous dropped mutual friends
 
 73) add email invite in top of users/index page for google+, linkedin and twitter
+
+74) check show more rows spinner in IE
+
+75) add a tasks spinner. For example spinner displayed while executing post login tasks.
+    or spinner displayed while posting on api walls.
+
+76) add mini spinners for some time consuming tasks.
+    for example deleting a closed deal (recaulcuale balance)

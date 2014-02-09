@@ -27,17 +27,17 @@
 -%>
     var old_show_more_rows_request_at = 0 ;
 <%#
-    // ajax post processing show-row-rows. Check number of new rows. Change link for next show-more-rows ajax request
+    // setup show-more-rows ajax handlers. Check number of new rows. Change link for next show-more-rows ajax request
 -%>
     $(document).ready(function(){
         show_more_rows_ajax("<%= show_more_rows %>", <%= debug_ajax? ? "true" : "false" %>);
-    }); // $(document).ready
+    });
 <%#
-    // trigger show-more-rows event when user scrolls to end-of-page
+    // trigger show-more-rows ajax event when user scrolls to end-of-page
 -%>
     $(window).scroll(function(){
         show_more_rows_scroll("<%= show_more_rows %>", <%= (GET_MORE_ROWS_INTERVAL*1000).round %>,<%= debug_ajax? ? "true" : "false" %>) ;
-    }); //
+    });
 <%#
     // scroll to top of page after reload - prevent multiple show-more-rows requests
 -%>
@@ -45,7 +45,7 @@
         $(this).scrollTop(0);
     });
 <%#
-    // startup with 1 row in gifts/users - get next 10 more rows
+    // startup with 1 row in gifts/users table - get next 10 more rows now - hide spinner if 0 or 1 row in gifts/users table
 -%>
     if (end_of_page) stop_show_more_rows_spinner();
     else show_more_rows() ;

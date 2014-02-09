@@ -51,7 +51,7 @@
           <%= f.text_field :new_currency %>
       <% end %>
     </div>
-    <!-- page header -->
+<%# page header -%>
     <%= render :partial => 'layouts/page_header' %>
     <div style="width: 100%"><hr></div>
     <% if msg = get_flash -%>
@@ -59,11 +59,19 @@
         <div id="notification" style="width: 100%"><%= msg %></div>
         <br/>
     <% end -%>
+<%# tasks_errors is used to display error messages from ajax tasks in page header
+    tasks_errors2 is a hidden ajax error table used when ajax injecting error message into more specific locations in actual page
+    for example ajax error messages for gift action links that is ajax injected to row under gifts link
+    or ajax error messages for comment action links that is ajax injected to row under comment
+    js function move_tasks_errors2 moves error messages from tasks_errors2 to specific location
+    tasks_errors table in page header is used if specific location for ajax error message can not be found
+-%>
     <div style="width: 100%"><table id="tasks_errors"></table></div>
     <div style="display: none"><table id="tasks_errors2"></table></div>
   </header>
-  <!-- the page -->
+<%# the page -%>
   <%= yield %>
+<%# page footer -%>
   <footer>
     <div style="width: 100%">
       <p>
