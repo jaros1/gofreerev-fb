@@ -607,8 +607,8 @@ var missing_api_picture_urls = [];
 // function used in onload for img tags
 function imgonload(img) {
     api_gift_id = img.dataset.id ;
-    add2log('imgonload. api gift id = ' + api_gift_id + ', img.width = ' + img.width + ', img.height = ' + img.height +
-        ', naturalWidth = ' + img.naturalWidth + ', naturalHeight = ' + img.naturalHeight + ', complete = ' + img.complete) ;
+//    add2log('imgonload. api gift id = ' + api_gift_id + ', img.width = ' + img.width + ', img.height = ' + img.height +
+//        ', naturalWidth = ' + img.naturalWidth + ', naturalHeight = ' + img.naturalHeight + ', complete = ' + img.complete) ;
     if ((img.width <= 1) && (img.height <= 1)) {
         // image not found - url expired or api picture deleted
         // alert('changed picture url: gift_id = ' + giftid + ', img = ' + img + ', width = ' + img.width + ', height = ' + img.height) ;
@@ -929,89 +929,9 @@ function show_more_rows_scroll(table_name, interval, debug) {
 } // show_more_rows_scroll
 
 // show more rows - hide spinner
-function stop_show_more_rows_spinner() {
-    var pgm = 'stop_show_more_rows_spinner: ' ;
-    // add2log(pgm + 'stop') ;
-    // check if show-more-rows spinner is in page
-    var spinner_id = 'show-more-rows-spinner' ;
-    var spinner = document.getElementById(spinner_id) ;
-    if (!spinner) {
-        add2log(pgm + 'warning - show more rows spinner was not found') ;
-        return ;
-    }
-    add2log(pgm + 'spinner.style.display = ' + spinner.style.display) ;
-    spinner.style.display = 'none' ;
-    return ;
-
-    // add new spinner
-    var tbody = spinner.parentNode ;
-    var length = tbody.rows.length ;
-    add2log(pgm + 'length = ' + length) ;
-    var row = tbody.insertRow(length) ;
-    var cell = row.insertCell(0) ;
-    cell.colSpan = no_cells ;
-    cell.innerHTML = '' ;
-    var img = new Image ;
-    img.src = "/images/no-picture.jpg" ;
-    cell.appendChild(img) ;
-    return ;
-
-    // remove old spinner
-    spinner.parentNode.removeChild(spinner) ;
-    // hide new spinner
-    var spinner = document.getElementById(spinner_id) ;
-    // spinner.style.display = 'none' ;
-    return ;
-
-    var no_cells = spinner.cells.length ;
-    // remove old spinner
-    var tbody = spinner.parentNode ;
-    add2log(pgm + 'old length = ' + tbody.rows.length) ;
-    add2log(pgm + 'tbody.tagname = ' + tbody.tagName) ;
-    spinner.id = '' ;
-    tbody.removeChild(spinner) ;
-    add2log(pgm + 'new length = ' + tbody.rows.length) ;
-    // add new hidden spinner
-    var length = tbody.rows.length ;
-    add2log(pgm + 'length = ' + length) ;
-    var row = tbody.insertRow(length) ;
-    row.id = spinner_id ;
-    var cell = row.insertCell(0) ;
-    cell.colSpan = no_cells ;
-    cell.innerHTML = '' ;
-    var img = new Image ;
-    img.src = "/images/ajax-loading.gif" ;
-    cell.appendChild(img) ;
-} // stop_show_more_rows_spinner
 
 // show more rows - show spinner in last table row while fetching more rows
-function start_show_more_rows_spinner (table_name, debug)
-{
-    var pgm = 'start_show_more_rows_spinner: '
-    add2log(pgm + 'start') ;
-    // check if spinner show-more-rows spinner has already been created
-    var spinner_id = 'show-more-rows-spinner' ;
-    var spinner = document.getElementById(spinner_id) ;
-    if (spinner) {
-        // remove old spinner
-        spinner.parentNode.removeChild(spinner) ;
-    }
-    // add spinner
-    add2log(pgm + 'create spinner') ;
-    var table = document.getElementById(table_name) ;
-    if (!table) {
-        add2log(pgm + table_name + ' was not found') ;
-        return ;
-    }
-    var length = table.rows.length ;
-    var row = table.insertRow(length) ;
-    row.id = spinner_id ;
-    var cell = row.insertCell(0) ;
-    cell.innerHTML = '' ;
-    var img = new Image ;
-    img.src = "/images/ajax-loading.gif" ;
-    cell.appendChild(img) ;
-} // start_show_more_rows_spinner
+
 
 function show_more_rows_success (table_name, debug)
 {
