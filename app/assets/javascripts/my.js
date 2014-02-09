@@ -1092,6 +1092,22 @@ function get_js_timezone() {
   return -(new Date().getTimezoneOffset()) / 60.0 ;
 }
 
+function start_tasks_form_spinner()
+{
+    var spinner_id = 'ajax-tasks-spinner' ;
+    var spinner = document.getElementById(spinner_id) ;
+    if (spinner) spinner.style.display = '' ;
+    else add2log('start_tasks_form_spinner: spinner was not found') ;
+} // start_tasks_form_spinner
+
+function stop_tasks_form_spinner()
+{
+    var spinner_id = 'ajax-tasks-spinner' ;
+    var spinner = document.getElementById(spinner_id) ;
+    if (spinner) spinner.style.display = 'none' ;
+    else add2log('stop_tasks_form_spinner: spinner was not found') ;
+} // stop_tasks_form_spinner
+
 
 // request server to execute any task in task queue
 // called from bottom of application layout and from  insert_update_gifts after gift create (posting on api wall)
@@ -1105,17 +1121,31 @@ function trigger_tasks_form (sleep) {
         return ;
     }
     timezone.value = get_js_timezone();
-    window.setTimeout(function(){$('#tasks_form').trigger('submit.rails');}, sleep);
+    window.setTimeout(function(){start_tasks_form_spinner();$('#tasks_form').trigger('submit.rails');}, sleep);
 } // trigger_tasks_form
 
 // error callback for executing tasks - write to debug log + page header
 // debug log in bottom of page is shown if DEBUG_AJAX = true (constants.rb)
 $(document).ready(function() {
     var id = "#tasks_form" ;
+    $(id).unbind("ajax:success");
+    $(id).bind("ajax:success", function (evt, data, status, xhr) {
+        var pgm = id + '.ajax.success: ' ;
+        try {
+            stop_tasks_form_spinner();
+        }
+        catch (err) {
+            var msg = pgm + 'failed with JS error: ' + err;
+            add2log(msg);
+            add_to_tasks_errors(msg);
+            return;
+        }
+    }); // ajax:success
     $(id).unbind("ajax:error") ;
     $(id).bind("ajax:error", function(jqxhr, textStatus, errorThrown){
         var pgm = id + '.ajax.error: ' ;
         try {
+            stop_tasks_form_spinner();
             add2log('#tasks_form.error');
             add2log('jqxhr = ' + jqxhr);
             add2log('textStatus = ' + textStatus);
@@ -1128,7 +1158,7 @@ $(document).ready(function() {
             add_to_tasks_errors(msg);
             return;
         }
-    })
+    }) ; // ajax:error
 })
 
 // write ajax error to tasks_errors table in page header
