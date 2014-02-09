@@ -929,9 +929,34 @@ function show_more_rows_scroll(table_name, interval, debug) {
 } // show_more_rows_scroll
 
 // show more rows - hide spinner
+function stop_show_more_rows_spinner() {
+    var pgm = 'stop_show_more_rows_spinner: ' ;
+    // add2log(pgm + 'stop') ;
+    // check if show-more-rows spinner is in page
+    var spinner_id = 'show-more-rows-spinner' ;
+    var spinner = document.getElementById(spinner_id) ;
+    if (!spinner) {
+        add2log(pgm + 'show more rows spinner was not found') ;
+        return ;
+    }
+    add2log(pgm + 'spinner.style.display = ' + spinner.style.display) ;
+    spinner.style.display = 'none' ;
+} // stop_show_more_rows_spinner
 
 // show more rows - show spinner in last table row while fetching more rows
-
+function start_show_more_rows_spinner (table_name, debug)
+{
+    var pgm = 'start_show_more_rows_spinner: '
+    add2log(pgm + 'start') ;
+    // check if spinner show-more-rows spinner has already been created
+    var spinner_id = 'show-more-rows-spinner' ;
+    var spinner = document.getElementById(spinner_id) ;
+    if (spinner) {
+        spinner.style.display = '' ;
+        return ;
+    }
+    add2log(pgm + 'spinner was not found');
+} // start_show_more_rows_spinner
 
 function show_more_rows_success (table_name, debug)
 {
