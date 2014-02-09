@@ -3,13 +3,19 @@
 <% if (@user2.friend?(@users) <= 2) and @api_gifts.size > 0 -%>
     <div style="width: 100%">
       <table id="gifts" style="border-spacing: 0;">
+        <thead>
         <%= render :partial => 'show_balance_header' %>
+        </thead>
+        <tbody>
         <%= render :partial => 'api_gifts' %>
+        </tbody>
+        <tfoot>
         <tr id="show-more-rows-spinner">
           <td colspan="9">
-            <img src="/images/ajax-loading.gif" />
+            <img src="/images/ajax-loading.gif"/>
           </td>
         </tr>
+        </tfoot>
       </table>
 <% end -%>
 </div>

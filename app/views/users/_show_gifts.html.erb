@@ -1,11 +1,17 @@
 <div style="width: 100%">
   <table id="gifts" style="border-spacing: 0;">
+    <thead>
     <%= render :partial => 'gifts/table_header_row' %>
+    </thead>
+    <tbody>
     <%= render :partial => 'gifts/api_gifts' %>
+    </tbody>
+    <tfoot>
     <tr id="show-more-rows-spinner">
       <td colspan="4">
-        <img src="/images/ajax-loading.gif" />
+        <img src="/images/ajax-loading.gif"/>
       </td>
     </tr>
+    </tfoot>
   </table>
 </div>
