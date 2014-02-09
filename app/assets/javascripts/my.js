@@ -928,7 +928,7 @@ function show_more_rows_scroll(table_name, interval, debug) {
     }
 } // show_more_rows_scroll
 
-// show more rows - hide spinner and move spinner to bottom of giftsw/users table
+// show more rows - hide spinner
 function stop_show_more_rows_spinner() {
     var pgm = 'stop_show_more_rows_spinner: ' ;
     // add2log(pgm + 'stop') ;
@@ -939,30 +939,64 @@ function stop_show_more_rows_spinner() {
         add2log(pgm + 'warning - show more rows spinner was not found') ;
         return ;
     }
-    // hide spinner
+    add2log(pgm + 'spinner.style.display = ' + spinner.style.display) ;
     spinner.style.display = 'none' ;
-    // move spinner to last table row -
-    // todo: does not work - tbody.appendChild does not add spinner as last row in table - new spinner is created for each show more rows request
+    return ;
+
+    // add new spinner
     var tbody = spinner.parentNode ;
+    var length = tbody.rows.length ;
+    add2log(pgm + 'length = ' + length) ;
+    var row = tbody.insertRow(length) ;
+    var cell = row.insertCell(0) ;
+    cell.colSpan = no_cells ;
+    cell.innerHTML = '' ;
+    var img = new Image ;
+    img.src = "/images/no-picture.jpg" ;
+    cell.appendChild(img) ;
+    return ;
+
+    // remove old spinner
+    spinner.parentNode.removeChild(spinner) ;
+    // hide new spinner
+    var spinner = document.getElementById(spinner_id) ;
+    // spinner.style.display = 'none' ;
+    return ;
+
+    var no_cells = spinner.cells.length ;
+    // remove old spinner
+    var tbody = spinner.parentNode ;
+    add2log(pgm + 'old length = ' + tbody.rows.length) ;
+    add2log(pgm + 'tbody.tagname = ' + tbody.tagName) ;
+    spinner.id = '' ;
     tbody.removeChild(spinner) ;
-    // tbody.appendChild(spinner) ;
+    add2log(pgm + 'new length = ' + tbody.rows.length) ;
+    // add new hidden spinner
+    var length = tbody.rows.length ;
+    add2log(pgm + 'length = ' + length) ;
+    var row = tbody.insertRow(length) ;
+    row.id = spinner_id ;
+    var cell = row.insertCell(0) ;
+    cell.colSpan = no_cells ;
+    cell.innerHTML = '' ;
+    var img = new Image ;
+    img.src = "/images/ajax-loading.gif" ;
+    cell.appendChild(img) ;
 } // stop_show_more_rows_spinner
 
-// shiow more rows - display spinner while fetching more rows
+// show more rows - show spinner in last table row while fetching more rows
 function start_show_more_rows_spinner (table_name, debug)
 {
     var pgm = 'start_show_more_rows_spinner: '
-    // add2log(pgm + 'start') ;
+    add2log(pgm + 'start') ;
     // check if spinner show-more-rows spinner has already been created
     var spinner_id = 'show-more-rows-spinner' ;
     var spinner = document.getElementById(spinner_id) ;
     if (spinner) {
-        // spinner exists - start/display show-more-rows spinner
-        // add2log(pgm + 'start spinner') ;
-        spinner.style.display = 'inline' ;
-        return ;
+        // remove old spinner
+        spinner.parentNode.removeChild(spinner) ;
     }
-    // normally spinner will already exists in gifts/users table when html page is loaded
+    // add spinner
     add2log(pgm + 'create spinner') ;
     var table = document.getElementById(table_name) ;
     if (!table) {

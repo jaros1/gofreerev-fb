@@ -405,9 +405,15 @@
 73) add email invite in top of users/index page for google+, linkedin and twitter
 
 74) check show more rows spinner in IE
+    shown after first row - is not when fetching more rows
 
 75) add a tasks spinner. For example spinner displayed while executing post login tasks.
     or spinner displayed while posting on api walls.
 
 76) add mini spinners for some time consuming tasks.
     for example deleting a closed deal (recaulcuale balance)
+
+77) looks like show-more-rows error if logged in with multiple browsers
+    dev1: firefox + chrome on laptop, ie on windows
+    maybe last_row_id is saved a wrong place.
+    maybe problems with multiple sessions and session variable

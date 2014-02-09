@@ -303,6 +303,8 @@ class UtilController < ApplicationController
         if !new_api_picture_url
           logger.debug2 "api_gift id #{api_gift.id} - did not found api picture url for other provider"
           api_gift.picture = 'N'
+          api_gift.api_picture_url = nil
+          api_gift.api_picture_url_on_error_at = nil
           api_gift.save!
           next
         end

@@ -9,6 +9,10 @@
     %>
 </script>
 
+<script>
+
+</script>
+
 <%# hidden table with links to grant write access to api walls %>
 <table id="hidden_tasks_errors" style="display:none">
 <%= render :partial => 'shared/translate_ajax_errors' %>
@@ -86,6 +90,7 @@
 <%# gifts table -%>
 <div style="width: 100%">
 <table id="gifts" style="display: <%= @api_gifts.size == 0 ? 'none' : 'inline' %>">
+  <tbody>
   <%= render :partial => 'table_header_row' %>
   <%= render :partial => 'api_gifts' %>
   <tr id="show-more-rows-spinner">
@@ -93,7 +98,7 @@
       <img src="/images/ajax-loading.gif" />
     </td>
   </tr>
-
+  </tbody>
 </table>
 </div>
 <br/>
