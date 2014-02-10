@@ -353,7 +353,8 @@
 60) "false" ajax:error message if user clicks in a link before ajax request has finished.
     something like "tasks_form.error: error. check server log for more information."
     maybe cancel ajax requests or ignore ajax:error message when changing page
-    check if there is an "before leave page" event that can be used to cancel ajax request
+    check
+if there is an "before leave page" event that can be used to cancel ajax request
     or disable error from ajax:error handlers
 
 61) add profile picture for a new user in auth, facebook and linkedin controllers to prevent blank profile picture after login
@@ -362,7 +363,8 @@
     should ajax inject error message inside page under gift links/comment row
     check gift and comments links
 
-64) gift giver pic mouse over text should have information about multiple provider givers
+64) gift g
+iver pic mouse over text should have information about multiple provider givers
     gift receiver pic mouse over text should have information about multiple provider receivers
 
 65) google+ and twitter.
@@ -371,6 +373,7 @@
     S - you are stalked by someone on google+ and twitter and do not want to receive friend invitations from them
     block all and allow selected users
     allow all and block selected users
+
 
 66) allow device fingerprint guest user login?
     that is login without username/password
@@ -404,13 +407,13 @@
 
 73) add email invite in top of users/index page for google+, linkedin and twitter
 
-75) add a tasks spinner. For example spinner displayed while executing post login tasks.
-    or spinner displayed while posting on api walls.
+75) find a better location for ajax tasks spinner
+    add mouse over title to ajax tasks title with explanation.
 
 76) add mini spinners for some time consuming tasks.
     for example deleting a closed deal (recaulcuale balance)
 
-77) looks like show-more-rows problems with last-row-id if logged in with multiple browsers
-    dev1: firefox + chrome on laptop, ie on windows
-    maybe last_row_id is saved a wrong place.
-    maybe problems with multiple sessions and session variable
+78) add hide link to "Post was created here but not on any login provider wall. Your post will only been seen by friends that also uses Gofreerev. You could go to "Log in" page and check read/write permissions to login provider wall and check if you have allowed post to login provider wall" message.
+    or only write message at first post.
+
+79) fewer ajax debug messages. Or an colapse/expand checkbox

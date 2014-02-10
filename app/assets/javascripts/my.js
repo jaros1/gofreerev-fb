@@ -1643,6 +1643,19 @@ function post_on_wall_ajax(checkbox) {
 } // post_on_wall_ajax
 
 
+// show/hide ajax debug log checkbox in bottom of page. Only used if debug_ajax? / DEBUG_AJAX is true
+function show_debug_log_checkbox(checkbox) {
+    var debug_log = document.getElementById('debug_log') ;
+    if (!debug_log) {
+        add2log('show_debug_log_checkbox: debug log was no found') ;
+        return ;
+    }
+    if (checkbox.checked) debug_log.style.display = '' ;
+    else debug_log.style.display = 'none' ;
+}
+
+
+
 
 // custom confirm box - for styling
 // http://lesseverything.com/blog/archives/2012/07/18/customizing-confirmation-dialog-in-rails/
