@@ -412,8 +412,3 @@ iver pic mouse over text should have information about multiple provider givers
 
 76) add mini spinners for some time consuming tasks.
     for example deleting a closed deal (recaulcuale balance)
-
-78) add hide link to "Post was created here but not on any login provider wall. Your post will only been seen by friends that also uses Gofreerev. You could go to "Log in" page and check read/write permissions to login provider wall and check if you have allowed post to login provider wall" message.
-    or only write message at first post.
-
-79) fewer ajax debug messages. Or an colapse/expand checkbox

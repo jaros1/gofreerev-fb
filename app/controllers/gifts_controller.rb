@@ -185,7 +185,12 @@ class GiftsController < ApplicationController
         end
       end
     end
-    @errors << t('.no_api_walls', :appname => APP_NAME) if no_walls == 0
+
+    # write only warning once about missing write on wall privs. once
+    if no_walls == 0
+      @errors << t('.no_api_walls', :appname => APP_NAME) unless session[:walls] == false
+    end
+    session[:walls] = (no_walls > 0)
 
     # disable file upload button if post on provider wall was rejected for all apis
     # enable file upload button if post on wall was allowed for one provider
