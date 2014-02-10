@@ -257,6 +257,9 @@ class Friend < ActiveRecord::Base
     end
 
     new_user_ids = new_friends.keys - old_friends.keys
+    logger.debug2 "new_friends.keys = #{new_friends.keys.join(', ')}"
+    logger.debug2 "old_friends.keys = #{old_friends.keys.join(', ')}"
+    logger.debug2 "new_user_ids     = #{new_user_ids.join(', ')}"
     # check new users in friends list
     new_users = {}
     if new_user_ids.size > 0
@@ -265,7 +268,7 @@ class Friend < ActiveRecord::Base
       end
     end
     # create new users with minimal information - not all fields are available for all login providers
-    (new_users.keys - new_user_ids).each do |user_id|
+    (new_user_ids - new_users.keys).each do |user_id|
       user = User.new
       user.user_id = user_id
       user.user_name               = new_friends[user_id][:name]
@@ -316,6 +319,9 @@ class Friend < ActiveRecord::Base
 
       # update friend user information
       if %w(Y F).index(new_api_friend)
+        logger.debug2 "new_users   = #{new_users.keys.join(', ')}"
+        logger.debug2 "old_friends = #{old_friends.keys.join(', ')}"
+        logger.debug2 "user_id     = #{user_id}"
         friend_user = new_users[user_id] || old_friends[user_id].friend
         hash = new_friends[user_id]
         if fields.index('name')

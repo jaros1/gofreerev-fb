@@ -412,3 +412,11 @@ iver pic mouse over text should have information about multiple provider givers
 
 76) add mini spinners for some time consuming tasks.
     for example deleting a closed deal (recaulcuale balance)
+
+77) Midori: problems with utf-8 in some paths of gifts/index page
+
+78) Friend.update_api_friends_from_hash
+    there is a problem with friend list update.
+    test user Sharon has 2 old api friends and 2 new api friends at login
+    Sharon had to login twice before the 2 new friends was added to friend list.
+    no problems on localhost - jr/facebook
