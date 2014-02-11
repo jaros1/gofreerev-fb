@@ -10,7 +10,8 @@
         // remove ajax error table for comment if it exists
         var row_id_error = row_id + '-errors' ;
         if (document.getElementById(row_id_error)) tbody.removeChild(next_row) ;
-    }
+    } ;
+    show_more_rows_scroll() ;
 })();
 <% end -%>
 <% if @errors2.size > 0 -%>

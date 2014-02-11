@@ -319,9 +319,9 @@ class Friend < ActiveRecord::Base
 
       # update friend user information
       if %w(Y F).index(new_api_friend)
-        logger.debug2 "new_users   = #{new_users.keys.join(', ')}"
-        logger.debug2 "old_friends = #{old_friends.keys.join(', ')}"
-        logger.debug2 "user_id     = #{user_id}"
+        # logger.debug2 "new_users   = #{new_users.keys.join(', ')}"
+        # logger.debug2 "old_friends = #{old_friends.keys.join(', ')}"
+        # logger.debug2 "user_id     = #{user_id}"
         friend_user = new_users[user_id] || old_friends[user_id].friend
         hash = new_friends[user_id]
         if fields.index('name')

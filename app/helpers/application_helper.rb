@@ -198,11 +198,17 @@ module ApplicationHelper
         # url - friend request url
         title = t 'shared.invite_friends.invite_friends_message_title', :appname => APP_NAME
         message = t 'shared.invite_friends.invite_friends_message_body'
+        # remove last_row_id - not an ajax message when returning from facebook
+        logger.debug2 "@request_fullpath = #{@request_fullpath}"
+        request_fullpath = @request_fullpath
+        request_fullpath = request_fullpath.gsub(/&last_row_id=[0-9]+/,'')
+        request_fullpath = request_fullpath.gsub(/\?last_row_id=[0-9]+&/,'?')
+        logger.debug2 "request_fullpath = #{request_fullpath}"
         # no koala gem method for generation a invite friends url
         # https://developers.facebook.com/docs/reference/dialogs/requests/
         url = "https://#{Koala.config.dialog_host}/dialog/apprequests" +
             "?app_id=#{API_ID[provider]}" +
-            "&redirect_uri=#{CGI.escape(SITE_URL + @request_fullpath)}" +
+            "&redirect_uri=#{CGI.escape(SITE_URL + request_fullpath)}" +
             "&message=#{CGI.escape(message.to_str)}" +
             "&title=#{CGI.escape(title.to_str)}" +
             "&to=#{friend.uid}"

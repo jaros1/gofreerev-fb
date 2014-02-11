@@ -1046,7 +1046,7 @@ class UtilController < ApplicationController
 
       # get user information - permissions and picture  - koala gem is used for facebook api requests
       # logger.debug2  'get user id and name'
-      # logger.secret2 "token = #{token}"
+      logger.secret2 "token = #{token}"
       api_client = init_api_client_facebook(token)
       api_request1 = 'me?fields=permissions,picture'
       # logger.debug2  "api_request1 = #{api_request}"
@@ -1069,6 +1069,7 @@ class UtilController < ApplicationController
       # logger.debug2  "post_gift_allowed? = #{login_user.post_gift_allowed?}"
 
       # 2) get facebook friends list (name and url for profile picture for each facebook friend)
+      # note that some friends may have privacy settings that prevent Gofreerev from pulling information from API
       friends_hash = {}
       api_friends_list = api_response2
       api_friends_list.each do |friend|

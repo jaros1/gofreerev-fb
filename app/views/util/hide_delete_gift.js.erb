@@ -10,7 +10,8 @@
     for (var i = 0; i < lng; i++) {
         tr = trs[i];
         if (tr.id && tr.id.match(re)) tr.style.display = 'None';
-    }
+    } ;
+    show_more_rows_scroll() ;
 })();
 <% end -%>
 <% if @errors2.size > 0 %>

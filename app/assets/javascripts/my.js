@@ -1,3 +1,8 @@
+// some global JS variables
+var debug_ajax = false ;
+var get_more_rows_interval = 3.0 ;
+var get_more_rows_table = 'gifts' ;
+
 // freeze user_currency when user enters text for new gift (auto submit when currency changes)
 function gifts_index_disabled_user_currency() {
     var currency_id;
@@ -267,6 +272,7 @@ function start_check_new_messages()
 } // start_check_new_messages
 
 
+
 // new_messages_count ajax event handlers
 // ajax:error - catch server side errors
 // ajax:success - catch any errors in post ajax JS code
@@ -297,28 +303,35 @@ $(document).ready(function() {
         try {update_new_messages_count() }
         catch (err) {
             msg = pgm + 'update_new_messages_count failed: ' + err ;
-            add2log(pgm + 'update_new_messages_count failed: ' + err) ;
+            add2log(msg) ;
             add_to_tasks_errors(msg) ;
             return ;
         }
         try { update_title() }
         catch (err) {
             msg = pgm + 'update_title failed: ' + err ;
-            add2log(pgm + 'update_new_messages_count failed: ' + err) ;
+            add2log(msg) ;
             add_to_tasks_errors(msg) ;
             return ;
         }
         try { insert_new_comments() }
         catch (err) {
             msg = pgm + 'insert_new_comments failed: ' + err ;
-            add2log(pgm + 'update_new_messages_count failed: ' + err) ;
+            add2log(msg) ;
             add_to_tasks_errors(msg) ;
             return ;
         }
         try { insert_update_gifts() }
         catch (err) {
             msg = pgm + 'insert_update_gifts failed: ' + err ;
-            add2log(pgm + 'update_new_messages_count failed: ' + err) ;
+            add2log(msg) ;
+            add_to_tasks_errors(msg) ;
+            return ;
+        }
+        try { show_more_rows_scroll() }
+        catch (err) {
+            msg = pgm + 'show_more_rows_scroll failed: ' + err ;
+            add2log(msg) ;
             add_to_tasks_errors(msg) ;
             return ;
         }
@@ -869,6 +882,7 @@ function disable_user_currency_new_lov() {
 
 // for client side debugging - writes JS messages to debug_log div - only used if DEBUG_AJAX = true
 function add2log (text) {
+    // if (debug_ajax != true) return ;
     var log = document.getElementById('debug_log') ;
     if (!log) return ;
     log.innerHTML = log.innerHTML + text + '<br>' ;
@@ -906,7 +920,8 @@ var old_show_more_rows_request_at = 0 ;
 // table_name should be gifts or users
 // interval should be 3000 = 3 seconds between each show-more-rows request
 // debug true - display messages for ajax debugging in button of page
-function show_more_rows_scroll(table_name, interval, debug) {
+function show_more_rows_scroll () {
+    var table_name = get_more_rows_table ;
     if (end_of_page) return; // no more rows, not an ajax expanding page or ajax request already in progress
     if (($(document).height() - $(window).height()) - $(window).scrollTop() < 600) {
         end_of_page = true;
@@ -918,9 +933,9 @@ function show_more_rows_scroll(table_name, interval, debug) {
         // There is a minor problem with wait between show-more-rows request
         // Implemented here and implemented in get_next_set_of_rows_error? and get_next_set_of_rows methods in application controller
         // For now wait is 3 seconds in javascript/client and 2 seconds in rails/server
-        var sleep = interval - (now - old_show_more_rows_request_at);
+        var sleep = get_more_rows_interval - (now - old_show_more_rows_request_at);
         if (sleep < 0) sleep = 0;
-        if (debug) add2log('Sleep ' + (sleep / 1000.0) + ' seconds' + '. old timestamp ' + old_show_more_rows_request_at + ', new timestamp ' + now);
+        if (debug_ajax) add2log('Sleep ' + (sleep / 1000.0) + ' seconds' + '. old timestamp ' + old_show_more_rows_request_at + ', new timestamp ' + now);
         old_show_more_rows_request_at = now + sleep;
         add2log('show_more_rows_scroll: table_name = ' + table_name || '. call show_more_rows in ' + sleep || ' milliseconds');
         if (sleep == 0) show_more_rows();
@@ -1018,12 +1033,13 @@ function show_more_rows_error(jqxhr, textStatus, errorThrown, debug) {
     add_to_tasks_errors('show_more_rows.ajax.error: ' + errorThrown + '. check server log for more information.') ;
 } // show_more_rows_error
 
-function show_more_rows_ajax(table_name, debug) {
+function show_more_rows_ajax() {
+    var table_name = get_more_rows_table ;
     var link = '#show-more-rows-link'
     $(link).unbind("click") ;
     $(link).bind("click", function(xhr, settings){
         var pgm = link + '.click: ' ;
-        try { start_show_more_rows_spinner(table_name, debug) }
+        try { start_show_more_rows_spinner(table_name, debug_ajax) }
         catch (err) {
             var msg = pgm + 'failed with JS error: ' + err;
             add2log(msg);
@@ -1035,7 +1051,7 @@ function show_more_rows_ajax(table_name, debug) {
     $(link).bind("ajax:success", function (evt, data, status, xhr) {
         var pgm = link + '.ajax.success: ' ;
         try {
-            show_more_rows_success(table_name, debug);
+            show_more_rows_success(table_name);
             stop_show_more_rows_spinner();
         }
         catch (err) {
@@ -1049,7 +1065,7 @@ function show_more_rows_ajax(table_name, debug) {
     $(link).bind("ajax:error", function (jqxhr, textStatus, errorThrown) {
         var pgm = link + '.ajax.error: ' ;
         try {
-            show_more_rows_error(jqxhr, textStatus, errorThrown, debug);
+            show_more_rows_error(jqxhr, textStatus, errorThrown);
             stop_show_more_rows_spinner();
         }
         catch (err) {
