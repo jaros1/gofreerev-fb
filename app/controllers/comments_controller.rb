@@ -100,10 +100,6 @@ class CommentsController < ApplicationController
         @errors2 << { :msg => t('.gift_comment_mismatch'),:id => "gift-#{gift.id}-links-errors" }
         return
       end
-      if !@error and params[:first_comment_id].to_s != ""
-        first_comment = Comment.find_by_id(params[:first_comment_id])
-        @error = t '.comment_not_found' if !first_comment
-      end
       # ok - get next set older comments (comment.id < params[:first_comment_id])
       @first_comment_id = first_comment.id
       @api_comments = gift.api_comments_with_filter(@users, first_comment.id)
