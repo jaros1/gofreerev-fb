@@ -26,8 +26,8 @@
       <td><%= format_user_last_login(user) %></td>
     </tr>
 <% else -%>
-    <tr title="<%= t '.invite_friend_title', user.app_and_apiname_hash.merge(:username => user.user_name) %>">
-      <td><%= t '.invite_friend_prompt' %></td>
+    <tr title="<%= t 'shared.invite_friend.invite_friend_title', user.app_and_apiname_hash.merge(:username => user.user_name) %>">
+      <td><%= t 'shared.invite_friend..invite_friend_prompt' %></td>
       <td>:</td>
       <td><%= invite_friend(user) %></td>
     </tr>

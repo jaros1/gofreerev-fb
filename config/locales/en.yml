@@ -84,6 +84,14 @@ en:
      user_div:
         title_non_friend: "%{username}/%{apiname}. Click here to see user info."
         title_friend: "%{username}/%{apiname}. Balance %{balance}. Click here to see user info."
+     invite_friend:
+        invite_friend_prompt: "Invite"
+        invite_friend_title: "%{username} is not using %{appname}. Use link to send a %{appname} invitation to %{username}."
+        invite_friend_link_text: "link"
+        invite_friend_mailto_link_text: "mail"
+        invite_friend_mailto_email: "x"
+        invite_friend_mailto_subject: "%{appname} game invitation"
+        invite_friend_mailto_body: "Hi %{to_username}\n\nI would like to invite you to try this app.\n%{url}\n\nIt is a game inspired by Charles Eisenstein's book Sacred Economics.\nThe goal is to help each other, the environment and to create a new and better kind of money.\n\nKind regards %{from_username}"
      invite_friends:
         no_friends_was_found_html: "<p>There was not found any %{appname} friends. Invite some of your good friends to use %{appname}.<br />Either by sending a personal message or by using the link below to invite your friends to use %{appname}.<br>A personal message is the best as many people will ignore or reject game invitations.</p>"
         invite_friends_prompt: "Invite friends:"
@@ -93,16 +101,6 @@ en:
         invalid_call: "invalid call - login_user was missing in invite_friends_url call"
         not_implemented: "invite %{apiname} friends is not implemented"
      providers:
-        # provider lowercase name - used in error messages
-#        facebook_down: "facebook"
-#        google_oauth2_down: "google+"
-#        linkedin_down: "linkedin"
-#        twitter_down: "twitter"
-#        # provider camelize names - used in views
-#        facebook_cam: "Facebook"
-#        google_oauth2_cam: "Google+"
-#        linkedin_cam: "LinkedIn"
-#        twitter_cam: "Twitter"
         blank: "login provider" # not logged in or generic text used in provider_downcase and provider_camelize methods
      translate_ajax_errors:
         ajax_task_exception: "System error \"%{exception}\" for task \"%{task}\". Check backtrace in server log for more information."
@@ -664,13 +662,6 @@ en:
         friend_status_text_r: "Pending friend request"
         friend_status_text_p: "Want to be your friend"
         friend_status_text_b: "Blocked. Friend requests are ignored"
-        invite_friend_title: "%{username} is not using %{appname}. Use link to send a %{appname} invitation to %{username}."
-        invite_friend_prompt: "Invite"
-        invite_friend_link_text: "link"
-        invite_friend_mailto_link_text: "mail"
-        invite_friend_mailto_email: "x"
-        invite_friend_mailto_subject: "%{appname} game invitation"
-        invite_friend_mailto_body: "Kære %{to_username}\n\nI would like to invite you to try this app.\n%{url}\n\nIt is a game inspired by Charles Eisenstein's book Sacred Economics.\nThe goal is to help each other, the environment and to create a new and better kind of money.\n\nKH %{from_username}"
         last_login_prompt: "Last seen"
         last_login_text: "%{days} day(s) ago"
         api_profile_link_not_implemented: "link to %{apiname} user profile not implemented"

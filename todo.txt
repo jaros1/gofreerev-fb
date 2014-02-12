@@ -408,12 +408,13 @@ iver pic mouse over text should have information about multiple provider givers
 73) add email invite in top of users/index page for google+, linkedin and twitter
 
 75) find a better location for ajax tasks spinner
+    show/hide spinner makes the page to bounce
     add mouse over title to ajax tasks title with explanation.
 
 76) add mini spinners for some time consuming tasks.
-    for example deleting a closed deal (recaulcuale balance)
+    for example deleting a closed deal (recalculate balance)
 
-77) Midori: problems with utf-8 in some paths of gifts/index page
+77) Midori: problems with utf-8 in some paths of gifts/index page - looks like a temporary problem
 
 79) users/index: search, friend name filter or alphabetical tabs
     it is slow to scroll down (bad performance + 3 seconds delay for each 10 rows lookup)

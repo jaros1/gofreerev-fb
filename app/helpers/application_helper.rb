@@ -256,16 +256,16 @@ module ApplicationHelper
   def invite_friend (friend)
     if %w(facebook).index(friend.provider)
       # use API invite functionality - only facebook has implemented this
-      link_to t('.invite_friend_link_text'), invite_friend_url(friend)
+      link_to t('shared.invite_friend.invite_friend_link_text'), invite_friend_url(friend)
     else
       # use client email with dummy email address
       login_user = @users.find { |u| u.provider == friend.provider }
       options = { :to_username => friend.user_name,
                   :from_username => login_user.user_name,
                   :url => "#{SITE_URL}#{I18n.locale}/auth"}
-      mail_to t('.invite_friend_mailto_email'), t('.invite_friend_mailto_link_text'),
-              :subject => t('.invite_friend_mailto_subject', friend.app_and_apiname_hash),
-              :body => t('.invite_friend_mailto_body', friend.app_and_apiname_hash.merge(options) )
+      mail_to t('shared.invite_friend.invite_friend_mailto_email'), t('shared.invite_friend.invite_friend_mailto_link_text'),
+              :subject => t('shared.invite_friend.invite_friend_mailto_subject', friend.app_and_apiname_hash),
+              :body => t('shared.invite_friend.invite_friend_mailto_body', friend.app_and_apiname_hash.merge(options) )
     end
   end
 
