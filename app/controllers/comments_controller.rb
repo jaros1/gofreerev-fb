@@ -61,7 +61,7 @@ class CommentsController < ApplicationController
     end
   end # create
 
-  # Get /comments
+  # Get /comments - always ajax from get older comments link
   # params:
   #   gift_id: required
   #   first_comment_id: Used in ajax request from gifts/index page to get more comments for a gift
@@ -81,6 +81,8 @@ class CommentsController < ApplicationController
         @errors2 << { :msg => t('.gift_not_found'), :id => 'tasks_errors'}
         return
       end
+      # gift was found.
+      # any ajax error messages are now ajax injected into row under gifts link in gifts/index page
       # check if user may see gift. Must be giver, receiver, friend with giver or friend with receiver
       if !gift.visible_for?(@users)
         @errors2 << { :msg => t('.gift_not_friends'), :id => "gift-#{gift.id}-links-errors" }

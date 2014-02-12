@@ -739,16 +739,17 @@ function autoresize_text_field(text) {
 
 
 // post ajax processing after inserting older comments for a gift.
-// comments/index.js.rb inserts older comments last i comments table
-// new lines are surrounded by "gift-<giftid>-older-comments-block-start-<commentid>" and "gift-<giftid>-older-comments-block-end-<commentid>".
+// called from comments/index.js.erb
+// new comment lines are surrounded by "gift-<giftid>-older-comments-block-start-<commentid>" and "gift-<giftid>-older-comments-block-end-<commentid>".
 // move lines up before "show-older-comments" link and delete link
 function post_ajax_add_older_comments(giftid, commentid) {
     var pgm = 'post_ajax_add_older_comments: ' ;
     var table_id = 'gift-' + giftid + '-links-errors' ;
     var msg ;
+    // try catch block to avoid "parse error" ajax message
     try {
         // var id = '#gift-' + giftid + '-new-comment-form' ;
-        add2log(pgm + 'giftid = ' + giftid + ', commentid = ' + commentid) ;
+        // add2log(pgm + 'giftid = ' + giftid + ', commentid = ' + commentid) ;
         var link_id = 'gift-' + giftid + '-show-older-comments-link-' + commentid;
         // find tr for old link, first added row and last added row
         var first_row_id = "gift-" + giftid + "-older-comments-block-start-" + commentid;
@@ -1221,6 +1222,22 @@ function add_to_tasks_errors2 (table_id, error) {
     ajax_flash_new_table_rows(table_id, 1);
 } // add_to_tasks_errors2
 
+// as add_to_tasks_errors2 - but create missing tasks error table within page
+function add_to_tasks_errors3(table_id, msg)
+{
+    var table = document.getElementById(table_id);
+    if (!table) {
+        // create missing table
+        if (!create_gift_links_errors_table(table_id) && !create_new_com_errors_table(table_id) && !create_com_link_errors_table(table_id)) {
+            // write to error table in page header
+            add_to_tasks_errors(msg + ' (inject not implemented for error message with id ' + table_id + ').');
+            return;
+        }
+        // error table was created
+    }
+    // add to error table inside page
+    add_to_tasks_errors2(table_id, msg);
+} // add_to_tasks_errors3
 
 // create missing gift-<giftid>-links-errors table if possible
 // is created under current gift link row in gifts table
@@ -1581,21 +1598,6 @@ $(document).ready(function () {
     }) // ajax:error
 })
 
-function add_to_tasks_errors3(to_table_id, msg)
-{
-    var to_table = document.getElementById(to_table_id);
-    if (!to_table) {
-        // create missing table
-        if (!create_gift_links_errors_table(to_table_id) && !create_new_com_errors_table(to_table_id) && !create_com_link_errors_table(to_table_id)) {
-            // write to error table in page header
-            add_to_tasks_errors(msg + ' (inject not implemented for error message with id ' + to_table_id + ').');
-            return;
-        }
-        // error table was created
-    }
-    // add to error table inside page
-    add_to_tasks_errors2(to_table_id, msg);
-} // add_to_tasks_errors3
 
 // try to move ajax error messages from tasks_errors2 to more specific location in page
 // first column is error message. Second column is id for error table in page
