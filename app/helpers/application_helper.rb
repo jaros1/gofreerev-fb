@@ -220,7 +220,7 @@ module ApplicationHelper
         # todo: check JS libraries for Google+, Linkedin and Twitter.
         api_profile_url(friend)
     end # case
-  end
+  end # invite_friend_url
 
   # todo: generalize, different url for each API (FB, GP, LI etc)
   def invite_friends_url (login_user)
@@ -270,7 +270,17 @@ module ApplicationHelper
   end
 
   def invite_friends_link (login_user)
-    link_to provider_camelize(login_user.provider), invite_friends_url(login_user), :title => t('shared.invite_friends.invite_friends_link_title', :appname => APP_NAME, :apiname => login_user.apiname)
+    if %w(facebook).index(login_user.provider)
+      # use API invite functionality - only facebook has implemented this
+      link_to provider_camelize(login_user.provider), invite_friends_url(login_user), :title => t('shared.invite_friends.invite_friends_link_title', :appname => APP_NAME, :apiname => login_user.apiname)
+    else
+      # use client email with dummy email address
+      options = { :from_username => login_user.user_name,
+                  :url => "#{SITE_URL}#{I18n.locale}/auth"}
+      mail_to t('shared.invite_friends.invite_friends_mailto_email'), provider_camelize(login_user.provider),
+              :subject => t('shared.invite_friends.invite_friends_mailto_subject', login_user.app_and_apiname_hash),
+              :body => t('shared.invite_friends.invite_friends_mailto_body', login_user.app_and_apiname_hash.merge(options) )
+    end
   end
 
   def ajax_tasks?

@@ -99,9 +99,11 @@ da:
         invite_friends_link_title: "Brug dette link til at inviterer dine %{apiname} venner til at bruge %{appname}"
         invite_friends_message_title: "Inviter dine venner til %{appname}"
         invite_friends_message_body: "Prøv et spil om at hjælpe hinanden og dele hinandens ressourcer på en ny anderledes måde og et spil med en ny slags penge, der kan forandre vores verden inspireret af ideer fra Charles Eisensteins bog Sacred Economics"
+
         invite_friends_mailto_email: "x"
         invite_friends_mailto_subject: "%{appname} spil invitation"
         invite_friends_mailto_body: "Kære ven\n\nJeg vil gerne inviterer dig til at prøve denne app.\n%{url}\n\nDet er et spil inspireret af Charles Eisenstein's bog Sacred Economics.\nSpillet går ud på at hjælpe hinanden, miljøet og om at skabe en ny og bedre slags penge.\n\nKH %{from_username}"
+
         invalid_call: "ugyldigt kald - login bruger manglende i kald af invite_friends_url"
         not_implemented: "inviter %{apiname} venner er endnu ikke implementeret"
      providers:

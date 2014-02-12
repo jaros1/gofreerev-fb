@@ -98,6 +98,9 @@ en:
         invite_friends_link_title: "Use this link to invite your %{apiname} friends to use %{appname}"
         invite_friends_message_title: "Invite your friends to play %{appname}" # facebook
         invite_friends_message_body: "Try a game about helping each other and sharing each others resources in a new different way and a game with a new kind of money that will change our world inspired by the ideas of Charles Eisenstein's book Sacred Economics" # facebook
+        invite_friends_mailto_email: "x"
+        invite_friends_mailto_subject: "%{appname} game invitation"
+        invite_friends_mailto_body: "Dear friend\n\nI would like to invite you to try this app.\n%{url}\n\nIt is a game inspired by Charles Eisenstein's book Sacred Economics.\nThe goal is to help each other, the environment and to create a new and better kind of money.\n\nKind regards\n%{from_username}"
         invalid_call: "invalid call - login_user was missing in invite_friends_url call"
         not_implemented: "invite %{apiname} friends is not implemented"
      providers:

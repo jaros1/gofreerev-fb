@@ -405,8 +405,6 @@ iver pic mouse over text should have information about multiple provider givers
 72) users/index - friends of friends - why in list - show name(s) of friend
     maybe the same issue as in previous dropped mutual friends
 
-73) add email invite in top of users/index page for google+, linkedin and twitter
-
 75) find a better location for ajax tasks spinner
     show/hide spinner makes the page to bounce
     add mouse over title to ajax tasks title with explanation.
