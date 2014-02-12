@@ -417,7 +417,3 @@ iver pic mouse over text should have information about multiple provider givers
 
 79) users/index: search, friend name filter or alphabetical tabs
     it is slow to scroll down (bad performance + 3 seconds delay for each 10 rows lookup)
-
-80) show older comments does not work.
-    ajax error message is missing on client side
-    template error on server side

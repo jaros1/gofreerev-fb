@@ -15,10 +15,10 @@
     <% end -%>
     <% if no_older_comments > 0 -%>
       - <%= link_to (no_older_comments == 1 ? t('.show_older_comment') : t('.show_older_comments', :no_older_comments => no_older_comments)),
-                    comments_path(:gift_id => gift.id, :first_comment_id => first_comment.id),
+                    comments_path(:gift_id => gift.id, :first_comment_id => first_comment.comment.id),
                     :remote => true,
-                    :id => "gift-#{gift.id}-show-older-comments-link-#{first_comment.id}" ,
-                    :onclick => "post_ajax_add_older_comments_handler(#{gift.id},#{first_comment.id})"  %>
+                    :id => "gift-#{gift.id}-show-older-comments-link-#{first_comment.comment.id}" ,
+                    :class => "gift-action-link" %>
     <% end -%>
   </td>
 </tr>

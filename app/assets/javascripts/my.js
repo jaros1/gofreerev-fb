@@ -1,7 +1,5 @@
-// some global JS variables
-var debug_ajax = false ;
-var get_more_rows_interval = 3.0 ;
-var get_more_rows_table = 'gifts' ;
+// some global JS variables - see app layout and shared/show_more_rows partial
+// var debug_ajax, get_more_rows_interval, get_more_rows_table ;
 
 // freeze user_currency when user enters text for new gift (auto submit when currency changes)
 function gifts_index_disabled_user_currency() {
@@ -740,66 +738,78 @@ function autoresize_text_field(text) {
 }
 
 
-
 // post ajax processing after inserting older comments for a gift.
 // comments/index.js.rb inserts older comments last i comments table
 // new lines are surrounded by "gift-<giftid>-older-comments-block-start-<commentid>" and "gift-<giftid>-older-comments-block-end-<commentid>".
 // move lines up before "show-older-comments" link and delete link
-function post_ajax_add_older_comments_handler(giftid, commentid) {
-    // var id = '#gift-' + giftid + '-new-comment-form' ;
-    var link_id = 'gift-' + giftid + '-show-older-comments-link-' + commentid;
-    $(document).ready(function () {
-        $('#' + link_id).unbind("ajax:success");
-        $('#' + link_id)
-            .bind("ajax:success", function (evt, data, status, xhr) {
-                // find tr for old link, first added row and last added row
-                var pgm = link_id + '.ajax.success: ';
-                try {
-                    var first_row_id = "gift-" + giftid + "-older-comments-block-start-" + commentid;
-                    var last_row_id = "gift-" + giftid + "-older-comments-block-end-" + commentid;
-                    // find link
-                    var link = document.getElementById(link_id);
-                    if (!link) return; // link not found
-                    // find tr for link
-                    var link_tr = link;
-                    while (link_tr.tagName != 'TR') link_tr = link_tr.parentNode;
-                    // find first and last added table row
-                    var first_row = document.getElementById(first_row_id);
-                    var last_row = document.getElementById(last_row_id);
-                    if (!first_row || !last_row) return;
-                    // copy table rows to JS array
-                    var trs = [];
-                    var tr = first_row.nextElementSibling;
-                    while (tr.id != last_row_id) {
-                        if (tr.tagName == 'TR') trs.push(tr);
-                        tr = tr.nextElementSibling;
-                    } // while
-                    // delete table rows from html table
-                    tr = first_row;
-                    var next_tr = tr.nextElementSibling;
-                    do {
-                        tr.parentNode.removeChild(tr);
-                        tr = next_tr;
-                        next_tr = tr.nextElementSibling;
-                    } while (tr.id != last_row_id) ;
-                    // insert table rows before old show-older-comments link
+function post_ajax_add_older_comments(giftid, commentid) {
+    var pgm = 'post_ajax_add_older_comments: ' ;
+    var table_id = 'gift-' + giftid + '-links-errors' ;
+    var msg ;
+    try {
+        // var id = '#gift-' + giftid + '-new-comment-form' ;
+        add2log(pgm + 'giftid = ' + giftid + ', commentid = ' + commentid) ;
+        var link_id = 'gift-' + giftid + '-show-older-comments-link-' + commentid;
+        // find tr for old link, first added row and last added row
+        var first_row_id = "gift-" + giftid + "-older-comments-block-start-" + commentid;
+        var last_row_id = "gift-" + giftid + "-older-comments-block-end-" + commentid;
+        // find link
+        var link = document.getElementById(link_id);
+        if (!link) {
+            msg = 'System error: link ' + link_id + ' was not found' ;
+            add2log(pgm + msg) ;
+            add_to_tasks_errors3(table_id, msg);
+            return;
+        }
+        // find tr for link
+        var link_tr = link;
+        while (link_tr.tagName != 'TR') link_tr = link_tr.parentNode;
+        // find first and last added table row
+        var first_row = document.getElementById(first_row_id);
+        if (!first_row) {
+            msg = 'System error: link ' + first_row_id + ' was not found' ;
+            add2log(pgm + msg) ;
+            add_to_tasks_errors3(table_id, msg);
+            return;
+        }
+        var last_row = document.getElementById(last_row_id);
+        if (!last_row) {
+            msg = 'System error: link ' + last_row_id + ' was not found' ;
+            add2log(pgm + msg) ;
+            add_to_tasks_errors3(table_id, msg);
+            return;
+        }
+        // copy table rows to JS array
+        var trs = [];
+        var tr = first_row.nextElementSibling;
+        while (tr.id != last_row_id) {
+            if (tr.tagName == 'TR') trs.push(tr);
+            tr = tr.nextElementSibling;
+        } // while
+        // delete table rows from html table
+        tr = first_row;
+        var next_tr = tr.nextElementSibling;
+        do {
+            tr.parentNode.removeChild(tr);
+            tr = next_tr;
+            next_tr = tr.nextElementSibling;
+        } while (tr.id != last_row_id) ;
+        // insert table rows before old show-older-comments link
 
-                    var tbody = link_tr.parentNode;
-                    while (trs.length > 0) {
-                        tr = trs.shift();
-                        tbody.insertBefore(tr, link_tr);
-                    }
-                    // delete link  (and this event handler)
-                    link_tr.parentNode.removeChild(link_tr);
-                }
-                catch (err) {
-                    var msg = pgm + 'failed with JS error: ' + err;
-                    add2log(msg);
-                    add_to_tasks_errors(msg);
-                    return;
-                }
-            }); // bind ajax:success
-    }); // $(document).ready(function(){
+        var tbody = link_tr.parentNode;
+        while (trs.length > 0) {
+            tr = trs.shift();
+            tbody.insertBefore(tr, link_tr);
+        }
+        // delete link  (and this event handler)
+        link_tr.parentNode.removeChild(link_tr);
+    }
+    catch (err) {
+        var msg = pgm + 'failed with JS error: ' + err;
+        add2log(msg);
+        add_to_tasks_errors(msg);
+        return;
+    }
 } // add_post_ajax_new_comment_handler
 
 // show/hide price and currency in new comment table call
@@ -1257,12 +1267,13 @@ $(document).ready(function() {
     $(id).bind("click", function(xhr, settings){
         // clear any old ajax error messages if any
         // clear within page ajax error messages if any
-        // todo: this event handler is not call for delete gift. Suspect rails confirm dialog is the problem.
         var pgm = id + '.click: ' ;
         try {
             // add2log(pgm + 'xhr = ' + xhr + ', settings = ' + settings) ;
             var url = xhr.target ;
-            // add2log(pgm + 'url = ' + url) ;
+            add2log(pgm + 'url = ' + url) ;
+            // url = http://localhost/da/util/delete_gift?gift_id=914
+            // url = http://localhost/da/comments?first_comment_id=376&gift_id=914
             var url_a = ('' + url + '').split('=') ;
             // add2log(pgm + 'url_a.length = ' + url_a.length) ;
             var giftid = url_a[url_a.length-1] ;
@@ -1281,6 +1292,18 @@ $(document).ready(function() {
             return;
         }
     }) // click
+    $(id).unbind("ajax:success") ;
+    $(id).bind("ajax:success", function (evt, data, status, xhr) {
+        // find tr for old link, first added row and last added row
+        var pgm = link_id + '.ajax.success: ';
+        try {}
+        catch (err) {
+            var msg = pgm + 'failed with JS error: ' + err;
+            add2log(msg);
+            add_to_tasks_errors(msg);
+            return;
+        }
+    }) ; // ajax:success
     $(id).unbind("ajax:error") ;
     $(id).bind("ajax:error", function(jqxhr, textStatus, errorThrown){
         var pgm = id + '.ajax.error: ' ;
@@ -1558,6 +1581,22 @@ $(document).ready(function () {
     }) // ajax:error
 })
 
+function add_to_tasks_errors3(to_table_id, msg)
+{
+    var to_table = document.getElementById(to_table_id);
+    if (!to_table) {
+        // create missing table
+        if (!create_gift_links_errors_table(to_table_id) && !create_new_com_errors_table(to_table_id) && !create_com_link_errors_table(to_table_id)) {
+            // write to error table in page header
+            add_to_tasks_errors(msg + ' (inject not implemented for error message with id ' + to_table_id + ').');
+            return;
+        }
+        // error table was created
+    }
+    // add to error table inside page
+    add_to_tasks_errors2(to_table_id, msg);
+} // add_to_tasks_errors3
+
 // try to move ajax error messages from tasks_errors2 to more specific location in page
 // first column is error message. Second column is id for error table in page
 // tasks_errors table in page header will be used of more specific location can not be found
@@ -1582,20 +1621,7 @@ function move_tasks_errors2() {
         msg = cells[0].innerHTML;
         to_table_id = cells[1].innerHTML;
         add2log('msg = ' + msg + ', to_table_id = ' + to_table_id);
-        // use to_table if to_table already exists
-        to_table = document.getElementById(to_table_id);
-        if (!to_table) {
-            // create missing table
-            if (!create_gift_links_errors_table(to_table_id) && !create_new_com_errors_table(to_table_id) && !create_com_link_errors_table(to_table_id)) {
-                // could not create inside page error table
-                add_to_tasks_errors(msg + ' (inject not implemented for error message with id ' + to_table_id + ').');
-                continue
-            }
-            // error table was created
-            to_table = document.getElementById(to_table_id);
-        }
-        // move error message
-        add_to_tasks_errors2(to_table_id, msg);
+        add_to_tasks_errors3(to_table_id,msg) ;
         row.parentNode.removeChild(row);
     } // for
     // alert('move_tasks_errors2. lng = ' + lng);

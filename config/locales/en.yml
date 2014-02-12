@@ -264,11 +264,13 @@ en:
         no_providers: "Comment was not created. No shared login providers. Could be a system error."
         exception: "System error. Comment was not created. %{error}. More information available in log."
      index:
-        gift_id_is_missing: "Invalid request. Gift_id is missing"
-        gift_was_not_found: "Invalid request. Gift was not found"
-        gift_not_friends: "Invalid request. You are not allowed to see this gift"
-        comment_not_found: "Invalid request. Comment was not found"
-        gift_comment_mismatch: "Invalid request. Gift and comment does not match"
+        gift_id_is_missing: "Invalid request. gift_id is missing."
+        gift_not_found: "Invalid request. Gift was not found."
+        gift_not_friends: "Invalid request. You are not allowed to see this gift."
+        first_comment_id_is_missing: "Invalid request. first_comment_id is missing."
+        first_comment_not_found: "Invalid request. Comment was not found."
+        gift_comment_mismatch: "Invalid request. Gift and comment does not match."
+        exception: "System error. Could not get older comments. %{error}. More information in server log."
      api_comments2:
         like_gift: "Like"
         unlike_gift: "Unlike"

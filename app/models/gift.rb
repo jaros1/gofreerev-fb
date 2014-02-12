@@ -376,6 +376,7 @@ class Gift < ActiveRecord::Base
         a.comment_id <=> b.comment_id
       end
     end
+    # keep one api comment for each comment
     logger.debug2 "get comments for gift id #{id}. remove doubles"
     old_comment_id = '#' * 20
     acs = acs.find_all do |ac|
@@ -393,7 +394,7 @@ class Gift < ActiveRecord::Base
     # start be returning up to 4 comments for each gift
     return acs.last(4) if first_comment_id == nil
     # show older comments - return next 10 older comments
-    index = acs.find_index { |c| c.id.to_s == first_comment_id.to_s }
+    index = acs.find_index { |ac| ac.comment.id.to_s == first_comment_id.to_s }
     # logger.debug2  "index = #{index}"
     return [] if index == nil or index == 0
     acs[0..(index-1)].last(10)

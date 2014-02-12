@@ -64,43 +64,60 @@ class CommentsController < ApplicationController
   # Get /comments
   # params:
   #   gift_id: required
-  #   first_comment_id: optional. Used in ajax request from gifts/index page to get more comments for a gift
+  #   first_comment_id: Used in ajax request from gifts/index page to get more comments for a gift
   def index
-    # find gift
-    @error = t '.gift_id_is_missing' unless params[:gift_id].to_s != ""
-    if !@error
-      @gift = Gift.find_by_id(params[:gift_id])
-      @error = t '.gift_was_not_found' unless @gift
-    end
-    # check if user may see gift. Must be giver, receiver, friend with giver or friend with receiver
-    if !@gift.visible_for?(@users)
-      @gift = nil
-      @error = t '.gift_not_friends'
-    end
-    if !@error and params[:first_comment_id].to_s != ""
-      first_comment = Comment.find_by_id(params[:first_comment_id])
-      @error = t '.comment_not_found' if !first_comment
-    end
-    @error = t '.gift_comment_mismatch' if !@error and first_comment and first_comment.gift_id != @gift.gift_id
-
-    if !@error
-      @api_comments = @gift.api_comments_with_filter(@users, params[:first_comment_id])
-    end
-
-    respond_to do |format|
-      if !@error
-        @first_comment_id = params[:first_comment_id]
-        format.html { render }
-        format.json { render json: @comment, status: :ok, location: @comment }
-        format.js
-      else
-        @gift = @first_comment_id = nil
-        format.html { render  }
-        format.json { render json: @error, status: :unprocessable_entity }
-        format.js
+    @errors2 = []
+    @gift = nil
+    @api_comments = nil
+    gift = nil
+    begin
+      # find gift
+      if params[:gift_id].to_s == ""
+        @errors2 <<  { :msg => t('.gift_id_is_missing'), :id => 'tasks_errors' }
+        return
       end
-    end # respond_to
-
+      gift = Gift.find_by_id(params[:gift_id])
+      if !gift
+        @errors2 << { :msg => t('.gift_not_found'), :id => 'tasks_errors'}
+        return
+      end
+      # check if user may see gift. Must be giver, receiver, friend with giver or friend with receiver
+      if !gift.visible_for?(@users)
+        @errors2 << { :msg => t('.gift_not_friends'), :id => "gift-#{gift.id}-links-errors" }
+        return
+      end
+      # check first_comment_id
+      if params[:first_comment_id].to_s == ""
+        @errors2 <<  { :msg => t('.first_comment_id_is_missing'), :id => "gift-#{gift.id}-links-errors" }
+        return
+      end
+      first_comment = Comment.find_by_id(params[:first_comment_id])
+      if !first_comment
+        @errors2 << { :msg => t('.first_comment_not_found'),:id => "gift-#{gift.id}-links-errors" }
+        return
+      end
+      if first_comment.gift_id != gift.gift_id
+        @errors2 << { :msg => t('.gift_comment_mismatch'),:id => "gift-#{gift.id}-links-errors" }
+        return
+      end
+      if !@error and params[:first_comment_id].to_s != ""
+        first_comment = Comment.find_by_id(params[:first_comment_id])
+        @error = t '.comment_not_found' if !first_comment
+      end
+      # ok - get next set older comments (comment.id < params[:first_comment_id])
+      @first_comment_id = first_comment.id
+      @api_comments = gift.api_comments_with_filter(@users, first_comment.id)
+      @gift = gift
+    rescue Exception => e
+      # todo: refactor exception handling - almust identical for all gift action links
+      logger.error2 "Exception: #{e.message.to_s}"
+      logger.error2 "Backtrace: " + e.backtrace.join("\n")
+      @errors2 << {:msg => t('.exception', :error => e.message.to_s, :raise => I18n::MissingTranslationData),
+                   :id => gift ? "gift-#{gift.id}-links-errors" : "tasks_errors"}
+      logger.error2 "@errors2 = #{@errors2}"
+      @old_first_comment_id = nil
+      @api_comments = nil
+    end
   end # index
 
   def update
