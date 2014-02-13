@@ -865,9 +865,12 @@ $(document).ready(function() {
                 dataType: "text",
                 success: function (msg) {
                     $(id).unbind('focus');
+                    var pgm = 'user_currency_new.ajax.success: ' ;
                     if (msg == 0) {
                         // Query returned empty.
-                        add2log('Did not get any currencies from server');  // todo: or just ignore error!
+                        msg = 'Did not get any currencies from server' ;
+                        add2log(pgm + msg);
+                        add_to_tasks_errors(msg)
                     } else {
                         // Query Has values.
                         $(id).replaceWith(msg);
@@ -876,7 +879,14 @@ $(document).ready(function() {
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
                     $(id).unbind('focus');
-                    add2log('error: jqXHR = ' + jqXHR + ', textStatus = ' + textStatus + ', errorThrown = ' + errorThrown);
+                    var pgm = 'user_currency_new.ajax.error: ' ;
+                    var msg = 'Error when fetching currencies from server. ' + (errorThrown || textStatus) +
+                              '. More information in server log.'
+                    add2log(pgm + msg);
+                    add2log(pgm + 'jqXHR       = ' + jqXHR) ;
+                    add2log(pgm + 'textStatus  = ' + textStatus) ;
+                    add2log(pgm + 'errorThrown = ' + errorThrown) ;
+                    add_to_tasks_errors(msg)
                 }
             });
 

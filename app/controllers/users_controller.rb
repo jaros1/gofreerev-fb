@@ -415,12 +415,14 @@ class UsersController < ApplicationController
     end
 
     # check currency - exchange rate most exists
-    today = Sequence.get_last_exchange_rate_date
-    er = ExchangeRate.where('date = ? and from_currency = ? and to_currency = ?', today, BASE_CURRENCY, new_currency).first
-    if !er
-      save_flash '.invalid_currency' # todo: add key - test error message
-      redirect_to params[:return_to]
-      return
+    if new_currency != BASE_CURRENCY
+      today = Sequence.get_last_exchange_rate_date
+      er = ExchangeRate.where('date = ? and from_currency = ? and to_currency = ?', today, BASE_CURRENCY, new_currency).first
+      if !er
+        save_flash '.invalid_currency' # todo: add key - test error message
+        redirect_to params[:return_to]
+        return
+      end
     end
 
     # find all users to change currency for

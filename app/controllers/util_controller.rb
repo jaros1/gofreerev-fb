@@ -856,11 +856,14 @@ class UtilController < ApplicationController
     end
   end # accept_new_deal
 
+  # return currency for page header.
+  # see .user_currency_new class event handler in see my.js
+  # todo: user has to click twice on currency LOV to see list of currencies (first onfocus event and next onclick event)
   def currencies
     if User.dummy_users?(@users)
       render :nothing => true
     else
-      logger.debug2  "return currencies to client on onfocus event"
+      logger.debug2 "return currencies to client on onfocus event"
     end
   end
 
