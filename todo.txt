@@ -340,7 +340,7 @@
     - sum prices for deleted deals
 
 55) accept deal in gifts/show does not work 100%
-    deal is accepted but gift is removed from gifts/show without being ajax replaced with closed deal
+    deal is accepted but gift is removed from gifts/show without being ajax replaced with new closed deal
 
 56) add language LOV to page header if width > xxx
 
@@ -428,3 +428,11 @@
     Opera console does not reveal any rejected localhost requests. But should not start with get /
 
 82) opera. displays auth/index page within facebook iframe when gofreerev starts from facebook.
+
+84) ajax error message in inbox page:
+    #check-new-messages-link::ajax:success: show_more_rows_scroll failed: ReferenceError: get_more_rows_table is not defined
+    The problem is in #check-new-messages-link:ajax:success handler
+    Should only call show_more_rows_scroll() in pages where scroll is enabled (gifts, users)
+
+
+

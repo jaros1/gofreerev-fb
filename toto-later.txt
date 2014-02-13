@@ -21,18 +21,18 @@ Low priority todo list. Minor errors, wishlist etc.
    http://www.ebizmba.com/articles/social-networking-websites
    http://en.wikipedia.org/wiki/List_of_social_networking_websites
    https://github.com/intridea/omniauth/wiki/List-of-Strategies
-    5) Pinterest
-    6) Tumblr
-    7) Flickr
-    8) VK / Vkontakte
-    9) Instagram
-   10) DeviantArt
-   11) MySpace
-   12) Meetup
-   13) Weibo
-   14) Odnoklassniki
-   15) Renren
-   16) Yelp, Inc.
+    5) Instagram
+    6) Pinterest
+    7) Foursquare
+    8) Tumblr
+    9) Flickr
+   10) VK / Vkontakte
+   11) DeviantArt
+   12) MySpace
+   13) Meetup
+   14) Weibo
+   15) Odnoklassniki
+   16) Renren
    17) mixi
    18) XING
    19) Kaixin001
@@ -40,7 +40,6 @@ Low priority todo list. Minor errors, wishlist etc.
    21) Goodreads
    22) Viadeo
    23) Last.fm
-   24) Foursquare
 
 8) add/show deep link for old post?
    maybe only giver/receiver to add/show deep links

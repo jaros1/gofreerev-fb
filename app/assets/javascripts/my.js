@@ -514,6 +514,7 @@ function insert_new_comments() {
 // tasks_sleep: missing: no tasks - number: sleep (milliseconds) before executing tasks - for example post status on api walls
 function insert_update_gifts (tasks_sleep)
 {
+    var pgm = 'insert_update_gifts: ' ;
     // process ajax response received from new_messages_count ajax request
     // response has been inserted in new_messages_buffer_div in page header
     // also used after util/accept_new_deal to ajax replace gift
@@ -560,7 +561,7 @@ function insert_update_gifts (tasks_sleep)
     // old page: find first gift row in gifts table. id format gift-220-header.
     // new gifts from ajax response are to be inserted before this row
     var old_gifts_table = document.getElementById("gifts") ;
-    if (!old_gifts_table) return ; // not gifts/index page - ok
+    if (!old_gifts_table) return ; // not gifts/index or gifts/show pages - ok
     var old_gifts_trs = old_gifts_table.rows ;
     var old_gifts_tr ;
     var old_gifts_id ;
@@ -580,15 +581,20 @@ function insert_update_gifts (tasks_sleep)
             } // if
         } // for
     } // if
-    add2log(old_gifts_trs.length + ' gifts lines in old page') ;
-    var old_gifts_index ;
-    for (var i=0 ; (!old_gifts_index && (i<old_gifts_trs.length)) ; i++) {
+    add2log(pgm + old_gifts_trs.length + ' gifts lines in old page') ;
+    var old_gifts_index = -1 ;
+    for (var i=0 ; ((old_gifts_index == -1) && (i<old_gifts_trs.length)) ; i++) {
         if (old_gifts_trs[i].id.match(re)) old_gifts_index = i ;
     } // for
-    add2log('old_gifts_index = ' + old_gifts_index) ;
+    // add2log(pgm + 'old_gifts_index = ' + old_gifts_index) ;
     // check for first row to be inserted in gifts table - for example for a new gofreerev user
-    if ((!old_gifts_index) && (old_gifts_trs.length >= 1) && (old_gifts_trs.length <= 2)) old_gifts_index = old_gifts_trs.length-1 ;
-    if (!old_gifts_index) return ; // error - id with format format gift-<999>-1 was not found - ignore error silently
+    if ((old_gifts_index == -1) && (old_gifts_trs.length >= 1) && (old_gifts_trs.length <= 2)) old_gifts_index = old_gifts_trs.length-1 ;
+    // add2log(pgm + 'old_gifts_index = ' + old_gifts_index) ;
+    if (old_gifts_index == -1) {
+        // error - id with format format gift-<999>-1 was not found - ignore error silently
+        add2log(pgm + 'error - id with format format gift-<999>- was not found') ;
+        return ;
+    }
     var first_old_gift_tr = old_gifts_trs[old_gifts_index] ;
     var old_gifts_tbody = first_old_gift_tr.parentNode ;
     // new gifts from ajax response are to be inserted before first_old_gift_tr
@@ -604,7 +610,7 @@ function insert_update_gifts (tasks_sleep)
     } // for
     // that's it
 
-    add2log('ajax_insert_update_gift: ajax_tasks_sleep = ' + tasks_sleep) ;
+    add2log(pgm + 'ajax_tasks_sleep = ' + tasks_sleep) ;
     if (!tasks_sleep) return ;
     // execute some more tasks - for example post status on api wall(s)
     trigger_tasks_form(tasks_sleep);
@@ -942,6 +948,7 @@ var old_show_more_rows_request_at = 0 ;
 // interval should be 3000 = 3 seconds between each show-more-rows request
 // debug true - display messages for ajax debugging in button of page
 function show_more_rows_scroll () {
+    if (!document.getElementById('show-more-rows-link')) return ; // ignore - show-more-rows is not relevant in this page  (inbox etc)
     var table_name = get_more_rows_table ;
     if (end_of_page) return; // no more rows, not an ajax expanding page or ajax request already in progress
     if (($(document).height() - $(window).height()) - $(window).scrollTop() < 600) {

@@ -1717,7 +1717,7 @@ class User < ActiveRecord::Base
             n.from_user_id = nil
             n.internal = 'Y'
             n.noti_key = 'deleted_account_v1'
-            n.noti_options = user.app_and_apiname_hash.merge(:userid => other_user_id, :username => user.user_name)
+            n.noti_options = user.app_and_apiname_hash.merge(:userid => other_user.id, :username => user.user_name)
             n.noti_read = 'N'
             n.save!
             affected_users << other_user_id
