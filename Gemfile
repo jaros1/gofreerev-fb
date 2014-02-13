@@ -63,7 +63,6 @@ group :development do
   gem "capistrano-rails"
 end
 
-
 # Use debugger
 # gem 'debugger', group: [:development, :test]
 

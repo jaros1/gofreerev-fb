@@ -114,6 +114,7 @@ en:
         update_timezone_timezone_missing: "System error. Did not receive timezone information from browser/javascript"
         update_timezone_save_error: "System error. Could not update user timezone information: \"%{errors}\""
         profile_image_invalid_user: "System error. Invalid user id. %{user_id} when downloading profile picture"
+        profile_image_blank: "Profile picture was not received from %{provider}" # provider
         profile_image_invalid_url: "Invalid profile picture url \"%{image}\" received from %{provider}" # image and provider - image must be an url (http or https)
         profile_image_not_found: "Invalid profile picture url \"%{image}\" received from %{provider}"
         profile_image_invalid_type: "Warning. Profile picture type %{image_type} from %{provider} is not supported. Url to profile picture was \"%{image}\""
@@ -123,6 +124,7 @@ en:
         profile_image_mv_failed: "System error. Could not insert new profile picture received from %{provider}: \"%{error}\""
         profile_image_cp1_failed: "System error. Could not insert new profile picture received from %{provider}: \"%{error}\""
         profile_image_cp2_failed: "System error. Could not insert new profile picture received from %{provider}: \"%{error}\""
+        too_few_exchange_rates: "Warning. Lookup of exchange rates from google %{bank} failed. Expected >= %{expected} currencies. Received %{found} currencies."
         post_login_task_not_found: "System error. No post login task util.post_login_%{provider} was found for login provider %{provider}. No friend list was downloaded from %{provider}."
         post_login_user_id_not_found: "Warning. Did not find user id. Could not get friend list from %{provider}"
         post_login_token_not_found: "Warning. Did not find access token. Could not get friend list from %{provider}"
@@ -230,6 +232,7 @@ en:
         user_denied_read_stream: "%{appname} was not granted access to read posts on your facebook wall."
         user_denied_other: "System error. Unknown facebook request was rejected."
         ok_login: "Facebook log in ok."
+        ok_login_new_user: "Facebook log in ok. Welcome to %{appname}. Your friends list is being downloaded and will be ready for use in a minute."
         ok_status_update: "You have granted %{appname} permission to write on your %{apiname} wall."
         ok_read_stream: "%{appname} was granted access to read posts on your %{apiname} wall."
         ok_other: "System error. Unknown facebook request was accepted."
@@ -559,10 +562,14 @@ en:
         cancelled_proposal_receiver_other_3_v1_to_msg: '%{username1}, %{username2} and %{username3} also no longer have bids on %{receivername}-s wish "%{gifttext} ..."'
         cancelled_proposal_receiver_other_n_v1_to_url: "/gifts/%{giftid}"
         cancelled_proposal_receiver_other_n_v1_to_msg: '%{username1}, %{username2} and %{no_other_users} other persons also have bids on %{receivername}-s wish "%{gifttext} ..."'
+        rejected_proposal_giver_1_v1_from_url: "/gifts/%{giftid}"
+        rejected_proposal_giver_1_v1_from_msg: 'You rejected %{receivername}-s bid on your "%{gifttext} ..."'
         rejected_proposal_giver_1_v1_to_url: "/gifts/%{giftid}"
         rejected_proposal_giver_1_v1_to_msg: '%{givername} rejected your bid on his/her offer "%{gifttext} ..."'
         rejected_proposal_receiver_1_v1_to_url: "/gifts/%{giftid}"
         rejected_proposal_receiver_1_v1_to_msg: '%{receivername} rejected your bid on his/her wish "%{gifttext} ..."'
+        accepted_proposal_giver_1_v1_from_url: "/gifts/%{giftid}"
+        accepted_proposal_giver_1_v1_from_msg: 'You accepted %{receivername}-s bid on your offer "%{gifttext} ..."'
         accepted_proposal_giver_1_v1_to_url: "/gifts/%{giftid}"
         accepted_proposal_giver_1_v1_to_msg: '%{givername} accepted your bid on his/her offer "%{gifttext} ..."'
         accepted_proposal_giver_other_1_v1_to_url: "/gifts/%{giftid}"

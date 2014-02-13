@@ -35,10 +35,6 @@
 
  5) add accept conditions for new users?
 
- 6) make script to compare language files (en, da etc). Find missing keys
-    check out https://github.com/tigrish/i18n-spec
-    could be used to verify that all keys exists
-
  7) recalculate user balance at request or once every day
 
  8) user.recalculate_balance recalculates balance for all closed deals with user as giver or receiver.
@@ -328,19 +324,18 @@
 51) add deleted_at to api_gift and api_comment for partial delete of gift and comment
     gift and comment created with multi provider login and one login account has been deleted
 
-52) change User.api_gifts to include api_gifts,deleted_at information.
+52) change User.api_gifts to include api_gifts.deleted_at information.
     that is - ajax remove gift from gifts/index page in util.new_messages_count
+    delete gift for only one provider when account is closed
 
 53) change util/new_messages_count to include delete marked api comments
     that is - ajax remove comment from gifts/index page in util.new_messages_count
+    delete comment for only one provider when account is closed
 
 54) delete account notifications.
     add some more information
-    - number of deals
+    - number of deleted deals
     - sum prices for deleted deals
-
-55) accept deal in gifts/show does not work 100%
-    deal is accepted but gift is removed from gifts/show without being ajax replaced with new closed deal
 
 56) add language LOV to page header if width > xxx
 
@@ -434,5 +429,10 @@
     The problem is in #check-new-messages-link:ajax:success handler
     Should only call show_more_rows_scroll() in pages where scroll is enabled (gifts, users)
 
-
-
+85) localhost / login servers Sandra/fb and Gofreerev A/gp
+    2+2 notifications. 2 accepted and 2 accepted follow notification.
+    for example 13. feb. 2014 11.58
+    should only send notification to Sandra+Gofreerev as creator of proposal.
+    should not send notification to Sandra+Gofreerev as follower of proposal.
+    the same pattern for "outbox" for Jan R/google+ as sender of message.
+    also 13. feb. 2014 11.58
