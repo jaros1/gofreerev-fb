@@ -439,3 +439,11 @@
 
 86) add a API check to omniauth.rb og environment.rb
     check that all array constrants are initialized for all login providers
+
+87) how to check for an "official" gofreerev version
+    easy to copy gofreerev and misuse the concept.
+    maybe a list of officiel gofreerev sites
+
+88) users/index apiname=<provider> filter. Use login user = selected provider.
+    in that way all user pictures are from the same login provider.
+

@@ -1250,7 +1250,7 @@ class UtilController < ApplicationController
           friend_name = (friend.full_name.to_s == '' ? friend.username : friend.full_name).force_encoding('UTF-8')
           friends_hash[friend_user_id] = { :name => friend_name,
                                            :api_profile_url => "#{API_URL[:instagram]}#{friend.username}#",
-                                           :api_profile_picture_url => friend.procedure_picture }
+                                           :api_profile_picture_url => friend.profile_picture }
         end # connection loop
       #rescue instagram::Errors::AccessDeniedError => e
       #  return ['.instagram_access_denied', {:provider => provider}] if e.message.to_s =~ /Access to connections denied/
