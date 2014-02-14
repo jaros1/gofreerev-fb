@@ -28,7 +28,8 @@ end # OmniAuth
 #     for example GOFREEREV_DEV_APP_ID_FACEBOOK and GOFREEREV_DEV_APP_SECRET_FACEBOOK for facebook / development
 #  3) add provider in this file (9 API_... hash constants)
 #  4) add provider to OmniAuth::Builder setup in this file. options are different for each provider
-#  5) add any provider specific methods to OmniAuth::AuthHash. See config/initializers/omniauth_<provider>.rb
+#  5) add any provider specific methods to OmniAuth::AuthHash. See config/initializers/omniauth_<provider>.rb.
+#     check auth_hash information received in auth/create
 #  6) add private post login task to UtilController.post_login_<provider> if any (get friends, permissions etc)
 #  7) add private post on task to UtilController.post_on_<provider> if wall posting is allowed for API
 #  8) check API_POST_PERMITTED and API_MUTUAL_FRIENDS hashes for new provider (environment.rb)
@@ -36,7 +37,7 @@ end # OmniAuth
 # initialize API_ID and API_SECRET hashes to be used in authorization and API requests
 api_id = {}
 api_secret = {}
-%w(facebook google_oauth2 linkedin twitter).each do |provider|
+%w(facebook google_oauth2 instagram linkedin twitter).each do |provider|
   rails_env = case Rails.env when "development" then "DEV" when "test" then "TEST" when "production" then "PROD" end
   # get api_id for provider
   name = "gofreerev_#{rails_env}_app_id_#{provider}".upcase
@@ -53,6 +54,7 @@ API_SECRET = api_secret.with_indifferent_access
 Rails.application.config.middleware.use OmniAuth::Builder do
   provider :facebook,      API_ID[:facebook],      API_SECRET[:facebook], :scope => "", :image_size => :normal, :info_fields => "name,permissions,friends,picture,timezone"
   provider :google_oauth2, API_ID[:google_oauth2], API_SECRET[:google_oauth2], :scope => "plus.login userinfo.profile"
+  provider :instagram,     API_ID[:instagram],     API_SECRET[:instagram]
   provider :linkedin,      API_ID[:linkedin],      API_SECRET[:linkedin], :scope => "r_basicprofile r_network", :fields => ['id', 'first-name', 'last-name', 'picture-url', 'public-profile-url', 'location']
   provider :twitter,       API_ID[:twitter],       API_SECRET[:twitter], { :image_size => 'bigger', :authorize_params => { :x_auth_access_type => 'write' } }
 end
@@ -62,12 +64,14 @@ end
 # visit or redirect to API
 API_URL = {:facebook => "https://www.facebook.com",
            :google_oauth2 => "https://plus.google.com/",
+           :instagram => 'http://instagram.com/', # not secure!
            :linkedin => "https://www.linkedin.com/",
            :twitter => "https://twitter.com/"}.with_indifferent_access
 
-# callback url used in util controller and in API specific controllers (facebook, linkedin)
+# callback url used in util controller and in API specific controllers (facebook, linkedin) - request extra privs.
 API_CALLBACK_URL = {:facebook => "#{SITE_URL}facebook/",
                     :google_oauth2 => '',
+                    :instagram => '',
                     :linkedin => "#{SITE_URL}linkedin/index",
                     :twitter => ''}.with_indifferent_access
 
@@ -81,6 +85,7 @@ API_DEFAULT_PERMISSIONS = {:google_oauth2 => 'read',
 # link to API app settings so that user easy can review and change permissions
 API_APP_SETTING_URL = {:facebook => 'https://www.facebook.com/settings?tab=applications',
                        :google_oauth2 => 'https://plus.google.com/apps',
+                       :instagram => 'https://instagram.com/accounts/manage_access#',
                        :linkedin => 'https://www.linkedin.com/secure/settings?userAgree=&goback=.nas_*1_*1_*1',
                        :twitter => 'https://twitter.com/settings/applications'}.with_indifferent_access
 
@@ -88,6 +93,7 @@ API_APP_SETTING_URL = {:facebook => 'https://www.facebook.com/settings?tab=appli
 # text for "nil" API provider (not logged in or generic messages) /locales/xx.yml/shared/providers
 API_DOWNCASE_NAME = {:facebook => 'facebook',
                      :google_oauth2 => 'google+',
+                     :instagram => 'instagram',
                      :linkedin => 'linkedin',
                      :twitter => 'twitter'}.with_indifferent_access
 
@@ -95,6 +101,7 @@ API_DOWNCASE_NAME = {:facebook => 'facebook',
 # text for "nil" API provider (not logged in or generic messages) /locales/xx.yml/shared/providers
 API_CAMELIZE_NAME = {:facebook => 'Facebook',
                      :google_oauth2 => 'Google+',
+                     :instagram => 'Instagram',
                      :linkedin => 'LinkedIn',
                      :twitter => 'Twitter'}.with_indifferent_access
 
@@ -108,6 +115,7 @@ API_PROFILE_PICTURE_STORE = {}.with_indifferent_access
 API_GIFT_PICTURE_STORE = {:fallback => nil,
                           :facebook => :api,
                           :google_oauth2 => nil, # images not uploaded to google+ - google+ is a readonly API
+                          :instagram => :api,
                           :linkedin => :local, # images are not uploaded to LinkedIn and must be stored on app server
                           :twitter => :api}.with_indifferent_access
 
@@ -115,14 +123,17 @@ API_GIFT_PICTURE_STORE = {:fallback => nil,
 # default values: 70 characters for title and 200 characters for description
 API_OG_TITLE_SIZE = {:facebook => 94, # http://wptest.means.us.com/online-meta-tag-length-checker/
                      :google_oauth2 => 63,
+                     :instagram => 60, # todo: check
                      :linkedin => 60,
                      :twitter => 70}.with_indifferent_access
 API_OG_DESC_SIZE = {:facebook => 255, # http://www.joshspeters.com/how-to-optimize-the-ogdescription-tag-for-search-and-social
                     :google_oauth2 => 155,
+                    :instagram => 155, # todo: check
                     :linkedin => 220, # max 220 in util.post_on_linkedin ( up to 245 characters allowed in og:description meta-tag )
                     :twitter => 200}.with_indifferent_access
 API_OG_DEF_IMAGE = {:facedbook => "#{SITE_URL}images/sacred-economics.jpg",
                     :google_oauth2 => "#{SITE_URL}images/sacred-economics.jpg",
+                    :instagram => "#{SITE_URL}images/sacred-economics.jpg",
                     :linkedin => "#{SITE_URL}images/sacred-economics-linkedin.jpg", # 180 x 110 best for linkedin
                     :twitter => "#{SITE_URL}images/sacred-economics.jpg"}.with_indifferent_access
 

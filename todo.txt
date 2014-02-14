@@ -69,7 +69,7 @@
 
 15) stress test. make a db with really many rows and test performance.
     There maybe are missing an index or two
-    there maybe are some sql to rewrite
+    there maybe are some sql to be rewritten
 
 16) some problems in user.recalculate balance after splitting gifts in gifts and api_gifts
     check /auth/facebook and post_login error for price
@@ -436,3 +436,6 @@
     should not send notification to Sandra+Gofreerev as follower of proposal.
     the same pattern for "outbox" for Jan R/google+ as sender of message.
     also 13. feb. 2014 11.58
+
+86) add a API check to omniauth.rb og environment.rb
+    check that all array constrants are initialized for all login providers

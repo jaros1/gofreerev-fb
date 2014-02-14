@@ -716,6 +716,17 @@ class ApplicationController < ActionController::Base
   end
 
   private
+  def init_api_client_instagram (token)
+    provider = 'instagram'
+    Instagram.configure do |config|
+      config.client_id = API_ID[provider]
+      config.client_secret = API_SECRET[provider]
+    end
+    api_client = Instagram.client(:access_token => token)
+    api_client
+  end
+
+  private
   def init_api_client_linkedin (token)
     provider = 'linkedin'
     api_client = LinkedIn::Client.new API_ID[provider], API_SECRET[provider]
