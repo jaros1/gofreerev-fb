@@ -232,9 +232,9 @@ class Friend < ActiveRecord::Base
     login_user_id = options[:login_user_id]
     new_friends = options[:friends_hash]
     fields = options[:fields] || %w(name)
-    # get provider - friends concept - mutual friends in facebook and linkedin - followers/stalkers in google+ and twitter
+    # get provider - friends concept - mutual friends in facebook and linkedin - followers/stalkers in google+, instagram and twitter
     provider = login_user_id.split('/').last
-    mutual_friends = API_MUTUAL_FRIENDS[provider] # true for facebook and linkedin, false for google+ and twitter
+    mutual_friends = API_MUTUAL_FRIENDS[provider] # true for facebook and linkedin, false for google+, instagram and twitter
     if fields.index('api_profile_picture_url')
       # check picture store for profile pictures
       picture_store = API_PROFILE_PICTURE_STORE[provider] || :api
@@ -290,12 +290,19 @@ class Friend < ActiveRecord::Base
       end
       if new_friends.has_key?(user_id)
         if mutual_friends
+          # facebook and linkedin - mutual friends
           new_api_friend = 'Y'
+        elsif %w(Y S F).index(new_friends[user_id][:api_friend])
+          # instagram - follows and followed_by friends list received from API
+          new_api_friend = new_friends[user_id][:api_friend]
         else
+          # google+ and twitter - only follows friend list received from API
           new_api_friend = Friend.add_follow(old_api_friend)
         end
       else
         if mutual_friends
+          new_api_friend = 'N'
+        elsif provider == 'instagram'
           new_api_friend = 'N'
         else
           new_api_friend = Friend.remove_follow(old_api_friend)

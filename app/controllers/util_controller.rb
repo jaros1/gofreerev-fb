@@ -1240,22 +1240,25 @@ class UtilController < ApplicationController
       # todo: count number of connections retured from instagram
       # todo: handle nil array returned from instagram (r_network missing in scope)
       # todo: get and handle followed_by friend list (api friend F, S or A)
-
+      # get friends list from instagram
+      follows = api_client.user_follows
+      followed_by = api_client.user_followed_by
+      # api_friend: Y: mutual friends, F follows, S Stalked by = followed_by
+      api_friends = {}
+      follows.each { |f| api_friends[f.id] = 'F' }
+      followed_by.delete_if { |f| api_friends[f.id] = api_friends.has_key?(f.id) ? 'Y' : 'S' ; api_friends[f.id] == 'Y' }
+      # initialise friends_hash for Friend.update_api_friends_from_hash request
       friends_hash = {}
-      begin
-        api_client.user_follows.each do |friend|
+      (follows + followed_by).each do |friend|
           logger.debug2 "friend = #{friend} (#{friend.class})"
           # copy friend to friends_hash
           friend_user_id = "#{friend.id}/#{provider}"
           friend_name = (friend.full_name.to_s == '' ? friend.username : friend.full_name).force_encoding('UTF-8')
           friends_hash[friend_user_id] = { :name => friend_name,
                                            :api_profile_url => "#{API_URL[:instagram]}#{friend.username}#",
-                                           :api_profile_picture_url => friend.profile_picture }
-        end # connection loop
-      #rescue instagram::Errors::AccessDeniedError => e
-      #  return ['.instagram_access_denied', {:provider => provider}] if e.message.to_s =~ /Access to connections denied/
-      #  raise
-      end
+                                           :api_profile_picture_url => friend.profile_picture,
+                                           :api_friend => api_friends[friend.id] }
+      end # each friend
 
       # update instagram connections
       new_user = Friend.update_api_friends_from_hash :login_user_id => login_user_id,
