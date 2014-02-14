@@ -79,6 +79,7 @@ API_CALLBACK_URL = {:facebook => "#{SITE_URL}facebook/",
 # facebook: koala me?fields=permissions request is used to check facebook permissions after login
 # twitter: authorization with write access, but user must enable post on twitter before write permission is used
 API_DEFAULT_PERMISSIONS = {:google_oauth2 => 'read',
+                           :instagram => 'read',
                            :linkedin => 'r_basicprofile,r_network',
                            :twitter => 'read'}.with_indifferent_access
 
@@ -110,12 +111,13 @@ API_PROFILE_PICTURE_STORE = {}.with_indifferent_access
 
 # gift pictures: nil (no picture/readonly api), :api (use api picture url) or :local (keep local copy of picture)
 # gooogle+ must be :local or nil (readonly api)
+# instagram must be :local or nil (readonly api)
 # linkedin must be :local or nil (only picture url is uploaded to linkedin)
 # fallback must be :local or nil (use :local to enable local gift picture store as a fallback/last option)
 API_GIFT_PICTURE_STORE = {:fallback => nil,
                           :facebook => :api,
-                          :google_oauth2 => nil, # images not uploaded to google+ - google+ is a readonly API
-                          :instagram => :api,
+                          :google_oauth2 => nil, # images are not uploaded to google+ - google+ is a readonly API
+                          :instagram => nil, # images are not uploaded to instagram - instagram is a readonly API
                           :linkedin => :local, # images are not uploaded to LinkedIn and must be stored on app server
                           :twitter => :api}.with_indifferent_access
 

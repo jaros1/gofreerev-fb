@@ -240,6 +240,8 @@ class UtilController < ApplicationController
                 api_client = init_api_client_facebook(token)
               when 'google_oauth2' then
                 api_client = nil # readonly api - no uploads
+              when 'instagram' then
+                api_client = nil # readonly api - no uploads
               when 'linkedin' then
                 api_client = nil # image shared wih url to local picture store
               when 'twitter' then

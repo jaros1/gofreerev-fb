@@ -76,7 +76,7 @@ class Picture < ActiveRecord::Base
     end
     # fallback option when :local or :api picture store was not available
     return :local if API_GIFT_PICTURE_STORE[:fallback] == :local
-    # no fallback - could be a readonly API as google+ - image upload is not allowed
+    # no fallback - could be a readonly API as google+ or instagram - image upload is not allowed
     nil
   end
 

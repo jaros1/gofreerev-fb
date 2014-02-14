@@ -718,6 +718,9 @@ class User < ActiveRecord::Base
       when 'google_oauth2'
         # readonly API
         false
+      when 'instagram'
+        # readonly API
+        false
       when "linkedin"
         permissions.to_s.split(',').index('rw_nus') != nil
       when 'twitter'

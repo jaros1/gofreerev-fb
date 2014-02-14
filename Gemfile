@@ -5,7 +5,9 @@ gem 'rails', '4.0.0'
 
 # use omniauth for authorization / login
 gem 'omniauth'
+
 # See list of supported stategies: https://github.com/intridea/omniauth/wiki/List-of-Strategies
+# selected login providers must have support for friends list
 gem 'omniauth-facebook'      # https://github.com/mkdynamic/omniauth-facebook
 gem "omniauth-google-oauth2" # https://github.com/zquestz/omniauth-google-oauth2
 gem "omniauth-instagram"     # https://github.com/ropiku/omniauth-instagram
