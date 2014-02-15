@@ -450,3 +450,8 @@
 89) ajax spinner is missing while fetchning new exchange rates
 
 90) check if there is a generic JS way to count number of running/pending ajax requests
+
+91) find all methods with case provider implementations. Should be listed in todo for adding a new login provider.
+    maybe add a special search word that can be used to find all relevant points in source code when adding a new login provider
+
+92) force ssl does not work on dev1

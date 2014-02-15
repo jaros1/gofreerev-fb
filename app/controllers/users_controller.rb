@@ -494,6 +494,7 @@ class UsersController < ApplicationController
     provider = user.provider
     case provider
       when 'facebook' then "#{API_URL[provider]}/#{user.uid}"
+      when 'foursquare' then "#{API_URL[provider]}/user/#{user.uid}"
       when 'google_oauth2' then "#{API_URL[provider]}#{user.uid}/posts"
       else
         # link to #{API_DOWNCASE_NAME[provider] || provider} user profile not implemented
