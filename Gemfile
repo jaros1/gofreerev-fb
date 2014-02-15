@@ -7,20 +7,21 @@ gem 'rails', '4.0.0'
 gem 'omniauth'
 
 # See list of supported stategies: https://github.com/intridea/omniauth/wiki/List-of-Strategies
-# selected login providers must have support for friends list
+# login providers must have support for friends list (mutual friends, follows or followed by)
 gem 'omniauth-facebook'      # https://github.com/mkdynamic/omniauth-facebook
+gem 'omniauth-foursquare'    # https://github.com/arunagw/omniauth-foursquare
 gem "omniauth-google-oauth2" # https://github.com/zquestz/omniauth-google-oauth2
 gem "omniauth-instagram"     # https://github.com/ropiku/omniauth-instagram
 gem 'omniauth-linkedin'      # https://github.com/skorks/omniauth-linkedin
 gem 'omniauth-twitter'       # https://github.com/arunagw/omniauth-twitter
 
 # one gem for each omniauth-xxxx gem - post login API requests - get friends, update status, send notifications etc
-# gem 'koala', '1.7.0rc1' # facebook API calls - https://github.com/arsduo/koala/wiki/Koala-on-Rails
-gem 'koala', '1.9.0' # facebook API calls - https://github.com/arsduo/koala/wiki/Koala-on-Rails
-gem 'google-api-client' # google+ API calls  - https://github.com/google/google-api-ruby-client & https://developers.google.com/api-client-library/ruby/
-gem 'instagram', '0.10.0' # Instagram API calls - https://github.com/Instagram/instagram-ruby-gem
-gem 'linkedin'          # LinkedIn API calls - https://rubygems.org/gems/linkedin
-gem 'twitter'           # twitter API calls  - http://sferik.github.io/twitter/
+gem 'koala', '1.9.0'      # facebook API calls   - https://github.com/arsduo/koala/wiki/Koala-on-Rails
+gem 'foursquare2'         # foursquare API calls - https://github.com/mattmueller/foursquare2
+gem 'google-api-client'   # google+ API calls    - https://github.com/google/google-api-ruby-client & https://developers.google.com/api-client-library/ruby/
+gem 'instagram', '0.10.0' # Instagram API calls  - https://github.com/Instagram/instagram-ruby-gem
+gem 'linkedin'            # LinkedIn API calls   - https://rubygems.org/gems/linkedin
+gem 'twitter'             # twitter API calls    - http://sferik.github.io/twitter/
 
 # Use sqlite3 as the database for Active Record
 gem 'sqlite3'

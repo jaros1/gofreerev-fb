@@ -703,6 +703,12 @@ class ApplicationController < ActionController::Base
   end
 
   private
+  def init_api_client_foursquare (token)
+    api_client = Foursquare2::Client.new(:oauth_token => token)
+    api_client
+  end
+
+  private
   def init_api_client_google_oauth2 (token)
     provider = 'google_oauth2'
     api_client = Google::APIClient.new(

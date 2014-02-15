@@ -1051,7 +1051,7 @@ class UtilController < ApplicationController
 
       # get user information - permissions and picture  - koala gem is used for facebook api requests
       # logger.debug2  'get user id and name'
-      logger.secret2 "token = #{token}"
+      # logger.secret2 "token = #{token}"
       api_client = init_api_client_facebook(token)
       api_request1 = 'me?fields=permissions,picture'
       # logger.debug2  "api_request1 = #{api_request}"
@@ -1114,6 +1114,56 @@ class UtilController < ApplicationController
     end
   end # post_login_facebook
 
+  # post login task for foursquare - get friends - using foursquare2 gem
+  # called from do_tasks - ajax requests after login
+  # must return nil or a valid input to translate
+  # friends information is included in auth_hash that is received in post auth/create,
+  # but friends update can take some time and is done here in post_login_foursquare
+  private
+  def post_login_foursquare
+    begin
+      # get facebook user, friends and api token
+      provider = "foursquare"
+      # login_user, friends_hash, token, new_user, key, options = get_user_friends_and_token(provider)
+      login_user, token, key, options = get_login_user_and_token(provider)
+      return [key, options] if key
+      login_user_id = login_user.user_id
+
+      # setup foursquare api client and get friends list
+      # logger.debug2  'get user id and name'
+      logger.secret2 "token = #{token}"
+      api_client = init_api_client_foursquare(token)
+      friends = api_client.user_friends 'self', :v => '20140214'
+
+      # copy friends list to hash
+      friends_hash = {}
+      friends["items"].each do |friend|
+        logger.debug2 "friend = #{friend}"
+        friend_user_id = "#{friend.id}/#{provider}"
+        name = "#{friend.firstName} #{friend.lastName}".force_encoding('UTF-8')
+        api_profile_url = "#{API_URL[:foursquare]}/user/#{friend.id}"
+        api_profile_picture_url = "#{friend.photo.prefix}100x100#{friend.photo.suffix}"
+        friends_hash[friend_user_id] = {:name => name,
+                                        :api_profile_url => api_profile_url,
+                                        :api_profile_picture_url => api_profile_picture_url }
+      end # each
+
+      # update foursquare friends (api friend = Y/N)
+      new_user = Friend.update_api_friends_from_hash :login_user_id => login_user_id,
+                                                     :friends_hash => friends_hash,
+                                                     :fields => %w(name api_profile_url api_profile_picture_url)
+
+      # special post login message to new users
+      return ['.post_login_new_user', login_user.app_and_apiname_hash ]if new_user
+
+      # ok
+      nil
+    rescue Exception => e
+      logger.debug2  "Exception: #{e.message.to_s}"
+      logger.debug2  "Backtrace: " + e.backtrace.join("\n")
+      raise
+    end
+  end # post_login_foursquare
 
   # post login task for google+
   # using google-api-client

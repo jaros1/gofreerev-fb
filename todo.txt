@@ -447,3 +447,6 @@
 88) users/index apiname=<provider> filter. Use login user = selected provider.
     in that way all user pictures are from the same login provider.
 
+89) ajax spinner is missing while fetchning new exchange rates
+
+90) check if there is a generic JS way to count number of running/pending ajax requests
