@@ -455,3 +455,8 @@
     maybe add a special search word that can be used to find all relevant points in source code when adding a new login provider
 
 92) force ssl does not work on dev1
+
+93) users/index?friends=me - sort by provider name
+
+94) auth/index & wide screen
+    two columns with api providers

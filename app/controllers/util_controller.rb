@@ -1114,6 +1114,66 @@ class UtilController < ApplicationController
     end
   end # post_login_facebook
 
+
+
+  # post login task for flickr - get connections
+  # using flickraw gem
+  # called from do_tasks - ajax requests after login
+  # must return nil or a valid input to translate  private
+  private
+  def post_login_flickr
+    begin
+
+      # get flickr user, friends and api token
+      provider = "flickr"
+      # login_user, friends_hash, token, new_user, key, options = get_user_friends_and_token(provider)
+      login_user, token, key, options = get_login_user_and_token(provider)
+      return [key, options] if key
+      login_user_id = login_user.user_id
+
+      # create client for flickr api requests
+      logger.debug2 "token = #{token.join(', ')}"
+      api_client = init_api_client_flickr(token) # token and secret
+
+      # copy contacts into friends_hashs
+      friends = api_client.contacts.getList
+      friends_hash = {}
+      friends.each do |contact|
+        logger.debug2 "contact = #{contact} (#{contact.class})"
+        # copy friend to friends_hash
+        friend_user_id = "#{contact.nsid}/#{provider}"
+        friend_name = (contact.realname == '' ? contact.username : contact.realname).force_encoding('UTF-8')
+        friend_api_profile_url = "#{API_URL[:flickr]}people/#{contact.nsid}"
+        friends_hash[friend_user_id] = {:name => friend_name,
+                                        :api_profile_picture_url => friend_api_profile_url}
+      end
+
+      # update flickr connections
+      new_user = Friend.update_api_friends_from_hash :login_user_id => login_user_id,
+                                                     :friends_hash => friends_hash,
+                                                     :fields => %w(name api_profile_url)
+      # flickr connections updated
+
+      # 3) update balance
+      login_user.recalculate_balance if login_user.balance_at != Date.today
+
+      # special post login message to new users
+      return ['.post_login_new_user', login_user.app_and_apiname_hash ]if new_user
+
+      # ok
+      nil
+
+    rescue Exception => e
+      logger.debug2  "Exception: #{e.message.to_s} (#{e.class})"
+      logger.debug2  "Backtrace: " + e.backtrace.join("\n")
+      raise
+    end
+  end # post_login_flickr
+  
+  
+  
+  
+  
   # post login task for foursquare - get friends - using foursquare2 gem
   # called from do_tasks - ajax requests after login
   # must return nil or a valid input to translate

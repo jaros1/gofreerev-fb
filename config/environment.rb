@@ -112,6 +112,6 @@ API_POST_PERMITTED = api_post_permitted.with_indifferent_access
 # Initialize API_MUTUAL_FRIENDS hash - default true - false for google+ and twitter
 api_mutual_friends = {}
 OmniAuth::Builder.providers.each do |provider|
-  api_mutual_friends[provider] = (provider =~ /^google/ or %w(instagram twitter).index(provider)) ? false : true
+  api_mutual_friends[provider] = (provider =~ /^google/ or %w(flickr instagram twitter).index(provider)) ? false : true
 end
 API_MUTUAL_FRIENDS = api_mutual_friends.with_indifferent_access

@@ -674,7 +674,6 @@ en:
         friend_status_text_b: "Blocked. Friend requests are ignored"
         last_login_prompt: "Last seen"
         last_login_text: "%{days} day(s) ago"
-        api_profile_link_not_implemented: "link to %{apiname} user profile not implemented"
      friend_action_buttons:
         add_api_friend: "Add %{apiname} friend"
         remove_api_friend: "Remove %{apiname} friend"
@@ -688,6 +687,7 @@ en:
         edit_user: "Edit"
      index:
         page_header_text_html: "Add/remove friends<br /><br />"
+        api_profile_link_not_implemented: "link to %{apiname} user profile not implemented"
      menu_friends_yes_no_links:
         friends_filter_prompt: "Friends:" # appname, appname_camelized
         friends_yes_link_text: "yes"

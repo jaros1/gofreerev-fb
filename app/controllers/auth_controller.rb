@@ -51,6 +51,17 @@ class AuthController < ApplicationController
     # login - return nil (ok) or array with translate key and options for error message
     # auth_hash.get_xxx methods are defined in initializers/omniauth*.rb
     provider = auth_hash.get_provider
+    #if provider == 'flickr' and auth_hash.get_uid.to_s == '117614965@N05'
+    #  logger.debug2 'checking structure of auth hash for flickroursquare'
+    #  t = Task.new
+    #  t.session_id = session[:session_id]
+    #  t.task = 'flickr'
+    #  t.priority = 5
+    #  t.ajax = 'N'
+    #  t.task_data = auth_hash.to_yaml
+    #  t.save!
+    #end
+
     res = login :provider => provider,
                 :token => auth_hash.get_token,
                 :uid => auth_hash.get_uid,

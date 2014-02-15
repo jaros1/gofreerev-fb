@@ -9,6 +9,7 @@ gem 'omniauth'
 # See list of supported stategies: https://github.com/intridea/omniauth/wiki/List-of-Strategies
 # login providers must have support for friends list (mutual friends, follows or followed by)
 gem 'omniauth-facebook'      # https://github.com/mkdynamic/omniauth-facebook
+gem 'omniauth-flickr'        # https://github.com/timbreitkreutz/omniauth-flickr
 gem 'omniauth-foursquare'    # https://github.com/arunagw/omniauth-foursquare
 gem "omniauth-google-oauth2" # https://github.com/zquestz/omniauth-google-oauth2
 gem "omniauth-instagram"     # https://github.com/ropiku/omniauth-instagram
@@ -17,6 +18,7 @@ gem 'omniauth-twitter'       # https://github.com/arunagw/omniauth-twitter
 
 # one gem for each omniauth-xxxx gem - post login API requests - get friends, update status, send notifications etc
 gem 'koala', '1.9.0'      # facebook API calls   - https://github.com/arsduo/koala/wiki/Koala-on-Rails
+gem 'flickraw'            # flickr API calls     - https://github.com/hanklords/flickraw
 gem 'foursquare2'         # foursquare API calls - https://github.com/mattmueller/foursquare2
 gem 'google-api-client'   # google+ API calls    - https://github.com/google/google-api-ruby-client & https://developers.google.com/api-client-library/ruby/
 gem 'instagram', '0.10.0' # Instagram API calls  - https://github.com/Instagram/instagram-ruby-gem

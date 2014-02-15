@@ -703,6 +703,18 @@ class ApplicationController < ActionController::Base
   end
 
   private
+  def init_api_client_flickr (token)
+    provider = 'flickr'
+    FlickRaw.api_key = API_ID[provider]
+    FlickRaw.shared_secret = API_SECRET[provider]
+    api_client = flickr
+    api_client.access_token = token[0]
+    api_client.access_secret = token[1]
+    api_client
+  end
+
+
+  private
   def init_api_client_foursquare (token)
     api_client = Foursquare2::Client.new(:oauth_token => token)
     api_client

@@ -205,12 +205,18 @@ class UsersController < ApplicationController
                              [1,2,3,4,5,6]
                          end
     users2 = User.app_friends(users,friends_categories).sort_by_user_name.collect { |f| f.friend }
+    if @page_values[:friends] == 'me'
+      users2 = users2.sort do |a,b|
+        provider_downcase(a.provider) <=> provider_downcase(b.provider)
+      end
+    end
 
     # apply appuser filters after user lookup
     users2.delete_if do |u|
       ( (@page_values[:appuser] == 'yes' and !u.app_user?) or
         (@page_values[:appuser] == 'no' and u.app_user?) )
     end
+
 
     # use this users select for ajax test - returns all users
     # users = User.all # uncomment to test ajax
@@ -492,8 +498,10 @@ class UsersController < ApplicationController
   def api_profile_url (user)
     return user.api_profile_url if user.api_profile_url.to_s =~ /^https?/
     provider = user.provider
+    # API SETUP
     case provider
       when 'facebook' then "#{API_URL[provider]}/#{user.uid}"
+      when 'flickr' then "#{API_URL[:flickr]}people/#{user.uid}"
       when 'foursquare' then "#{API_URL[provider]}/user/#{user.uid}"
       when 'google_oauth2' then "#{API_URL[provider]}#{user.uid}/posts"
       else

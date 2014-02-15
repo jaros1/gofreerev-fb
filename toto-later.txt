@@ -21,10 +21,8 @@ Low priority todo list. Minor errors, wishlist etc.
    http://www.ebizmba.com/articles/social-networking-websites
    http://en.wikipedia.org/wiki/List_of_social_networking_websites
    https://github.com/intridea/omniauth/wiki/List-of-Strategies
-    5) Instagram
-    6) Pinterest
-    7) Foursquare
-    8) Tumblr
+    7) Pinterest - no API at current time
+    8) Tumblr - no friends
     9) Flickr
    10) VK / Vkontakte
    11) DeviantArt

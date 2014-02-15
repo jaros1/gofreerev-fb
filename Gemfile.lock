@@ -76,6 +76,7 @@ GEM
       faraday (>= 0.7.4, < 0.9)
     fastimage (1.6.0)
       addressable (~> 2.3, >= 2.3.5)
+    flickraw (0.9.7)
     foursquare2 (1.9.8)
       faraday (~> 0.8)
       faraday_middleware (>= 0.8)
@@ -160,6 +161,8 @@ GEM
       rack (~> 1.0)
     omniauth-facebook (1.6.0)
       omniauth-oauth2 (~> 1.1)
+    omniauth-flickr (0.0.13)
+      omniauth-oauth (~> 1.0)
     omniauth-foursquare (1.0.0)
       omniauth (~> 1.0)
       omniauth-oauth2 (~> 1.0)
@@ -281,6 +284,7 @@ DEPENDENCIES
   currencies
   debugger
   fastimage
+  flickraw
   foursquare2
   google-api-client
   google_currency (~> 3.0.0)
@@ -297,6 +301,7 @@ DEPENDENCIES
   mysql2
   omniauth
   omniauth-facebook
+  omniauth-flickr
   omniauth-foursquare
   omniauth-google-oauth2
   omniauth-instagram
