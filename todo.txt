@@ -453,10 +453,9 @@
 
 91) find all methods with case provider implementations. Should be listed in todo for adding a new login provider.
     maybe add a special search word that can be used to find all relevant points in source code when adding a new login provider
-
-92) force ssl does not work on dev1
-
-93) users/index?friends=me - sort by provider name
+    add "API SETUP" comment for all case provider statements
 
 94) auth/index & wide screen
     two columns with api providers
+
+95) users/index friends filter: add follows and followed by filters?

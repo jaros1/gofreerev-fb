@@ -1144,14 +1144,20 @@ class UtilController < ApplicationController
         friend_user_id = "#{contact.nsid}/#{provider}"
         friend_name = (contact.realname == '' ? contact.username : contact.realname).force_encoding('UTF-8')
         friend_api_profile_url = "#{API_URL[:flickr]}people/#{contact.nsid}"
+        if contact.iconfarm.to_s == '0' and contact.iconserver.to_s == '0'
+          friend_api_profile_picture_url = nil
+        else
+          friend_api_profile_picture_url = "http://farm#{contact.iconfarm}.static.flickr.com/#{contact.iconserver}/buddyicons/#{contact.nsid}.jpg"
+        end
         friends_hash[friend_user_id] = {:name => friend_name,
-                                        :api_profile_picture_url => friend_api_profile_url}
+                                        :api_profile_url => friend_api_profile_url,
+                                        :api_profile_picture_url => friend_api_profile_picture_url}
       end
 
       # update flickr connections
       new_user = Friend.update_api_friends_from_hash :login_user_id => login_user_id,
                                                      :friends_hash => friends_hash,
-                                                     :fields => %w(name api_profile_url)
+                                                     :fields => %w(name api_profile_url api_profile_picture_url)
       # flickr connections updated
 
       # 3) update balance
