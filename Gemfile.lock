@@ -124,7 +124,7 @@ GEM
       multi_json
     launchy (2.4.2)
       addressable (~> 2.3)
-    linkedin (0.4.6)
+    linkedin (0.4.4)
       hashie (>= 1.2, < 2.1)
       multi_json (~> 1.0)
       oauth (~> 0.4)
@@ -294,7 +294,7 @@ DEPENDENCIES
   jquery-turbolinks
   jquery-ui-rails (~> 4.0.4)
   koala (= 1.9.0)
-  linkedin
+  linkedin (= 0.4.4)
   minitest
   minitest-reporters (>= 0.5.0)
   money

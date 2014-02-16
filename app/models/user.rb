@@ -706,6 +706,8 @@ class User < ActiveRecord::Base
   # has user granted app privs wall postings?
   def post_on_wall_authorized?
     permissions = self.permissions
+    # API SETUP - keep comment for source code search when adding new provider
+    # todo: generalize. permissions == 'write' <=> true
     case provider
       when "facebook"
         if !permissions
@@ -715,6 +717,8 @@ class User < ActiveRecord::Base
         # looks like permission status_update has been replaced with publish_actions
         # publish_actions is added when requesting status_update priv.
         permissions['status_update'] == 1 or permissions["publish_actions"] == 1
+      when 'flickr'
+        permissions.to_s == 'write'
       when 'google_oauth2'
         # readonly API
         false

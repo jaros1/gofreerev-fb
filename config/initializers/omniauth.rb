@@ -75,7 +75,7 @@ API_URL = {:facebook => "https://www.facebook.com",
 
 # callback url used in util controller and in API specific controllers (facebook, linkedin) - request extra privs.
 API_CALLBACK_URL = {:facebook => "#{SITE_URL}facebook/",
-                    :flickr => '',
+                    :flickr => "#{SITE_URL}flickr/index",
                     :foursquare => '',
                     :google_oauth2 => '',
                     :instagram => '',

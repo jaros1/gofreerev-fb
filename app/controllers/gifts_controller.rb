@@ -175,7 +175,7 @@ class GiftsController < ApplicationController
       elsif API_GIFT_PICTURE_STORE[provider] == :api
         logger.error2 "API_GIFT_PICTURE_STORE setup problem for #{provider}"
         logger.error2 "api gift picture store is :api, but no post_on_#{provider} task was found"
-        api_gift = gift.api_gifts.find { |ag| ap.provider == provider }
+        api_gift = gift.api_gifts.find { |ag| ag.provider == provider }
         if api_gift
           logger.error2 "api_gift for #{provider} was not found"
         else

@@ -66,6 +66,7 @@ class LinkedinController < ApplicationController
       end
 
     else
+      # todo: add error and redirect to gifts/index page
       logger.debug2  "login not ok."
     end
 

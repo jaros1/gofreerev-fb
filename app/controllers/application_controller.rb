@@ -564,6 +564,32 @@ class ApplicationController < ActionController::Base
 
 
 
+  # save/get flickr oauth client
+  # save is called after gifts/create and todo: exception from flickr - post in flickr wall not allowed
+  # get is called from flickr/index when user returns from flickr after allowing write access to flickr wall
+  private
+  def save_flickr_api_client (client, token)
+    task_name = 'flickr_write'
+    t = Task.find_by_session_id_and_task(session[:session_id], task_name)
+    t.destroy if t
+    t = Task.new
+    t.session_id = session[:session_id]
+    t.task = task_name
+    t.priority = 5
+    t.ajax = 'N'
+    t.task_data = [client, token].to_yaml
+    t.save!
+  end # save_flickr_client
+  def get_flickr_api_client
+    task_name = 'flickr_write'
+    t = Task.where("session_id = ? and task = ? and created_at > ?", session[:session_id], task_name, 10.minutes.ago).first
+    return nil unless t
+    client = YAML::load(t.task_data)
+    t.destroy
+    client
+  end # get_flickr_client
+
+
   # save/get linkedin oauth client
   # save is called after gifts/create and LinkedIn::Errors::AccessDeniedError from linkedin - post in linkedin wall not allowed
   # get is called from linkedin/index when user returns from linkedin after allowing write access to linkedin wall
@@ -781,6 +807,33 @@ class ApplicationController < ActionController::Base
                              :hide_url => hide_url}]
   end # grant_write_link_facebook
 
+  # return [key, options] with @errors ajax to grant write access to facebook wall
+  # link is injected in tasks_errors table in page header
+  private
+  def grant_write_link_flickr
+    provider = 'flickr'
+    # https://github.com/hanklords/flickraw#authentication
+    scope = 'write'
+    # can not use init_api_client_flickr here
+    # we are setting up a new flickr login link with extended permissions
+    FlickRaw.api_key = API_ID[:flickr]
+    FlickRaw.shared_secret = API_SECRET[:flickr]
+    api_client = flickr
+    request_token = api_client.get_request_token :oauth_callback => API_CALLBACK_URL[provider]
+    logger.debug2 "request_token = #{request_token}"
+    url = api_client.get_authorize_url(request_token['oauth_token'], :perms => scope)
+    hide_url = "/util/hide_grant_write?provider=#{provider}"
+    # save client - client object is used for authorization when/if user returns from flickr with write permission to flickr wall
+    # too big for session cookie - to saved in task_data
+    save_flickr_api_client(api_client, request_token)
+    # ajax inject link in gifts/index page
+    ['.gift_posted_3_html', { :appname => APP_NAME,
+                              :apiname => provider_downcase(provider),
+                              :provider => provider,
+                              :url => url,
+                              :hide_url => hide_url}]
+  end # grant_write_link_flickr
+
   # return [key, options] with @errors ajax to grant write access to linkedin wall
   # link is injected in tasks_errors table in page header
   private
@@ -827,12 +880,13 @@ class ApplicationController < ActionController::Base
 
   private
   def grant_write_link (provider)
-    case provider
-      when 'facebook' then grant_write_link_facebook
-      when 'linkedin' then grant_write_link_linkedin
-      when 'twitter' then grant_write_link_twitter
-      else nil
-    end # case
+    # API_GIFT_PICTURE_STORE: nil (no picture/readonly api), :api (use api picture url) or :local (keep local copy of picture)
+    return nil unless [:local, :api].index(API_GIFT_PICTURE_STORE[provider])
+    method = "grant_write_link_#{provider}".to_sym
+    # todo: check if private method grant_write_link_#{provider} exists
+    logger.debug2 "private_methods = #{private_methods.join(', ')}"
+    return ['.grant_write_link_missing', :provider => provider, :apiname => provider_downcase(provider)] unless private_methods.index(method)
+    send(method)
   end # grant_write_link
 
   # use flash table to prevent CookieOverflow for big flash messages when using session cookie

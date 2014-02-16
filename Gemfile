@@ -22,7 +22,7 @@ gem 'flickraw'            # flickr API calls     - https://github.com/hanklords/
 gem 'foursquare2'         # foursquare API calls - https://github.com/mattmueller/foursquare2
 gem 'google-api-client'   # google+ API calls    - https://github.com/google/google-api-ruby-client & https://developers.google.com/api-client-library/ruby/
 gem 'instagram', '0.10.0' # Instagram API calls  - https://github.com/Instagram/instagram-ruby-gem
-gem 'linkedin'            # LinkedIn API calls   - https://rubygems.org/gems/linkedin
+gem 'linkedin', '0.4.4'   # LinkedIn API calls   - https://rubygems.org/gems/linkedin
 gem 'twitter'             # twitter API calls    - http://sferik.github.io/twitter/
 
 # Use sqlite3 as the database for Active Record

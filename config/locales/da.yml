@@ -165,6 +165,7 @@ da:
         # auth/index + util.post_on_wall_yn:
         unknown_provider: "Systemfejl. Ukendt login udbyder %{apiname}. Ændring af Opslag? er ikke blevet gemt."
         unknown_post_on_wall: "Systemfejl. Ukendt valg med ændring af Opslag? for %{apiname}. Valg er ikke blevet gemt."
+        grant_write_link_missing: "Systemfejl. Kan ikke indsætte link til at give skrive skrivetilladelse til %{apiname} væg. Enten mangler privat metode grant_write_link_%{provider} i application controller eller også skal API_GIFT_PICTURE_STORE[:%{provider}] ændres til nil hvis %{apiname} API ikke understøtter opslag på %{apiname} væg."
         confirm_grant_write: "Tillad opslag på din %{apiname} væg?"
         grant_write_ok: "%{appname} fik tilladelse til at lave opslag på din %{apiname} væg."
         hide_grant_write_ok: "%{appname} vil fremover ikke bede om tilladelse til at lave opslag på din %{apiname} væg. Du kan på et senere tidspunkt give %{appname} lov til at lave opslag på din %{apiname} væg ved at sætte hak i Opslag? tjekbox på \"Log ind\" siden."
@@ -240,6 +241,13 @@ da:
         ok_status_update: "%{appname} fik tilladelse til at lave opslag på din %{apiname} væg."
         ok_read_stream: "%{appname} fik tilladelse til at læse opslag på din %{apiname} væg."
         ok_other: "Ukendt facebook anmodning ok."
+
+  flickr:
+     index:
+        no_client: "Systemfejl. Kunne ikke åbne %{apiname} API klient. %{appname} fik ikke tilladelse til at lave opslag på din %{apiname} væg."
+        auth_failed: "Systemfejl. Kunne ikke autorisere %{apiname} API klient. %{appname} fik ikke tilladelse til at lave opslag på din %{apiname} væg. Fejlmeddelelse \"%{error}\"."
+        find_or_create_from_auth_hash: "Systemfejl. Ugyldigt svar fra brugeropdatering efter login."
+        ok_write: "%{appname} fik tilladelse til at lave opslag på din %{apiname} væg."
 
   linkedin:
      index:

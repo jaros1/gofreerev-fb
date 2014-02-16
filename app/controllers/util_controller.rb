@@ -1403,6 +1403,7 @@ class UtilController < ApplicationController
 
   # post login task for linkedIn - get connections
   # using linked gem
+  # is using old version 0.4.4 - map error in 0.4.6 - https://github.com/hexgnu/linkedin/issues/216
   # called from do_tasks - ajax requests after login
   # must return nil or a valid input to translate  private
   private
@@ -1417,8 +1418,9 @@ class UtilController < ApplicationController
       login_user_id = login_user.user_id
 
       # create client for linkedin api requests
+      logger.secret2 "token = #{token.join(', ')}"
       api_client = init_api_client_linkedin(token) # token and secret
-      # logger.debug2 "token = #{token.join(', ')}"
+      logger.debug2 "api_client.class = #{api_client.class}"
 
       ## get public profile url for login user
       #profile = client.profile :fields=>['public-profile-url']
@@ -1966,9 +1968,13 @@ class UtilController < ApplicationController
       # check user privs before post in linkedin wall
       # ( permissions is also checked before scheduling post_on_linkedin task )
       case login_user.get_write_on_wall_action
-        when User::WRITE_ON_WALL_NO then return nil # ignore
+        when User::WRITE_ON_WALL_NO # ignore
+          logger.debug2 "User::WRITE_ON_WALL_NO - Ignore post_on_linkedin wall."
+          return nil
         when User::WRITE_ON_WALL_YES then nil # continue
-        when User::WRITE_ON_WALL_MISSING_PRIVS then return grant_write_link(provider) # inject link to grant missing priv.
+        when User::WRITE_ON_WALL_MISSING_PRIVS # inject link to grant missing priv.
+          logger.debug2 "User::WRITE_ON_WALL_MISSING_PRIVS - inject link into gifts/index page"
+          return grant_write_link(provider)
       end
 
       # get gift, api_gift and deep_link

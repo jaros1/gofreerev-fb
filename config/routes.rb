@@ -4,6 +4,7 @@ GofreerevFb::Application.routes.draw do
 
   get "about/index"
   get 'cookie/decline_cookies'
+  get "flickr/index"
   get "linkedin/index"
   get '/auth/:provider/callback', :to => 'auth#create'
   post '/auth/:provider/callback', :to => 'auth#create'

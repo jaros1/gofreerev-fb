@@ -459,3 +459,24 @@
     two columns with api providers
 
 95) users/index friends filter: add follows and followed by filters?
+
+96) your friend list is now downloaded. please refresh page or goto friends page to see your friend list
+
+97) add flickr photo upload. use flickr.upload_photo method
+    http://www.flickr.com/services/api/upload.api.html
+    add link to request 'write' permission
+
+98) auth/index page
+    - add * note for login providers that does not support post on wall
+    - add missing provider? note. add a github page with request for missing login providers
+
+99) users/edit change language
+    - add note and link to github with instructions to how to add a new language to app
+    - add github page about changing translations and adding new languages
+
+100) linkedin gem. frozen to an old version due to error. Unfreeze when error is solved
+
+101) check if there is a problem with missing state in omniauth login.
+     normally state should be included when using omniauth and callbacks
+
+102) refactor linkedin & flickr translate keys into shared? Almost identical translations
