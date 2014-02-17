@@ -496,17 +496,17 @@
 
 105) gifts/index new gift text area is not resize to small size after post with a long text
 
-106) picture.create_png_image_from_text
-     missing utf-8 support
-     maybe only a problem on laptop witj phantomjs 1.4
-     test on dev1 when phantomjs 1.9 is ready
-
 107) picture.create_png_image_from_text
      only png image looks nice
      there should be support for jpg, jpeg, gif, png and bmp
 
-108) problem with phantomjs compile on plugcomputer. add swap file and try once more
 
+109) problem with post from an empty gifts/index page
+     rails post ok. client js fails with
+     insert_update_gifts: 3 gifts lines in old page
+     insert_update_gifts: error - id with format format gift-<999>- was not found
+     in log and no error messages in page header
+     on post_in_<provider> task was started
 
 
 

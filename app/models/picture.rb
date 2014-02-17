@@ -1,3 +1,5 @@
+# encoding: UTF-8
+
 PICTURE_STORE_LEVELS = 5 # ((26+10) ** 2) ** PICTURE_STORE_LEVELS combinations
 PICTURE_IMAGE_TYPES = %w(jpg jpeg gif png bmp) # supported image types - must be supported for all API's with picture upload
 
@@ -313,16 +315,20 @@ class Picture < ActiveRecord::Base
     html_os_path = png_os_path[0..-4] + 'html'
     js_os_path = png_os_path[0..-4] + 'js'
     # create html file with text for image
-    File.open(html_os_path, 'w') do |html|
+    File.open(html_os_path, 'w:UTF-8') do |html|
       html.puts "<!DOCTYPE html>"
       html.puts "<html>"
+      html.puts "<head>"
+      html.puts '<meta content="text/html;charset=utf-8" http-equiv="Content-Type">'
+      html.puts '<meta content="utf-8" http-equiv="encoding">'
+      html.puts "</head>"
       html.puts "<body>"
       html.puts "<p style='font-size:300%'>#{text}</p>"
       html.puts "</body>"
       html.puts "</html>"
     end
     # create js file with a phantomjs script
-    File.open(js_os_path, 'w') do |js|
+    File.open(js_os_path, 'w:UTF-8') do |js|
       js.puts "// output #{html_os_path} as PNG"
       js.puts "var page = require('webpage').create();"
       js.puts "page.viewportSize = { width: #{width}, height: 1 } ;"
