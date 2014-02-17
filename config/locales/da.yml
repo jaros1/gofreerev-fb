@@ -99,11 +99,9 @@ da:
         invite_friends_link_title: "Brug dette link til at inviterer dine %{apiname} venner til at bruge %{appname}"
         invite_friends_message_title: "Inviter dine venner til %{appname}"
         invite_friends_message_body: "Prøv et spil om at hjælpe hinanden og dele hinandens ressourcer på en ny anderledes måde og et spil med en ny slags penge, der kan forandre vores verden inspireret af ideer fra Charles Eisensteins bog Sacred Economics"
-
         invite_friends_mailto_email: "x"
         invite_friends_mailto_subject: "%{appname} spil invitation"
         invite_friends_mailto_body: "Kære ven\n\nJeg vil gerne inviterer dig til at prøve denne app.\n%{url}\n\nDet er et spil inspireret af Charles Eisenstein's bog Sacred Economics.\nSpillet går ud på at hjælpe hinanden, miljøet og om at skabe en ny og bedre slags penge.\n\nKH %{from_username}"
-
         invalid_call: "ugyldigt kald - login bruger manglende i kald af invite_friends_url"
         not_implemented: "inviter %{apiname} venner er endnu ikke implementeret"
      providers:
@@ -131,6 +129,7 @@ da:
         post_login_task_not_found: "Systemfejl. Fandt ikke noget post login task util.post_login_%{provider} for login udbyder %{provider}. Der blev ikke downloaded nogle venneliste fra %{provider}."
         post_login_user_id_not_found: "Advarsel. Fandt ikke bruger id. Kunne ikke hente venneliste fra %{provider}"
         post_login_token_not_found: "Advarsel. Fandt ikke adgangs \"billet\". Kunne ikke hente venneliste fra %{provider}"
+        init_api_client_missing: "Systemfejl. Kan ikke kommunikerer med #{provider} da privat method init_api_client_%{provider} mangler i app. controller."
         post_login_new_user: "Din venneliste er klar til brug. Opdater siden, så du kan se eventuelle opslag fra dine venner."
         google_access_not_configured: "Fejl ved hentning af venneliste fra Google+ API. Access Not Configured. Tjek liste ved API opsætning: 1) Tjek log for mere information. 2) Tjek at application_name og application_version sættes, når Google::APIClient initialiseres. 3) Tjek at status er ON for Google+ API i Google Cloud Console"
         google_insufficient_permission: "Fejl ved hentning af venneliste fra Google+ API. Insufficient Permission. Tjek liste ved API opsætning: 1) scope plus.login mangler i provider opsætning for google"

@@ -139,7 +139,7 @@ API_GIFT_PICTURE_STORE = {:fallback => nil,
                           :twitter => :api}.with_indifferent_access
 
 # text to picture options - PhantomJS (http://phantomjs.org/) is required for this - use empty hash {} if disabled.
-# note that PhantomJs required relative mush memory to compile and run and maybe cannot run on a small plug computer
+# note that PhantomJs required relative much memory and time to run and should maybe not run on a small plug computer
 # values:
 # - nil: disabled / not allowed. use this option if phantomJS is not installed and for readonly API's
 # - integer: use if description.length > integer and no picture attachment in post
@@ -153,7 +153,6 @@ API_TEXT_TO_PICTURE = {:facebook => nil,
                        :instagram => nil,
                        :linkedin => nil,
                        :twitter => 70}.with_indifferent_access
-# API_TEXT_TO_PICTURE = {}
 
 # open graph values (http://ogp.me/) recommended max length for meta-tags used in deep links
 # default values: 70 characters for title and 200 characters for description

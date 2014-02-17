@@ -737,14 +737,14 @@ class ApplicationController < ActionController::Base
     api_client.access_token = token[0]
     api_client.access_secret = token[1]
     api_client
-  end
+  end # init_api_client_flickr
 
 
   private
   def init_api_client_foursquare (token)
     api_client = Foursquare2::Client.new(:oauth_token => token)
     api_client
-  end
+  end # init_api_client_foursquare
 
   private
   def init_api_client_google_oauth2 (token)
@@ -757,7 +757,7 @@ class ApplicationController < ActionController::Base
     api_client.authorization.client_secret = API_SECRET[provider]
     api_client.authorization.access_token = token
     api_client
-  end
+  end # init_api_client_google_oauth2
 
   private
   def init_api_client_instagram (token)
@@ -768,7 +768,7 @@ class ApplicationController < ActionController::Base
     end
     api_client = Instagram.client(:access_token => token)
     api_client
-  end
+  end # init_api_client_instagram
 
   private
   def init_api_client_linkedin (token)
@@ -776,8 +776,7 @@ class ApplicationController < ActionController::Base
     api_client = LinkedIn::Client.new API_ID[provider], API_SECRET[provider]
     api_client.authorize_from_access token[0], token[1] # token and secret
     api_client
-  end
-
+  end # init_api_client_linkedin
 
   private
   def init_api_client_twitter (token)
@@ -791,6 +790,14 @@ class ApplicationController < ActionController::Base
     end
     api_client
   end # init_api_client_twitter
+
+  private
+  def init_api_client (provider, token)
+    method = "init_api_client_#{provider}".to_sym
+    return ['.init_api_client_missing', :provider => provider] unless private_methods.index(method)
+    send(method, token)
+  end
+
 
   # return [key, options] with @errors ajax to grant write access to facebook wall
   # link is injected in tasks_errors table in page header

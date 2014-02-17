@@ -948,46 +948,18 @@ class UtilController < ApplicationController
     # logger.debug2  "token = #{token}"
     # ok
     return [login_user, token]
-  end
+  end # get_login_user_and_token
 
-
-  # helper to get information to be used in post_login_<provider> methods
-  # return array with login_user, friends_hash, token, key and options - key and options only if error
-  #private
-  #def get_user_friends_and_token(provider)
-  #  logger.debug2  "provider = #{provider}"
-  #  # get user and token
-  #  friends_hash = new_user = nil
-  #  login_user, token, key, options = get_login_user_and_token(provider)
-  #  return [login_user, friends_hash, token, new_user, key, options] if key
-  #  login_user_id = login_user.user_id
-  #  # initialize hash with old friends
-  #  old_friends_list = Friend.where('user_id_giver = ?', login_user_id).includes(:friend)
-  #  friends_hash = {}
-  #  (0..(old_friends_list.size-1)).each do |i|
-  #    old_friend = old_friends_list[i]
-  #    old_friend.friend.user_name = old_friend.friend.user_name.force_encoding('UTF-8')
-  #    login_user_id = old_friend.user_id_receiver
-  #    friends_hash[login_user_id] = {:friend => old_friend, # cache friend record
-  #                                   :user => old_friend.friend, # cache user record
-  #                                   :old_name => old_friend.friend.user_name,
-  #                                   :new_name => old_friend.friend.user_name,
-  #                                   :old_api_profile_url => old_friend.friend.api_profile_url,
-  #                                   :new_api_profile_url => old_friend.friend.api_profile_url,
-  #                                   :old_api_friend => old_friend.api_friend,
-  #                                   :new_api_friend => 'N',
-  #                                   :new_record => false}
-  #    if !API_MUTUAL_FRIENDS[provider]
-  #      # google, twitter etc
-  #      # "remove" F from api friend status. F will be added to api friend status if login user is still following friend
-  #      friends_hash[login_user_id][:old_api_friend] = remove_as_follower(friends_hash[login_user_id][:old_api_friend])
-  #    end
-  #  end
-  #  new_user = friends_hash.size == 1
-  #  # ok
-  #  return [login_user, friends_hash, token, new_user]
-  #end # get_user_friends_and_token
-
+  private
+  def get_login_user_and_api_client (provider)
+    api_client = nil
+    login_user, token, key, options = get_login_user_and_token(provider)
+    return [login_user, api_client, key, options] if key
+    logger.secret2 "provider = #{provider}, token = #{token}"
+    key, options = init_api_client(provider, token) # returns [key, options] (error) or [api_client, nil] (ok)
+    api_client, key = key, nil if key.class != String
+    [login_user, api_client, key, options]
+  end # get_login_user_and_api_client
 
   def get_gift_and_deep_link (id, login_user, provider)
     api_gift = deep_link = nil
@@ -1040,10 +1012,9 @@ class UtilController < ApplicationController
   private
   def post_login_facebook
     begin
-      # get facebook user, friends and api token
+      # get facebook user and koala api client
       provider = "facebook"
-      # login_user, friends_hash, token, new_user, key, options = get_user_friends_and_token(provider)
-      login_user, token, key, options = get_login_user_and_token(provider)
+      login_user, api_client, key, options = get_login_user_and_api_client(provider)
       return [key, options] if key
       login_user_id = login_user.user_id
 
@@ -1051,8 +1022,6 @@ class UtilController < ApplicationController
 
       # get user information - permissions and picture  - koala gem is used for facebook api requests
       # logger.debug2  'get user id and name'
-      # logger.secret2 "token = #{token}"
-      api_client = init_api_client_facebook(token)
       api_request1 = 'me?fields=permissions,picture'
       # logger.debug2  "api_request1 = #{api_request}"
       api_response1 = api_client.get_object api_request1
@@ -1124,19 +1093,16 @@ class UtilController < ApplicationController
   def post_login_flickr
     begin
 
-      # get flickr user, friends and api token
+      # get flickr login user flickraw api client
       provider = "flickr"
-      # login_user, friends_hash, token, new_user, key, options = get_user_friends_and_token(provider)
-      login_user, token, key, options = get_login_user_and_token(provider)
+      login_user, api_client, key, options = get_login_user_and_api_client(provider)
       return [key, options] if key
       login_user_id = login_user.user_id
 
-      # create client for flickr api requests
-      logger.debug2 "token = #{token.join(', ')}"
-      api_client = init_api_client_flickr(token) # token and secret
+      # get friends
+      friends = api_client.contacts.getList
 
       # copy contacts into friends_hashs
-      friends = api_client.contacts.getList
       friends_hash = {}
       friends.each do |contact|
         logger.debug2 "contact = #{contact} (#{contact.class})"
@@ -1188,17 +1154,13 @@ class UtilController < ApplicationController
   private
   def post_login_foursquare
     begin
-      # get facebook user, friends and api token
+      # get facebook user and foursquare2 api client
       provider = "foursquare"
-      # login_user, friends_hash, token, new_user, key, options = get_user_friends_and_token(provider)
-      login_user, token, key, options = get_login_user_and_token(provider)
+      login_user, api_client, key, options = get_login_user_and_api_client(provider)
       return [key, options] if key
       login_user_id = login_user.user_id
 
-      # setup foursquare api client and get friends list
-      # logger.debug2  'get user id and name'
-      logger.secret2 "token = #{token}"
-      api_client = init_api_client_foursquare(token)
+      # get foursquare friends
       friends = api_client.user_friends 'self', :v => '20140214'
 
       # copy friends list to hash
@@ -1238,17 +1200,14 @@ class UtilController < ApplicationController
   private
   def post_login_google_oauth2
     begin
-      # get google user, friends and api token
+      # get google user and api client
       provider = "google_oauth2"
-      # login_user, friends_hash, token, new_user, key, options = get_user_friends_and_token(provider)
-      login_user, token, key, options = get_login_user_and_token(provider)
+      login_user, api_client, key, options = get_login_user_and_api_client(provider)
       return [key, options] if key
       login_user_id = login_user.user_id
 
-      # get new google api friends
-      api_client = init_api_client_google_oauth2(token)
+      # get methods for google+ api calls
       plus = api_client.discovered_api('plus')
-      logger.secret2 "token = #{token}"
 
       # find people in login user circles
       # https://developers.google.com/api-client-library/ruby/guide/pagination
@@ -1339,16 +1298,11 @@ class UtilController < ApplicationController
   def post_login_instagram
     begin
 
-      # get instagram user, friends and api token
+      # get instagram user and instagram api client
       provider = "instagram"
-      # login_user, friends_hash, token, new_user, key, options = get_user_friends_and_token(provider)
-      login_user, token, key, options = get_login_user_and_token(provider)
+      login_user, api_client, key, options = get_login_user_and_api_client(provider)
       return [key, options] if key
       login_user_id = login_user.user_id
-
-      # create client for instagram api requests
-      logger.secret2 "token = #{token}"
-      api_client = init_api_client_instagram(token) # token and secret
 
       ## get public profile url for login user
       #profile = client.profile :fields=>['public-profile-url']
@@ -1410,17 +1364,11 @@ class UtilController < ApplicationController
   def post_login_linkedin
     begin
 
-      # get linkedin user, friends and api token
+      # get linkedin user and linkedin api client
       provider = "linkedin"
-      # login_user, friends_hash, token, new_user, key, options = get_user_friends_and_token(provider)
-      login_user, token, key, options = get_login_user_and_token(provider)
+      login_user, api_client, key, options = get_login_user_and_api_client(provider)
       return [key, options] if key
       login_user_id = login_user.user_id
-
-      # create client for linkedin api requests
-      logger.secret2 "token = #{token.join(', ')}"
-      api_client = init_api_client_linkedin(token) # token and secret
-      logger.debug2 "api_client.class = #{api_client.class}"
 
       ## get public profile url for login user
       #profile = client.profile :fields=>['public-profile-url']
@@ -1481,19 +1429,15 @@ class UtilController < ApplicationController
   def post_login_twitter
     begin
 
-      # get twitter user, friends and api token
+      # get twitter user, friends and twitter api client
       provider = "twitter"
-      # login_user, friends_hash, token, new_user, key, options = get_user_friends_and_token(provider)
-      login_user, token, key, options = get_login_user_and_token(provider)
+      login_user, api_client, key, options = get_login_user_and_api_client(provider)
       return [key, options] if key
       login_user_id = login_user.user_id
 
-      # create client for twitter api requests
-      client = init_api_client_twitter(token)
-
       friends_hash = {}
       begin
-        client.friends.to_a.each do |friend|
+        api_client.friends.to_a.each do |friend|
           # logger.debug2 "friend.url = #{friend.url} (#{friend.url.class})"
           # copy friend to friends_hash
           friend_user_id = "#{friend.id}/#{provider}"
@@ -1687,6 +1631,33 @@ class UtilController < ApplicationController
 
   end # get_api_picture_url_facebook
 
+  # get url for api gift picture on flickr wall - size >= 200 x 200
+  # used in post_in_flickr and in missing_api_picture_urls
+  # raises ApiPostNotFoundException if post/picture was not found (missing permission or post/picture has been deleted)
+  # that is - get_api_picture_url_flickr is also used to check for missing read permission
+  # return nil (ok) or [key, options] error input to translate
+  # params:
+  # - just_posted - true if called from post_on_flickr - false if called from missing_api_picture_urls
+  # - api_client - flickraw api client
+  private
+  def get_api_picture_url_flickr (api_gift, just_posted=true, api_client=nil) # api is Koala API client
+
+    return nil if api_gift.deleted_at_api == 'Y' # ignore - post/picture has been deleted from flickr wall
+
+    provider = "flickr"
+    login_user, token, key, options = get_login_user_and_token(provider)
+    logger.secret2 "token = #{token}"
+    return [key, options] if key
+
+    if !api_client
+      # get access token and initialize koala api client
+      api_client = init_api_client_flickr(token)
+    end
+
+    # ok
+    nil
+
+  end # get_api_picture_url_flickr
 
   # recheck post on twitter
   # mark as deleted if post has been deleted
@@ -1837,7 +1808,9 @@ class UtilController < ApplicationController
       error = 'unknown error'
 
       # initialize koala api client
-      api_client = init_api_client_facebook(token)
+      # logger.secret2 "token = #{token}"
+      api_client, options = init_api_client(provider, token)
+      return key, options if (key = api_client).class == String
 
       # post with or without picture - link is a deep link from facebook wall to gift in gofreerev
       # link will be clickable if public url
@@ -1927,7 +1900,7 @@ class UtilController < ApplicationController
         api_gift.save!
         return [".gift_posted_#{gift_posted_on_wall_api_wall}_html",
                 login_user.app_and_apiname_hash.merge(:error => error) ]
-      elsif !api_gift.picture? or api_gift.picture? and Picture.perm_app_url?(picture_url)
+      elsif (!api_gift.picture? or (api_gift.picture? and Picture.perm_app_url?(picture_url)))
         # post ok - no picture or picture with perm app url
         # no need to check read permission to gift on api wall
         # return posted message
@@ -1986,8 +1959,10 @@ class UtilController < ApplicationController
       gift_posted_on_wall_api_wall = 1
       error = 'unknown error'
 
-      # initialize koala api client
-      api_client = init_api_client_flickr(token)
+      # initialize flickraw api client
+      logger.secret2 "token = #{token}"
+      api_client, options = init_api_client(provider, token)
+      return key, options if (key = api_client).class == String
 
       # post with or without picture - link is a deep link from flickr wall to gift in gofreerev
       # link will be clickable if public url
@@ -2006,8 +1981,6 @@ class UtilController < ApplicationController
           # ( post as an open graph story - gift picture store must be :local - is shown as a like in activity log / not on wall )
           #   api_response = api_client.put_connections("me", "og.likes", :object => deep_link)
           api_response = api_client.upload_photo picture_full_os_path, :description => "#{gift.description} - #{deep_link}"
-          logger.debug2 "api_response = #{api_response}"
-          logger.debug2 "api_response.methods = #{api_response.methods.sort.join(', ')}"
           # api_response = {"id"=>"1396226023933952", "post_id"=>"100006397022113_1396195803936974"} (Hash)
           api_gift.api_gift_id = api_response
         elsif API_TEXT_TO_PICTURE[provider] != 0
@@ -2018,15 +1991,13 @@ class UtilController < ApplicationController
           # post on flickr without picture - convert text to image and use deep link as description
           picture_full_os_path = Picture.create_png_image_from_text gift.description, 800
           api_response = api_client.upload_photo picture_full_os_path, :description => deep_link
-          logger.debug2 "api_response = #{api_response}"
-          logger.debug2 "api_response.methods = #{api_response.methods.sort.join(', ')}"
           FileUtils.rm picture_full_os_path
           # api_response = {"id"=>"1396226023933952", "post_id"=>"100006397022113_1396195803936974"} (Hash)
           api_gift.api_gift_id = api_response
         end
         logger.debug2 "api_response = #{api_response} (#{api_response.class.name})"
         gift_posted_on_wall_api_wall = 2 # Gift posted in here and on your flickr wall
-      rescue Koala::Facebook::ClientError => e
+      rescue Koala::Facebook::ClientError => e # todo: change exception handler - invalid exception for flickraw
         e.logger = logger
         e.puts_exception("#{__method__}: ")
         if e.fb_error_type == 'OAuthException' && e.fb_error_code == 506
@@ -2078,7 +2049,7 @@ class UtilController < ApplicationController
         api_gift.save!
         return [".gift_posted_#{gift_posted_on_wall_api_wall}_html",
                 login_user.app_and_apiname_hash.merge(:error => error) ]
-      elsif !api_gift.picture? or api_gift.picture? and Picture.perm_app_url?(picture_url)
+      elsif (!api_gift.picture? or (api_gift.picture? and Picture.perm_app_url?(picture_url)))
         # post ok - no picture or picture with perm app url
         # no need to check read permission to gift on api wall
         # return posted message

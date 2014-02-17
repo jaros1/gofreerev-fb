@@ -500,7 +500,6 @@
      only png image looks nice
      there should be support for jpg, jpeg, gif, png and bmp
 
-
 109) problem with post from an empty gifts/index page
      rails post ok. client js fails with
      insert_update_gifts: 3 gifts lines in old page
@@ -508,6 +507,27 @@
      in log and no error messages in page header
      on post_in_<provider> task was started
 
+110) check out open graph meta-tags in flickr.
+     maybe some that could by used
+     <meta property="fb:app_id" content="137206539707334" />
+     <meta property="al:ios:app_store_id" content="328407587" />
+     <meta property="al:ios:app_name" content="Flickr" />
+     <meta property="twitter:app:name:iphone" content="Flickr" />
+     <meta property="twitter:app:id:iphone" content="328407587" />
+     <meta property="og:title" content="u6bbc6h8oy" />
+     <meta property="og:type" content="flickr_photos:photo" />
+     <meta property="og:url" content="http://www.flickr.com/photos/gofreerev/12593199523/" />
+     <meta property="og:site_name" content="Flickr" />
+     <meta property="twitter:card" content="photo" />
+     <meta property="twitter:site" content="@flickr" />
+     <meta property="og:description" content="localhost/da/gifts/VyGiwGM7NXQ1JzBA2XAj1VV5zeGEtb" />
+     <meta property="og:image" content="https://farm4.staticflickr.com/3716/12593199523_7600c19134_z.jpg" />
+     <meta property="og:image:width" content="514" />
+     <meta property="og:image:height" content="640" />
+     <meta property="flickr_photos:by" content="http://www.flickr.com/people/gofreerev/" />
+     <meta property="twitter:description" content="localhost/da/gifts/VyGiwGM7NXQ1JzBA2XAj1VV5zeGEtb" />
+     <meta property="al:ios:url" content="flickr://flickr.com/photos/gofreerev/12593199523/" />
+     <meta property="twitter:app:url:iphone" content="flickr://flickr.com/photos/gofreerev/12593199523/" />
 
 
 
