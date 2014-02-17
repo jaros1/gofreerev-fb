@@ -383,6 +383,7 @@ class User < ActiveRecord::Base
     user.user_id = user_id
     user.user_name = user_name
     # setup efault permissions after login (read = read user profile and friends information)
+    # API SETUP
     case
       when provider == 'facebook'
         # facebook permissions is returned in koala api request me?fields=permissions in util.post_login_facebook
@@ -706,8 +707,9 @@ class User < ActiveRecord::Base
   # has user granted app privs wall postings?
   def post_on_wall_authorized?
     permissions = self.permissions
+    return false if API_GIFT_PICTURE_STORE[provider] == nil # readonly api: google+ and instagram
+    return true if permissions.to_s == 'write' # flickr and twitter
     # API SETUP - keep comment for source code search when adding new provider
-    # todo: generalize. permissions == 'write' <=> true
     case provider
       when "facebook"
         if !permissions
@@ -717,20 +719,11 @@ class User < ActiveRecord::Base
         # looks like permission status_update has been replaced with publish_actions
         # publish_actions is added when requesting status_update priv.
         permissions['status_update'] == 1 or permissions["publish_actions"] == 1
-      when 'flickr'
-        permissions.to_s == 'write'
-      when 'google_oauth2'
-        # readonly API
-        false
-      when 'instagram'
-        # readonly API
-        false
       when "linkedin"
         permissions.to_s.split(',').index('rw_nus') != nil
-      when 'twitter'
-        permissions.to_s == 'write'
       else
-        logger.warn2  "post_on_wall? not implemented for #{provider}"
+        logger.error2 "post_on_wall? not implemented for #{provider}"
+        logger.error2 "API_GIFT_PICTURE_STORE[provider] = #{API_GIFT_PICTURE_STORE[provider]}, permissions = #{permissions}"
         false
     end # case
   end # post_on_wall_authorized?

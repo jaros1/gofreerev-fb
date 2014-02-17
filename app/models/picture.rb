@@ -83,7 +83,7 @@ class Picture < ActiveRecord::Base
   def self.new_temp_or_perm_rel_path (login_users, image_type)
     case Picture.find_picture_store(login_users)
       when :local then Picture.new_perm_rel_path image_type
-      when :api then Picture.new_term_rel_path image_type
+      when :api then Picture.new_temp_rel_path image_type
       else nil # error - no picture store - could be google+ - image upload is not allowed
     end
   end # self.new_temp_or_perm_rel_path
@@ -303,6 +303,48 @@ class Picture < ActiveRecord::Base
     logger.debug2 "rm: stdout = #{stdout}, stderr = #{stderr}, status = #{status} (#{status.class})"
     FileUtils.rmdir full_os_path
     Picture.delete_empty_parent_dirs :full_os_path => full_os_path
+  end
+
+
+  def self.create_png_image_from_text (text, width=800)
+    rel_path = Picture.new_temp_rel_path('png')
+    png_os_path = Picture.full_os_path :rel_path => rel_path
+    File.open(png_os_path,'w')
+    html_os_path = png_os_path[0..-4] + 'html'
+    js_os_path = png_os_path[0..-4] + 'js'
+    # create html file with text for image
+    File.open(html_os_path, 'w') do |html|
+      html.puts "<!DOCTYPE html>"
+      html.puts "<html>"
+      html.puts "<body>"
+      html.puts "<p style='font-size:300%'>#{text}</p>"
+      html.puts "</body>"
+      html.puts "</html>"
+    end
+    # create js file with a phantomjs script
+    File.open(js_os_path, 'w') do |js|
+      js.puts "// output #{html_os_path} as PNG"
+      js.puts "var page = require('webpage').create();"
+      js.puts "page.viewportSize = { width: #{width}, height: 1 } ;"
+      js.puts ""
+      js.puts "setTimeout(function() {"
+      js.puts "  page.open('#{html_os_path}');"
+      js.puts "}, 250);"
+      js.puts ""
+      js.puts "page.onLoadFinished = function() {"
+      js.puts "  page.render('#{png_os_path}');"
+      js.puts "  phantom.exit();"
+      js.puts "}"
+    end
+    # run phantomjs script
+    cmd = "phantomjs #{js_os_path}"
+    stdout, stderr, status = User.open4(cmd, PICTURE_TEMP_OS_ROOT)
+    logger.debug2 "phantomjs: stdout = #{stdout}, stderr = #{stderr}, status = #{status} (#{status.class})"
+    # cleanup files
+    # FileUtils.rm html_os_path
+    # FileUtils.rm js_os_path
+    # return full os path to png image
+    png_os_path
   end
 
 end

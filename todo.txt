@@ -480,3 +480,29 @@
      normally state should be included when using omniauth and callbacks
 
 102) refactor linkedin & flickr translate keys into shared? Almost identical translations
+
+103) flickr & twitter.
+     use phantomjs to convert text to image before upload to API.
+     - test if it can be installed on plug server
+     - add method to Picture for generating image from text
+     - check best width for flickr and twitter. width must be a param
+     - css text effects. For example color, shadow
+     - twitter. use if description > 70 characters and no picture
+     - flickr. use if no picture
+
+104) post in foursquare. Foursquare is different from the other api's
+     add a page for Gofreerev and ?
+     maybe j has some ideas
+
+105) gifts/index new gift text area is not resize to small size after post with a long text
+
+106) picture.create_png_image_from_text
+     missing utf-8 support
+     maybe only a problem on laptop witj phantomjs 1.4
+     test on dev1 when phantomjs 1.9 is ready
+
+
+
+
+
+

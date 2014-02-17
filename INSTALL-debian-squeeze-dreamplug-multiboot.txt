@@ -74,5 +74,8 @@ deploy - server
 post install
 
 36) move sqlite3 db to shared area or switch to mysql
+37) http://www.justkez.com/phantomjs-on-debian-6-squeeze/ (text to image)
+
+
 
 

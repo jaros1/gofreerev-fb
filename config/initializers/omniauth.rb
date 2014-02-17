@@ -33,7 +33,7 @@ end # OmniAuth
 #  6) add private post login task to UtilController.post_login_<provider> if any (get friends, permissions etc)
 #  7) add private post on task to UtilController.post_on_<provider> if wall posting is allowed for API
 #  8) check API_POST_PERMITTED and API_MUTUAL_FRIENDS hashes for new provider (environment.rb)
-#  9) search source for "API SETUP" and check if new provider should be added to existing case statement
+#  9) search source for "API SETUP" and check if new provider should be added to existing case statements
 
 # initialize API_ID and API_SECRET hashes to be used in authorization and API requests
 api_id = {}
@@ -131,12 +131,26 @@ API_PROFILE_PICTURE_STORE = {}.with_indifferent_access
 # fallback must be :local or nil (use :local to enable local gift picture store as a fallback/last option)
 API_GIFT_PICTURE_STORE = {:fallback => nil,
                           :facebook => :api,
-                          :flickr => :api, # todo: check if flickr supports upload
-                          :foursquare => :api, # todo: check if foursquare supports upload
-                          :google_oauth2 => nil, # images are not uploaded to google+ - google+ is a readonly API
-                          :instagram => nil, # images are not uploaded to instagram - instagram is a readonly API
-                          :linkedin => :local, # images are not uploaded to LinkedIn and must be stored on app server
+                          :flickr => :api,
+                          :foursquare => nil, # todo: post allowed, but users do not have a wall like the other api's
+                          :google_oauth2 => nil, # google+ is a readonly API
+                          :instagram => nil, # instagram is a readonly API
+                          :linkedin => :local, # images are not uploaded to LinkedIn and must be stored on gofreerev server
                           :twitter => :api}.with_indifferent_access
+
+# text to picture options - PhantomJS (http://phantomjs.org/) is required for this - use empty hash {} if disabled. values:
+# - nil: disabled / not allowed. use this option if phantomJS is not installed and for readonly API's
+# - integer: use if description.length > integer and no picture attachment in post
+# - 0: always, for example flickr (no picture attachment in post)
+# - 70: use text to picture if description > 70 characters. twitter. (no picture attachment in post)
+# - :append: append text to bottom of picture, for example flickr.
+API_TEXT_TO_PICTURE = {:facebook => :nil,
+                       :flickr => 0,
+                       :foursquare => nil,
+                       :google_oauth2 => nil,
+                       :instagram => nil,
+                       :linkedin => nil,
+                       :twitter => 70}.with_indifferent_access
 
 # open graph values (http://ogp.me/) recommended max length for meta-tags used in deep links
 # default values: 70 characters for title and 200 characters for description
