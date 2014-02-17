@@ -501,6 +501,12 @@
      maybe only a problem on laptop witj phantomjs 1.4
      test on dev1 when phantomjs 1.9 is ready
 
+107) picture.create_png_image_from_text
+     only png image looks nice
+     there should be support for jpg, jpeg, gif, png and bmp
+
+108) problem with phantomjs compile on plugcomputer. add swap file and try once more
+
 
 
 

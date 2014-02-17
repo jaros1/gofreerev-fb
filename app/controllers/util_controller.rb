@@ -2010,6 +2010,10 @@ class UtilController < ApplicationController
           logger.debug2 "api_response.methods = #{api_response.methods.sort.join(', ')}"
           # api_response = {"id"=>"1396226023933952", "post_id"=>"100006397022113_1396195803936974"} (Hash)
           api_gift.api_gift_id = api_response
+        elsif API_TEXT_TO_PICTURE[provider] != 0
+          # post in flickr without picture and convert text to image is not enabled
+          # can not post on flickr without a picture
+          gift_posted_on_wall_api_wall = 9
         else
           # post on flickr without picture - convert text to image and use deep link as description
           picture_full_os_path = Picture.create_png_image_from_text gift.description, 800

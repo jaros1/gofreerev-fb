@@ -138,19 +138,22 @@ API_GIFT_PICTURE_STORE = {:fallback => nil,
                           :linkedin => :local, # images are not uploaded to LinkedIn and must be stored on gofreerev server
                           :twitter => :api}.with_indifferent_access
 
-# text to picture options - PhantomJS (http://phantomjs.org/) is required for this - use empty hash {} if disabled. values:
+# text to picture options - PhantomJS (http://phantomjs.org/) is required for this - use empty hash {} if disabled.
+# note that PhantomJs required relative mush memory to compile and run and maybe cannot run on a small plug computer
+# values:
 # - nil: disabled / not allowed. use this option if phantomJS is not installed and for readonly API's
 # - integer: use if description.length > integer and no picture attachment in post
 # - 0: always, for example flickr (no picture attachment in post)
 # - 70: use text to picture if description > 70 characters. twitter. (no picture attachment in post)
 # - :append: append text to bottom of picture, for example flickr.
-API_TEXT_TO_PICTURE = {:facebook => :nil,
+API_TEXT_TO_PICTURE = {:facebook => nil,
                        :flickr => 0,
                        :foursquare => nil,
                        :google_oauth2 => nil,
                        :instagram => nil,
                        :linkedin => nil,
                        :twitter => 70}.with_indifferent_access
+# API_TEXT_TO_PICTURE = {}
 
 # open graph values (http://ogp.me/) recommended max length for meta-tags used in deep links
 # default values: 70 characters for title and 200 characters for description
