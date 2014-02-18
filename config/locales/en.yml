@@ -113,7 +113,7 @@ en:
         update_timezone_invalid_user_id: "System error. Invalid user id %{user_id} when updating timezone information"
         update_timezone_timezone_missing: "System error. Did not receive timezone information from browser/javascript"
         update_timezone_save_error: "System error. Could not update user timezone information: \"%{errors}\""
-        profile_image_invalid_user: "System error. Invalid user id. %{user_id} when downloading profile picture"
+        profile_image_invalid_user: "System error. Invalid user id %{user_id} when downloading profile picture"
         profile_image_blank: "Profile picture was not received from %{provider}" # provider
         profile_image_invalid_url: "Invalid profile picture url \"%{image}\" received from %{provider}" # image and provider - image must be an url (http or https)
         profile_image_not_found: "Invalid profile picture url \"%{image}\" received from %{provider}"
@@ -278,7 +278,7 @@ en:
         no_providers: "Comment was not created. No shared login providers. May be a system error."
         exception: "System error. Comment was not created. %{error}. More information available in log."
      index:
-        gift_id_is_missing: "Invalid request. Gift id. is missing."
+        gift_id_is_missing: "Invalid request. Gift id is missing."
         gift_not_found: "Invalid request. Gift was not found."
         gift_not_friends: "Invalid request. You are not allowed to see this gift."
         first_comment_id_is_missing: "Invalid request. Comment id is missing."

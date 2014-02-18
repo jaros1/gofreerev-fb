@@ -2184,8 +2184,11 @@ class UtilController < ApplicationController
         # todo: check description length. <= 256 use only description. length <= 700. Use only comment. Length between 700 and 956 use comment and description
         # my test says: title 60, description 245 and comment 600 characters
         image_url = Picture.url :rel_path => gift.app_picture_rel_path if api_gift.picture? and gift.rel_path_picture_exists?
+        # logger.debug2 "image_url = #{image_url}"
+        image_url = SITE_URL + image_url.from(1) if image_url and image_url.first == '/'
         text = "#{format_direction_without_user(api_gift)} #{gift.description}"
-        logger.debug2 "picture = #{api_gift.picture?}, text.length = #{text.length}, image_url = #{image_url}"
+        # logger.debug2 "picture = #{api_gift.picture?}, text.length = #{text.length}, image_url = #{image_url}"
+
 
         comment = nil
         content = { "submitted-url" => deep_link }
@@ -2214,7 +2217,7 @@ class UtilController < ApplicationController
         #      raise "linkedin post without picture and text length > 700 is not implemented"
         #  end
         #end
-        #logger.debug2 "content = #{content}, comment = #{comment}"
+        logger.debug2 "content = #{content}, comment = #{comment}"
         x = api_client.add_share :content => content, :comment => comment
       rescue LinkedIn::Errors::AccessDeniedError => e
         logger.debug2  "LinkedIn::Errors::AccessDeniedError"
@@ -2309,12 +2312,23 @@ class UtilController < ApplicationController
 
       # post tweet
       # todo: use text to image convert if long tweet and text to image is enabled for twitter.
-      if api_gift.picture?
-        # http://rubydoc.info/github/jnunemaker/twitter/Twitter/Client:update_with_media
-        full_os_path = Picture.full_os_path :rel_path => gift.app_picture_rel_path
-        x = api_client.update_with_media(tweet, File.new(full_os_path))
-      else
-        x = api_client.update(tweet)
+      x = nil
+      begin
+        if api_gift.picture?
+          # http://rubydoc.info/github/jnunemaker/twitter/Twitter/Client:update_with_media
+          full_os_path = Picture.full_os_path :rel_path => gift.app_picture_rel_path
+          x = api_client.update_with_media(tweet, File.new(full_os_path))
+        else
+          x = api_client.update(tweet)
+        end
+      rescue Twitter::Error, Timeout::Error => e
+        # maybe a problem with timeout for twitter post.
+        # https://github.com/sferik/twitter/issues/516
+        # https://github.com/sferik/twitter/issues/401
+        # todo: Could return warning to user and repeat post on twitter a few times
+        logger.debug2  "Exception: #{e.message.to_s} (#{e.class})"
+        logger.debug2  "Backtrace: " + e.backtrace.join("\n")
+        raise
       end
       return ['.gift_posted_1_html', {:apiname => provider, :error => "Expected Twitter::Tweet. Found #{x.class}"}] if x.class != Twitter::Tweet
 

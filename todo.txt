@@ -529,19 +529,16 @@
      <meta property="al:ios:url" content="flickr://flickr.com/photos/gofreerev/12593199523/" />
      <meta property="twitter:app:url:iphone" content="flickr://flickr.com/photos/gofreerev/12593199523/" />
 
-111) check if get_api_picture_url_<provider> could be refactored
-     add generic method get_picture_url(provider, api_gift, just_posted=true, api_client=nil)
-
-112) double post /gifts.js request gives double post on all api walls
-     block for double post gift - disable button - remember ajax status in js variable
-     or find some other way to prevent double ajax actions
-
 113) check just_posted variable in get_api_picture_url_<provider> methods
      should raise exception if just posted and picture was not found.
      see get_api_picture_url_facebook
 
-114) picture has missing at linkedin when posting on facebook+flickr+linkedin+twitter.
-     check rel or perm path
-     could also post image on linked with a facebook, flickr or twitter image path
+115) two or three column friend list in users/index page.
+     responsive design or use javascript to organize table layout
 
-115) two or three column friend list in users/index page
+116) post on twitter: Exception: execution expired (Twitter::Error) after 6 seconds
+     added exception to post on twitter for debug
+     maybe a generic way to handle execution expired when posting on api walls
+     repeat up to 3 times before giving up
+     return warning to user and try once more time
+     delete_local_picture task and expired post on wall exception!
