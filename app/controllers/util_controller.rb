@@ -235,22 +235,30 @@ class UtilController < ApplicationController
               @errors << ['.mis_api_pic_no_token', api_gift.app_and_apiname_hash]
               next
             end
-            case api_gift.provider
-              when 'facebook' then
-                api_client = init_api_client_facebook(token)
-              when 'google_oauth2' then
-                api_client = nil # readonly api - no uploads
-              when 'instagram' then
-                api_client = nil # readonly api - no uploads
-              when 'linkedin' then
-                api_client = nil # image shared wih url to local picture store
-              when 'twitter' then
-                api_client = init_api_client_twitter(token)
-              else
-                logger.error2 "initialize api client for #{api_gift.provider} not implemented, api_gift.id = #{api_gift.id}"
-                @errors << ['.mis_api_pic_not_implemented1', api_gift.app_and_apiname_hash ]
-                next
+
+            # todo: refactor - use generic init_api_client(provider, token) method
+            key, options = init_api_client(api_gift.provider, token)
+            if key.class == String
+              @errors << [key, options]
+              next
             end
+            api_clients[api_gift.provider] = api_client = key
+            #case api_gift.provider
+            #  when 'facebook' then
+            #    api_client = init_api_client_facebook(token)
+            #  when 'google_oauth2' then
+            #    api_client = nil # readonly api - no uploads
+            #  when 'instagram' then
+            #    api_client = nil # readonly api - no uploads
+            #  when 'linkedin' then
+            #    api_client = nil # image shared wih url to local picture store
+            #  when 'twitter' then
+            #    api_client = init_api_client_twitter(token)
+            #  else
+            #    logger.error2 "initialize api client for #{api_gift.provider} not implemented, api_gift.id = #{api_gift.id}"
+            #    @errors << ['.mis_api_pic_not_implemented1', api_gift.app_and_apiname_hash ]
+            #    next
+            #end
             api_clients[api_gift.provider] = api_client
           end
           # api client initialized
@@ -259,16 +267,17 @@ class UtilController < ApplicationController
           if api_client
             begin
               # check api wall
-              case api_gift.provider
-                when 'facebook'
-                  key, options = get_api_picture_url_facebook(api_gift, false, api_client)
-                when 'twitter'
-                  key, options = get_api_picture_url_twitter(api_gift, false, api_client)
-                else
-                  logger.error2 "No get_api_picture_url_#{api_gift.provider} method"
-                  @errors << ['.mis_api_pic_not_implemented2', api_gift.app_and_apiname_hash ]
-                  next
-              end
+              key, options = get_api_picture_url(api_client.provider, api_gift, false, api_client)
+              #case api_gift.provider
+              #  when 'facebook'
+              #    key, options = get_api_picture_url_facebook(api_gift, false, api_client)
+              #  when 'twitter'
+              #    key, options = get_api_picture_url_twitter(api_gift, false, api_client)
+              #  else
+              #    logger.error2 "No get_api_picture_url_#{api_gift.provider} method"
+              #    @errors << ['.mis_api_pic_not_implemented2', api_gift.app_and_apiname_hash ]
+              #    next
+              #end
               if key
                 @errors << [key, options]
                 next
@@ -1514,7 +1523,7 @@ class UtilController < ApplicationController
   # - just_posted - true if called from post_on_facebook - false if called from missing_api_picture_urls
   # - api_client - koala api client
   private
-  def get_api_picture_url_facebook (api_gift, just_posted=true, api_client=nil) # api is Koala API client
+  def get_api_picture_url_facebook (api_gift, just_posted=true, api_client) # api is Koala API client
 
     return nil if api_gift.deleted_at_api == 'Y' # ignore - post/picture has been deleted from facebook wall
 
@@ -1522,10 +1531,11 @@ class UtilController < ApplicationController
     login_user, token, key, options = get_login_user_and_token(provider)
     return [key, options] if key
 
-    if !api_client
-      # get access token and initialize koala api client
-      api_client = init_api_client_facebook(token)
-    end
+    #if !api_client
+    #  # get access token and initialize koala api client
+    #  raise "api_client is nil"
+    #  api_client = init_api_client_facebook(token)
+    #end
 
     # two koala api request. 1) get picture and object_id, 2) get an array with different size pictures
 
@@ -1640,18 +1650,53 @@ class UtilController < ApplicationController
   # - just_posted - true if called from post_on_flickr - false if called from missing_api_picture_urls
   # - api_client - flickraw api client
   private
-  def get_api_picture_url_flickr (api_gift, just_posted=true, api_client=nil) # api is Koala API client
+  def get_api_picture_url_flickr (api_gift, just_posted, api_client) # api is flickraw API client
 
     return nil if api_gift.deleted_at_api == 'Y' # ignore - post/picture has been deleted from flickr wall
 
     provider = "flickr"
-    login_user, token, key, options = get_login_user_and_token(provider)
-    logger.secret2 "token = #{token}"
+    login_user, api_client, key, options = get_login_user_and_api_client(provider)
     return [key, options] if key
 
-    if !api_client
-      # get access token and initialize koala api client
-      api_client = init_api_client_flickr(token)
+    #if !api_client
+    #  # get access token and initialize koala api client
+    #  api_client = init_api_client_flickr(token)
+    #end
+    #
+
+    images = nil
+    begin
+      # http://www.flickr.com/services/api/flickr.photos.getSizes.html
+      images = api_client.photos.getSizes :photo_id => api_gift.api_gift_id
+    rescue FlickRaw::FailedResponse => e
+      #   1: Photo not found - The photo id passed was not a valid photo id.
+      #   2: Permission denied - The calling user does not have permission to view the photo.
+      # 100: Invalid API Key - The API key passed was not valid or has expired.
+      # 105: Service currently unavailable - The requested service is temporarily unavailable.
+      # 106: Write operation failed - The requested operation failed due to a temporary issue.
+      # 111: Format "xxx" not found - The requested response format was not found.
+      # 112: Method "xxx" not found - The requested method was not found.
+      # 114: Invalid SOAP envelope - The SOAP envelope send in the request could not be parsed.
+      # 115: Invalid XML-RPC Method Call - The XML-RPC request document could not be parsed.
+      # 116: Bad URL found - One or more arguments contained a URL that has been used for abuse on Flickr.
+      logger.error2 "exception: #{e.message}"
+      logger.error2 = #{e.code}"
+      raise
+    end
+
+    if images.class == FlickRaw::ResponseList and images.length > 0
+      logger.debug2 "images = #{images}"
+      image = nil
+      images.reverse_each do |hash|
+        image = hash.source if hash.height.to_i >= 200 and hash.width.to_i >= 200
+      end
+      image = images.last.source unless image
+      logger.debug2 "image = #{image}"
+      api_gift.api_picture_url = image
+      api_gift.save!
+    else
+      logger.warn2 "no images array was returned from flickr API request. Keeping old picture"
+      logger.warn2 "images = #{images}"
     end
 
     # ok
@@ -1664,14 +1709,14 @@ class UtilController < ApplicationController
   # get new api_picture_url if picture url has changed
   # called from missing_api_picture_urls if image has been moved or deleted
   private
-  def get_api_picture_url_twitter (api_gift, just_posted=true, api_client=nil) # api is Koala API client
+  def get_api_picture_url_twitter (api_gift, just_posted=true, api_client) # api is twitter API client
 
     provider = "twitter"
-    login_user, token, key, options = get_login_user_and_token(provider)
+    login_user, api_client, key, options = get_login_user_and_api_client(provider)
     return [key, options] if key
 
-    # initialize twitter api client
-    api_client = init_api_client_twitter(token) if !api_client
+    ## initialize twitter api client
+    #api_client = init_api_client_twitter(token) if !api_client
 
     # check twitter post
     begin
@@ -1689,6 +1734,18 @@ class UtilController < ApplicationController
     nil
 
   end # get_api_picture_url_twitter
+
+  # generic get_api_picture_url_<provider>
+  private
+  def get_api_picture_url (provider, api_gift, just_posted, api_client)
+    method = "get_api_picture_url_#{provider}".to_sym
+    if !private_methods.index(method)
+      logger.error2 "System error. private method #{method} was not found in app. controller"
+      return ['.get_api_picture_url_missing', :provider => provider, :apiname => provider_downcase(provider) ]
+    end
+    logger.debug2 "calling #{method}"
+    send(method, api_gift, just_posted, api_client)
+  end # get_api_picture_url
 
 
   # change user.post_on_wall_yn. ajax request from auth/index page
@@ -1779,9 +1836,11 @@ class UtilController < ApplicationController
   private
   def post_on_facebook (id)
     begin
-      # get login user and api access token
+      # get facebook user and koala api client
       provider = "facebook"
-      login_user, token, key, options = get_login_user_and_token(provider)
+      login_user, api_client, key, options = get_login_user_and_api_client(provider)
+      return [key, options] if key
+      login_user_id = login_user.user_id
 
       # check user privs before post in facebook wall
       # ( permissions is also checked before scheduling post_on_facebook task )
@@ -1806,11 +1865,6 @@ class UtilController < ApplicationController
       #  5: "Gift posted in here but not on your %{apiname} wall. Post on #{apiname} wall not implemented."
       gift_posted_on_wall_api_wall = 1
       error = 'unknown error'
-
-      # initialize koala api client
-      # logger.secret2 "token = #{token}"
-      api_client, options = init_api_client(provider, token)
-      return key, options if (key = api_client).class == String
 
       # post with or without picture - link is a deep link from facebook wall to gift in gofreerev
       # link will be clickable if public url
@@ -1910,7 +1964,7 @@ class UtilController < ApplicationController
         # check read permissioin to gift and get picture url with best size > 200 x 200
         # must have read access to post on facebook wall to display picture in gofreerev
         # 1) use api_gift.api_gift_id to get object_id (picture size in first request is too small)
-        key, options = get_api_picture_url_facebook(api_gift, true, api_client)
+        key, options = get_api_picture_url(provider, api_gift, true, api_client)
         return [key, options] if key
 
         # post ok and no permission problems
@@ -1931,9 +1985,11 @@ class UtilController < ApplicationController
   private
   def post_on_flickr (id)
     begin
-      # get login user and api access token
+      # get flickr login user flickraw api client
       provider = "flickr"
-      login_user, token, key, options = get_login_user_and_token(provider)
+      login_user, api_client, key, options = get_login_user_and_api_client(provider)
+      return [key, options] if key
+      login_user_id = login_user.user_id
 
       # check user privs before post in flickr wall
       # ( permissions is also checked before scheduling post_on_flickr task )
@@ -1959,11 +2015,6 @@ class UtilController < ApplicationController
       gift_posted_on_wall_api_wall = 1
       error = 'unknown error'
 
-      # initialize flickraw api client
-      logger.secret2 "token = #{token}"
-      api_client, options = init_api_client(provider, token)
-      return key, options if (key = api_client).class == String
-
       # post with or without picture - link is a deep link from flickr wall to gift in gofreerev
       # link will be clickable if public url
       # link will be not clickable if localhost or server behind firewall
@@ -1978,6 +2029,7 @@ class UtilController < ApplicationController
           # post on flickr with picture - use picture as it is and use description with deep as description
           picture_url = Picture.url :rel_path => gift.app_picture_rel_path
           picture_full_os_path = Picture.full_os_path :rel_path => gift.app_picture_rel_path
+          logger.debug2 "picture_full_os_path = #{picture_full_os_path}"
           # ( post as an open graph story - gift picture store must be :local - is shown as a like in activity log / not on wall )
           #   api_response = api_client.put_connections("me", "og.likes", :object => deep_link)
           api_response = api_client.upload_photo picture_full_os_path, :description => "#{gift.description} - #{deep_link}"
@@ -1994,6 +2046,10 @@ class UtilController < ApplicationController
           FileUtils.rm picture_full_os_path
           # api_response = {"id"=>"1396226023933952", "post_id"=>"100006397022113_1396195803936974"} (Hash)
           api_gift.api_gift_id = api_response
+        end
+        if api_gift.api_gift_id
+          api_gift.api_gift_url = "#{API_URL[provider]}photos/gofreerev/#{api_response}/"
+          api_gift.save!
         end
         logger.debug2 "api_response = #{api_response} (#{api_response.class.name})"
         gift_posted_on_wall_api_wall = 2 # Gift posted in here and on your flickr wall
@@ -2045,6 +2101,7 @@ class UtilController < ApplicationController
 
       if gift_posted_on_wall_api_wall != 2
         # error or warning
+        logger.debug2 "error or warning: gift_posted_on_wall_api_wall = #{gift_posted_on_wall_api_wall}"
         api_gift.picture = 'N'
         api_gift.save!
         return [".gift_posted_#{gift_posted_on_wall_api_wall}_html",
@@ -2053,13 +2110,15 @@ class UtilController < ApplicationController
         # post ok - no picture or picture with perm app url
         # no need to check read permission to gift on api wall
         # return posted message
+        logger.debug2 "post ok without picture"
         return [".gift_posted_#{gift_posted_on_wall_api_wall}_html", :apiname => login_user.apiname, :error => error]
       else
+        logger.debug2 "post ok with picture"
         # post ok - gift posted in flickr wall
         # check read permissioin to gift and get picture url with best size > 200 x 200
         # must have read access to post on flickr wall to display picture in gofreerev
         # 1) use api_gift.api_gift_id to get object_id (picture size in first request is too small)
-        key, options = get_api_picture_url_flickr(api_gift, true, api_client)
+        key, options = get_api_picture_url(provider, api_gift, true, api_client)
         return [key, options] if key
 
         # post ok and no permission problems
@@ -2082,10 +2141,11 @@ class UtilController < ApplicationController
 
   def post_on_linkedin (id)
     begin
-      # get login user and api access token
+      # get linkedin user and linkedin api client
       provider = "linkedin"
-      login_user, token, key, options = get_login_user_and_token(provider)
+      login_user, api_client, key, options = get_login_user_and_api_client(provider)
       return [key, options] if key
+      login_user_id = login_user.user_id
 
       # check user privs before post in linkedin wall
       # ( permissions is also checked before scheduling post_on_linkedin task )
@@ -2102,11 +2162,6 @@ class UtilController < ApplicationController
       # get gift, api_gift and deep_link
       gift, api_gift, deep_link, key, options = get_gift_and_deep_link(id, login_user, provider)
       return [key, options] if key
-
-      # create api client for linkedin api requests
-      api_client = init_api_client_linkedin(token) # token and secret
-      # logger.debug2  "token = #{token[0]}"
-      # logger.debug2  "secret = #{token[1]}"
 
       # todo: add offers/seeks to description
       # todo: add picture
@@ -2191,7 +2246,7 @@ class UtilController < ApplicationController
       #    "updateUrl": "http://www.linkedin.com/updates?discuss=&scope=310307710&stype=M&topic=5824797827771314176&type=U&a=omJz"
       #}
 
-      # extract update key and url
+      # extract update post id and post url - url for image is not relevant for linkedin - picture is stored at gofreerev
       # todo: update_url redirects to linkedin login page
       update_key = $1 if x.body.to_s =~ /"updateKey": "(.*?)"/
       update_url = $1 if x.body.to_s =~ /"updateUrl": "(.*?)"/
@@ -2223,10 +2278,11 @@ class UtilController < ApplicationController
   private
   def post_on_twitter (id)
     begin
-      # get login user and api access token
+      # get twitter user, friends and twitter api client
       provider = "twitter"
-      login_user, token, key, options = get_login_user_and_token(provider)
+      login_user, api_client, key, options = get_login_user_and_api_client(provider)
       return [key, options] if key
+      login_user_id = login_user.user_id
 
       # check user privs before post in twitter wall
       # ( permissions is also checked before scheduling post_on_twitter task )
@@ -2240,10 +2296,6 @@ class UtilController < ApplicationController
       gift, api_gift, deep_link, key, options = get_gift_and_deep_link(id, login_user, provider)
       return [key, options] if key
 
-      # create client for twitter api requests
-      client = init_api_client_twitter(token)
-      # logger.debug2 "token = #{token}"
-
       # tweet with deep link in tweet message
       # tweet format: [offers/seeks] + gift.description + " - " + SITE_URL/gifts/xx/123456789012345678901234567890
       # description will be truncated if tweet length > 140
@@ -2256,15 +2308,17 @@ class UtilController < ApplicationController
       tweet = "#{text}#{deep_link}"
 
       # post tweet
+      # todo: use text to image convert if long tweet and text to image is enabled for twitter.
       if api_gift.picture?
         # http://rubydoc.info/github/jnunemaker/twitter/Twitter/Client:update_with_media
         full_os_path = Picture.full_os_path :rel_path => gift.app_picture_rel_path
-        x = client.update_with_media(tweet, File.new(full_os_path))
+        x = api_client.update_with_media(tweet, File.new(full_os_path))
       else
-        x = client.update(tweet)
+        x = api_client.update(tweet)
       end
       return ['.gift_posted_1_html', {:apiname => provider, :error => "Expected Twitter::Tweet. Found #{x.class}"}] if x.class != Twitter::Tweet
 
+      # save post id and picture url
       api_gift.api_picture_url = x.media.first.media_url.to_s if api_gift.picture?
       api_gift.api_gift_id  = x.id.to_s
       api_gift.api_gift_url = x.url.to_s
@@ -2278,7 +2332,7 @@ class UtilController < ApplicationController
       logger.debug2  "Backtrace: " + e.backtrace.join("\n")
       raise
     end
-  end
+  end # post_on_twitter
 
 
       # check after post_on_<provider>'s' if user have write access to any api wall

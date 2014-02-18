@@ -315,6 +315,7 @@ class Picture < ActiveRecord::Base
     html_os_path = png_os_path[0..-4] + 'html'
     js_os_path = png_os_path[0..-4] + 'js'
     # create html file with text for image
+    # todo: add styles. ok as png image. not ok as jpg image
     File.open(html_os_path, 'w:UTF-8') do |html|
       html.puts "<!DOCTYPE html>"
       html.puts "<html>"
@@ -347,8 +348,8 @@ class Picture < ActiveRecord::Base
     stdout, stderr, status = User.open4(cmd, PICTURE_TEMP_OS_ROOT)
     logger.debug2 "phantomjs: stdout = #{stdout}, stderr = #{stderr}, status = #{status} (#{status.class})"
     # cleanup files
-    # FileUtils.rm html_os_path
-    # FileUtils.rm js_os_path
+    FileUtils.rm html_os_path
+    FileUtils.rm js_os_path
     # return full os path to png image
     png_os_path
   end

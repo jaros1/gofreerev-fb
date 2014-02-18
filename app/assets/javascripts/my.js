@@ -679,6 +679,9 @@ $(document).ready(function () {
     $('#new_gift').ajaxForm({
         beforeSubmit: function (formData, jqForm, options) {
             add2log('#new_gift.beforeSubmit');
+            var submit_buttons = document.getElementsByName('commit_gift') ;
+            // add2log('submit_buttons.length = ' + submit_buttons.length) ;
+            for (var i=0 ; i< submit_buttons.length ; i++) submit_buttons[i].disabled = true ;
         },
         success: function (responseText, statusText, xhr, $form) {
             add2log('#new_gift.success');
@@ -704,6 +707,12 @@ $(document).ready(function () {
             add2log('textStatus = ' + textStatus);
             add2log('errorThrown = ' + errorThrown);
             add_to_tasks_errors('new_form.ajaxform.error: ' + errorThrown + '. check server log for more information.');
+        },
+        complete: function() {
+            add2log('#new_gift.complete');
+            var submit_buttons = document.getElementsByName('commit_gift') ;
+            // add2log('submit_buttons.length = ' + submit_buttons.length) ;
+            for (var i=0 ; i< submit_buttons.length ; i++) submit_buttons[i].disabled = false ;
         }
     });
 });

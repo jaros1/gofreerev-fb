@@ -199,7 +199,9 @@ class GiftsController < ApplicationController
     # delete picture after posting on api wall(s) - priority = 10
     add_task "delete_local_picture(#{gift.id})", 10 if picture and Picture.temp_app_url?(picture_url)
 
-    @api_gifts = ApiGift.where("id = ?", gift.api_gifts.first.id).includes(:gift)
+    # find api gift - api gift with picture is preferred
+    api_gift = gift.api_gifts.sort { |a, b| b.picture <=> a.picture}.first
+    @api_gifts = ApiGift.where("id = ?", api_gift.id).includes(:gift)
     format_ajax_response
     return
   end # create

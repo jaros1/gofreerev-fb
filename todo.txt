@@ -529,6 +529,13 @@
      <meta property="al:ios:url" content="flickr://flickr.com/photos/gofreerev/12593199523/" />
      <meta property="twitter:app:url:iphone" content="flickr://flickr.com/photos/gofreerev/12593199523/" />
 
+111) check if get_api_picture_url_<provider> could be refactored
+     add generic method get_picture_url(provider, api_gift, just_posted=true, api_client=nil)
 
+112) double post /gifts.js request gives double post on all api walls
+     block for double post gift - disable button - remember ajax status in js variable
+     or find some other way to prevent double ajax actions
 
-
+113) check just_posted variable in get_api_picture_url_<provider> methods
+     should raise exception if just posted and picture was not found.
+     see get_api_picture_url_facebook

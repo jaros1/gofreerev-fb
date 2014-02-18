@@ -94,7 +94,7 @@ API_DEFAULT_PERMISSIONS = {:flickr => 'read',
 
 # link to API app settings so that user easy can review and change permissions
 API_APP_SETTING_URL = {:facebook => 'https://www.facebook.com/settings?tab=applications',
-                       :flickr => 'http://www.flickr.com/account/',
+                       :flickr => 'https://www.flickr.com/account/sharing/',
                        :foursquare => 'https://foursquare.com/settings/connections',
                        :google_oauth2 => 'https://plus.google.com/apps',
                        :instagram => 'https://instagram.com/accounts/manage_access#',

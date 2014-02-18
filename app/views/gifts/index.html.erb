@@ -35,7 +35,7 @@
         <tr title="<%= t '.description_title' %>">
           <td style="vertical-align: top"><%= t '.description_prompt' %></td>
           <td><%= f.text_area :description, :size => '60x2', :placeholder => 'Enter Comments', :onfocus => 'autoresize_text_field(this)', :class => 'new_gift_text' %>
-            <%= f.submit t('.gift_submit_button_text'), :onclick => '{return csv_gift()}', :class => 'submit_gift_large' %></td>
+            <%= f.submit t('.gift_submit_button_text'), :onclick => '{return csv_gift()}', :name => 'commit_gift', :class => 'submit_gift_large' %></td>
         </tr>
         <tr title="<%= t ".file_title_#{User.post_image_allowed?(@users)}", :appname => APP_NAME %>">
           <td>
@@ -51,7 +51,7 @@
         </tr>
         <tr class="submit_gift_small">
           <td></td>
-          <td><%= f.submit t('.gift_submit_button_text'), :onclick => '{return csv_gift()}' %></td>
+          <td><%= f.submit t('.gift_submit_button_text'), :onclick => '{return csv_gift()}', :name => 'commit_gift' %></td>
         </tr>
       </table>
   <% end # form   -%>
