@@ -39,16 +39,16 @@ en:
         gift:
           attributes:
             base:
-              giver_or_receiver_must_be_blank: "A new post can not have a seller/giver and a buyer/receiver"
+              giver_or_receiver_must_be_blank: "A new post cannot have a seller/giver and a buyer/receiver"
               giver_or_receiver_is_required: "A new post must have a seller/giver or a buyer/receiver"
             user_id_giver:
-              readonly: "can not be updated"
+              readonly: "cannot be updated"
             user_id_receiver:
-              readonly: "can not be updated"
+              readonly: "cannot be updated"
             currency:
-              readonly: "can not be changed for a closed post"
+              readonly: "cannot be changed for a closed post"
             price:
-              readonly: "can not be changed for a closed post"
+              readonly: "cannot be changed for a closed post"
 
   #########
   # views #
@@ -57,14 +57,14 @@ en:
   # application layout with page header and footer
   layouts:
      application:
-        cookie_note_title: "%{appname} uses temporary cookies for log in. In temporary session cookie are stored information about start time, login API authorization, language, timezone. Temporary cookies are removed when the browser is closed. Cookie acceptance is the only information stored in a permanent cookie."
+        cookie_note_title: "%{appname} uses temporary cookies for log in. In temporary session cookie is stored information about start time, login API authorization, language, timezone. Temporary cookies are removed when the browser is closed. Cookie acceptance is the only information stored in a permanent cookie."
         cookie_note_text_html: "%{appname} uses cookies as part of the service. See <a href=\"%{url}\">cookies</a>."
         cookie_accept_text: "Accept"
         cookie_reject_text: "Reject"
         cookie_ignore_text: "Ignore"
-        page_footer_html: "%{appname} is an open source project. Source to this app is available at %{csv_link} under MIT licence and can be used by other developers in their open source projects. Open source also means that there are no secrets about how this app works and what information is saved about you and your friends.<br /><br />It is my hope that technology will develop that supports the many interesting thoughts in %{charles_eisenstein_link}'s book %{sacred_economics_link}."
+        page_footer_html: "%{appname} is an open source project. Source to this app is available at %{csv_link} under MIT licence and can be used by other developers in their open source projects. Open source also means that there are no secrets about how this app works and what information is saved about you and your friends.<br /><br />It is my hope that technology will develop in a way that supports the many interesting thoughts in %{charles_eisenstein_link}'s book %{sacred_economics_link}."
      page_header:
-        header_currency_title: "Balance. Use currency selection list if you want your balance shown in a different currency. Your balance of free money show how much you have invested in community and friends and is a measure of gratitude. Who has given / received most? Whose turn is it to receive / give? A positive balance means that you are good to help others and to one's help has been appreciated. A negative balance means that you are good to accept help and that you have appreciated the help. There is no correlation between who is rich / poor in free money here and who are rich / poor in the real world."
+        header_currency_title: "Balance. Use currency selection list if you want your balance shown in a different currency. Your balance of free money shows how much you have invested in community and friends and is a measure of gratitude. Who has given / received most? Whose turn is it to receive / give? A positive balance means that you are good at helping others and that your help has been appreciated. A negative balance means that you are good at accepting help and that you appreciated the help. There is no correlation between who is rich / poor in free money here and who is rich / poor in the real world."
         header_balance_prompt: "Balance:"
         header_balance_free: "free"
         header_home_link_title: ''
@@ -93,7 +93,7 @@ en:
         invite_friend_mailto_subject: "%{appname} game invitation"
         invite_friend_mailto_body: "Hi %{to_username}\n\nI would like to invite you to try this app.\n%{url}\n\nIt is a game inspired by Charles Eisenstein's book Sacred Economics.\nThe goal is to help each other, the environment and to create a new and better kind of money.\n\nKind regards %{from_username}"
      invite_friends:
-        no_friends_was_found_html: "<p>There was not found any %{appname} friends. Invite some of your good friends to use %{appname}.<br />Either by sending a personal message or by using the link below to invite your friends to use %{appname}.<br>A personal message is the best as many people will ignore or reject game invitations.</p>"
+        no_friends_was_found_html: "<p>There was not found any %{appname} friends. Invite some of your friends to use %{appname}.<br />Either by sending a personal message or by using the link below to invite your friends to use %{appname}.<br>A personal message is to prefere as many people will ignore or reject game invitations.</p>"
         invite_friends_prompt: "Invite friends:"
         invite_friends_link_title: "Use this link to invite your %{apiname} friends to use %{appname}"
         invite_friends_message_title: "Invite your friends to play %{appname}" # facebook
@@ -131,9 +131,9 @@ en:
         init_api_client_missing: "System  error. Private method init_api_client_%{provider} is missing in app. controller and cannot communicate with %{provicer}."
         post_login_new_user: "Your friend list is ready. Please refresh page to see any posts from your friends."
         google_access_not_configured: "Error when fetching friend list from Google+ API. Access Not Configured. Check list: 1) Status is ON for Google+ API in Google Cloud Console"
-        google_insufficient_permission: "Error when fetching friend list from Google+ API. API. Insufficient Permission. Check list: 1) scope plus.login maybe is missing in provider setup for google+"
+        google_insufficient_permission: "Error when fetching friend list from Google+ API. API. Insufficient Permission. Check list: 1) scope plus.login maybe missing in provider setup for google+"
         google_other_errors: "Error when fetching friend list from Google+ API. \"%{error}\""
-        linkedin_access_denied: "Error when fetching connections from LinkedIn API. Access to connections denied. Check list: 1) scope r_network mangler maybe is missing in provider setup for LinkedIn"
+        linkedin_access_denied: "Error when fetching connections from LinkedIn API. Access to connections denied. Check list: 1) scope r_network maybe  missing in provider setup for LinkedIn"
         post_on_api_unknown_gift_id: "Unknown id %{id} when posting on %{provider} wall"
         post_on_api_invalid_gift_id: "Invalid id %{id} when posting on %{provider} wall (1)"
         post_on_api_old_gift: "Old id %{id} when posting on %{provider} wall"
@@ -141,18 +141,18 @@ en:
         local_picture_not_found: "Invalid id %{id} when posting on %{provider} wall (3)"
         gift_posted_1_html: "Gift posted in here but not on your %{apiname} wall (%{error})" # unhandled error message
         gift_posted_2_html: "Gift posted in here and on your %{apiname} wall"
-        gift_posted_3_html: "<div title='%{appname} lack access to write on your %{apiname} wall. You can share your resources with your friends in here, but postings will only appear here and not on your %{apiname} wall. This means your message is likely to be seen by few friends. You should therefore allow %{appname} permission to write on your wall. %{appname} will only make the postings you ask for. Pictures are uploaded to %{apiname}. Pictures can not be uploaded without permission to write on your %{apiname} wall. Select hide if you do not want to see this message.' id='grant_write_div_%{provider}'>Can not post updates on your %{apiname} wall. <a href=\"javascript: {top.location.href='%{url}'}\">Allow %{appname} to post on my behalf!</a> <a href=\"%{hide_url}\" data-remote=\"true\" data-method=\"post\">(hide)</a></div>" # missing privileges
-        gift_posted_3b_html: "<div title='%{appname} lack access to write on your %{apiname} wall. You can share your resources with your friends in here, but postings will only appear here and not on your %{apiname} wall. This means your message is likely to be seen by few friends. You should therefore allow %{appname} permission to write on your wall. %{appname} will only make the postings you ask for. Pictures are uploaded to %{apiname}. Pictures can not be uploaded without permission to write on your %{apiname} wall. Select hide if you do not want to see this message.' id='grant_write_div_%{provider}'>Can not post updates on your %{apiname} wall. <a href=\"%{url}\" data-remote=\"true\" data-method=\"post\" data-confirm=\"%{confirm}\">Allow %{appname} to post on my behalf!</a>  <a href=\"%{hide_url}\" data-remote=\"true\" data-method=\"post\">(hide)</a></div>" # missing privileges
+        gift_posted_3_html: "<div title='%{appname} lack access to write on your %{apiname} wall. You can share your resources with your friends in here, but postings will only appear here and not on your %{apiname} wall. This means your message is likely to be seen by few friends. You should therefore allow %{appname} permission to write on your wall. %{appname} will only make the postings you ask for. Pictures are uploaded to %{apiname}. Pictures cannot be uploaded without permission to write on your %{apiname} wall. Select hide if you do not want to see this message.' id='grant_write_div_%{provider}'>cannot post updates on your %{apiname} wall. <a href=\"javascript: {top.location.href='%{url}'}\">Allow %{appname} to post on my behalf!</a> <a href=\"%{hide_url}\" data-remote=\"true\" data-method=\"post\">(hide)</a></div>" # missing privileges
+        gift_posted_3b_html: "<div title='%{appname} lack access to write on your %{apiname} wall. You can share your resources with your friends in here, but postings will only appear here and not on your %{apiname} wall. This means your message is likely to be seen by few friends. You should therefore allow %{appname} permission to write on your wall. %{appname} will only make the postings you ask for. Pictures are uploaded to %{apiname}. Pictures cannot be uploaded without permission to write on your %{apiname} wall. Select hide if you do not want to see this message.' id='grant_write_div_%{provider}'>cannot post updates on your %{apiname} wall. <a href=\"%{url}\" data-remote=\"true\" data-method=\"post\" data-confirm=\"%{confirm}\">Allow %{appname} to post on my behalf!</a>  <a href=\"%{hide_url}\" data-remote=\"true\" data-method=\"post\">(hide)</a></div>" # missing privileges
         gift_posted_4_html: "Gift posted in here but not on your %{apiname} wall. Duplicate status message on %{apiname} wall"
         gift_posted_5_html: "Gift posted in here but not on your %{apiname} wall. Posting on %{apiname} has not yet been implemented"
         gift_posted_6_html: "Gift with picture was not posted on your %{apiname} wall. Internal error. Picture was not found."
         gift_posted_7_html: "Gift was not posted on your %{apiname} wall. Error in deep <a href='%{link}'>link</a>. Error: \"%{error}\"."
         gift_posted_8_html: "Gift posted here but not on your %{apiname}. You have removed %{appname} from %{apiname} and you no longer have access to %{appname} using your %{apiname} account. You should refresh the page as access rights have been changed."
         gift_posted_9_html: "Gift posted here but not on your %{apiname} wall. Post on %{apiname} requires a photo attachment or that text to image convert is enabled (API_TEXT_TO_PICTURE)."
-        fb_pic_post_unknown_problem: "Gift was posted in here and on your %{apiname} wall. Picture was uploaded to your %{apiname} wall but %{appname} did not have permission to read the picture on your %{apiname} wall and can not display the picture in here. Maybe you have changed permissions for %{appname}."
-        fb_pic_post_missing_permission_html: "<div title='%{appname} lack access to read posts on your %{apiname} wall. You can upload gift with pictures to %{apiname} but pictures can not be displayed in %{appname}. You can change visibility for %{appname} posts to public or you could grant %{appname} permission to read posts on your wall. %{appname} will only use read posts permission to display pictures witin %{appname}.'>Gift was posted in here and on your %{apiname} wall but picture can not be displayed. <a href=\"javascript: {top.location.href='%{url}'}\">Allow %{appname} to read posts on my %{apiname} wall!</a></p>"
-        fb_msg_post_unknown_problem: "Gift was posted in here and on your %{apiname} wall. Picture was uploaded to your %{apiname} wall but %{appname} did not have permission to read the picture on your %{apiname} wall and can not display the picture in here. Maybe you have changed permissions for %{appname}."
-        fb_msg_post_missing_permission_html: "<div title='%{appname} lack access to read posts on your %{apiname} wall. You can upload gift with pictures to %{apiname} but pictures can not be displayed in %{appname}. You can change visibility for %{appname} posts to public or you could grant %{appname} permission to read posts on your wall. %{appname} will only use read posts permission to display pictures witin %{appname}.'>Gift was posted in here and on your %{apiname} wall but picture can not be displayed. <a href=\"javascript: {top.location.href='%{url}'}\">Allow %{appname} to read posts on my %{apiname} wall!</a></p>"
+        fb_pic_post_unknown_problem: "Gift was posted in here and on your %{apiname} wall. Picture was uploaded to your %{apiname} wall but %{appname} did not have permission to read the picture on your %{apiname} wall and cannot display the picture in here. Maybe you have changed permissions for %{appname}."
+        fb_pic_post_missing_permission_html: "<div title='%{appname} lack access to read posts on your %{apiname} wall. You can upload gift with pictures to %{apiname} but pictures cannot be displayed in %{appname}. You can change visibility for %{appname} posts to public or you could grant %{appname} permission to read posts on your wall. %{appname} will only use read posts permission to display pictures witin %{appname}.'>Gift was posted in here and on your %{apiname} wall but picture cannot be displayed. <a href=\"javascript: {top.location.href='%{url}'}\">Allow %{appname} to read posts on my %{apiname} wall!</a></p>"
+        fb_msg_post_unknown_problem: "Gift was posted in here and on your %{apiname} wall. Picture was uploaded to your %{apiname} wall but %{appname} did not have permission to read the picture on your %{apiname} wall and cannot display the picture in here. Maybe you have changed permissions for %{appname}."
+        fb_msg_post_missing_permission_html: "<div title='%{appname} lack access to read posts on your %{apiname} wall. You can upload gift with pictures to %{apiname} but pictures cannot be displayed in %{appname}. You can change visibility for %{appname} posts to public or you could grant %{appname} permission to read posts on your wall. %{appname} will only use read posts permission to display pictures witin %{appname}.'>Gift was posted in here and on your %{apiname} wall but picture cannot be displayed. <a href=\"javascript: {top.location.href='%{url}'}\">Allow %{appname} to read posts on my %{apiname} wall!</a></p>"
         # util.missing_api_picture_urls - feedback from browser with invalid image references
         mis_api_pic_exception: "System error when checking moved or deleted images. Error: \"%{error}\". More information in log."
         mis_api_pic_no_param: "System error when checking moved or deleted images. Did not receive a list with image ids."
@@ -168,8 +168,8 @@ en:
         confirm_grant_write: "Allow post on your %{apiname} wall?"
         grant_write_ok: "%{appname} was granted access to write on your %{apiname} wall."
         hide_grant_write_ok: "%{appname} will in future not ask for permission to make postings on your %{apiname} wall. You can later allow %{appname} to make postings on your %{apiname} wall by checking \"Post?\" checkbox on \"Log in\" page."
-        delete_user_id_not_found: "Can not delete user account. User was not found. Maybe user account already has been deleted."
-        delete_user_invalid_id: "Invalid request. Can not delete user account. User account has not been delete marked."
+        delete_user_id_not_found: "Cannot delete user account. User was not found. Maybe user account has already been deleted."
+        delete_user_invalid_id: "Invalid request. Cannot delete user account. User account has not been delete marked."
      languages:
         da: "Danish"
         en: "Engelsk"
@@ -187,7 +187,7 @@ en:
         callback_unknown_provider: "Login failed. Received unknown login provider %{provider}"
         callback_token_missing: "Login failed. Did not receive access token from %{provider}"
         callback_uid_missing: "Login failed. Did not receive user id from %{provider}"
-        callback_gofreerev_uid: "Login failed. uid gofreerev can not be used"
+        callback_gofreerev_uid: "Login failed. uid gofreerev cannot be used"
         callback_user_name_missing_google: "Login failed. Did not receive username from google. Maybe scope userinfo.profile is missing for provider"
         callback_user_name_missing: "Login failed. Did not receive username from %{provider}"
         find_or_create_from_auth_hash: "System error. Invalid response from user update after login"
@@ -202,13 +202,13 @@ en:
         log_out_link_text: "log out"
         log_in_out_title0: "Connect to %{appname} with your %{apiname} account"
         log_in_out_title1: "Disconnect from %{appname} and return to %{apiname}"
-        log_in_out_title2: "Close your %{apiname} connection to %{appname}. Note that your are connected to %{appname} with an other login provider and that you after %{apiname} \"log out\" still can use %{appname}. Note also that \"log out\" here does NOT log your out of %{apiname}. Use \"log out\" function at %{apiname} if your also wish to log out of %{apiname}."
+        log_in_out_title2: "Close your %{apiname} connection to %{appname}. Note that your are connected to %{appname} with another login provider and that after %{apiname} \"log out\" you can still use %{appname}. Note also that \"log out\" here does NOT log you out of %{apiname}. Use \"log out\" function at %{apiname} if your also wish to log out of %{apiname}."
         access_th: "Access"
         access_th_title: "You can in this column see a summary of the access you have given %{appname}. Use the links below to review app settings at your login provider."
-        access_title_0: "Unknown access. You are not aonnected to %{appname} with a %{apiname} account. Use this link to review what access you may have given %{appname}. Opens in a new browser tab."
+        access_title_0: "Unknown access. You are not connected to %{appname} with a %{apiname} account. Use this link to review what access you may have given %{appname}. Opens in a new browser tab."
         access_title_1: "%{appname} has read access to your %{apiname} profile information. Use this link to review what access you have given %{appname}. Opens in a new browser tab."
         access_title_2: "%{appname} can make post on your %{apiname} wall and can read your profile information. Use this link to review what access you have given %{appname}. Opens in a new browser tab."
-        access_title_3: "%{appname} has read access to your %{apiname} profile information. %{appname} also has write access to your twitter wall, but this access will not be used before you allow it. Use this link to review what access you have given %{appname}. Opens in a new browser tab."
+        access_title_3: "%{appname} has read access to your %{apiname} profile information. %{appname} also has write access to your twitter wall, but this access will not be used until you allow it. Use this link to review what access you have given %{appname}. Opens in a new browser tab."
         access_link_text_0: "unknown"
         access_link_text_1: "read"
         access_link_text_2: "read+write"
@@ -217,7 +217,7 @@ en:
         post_th_title: "Use check boxes in this column to allow or prevent post on login provider walls. You might later be asked for more permissions if you select to allow post on your login providers wall."
         remove_cookies_link_text: "Remove cookies"
      destroy:
-        logged_off: "Connection with %{apiname} has been closed. Note that you are still connected to %{appname} with an other login provider. Use links in this page to log in/out."
+        logged_off: "Connection with %{apiname} has been closed. Note that you are still connected to %{appname} with another login provider. Use links in this page to log in/out."
         already_logged_off: "Already logged out. Use links on this page to log in or to return to login API. Close browser to remove session cookie."
         unknown_provider: "System error. Unknown login provider when logging off"
 
@@ -227,7 +227,7 @@ en:
      index:
         invalid_state_login: "Login from facebook failed. Possible \"Cross-site Request Forgery\" problem."
         invalid_state_status_update: "Possible \"Cross-site Request Forgery\" problem when asking for write access to facebook wall."
-        invalid_state_read_stream: "Possible \"Cross-site Request Forgery\" problem when asking for read access to facebook væg."
+        invalid_state_read_stream: "Possible \"Cross-site Request Forgery\" problem when asking for read access to facebook wall."
         invalid_state_other: "Possible \"Cross-site Request Forgery\" problem."
         find_or_create_from_auth_hash: "System error. Invalid response from user update after login"
         user_denied_login: "System error. Login from facebook failed."
@@ -258,7 +258,7 @@ en:
   about:
      index:
         about_header: "About %{appname}"
-        about_text_html: "%{appname} is a demo app with bid on key concepts (gift network, free money and negative rate) from Charles Eisenstein's book Sacred Economics. %{appname} is \"green\" software in the sense that it runs on a small 7w plug computer and try to reduce the environmental impact by promoting recycling. %{appname} is open source and is freely available under the MIT license on Github. It is my hope that others can use and improve my ideas in this and in other open source projects."
+        about_text_html: "%{appname} is a demo app with bid on key concepts (gift network, free money and negative rate) from Charles Eisenstein's book Sacred Economics. %{appname} is \"green\" software in that way that it runs on a small 7w plug computer and try to reduce the environmental impact by promoting recycling. %{appname} is open source and is freely available under the MIT license on Github. It is my hope that others can use and improve my ideas in this and in other open source projects."
         betatest_header: "%{appname} betatest"
         betatest_text_html: "%{appname} is in beta testing, but all functions are not yet fully implemented. There is a limit of %{max_users} active users during the beta test. Feedback is very welcome on <a href='https://github.com/jaros1/gofreerev-fb/issues' target='_blank'>GitHub</a> or by <a href=\"mailto:dev1@gofreerev.com\">email</a>."
         cookies_header: "Cookies"
@@ -266,7 +266,7 @@ en:
         disclaimer_header: "Disclaimer"
         disclaimer_text_html: "MIT License disclaimer. The software is provided \"as is\", without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose and noninfringement. In no event shall %{appname} be liable for any claim, damages or other liability, whether in an action of contract, tort or otherwise, arising from, out of or in connection with %{appname} or the use or other dealings in %{appname}."
         privacy_header: "Privacy"
-        privacy_text_html: "The following information is downloaded to %{appname}. From your login provider user profile is downloaded user ID, name, links to profile and profile picture, language, country, friends and friends list. From friend list is downloaded user ID, name, link to profiles and profile picture and number of friends for each of your friends. From the browser is uploaded current time zone. In the game %{appname} saves posts, comments, and your current balance in free money. All information download or entered in %{appname} is stored encrypted, are not used for advertising or personalization and are not given to third parties.<br><br>In %{appname} friends lists determine who can see what. You can see posts and current balance in free money for your friends. I posts from your friends, you can see comments from friends of friends. The only thing you can see for friends of friends is their name, profile picture and link to their login provider profile. There is no such thing as public in %{appname}. Posts are created across multiple login providers at the same time follow the above rules. Notice that you in such a post can see comments from your friend's friends from another login provider.<br><br>Created posts and comments can be deleted at any time, either one by one or by closing your %{appname} account. Please note that downloaded and entered data is not deleted when you remove or block %{appname} at your login provider. Close therefore first <a href='/users?friends=me'>your account</a> in %{appname} and then remove or block %{appname} at your login provider."
+        privacy_text_html: "The following information is downloaded to %{appname}. From your login provider user profile are downloaded user ID, name, links to profile and profile picture, language, country, friends and friends list. From friends list is downloaded user ID, name, link to profiles and profile picture and number of friends for each of your friends. From the browser is uploaded current time zone. In the game %{appname} are saved posts, comments, and your current balance in free money. All information download or entered in %{appname} is stored encrypted, is not used for advertising or personalization and is not given to third parties.<br><br>In %{appname} friends lists determine who can see what. You can see posts and current balance in free money for your friends. In posts from your friends, you can see comments from friends of friends. The only thing you can see for friends of friends is their name, profile picture and link to their login provider profile. There is no such thing as public in %{appname}. Posts created across multiple login providers at the same time follow the above rules. Notice that in such a post you can see comments from your friends' friends from another login provider.<br><br>Created posts and comments can be deleted at any time, either one by one or by closing your %{appname} account. Please note that downloaded and entered data is not deleted when you remove or block %{appname} at your login provider. Therefore do first close <a href='/users?friends=me'>your account</a> in %{appname} and then remove or block %{appname} at your login provider."
 
   # comments controller
   comments:
@@ -274,16 +274,16 @@ en:
         invalid_request_no_comment_form: "Invalid request. System error. Comment form was not found."
         invalid_request_unknown_gift: "Invalid request. System error. Unknown id for gift."
         invalid_request_invalid_gift: "Invalid request. You have no access to this post. Please refresh web page."
-        deleted_user: "You account is being deleted and you can not create comments"
-        no_providers: "Comment was not created. No shared login providers. Could be a system error."
+        deleted_user: "You account is being deleted and you cannot create comments"
+        no_providers: "Comment was not created. No shared login providers. May be a system error."
         exception: "System error. Comment was not created. %{error}. More information available in log."
      index:
-        gift_id_is_missing: "Invalid request. gift_id is missing."
+        gift_id_is_missing: "Invalid request. Gift id. is missing."
         gift_not_found: "Invalid request. Gift was not found."
         gift_not_friends: "Invalid request. You are not allowed to see this gift."
-        first_comment_id_is_missing: "Invalid request. first_comment_id is missing."
+        first_comment_id_is_missing: "Invalid request. Comment id is missing."
         first_comment_not_found: "Invalid request. Comment was not found."
-        gift_comment_mismatch: "Invalid request. Gift and comment does not match."
+        gift_comment_mismatch: "Invalid request. Gift and comment do not match."
         exception: "System error. Could not get older comments. %{error}. More information in server log."
      api_comments2:
         like_gift: "Like"
@@ -319,9 +319,9 @@ en:
   # gift controller
   gifts:
      create:
-        deleted_user: "You account is being deleted and you can not create new posts"
+        deleted_user: "You account is being deleted and you cannot create new posts"
         file_upload_not_allowed: "File upload not allowed. %{appname} lack access to write on your %{apiname} wall."
-        unsupported_filetype: "Unsupported filetype %{filetype} ii file upload. Supported filetypes are jpg, gif, png and bmp."
+        unsupported_filetype: "Unsupported filetype %{filetype} in file upload. Supported filetypes are jpg, gif, png and bmp."
         file_is_too_big: "File is too big. Max allowed picture size is %{maxsize}."
         file_mv_error: "Post was created without picture. Picture upload failed. Error: \"%{error}\"."
         # gift_not_posted_<n> is used if gift was not saved in gifts table - should never happen
@@ -331,27 +331,27 @@ en:
         gift_not_posted_4: "Duplicate status message on %{apiname} wall"
         gift_not_posted_5: "Posting on %{apiname} has not yet been implemented"
         no_api_picture_url: "Picture uploaded, but did not get a picture url from #{apiname}"
-        no_api_walls: "Post was created here but not on any login provider wall. Your post will only been seen by friends that also uses %{appname}. You could go to \"Log in\" page and check read/write permissions to login provider wall and check if you have allowed post to login provider wall."
+        no_api_walls: "Post was created here but not on any login provider wall. Your post will been seen only by friends that also uses %{appname}. You may go to \"Log in\" page and check read/write permissions to login provider wall and check if you have allowed post to login provider wall."
      index:
         not_logged_in_flash: "Sorry. Page not available. Not logged in."
-        not_logged_in_text: "You are not logged in and you can not create wall postings."
+        not_logged_in_text: "You are not logged in and you cannot create wall postings."
         welcome_msg_after_login: "Welcome %{username} to %{appname}"
         create_gift_header_line: "Help each other and the environment. Share your resources. Give, rent, loan, sell."
-        price_title: "Price in virtual free money. Optional. Can be set now or later. Best set be buyer / receiver so that the price becomes a measure of how much the thing / help was appreciated. There is used free virtual national money in here with a negative interest. %{min_interest}% per year with a positive balance and %{max_interest}% per year for a negative balance. One goal of the negative rate is to ensure that money and resources circulates. The negative interest rate makes it possible with a society without growth, overconsumption and with plenty of leisure to all."
+        price_title: "Price in virtual free money. Optional. Can be set now or later. Best set be buyer / receiver so that the price becomes a measure of how much the thing / help was appreciated. Free virtual national money with a negative interest is being used here. %{min_interest}% per year with a positive balance and %{max_interest}% per year for a negative balance. One goal of the negative rate is to ensure that money and resources circulates. The negative interest rate makes it possible with a society without growth, overconsumption and with plenty of leisure to all."
         price_prompt: "Price:"
         price_free: "free"
         direction_giver_prompt: "Offers: "
         direction_receiver_prompt: "Seeks: "
-        description_title: "Text. Required. Describe what you offer or what you are looking for whether it is things or help. You decide whether you want to sell, buy, rent, lend or give things away for free. We are trading in virtuel free money. Since we are trading in virtuel money you are in practive always giving you give ting or receiving help for free. But your balance in free money changes. Posts are make on your wall and displayed to your friends or whom you have selected to view posts by this app. Your friends can comment on your post on your wall. The agreement should be finalized in here so your balance in free cash being updated."
+        description_title: "Text. Required. Describe what you offer or what you are looking for whether it is things or help. You decide whether you want to sell, buy, rent, lend or give things away for free. We are trading in virtuel free money. Since we are trading in virtuel money you are in practive always giving  your things away or receiving help for free. But your balance in free money changes. Posts are made on your wall and displayed to your friends or whom you have selected to view posts by this app. Your friends can comment on your post on your wall. The agreement should be finalized in here so your balance in free cash is being updated."
         description_prompt: "Text:"
         file_title_true: "Optional picture. Photos are an effective way to be seen by your friends. Picture upload takes some time as the picture is uploaded in 2 steps. First upload to %{appname} and then upload to your login provider wall. Please wait."
-        file_title_false: "Sorry. Picture upload is not possible. Pictures are uploaded to your login provider wall and %{appname} lack permission to write on your wall. Photos are an effective way to be seen by your friends. You can use link in top of this page if you wish to give %{appname} access to write on your wall. You can go to \"Log in\" page and select \"Opslag?\" for one or more login providers if you wish that %{appname} should post on your login provider wall."
+        file_title_false: "Sorry. Picture upload is not possible. Pictures are uploaded to your login provider wall and %{appname} lack permission to write on your wall. Photos are an effective way to be seen by your friends. You can use link in top of this page if you wish to give %{appname} access to write on your wall. You can go to \"Log in\" page and select \"Post?\" for one or more login providers if you wish that %{appname} should post on your login provider wall."
         file_prompt: "Picture:"
         gift_submit_button_text: "Create post"
-        pending_gift_popup_msg: "Change currency? Select Cancel if you wish to complete your wall posting. Select OK to ship the not saved posting and change currency."
+        pending_gift_popup_msg: "Change currency? Select Cancel if you wish to complete your wall posting. Select OK to ignore the not saved post and change currency."
         description_required_text: "Text is required."
         price_invalid_text: "Price is invalid. Only numbers, max 2 decimals, thousands separator not allowed."
-        no_gifts_was_found_html: "<p>There was not found any posts. Neither you nor your friends have even created<br />any posts here in %{appname}. To get started, you must now create a few posts<br />with something you want to share with your friends or with something you are looking<br />for or are missing, and that you think your friends might be able to help you.</p>"
+        no_gifts_was_found_html: "<p>There was not found any posts. Neither you nor your friends have yet created<br />any posts here in %{appname}. To get started, you must now create a few posts<br />with something you want to share with your friends or with something you are looking<br />for or are missing, and with which you think your friends might be able to help you.</p>"
         comment_comment_required_text: "Comment is required"
         comment_price_invalid_text: "Price is invalid. Only numbers, max 2 decimals, thousands separator not allowed."
      table_header_row:
@@ -382,7 +382,7 @@ en:
         new_deal_check_box_prompt: "Agreement proposal"
         price_prompt: "Price"
         price_free: "free"
-        new_proposal_title: "Use agreement proposal checkbox if you wish to make a deal proposal to %{username}. Enter a optional price if you wish to use free money in this deal. %{username} will be notified about your proposal and can accept or reject your offer."
+        new_proposal_title: "Use agreement proposal checkbox if you wish to make a deal proposal to %{username}. Enter an optional price if you wish to use free money in this deal. %{username} will be notified about your proposal and can accept or reject your offer."
      show:
         invalid_gift_id: "Invalid request. Unknown post id"
         no_access: "Invalid request. You are not allowed to see this post"
@@ -613,7 +613,7 @@ en:
         page_header_text_html: "<p>User information</p>"
         not_a_friend: "You can only see user information for your friends."
         top_text_friend_html: "%{username} balance information"
-        top_text_non_friend_html: "Detailed user information is only displayed to your friends. User info for %{username} can not be displayed. Use the above buttons if you want to add %{username} as a friend."
+        top_text_non_friend_html: "Detailed user information is only displayed to your friends. User info for %{username} cannot be displayed. Use the above buttons if you want to add %{username} as a friend."
         api_profile_link_text: "profile"
      user_nav_links:
         tabs_prompt: "Select tab:"
@@ -684,6 +684,7 @@ en:
         friend_status_text_b: "Blocked. Friend requests are ignored"
         last_login_prompt: "Last seen"
         last_login_text: "%{days} day(s) ago"
+        api_profile_link_not_implemented: "link to %{apiname} user profile not implemented"
      friend_action_buttons:
         add_api_friend: "Add %{apiname} friend"
         remove_api_friend: "Remove %{apiname} friend"
@@ -715,7 +716,7 @@ en:
      edit:
         invalid_request: "Invalid request."
         page_header_text_html: "<p>Update user information</p>"
-        language_title: "Select languahe"
+        language_title: "Select language"
         language_prompt: "Language"
         currency_title: "Select the currency you want to use for prices and balance (internal all amounts are stored in USD)."
         currency_prompt: "Currency"
@@ -724,11 +725,11 @@ en:
         share_balance_title: "Use this checkbox to enable and disable shared balance accross login providers. You should be logged in with all the login providers that you are using in %{appname} when you are updating this choice."
         share_balance_prompt: "Share balance?"
         log_out_title: "Close your %{apiname} connection to %{appname}. Remember to use \"log out\" function in %{apiname} if your also wish to log out of %{apiname}."
-        log_out_prompt: "Log ud"
+        log_out_prompt: "Log out"
         log_out_link_text: "log out"
         access_title: "Use this link to review what access you have given %{appname}. Opens in a new browser tab."
         access_prompt: "Access"
-        delete_account_title: "Delete all downloaded and entered data for your %{appname} %{apiname} account. May take a while if the case of lot of information and posts. It is only your data at %{appname} that will be deleted. Any post that %{appname} has made on your %{apiname} wall will not be deleted. Go to %{apiname} and remove %{appname} from list of apps when data has been deleted. Thank you for visiting %{appname}."
+        delete_account_title: "Delete all downloaded and entered data for your %{appname} %{apiname} account. May take a while if lot of information and posts. Only your data at %{appname} will be deleted. Any post that %{appname} has made on your %{apiname} wall will not be deleted. Go to %{apiname} and remove %{appname} from list of apps when data has been deleted. Thank you for visiting %{appname}."
         delete_account_prompt: "Delete account"
         delete_account_link_text: "delete"
         delete_account_link_confirm: "Delete account! All your posts, comments and downloaded information in %{appname} will be deleted. Continue?"
@@ -744,50 +745,50 @@ en:
   util:
      like_gift:
         invalid_action: "System error. Could not \"like\" post. Invalid action. More information in server log."
-        gift_deleted: "Can not \"like\" post. Post has been deleted. Please refresh the page."
+        gift_deleted: "Cannot \"like\" post. Post has been deleted. Please refresh the page."
         not_authorized: "System error. Could not \"like\" post. You are no longer allowed to see the post. Please refresh the page."
-        deleted_user: "Can not \"like\" post. Your user account is being deleted."
-        comment_deleted: "Can not \"like\" post. The post has been deleted. Please refresh the page."
+        deleted_user: "Cannot \"like\" post. Your user account is being deleted."
+        comment_deleted: "Cannot \"like\" post. The post has been deleted. Please refresh the page."
         not_allowed: "\"like\" post is not longer possible. Please refresh the page."
         exception: "System error. Could not \"like\" post. %{error}. More information in server log."
      unlike_gift:
         invalid_action: "System error. Could not remove \"like\" post. Invalid action. More information in server log."
-        gift_deleted: "Can not remove \"like\" post. Post has been deleted. Please refresh the page."
+        gift_deleted: "Cannot remove \"like\" post. Post has been deleted. Please refresh the page."
         not_authorized: "System error. Could not remove \"like\" post. You are no longer allowed to see the post. Please refresh the page."
-        deleted_user: "Can not remove \"like\" post. Your user account is being deleted."
-        comment_deleted: "Can not remove \"like\" post. The post has been deleted. Please refresh the page."
+        deleted_user: "Cannot remove \"like\" post. Your user account is being deleted."
+        comment_deleted: "Cannot remove \"like\" post. The post has been deleted. Please refresh the page."
         not_allowed: "Remove \"like\" post is not longer possible. Please refresh the page."
         exception: "System error. Could not remove \"like\" post. %{error}. More information in server log."
      follow_gift:
         invalid_action: "System error. Could not \"follow\" post. Invalid action. More information in server log."
-        gift_deleted: "Can not \"follow\" post. post has been deleted. Please refresh the page."
+        gift_deleted: "Cannot \"follow\" post. Post has been deleted. Please refresh the page."
         not_authorized: "System error. Could not \"follow\" post. You are no longer allowed to see the post. Please refresh the page."
-        deleted_user: "Can not \"follow\" post. Your user account is being deleted."
-        comment_deleted: "Can not \"follow\" post. The post has been deleted. Please refresh the page."
+        deleted_user: "Cannot \"follow\" post. Your user account is being deleted."
+        comment_deleted: "Cannot \"follow\" post. The post has been deleted. Please refresh the page."
         not_allowed: "\"follow\" post is not longer possible. Please refresh the page."
         exception: "System error. Could not \"follow\" post. %{error}. More information in server log."
      unfollow_gift:
         invalid_action: "System error. Could not remove \"follow\" post. Invalid action. More information in server log."
-        gift_deleted: "Can not remove \"follow\" post. post has been deleted. Please refresh the page."
+        gift_deleted: "Cannot remove \"follow\" post. Post has been deleted. Please refresh the page."
         not_authorized: "System error. Could not remove \"follow\" post. You are no longer allowed to see the post. Please refresh the page."
-        deleted_user: "Can not remove \"follow\" post. Your user account is being deleted."
-        comment_deleted: "Can not remove \"follow\" post. The post has been deleted. Please refresh the page."
+        deleted_user: "Cannot remove \"follow\" post. Your user account is being deleted."
+        comment_deleted: "Cannot remove \"follow\" post. The post has been deleted. Please refresh the page."
         not_allowed: "Remove \"follow\" is not longer possible. Please refresh the page."
         exception: "System error. Could not remove \"follow\" post. %{error}. More information in server log."
      hide_gift:
         invalid_action: "System error. Could not hide post. Invalid action. More information in server log."
-        gift_deleted: "Can not hide post. post has been deleted. Please refresh the page."
+        gift_deleted: "Cannot hide post. Post has been deleted. Please refresh the page."
         not_authorized: "System error. Could not hide post. You are no longer allowed to see the post. Please refresh the page."
-        deleted_user: "Can not hide post. Your user account is being deleted."
-        comment_deleted: "Can not hide post, The post has been deleted. Please refresh the page."
+        deleted_user: "Cannot hide post. Your user account is being deleted."
+        comment_deleted: "Cannot hide post, The post has been deleted. Please refresh the page."
         not_allowed: "Hide post is not longer possible. Please refresh the page."
         exception: "System error. Could not hide post. %{error}. More information in server log."
      delete_gift:
         invalid_action: "System error. Could not delete post. Invalid action. More information in server log."
-        gift_deleted: "Can not delete post. post has been deleted. Please refresh the page."
+        gift_deleted: "Cannot delete post. Post has been deleted. Please refresh the page."
         not_authorized: "System error. Could not delete post. You are no longer allowed to see the post. Please refresh the page."
-        deleted_user: "Can not delete post. Your user account is being deleted."
-        comment_deleted: "Can not delete post. The post has been deleted. Please refresh the page."
+        deleted_user: "Cannot delete post. Your user account is being deleted."
+        comment_deleted: "Cannot delete post. The post has been deleted. Please refresh the page."
         not_allowed: "Delete post is not longer possible. Please refresh the page."
         exception: "System error. Could not delete post. %{error}. More information in server log."
      cancel_new_deal:
@@ -796,7 +797,7 @@ en:
         gift_deleted: "Could not cancel proposal. Post has been deleted. Please refresh page."
         not_authorized: "System error. Could not cancel proposal. You are not allowed to see post. Please refresh page."
         deleted_user: "Could not cancel proposal. Your user account is being deleted."
-        comment_deleted: "Proposal has been deleted and can not be cancelled. Please refresh page."
+        comment_deleted: "Proposal has been deleted and cannot be cancelled. Please refresh page."
         not_allowed: "Sorry. It is no longer possible to cancel proposal. Please refresh page."
         ok: "Proposal has been cancelled."
         exception: "System error. Could not cancel proposal. %{error}. More information in server log."
@@ -806,7 +807,7 @@ en:
         gift_deleted: "Could not reject proposal. Post has been deleted. Please refresh page."
         not_authorized: "System error. Could not reject proposal. You are not allowed to see post. Please refresh page."
         deleted_user: "Could not reject proposal. Your user account is being deleted."
-        comment_deleted: "Proposal has been deleted and can not be rejected. Please refresh page."
+        comment_deleted: "Proposal has been deleted and cannot be rejected. Please refresh page."
         not_allowed: "Sorry. It is no longer possible to reject proposal. Please refresh page."
         ok: "Proposal has been rejected."
         exception: "System error. Could not reject proposal. %{error}. More information in server log."
@@ -816,8 +817,8 @@ en:
         gift_deleted: "Could not accept proposal. Post has been deleted. Please refresh page."
         not_authorized: "System error. Could not accept proposal. You are not allowed to see post. Please refresh page."
         deleted_user: "Could not accept proposal. Your user account is being deleted."
-        comment_deleted: "Proposal has been deleted and can not be accepted. Please refresh page."
+        comment_deleted: "Proposal has been deleted and cannot be accepted. Please refresh page."
         not_allowed: "Sorry. It is no longer possible to accept proposal. Please refresh page."
-        invalid_updated_by: "System error. Dit not found any valid \"updated by\" users."
+        invalid_updated_by: "System error. Did not find any valid \"updated by\" users."
         ok: "Proposal has been accepted."
         exception: "System error. Could not accept proposal. %{error}. More information in server log."

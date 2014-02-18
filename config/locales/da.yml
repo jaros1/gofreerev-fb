@@ -63,9 +63,9 @@ da:
         cookie_accept_text: "Ok"
         cookie_reject_text: "Afvis"
         cookie_ignore_text: "Ignorer"
-        page_footer_html: "%{appname} er et open source projekt. Kildekoden til %{appname} er offentlig tilgængelig på %{csv_link} og kan under MIT Licens anvendes af andre udviklere i deres open source projekter. Open source betyder, at der ingen hemmeligheder er omkring, hvordan denne app fungerer, og hvad der gemmes af oplysninger.<br /><br />Det er håbet, at der med tiden udvikles teknologi, der understøtter de mange spændende tanker i %{charles_eisenstein_link}'s bog %{sacred_economics_link}.<br />Bogen kan købes (engelsk) eller læses gratis online bl.a. i en svensk oversættelse."
+        page_footer_html: "%{appname} er et open source projekt. Kildekoden til %{appname} er offentlig tilgængelig på %{csv_link} og kan under MIT Licens anvendes af andre udviklere i deres open source projekter. Open source betyder, at der ingen hemmeligheder er omkring, hvordan denne app fungerer, og hvad der gemmes af oplysninger.<br /><br />Det er mit håb, at der med tiden udvikles teknologi, der understøtter de mange spændende tanker i %{charles_eisenstein_link}'s bog %{sacred_economics_link}.<br />Bogen kan købes (engelsk) eller læses gratis online bl.a. i en svensk oversættelse."
      page_header:
-        header_currency_title: "Saldo. Brug valuta valg-liste, hvis du ønsker din saldo vist i en anden valuta. Ens saldo i frie penge viser, hvor meget man har investeret i venner og fællesskab og er et mål for taknemmelighedsgæld. Hvem har givet/modtaget mest? Hvis tur er det til at modtage/give? En positiv saldo betyder, at man er god til at hjælpe andre, og at ens hjælp er blevet værdsat. En negativ saldo betyder, at man er god til at tage imod hjælp, og at man har sat pris på hjælpen. Der er ingen sammenhæng imellem, hvem der er rige/fattige i frie penge herinde, og hvem der er rige/fattige i den virkelige verden."
+        header_currency_title: "Saldo. Brug valuta valgliste, hvis du ønsker din saldo vist i en anden valuta. Ens saldo i frie penge viser, hvor meget man har investeret i venner og fællesskab og er et mål for taknemmelighedsgæld. Hvem har givet/modtaget mest? Hvis tur er det til at modtage/give? En positiv saldo betyder, at man er god til at hjælpe andre, og at ens hjælp er blevet værdsat. En negativ saldo betyder, at man er god til at tage imod hjælp, og at man har sat pris på hjælpen. Der er ingen sammenhæng imellem, hvem der er rige/fattige i frie penge herinde, og hvem der er rige/fattige i den virkelige verden."
         header_balance_prompt: "Saldo:"
         header_balance_free: 'frie'
         header_home_link_title: ''
@@ -87,22 +87,23 @@ da:
         title_friend: "%{username}/%{apiname}. Saldo %{balance}. Klik her for at se brugeroplysninger."
      invite_friend:
         invite_friend_prompt: "Inviter"
-        invite_friend_title: "%{username} anvender endnu ikke %{appname}. Brug link til at inviterer %{username} til at bruge %{appname}."
+        invite_friend_title: "%{username} anvender endnu ikke %{appname}. Brug link til at invitere %{username} til at bruge %{appname}."
         invite_friend_link_text: "link"
         invite_friend_mailto_link_text: "mail"
         invite_friend_mailto_email: "x"
         invite_friend_mailto_subject: "%{appname} spil invitation"
         invite_friend_mailto_body: "Kære %{to_username}\n\nJeg vil gerne inviterer dig til at prøve denne app.\n%{url}\n\nDet er et spil inspireret af Charles Eisenstein's bog Sacred Economics.\nSpillet går ud på at hjælpe hinanden, miljøet og om at skabe en ny og bedre slags penge.\n\nKH %{from_username}"
      invite_friends:
-        no_friends_was_found_html: "<p>Der blev ikke fundet nogle %{appname} venner. Du skal invitere en eller flere af dine gode<br />venner til at bruge %{appname}. Enten ved at sende en invitation med nedenstående link<br />eller ved at sende en personlig invitation til at bruge %{appname}. En personlig invitation<br />er det bedste, da mange mennesker vil afvise uopfordrede spil invitationer.</p>"
+        no_friends_was_found_html: "<p>Der blev ikke fundet nogle %{appname} venner. Du skal invitere en eller flere af dine gode<br />venner til at bruge %{appname}. Enten ved at sende en invitation med nedenstående link<br />eller ved at sende en personlig invitation til at bruge %{appname}. En personlig invitation<br />er det bedste, da mange mennesker vil afvise uopfordrede spil-invitationer.</p>"
         invite_friends_prompt: "Inviter venner:"
         invite_friends_link_title: "Brug dette link til at inviterer dine %{apiname} venner til at bruge %{appname}"
         invite_friends_message_title: "Inviter dine venner til %{appname}"
-        invite_friends_message_body: "Prøv et spil om at hjælpe hinanden og dele hinandens ressourcer på en ny anderledes måde og et spil med en ny slags penge, der kan forandre vores verden inspireret af ideer fra Charles Eisensteins bog Sacred Economics"
+        invite_friends_message_body: "Prøv et spil om at hjælpe hinanden og dele hinandens ressourcer på en ny anderledes måde og et spil med en ny slags penge, der kan forandre vores verden, inspireret af ideer fra Charles Eisensteins bog Sacred Economics"
+
         invite_friends_mailto_email: "x"
         invite_friends_mailto_subject: "%{appname} spil invitation"
-        invite_friends_mailto_body: "Kære ven\n\nJeg vil gerne inviterer dig til at prøve denne app.\n%{url}\n\nDet er et spil inspireret af Charles Eisenstein's bog Sacred Economics.\nSpillet går ud på at hjælpe hinanden, miljøet og om at skabe en ny og bedre slags penge.\n\nKH %{from_username}"
-        invalid_call: "ugyldigt kald - login bruger manglende i kald af invite_friends_url"
+        invite_friends_mailto_body: "Kære ven\n\nJeg vil gerne invitere dig til at prøve denne app.\n%{url}\n\nDet er et spil inspireret af Charles Eisenstein's bog Sacred Economics.\nSpillet går ud på at hjælpe hinanden, miljøet og om at skabe en ny og bedre slags penge.\n\nKH %{from_username}"
+        invalid_call: "ugyldigt kald - login bruger manglede i kald af invite_friends_url"
         not_implemented: "inviter %{apiname} venner er endnu ikke implementeret"
      providers:
         blank: "login udbyder" # not logged in or generic text used in provider_downcase and provider_camelize methods
@@ -111,7 +112,7 @@ da:
         ajax_task_invalid_response: "Systemfejl. Ugyldigt svar fra opgave \"%{task}\". Skal være Nil eller gyldigt input til translate." # task, response and exception. response is invalid response from opgave and exception is ruby exception from translate
         ajax_task_missing_translate_key: "System error. Oversættelse mangler for \"%{key}\" for opgave \"%{task}\"."
         ajax_task_missing_translate_arg: "System error. Variabel %{argument} mangler i oversættelse af \"%{key}\" for opgave \"%{task}\"."
-        update_timezone_invalid_user_id: "Systemfejl. Ugyldigt user_id %{user_id} ved opdatering af tidszone information" # user_id
+        update_timezone_invalid_user_id: "Systemfejl. Ugyldigt bruger-id %{user_id} ved opdatering af tidszone information" # user_id
         update_timezone_timezone_missing: "Systemfejl. Modtag ikke tidszone information fra browser/javascript"
         update_timezone_save_error: "Systemfejl. Kunne ikke opdatere brugerinformation om tidszone: \"%{errors}\"" # error = user errors.
         profile_image_invalid_user: "Systemfejl. Ugyldigt bruger id. %{user_id} ved download af profilbillede" # user_id
@@ -126,13 +127,13 @@ da:
         profile_image_cp1_failed: "Systemfejl. Kunne ikke indsætte nyt profilbillede modtaget fra %{provider}: \"%{error}\""
         profile_image_cp2_failed: "Systemfejl. Kunne ikke indsætte nyt profilbillede modtaget fra %{provider}: \"%{error}\""
         too_few_exchange_rates: "Advarsel. Opslag af dagens valuta kurser fra %{bank} fejlede. Forventede >= %{expected} kurser. Modtag %{found} kurser"
-        post_login_task_not_found: "Systemfejl. Fandt ikke noget post login task util.post_login_%{provider} for login udbyder %{provider}. Der blev ikke downloaded nogle venneliste fra %{provider}."
-        post_login_user_id_not_found: "Advarsel. Fandt ikke bruger id. Kunne ikke hente venneliste fra %{provider}"
+        post_login_task_not_found: "Systemfejl. Fandt ikke nogen util.post_login_%{provider} opgave for login udbyder %{provider}. Der blev ikke downloaded nogle venneliste fra %{provider}."
+        post_login_user_id_not_found: "Advarsel. Fandt ikke bruger-id. Kunne ikke hente venneliste fra %{provider}"
         post_login_token_not_found: "Advarsel. Fandt ikke adgangs \"billet\". Kunne ikke hente venneliste fra %{provider}"
         init_api_client_missing: "Systemfejl. Kan ikke kommunikerer med #{provider} da privat method init_api_client_%{provider} mangler i app. controller."
         post_login_new_user: "Din venneliste er klar til brug. Opdater siden, så du kan se eventuelle opslag fra dine venner."
-        google_access_not_configured: "Fejl ved hentning af venneliste fra Google+ API. Access Not Configured. Tjek liste ved API opsætning: 1) Tjek log for mere information. 2) Tjek at application_name og application_version sættes, når Google::APIClient initialiseres. 3) Tjek at status er ON for Google+ API i Google Cloud Console"
-        google_insufficient_permission: "Fejl ved hentning af venneliste fra Google+ API. Insufficient Permission. Tjek liste ved API opsætning: 1) scope plus.login mangler i provider opsætning for google"
+        google_access_not_configured: "Fejl ved hentning af venneliste fra Google+ API. Access Not Configured. Tjek-liste ved API opsætning: 1) Tjek log for mere information. 2) Tjek at application_name og application_version sættes, når Google::APIClient initialiseres. 3) Tjek at status er ON for Google+ API i Google Cloud Console"
+        google_insufficient_permission: "Fejl ved hentning af venneliste fra Google+ API. Manglende adgang. Tjek liste ved API opsætning: 1) scope plus.login mangler i provider opsætning for google"
         google_other_errors: "Fejl ved hentning af venneliste fra Google+ API. \"%{error}\""
         linkedin_access_denied: "Fejl ved hentning af connections fra LinkedIn API. Access to connections denied. Tjek liste ved API opsætning. 1) scope r_network mangler i provider opsætning for linkedin"
         post_on_api_unknown_gift_id: "Ukendt id %{id} ved opslag på %{provider} væg"
@@ -140,20 +141,20 @@ da:
         post_on_api_old_gift: "Gammelt id %{id} ved opslag på %{provider} væg"
         no_local_picture: "Ugyldigt id %{id} ved opslag på %{provider} væg (2)"
         local_picture_not_found: "Ugyldigt id %{id} ved opslag på %{provider} væg (3)"
-        gift_posted_1_html: "Opslag opretter her, men ikke på din %{apiname} væg (%{error})" # unhandled error message
-        gift_posted_2_html: "Opslag opretter her og på din %{apiname} væg"
+        gift_posted_1_html: "Opslag oprettet her, men ikke på din %{apiname} væg (%{error})" # unhandled error message
+        gift_posted_2_html: "Opslag oprettet her og på din %{apiname} væg"
         gift_posted_3_html: "<div title='%{appname} mangler adgang til at skrive på din %{apiname} væg. Du kan godt dele dine ressourcer med dine venner herinde, men opslag vil kun blive vist her og ikke på din %{apiname} væg. Dvs. dine opslag vil sandsynligvis kun blive set af få venner. Du kan give %{appname} tilladelse til at skrive på din %{apiname} væg. %{appname} laver kun de opslag, du selv beder om. Billeder gemmes kun hos din login udbyder (i dette tilfælde %{apiname}). Uden adgang til at skrive på mindst en væg kan der ikke vedlægges billeder i forbindelse med opslag herinde. Vælg skjul, hvis du ikke ønsker at se denne meddelelse.' id='grant_write_div_%{provider}'>Kan ikke lave opslag på din %{apiname} væg. <a href=\"javascript: {top.location.href='%{url}'}\">Giv %{appname} lov til at lave opslag på min %{apiname} væg!</a> <a href=\"%{hide_url}\" data-remote=\"true\" data-method=\"post\">(skjul)</a></div>" # missing privileges
         gift_posted_3b_html: "<div title='%{appname} mangler adgang til at skrive på din %{apiname} væg. Du kan godt dele dine ressourcer med dine venner herinde, men opslag vil kun blive vist her og ikke på din %{apiname} væg. Dvs. dine opslag vil sandsynligvis kun blive set af få venner. Du kan give %{appname} tilladelse til at skrive på din %{apiname} væg. %{appname} laver kun de opslag, du selv beder om. Billeder gemmes kun hos din login udbyder (i dette tilfælde %{apiname}). Uden adgang til at skrive på mindst en væg kan der ikke vedlægges billeder i forbindelse med opslag herinde. Vælg skjul, hvis du ikke ønsker at se denne meddelelse.' id='grant_write_div_%{provider}'>Kan ikke lave opslag på din %{apiname} væg. <a href=\"%{url}\" data-remote=\"true\" data-method=\"post\" data-confirm=\"%{confirm}\">Giv %{appname} lov til at lave opslag på min %{apiname} væg!</a>  <a href=\"%{hide_url}\" data-remote=\"true\" data-method=\"post\">(skjul)</a></div>" # missing privileges
-        gift_posted_4_html: "Opslag opretter her, men ikke på din %{apiname} væg. Opslag findes allerede på %{apiname} væg"
-        gift_posted_5_html: "Opslag opretter her, men ikke på din %{apiname} væg. Opslag på %{apiname} væg er endnu ikke implementeret"
+        gift_posted_4_html: "Opslag oprettet her, men ikke på din %{apiname} væg. Opslag findes allerede på %{apiname} væg"
+        gift_posted_5_html: "Opslag oprettet her, men ikke på din %{apiname} væg. Opslag på %{apiname} væg er endnu ikke implementeret"
         gift_posted_6_html: "Opslag med billede kunne ikke oprettes på din %{apiname} væg. Intern systemfejl. Fandt ikke billede."
         gift_posted_7_html: "Opslag kunne ikke oprettes på din %{apiname} væg. Fejl i dybt <a href='%{link}'>link</a>. Fejlmeddelelse \"%{error}\"."
-        gift_posted_8_html: "Opslag opretter her, men ikke på din %{apiname} væg. Du har fjernet %{appname} fra %{apiname}, og du har derfor ikke længere adgang til %{appname} vha. din %{apiname} konto. Du bør Opdatere siden, da adgangsrettigheder er blevet ændret."
-        gift_posted_9_html: "Opslag opretter her, men ikke på din %{apiname} væg. Opslag på %{apiname} kræver et vedhæftet billede eller at tekst til billede konvertering er slået til (API_TEXT_TO_PICTURE)."
+        gift_posted_8_html: "Opslag oprettet her, men ikke på din %{apiname} væg. Du har fjernet %{appname} fra %{apiname}, og du har derfor ikke længere adgang til %{appname} vha. din %{apiname} konto. Du bør Opdatere siden, da adgangsrettigheder er blevet ændret."
+        gift_posted_9_html: "Opslag oprettet her, men ikke på din %{apiname} væg. Opslag på %{apiname} kræver et vedhæftet billede eller at tekst til billede konvertering er slået til (API_TEXT_TO_PICTURE)."
         fb_pic_post_unknown_problem: "Opslag opretter her og på din %{apiname} væg. Foto blev uploaded til din %{apiname} væg, men %{appname} mangler rettigheder til at se billedet på din %{apiname} væg og kan derfor ikke vise foto herinde. Måske du har ændret rettighedsindstillinger for %{appname}."
         fb_pic_post_missing_permission_html: "<div title='Foto blev uploaded til din %{apiname} væg, men %{appname} mangler rettigheder til at se billedet på din %{apiname} væg og kan derfor ikke vise foto herinde. Du kan løse dette problem ved enten at ændre synlighed for %{appname} opslag til offentlig eller ved at give %{appname} lov til at læse opslag på din %{apiname} væg.'>Opslag opretter herinde og på din %{apiname} væg, men foto kan ikke vises her. <a href=\"javascript: {top.location.href='%{url}'}\">Giv Gofreerev lov til at læse opslag på min væg!</a></div>"
         fb_msg_post_unknown_problem: "Opslag opretter her og på din %{apiname} væg, men %{appname} mangler rettigheder til at se opslaget på din %{apiname} væg. Måske du har ændret rettighedsindstillinger for %{appname}."
-        fb_msg_post_missing_permission_html: "<div title='Opslag blev oprettet på din %{apiname} væg, men %{appname} mangler rettigheder til at se opslaget på din %{apiname}. Du kan løse dette problem ved enten at ændre synlighed for %{appname} opslag til offentlig eller ved at give %{appname} lov til at læse opslag på din %{apiname} væg.'>Opslag oprettet på din %{apiname} væg, men %{appname} mangler læseadgang til din %{apiname} væg. <a href=\"javascript: {top.location.href='%{url}'}\">Giv Gofreerev lov til at læse opslag på min væg!</a></div>"
+        fb_msg_post_missing_permission_html: "<div title='Opslag blev oprettet på din %{apiname} væg, men %{appname} mangler rettigheder til at se opslaget på din %{apiname}. Du kan løse dette problem ved enten at ændre synlighed for %{appname} opslag til offentlig eller ved at give %{appname} lov til at læse opslag på din %{apiname} væg.'>Opslag oprettet på din %{apiname} væg, men %{appname} mangler læseadgang til din %{apiname} væg. <a href=\"javascript: {top.location.href='%{url}'}\">Giv %{apiname} lov til at læse opslag på din væg!</a></div>"
         # util.missing_api_picture_urls - feedback from browser with invalid image references
         mis_api_pic_exception: "Systemfejl ved tjek af flyttede eller slettede billeder. Fejl \"%{error}\". Mere information i log."
         mis_api_pic_no_param: "Systemfejl ved tjek af flyttede eller slettede billeder. Modtag ingen liste med billed id'er."
@@ -170,7 +171,7 @@ da:
         grant_write_ok: "%{appname} fik tilladelse til at lave opslag på din %{apiname} væg."
         hide_grant_write_ok: "%{appname} vil fremover ikke bede om tilladelse til at lave opslag på din %{apiname} væg. Du kan på et senere tidspunkt give %{appname} lov til at lave opslag på din %{apiname} væg ved at sætte hak i Opslag? tjekbox på \"Log ind\" siden."
         delete_user_id_not_found: "Kan ikke slette brugerkonto. Brugerkonto blev ikke fundet. Kontoen er evt. allerede blevet slettet."
-        delete_user_invalid_id: "Ugyldigt kald. Kan ikke slette brugerkonto, da den ikke er blevet slet- mærkeret."
+        delete_user_invalid_id: "Ugyldigt kald. Kan ikke slette brugerkonto, da den ikke er blevet slet- markeret."
      languages:
         da: "Dansk"
         en: "Engelsk"
@@ -201,7 +202,7 @@ da:
         connect_th_title: "Brug links i denne kolonne til at oprette / afbryde forbindelse til login-udbyder. Bemærk, at du godt kan være forbundet til flere login-udbydere på samme tid, men højst en gang for hver login-udbyder."
         log_in_link_text: "log ind"
         log_out_link_text: "log ud"
-        log_in_out_title0: "Opret adgang til %{appname} ved hjælp af din %{apiname} konto"
+        log_in_out_title0: "Opret adgang til %{appname} ved hjælp af din %{apiname} konto."
         log_in_out_title1: "Afbryd adgang til %{appname} og returner til %{apiname}"
         log_in_out_title2: "Afbryd adgang til %{appname} ved hjælp af din %{apiname} konto. Bemærk, at du har adgang til %{appname} med flere login-udbydere, og at du efter %{apiname} \"log ud\" stadigvæk vil kunne bruge %{appname}. Bemærk desuden, at %{apiname} \"log ud\" her IKKE logger dig ud af %{apiname}. Brug \"log ud\" funktionalitet i %{apiname}, hvis du også ønsker at logge ud af %{apiname}."
         access_th: "Adgang"
@@ -209,7 +210,7 @@ da:
         access_title_0: "Ukendt adgang. Du er i øjeblikket ikke forbundet til %{appname} vha. en %{apiname} konto. Brug dette link til at kontrollere, hvilken adgang du evt. har givet %{appname}. Side åbnes i et nyt faneblad i din browser."
         access_title_1: "%{appname} har i øjeblikket læseadgang til dine %{apiname} profiloplysninger. Brug dette link til at kontrollere, hvilken adgang du har givet %{appname}. Side åbnes i et nyt faneblad i din browser."
         access_title_2: "%{appname} kan lave opslag på dine vegne og har læseadgang til dine %{apiname} profiloplysninger. Brug dette link til at kontrollere, hvilken adgang du har givet %{appname}. Side åbnes i et nyt faneblad i din browser."
-        access_title_3: "%{appname} har læsedgang til dine %{apiname} profil oplysninger. %{appname} har også skriveadgang til din %{apiname} væg, men denne adgang vil ikke blive benyttet, før du giver tilladelse til dette. Brug dette link til at kontrollere, hvilken adgang du har givet %{appname}. Side åbnes i et nyt faneblad i din browser."
+        access_title_3: "%{appname} har læseadgang til dine %{apiname} profil oplysninger. %{appname} har også skriveadgang til din %{apiname} væg, men denne adgang vil ikke blive benyttet, før du giver tilladelse til dette. Brug dette link til at kontrollere, hvilken adgang du har givet %{appname}. Side åbnes i et nyt faneblad i din browser."
         access_link_text_0: "ukendt"
         access_link_text_1: "læs"
         access_link_text_2: "læs+skriv"
@@ -231,7 +232,7 @@ da:
         invalid_state_status_update: "Muligt \"Cross-site Request Forgery\" problem ved anmodning om skriveadgang til facebook væg."
         invalid_state_read_stream: "Muligt \"Cross-site Request Forgery\" problem ved anmodning om læseadgang til facebook væg."
         invalid_state_other: "Muligt \"Cross-site Request Forgery\" problem."
-        find_or_create_from_auth_hash: "Systemfejl. Ugyldigt svar fra bruger opdatering efter login."
+        find_or_create_from_auth_hash: "Systemfejl. Ugyldigt svar fra brugeropdatering efter login."
         user_denied_login: "Systemfejl. Login fra facebook fejlede."
         user_denied_status_update: "%{appname} fik ikke tilladelse til at lave opslag på din facebook-væg."
         user_denied_read_stream: "%{appname} fik ikke tilladelse til at læse opslag på din facebook-væg."
@@ -268,16 +269,16 @@ da:
         disclaimer_header: "Ansvarsfraskrivelse"
         disclaimer_text_html: "MIT License ansvarsfraskrivelse. Softwaren leveres \"som den er\", uden garanti af nogen art, udtrykkelige eller stiltiende, herunder, men ikke begrænset til garantier for salgbarhed, egnethed til et bestemt formål og ikke-krænkelse. Under ingen omstændigheder skal %{appname} være ansvarlig for ethvert krav, skader eller andet ansvar, enten i en aktion af kontrakten, tort eller andet, der skyldes, ud af eller i forbindelse med %{appname} eller brug eller andre transaktioner i %{appname}."
         privacy_header: "Datapolitik"
-        privacy_text_html: "Følgende oplysninger downloades til brug i %{appname}. Fra bruger-profil hos din login-udbyder hentes brugerid, navn, links til profil og profilbillede, sprog, land, antal venner og venneliste. Fra venneliste hentes brugerid, navn, link til profiler og profilbillede samt antal venner for hver af dine venner. Fra browser hentes aktuel tidszone. I spillet gemmes oprettede opslag, kommentarer og din løbende saldo i frie penge. Alle oplysninger download eller indtastet i %{appname} opbevares krypteret, anvendes ikke til reklamer eller personalisering og vidergives ikke til trediepart.<br><br>I %{appname} er vennelister bestemmende for, hvem der kan se hvad. Man kan se opslag og løbende saldo i frie penge for ens venner. I opslag fra ens venner vil man kunne se kommentarer fra venners venner. Det eneste man kan se om venners venner er deres navn, profilbillede og link til deres profil hos loginudbyder. Der er ikke noget, der hedder offentligt i %{appname}. Opslag, der oprettes på tværs af flere loginudbydere på en gang, følger ovenstående regler. Det betyder dog, at man i et sådan opslag fra en ven kan se kommentarer fra ens vens venner hos en anden login udbyder.<br><br>Oprettede opslag og kommentarer kan til enhver tid slettes enten enkelvis eller ved at lukke din %{appname} konto. Vær opmærksom at downloadede og indtastede data ikke slettes automatisk, forbi du fjerner eller blokkerer %{appname} hos din login udbyder. Luk derfor først <a href='/users?friends=me'>din konto</a> i %{appname} og fjern eller blokkér dernæst %{appname} hos din loginudbyder."
+        privacy_text_html: "Følgende oplysninger downloades til brug i %{appname}. Fra bruger-profil hos din login-udbyder hentes brugerid, navn, links til profil og profilbillede, sprog, land, antal venner og venneliste. Fra venneliste hentes brugerid, navn, link til profiler og profilbillede samt antal venner for hver af dine venner. Fra browser hentes aktuel tidszone. I spillet gemmes oprettede opslag, kommentarer og din løbende saldo i frie penge. Alle oplysninger download eller indtastet i %{appname} opbevares krypteret, anvendes ikke til reklamer eller personalisering og vidergives ikke til trediepart.<br><br>I %{appname} er vennelister bestemmende for, hvem der kan se hvad. Man kan se opslag og løbende saldo i frie penge for ens venner. I opslag fra ens venner vil man kunne se kommentarer fra venners venner. Det eneste man kan se om venners venner er deres navn, profilbillede og link til deres profil hos loginudbyder. Der er ikke noget, der hedder offentligt i %{appname}. Opslag, der oprettes på tværs af flere loginudbydere på en gang, følger ovenstående regler. Det betyder dog, at man i et sådan opslag fra en ven kan se kommentarer fra ens vens venner hos en anden login udbyder.<br><br>Oprettede opslag og kommentarer kan til enhver tid slettes enten enkelvis eller ved at lukke din %{appname} konto. Vær opmærksom på, at downloadede og indtastede data ikke slettes automatisk, forbi du fjerner eller blokkerer %{appname} hos din login udbyder. Luk derfor først <a href='/users?friends=me'>din konto</a> i %{appname} og fjern eller blokkér dernæst %{appname} hos din loginudbyder."
 
   # comments controller
   comments:
      create:
-        invalid_request_no_comment_form: "Ugyldigt kald. Systemfejl. Kommentar form ej fundet."
+        invalid_request_no_comment_form: "Ugyldigt kald. Systemfejl. Kommentar-form ej fundet."
         invalid_request_unknown_gift: "Ugyldigt kald. Systemfejl. Ukendt id for gave."
         invalid_request_invalid_gift: "Ugyldigt kald. Du har ikke adgang til dette opslag. Opdater venligst siden."
         deleted_user: "Din konto er ved at blive slettet, og du kan ikke oprette nye kommentarer"
-        no_providers: "Kunne ikke oprette kommentar. Ingen fælles loginudbydere. Kan evt. være en Systemfejl."
+        no_providers: "Kunne ikke oprette kommentar. Ingen fælles loginudbydere. Kan evt. være en systemfejl."
         exception: "Systemfejl. Kunne ikke oprette kommentar. %{error}. Se mere information i log."
      index:
         gift_id_is_missing: "Ugyldigt kald. Opslagsnr. mangler."
@@ -316,7 +317,7 @@ da:
 
   cookie:
      decline_cookies:
-        page_header_html: "%{appname} anvender temporære cookies i forbindelse med login. I temporær session cookie gemmes information om starttidspunkt, login API adgangsoplysninger, sprog, tidszone. Temporære cookies slettes, når browseren lukkes. Eneste cookie, der gemmes permament, er accept af anvendelse af cookies.<br><br>Du har valgt at sige nej tak til cookies. Alle cookies er blevet slettet, og du kan sikkert forlade siden. Tak for besøget."
+        page_header_html: "%{appname} anvender temporære cookies i forbindelse med login. I temporær session cookie gemmes information om starttidspunkt, login API adgangsoplysninger, sprog, tidszone. Temporære cookies slettes, når browseren lukkes. Eneste cookie, der gemmes permanent, er accept af anvendelse af cookies.<br><br>Du har valgt at sige nej tak til cookies. Alle cookies er blevet slettet, og du kan forlade siden sikkert. Tak for besøget."
 
   # gift controller - general texts
   gifts:
@@ -347,15 +348,15 @@ da:
         description_title: "Tekst. Skal udfyldes. Beskriv det, du tilbyder eller søger, hvad enten det er ting eller hjælp. Du bestemmer selv, om du vil sælge, udleje, udlåne eller forære ting væk. Da der handles i virtuelle frie penge, forærer man i praksis altid ting væk, men ens saldo i frie penge vokser. Opslag laves på din væg og vises til dine venner, eller hvem du har valgt skal se opslag fra denne app. Dine venner kan kommenterer dit opslag på din væg. Aftalen bør sluttes herinde, så din saldo i frie penge opdateres."
         description_prompt: "Tekst:"
         file_title_true: "Vedlæg gerne et foto af det, som du deler eller leder efter. Billeder er en effektiv måde at blive set på af ens venner. Upload kan godt tage lidt tid, da billedet uploades i 2 trin. Først til %{appname} og dernæst videre til din væg hos din loginudbyder. Vent venligst."
-        file_title_false: "Der kan ikke vedlægges foto af det, som du deler eller leder efter. Billeder uploades til din væg hos din loginudbyder og %{appname} mangler tilladelse til at skrive på din væg. Billeder er en effektiv måde at blive set på af ens venner. Benyt link øverst i denne side, hvis du ønsker at give %{appname} mangler lov til at lave opslag på din væg. Gå til \"Log ind\" siden og sæt hak i \"Opslag?\" tjekbox ud for en eller flere loginudbydere, hvis du ønsker at %{appname} skal lave opslag hos din loginudbyder."
+        file_title_false: "Der kan ikke vedlægges foto af det, som du deler eller leder efter. Billeder uploades til din væg hos din loginudbyder, og %{appname} mangler tilladelse til at skrive på din væg. Billeder er en effektiv måde at blive set på af ens venner. Benyt link øverst i denne side, hvis du ønsker at give %{appname} lov til at lave opslag på din væg. Gå til \"Log ind\" siden og sæt hak i \"Opslag?\" tjekbox ud for en eller flere loginudbydere, hvis du ønsker at %{appname} skal lave opslag hos din loginudbyder."
         file_prompt: "Vedlæg:"
         gift_submit_button_text: "Opret opslag"
-        pending_gift_popup_msg: "Ret valuta? Svar Cancel for at vende tilbage og lave opslag færdig. Svar OK for at tabe det indtastede opslag og opdatere valuta."
+        pending_gift_popup_msg: "Ret valuta? Svar Cancel for at vende tilbage og lave opslag færdig. Svar OK for at kassere det indtastede og opdatere valuta."
         description_required_text: "Tekst skal udfyldes."
-        price_invalid_text: "Pris er ugyldig. Brug kun cifre, højst et decimal-komma/punktum og højst 2 decimaler. Tusindtalsseparator er ikke tilladt."
-        no_gifts_was_found_html: "<p>Der blev ikke fundet nogle opslag. Hverken du eller dine venner har endnu oprettet<br />nogle opslag herinde i %{appname}. For at komme i gang bør du nu oprette et par opslag<br />med noget, du gerne vil dele med dine venner eller med noget, du søger eller mangler<br />, og som du tror dine venner måske kan hjælpe dig med.</p>"
+        price_invalid_text: "Pris er ugyldig. Brug kun cifre, højst et decimal-komma/-punktum og højst 2 decimaler. Tusindtalsseparator er ikke tilladt."
+        no_gifts_was_found_html: "<p>Der blev ikke fundet nogle opslag. Hverken du eller dine venner har endnu oprettet<br />nogle opslag herinde i %{appname}. For at komme i gang bør du nu oprette et eller flere opslag<br />med noget, du gerne vil dele med dine venner eller med noget, du søger eller mangler<br />, og som du tror dine venner måske kan hjælpe dig med.</p>"
         comment_comment_required_text: "Kommentar felt skal udfyldes"
-        comment_price_invalid_text: "Pris er ugyldig. Brug kun cifre, højst et decimal-komma/punktum og højst 2 decimaler. Tusindtalsseparator er ikke tilladt."
+        comment_price_invalid_text: "Pris er ugyldig. Brug kun cifre, højst et decimal-komma/-punktum og højst 2 decimaler. Tusindtalsseparator er ikke tilladt."
      table_header_row:
         giver_column_heading_html: "Fra:"
         receiver_column_heading_html: "Til:"
@@ -386,14 +387,14 @@ da:
         price_free: "frie"
         new_proposal_title: "Anvend \"Foreslå aftale\" tjekboks, hvis du ønsker at foreslå %{username} en aftale. Indtast en pris i frie penge, hvis du ønsker at anvende frie penge i denne aftale. %{username} vil få besked om dit tilbud og kan accepterer eller afvise dit forslag."
      show:
-        invalid_gift_id: "Ugyldigt kald. Ukendt opslag id"
+        invalid_gift_id: "Ugyldigt kald. Ukendt opslagsnr."
         no_access: "Ugyldigt kald. Du har ikke adgang til at se dette opslag"
         invalid_deep_link_id_logged_in: "Dette opslag er desværre blevet slettet."
         invalid_deep_link_id_not_logged_in: "Dette opslag er desværre blevet slettet. Brug browserens tilbageknap eller log ind for at se andre opslag"
         og_def_desc_facebook: "Giv, lån/lej ud, hjælp, byt, sælg. Del jeres ressourcer. Hjælp dine venner og miljøet. %{appname} er en leg med nogle af begreber (gavenetværk, frie penge og negativ rente) fra Charles Eisensteins bog Sacred Economics. Læs bogen gratis på nettet." # optimal size 255 characters
-        og_def_desc_google_oauth2: "Help each other and the environment. Share your ressources. %{appname} is a play with some concepts (gift network, free money and negative interest) from Charles Eisensteins book Sacred Economics."
+        og_def_desc_google_oauth2: "Hjælp dine venner og miljøet. %{appname} er en leg med nogle af begreber (gavenetværk, frie penge og negativ rente) fra Charles Eisensteins bog Sacred Economics."
         og_def_desc_linkedin: "Giv, lån/lej ud, sælg. Hjælp hinanden og miljøet. Del jeres ressourcer. %{appname} leger med nogle af begreber (frie penge, negativ rente og gavenetværk) fra Charles Eisensteins bog Sacred Economics. Kan læses nettet." # optimal size 220 characters
-        og_def_desc_twitter: "Help each other and the environment. Share your resources. %{appname} is a play with some concepts (gift network, free money and negative interest) from Charles Eisensteins book Sacred Economics."
+        og_def_desc_twitter: "Hjælp dine venner og miljøet. %{appname} er en leg med nogle af begreber (gavenetværk, frie penge og negativ rente) fra Charles Eisensteins bog Sacred Economics."
 
   # inbox controller
   inbox:
@@ -590,7 +591,7 @@ da:
         accepted_proposal_receiver_1_v1_to_url: "/gifts/%{giftid}"
         accepted_proposal_receiver_1_v1_to_msg: '%{receivername} accepterede dit bud på sit ønske "%{gifttext} ..."'
         deleted_account_v1_to_url: "/users/%{userid}?tab=balance"
-        deleted_account_v1_to_msg: "Din saldo er blevet opdateret forbi %{username} har slettet sin %{apiname} konto her hos %{appname} og en eller flere af dine aftaler med %{username} er blevet slettet."
+        deleted_account_v1_to_msg: "Din saldo er blevet opdateret, fordi %{username} har slettet sin %{apiname} konto her hos %{appname}, og en eller flere af dine aftaler med %{username} er blevet slettet."
 
   # user controller
   users:
@@ -669,7 +670,7 @@ da:
         balance_title_exchange_rate_negative_interest_loss: "Ny saldo %{new_balance} = gl. saldo %{old_balance} %{sign_price} %{price} %{old_currency} * %{exchange_rate} %{sign_negative_interest} %{negative_interest} %{sign_currency_gain_loss} %{currency_gain_loss}. Negativ rente af %{old_balance} i %{number_of_days} dage var %{negative_interest}. Valutatab for same periode var %{currency_gain_loss}."
      user:
         user_name_prompt: "Navn"
-        user_name_title: "Brugt dette link til at se %{username}'s profil på %{apiname} (nyt faneblad i browser)"
+        user_name_title: "Brug dette link til at se %{username}'s profil på %{apiname} (nyt faneblad i browser)"
         friend_status_prompt: "Status"
         user_balance_prompt: "Saldo"
         friend_status_text_m: "Min %{apiname} konto"
@@ -724,14 +725,14 @@ da:
         currency_prompt: "Valuta"
         post_on_wall_title: "Brug denne tjekboks til at slå opslag på %{apiname} til og fra."
         post_on_wall_prompt: "Opslag på væg?"
-        share_balance_title: "Brug denne tjekboks til at slå fælles saldo på tværs af login udbydere til og fra. Du bør være logget ind med samtlige de login udbydere, du anvender, i %{appname}, når du opdaterer dette valg."
+        share_balance_title: "Brug denne tjekboks til at slå fælles saldo på tværs af login udbydere til og fra. Du bør være logget ind med samtlige de login udbydere, du anvender i %{appname}, når du opdaterer dette valg."
         share_balance_prompt: "Fælles saldo?"
         log_out_title: "Afbryd adgang til %{appname} ved hjælp af din %{apiname} konto. Husk også at bruge \"log ud\" funktionalitet i %{apiname}, hvis du ligeledes ønsker at logge ud af %{apiname}."
         log_out_prompt: "Log ud"
         log_out_link_text: "log ud"
         access_title: "Brug dette link til at kontrollere, hvilken adgang du har givet %{appname}. Side åbnes i et nyt faneblad i din browser."
         access_prompt: "Adgang"
-        delete_account_title: "Slet alle downloadede og indtastede oplysninger for din %{apiname} konto hos %{appname}. Kan tage et stykke tid, hvis det drejer sig om mange oplysninger og opslag. Det er kun dine data hos %{appname}, der vil blive slettet. Evt. opslag som %{appname} har lavet på din %{apiname} væg vil ikke blive slettet. Når sletning er færdig, bør du gå til %{apiname} og fjerne %{appname} fra listen over tilladte apps. Tak for besøget."
+        delete_account_title: "Slet alle downloadede og indtastede oplysninger for din %{apiname} konto hos %{appname}. Kan tage et stykke tid, hvis det drejer sig om mange oplysninger og opslag. Det er kun dine data hos %{appname}, der vil blive slettet. Evt. opslag, som %{appname} har lavet på din %{apiname} væg, vil ikke blive slettet. Når sletning er færdig, bør du gå til %{apiname} og fjerne %{appname} fra listen over tilladte apps. Tak for besøget."
         delete_account_prompt: "Slet konto"
         delete_account_link_text: "slet"
         delete_account_link_confirm: "Slet konto! Alle dine opslag, kommentarer og downloadede oplysninger i %{appname} vil blive slettet. Fortsæt?"

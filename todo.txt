@@ -539,3 +539,9 @@
 113) check just_posted variable in get_api_picture_url_<provider> methods
      should raise exception if just posted and picture was not found.
      see get_api_picture_url_facebook
+
+114) picture has missing at linkedin when posting on facebook+flickr+linkedin+twitter.
+     check rel or perm path
+     could also post image on linked with a facebook, flickr or twitter image path
+
+115) two or three column friend list in users/index page

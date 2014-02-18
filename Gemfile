@@ -8,22 +8,53 @@ gem 'omniauth'
 
 # See list of supported stategies: https://github.com/intridea/omniauth/wiki/List-of-Strategies
 # login providers must have support for friends list (mutual friends, follows or followed by)
-gem 'omniauth-facebook'      # https://github.com/mkdynamic/omniauth-facebook
-gem 'omniauth-flickr'        # https://github.com/timbreitkreutz/omniauth-flickr
-gem 'omniauth-foursquare'    # https://github.com/arunagw/omniauth-foursquare
-gem "omniauth-google-oauth2" # https://github.com/zquestz/omniauth-google-oauth2
-gem "omniauth-instagram"     # https://github.com/ropiku/omniauth-instagram
-gem 'omniauth-linkedin'      # https://github.com/skorks/omniauth-linkedin
-gem 'omniauth-twitter'       # https://github.com/arunagw/omniauth-twitter
-
 # one gem for each omniauth-xxxx gem - post login API requests - get friends, update status, send notifications etc
-gem 'koala', '1.9.0'      # facebook API calls   - https://github.com/arsduo/koala/wiki/Koala-on-Rails
-gem 'flickraw'            # flickr API calls     - https://github.com/hanklords/flickraw
-gem 'foursquare2'         # foursquare API calls - https://github.com/mattmueller/foursquare2
-gem 'google-api-client'   # google+ API calls    - https://github.com/google/google-api-ruby-client & https://developers.google.com/api-client-library/ruby/
+
+# find provider api reference: search for <provider> api reference endpoints rest
+# find ruby gem: search for ruby <provider> gem
+
+# 1) facebook:
+# register : https://developers.facebook.com/ - select Apps in menu
+# reference: https://developers.facebook.com/docs/graph-api/reference/
+gem 'omniauth-facebook' # https://github.com/mkdynamic/omniauth-facebook
+gem 'koala', '1.9.0' # facebook API calls - https://github.com/arsduo/koala/wiki/Koala-on-Rails
+
+# 2) flickr
+# register : http://www.flickr.com/services/apps/create/
+# reference: http://www.flickr.com/services/api/
+gem 'omniauth-flickr' # https://github.com/timbreitkreutz/omniauth-flickr
+gem 'flickraw' # flickr API calls - https://github.com/hanklords/flickraw
+
+# 3) foursquare
+# register : https://foursquare.com/developers/apps
+# reference: https://developer.foursquare.com/docs/
+gem 'omniauth-foursquare' # https://github.com/arunagw/omniauth-foursquare
+gem 'foursquare2' # foursquare API calls - https://github.com/mattmueller/foursquare2
+
+# 4) google+
+# register : https://cloud.google.com/console/project - select API Project - APIs & auth - Credentials
+# reference: https://developers.google.com/+/api/latest/ &
+gem "omniauth-google-oauth2" # https://github.com/zquestz/omniauth-google-oauth2
+gem 'google-api-client' # google+ API calls - https://github.com/google/google-api-ruby-client & https://developers.google.com/api-client-library/ruby/
+
+# 5) instagram
+# register : http://instagram.com/developer/clients/manage/#
+# reference: http://instagram.com/developer/endpoints/#
+gem "omniauth-instagram" # https://github.com/ropiku/omniauth-instagram
 gem 'instagram', '0.10.0' # Instagram API calls  - https://github.com/Instagram/instagram-ruby-gem
-gem 'linkedin', '0.4.4'   # LinkedIn API calls   - https://rubygems.org/gems/linkedin
-gem 'twitter'             # twitter API calls    - http://sferik.github.io/twitter/
+
+# 6) linkedin
+# register : https://www.linkedin.com/secure/developer
+# reference: https://developer.linkedin.com/apis
+gem 'omniauth-linkedin' # https://github.com/skorks/omniauth-linkedin
+gem 'linkedin', '0.4.4' # LinkedIn API calls   - https://rubygems.org/gems/linkedin
+
+# 7) twitter
+# register : https://apps.twitter.com/
+# reference: https://dev.twitter.com/docs/api/1.1
+gem 'omniauth-twitter' # https://github.com/arunagw/omniauth-twitter
+gem 'twitter' # twitter API calls    - http://sferik.github.io/twitter/
+
 
 # Use sqlite3 as the database for Active Record
 gem 'sqlite3'
