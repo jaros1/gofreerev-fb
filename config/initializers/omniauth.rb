@@ -38,7 +38,7 @@ end # OmniAuth
 # initialize API_ID and API_SECRET hashes to be used in authorization and API requests
 api_id = {}
 api_secret = {}
-%w(facebook flickr foursquare google_oauth2 instagram linkedin twitter).each do |provider|
+%w(facebook flickr foursquare google_oauth2 instagram linkedin twitter vkontakte).each do |provider|
   rails_env = case Rails.env when "development" then "DEV" when "test" then "TEST" when "production" then "PROD" end
   # get api_id for provider
   name = "gofreerev_#{rails_env}_app_id_#{provider}".upcase
@@ -60,6 +60,7 @@ Rails.application.config.middleware.use OmniAuth::Builder do
   provider :instagram,     API_ID[:instagram],     API_SECRET[:instagram]
   provider :linkedin,      API_ID[:linkedin],      API_SECRET[:linkedin], :scope => "r_basicprofile r_network", :fields => ['id', 'first-name', 'last-name', 'picture-url', 'public-profile-url', 'location']
   provider :twitter,       API_ID[:twitter],       API_SECRET[:twitter], { :image_size => 'bigger', :authorize_params => { :x_auth_access_type => 'write' } }
+  provider :vkontakte,     API_ID[:vkontakte],     API_SECRET[:vkontakte]
 end
 
 # additional API setup
@@ -71,7 +72,8 @@ API_URL = {:facebook => "https://www.facebook.com",
            :google_oauth2 => "https://plus.google.com/",
            :instagram => 'http://instagram.com/', # not secure!
            :linkedin => "https://www.linkedin.com/",
-           :twitter => "https://twitter.com/"}.with_indifferent_access
+           :twitter => "https://twitter.com/",
+           :vkontakte => 'https://vk.com/'}.with_indifferent_access
 
 # callback url used in util controller and in API specific controllers (facebook, linkedin) - request extra privs.
 API_CALLBACK_URL = {:facebook => "#{SITE_URL}facebook/",
@@ -80,7 +82,8 @@ API_CALLBACK_URL = {:facebook => "#{SITE_URL}facebook/",
                     :google_oauth2 => '',
                     :instagram => '',
                     :linkedin => "#{SITE_URL}linkedin/index",
-                    :twitter => ''}.with_indifferent_access
+                    :twitter => '',
+                    :vkontakte => ''}.with_indifferent_access
 
 # default user permissions after login.
 # facebook: koala me?fields=permissions request is used to check facebook permissions after login
@@ -90,7 +93,8 @@ API_DEFAULT_PERMISSIONS = {:flickr => 'read',
                            :google_oauth2 => 'read',
                            :instagram => 'read',
                            :linkedin => 'r_basicprofile,r_network',
-                           :twitter => 'read'}.with_indifferent_access
+                           :twitter => 'read',
+                           :vkontakte => 'read'}.with_indifferent_access
 
 # link to API app settings so that user easy can review and change permissions
 API_APP_SETTING_URL = {:facebook => 'https://www.facebook.com/settings?tab=applications',
@@ -99,7 +103,8 @@ API_APP_SETTING_URL = {:facebook => 'https://www.facebook.com/settings?tab=appli
                        :google_oauth2 => 'https://plus.google.com/apps',
                        :instagram => 'https://instagram.com/accounts/manage_access#',
                        :linkedin => 'https://www.linkedin.com/secure/settings?userAgree=&goback=.nas_*1_*1_*1',
-                       :twitter => 'https://twitter.com/settings/applications'}.with_indifferent_access
+                       :twitter => 'https://twitter.com/settings/applications',
+                       :vkontakte => 'https://vk.com/settings'}.with_indifferent_access
 
 # API name to be used in messages and mouse over texts
 # text for "nil" API provider (not logged in or generic messages) /locales/xx.yml/shared/providers
@@ -109,7 +114,8 @@ API_DOWNCASE_NAME = {:facebook => 'facebook',
                      :google_oauth2 => 'google+',
                      :instagram => 'instagram',
                      :linkedin => 'linkedin',
-                     :twitter => 'twitter'}.with_indifferent_access
+                     :twitter => 'twitter',
+                     :vkontakte => 'vkontakte'}.with_indifferent_access
 
 # API name to be used in views and links
 # text for "nil" API provider (not logged in or generic messages) /locales/xx.yml/shared/providers
@@ -119,7 +125,8 @@ API_CAMELIZE_NAME = {:facebook => 'Facebook',
                      :google_oauth2 => 'Google+',
                      :instagram => 'Instagram',
                      :linkedin => 'LinkedIn',
-                     :twitter => 'Twitter'}.with_indifferent_access
+                     :twitter => 'Twitter',
+                     :vkontakte => 'VKontakte'}.with_indifferent_access
 
 # API profile pictures: :api or :local. Default is :api <=> Profile pictures are not downloaded from provider
 API_PROFILE_PICTURE_STORE = {}.with_indifferent_access
@@ -136,7 +143,8 @@ API_GIFT_PICTURE_STORE = {:fallback => nil,
                           :google_oauth2 => nil, # google+ is a readonly API
                           :instagram => nil, # instagram is a readonly API
                           :linkedin => :local, # images are not uploaded to LinkedIn and must be stored on gofreerev server
-                          :twitter => :api}.with_indifferent_access
+                          :twitter => :api,
+                          :vkontakte => nil}.with_indifferent_access
 
 # text to picture options - PhantomJS (http://phantomjs.org/) is required for this - use empty hash {} if disabled.
 # note that PhantomJs required relative much memory and time to run and should maybe not run on a small plug computer
@@ -152,7 +160,8 @@ API_TEXT_TO_PICTURE = {:facebook => nil,
                        :google_oauth2 => nil,
                        :instagram => nil,
                        :linkedin => nil,
-                       :twitter => 70}.with_indifferent_access
+                       :twitter => 70,
+                       :vkontakte => nil}.with_indifferent_access
 
 # open graph values (http://ogp.me/) recommended max length for meta-tags used in deep links
 # default values: 70 characters for title and 200 characters for description
@@ -162,21 +171,24 @@ API_OG_TITLE_SIZE = {:facebook => 94, # http://wptest.means.us.com/online-meta-t
                      :google_oauth2 => 63,
                      :instagram => 60, # todo: check
                      :linkedin => 60,
-                     :twitter => 70}.with_indifferent_access
+                     :twitter => 70,
+                     :vkontakte => 60}.with_indifferent_access
 API_OG_DESC_SIZE = {:facebook => 255, # http://www.joshspeters.com/how-to-optimize-the-ogdescription-tag-for-search-and-social
                     :flickr => 155, # todo: check
                     :foursquare => 155, # todo: check
                     :google_oauth2 => 155,
                     :instagram => 155, # todo: check
                     :linkedin => 220, # max 220 in util.post_on_linkedin ( up to 245 characters allowed in og:description meta-tag )
-                    :twitter => 200}.with_indifferent_access
+                    :twitter => 200,
+                    :vkontakte => 155}.with_indifferent_access
 API_OG_DEF_IMAGE = {:facebook => "#{SITE_URL}images/sacred-economics.jpg",
                     :flickr => "#{SITE_URL}images/sacred-economics.jpg",
                     :foursquare => "#{SITE_URL}images/sacred-economics.jpg",
                     :google_oauth2 => "#{SITE_URL}images/sacred-economics.jpg",
                     :instagram => "#{SITE_URL}images/sacred-economics.jpg",
                     :linkedin => "#{SITE_URL}images/sacred-economics-linkedin.jpg", # 180 x 110 best for linkedin
-                    :twitter => "#{SITE_URL}images/sacred-economics.jpg"}.with_indifferent_access
+                    :twitter => "#{SITE_URL}images/sacred-economics.jpg",
+                    :vkontakte => "#{SITE_URL}images/sacred-economics.jpg"}.with_indifferent_access
 
 # for twitter:site card meta-tag - The Twitter username of the owner of this card's domain. - only twitter
 API_OWNER = { :twitter => ENV['GOFREEREV_APP_OWNER_TWITTER'] }.with_indifferent_access

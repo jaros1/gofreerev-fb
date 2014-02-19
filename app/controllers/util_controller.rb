@@ -1482,6 +1482,65 @@ class UtilController < ApplicationController
   end # post_login_twitter
 
 
+  # post login task for twitter - get friends
+  # using twitter gem
+  # called from do_tasks - ajax requests after login
+  # must return nil or a valid input to translate  private
+  private
+  def post_login_vkontakte
+    begin
+
+      # get vkontakte user (no "api client" for vkontakte)
+      provider = "vkontakte"
+      login_user, token, key, options = get_login_user_and_token(provider)
+      return [login_user, api_client, key, options] if key
+      logger.secret2 "token = #{token}"
+      login_user_id = login_user.user_id
+
+      # get array with vkontakte friends ids
+      vk_user = Vkontakte::App::User.new(login_user.uid, :access_token => token)
+      friends = vk_user.friends.get :fields => "photo_medium,screen_name"
+      logger.debug2 "friends = #{friends}"
+
+      # copy vk friends hash array into gofreerev friends_hash
+      friends_hash = {}
+      begin
+        friends.each do |friend|
+
+          # logger.debug2 "friend.url = #{friend.url} (#{friend.url.class})"
+          # copy friend to friends_hash
+          friend_user_id = "#{friend['uid']}/#{provider}"
+          friend_name = "#{friend['first_name']} #{friend['last_name']}".force_encoding('UTF-8')
+          friends_hash[friend_user_id] = { :name => friend_name,
+                                           :api_profile_url => "#{API_URL[:vkontakte]}#{friend['screen_name']}",
+                                           :api_profile_picture_url => friend['photo_medium'] }
+        end # connection loop
+      end
+
+      # update vkontakte friends
+      # todo: refactor next three methods calls into one method. Should be identical for all providers
+      new_user = Friend.update_api_friends_from_hash :login_user_id => login_user_id,
+                                                     :friends_hash => friends_hash,
+                                                     :fields => %w(name api_profile_url api_profile_picture_url)
+      # vkontakte friends updated
+
+      # 3) update balance
+      login_user.recalculate_balance if login_user.balance_at != Date.today
+
+      # special post login message to new users
+      return ['.post_login_new_user', login_user.app_and_apiname_hash ]if new_user
+
+      # ok
+      nil
+
+    rescue Exception => e
+      logger.debug2  "Exception: #{e.message.to_s} (#{e.class})"
+      logger.debug2  "Backtrace: " + e.backtrace.join("\n")
+      raise
+    end
+  end # post_login_vkontakte
+  
+  
   # recalculate user balance
   # use after login, at new day, after new deal, after deleted deal etc
   def recalculate_user_balance (id)

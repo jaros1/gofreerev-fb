@@ -55,6 +55,11 @@ gem 'linkedin', '0.4.4' # LinkedIn API calls   - https://rubygems.org/gems/linke
 gem 'omniauth-twitter' # https://github.com/arunagw/omniauth-twitter
 gem 'twitter' # twitter API calls    - http://sferik.github.io/twitter/
 
+# 8) VKontakte
+# register : http://vk.com/dev
+# reference: https://vk.com/pages?oid=-17680044&p=API_Method_Description
+gem 'omniauth-vkontakte' # https://github.com/mamantoha/omniauth-vkontakte
+gem 'vkontakte' # https://github.com/galetahub/vkontakte
 
 # Use sqlite3 as the database for Active Record
 gem 'sqlite3'

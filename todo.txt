@@ -542,3 +542,7 @@
      repeat up to 3 times before giving up
      return warning to user and try once more time
      delete_local_picture task and expired post on wall exception!
+
+117) post on twitter - description > 70
+     no picture - convert text to image - keep hash tags in shorten text
+     picture - convert text to image - append or overlay text to image - keep hash tags in shorten text

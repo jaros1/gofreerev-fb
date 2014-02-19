@@ -23,7 +23,6 @@ Low priority todo list. Minor errors, wishlist etc.
    https://github.com/intridea/omniauth/wiki/List-of-Strategies
     7) Pinterest - no API at current time
     8) Tumblr - no friends
-    9) Flickr
    10) VK / Vkontakte
    11) DeviantArt
    12) MySpace
