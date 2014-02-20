@@ -23,12 +23,12 @@ Low priority todo list. Minor errors, wishlist etc.
    https://github.com/intridea/omniauth/wiki/List-of-Strategies
     7) Pinterest - no API at current time
     8) Tumblr - no friends
-   10) VK / Vkontakte
+   10) VK / Vkontakte - todo: add post on wall
    11) DeviantArt
-   12) MySpace
+   12) MySpace - cannot find any usable documentation - 6 years old gem
    13) Meetup
-   14) Weibo
-   15) Odnoklassniki
+   14) Weibo - can not signup for an account - no sms verification for denmark
+   15) Odnoklassniki - one not verified account created
    16) Renren
    17) mixi
    18) XING

@@ -152,6 +152,7 @@ GEM
     net-scp (1.1.2)
       net-ssh (>= 2.6.5)
     net-ssh (2.8.0)
+    netrc (0.7.7)
     oauth (0.4.7)
     oauth2 (0.9.3)
       faraday (>= 0.8, < 0.10)
@@ -219,6 +220,8 @@ GEM
     rake (10.1.1)
     rdoc (4.1.1)
       json (~> 1.4)
+    rest_client (1.7.3)
+      netrc (~> 0.7.7)
     routing-filter (0.4.0.pre)
       actionpack
     sass (3.2.14)
@@ -237,7 +240,7 @@ GEM
       jwt (>= 0.1.5)
       multi_json (>= 1.0.0)
     simple_oauth (0.2.0)
-    sprockets (2.10.1)
+    sprockets (2.11.0)
       hike (~> 1.2)
       multi_json (~> 1.0)
       rack (~> 1.0)
@@ -321,6 +324,7 @@ DEPENDENCIES
   open4
   rails (= 4.0.0)
   rails-i18n (~> 4.0.0.pre)
+  rest_client
   routing-filter (~> 0.4.0.pre)
   sass-rails (~> 4.0.0)
   sdoc

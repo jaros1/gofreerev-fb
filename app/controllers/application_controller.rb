@@ -792,6 +792,66 @@ class ApplicationController < ActionController::Base
   end # init_api_client_twitter
 
   private
+  def init_api_client_vkontakte (token)
+    provider = 'vkontakte'
+    login_user = @users.find { |u| u.provider == provider }
+    api_client = Vkontakte::App::User.new(login_user.uid, :access_token => token)
+    api_client.define_singleton_method :gofreerev_get_friends do
+      self.friends.get :fields => "photo_medium,screen_name"
+    end
+    api_client.define_singleton_method :gofreerev_upload do |api_gift, logger|
+      # find/create album with gofreerev pictures
+      albums = self.photos.getAlbums
+      # logger.debug2 "albums = #{albums}"
+      album = albums.find { |a| a["title"] == APP_NAME }
+      album = self.photos.createAlbum :title => APP_NAME, :description => SITE_URL unless album
+      # logger.debug2 "album = #{album}"
+      aid = album['aid']
+      logger.debug2 "aid = #{aid}"
+      # get full os path for image
+      gift = api_gift.gift
+      if api_gift.picture?
+        picture_full_os_path = Picture.full_os_path :rel_path => gift.app_picture_rel_path
+      else
+        picture_full_os_path = Picture.create_png_image_from_text gift.description, 800
+      end
+      logger.debug2 "picture_full_os_path = #{picture_full_os_path}"
+      # get upload server
+      uploadserver = self.photos.getUploadServer :aid => aid
+      logger.debug2 "uploadserver = #{uploadserver}"
+      url = uploadserver['upload_url']
+      logger.debug2 "url = #{url}"
+      # upload
+      res1 = RestClient.post url, :file1 => File.new(picture_full_os_path)
+      logger.debug2 "res1.class = #{res1.class}"
+      logger.debug2 "res1.body = #{res1.body}"
+      res2 = YAML::load(res1.body)
+      logger.debug2 "res2 = #{res2}"
+      FileUtils.rm picture_full_os_path unless api_gift.picture? # text to image convert - delete temp image
+      # save uploaded photo in album
+      server = res2['server']
+      photos_list = res2['photos_list']
+      hash = res2['hash']
+      description_max_length = 475 - api_gift.deep_link.length - 3 # 400 Bad Request + JSON::ParserError if length > 475
+      description = "#{gift.description.first(description_max_length)} - #{api_gift.deep_link}"
+      logger.debug2 "description = #{description} (#{description.length})"
+      res3 = nil
+      begin
+        res3 = self.photos.save :aid => aid, :server => server, :photos_list => photos_list, :hash => hash, :caption => description
+      rescue exception => e
+        logger.debug2 "exception: #{e.message} (#{e.class})"
+        raise
+      end
+      logger.debug2 "res3 = #{res3} (#{res3.class})"
+      logger.debug2 "res3.length = #{res3.length})"
+      res3 = res3.first
+      api_gift_id = "#{res3['owner_id']}_#{res3['pid']}"
+      api_gift_id
+    end
+    api_client
+  end # init_api_client_vkontakte
+
+  private
   def init_api_client (provider, token)
     method = "init_api_client_#{provider}".to_sym
     return ['.init_api_client_missing', :provider => provider] unless private_methods.index(method)

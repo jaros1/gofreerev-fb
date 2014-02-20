@@ -546,3 +546,9 @@
 117) post on twitter - description > 70
      no picture - convert text to image - keep hash tags in shorten text
      picture - convert text to image - append or overlay text to image - keep hash tags in shorten text
+
+118) vkontakte - add write link and post_on_vkontakte task
+
+119) refactor get friends methods from post_login_<provider> to init_api_client_<provider> as instance method
+
+120) refactor post_on_wall from post_on_<provider> to init_api_client_<provider> as instance method

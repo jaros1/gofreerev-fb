@@ -60,7 +60,7 @@ Rails.application.config.middleware.use OmniAuth::Builder do
   provider :instagram,     API_ID[:instagram],     API_SECRET[:instagram]
   provider :linkedin,      API_ID[:linkedin],      API_SECRET[:linkedin], :scope => "r_basicprofile r_network", :fields => ['id', 'first-name', 'last-name', 'picture-url', 'public-profile-url', 'location']
   provider :twitter,       API_ID[:twitter],       API_SECRET[:twitter], { :image_size => 'bigger', :authorize_params => { :x_auth_access_type => 'write' } }
-  provider :vkontakte,     API_ID[:vkontakte],     API_SECRET[:vkontakte]
+  provider :vkontakte,     API_ID[:vkontakte],     API_SECRET[:vkontakte], { :scope => 'friends,photos' }
 end
 
 # additional API setup
@@ -144,7 +144,7 @@ API_GIFT_PICTURE_STORE = {:fallback => nil,
                           :instagram => nil, # instagram is a readonly API
                           :linkedin => :local, # images are not uploaded to LinkedIn and must be stored on gofreerev server
                           :twitter => :api,
-                          :vkontakte => nil}.with_indifferent_access
+                          :vkontakte => :api}.with_indifferent_access
 
 # text to picture options - PhantomJS (http://phantomjs.org/) is required for this - use empty hash {} if disabled.
 # note that PhantomJs required relative much memory and time to run and should maybe not run on a small plug computer
@@ -161,7 +161,7 @@ API_TEXT_TO_PICTURE = {:facebook => nil,
                        :instagram => nil,
                        :linkedin => nil,
                        :twitter => 70,
-                       :vkontakte => nil}.with_indifferent_access
+                       :vkontakte => 0}.with_indifferent_access
 
 # open graph values (http://ogp.me/) recommended max length for meta-tags used in deep links
 # default values: 70 characters for title and 200 characters for description
