@@ -129,6 +129,7 @@ en:
         post_login_user_id_not_found: "Warning. Did not find user id. Could not get friend list from %{provider}"
         post_login_token_not_found: "Warning. Did not find access token. Could not get friend list from %{provider}"
         init_api_client_missing: "System  error. Private method init_api_client_%{provider} is missing in app. controller and cannot communicate with %{provider}."
+        get_api_picture_url_missing: "System error. Posted on %{apiname} wall but did not found method get_api_picture_%{provider}. Photo cannot be displayed here."
         post_login_new_user: "Your friend list is ready. Please refresh page to see any posts from your friends."
         google_access_not_configured: "Error when fetching friend list from Google+ API. Access Not Configured. Check list: 1) Status is ON for Google+ API in Google Cloud Console"
         google_insufficient_permission: "Error when fetching friend list from Google+ API. API. Insufficient Permission. Check list: 1) scope plus.login maybe missing in provider setup for google+"

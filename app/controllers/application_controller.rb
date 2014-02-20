@@ -798,15 +798,37 @@ class ApplicationController < ActionController::Base
     api_client = Vkontakte::App::User.new(login_user.uid, :access_token => token)
     api_client.define_singleton_method :gofreerev_get_friends do
       self.friends.get :fields => "photo_medium,screen_name"
-    end
+    end # gofreerev_get_friends
     api_client.define_singleton_method :gofreerev_upload do |api_gift, logger|
+      # todo: cannot see VK wall in my browser. test VK from an app/smartphone.
+      # false: post to Gofreerev album, true: post to wall.
+      wall = false #
       # find/create album with gofreerev pictures
-      albums = self.photos.getAlbums
+      # http://vk.com/developers.php?oid=-17680044&p=photos.getAlbums
+      begin
+        albums = self.photos.getAlbums
+      rescue Exception => e
+        raise VkontakteAlbumMissingException.new "#{e.class}: #{e.message}"
+      end
       # logger.debug2 "albums = #{albums}"
       album = albums.find { |a| a["title"] == APP_NAME }
-      album = self.photos.createAlbum :title => APP_NAME, :description => SITE_URL unless album
+      if !album
+        # http://vk.com/developers.php?oid=-17680044&p=photos.createAlbum
+        begin
+          album = self.photos.createAlbum :title => APP_NAME, :description => SITE_URL
+        rescue Exception => e
+          raise VkontakteCreateAlbumException.new "#{e.class}: #{e.message}"
+        end
+        if album.class != Hash or !album.has_key?('aid')
+          raise VkontakteCreateAlbumException.new "album = #{album}"
+        end
+      end
       # logger.debug2 "album = #{album}"
       aid = album['aid']
+      if aid.to_s == ''
+        logger.debug2 "album = #{album}"
+        raise VkontakteAlbumMissingException.new "#{APP_NAME} album not found"
+      end
       logger.debug2 "aid = #{aid}"
       # get full os path for image
       gift = api_gift.gift
@@ -817,37 +839,82 @@ class ApplicationController < ActionController::Base
       end
       logger.debug2 "picture_full_os_path = #{picture_full_os_path}"
       # get upload server
-      uploadserver = self.photos.getUploadServer :aid => aid
+      begin
+        if wall
+          # http://vk.com/developers.php?oid=-17680044&p=photos.getWallUploadServer
+          uploadserver = self.photos.getWallUploadServer
+        else
+          # http://vk.com/developers.php?oid=-17680044&p=photos.getUploadServer
+          uploadserver = self.photos.getUploadServer :aid => aid
+        end
+      rescue Exception => e
+        raise VkontakteUploadserverException.new "#{e.class}: #{e.message}"
+      end
+      if uploadserver.class != Hash or !uploadserver.has_key?('upload_url')
+        raise VkontakteUploadserverException.new "uploadserver = #{uploadserver} (#{uploadserver.class})"
+      end
       logger.debug2 "uploadserver = #{uploadserver}"
+      logger.debug2 "uploadserver.class = #{uploadserver.class}"
       url = uploadserver['upload_url']
       logger.debug2 "url = #{url}"
-      # upload
-      res1 = RestClient.post url, :file1 => File.new(picture_full_os_path)
-      logger.debug2 "res1.class = #{res1.class}"
-      logger.debug2 "res1.body = #{res1.body}"
-      res2 = YAML::load(res1.body)
-      logger.debug2 "res2 = #{res2}"
-      FileUtils.rm picture_full_os_path unless api_gift.picture? # text to image convert - delete temp image
+      # upload - maybe vkontakte gem has a method for this?!
+      # http://vk.com/developers.php?oid=-17680044&p=Uploading_Files_to_the_VK_Server_Procedure
+      begin
+        upload_res1 = RestClient.post url, :file1 => File.new(picture_full_os_path)
+      rescue Exception => e
+        raise VkontaktePostException.new "#{e.class}: #{e.message}"
+      end
+      if upload_res1.code.to_s != '200'
+        raise VkontaktePostException.new "response code #{upload_res1.code}. body = #{upload_res1.body}"
+      end
+      logger.debug2 "upload_res1.class = #{upload_res1.class}"
+      logger.debug2 "upload_res1.body = #{upload_res1.body}"
+      logger.debug2 "upload_res1.code = #{upload_res1.code}"
+      begin
+        upload_res2 = YAML::load(upload_res1.body)
+      rescue Exception => e
+        raise VkontaktePostException.new "#{e.class}: #{e.message}. Excepted yaml response"
+      end
+      logger.debug2 "upload_res2 = #{upload_res2}"
+      logger.debug2 "upload_res2.class = #{upload_res2.class}"
+      # text to image convert - delete temp image - general cleaup is done in delete_local_picture task
+      FileUtils.rm picture_full_os_path unless api_gift.picture?
       # save uploaded photo in album
-      server = res2['server']
-      photos_list = res2['photos_list']
-      hash = res2['hash']
+      if !upload_res2.has_key?('server') or !upload_res2.has_key?('hash')
+        raise VkontaktePostException.new "upload_res2 = #{upload_res2}"
+      end
+      if wall and !upload_res2.has_key?('photo') or !wall and !upload_res2.has_key?('photos_list')
+        raise VkontaktePostException.new "upload_res2 = #{upload_res2}"
+      end
+      # http://vk.com/developers.php?oid=-17680044&p=photos.save
+      server = upload_res2['server']
+      photo = upload_res2['photo']
+      photos_list = upload_res2['photos_list']
+      hash = upload_res2['hash']
       description_max_length = 475 - api_gift.deep_link.length - 3 # 400 Bad Request + JSON::ParserError if length > 475
       description = "#{gift.description.first(description_max_length)} - #{api_gift.deep_link}"
       logger.debug2 "description = #{description} (#{description.length})"
-      res3 = nil
       begin
-        res3 = self.photos.save :aid => aid, :server => server, :photos_list => photos_list, :hash => hash, :caption => description
+        if wall
+          save_res = self.photos.saveWallPhoto :server => server, :photo => photo, :hash => hash
+        else
+          save_res = self.photos.save :aid => aid, :server => server, :photos_list => photos_list, :hash => hash, :caption => description
+        end
       rescue exception => e
-        logger.debug2 "exception: #{e.message} (#{e.class})"
-        raise
+        raise VkontakteSaveException.new "#{e.class}: #{e.message}"
       end
-      logger.debug2 "res3 = #{res3} (#{res3.class})"
-      logger.debug2 "res3.length = #{res3.length})"
-      res3 = res3.first
-      api_gift_id = "#{res3['owner_id']}_#{res3['pid']}"
+      if save_res.class != Array or save_res.length != 1
+        raise VkontakteSaveException.new "Expected array with one photo. save_res = #{save_res} (#{save_res.class})"
+      end
+      logger.debug2 "save_res = #{save_res} (#{save_res.class})"
+      logger.debug2 "save_res.length = #{save_res.length})"
+      save_res = save_res.first
+      if !save_res.has_key?('owner_id') or !save_res.has_key?('pid')
+        raise VkontakteSaveException.new "Expected hash with owner_id and pid. save_res = #{save_res}"
+      end
+      api_gift_id = "#{save_res['owner_id']}_#{save_res['pid']}"
       api_gift_id
-    end
+    end # gofreerev_upload
     api_client
   end # init_api_client_vkontakte
 

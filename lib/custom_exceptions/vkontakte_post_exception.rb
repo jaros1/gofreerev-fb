@@ -1,0 +1,1 @@
+class VkontaktePostException < StandardError ; end

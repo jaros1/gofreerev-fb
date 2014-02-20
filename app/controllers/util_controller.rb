@@ -2445,116 +2445,76 @@ class UtilController < ApplicationController
       # post with or without picture - link is a deep link from vkontakte wall to gift in gofreerev
       # link will be clickable if public url
       # link will be not clickable if localhost or server behind firewall
-      begin
-        # todo: add method gift.temp_picture_exists?
-        if api_gift.picture? and !gift.rel_path_picture_exists?
-          # post with picture but picture was not found.
-          # There must be some error handling in gifts/create that is missing
-          gift_posted_on_wall_api_wall = 6
-        elsif api_gift.picture?
-          # post on vkontakte with picture - use picture as it is and use description with deep as description
-          picture_url = Picture.url_from_rel_path api_gift.gift.app_picture_rel_path
-          api_response = api_client.gofreerev_upload api_gift, logger
-          # api_response = {"id"=>"1396226023933952", "post_id"=>"100006397022113_1396195803936974"} (Hash)
-          api_gift.api_gift_id = api_response
-        elsif API_TEXT_TO_PICTURE[provider] != 0
-          # post in vkontakte without picture and convert text to image is not enabled
-          # can not post on vkontakte without a picture
-          gift_posted_on_wall_api_wall = 9
-        else
-          # post on vkontakte without picture - convert text to image and use deep link as description
-          api_response = api_client.gofreerev_upload api_gift, logger
-          # api_response = {"id"=>"1396226023933952", "post_id"=>"100006397022113_1396195803936974"} (Hash)
-          api_gift.api_gift_id = api_response
-        end
-        if api_gift.api_gift_id
-          api_gift.api_gift_url = "#{API_URL[provider]}photos/gofreerev/#{api_response}/"
-          api_gift.save!
-          logger.debug2 "api_response = #{api_response} (#{api_response.class.name})"
-          gift_posted_on_wall_api_wall = 2 # Gift posted in here and on your vkontakte wall
-        end
-      rescue Koala::Facebook::ClientError => e # todo: change exception handler - invalid exception for vkontakteaw
-        e.logger = logger
-        e.puts_exception("#{__method__}: ")
-        if e.fb_error_type == 'OAuthException' && e.fb_error_code == 506
-          # delete gift and ignore error OAuthException, code: 506, message: (#506) Duplicate status message [HTTP 400]
-          gift_posted_on_wall_api_wall = 4 # Gift posted in here but not on your vkontakte wall. Duplicate status message on vkontakte wall.
-        elsif e.fb_error_type == 'OAuthException' && e.fb_error_code == 200
-          # e.response_body = {"error":{"message":"(#200) The user hasn't authorized the application to perform this action","type":"OAuthException","code":200}}
-          # check if permission to post i api wall has been removed
-          error = e.to_s
-          login_user.get_permissions_vkontakte(api_client)
-          if !login_user.post_on_wall_authorized?
-            # permission to post on api wall has been removed.
-            # show request_post_gift_priv_link link in gifts/index page
-            return grant_write_link(provider)
-          else
-            # permission to post on api wall has NOT been removed. Unknown error
-            gift_posted_on_wall_api_wall = 1 # unknown error. no translation
-            api_gift.clear_deep_link
-          end
-        elsif e.fb_error_type == 'OAuthException' && e.fb_error_code == 190
-          # user has deauthorized gofreerev / removed gofreerev in vkontakte app setting page
-          # Koala::Facebook::ClientError
-          # fb_error_type    = OAuthException (String)
-          # fb_error_code    = 190 (Fixnum)
-          # fb_error_subcode = 458 (Fixnum)
-          # fb_error_message = Error validating access token: The user has not authorized application 193177257554775. (String)
-          # http_status      = 400 (Fixnum)
-          # response_body    = {"error":{"message":"Error validating access token: The user has not authorized application 193177257554775.","type":"OAuthException","code":190,"error_subcode":458}}
-          # logout and return error message to user
-          logout(provider)
-          gift_posted_on_wall_api_wall = 8
-        else
-          # unhandled exceptions
-          gift_posted_on_wall_api_wall = 1 # unknown error. no translation
-          error = e.to_s
-          api_gift.clear_deep_link
-        end
-      rescue Koala::Facebook::ServerError => e
-        e.logger = logger
-        e.puts_exception("#{__method__}: ")
-        gift_posted_on_wall_api_wall = 1 # unknown error. no translation
-        error = e.fb_error_message.to_s
-        api_gift.clear_deep_link
-      end # rescue
-
-      if gift_posted_on_wall_api_wall != 2
-        # error or warning
-        logger.debug2 "error or warning: gift_posted_on_wall_api_wall = #{gift_posted_on_wall_api_wall}"
-        api_gift.picture = 'N'
-        api_gift.save!
-        return [".gift_posted_#{gift_posted_on_wall_api_wall}_html",
-                login_user.app_and_apiname_hash.merge(:error => error) ]
-      elsif (!api_gift.picture? or (api_gift.picture? and Picture.perm_app_url?(picture_url)))
-        # post ok - no picture or picture with perm app url
-        # no need to check read permission to gift on api wall
-        # return posted message
-        logger.debug2 "post ok without picture"
-        return [".gift_posted_#{gift_posted_on_wall_api_wall}_html", :apiname => login_user.apiname, :error => error]
+      # todo: add method gift.temp_picture_exists?
+      if api_gift.picture? and !gift.rel_path_picture_exists?
+        # post with picture but picture was not found.
+        # There must be some error handling in gifts/create that is missing
+        gift_posted_on_wall_api_wall = 6
+      elsif api_gift.picture?
+        # post on vkontakte with picture - use picture as it is and use description with deep as description
+        picture_url = Picture.url_from_rel_path api_gift.gift.app_picture_rel_path
+        api_response = api_client.gofreerev_upload api_gift, logger
+        # api_response = {"id"=>"1396226023933952", "post_id"=>"100006397022113_1396195803936974"} (Hash)
+        api_gift.api_gift_id = api_response
+      elsif API_TEXT_TO_PICTURE[provider] != 0
+        # post in vkontakte without picture and convert text to image is not enabled
+        # can not post on vkontakte without a picture
+        gift_posted_on_wall_api_wall = 9
       else
-        logger.debug2 "post ok with picture"
-        # post ok - gift posted in vkontakte wall
-        # check read permissioin to gift and get picture url with best size > 200 x 200
-        # must have read access to post on vkontakte wall to display picture in gofreerev
-        # 1) use api_gift.api_gift_id to get object_id (picture size in first request is too small)
-        key, options = get_api_picture_url(provider, api_gift, true, api_client)
-        return [key, options] if key
-
-        # post ok and no permission problems
-        # no errors - return posted message
-        return [".gift_posted_#{gift_posted_on_wall_api_wall}_html", :apiname => login_user.apiname, :error => error]
+        # post on vkontakte without picture - convert text to image and use deep link as description
+        api_response = api_client.gofreerev_upload api_gift, logger
+        # api_response = {"id"=>"1396226023933952", "post_id"=>"100006397022113_1396195803936974"} (Hash)
+        api_gift.api_gift_id = api_response
       end
-
+      if api_gift.api_gift_id
+        api_gift.api_gift_url = "#{API_URL[provider]}photos/gofreerev/#{api_response}/"
+        api_gift.save!
+        logger.debug2 "api_response = #{api_response} (#{api_response.class.name})"
+        gift_posted_on_wall_api_wall = 2 # Gift posted in here and on your vkontakte wall
+      end
+    rescue VkontakteCreateAlbumException => e
+    rescue VkontakteAlbumMissingException => e
+    rescue VkontakteUploadserverException => e
+    rescue VkontaktePostException => e
+    rescue VkontakteSaveException => e
     rescue Exception => e
       logger.debug2 "Exception: #{e.message.to_s} (#{e.class})"
       logger.debug2 "Backtrace: " + e.backtrace.join("\n")
       raise
     end
+
+    if gift_posted_on_wall_api_wall != 2
+      # error or warning
+      logger.debug2 "error or warning: gift_posted_on_wall_api_wall = #{gift_posted_on_wall_api_wall}"
+      api_gift.picture = 'N'
+      api_gift.save!
+      return [".gift_posted_#{gift_posted_on_wall_api_wall}_html",
+              login_user.app_and_apiname_hash.merge(:error => error) ]
+    elsif (!api_gift.picture? or (api_gift.picture? and Picture.perm_app_url?(picture_url)))
+      # post ok - no picture or picture with perm app url
+      # no need to check read permission to gift on api wall
+      # return posted message
+      logger.debug2 "post ok without picture"
+      return [".gift_posted_#{gift_posted_on_wall_api_wall}_html", login_user.app_and_apiname_hash.merge(:error => error)]
+    else
+      logger.debug2 "post ok with picture"
+      # post ok - gift posted in flickr wall
+      # check read permissioin to gift and get picture url with best size > 200 x 200
+      # must have read access to post on flickr wall to display picture in gofreerev
+      # 1) use api_gift.api_gift_id to get object_id (picture size in first request is too small)
+      key, options = get_api_picture_url(provider, api_gift, true, api_client)
+      return [key, options] if key
+
+      # post ok and no permission problems
+      # no errors - return posted message
+      return [".gift_posted_#{gift_posted_on_wall_api_wall}_html", :apiname => login_user.apiname, :error => error]
+    end
+
+
+
   end # post_on_vkontakte
-  
-  
-  
+
+
   # check after post_on_<provider>'s' if user have write access to any api wall
   # disable if user does not have granted write permission to any api wall
   # enable if user have granted write permission to one api wall

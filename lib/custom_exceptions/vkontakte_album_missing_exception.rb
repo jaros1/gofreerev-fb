@@ -1,0 +1,1 @@
+class VkontakteAlbumMissingException < StandardError ; end
