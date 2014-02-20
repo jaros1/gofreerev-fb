@@ -1,0 +1,1 @@
+class VkontaktePhotoGetException < StandardError ; end

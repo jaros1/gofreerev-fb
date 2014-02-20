@@ -1566,7 +1566,7 @@ class User < ActiveRecord::Base
       ags = ags.sort do |a, b|
         if b.gift.status_update_at != a.gift.status_update_at
           # 1) keep sort by status_update_at desc (also order by condition in select statement)
-          b.gift.status_update_at <=> b.gift.status_update_at
+          b.gift.status_update_at <=> a.gift.status_update_at
         elsif a.status_sort != b.status_sort
           a.status_sort <=> b.status_sort # 2) closed gift before open gift
         else
