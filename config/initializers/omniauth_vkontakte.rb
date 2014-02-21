@@ -1,11 +1,3 @@
-Vkontakte.setup do |config|
-  config.app_id = API_ID[:vkontakte]
-  config.app_secret = API_SECRET[:vkontakte]
-  config.format = :json
-  config.debug = true
-  config.logger = nil # File.open(Rails.root.join('log', "#{Rails.env}.log").to_s, 'a')
-end
-
 class OmniAuth::AuthHash
   def get_profile_url_vkontakte
     profile_url = self[:info][:urls][:Vkontakte] if self[:info] and self[:info][:urls]

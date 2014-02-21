@@ -724,31 +724,110 @@ class ApplicationController < ActionController::Base
 
   private
   def init_api_client_facebook (token)
+    provider = 'facebook'
+    # create facebook api client
     api_client = Koala::Facebook::API.new(token)
+    # add helper methods to facebook api client
+    # add gofreerev_get_friends - used on post_login_<provider>
+    api_client.define_singleton_method :gofreerev_get_friends do |logger|
+      # get facebook friends
+
+      api_request2 = 'me/friends?fields=name,id,picture'
+      # logger.debug2  "api_request2 = #{api_request2}"
+      api_response2 = self.get_object api_request2
+      # logger.debug2  "api_response2 = #{api_response2.to_s}"
+
+      # 2) get facebook friends list (name and url for profile picture for each facebook friend)
+      # note that some friends may have privacy settings that prevent Gofreerev from pulling information from API
+      friends_hash = {}
+      api_friends_list = api_response2
+      api_friends_list.each do |friend|
+        # logger.debug2 "friend = #{friend}"
+        friend_user_id = friend["id"] + '/facebook'
+        name = friend["name"].force_encoding('UTF-8')
+        if friend["picture"] and friend["picture"]["data"]
+          api_profile_picture_url = friend["picture"]["data"]["url"]
+        else
+          api_profile_picture_url = nil
+        end
+        friends_hash[friend_user_id] = {:name => name,
+                                        :api_profile_picture_url => api_profile_picture_url }
+      end # each
+      # return friends has to post_login_<provider> - see also Friend.update_api_friends_from_hash
+      friends_hash
+    end # gofreerev_get_friends
     api_client
   end
 
   private
   def init_api_client_flickr (token)
     provider = 'flickr'
+    # create flickr api client
     FlickRaw.api_key = API_ID[provider]
     FlickRaw.shared_secret = API_SECRET[provider]
     api_client = flickr
     api_client.access_token = token[0]
     api_client.access_secret = token[1]
+    # add helper methods to flickr api client
+    # add gofreerev_get_friends - used on post_login_<provider>
+    api_client.define_singleton_method :gofreerev_get_friends do |logger|
+      # get flickr friends (follows)
+      friends = self.contacts.getList
+      # copy follows into friends_hashs
+      friends_hash = {}
+      friends.each do |contact|
+        logger.debug2 "contact = #{contact} (#{contact.class})"
+        # copy friend to friends_hash
+        friend_user_id = "#{contact.nsid}/#{provider}"
+        friend_name = (contact.realname == '' ? contact.username : contact.realname).force_encoding('UTF-8')
+        friend_api_profile_url = "#{API_URL[:flickr]}people/#{contact.nsid}"
+        if contact.iconfarm.to_s == '0' and contact.iconserver.to_s == '0'
+          friend_api_profile_picture_url = nil
+        else
+          friend_api_profile_picture_url = "http://farm#{contact.iconfarm}.static.flickr.com/#{contact.iconserver}/buddyicons/#{contact.nsid}.jpg"
+        end
+        friends_hash[friend_user_id] = {:name => friend_name,
+                                        :api_profile_url => friend_api_profile_url,
+                                        :api_profile_picture_url => friend_api_profile_picture_url}
+      end
+      # return friends has to post_login_<provider> - see also Friend.update_api_friends_from_hash
+      friends_hash
+    end # gofreerev_get_friends
     api_client
   end # init_api_client_flickr
 
-
   private
   def init_api_client_foursquare (token)
+    provider = 'foursquare'
+    # create foursquare api client
     api_client = Foursquare2::Client.new(:oauth_token => token)
+    # add helper methods to foursquare api client
+    # add gofreerev_get_friends - used on post_login_<provider>
+    api_client.define_singleton_method :gofreerev_get_friends do |logger|
+      # get foursquare friends
+      friends = self.user_friends 'self', :v => '20140214'
+      # copy friends list to hash
+      friends_hash = {}
+      friends["items"].each do |friend|
+        logger.debug2 "friend = #{friend}"
+        friend_user_id = "#{friend.id}/#{provider}"
+        name = "#{friend.firstName} #{friend.lastName}".force_encoding('UTF-8')
+        api_profile_url = "#{API_URL[provider]}/user/#{friend.id}"
+        api_profile_picture_url = "#{friend.photo.prefix}100x100#{friend.photo.suffix}"
+        friends_hash[friend_user_id] = {:name => name,
+                                        :api_profile_url => api_profile_url,
+                                        :api_profile_picture_url => api_profile_picture_url }
+      end # each
+      # return friends has to post_login_<provider> - see also Friend.update_api_friends_from_hash
+      friends_hash
+    end # gofreerev_get_friends
     api_client
   end # init_api_client_foursquare
 
   private
   def init_api_client_google_oauth2 (token)
     provider = 'google_oauth2'
+    # create google+ api client
     api_client = Google::APIClient.new(
         :application_name => 'Gofreerev',
         :application_version => '0.1'
@@ -756,25 +835,118 @@ class ApplicationController < ActionController::Base
     api_client.authorization.client_id = API_ID[provider]
     api_client.authorization.client_secret = API_SECRET[provider]
     api_client.authorization.access_token = token
+    # add helper methods to google+ api client
+    # add gofreerev_get_friends - used on post_login_<provider>
+    api_client.define_singleton_method :gofreerev_get_friends do |logger|
+      # get methods for google+ api calls
+      plus = self.discovered_api('plus')
+      # find people in login user circles
+      # https://developers.google.com/api-client-library/ruby/guide/pagination
+      friends_hash = {}
+      request = {:api_method => plus.people.list,
+                 :parameters => {'collection' => 'visible', 'userId' => 'me'}}
+      # loop for all google+ friends - one or more pages with friends
+      loop do
+        # get first/next page of google+ follows
+        result = self.execute(request)
+        # logger.debug2  "result = #{result}"
+        # logger.debug2  "result.error_message.class = #{result.error_message.class}"
+        # logger.debug2  "result.error_message = #{result.error_message}"
+        # known errors from Google API
+        return ['.google_access_not_configured', {:provider => provider}] if result.error_message.to_s == 'Access Not Configured'
+        return ['.google_insufficient_permission', {:provider => provider}] if result.error_message.to_s == 'Insufficient Permission'
+        # other errors from Google API
+        return ['.google_other_errors', {:provider => provider, :error => result.error_message}] if !result.data.total_items
+
+        # copy friends to hash.
+        # logger.debug2  "result.data.items = #{result.data.items}"
+        # todo: check friend.kind = plus#person - maybe ignore rows with friend.kind != plus#person
+        # todo: returns profile picture urls with size 50 x 50 (?sz=50) - replace with ?sz=100 ?
+        for friend in result.data.items do
+          # logger.debug2  "friend = #{friend} (#{friend.class})"
+          # copy friend to friends_hash
+          friend_user_id = "#{friend.id}/#{provider}"
+          friends_hash[friend_user_id] = { :name => friend.display_name.force_encoding('UTF-8'),
+                                           :api_profile_url => friend.url,
+                                           :api_profile_picture_url => friend.image.url }
+        end # item
+        # next page - get more friends if any
+        break unless result.next_page_token
+        request = result.next_page
+      end # loop for all google+ friends
+      # return friends has to post_login_<provider> - see also Friend.update_api_friends_from_hash
+      friends_hash
+    end # gofreerev_get_friends
     api_client
   end # init_api_client_google_oauth2
 
   private
   def init_api_client_instagram (token)
     provider = 'instagram'
+    # create instagram api client
     Instagram.configure do |config|
       config.client_id = API_ID[provider]
       config.client_secret = API_SECRET[provider]
     end
     api_client = Instagram.client(:access_token => token)
+    # add helper methods to instagram api client
+    # add gofreerev_get_friends - used on post_login_<provider>
+    api_client.define_singleton_method :gofreerev_get_friends do |logger|
+      # get arrays with follows and followers
+      follows = self.user_follows
+      followed_by = self.user_followed_by
+      # api_friend: Y: mutual friends, F follows, S Stalked by = followed_by
+      api_friends = {}
+      follows.each { |f| api_friends[f.id] = 'F' }
+      followed_by.delete_if { |f| api_friends[f.id] = api_friends.has_key?(f.id) ? 'Y' : 'S' ; api_friends[f.id] == 'Y' }
+      # initialise friends_hash for Friend.update_api_friends_from_hash request
+      friends_hash = {}
+      (follows + followed_by).each do |friend|
+        logger.debug2 "friend = #{friend} (#{friend.class})"
+        # copy friend to friends_hash
+        friend_user_id = "#{friend.id}/#{provider}"
+        friend_name = (friend.full_name.to_s == '' ? friend.username : friend.full_name).force_encoding('UTF-8')
+        friends_hash[friend_user_id] = { :name => friend_name,
+                                         :api_profile_url => "#{API_URL[:instagram]}#{friend.username}#",
+                                         :api_profile_picture_url => friend.profile_picture,
+                                         :api_friend => api_friends[friend.id] }
+      end # each friend
+      # return friends has to post_login_<provider> - see also Friend.update_api_friends_from_hash
+      friends_hash
+    end # gofreerev_get_friends
     api_client
   end # init_api_client_instagram
 
   private
   def init_api_client_linkedin (token)
     provider = 'linkedin'
+    # create linkedin api client
     api_client = LinkedIn::Client.new API_ID[provider], API_SECRET[provider]
     api_client.authorize_from_access token[0], token[1] # token and secret
+    # add helper methods to linkedin api client
+    # add gofreerev_get_friends - used on post_login_<provider>
+    api_client.define_singleton_method :gofreerev_get_friends do |logger|
+      # get array with linkedin connections
+      # http://developer.linkedin.com/documents/profile-fields#profile
+      fields = %w(id,first-name,last-name,public-profile-url,picture-url,num-connections)
+      friends = self.connections(:fields => fields).all
+      # logger.debug2 "friends = #{friends}"
+      # copy array with linkedin connections into gofreerev friends_hash
+      friends_hash = {}
+      friends.each do |connection|
+        # logger.debug2 "connection = #{connection} (#{connection.class})"
+        # logger.debug2 "connection.public_profile_url = #{connection.public_profile_url}"
+        # copy friend to friends_hash
+        friend_user_id = "#{connection.id}/#{provider}"
+        friend_name = "#{connection.first_name} #{connection.last_name}".force_encoding('UTF-8')
+        friends_hash[friend_user_id] = {:name => friend_name,
+                                        :api_profile_url => connection.public_profile_url,
+                                        :api_profile_picture_url => connection.picture_url,
+                                        :no_api_friends => connection.num_connections}
+      end # connection loop
+      # return friends has to post_login_<provider> - see also Friend.update_api_friends_from_hash
+      friends_hash
+    end # gofreerev_get_friends
     api_client
   end # init_api_client_linkedin
 
@@ -782,12 +954,36 @@ class ApplicationController < ActionController::Base
   def init_api_client_twitter (token)
     provider = 'twitter'
     # logger.debug2  "token = #{token.join(', ')}"
+    # create twitter api client
     api_client = Twitter::REST::Client.new do |config|
       config.consumer_key        = API_ID[provider]
       config.consumer_secret     = API_SECRET[provider]
       config.access_token        = token[0]
       config.access_token_secret = token[1]
     end
+    # add helper methods to twitter api client
+    # add gofreerev_get_friends - used on post_login_<provider>
+    api_client.define_singleton_method :gofreerev_get_friends do |logger|
+      # get array with twitter friends (follows)
+      friends = self.friends.to_a
+      # logger.debug2 "friends = #{friends}"
+      # copy vk friends hash array into gofreerev friends_hash
+      friends_hash = {}
+      begin
+        friends.each do |friend|
+          # logger.debug2 "friend.url = #{friend.url} (#{friend.url.class})"
+          # copy friend to friends_hash
+          friend_user_id = "#{friend.id}/#{provider}"
+          friend_name = friend.name.dup.force_encoding('UTF-8')
+          friends_hash[friend_user_id] = { :name => friend_name,
+                                           :api_profile_url => friend.url.to_s,
+                                           :api_profile_picture_url => friend.profile_image_url.to_s,
+                                           :no_api_friends => friend.friends_count }
+        end # connection loop
+      end
+      # return friends has to post_login_<provider> - see also Friend.update_api_friends_from_hash
+      friends_hash
+    end # gofreerev_get_friends
     api_client
   end # init_api_client_twitter
 
@@ -795,10 +991,39 @@ class ApplicationController < ActionController::Base
   def init_api_client_vkontakte (token)
     provider = 'vkontakte'
     login_user = @users.find { |u| u.provider == provider }
+    # create vkontakte api client
+    Vkontakte.setup do |config|
+      config.app_id = API_ID[:vkontakte]
+      config.app_secret = API_SECRET[:vkontakte]
+      config.format = :json
+      config.debug = true
+      config.logger = nil # File.open(Rails.root.join('log', "#{Rails.env}.log").to_s, 'a')
+    end
     api_client = Vkontakte::App::User.new(login_user.uid, :access_token => token)
-    api_client.define_singleton_method :gofreerev_get_friends do
-      self.friends.get :fields => "photo_medium,screen_name"
+    # add helper methods to vkontakte api client
+    # add gofreerev_get_friends - used on post_login_<provider>
+    api_client.define_singleton_method :gofreerev_get_friends do |logger|
+      # get array with vkontakte friends
+      # http://vk.com/developers.php?oid=-17680044&p=friends.get
+      friends = self.friends.get :fields => "photo_medium,screen_name"
+      # logger.debug2 "friends = #{friends}"
+      # copy vk friends hash array into gofreerev friends_hash
+      friends_hash = {}
+      begin
+        friends.each do |friend|
+          # logger.debug2 "friend.url = #{friend.url} (#{friend.url.class})"
+          # copy friend to friends_hash
+          friend_user_id = "#{friend['uid']}/#{provider}"
+          friend_name = "#{friend['first_name']} #{friend['last_name']}".force_encoding('UTF-8')
+          friends_hash[friend_user_id] = { :name => friend_name,
+                                           :api_profile_url => "#{API_URL[:vkontakte]}#{friend['screen_name']}",
+                                           :api_profile_picture_url => friend['photo_medium'] }
+        end # connection loop
+      end
+      # return friends has to post_login_<provider> - see also Friend.update_api_friends_from_hash
+      friends_hash
     end # gofreerev_get_friends
+    # add gofreerev_upload - used in post_on_<provider>
     api_client.define_singleton_method :gofreerev_upload do |api_gift, logger|
       # todo: cannot see VK wall in my browser. test VK from an app/smartphone.
       # false: post to Gofreerev album, true: post to wall.

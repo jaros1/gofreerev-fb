@@ -1036,37 +1036,16 @@ class UtilController < ApplicationController
       api_response1 = api_client.get_object api_request1
       # logger.debug2  "api_response1 = #{api_response1.to_s}"
       #fetch_user: api_response = {"id"=>"100006397022113", "friends"=>{"data"=>[{"name"=>"David Amfcdabcjbif Martinazzisen", "id"=>"100006341230296"}, {"name"=>"Dick Amfceacglc Bushakson", "id"=>"100006351370003"}, {"name"=>"Karen Amfchcebfhjf Smithescu", "id"=>"100006383526806"}, {"name"=>"Sandra Amfciidbbaee Qinsen", "id"=>"100006399422155"}], "paging"=>{"next"=>"https://graph.facebook.com/100006397022113/friends?access_token=CAAFjZBGzzOkcBAFgvgvY7DmLBrzbKFuOiULN248i3AWlSNWqzzTLLINmRjDSM2djyQriVkcKnVJ80pRz3TiJ1koCNcOPU1ioy40aHHuAZCSXovba3pz74db08a6obnrABFZCgEMwX8cKStw25hwvyqkF1YHiV8d2yV5YoFytaI9hGYyCgk3&limit=5000&offset=5000&__after_id=100006399422155"}}, "permissions"=>{"data"=>[{"installed"=>1, "basic_info"=>1, "status_update"=>1, "photo_upload"=>1, "video_upload"=>1, "email"=>1, "create_note"=>1, "share_item"=>1, "publish_stream"=>1, "publish_actions"=>1, "user_friends"=>1, "bookmarked"=>1}], "paging"=>{"next"=>"https://graph.facebook.com/100006397022113/permissions?access_token=CAAFjZBGzzOkcBAFgvgvY7DmLBrzbKFuOiULN248i3AWlSNWqzzTLLINmRjDSM2djyQriVkcKnVJ80pRz3TiJ1koCNcOPU1ioy40aHHuAZCSXovba3pz74db08a6obnrABFZCgEMwX8cKStw25hwvyqkF1YHiV8d2yV5YoFytaI9hGYyCgk3&limit=5000&offset=5000"}}}
-      # get friend list with profile pictures
-      api_request2 = 'me/friends?fields=name,id,picture'
-      # logger.debug2  "api_request2 = #{api_request2}"
-      api_response2 = api_client.get_object api_request2
-      # logger.debug2  "api_response2 = #{api_response2.to_s}"
+
+      # get facebook friends
+      key, options = api_client.gofreerev_get_friends logger ; friends_hash = key
+      return [key, options] if key.class == String
 
       # 1) update number of friends and permissions
-      login_user.no_api_friends = api_response2.size
+      login_user.no_api_friends = friends_hash.size
       login_user.permissions = api_response1['permissions']['data'][0]
       login_user.permissions = {} if login_user.permissions == []
       login_user.save!
-
-      # logger.debug2  "permissions = #{login_user.permissions}"
-      # logger.debug2  "post_gift_allowed? = #{login_user.post_gift_allowed?}"
-
-      # 2) get facebook friends list (name and url for profile picture for each facebook friend)
-      # note that some friends may have privacy settings that prevent Gofreerev from pulling information from API
-      friends_hash = {}
-      api_friends_list = api_response2
-      api_friends_list.each do |friend|
-        # logger.debug2 "friend = #{friend}"
-        friend_user_id = friend["id"] + '/facebook'
-        name = friend["name"].force_encoding('UTF-8')
-        if friend["picture"] and friend["picture"]["data"]
-          api_profile_picture_url = friend["picture"]["data"]["url"]
-        else
-          api_profile_picture_url = nil
-        end
-        friends_hash[friend_user_id] = {:name => name,
-                                        :api_profile_picture_url => api_profile_picture_url }
-      end # each
 
       # update facebook friends (api friend = Y/N)
       new_user = Friend.update_api_friends_from_hash :login_user_id => login_user_id,
@@ -1108,32 +1087,14 @@ class UtilController < ApplicationController
       return [key, options] if key
       login_user_id = login_user.user_id
 
-      # get friends
-      friends = api_client.contacts.getList
+      # get flickr friends (follows)
+      key, options = api_client.gofreerev_get_friends logger ; friends_hash = key
+      return [key, options] if key.class == String
 
-      # copy contacts into friends_hashs
-      friends_hash = {}
-      friends.each do |contact|
-        logger.debug2 "contact = #{contact} (#{contact.class})"
-        # copy friend to friends_hash
-        friend_user_id = "#{contact.nsid}/#{provider}"
-        friend_name = (contact.realname == '' ? contact.username : contact.realname).force_encoding('UTF-8')
-        friend_api_profile_url = "#{API_URL[:flickr]}people/#{contact.nsid}"
-        if contact.iconfarm.to_s == '0' and contact.iconserver.to_s == '0'
-          friend_api_profile_picture_url = nil
-        else
-          friend_api_profile_picture_url = "http://farm#{contact.iconfarm}.static.flickr.com/#{contact.iconserver}/buddyicons/#{contact.nsid}.jpg"
-        end
-        friends_hash[friend_user_id] = {:name => friend_name,
-                                        :api_profile_url => friend_api_profile_url,
-                                        :api_profile_picture_url => friend_api_profile_picture_url}
-      end
-
-      # update flickr connections
+      # update flickr friends (follows)
       new_user = Friend.update_api_friends_from_hash :login_user_id => login_user_id,
                                                      :friends_hash => friends_hash,
                                                      :fields => %w(name api_profile_url api_profile_picture_url)
-      # flickr connections updated
 
       # 3) update balance
       login_user.recalculate_balance if login_user.balance_at != Date.today
@@ -1151,10 +1112,6 @@ class UtilController < ApplicationController
     end
   end # post_login_flickr
   
-  
-  
-  
-  
   # post login task for foursquare - get friends - using foursquare2 gem
   # called from do_tasks - ajax requests after login
   # must return nil or a valid input to translate
@@ -1170,20 +1127,8 @@ class UtilController < ApplicationController
       login_user_id = login_user.user_id
 
       # get foursquare friends
-      friends = api_client.user_friends 'self', :v => '20140214'
-
-      # copy friends list to hash
-      friends_hash = {}
-      friends["items"].each do |friend|
-        logger.debug2 "friend = #{friend}"
-        friend_user_id = "#{friend.id}/#{provider}"
-        name = "#{friend.firstName} #{friend.lastName}".force_encoding('UTF-8')
-        api_profile_url = "#{API_URL[:foursquare]}/user/#{friend.id}"
-        api_profile_picture_url = "#{friend.photo.prefix}100x100#{friend.photo.suffix}"
-        friends_hash[friend_user_id] = {:name => name,
-                                        :api_profile_url => api_profile_url,
-                                        :api_profile_picture_url => api_profile_picture_url }
-      end # each
+      key, options = api_client.gofreerev_get_friends logger ; friends_hash = key
+      return [key, options] if key.class == String
 
       # update foursquare friends (api friend = Y/N)
       new_user = Friend.update_api_friends_from_hash :login_user_id => login_user_id,
@@ -1215,67 +1160,10 @@ class UtilController < ApplicationController
       return [key, options] if key
       login_user_id = login_user.user_id
 
-      # get methods for google+ api calls
-      plus = api_client.discovered_api('plus')
-
       # find people in login user circles
       # https://developers.google.com/api-client-library/ruby/guide/pagination
-      friends_hash = {}
-      request = {:api_method => plus.people.list,
-                 :parameters => {'collection' => 'visible', 'userId' => 'me'}}
-
-      # loop for all google+ friends
-      loop do
-
-        result = api_client.execute(request)
-        # logger.debug2  "result = #{result}"
-        # logger.debug2  "result.error_message.class = #{result.error_message.class}"
-        # logger.debug2  "result.error_message = #{result.error_message}"
-        #result.error_message = {
-        #    "kind": "plus#peopleFeed",
-        #    "etag": "\"QR7ccvNi-CeX9lFTHRm3szTVkpo/lZDO4-dFZ0NFLfhR92UMMY8uQCc\"",
-        #    "title": "Google+ List of Visible People",
-        #    "totalItems": 14,
-        #    "items": [
-        #    {
-        #        "kind": "plus#person",
-        #    "etag": "\"QR7ccvNi-CeX9lFTHRm3szTVkpo/2S9G8Bdu4XoaBMyXkF6YMgpD_U0\"",
-        #    "objectType": "person",
-        #    "id": "114902618678942596705",
-        #    "displayName": "Birgitte Pedersen",
-        #    "url": "https://plus.google.com/114902618678942596705",
-        #    "image": {
-        #    "url": "https://lh5.googleusercontent.com/-JssupQoWvMw/AAAAAAAAAAI/AAAAAAAAAJY/3YU5jnmGWDg/photo.jpg?sz=50"
-        #}
-        #},
-        #    {
-        #    .....
-        # logger.debug2  "result.data.class = #{result.data.class}"
-        # logger.debug2  "result.data = #{result.data}"
-        # logger.debug2  "result.data.total_items = #{result.data.total_items}"
-
-        # known errors from Google API
-        return ['.google_access_not_configured', {:provider => provider}] if result.error_message.to_s == 'Access Not Configured'
-        return ['.google_insufficient_permission', {:provider => provider}] if result.error_message.to_s == 'Insufficient Permission'
-        # other errors from Google API
-        return ['.google_other_errors', {:provider => provider, :error => result.error_message}] if !result.data.total_items
-
-        # copy friends to hash.
-        # logger.debug2  "result.data.items = #{result.data.items}"
-        # todo: check friend.kind = plus#person - maybe ignore rows with friend.kind != plus#person
-        # todo: returns profile picture urls with size 50 x 50 (?sz=50) - replace with ?sz=100 ?
-        for friend in result.data.items do
-          # logger.debug2  "friend = #{friend} (#{friend.class})"
-          # copy friend to friends_hash
-          friend_user_id = "#{friend.id}/#{provider}"
-          friends_hash[friend_user_id] = { :name => friend.display_name.force_encoding('UTF-8'),
-                                           :api_profile_url => friend.url,
-                                           :api_profile_picture_url => friend.image.url }
-        end # item
-        # next page - get more friends if any
-        break unless result.next_page_token
-        request = result.next_page
-      end # loop for all google+ friends
+      key, options = api_client.gofreerev_get_friends logger ; friends_hash = key
+      return [key, options] if key.class == String
 
       # update google+ friends
       new_user = Friend.update_api_friends_from_hash :login_user_id => login_user_id,
@@ -1297,7 +1185,6 @@ class UtilController < ApplicationController
       raise
     end
   end # post_login_google_oauth2
-
 
   # post login task for instagram - get follows and followed-by friend lists
   # using instagram gem
@@ -1321,31 +1208,14 @@ class UtilController < ApplicationController
       # todo: count number of connections retured from instagram
       # todo: handle nil array returned from instagram (r_network missing in scope)
       # todo: get and handle followed_by friend list (api friend F, S or A)
-      # get friends list from instagram
-      follows = api_client.user_follows
-      followed_by = api_client.user_followed_by
-      # api_friend: Y: mutual friends, F follows, S Stalked by = followed_by
-      api_friends = {}
-      follows.each { |f| api_friends[f.id] = 'F' }
-      followed_by.delete_if { |f| api_friends[f.id] = api_friends.has_key?(f.id) ? 'Y' : 'S' ; api_friends[f.id] == 'Y' }
-      # initialise friends_hash for Friend.update_api_friends_from_hash request
-      friends_hash = {}
-      (follows + followed_by).each do |friend|
-          logger.debug2 "friend = #{friend} (#{friend.class})"
-          # copy friend to friends_hash
-          friend_user_id = "#{friend.id}/#{provider}"
-          friend_name = (friend.full_name.to_s == '' ? friend.username : friend.full_name).force_encoding('UTF-8')
-          friends_hash[friend_user_id] = { :name => friend_name,
-                                           :api_profile_url => "#{API_URL[:instagram]}#{friend.username}#",
-                                           :api_profile_picture_url => friend.profile_picture,
-                                           :api_friend => api_friends[friend.id] }
-      end # each friend
+      # get friends list from instagram (follows and followed_by)
+      key, options = api_client.gofreerev_get_friends logger ; friends_hash = key
+      return [key, options] if key.class == String
 
-      # update instagram connections
+      # update instagram friends
       new_user = Friend.update_api_friends_from_hash :login_user_id => login_user_id,
                                                      :friends_hash => friends_hash,
                                                      :fields => %w(name api_profile_url api_profile_picture_url)
-      # instagram connections updated
 
       # 3) update balance
       login_user.recalculate_balance if login_user.balance_at != Date.today
@@ -1389,19 +1259,8 @@ class UtilController < ApplicationController
 
       friends_hash = {}
       begin
-        # http://developer.linkedin.com/documents/profile-fields#profile
-        fields = %w(id,first-name,last-name,public-profile-url,picture-url,num-connections)
-        api_client.connections(:fields => fields).all.each do |connection|
-          logger.debug2 "connection = #{connection} (#{connection.class})"
-          logger.debug2 "connection.public_profile_url = #{connection.public_profile_url}"
-          # copy friend to friends_hash
-          friend_user_id = "#{connection.id}/#{provider}"
-          friend_name = "#{connection.first_name} #{connection.last_name}".force_encoding('UTF-8')
-          friends_hash[friend_user_id] = { :name => friend_name,
-                                           :api_profile_url => connection.public_profile_url,
-                                           :api_profile_picture_url => connection.picture_url,
-                                           :no_api_friends => connection.num_connections }
-        end # connection loop
+        key, options = api_client.gofreerev_get_friends logger ; friends_hash = key
+        return [key, options] if key.class == String
       rescue LinkedIn::Errors::AccessDeniedError => e
         return ['.linkedin_access_denied', {:provider => provider}] if e.message.to_s =~ /Access to connections denied/
         raise
@@ -1444,26 +1303,15 @@ class UtilController < ApplicationController
       return [key, options] if key
       login_user_id = login_user.user_id
 
-      friends_hash = {}
-      begin
-        api_client.friends.to_a.each do |friend|
-          # logger.debug2 "friend.url = #{friend.url} (#{friend.url.class})"
-          # copy friend to friends_hash
-          friend_user_id = "#{friend.id}/#{provider}"
-          friend_name = friend.name.dup.force_encoding('UTF-8')
-          friends_hash[friend_user_id] = { :name => friend_name,
-                                           :api_profile_url => friend.url.to_s,
-                                           :api_profile_picture_url => friend.profile_image_url.to_s,
-                                           :no_api_friends => friend.friends_count }
-        end # connection loop
-      end
+      # get friends (follows and followers) from twitter
+      key, options = api_client.gofreerev_get_friends logger ; friends_hash = key
+      return [key, options] if key.class == String
 
       # update twitter friends
       # todo: refactor next three methods calls into one method. Should be identical for all providers
       new_user = Friend.update_api_friends_from_hash :login_user_id => login_user_id,
                                                      :friends_hash => friends_hash,
                                                      :fields => %w(name api_profile_url api_profile_picture_url no_api_friends)
-      # twitter friends updated
 
       # 3) update balance
       login_user.recalculate_balance if login_user.balance_at != Date.today
@@ -1497,31 +1345,14 @@ class UtilController < ApplicationController
       login_user_id = login_user.user_id
 
       # get array with vkontakte friends - see init_api_client_vkontakte
-      friends = api_client.gofreerev_get_friends
-      logger.debug2 "friends = #{friends}"
+      key, options = api_client.gofreerev_get_friends logger ; friends_hash = key
+      return [key, options] if key.class == String
 
-      # copy vk friends hash array into gofreerev friends_hash
-      friends_hash = {}
-      begin
-        friends.each do |friend|
-
-          # logger.debug2 "friend.url = #{friend.url} (#{friend.url.class})"
-          # copy friend to friends_hash
-          friend_user_id = "#{friend['uid']}/#{provider}"
-          friend_name = "#{friend['first_name']} #{friend['last_name']}".force_encoding('UTF-8')
-          friends_hash[friend_user_id] = { :name => friend_name,
-                                           :api_profile_url => "#{API_URL[:vkontakte]}#{friend['screen_name']}",
-                                           :api_profile_picture_url => friend['photo_medium'] }
-        end # connection loop
-      end
-
-      # update vkontakte friends
+      # update friends
       # todo: refactor next three methods calls into one method. Should be identical for all providers
       new_user = Friend.update_api_friends_from_hash :login_user_id => login_user_id,
                                                      :friends_hash => friends_hash,
                                                      :fields => %w(name api_profile_url api_profile_picture_url)
-      # vkontakte friends updated
-
       # 3) update balance
       login_user.recalculate_balance if login_user.balance_at != Date.today
 
