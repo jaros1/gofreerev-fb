@@ -1724,7 +1724,30 @@ function show_debug_log_checkbox(checkbox) {
     else debug_log.style.display = 'none' ;
 }
 
-
+// catch ajax:error for any grant write ajax links
+// gift_posted_3b_html key translate key used for twitter & vkontakte.
+$(document).ready(function() {
+    var id = ".grant_write_ajax_link" ;
+    var pgm, msg ;
+    $(id).unbind("ajax:error") ;
+    $(id).bind("ajax:error", function(jqxhr, textStatus, errorThrown){
+        pgm = id + '::ajax:error: ' ;
+        try {
+            add2log(pgm);
+            add2log('jqxhr = ' + jqxhr);
+            add2log('jqxhr.target = ' + jqxhr.target);
+            add2log('textStatus = ' + textStatus);
+            add2log('errorThrown = ' + errorThrown);
+            add_to_tasks_errors('Grant write link failed. check server log for more information.') ;
+        }
+        catch (err) {
+            msg = pgm + 'failed with JS error: ' + err ;
+            add2log(msg) ;
+            add_to_tasks_errors(msg) ;
+            return ;
+        }
+    }) // ajax:error
+})
 
 
 // custom confirm box - for styling

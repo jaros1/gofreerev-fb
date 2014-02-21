@@ -1026,6 +1026,25 @@ class ApplicationController < ActionController::Base
               :hide_url => hide_url}]
   end # grant_write_link_twitter
 
+  # return [key, options] with @errors ajax to grant write access to vkontakte wall
+  # link is injected in tasks_errors table in page header
+  # read/write authorization in vkontakte is a gofreerev concept - omniauth login is with write permission to vkontakte wall
+  private
+  def grant_write_link_vkontakte
+    provider = 'vkontakte'
+    url = '/util/grant_write_vkontakte'
+    confirm = t 'shared.translate_ajax_errors.confirm_grant_write', :apiname => provider_downcase(provider)
+    hide_url = "/util/hide_grant_write?provider=#{provider}"
+
+    # ajax inject link in gifts/index page
+    return ['.gift_posted_3b_html',
+            { :appname => APP_NAME,
+              :apiname => provider_downcase(provider),
+              :provider => provider,
+              :url => url, :confirm => confirm,
+              :hide_url => hide_url}]
+  end # grant_write_link_vkontakte
+
   private
   def grant_write_link (provider)
     # API_GIFT_PICTURE_STORE: nil (no picture/readonly api), :api (use api picture url) or :local (keep local copy of picture)

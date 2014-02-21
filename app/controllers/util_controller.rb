@@ -1890,6 +1890,7 @@ class UtilController < ApplicationController
     login_user, token, key, options = get_login_user_and_token(provider)
     if key
       @errors << [key, options]
+      render 'grant_write'
       return
     end
     # change twitter user permissions from read to write
@@ -1898,8 +1899,33 @@ class UtilController < ApplicationController
     @link = "grant_write_div_#{provider}"
     # ok
     @errors << ['.grant_write_ok', login_user.app_and_apiname_hash ]
+    render 'grant_write'
   end # grant_write_twitter
 
+  # grant_write_vkontakte is called from gifts/index page
+  # ( remote link was ajax injected in post_on_vkontakte if missing write priv. )
+  public
+  def grant_write_vkontakte
+    @errors = []
+    @link = nil
+    provider = 'vkontakte'
+    # get user
+    login_user, token, key, options = get_login_user_and_token(provider)
+    if key
+      @errors << [key, options]
+      render 'grant_write'
+      return
+    end
+    # change vkontakte user permissions from read to write
+    login_user.update_attribute('permissions', 'write')
+    # hide ajax injected link to grant write permission to vkontakte wall
+    @link = "grant_write_div_#{provider}"
+    # ok
+    @errors << ['.grant_write_ok', login_user.app_and_apiname_hash ]
+    render 'grant_write'
+  end # grant_write_vkontakte
+
+  
   # hide grant_write_<provider> link in gifts/index page
   # that is - set user.post_on_wall_yn to N and hide link
   public

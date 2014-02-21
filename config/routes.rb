@@ -33,6 +33,7 @@ GofreerevFb::Application.routes.draw do
   get 'util/currencies'
   post 'util/post_on_wall_yn'
   post 'util/grant_write_twitter'
+  post 'util/grant_write_vkontakte'
   post 'util/hide_grant_write'
   delete 'auth/destroy'
 
