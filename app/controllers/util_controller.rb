@@ -2518,10 +2518,14 @@ class UtilController < ApplicationController
           #rescue VkontakteUploadserverException => e
           #rescue VkontaktePostException => e
           #rescue VkontakteSaveException => e
+      rescue AccessTokenExpiredException => e
+        logger.debug2 "#{provider} access token has expired"
+        gift_posted_on_wall_api_wall = 10
       rescue Exception => e
         logger.debug2 "Exception: #{e.message.to_s} (#{e.class})"
         logger.debug2 "Backtrace: " + e.backtrace.join("\n")
-        raise
+        gift_posted_on_wall_api_wall = 1
+        error = e.message
       end
 
       if gift_posted_on_wall_api_wall != 2

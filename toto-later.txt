@@ -28,7 +28,7 @@ Low priority todo list. Minor errors, wishlist etc.
    12) MySpace - cannot find any usable documentation - 6 years old gem
    13) Meetup
    14) Weibo - can not signup for an account - no sms verification for denmark
-   15) Odnoklassniki - one not verified account created
+   15) Odnoklassniki - one account created - cannot register app. (wrong error about missing email)
    16) Renren
    17) mixi
    18) XING

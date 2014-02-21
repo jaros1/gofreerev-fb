@@ -16,3 +16,4 @@ class OmniAuth::AuthHash
     image
   end
 end
+

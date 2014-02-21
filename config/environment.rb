@@ -115,3 +115,4 @@ OmniAuth::Builder.providers.each do |provider|
   api_mutual_friends[provider] = (provider =~ /^google/ or %w(flickr instagram twitter).index(provider)) ? false : true
 end
 API_MUTUAL_FRIENDS = api_mutual_friends.with_indifferent_access
+

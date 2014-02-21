@@ -58,19 +58,10 @@ gem 'twitter' # twitter API calls    - http://sferik.github.io/twitter/
 # 8) VKontakte
 # register : http://vk.com/dev
 # reference: https://vk.com/pages?oid=-17680044&p=API_Method_Description
-# permissions: http://vk.com/dev/permissions
-# - 4 Photos is required for photo upload (.photos.getWallUploadServer)
+# (*) vkontakte 0.0.3 from RubyGems.org with a minor change in FkException
 gem 'omniauth-vkontakte' # https://github.com/mamantoha/omniauth-vkontakte
-# 3 possible gems:
-# a) https://github.com/galetahub/vkontakte - last update 2 years ago - 31 commits - 3 contributors
-# has a user.photos.getWallUploadServer method that is first step in uploading photo to user profile/wall
-# has not a post or upload method that is second step in uploading photo to user profile/wall
-gem 'vkontakte'
-# b) https://github.com/zinenko/vk-ruby - last update 9 months ago - 146 commits - 4 contributors
-# gem 'yajl-ruby' # used in vk-ruby 0.7.4 - note that there also is a vk-ruby 0.9.4 that could by used
-# gem 'vk-ruby' # https://github.com/zinenko/vk-ruby - last update 9 months ago - 146 commits - 4 contributors
-# c) https://github.com/7even/vkontakte_api - up-to-date - 185 commits - 7 contributors
-# gem 'vkontakte_api' # https://github.com/7even/vkontakte_api - up-to-date - 185 commits - 7 contributors
+gem 'httparty' # used in vkontakte
+gem 'vkontakte', '0.0.3' , :path => 'vendor/gems/vkontakte-0.0.3' # http://rubygems.org/gems/vkontakte (*)
 gem 'rest_client' # for post multipart in vkontakte_api uploads
 
 # Use sqlite3 as the database for Active Record

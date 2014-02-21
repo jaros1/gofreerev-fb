@@ -807,6 +807,17 @@ class ApplicationController < ActionController::Base
       # http://vk.com/developers.php?oid=-17680044&p=photos.getAlbums
       begin
         albums = self.photos.getAlbums
+      rescue Vkontakte::App::VkException => e
+        if e.message_options.class == HTTParty::Response and
+            e.message_options['error'] and
+            e.message_options['error']['error_code'] == 5 and
+            e.message_options['error']['error_msg'].to_s =~ /expired/
+          logger.debug2 'access token has expired'
+          raise AccessTokenExpiredException.new(provider)
+        end
+        logger.debug2 "exception: #{e.message} (#{e.class})"
+        logger.debug2 "e.message_options = #{e.message_options} (#{e.message_options.class})"
+        raise VkontakteAlbumMissingException.new "#{e.class}: #{e.message}"
       rescue Exception => e
         raise VkontakteAlbumMissingException.new "#{e.class}: #{e.message}"
       end
@@ -862,30 +873,33 @@ class ApplicationController < ActionController::Base
       begin
         upload_res1 = RestClient.post url, :file1 => File.new(picture_full_os_path)
       rescue Exception => e
+        # FileUtils.rm picture_full_os_path if !api_gift.picture? and File.exists?(picture_full_os_path)
         raise VkontaktePostException.new "#{e.class}: #{e.message}"
       end
+      # FileUtils.rm picture_full_os_path if !api_gift.picture? and File.exists?(picture_full_os_path)
       if upload_res1.code.to_s != '200'
         raise VkontaktePostException.new "response code #{upload_res1.code}. body = #{upload_res1.body}"
       end
-      logger.debug2 "upload_res1.class = #{upload_res1.class}"
-      logger.debug2 "upload_res1.body = #{upload_res1.body}"
-      logger.debug2 "upload_res1.code = #{upload_res1.code}"
+      # check yml upload response
       begin
         upload_res2 = YAML::load(upload_res1.body)
       rescue Exception => e
+        logger.debug2 "upload_res1.class = #{upload_res1.class}"
+        logger.debug2 "upload_res1.body = #{upload_res1.body}"
         raise VkontaktePostException.new "#{e.class}: #{e.message}. Excepted yaml response"
       end
-      logger.debug2 "upload_res2 = #{upload_res2}"
-      logger.debug2 "upload_res2.class = #{upload_res2.class}"
-      # text to image convert - delete temp image - general cleaup is done in delete_local_picture task
-      FileUtils.rm picture_full_os_path unless api_gift.picture?
       # save uploaded photo in album
       if !upload_res2.has_key?('server') or !upload_res2.has_key?('hash')
+        logger.debug2 "upload_res2 = #{upload_res2}"
+        logger.debug2 "upload_res2.class = #{upload_res2.class}"
         raise VkontaktePostException.new "upload_res2 = #{upload_res2}"
       end
       if wall and !upload_res2.has_key?('photo') or !wall and !upload_res2.has_key?('photos_list')
+        logger.debug2 "upload_res2 = #{upload_res2}"
+        logger.debug2 "upload_res2.class = #{upload_res2.class}"
         raise VkontaktePostException.new "upload_res2 = #{upload_res2}"
       end
+      # save uploaded photo on wall or in gofreerev album
       # http://vk.com/developers.php?oid=-17680044&p=photos.save
       server = upload_res2['server']
       photo = upload_res2['photo']

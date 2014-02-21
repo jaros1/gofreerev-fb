@@ -316,6 +316,7 @@ class Picture < ActiveRecord::Base
     js_os_path = png_os_path[0..-4] + 'js'
     # create html file with text for image
     # todo: add styles. ok as png image. not ok as jpg image
+    # todo: set text size dynamic to prevent pictures with very small or big height
     File.open(html_os_path, 'w:UTF-8') do |html|
       html.puts "<!DOCTYPE html>"
       html.puts "<html>"
@@ -324,7 +325,7 @@ class Picture < ActiveRecord::Base
       html.puts '<meta content="utf-8" http-equiv="encoding">'
       html.puts "</head>"
       html.puts "<body>"
-      html.puts "<p style='font-size:300%'>#{text}</p>"
+      html.puts "<p style='font-size:150%'>#{text}</p>"
       html.puts "</body>"
       html.puts "</html>"
     end
@@ -346,12 +347,23 @@ class Picture < ActiveRecord::Base
     # run phantomjs script
     cmd = "phantomjs #{js_os_path}"
     stdout, stderr, status = User.open4(cmd, PICTURE_TEMP_OS_ROOT)
-    logger.debug2 "phantomjs: stdout = #{stdout}, stderr = #{stderr}, status = #{status} (#{status.class})"
+    if status != 0
+      logger.error2 "phandomjs: cmd = #{cmd}"
+      logger.error2 "phantomjs: stdout = #{stdout}, stderr = #{stderr}, status = #{status} (#{status.class})"
+      FileUtils.rm html_os_path
+      FileUtils.rm js_os_path
+      FileUtils.rm png_os_path_os_path if File.exist?(png_os_path)
+      raise PictureText2imageException.new "phantomjs failed with #{status}: #{stderr}"
+    end
     # cleanup files
-    FileUtils.rm html_os_path
-    FileUtils.rm js_os_path
+    # FileUtils.rm html_os_path
+    # FileUtils.rm js_os_path
+    # check image
+    raise PictureText2imageException.new "Generated image was not found" unless File.exists?(png_os_path)
+    size = FastImage.size(png_os_path)
+    logger.error2 "Expected #{width} wide picture. Found width #{size.first}" if size.first != width
     # return full os path to png image
     png_os_path
-  end
+  end # self.create_png_image_from_text
 
 end
