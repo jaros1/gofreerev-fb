@@ -1,1 +1,0 @@
-class PictureText2imageException < StandardError ; end

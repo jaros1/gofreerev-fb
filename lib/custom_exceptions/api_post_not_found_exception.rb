@@ -1,1 +1,0 @@
-class ApiPostNotFoundException < StandardError ; end

@@ -551,12 +551,6 @@
      for example phantomjs os call: stdout = , stderr = , status = 0
      check picture width after generation
 
-122) add a generic post_on_wall method and refactor existing post_on_<provider> code to this
-     - refactored friends list lookup to api clients
-     - check difference between post_login_<provider> methods
-     - Friend.update_api_friends_from_hash - set fields dynamic from friends_hash
-     - refactor post_login_facebook into generic_post_login as api client method
-
 123) text to image convert.
      find best width, height, aspect ratio for each provider
      use text size to wit text within best picture dimensions.

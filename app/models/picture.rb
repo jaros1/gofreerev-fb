@@ -353,13 +353,13 @@ class Picture < ActiveRecord::Base
       FileUtils.rm html_os_path
       FileUtils.rm js_os_path
       FileUtils.rm png_os_path_os_path if File.exist?(png_os_path)
-      raise PictureText2imageException.new "phantomjs failed with #{status}: #{stderr}"
+      raise TextToImage.new "phantomjs failed with #{status}: #{stderr}"
     end
     # cleanup files
     # FileUtils.rm html_os_path
     # FileUtils.rm js_os_path
     # check image
-    raise PictureText2imageException.new "Generated image was not found" unless File.exists?(png_os_path)
+    raise TextToImage.new "Generated image was not found" unless File.exists?(png_os_path)
     size = FastImage.size(png_os_path)
     logger.error2 "Expected #{width} wide picture. Found width #{size.first}" if size.first != width
     # return full os path to png image

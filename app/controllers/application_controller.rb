@@ -1053,13 +1053,13 @@ class ApplicationController < ActionController::Base
             e.message_options['error']['error_code'] == 5 and
             e.message_options['error']['error_msg'].to_s =~ /expired/
           logger.debug2 'access token has expired'
-          raise AccessTokenExpiredException.new(provider)
+          raise AccessTokenExpired.new(provider)
         end
         logger.debug2 "exception: #{e.message} (#{e.class})"
         logger.debug2 "e.message_options = #{e.message_options} (#{e.message_options.class})"
-        raise VkontakteAlbumMissingException.new "#{e.class}: #{e.message}"
+        raise VkontakteAlbumMissing.new "#{e.class}: #{e.message}"
       rescue Exception => e
-        raise VkontakteAlbumMissingException.new "#{e.class}: #{e.message}"
+        raise VkontakteAlbumMissing.new "#{e.class}: #{e.message}"
       end
       # logger.debug2 "albums = #{albums}"
       album = albums.find { |a| a["title"] == APP_NAME }
@@ -1068,17 +1068,17 @@ class ApplicationController < ActionController::Base
         begin
           album = self.photos.createAlbum :title => APP_NAME, :description => SITE_URL
         rescue Exception => e
-          raise VkontakteCreateAlbumException.new "#{e.class}: #{e.message}"
+          raise VkontakteCreateAlbum.new "#{e.class}: #{e.message}"
         end
         if album.class != Hash or !album.has_key?('aid')
-          raise VkontakteCreateAlbumException.new "album = #{album}"
+          raise VkontakteCreateAlbum.new "album = #{album}"
         end
       end
       # logger.debug2 "album = #{album}"
       aid = album['aid']
       if aid.to_s == ''
         logger.debug2 "album = #{album}"
-        raise VkontakteAlbumMissingException.new "#{APP_NAME} album not found"
+        raise VkontakteAlbumMissing.new "#{APP_NAME} album not found"
       end
       logger.debug2 "aid = #{aid}"
       # get full os path for image
@@ -1099,10 +1099,10 @@ class ApplicationController < ActionController::Base
           uploadserver = self.photos.getUploadServer :aid => aid
         end
       rescue Exception => e
-        raise VkontakteUploadserverException.new "#{e.class}: #{e.message}"
+        raise VkontakteUploadserver.new "#{e.class}: #{e.message}"
       end
       if uploadserver.class != Hash or !uploadserver.has_key?('upload_url')
-        raise VkontakteUploadserverException.new "uploadserver = #{uploadserver} (#{uploadserver.class})"
+        raise VkontakteUploadserver.new "uploadserver = #{uploadserver} (#{uploadserver.class})"
       end
       logger.debug2 "uploadserver = #{uploadserver}"
       logger.debug2 "uploadserver.class = #{uploadserver.class}"
@@ -1114,11 +1114,11 @@ class ApplicationController < ActionController::Base
         upload_res1 = RestClient.post url, :file1 => File.new(picture_full_os_path)
       rescue Exception => e
         # FileUtils.rm picture_full_os_path if !api_gift.picture? and File.exists?(picture_full_os_path)
-        raise VkontaktePostException.new "#{e.class}: #{e.message}"
+        raise VkontaktePhotoPost.new "#{e.class}: #{e.message}"
       end
       # FileUtils.rm picture_full_os_path if !api_gift.picture? and File.exists?(picture_full_os_path)
       if upload_res1.code.to_s != '200'
-        raise VkontaktePostException.new "response code #{upload_res1.code}. body = #{upload_res1.body}"
+        raise VkontaktePhotoPost.new "response code #{upload_res1.code}. body = #{upload_res1.body}"
       end
       # check yml upload response
       begin
@@ -1126,18 +1126,18 @@ class ApplicationController < ActionController::Base
       rescue Exception => e
         logger.debug2 "upload_res1.class = #{upload_res1.class}"
         logger.debug2 "upload_res1.body = #{upload_res1.body}"
-        raise VkontaktePostException.new "#{e.class}: #{e.message}. Excepted yaml response"
+        raise VkontaktePhotoPost.new "#{e.class}: #{e.message}. Excepted yaml response"
       end
       # save uploaded photo in album
       if !upload_res2.has_key?('server') or !upload_res2.has_key?('hash')
         logger.debug2 "upload_res2 = #{upload_res2}"
         logger.debug2 "upload_res2.class = #{upload_res2.class}"
-        raise VkontaktePostException.new "upload_res2 = #{upload_res2}"
+        raise VkontaktePhotoPost.new "upload_res2 = #{upload_res2}"
       end
       if wall and !upload_res2.has_key?('photo') or !wall and !upload_res2.has_key?('photos_list')
         logger.debug2 "upload_res2 = #{upload_res2}"
         logger.debug2 "upload_res2.class = #{upload_res2.class}"
-        raise VkontaktePostException.new "upload_res2 = #{upload_res2}"
+        raise VkontaktePhotoPost.new "upload_res2 = #{upload_res2}"
       end
       # save uploaded photo on wall or in gofreerev album
       # http://vk.com/developers.php?oid=-17680044&p=photos.save
@@ -1155,16 +1155,16 @@ class ApplicationController < ActionController::Base
           save_res = self.photos.save :aid => aid, :server => server, :photos_list => photos_list, :hash => hash, :caption => description
         end
       rescue exception => e
-        raise VkontakteSaveException.new "#{e.class}: #{e.message}"
+        raise VkontaktePhotoSave.new "#{e.class}: #{e.message}"
       end
       if save_res.class != Array or save_res.length != 1
-        raise VkontakteSaveException.new "Expected array with one photo. save_res = #{save_res} (#{save_res.class})"
+        raise VkontaktePhotoSave.new "Expected array with one photo. save_res = #{save_res} (#{save_res.class})"
       end
       logger.debug2 "save_res = #{save_res} (#{save_res.class})"
       logger.debug2 "save_res.length = #{save_res.length})"
       save_res = save_res.first
       if !save_res.has_key?('owner_id') or !save_res.has_key?('pid')
-        raise VkontakteSaveException.new "Expected hash with owner_id and pid. save_res = #{save_res}"
+        raise VkontaktePhotoSave.new "Expected hash with owner_id and pid. save_res = #{save_res}"
       end
       api_gift_id = "#{save_res['owner_id']}_#{save_res['pid']}"
       api_gift_id

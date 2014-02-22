@@ -284,7 +284,7 @@ class UtilController < ApplicationController
               end
               # ok - post/picture os still on api wall and new api gift picture url has been received
               next
-            rescue ApiPostNotFoundException => e
+            rescue ApiPostNotFound => e
               # identical api error response if picture is deleted or if user is not allowed to see picture
               logger.debug2 "api gift #{api_gift.id} has been deleted on #{api_gift.provider} wall."
               api_gift.deleted_at_api = 'Y'
@@ -1630,11 +1630,11 @@ class UtilController < ApplicationController
     begin
       x = api_client.photos.getById :photos => api_gift.api_gift_id
       if x.class != Array or x.length != 1
-        raise VkontaktePhotoGetException.new "Expected array with one photo. Response = #{x} (#{x.class})"
+        raise VkontaktePhotoGet.new "Expected array with one photo. Response = #{x} (#{x.class})"
       end
       x = x.first
       if x.class != Hash or !x.has_key?('src_big')
-        raise VkontaktePhotoGetException.new "Expected hash with scr_big. Response = #{x} (#{x.class})"
+        raise VkontaktePhotoGet.new "Expected hash with scr_big. Response = #{x} (#{x.class})"
       end
       api_gift.api_picture_url = x['src_big']
     rescue Vkontakte::App::VkException => e
@@ -2363,7 +2363,7 @@ class UtilController < ApplicationController
           #rescue VkontakteUploadserverException => e
           #rescue VkontaktePostException => e
           #rescue VkontakteSaveException => e
-      rescue AccessTokenExpiredException => e
+      rescue AccessTokenExpired => e
         logger.debug2 "#{provider} access token has expired"
         gift_posted_on_wall_api_wall = 10
       rescue Exception => e

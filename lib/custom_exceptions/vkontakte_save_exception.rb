@@ -1,1 +1,0 @@
-class VkontakteSaveException < StandardError ; end
