@@ -461,11 +461,12 @@ class ApplicationController < ActionController::Base
     if UtilController.new.private_methods.index(post_login_task_provider.to_sym)
       add_task post_login_task_provider, 5
     else
-      # no post_login_<provider> method was found.
-      # write error message in log and ajax inject error message in gifts/index page
-      # there must be a post_login_<provider> method to download friend list from login provider
-      logger.error2  "No post login task was found for #{provider}. No #{provider} friend information will be downloaded"
-      add_task "post_login_not_found('#{provider}')"
+      add_task "generic_post_login('#{provider}')", 5
+      logger.debug2 "no post_login_#{provider} method was found in util controller - using generic post login task"
+      ## write error message in log and ajax inject error message in gifts/index page
+      ## there must be a post_login_<provider> method to download friend list from login provider
+      #logger.error2  "No post login task was found for #{provider}. No #{provider} friend information will be downloaded"
+      #add_task "post_login_not_found('#{provider}')"
     end
     # enable file upload button if new user can write on api wall
     add_task "disable_enable_file_upload", 5

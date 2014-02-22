@@ -45,13 +45,15 @@ class AuthController < ApplicationController
   # omniauth callback on success (login was started from rails)
   def create
     @auth_hash = auth_hash
-    logger.secret2  "auth_hash = #{auth_hash}"
-    logger.debug2 "auth_hash.get_profile_url = #{auth_hash.get_profile_url}"
+    # logger.secret2  "auth_hash = #{auth_hash}"
+    # logger.debug2 "auth_hash.get_profile_url = #{auth_hash.get_profile_url}"
 
     # login - return nil (ok) or array with translate key and options for error message
     # auth_hash.get_xxx methods are defined in initializers/omniauth*.rb
     provider = auth_hash.get_provider
-    #if provider == 'flickr' and auth_hash.get_uid.to_s == '117614965@N05'
+
+    # auth hash debugging for new login providers:
+    #if provider == 'flickr' and auth_hash.get_uid.to_s == '107614965@N99'
     #  logger.debug2 'checking structure of auth hash for flickroursquare'
     #  t = Task.new
     #  t.session_id = session[:session_id]
