@@ -730,18 +730,16 @@ class ApplicationController < ActionController::Base
     # add helper methods to facebook api client
     # add gofreerev_get_friends - used on post_login_<provider>
     api_client.define_singleton_method :gofreerev_get_friends do |logger|
-      # get facebook friends
-
-      api_request2 = 'me/friends?fields=name,id,picture'
-      # logger.debug2  "api_request2 = #{api_request2}"
-      api_response2 = self.get_object api_request2
-      # logger.debug2  "api_response2 = #{api_response2.to_s}"
-
-      # 2) get facebook friends list (name and url for profile picture for each facebook friend)
-      # note that some friends may have privacy settings that prevent Gofreerev from pulling information from API
+      # get facebook friends list (name and url for profile picture for each facebook friend)
+      # note that some friends may have privacy settings that prevent client from pulling friends information from API
+      # ( not all friends are returned )
+      api_request = 'me/friends?fields=name,id,picture'
+      # logger.debug2  "api_request = #{api_request}"
+      friends = self.get_object api_request
+      # logger.debug2  "friends = #{friends}"
+      # copy friends from api to friends_hash
       friends_hash = {}
-      api_friends_list = api_response2
-      api_friends_list.each do |friend|
+      friends.each do |friend|
         # logger.debug2 "friend = #{friend}"
         friend_user_id = friend["id"] + '/facebook'
         name = friend["name"].force_encoding('UTF-8')
@@ -754,7 +752,7 @@ class ApplicationController < ActionController::Base
                                         :api_profile_picture_url => api_profile_picture_url }
       end # each
       # return friends has to post_login_<provider> - see also Friend.update_api_friends_from_hash
-      friends_hash
+      [friends_hash, nil, nil]
     end # gofreerev_get_friends
     api_client
   end
@@ -791,7 +789,7 @@ class ApplicationController < ActionController::Base
                                         :api_profile_picture_url => friend_api_profile_picture_url}
       end
       # return friends has to post_login_<provider> - see also Friend.update_api_friends_from_hash
-      friends_hash
+      [friends_hash, nil, nil]
     end # gofreerev_get_friends
     api_client
   end # init_api_client_flickr
@@ -819,7 +817,7 @@ class ApplicationController < ActionController::Base
                                         :api_profile_picture_url => api_profile_picture_url }
       end # each
       # return friends has to post_login_<provider> - see also Friend.update_api_friends_from_hash
-      friends_hash
+      [friends_hash, nil, nil]
     end # gofreerev_get_friends
     api_client
   end # init_api_client_foursquare
@@ -875,7 +873,7 @@ class ApplicationController < ActionController::Base
         request = result.next_page
       end # loop for all google+ friends
       # return friends has to post_login_<provider> - see also Friend.update_api_friends_from_hash
-      friends_hash
+      [friends_hash, nil, nil]
     end # gofreerev_get_friends
     api_client
   end # init_api_client_google_oauth2
@@ -912,7 +910,7 @@ class ApplicationController < ActionController::Base
                                          :api_friend => api_friends[friend.id] }
       end # each friend
       # return friends has to post_login_<provider> - see also Friend.update_api_friends_from_hash
-      friends_hash
+      [friends_hash, nil, nil]
     end # gofreerev_get_friends
     api_client
   end # init_api_client_instagram
@@ -945,7 +943,7 @@ class ApplicationController < ActionController::Base
                                         :no_api_friends => connection.num_connections}
       end # connection loop
       # return friends has to post_login_<provider> - see also Friend.update_api_friends_from_hash
-      friends_hash
+      [friends_hash, nil, nil]
     end # gofreerev_get_friends
     api_client
   end # init_api_client_linkedin
@@ -982,7 +980,7 @@ class ApplicationController < ActionController::Base
         end # connection loop
       end
       # return friends has to post_login_<provider> - see also Friend.update_api_friends_from_hash
-      friends_hash
+      [friends_hash, nil, nil]
     end # gofreerev_get_friends
     api_client
   end # init_api_client_twitter
@@ -1021,7 +1019,7 @@ class ApplicationController < ActionController::Base
         end # connection loop
       end
       # return friends has to post_login_<provider> - see also Friend.update_api_friends_from_hash
-      friends_hash
+      [friends_hash, nil, nil]
     end # gofreerev_get_friends
     # add gofreerev_upload - used in post_on_<provider>
     api_client.define_singleton_method :gofreerev_upload do |api_gift, logger|

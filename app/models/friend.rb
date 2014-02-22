@@ -224,18 +224,55 @@ class Friend < ActiveRecord::Base
     end # case
   end # add_as_follower
 
-
-  # friends_hash is hash with new friends list from util_controller.post_login_<provider> api request
-  # todo: describe fields in friends_hash
+  # update friends table with hash of friends received from login provider (api_client.gofreerev_get_friends)
+  # options: login_user_id and friends_hash
+  # - login_user_id: "#{uid}/#{provider}"
+  # - friends_hash: = { userid1 => {:name=> username1,
+  #                                 :api_profile_url=> api_profile_url1,
+  #                                 :api_profile_picture_url => api_profile_picture_url1,
+  #                                 :no_api_friends=> no_api_friends1},
+  #                     userid2 => { ...}
+  #                     ...
+  #                     useridn => { ...}
+  #                   }
+  # not all fields are available for all login providers
+  # do not include field in hash if field should not be updated
+  # include field in hash if field should be updated (nil is allowed)
   def self.update_api_friends_from_hash (options)
+    new_user = nil
     # get params
     login_user_id = options[:login_user_id]
     new_friends = options[:friends_hash]
-    fields = options[:fields] || %w(name)
+    # logger.debug2 "friends_hash = #{new_friends}"
+
     # get provider - friends concept - mutual friends in facebook and linkedin - followers/stalkers in google+, instagram and twitter
     provider = login_user_id.split('/').last
+
+    # check fields in friends_hash
+    allowed_fields = [:name, :api_profile_url, :api_profile_picture_url, :no_api_friends]
+    required_fields = [:name]
+    new_friends.each do |user_id, hash|
+      fields = hash.keys
+      missing_required_fields = required_fields - fields
+      if missing_required_fields.size > 0
+        return [new_user,
+                '.post_login_fl_missing_field',
+                { :provider => provider, :apiname => (API_DOWNCASE_NAME[:provider] || :provider),
+                  :userid => login_user_id, :field => missing_required_fields.first } ]
+      end
+      invalid_fields = fields - allowed_fields
+      if invalid_fields.size > 0
+        return [new_user,
+                '.post_login_fl_invalid_field',
+                { :provider => provider, :apiname => (API_DOWNCASE_NAME[:provider] || :provider),
+                  :userid => login_user_id, :field => invalid_fields.first } ]
+      end
+    end
+    fields = [] ; new_friends.each { |key, hash| fields = (fields + hash.keys).uniq }
+    logger.debug2 "fields = #{fields.join(', ')}"
+
     mutual_friends = API_MUTUAL_FRIENDS[provider] # true for facebook and linkedin, false for google+, instagram and twitter
-    if fields.index('api_profile_picture_url')
+    if fields.index(:api_profile_picture_url)
       # check picture store for profile pictures
       picture_store = API_PROFILE_PICTURE_STORE[provider] || :api
       if ![:local,:api].index(picture_store)
@@ -324,26 +361,26 @@ class Friend < ActiveRecord::Base
                                  end # case
       end
 
-      # update friend user information
+      # update friend user information (:name, :api_profile_url, :api_profile_picture_url, :no_api_friends)
       if %w(Y F).index(new_api_friend)
         # logger.debug2 "new_users   = #{new_users.keys.join(', ')}"
         # logger.debug2 "old_friends = #{old_friends.keys.join(', ')}"
         # logger.debug2 "user_id     = #{user_id}"
         friend_user = new_users[user_id] || old_friends[user_id].friend
         hash = new_friends[user_id]
-        if fields.index('name')
+        if hash.has_key?(:name)
           # update name
           if friend_user.user_name != hash[:name]
             friend_user.user_name = hash[:name].force_encoding('UTF-8')
           end
         end
-        if fields.index('api_profile_url')
+        if hash.has_key?(:api_profile_url)
           # update api_profile_url
           if friend_user.api_profile_url != hash[:api_profile_url]
             friend_user.api_profile_url = hash[:api_profile_url]
           end
         end
-        if fields.index('api_profile_picture_url')
+        if hash.has_key?(:api_profile_picture_url)
           # update api_profile_picture_url
           if friend_user.api_profile_picture_url != hash[:api_profile_picture_url]
             # check picture store
@@ -354,7 +391,7 @@ class Friend < ActiveRecord::Base
             end
           end
         end
-        if fields.index('no_api_friends')
+        if hash.has_key?(:no_api_friends)
           # update no_api_friends
           if friend_user.no_api_friends != hash[:no_api_friends]
             # logger.debug2  "fetch_user: update api profile url: old url = #{hash[:old_no_api_friends]}, new url = #{hash[:new_no_api_friends]}"
@@ -391,9 +428,9 @@ class Friend < ActiveRecord::Base
 
     # todo: delete removed friends that is not used by any other users
 
-    # new gofreerev user?
-    ((old_friends.size == 0) and (new_friends.size > 0))
-
+    # new gofreerev user? special post_login_<provider> ok message for new users.
+    new_user = ((old_friends.size == 0) and (new_friends.size > 0))
+    [new_user, nil, nil]
   end # self.update_friends_from_hash
 
   def self.define_sort_by_user_name (friends)

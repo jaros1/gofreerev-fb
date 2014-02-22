@@ -132,6 +132,8 @@ da:
         post_login_token_not_found: "Advarsel. Fandt ikke adgangs \"billet\". Kunne ikke hente venneliste fra %{provider}"
         init_api_client_missing: "Systemfejl. Kan ikke kommunikerer med #{provider} da privat method init_api_client_%{provider} mangler i app. controller."
         get_api_picture_url_missing: "Systemfejl. Opslag på %{apiname} væg, men fandt ikke metode get_api_picture_%{provider}. Foto kan ikke vises her."
+        post_login_fl_missing_field: "Systemfejl. Kan ikke opdaterer %{apiname} venneliste. Felt %{field} mangler for bruger id. %{userid}."
+        post_login_fl_invalid_field: "Systemfejl. Kan ikke opdaterer %{apiname} venneliste. Ukendt felt %{field} for bruger id. %{userid}."
         post_login_new_user: "Din venneliste er klar til brug. Opdater siden, så du kan se eventuelle opslag fra dine venner."
         google_access_not_configured: "Fejl ved hentning af venneliste fra Google+ API. Access Not Configured. Tjek-liste ved API opsætning: 1) Tjek log for mere information. 2) Tjek at application_name og application_version sættes, når Google::APIClient initialiseres. 3) Tjek at status er ON for Google+ API i Google Cloud Console"
         google_insufficient_permission: "Fejl ved hentning af venneliste fra Google+ API. Manglende adgang. Tjek liste ved API opsætning: 1) scope plus.login mangler i provider opsætning for google"

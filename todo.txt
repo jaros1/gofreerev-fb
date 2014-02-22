@@ -547,15 +547,14 @@
      no picture - convert text to image - keep hash tags in shorten text
      picture - convert text to image - append or overlay text to image - keep hash tags in shorten text
 
-119) refactor get friends methods from post_login_<provider> to init_api_client_<provider> as instance method
-
-120) refactor post_on_wall from post_on_<provider> to init_api_client_<provider> as instance method
-
 121) add added handling to create_png_image_from_text:
      for example phantomjs os call: stdout = , stderr = , status = 0
      check picture width after generation
 
 122) add a generic post_on_wall method and refactor existing post_on_<provider> code to this
+     - refactored friends list lookup to api clients
+     - check difference between post_login_<provider> methods
+     - Friend.update_api_friends_from_hash - set fields dynamic from friends_hash
 
 123) text to image convert.
      find best width, height, aspect ratio for each provider
