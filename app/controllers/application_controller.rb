@@ -729,6 +729,22 @@ class ApplicationController < ActionController::Base
     # create facebook api client
     api_client = Koala::Facebook::API.new(token)
     # add helper methods to facebook api client
+    # get a few login user fields that was not updated doing login
+    api_client.define_singleton_method :gofreerev_get_user do |logger|
+      user_hash = {}
+      key, options = nil
+      # get user information - permissions and picture
+      api_request = 'me?fields=permissions,picture'
+      # logger.debug2  "api_request = #{api_request}"
+      api_response = api_client.get_object api_request
+      # logger.debug2  "api_response = #{api_response}"
+      user_hash[:permissions] = api_response['permissions']['data'][0]
+      user_hash[:permissions] = {} if user_hash[:permissions] == []
+      image = api_response['picture']['data']['url'] if api_response['picture'] and api_response['picture']['data']
+      user_hash[:api_profile_picture_url] = image if image
+      # return user_hash to generic_post_login - see also user.update_api_user_from_hash
+      [user_hash, key, options]
+    end
     # add gofreerev_get_friends - used on post_login_<provider>
     api_client.define_singleton_method :gofreerev_get_friends do |logger|
       # get facebook friends list (name and url for profile picture for each facebook friend)

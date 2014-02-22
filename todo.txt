@@ -555,6 +555,7 @@
      - refactored friends list lookup to api clients
      - check difference between post_login_<provider> methods
      - Friend.update_api_friends_from_hash - set fields dynamic from friends_hash
+     - refactor post_login_facebook into generic_post_login as api client method
 
 123) text to image convert.
      find best width, height, aspect ratio for each provider

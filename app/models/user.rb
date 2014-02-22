@@ -128,6 +128,7 @@ class User < ActiveRecord::Base
   # permissions is fetched at login and checked before operations (post to api wall)
   def permissions
     return nil unless (extended_permissions = read_attribute(:permissions))
+    # todo: no type check for permissions!
     YAML::load(encrypt_remove_pre_and_postfix(extended_permissions, 'permissions', 12))
   end # permissions
   def permissions=(new_permissions)
@@ -624,6 +625,27 @@ class User < ActiveRecord::Base
       end
     end
   end # self.download_profile_image
+
+  # called from generic_post_login / post_login_update_friends if api_client instance method gofreerev_get_user exists
+  def update_api_user_from_hash (user_hash)
+    allowed_fields = [:permissions, :api_profile_picture_url]
+    invalid_fields = user_hash.keys - allowed_fields
+    if invalid_fields.size > 0
+      return ['.post_login_user_invalid_field',
+          { :provider => provider, :apiname => (API_DOWNCASE_NAME[:provider] || provider),
+            :userid => user_id, :field => invalid_fields.first } ]
+
+    end
+    # permissions
+    update_attribute(:permissions, user_hash[:permissions]) if user_hash.has_key? :permissions
+    # profile picture
+    if user_hash.has_key?(:api_profile_picture_url)
+      key, options = User.update_profile_image(user_id, user_hash[:api_profile_picture_url])
+      return [key, options] if key # error when updating profile picture information
+    end
+    # ok
+    nil
+  end # update_api_user_from_hash
 
   #def usertype
   #  return nil unless user_id

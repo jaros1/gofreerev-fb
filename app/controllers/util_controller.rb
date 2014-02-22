@@ -1014,12 +1014,26 @@ class UtilController < ApplicationController
   #  end
   #end
 
+  # returns [login_user, api_client, friends_hash, new_user, key, options] array
+  # key + options are used as input to translate after errors
   private
   def post_login_update_friends (provider)
     friends_hash = new_user = nil
     login_user, api_client, key, options = get_login_user_and_api_client(provider)
     return [login_user, api_client, friends_hash, new_user, key, options] if key
     login_user_id = login_user.user_id
+
+    # update user
+    # note what many fields are updated in User.find_or_create_user doing login
+    # only use this method for fields that are not updated in login process
+    if api_client.respond_to? :gofreerev_get_user
+      # fetch info about login user from API
+      user_hash, key, options = api_client.gofreerev_get_user logger
+      return [login_user, api_client, friends_hash, new_user, key, options] if key
+      # update user
+      key, options = login_user.update_api_user_from_hash user_hash
+      return [login_user, api_client, friends_hash, new_user, key, options] if key
+    end
 
     # get facebook friends
     if !api_client.respond_to? :gofreerev_get_friends
@@ -1042,12 +1056,25 @@ class UtilController < ApplicationController
     begin
       # get login user, initialize api client, get and update friends information
       login_user, api_client, friends_hash, new_user, key, options = post_login_update_friends(provider)
+      #logger.debug2 "login_user   = #{login_user}"
+      #logger.debug2 "api_client   = #{api_client}"
+      #logger.debug2 "friends_hash = #{friends_hash}"
+      #logger.debug2 "new_user     = #{new_user}"
+      #logger.debug2 "key          = #{key}"
+      #logger.debug2 "options      = #{options}"
       return [key, options] if key
 
-      # 3) update balance
-      login_user.recalculate_balance if login_user.balance_at != Date.today
+      # update number of friends.
+      # facebook: number of friends is not 100 % correct as not all friends are returned from facebook api
+      # todo: how to set number of friends for follows/followed_by networks (twitter)
+      # todo: is number of friends use for anything?
+      login_user.update_attribute(:no_api_friends, friends_hash.size)
 
-      # special post login message to new users
+      # update balance
+      today = Date.parse(Sequence.get_last_exchange_rate_date)
+      login_user.recalculate_balance if today and login_user.balance_at != today
+
+      # special post login message to new users (refresh page when friend list has been downloaded)
       return ['.post_login_new_user', login_user.app_and_apiname_hash ]if new_user
 
       # ok
@@ -1068,48 +1095,45 @@ class UtilController < ApplicationController
   # post login task for facebook - get permissions and friends - using koala gem
   # called from do_tasks - ajax requests after login
   # must return nil or a valid input to translate
-  private
-  def post_login_facebook
-    begin
-      ## get facebook user and facebook api client (koala)
-      provider = "facebook"
-
-      # get login user, initialize api client, get and update friends information
-      login_user, api_client, friends_hash, new_user, key, options = post_login_update_friends(provider)
-      return [key, options] if key.class == String
-      login_user_id = login_user.user_id
-
-      # get user information - permissions and picture
-      # logger.debug2  'get user id and name'
-      api_request = 'me?fields=permissions,picture'
-      # logger.debug2  "api_request = #{api_request}"
-      api_response = api_client.get_object api_request
-      # logger.debug2  "api_response = #{api_response.to_s}"
-
-      # update number of friends and permissions
-      # note that number of friends is not 100 % correct as not all friends are returned from facebook api
-      login_user.no_api_friends = friends_hash.size
-      login_user.permissions = api_response['permissions']['data'][0]
-      login_user.permissions = {} if login_user.permissions == []
-      login_user.save!
-
-      # update profile picture - picture received in auth/create is too small
-      image = api_response['picture']['data']['url'] if api_response['picture'] and api_response['picture']['data']
-      logger.debug2 "image = #{image}"
-      key, options = User.update_profile_image(login_user_id, image)
-      return [key, options] if key # error when updating profile picture information
-      
-      # special post login message to new users
-      return ['.post_login_new_user', login_user.app_and_apiname_hash ] if new_user
-
-      # ok
-      nil
-    rescue Exception => e
-      logger.debug2  "Exception: #{e.message.to_s}"
-      logger.debug2  "Backtrace: " + e.backtrace.join("\n")
-      raise
-    end
-  end # post_login_facebook
+  #private
+  #def post_login_facebook
+  #  begin
+  #    ## get facebook user and facebook api client (koala)
+  #    provider = "facebook"
+  #
+  #    # get login user, initialize api client, get and update friends information
+  #    login_user, api_client, friends_hash, new_user, key, options = post_login_update_friends(provider)
+  #    return [key, options] if key.class == String
+  #    login_user_id = login_user.user_id
+  #
+  #    # get user information - permissions and picture
+  #    api_request = 'me?fields=permissions,picture'
+  #    # logger.debug2  "api_request = #{api_request}"
+  #    api_response = api_client.get_object api_request
+  #    # logger.debug2  "api_response = #{api_response.to_s}"
+  #
+  #    # update permissions
+  #    login_user.permissions = api_response['permissions']['data'][0]
+  #    login_user.permissions = {} if login_user.permissions == []
+  #    login_user.save!
+  #
+  #    # update profile picture - picture received in auth/create is too small
+  #    image = api_response['picture']['data']['url'] if api_response['picture'] and api_response['picture']['data']
+  #    logger.debug2 "image = #{image}"
+  #    key, options = User.update_profile_image(login_user_id, image)
+  #    return [key, options] if key # error when updating profile picture information
+  #
+  #    # special post login message to new users
+  #    return ['.post_login_new_user', login_user.app_and_apiname_hash ] if new_user
+  #
+  #    # ok
+  #    nil
+  #  rescue Exception => e
+  #    logger.debug2  "Exception: #{e.message.to_s}"
+  #    logger.debug2  "Backtrace: " + e.backtrace.join("\n")
+  #    raise
+  #  end
+  #end # post_login_facebook
 
 
 

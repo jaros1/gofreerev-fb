@@ -257,14 +257,14 @@ class Friend < ActiveRecord::Base
       if missing_required_fields.size > 0
         return [new_user,
                 '.post_login_fl_missing_field',
-                { :provider => provider, :apiname => (API_DOWNCASE_NAME[:provider] || :provider),
+                { :provider => provider, :apiname => (API_DOWNCASE_NAME[:provider] || provider),
                   :userid => login_user_id, :field => missing_required_fields.first } ]
       end
       invalid_fields = fields - allowed_fields
       if invalid_fields.size > 0
         return [new_user,
                 '.post_login_fl_invalid_field',
-                { :provider => provider, :apiname => (API_DOWNCASE_NAME[:provider] || :provider),
+                { :provider => provider, :apiname => (API_DOWNCASE_NAME[:provider] || provider),
                   :userid => login_user_id, :field => invalid_fields.first } ]
       end
     end
