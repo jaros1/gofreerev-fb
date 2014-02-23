@@ -723,6 +723,13 @@ class ApplicationController < ActionController::Base
     end
   end # open_graph_title_and_desc
 
+
+  # define api clients. There must be one init_api_client_<provider> method for each provider
+  # structure: initialize api_client, add one or more gofreerev_xxx instance methods, return api_client
+  # instance method gofreerev_get_friends is required (download friend list)
+  # instance method gofreerev_upload is required if provider should support post on api wall
+  # instance method gofreerev_get_user can be added if user info. should be updated after login (facebook)
+
   private
   def init_api_client_facebook (token)
     provider = 'facebook'
@@ -771,6 +778,7 @@ class ApplicationController < ActionController::Base
       # return friends has to post_login_<provider> - see also Friend.update_api_friends_from_hash
       [friends_hash, nil, nil]
     end # gofreerev_get_friends
+    # return api client
     api_client
   end
 
@@ -808,6 +816,7 @@ class ApplicationController < ActionController::Base
       # return friends has to post_login_<provider> - see also Friend.update_api_friends_from_hash
       [friends_hash, nil, nil]
     end # gofreerev_get_friends
+    # return api client
     api_client
   end # init_api_client_flickr
 
@@ -836,6 +845,7 @@ class ApplicationController < ActionController::Base
       # return friends has to post_login_<provider> - see also Friend.update_api_friends_from_hash
       [friends_hash, nil, nil]
     end # gofreerev_get_friends
+    # return api client
     api_client
   end # init_api_client_foursquare
 
@@ -892,6 +902,7 @@ class ApplicationController < ActionController::Base
       # return friends has to post_login_<provider> - see also Friend.update_api_friends_from_hash
       [friends_hash, nil, nil]
     end # gofreerev_get_friends
+    # return api client
     api_client
   end # init_api_client_google_oauth2
 
@@ -929,6 +940,7 @@ class ApplicationController < ActionController::Base
       # return friends has to post_login_<provider> - see also Friend.update_api_friends_from_hash
       [friends_hash, nil, nil]
     end # gofreerev_get_friends
+    # return api client
     api_client
   end # init_api_client_instagram
 
@@ -962,6 +974,7 @@ class ApplicationController < ActionController::Base
       # return friends has to post_login_<provider> - see also Friend.update_api_friends_from_hash
       [friends_hash, nil, nil]
     end # gofreerev_get_friends
+    # return api client
     api_client
   end # init_api_client_linkedin
 
@@ -999,6 +1012,7 @@ class ApplicationController < ActionController::Base
       # return friends has to post_login_<provider> - see also Friend.update_api_friends_from_hash
       [friends_hash, nil, nil]
     end # gofreerev_get_friends
+    # return api client
     api_client
   end # init_api_client_twitter
 
@@ -1040,9 +1054,8 @@ class ApplicationController < ActionController::Base
     end # gofreerev_get_friends
     # add gofreerev_upload - used in post_on_<provider>
     api_client.define_singleton_method :gofreerev_upload do |api_gift, logger|
-      # todo: cannot see VK wall in my browser. test VK from an app/smartphone.
-      # false: post to Gofreerev album, true: post to wall.
-      wall = false #
+      # false: post to Gofreerev album, true: post to VK wall.
+      wall = false # no errors but is do not looks like upload to VK wall is working. todo: check from a smartphone
       # find/create album with gofreerev pictures
       # http://vk.com/developers.php?oid=-17680044&p=photos.getAlbums
       begin
@@ -1150,8 +1163,10 @@ class ApplicationController < ActionController::Base
       logger.debug2 "description = #{description} (#{description.length})"
       begin
         if wall
+          # http://vk.com/developers.php?oid=-17680044&p=photos.saveWallPhoto
           save_res = self.photos.saveWallPhoto :server => server, :photo => photo, :hash => hash
         else
+          # http://vk.com/developers.php?oid=-17680044&p=photos.save
           save_res = self.photos.save :aid => aid, :server => server, :photos_list => photos_list, :hash => hash, :caption => description
         end
       rescue exception => e
@@ -1169,6 +1184,7 @@ class ApplicationController < ActionController::Base
       api_gift_id = "#{save_res['owner_id']}_#{save_res['pid']}"
       api_gift_id
     end # gofreerev_upload
+    # return api client
     api_client
   end # init_api_client_vkontakte
 
@@ -1179,6 +1195,14 @@ class ApplicationController < ActionController::Base
     send(method, token)
   end
 
+
+  # define grant write links
+  # a grant write link is a link that is ajax injected into gifts/index page to request write permission to api wall
+  # there must be a grant write link for each api provider where post on wall is implemented
+  # link is ajax injected into tasks_errors table in page header
+  # injected text should have a mouse over text, a prompt, a grant write link and a hide link
+  # normally grant write link is a link to api provider authorize dialog box
+  # can also be link to a JS confirm dialog box if read/write privs. are handled within Gofreerev
 
   # return [key, options] with @errors ajax to grant write access to facebook wall
   # link is injected in tasks_errors table in page header
@@ -1295,6 +1319,7 @@ class ApplicationController < ActionController::Base
     return ['.grant_write_link_missing', :provider => provider, :apiname => provider_downcase(provider)] unless private_methods.index(method)
     send(method)
   end # grant_write_link
+
 
   # use flash table to prevent CookieOverflow for big flash messages when using session cookie
   private

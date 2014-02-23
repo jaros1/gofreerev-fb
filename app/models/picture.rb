@@ -315,17 +315,48 @@ class Picture < ActiveRecord::Base
     html_os_path = png_os_path[0..-4] + 'html'
     js_os_path = png_os_path[0..-4] + 'js'
     # create html file with text for image
+    # js script set_font_size sets aspect ratio 4/3. Maybe better to use 3/4?
     # todo: add styles. ok as png image. not ok as jpg image
-    # todo: set text size dynamic to prevent pictures with very small or big height
     File.open(html_os_path, 'w:UTF-8') do |html|
       html.puts "<!DOCTYPE html>"
       html.puts "<html>"
       html.puts "<head>"
       html.puts '<meta content="text/html;charset=utf-8" http-equiv="Content-Type">'
       html.puts '<meta content="utf-8" http-equiv="encoding">'
+      # js script to autoajust font size for aspect ratio 3/4
+      html.puts '<script>'
+      html.puts 'function set_font_size() {'
+      html.puts '  var text = document.getElementById("text") ;'
+      html.puts '  var font_size = 150 ;'
+      html.puts '  var target_aspect_ratio = 3.0 / 4.0 ;'
+      html.puts '  var width  = (document.width !== undefined) ? document.width : document.body.offsetWidth;'
+      html.puts '  var target_height = width / target_aspect_ratio ;'
+      html.puts '  var height = target_height ;'
+      html.puts '  var best_height_dif = 9999 ;'
+      html.puts '  var best_font_size = font_size ;'
+      html.puts '  var old_height, old_font_size, font_factor, height_dif ;'
+      html.puts '  for (var i=0 ; i<10 ; i++) {'
+      html.puts '    old_height = height ;'
+      html.puts '    old_font_size = font_size ;'
+      html.puts '    font_factor = target_height / height ;'
+      html.puts '    if (font_factor > 1) font_factor = (font_factor - 1) / 2 + 1 ;'
+      html.puts '    else font_factor = 1 - (1 - font_factor) / 2 ;'
+      html.puts '    font_size = font_size * font_factor ;'
+      html.puts '    text.style.fontSize = "" + font_size + "%" ;'
+      html.puts '    height = (document.height !== undefined) ? document.height : document.body.offsetHeight;'
+      html.puts '    height_dif = Math.abs(height - target_height) ;'
+      html.puts '    if (height_dif < best_height_dif) {'
+      html.puts '      best_height_dif = height_dif ;'
+      html.puts '      best_font_size = font_size ;'
+      html.puts '    }'
+      html.puts '  }'
+      html.puts '  font_size = best_font_size ;'
+      html.puts '  text.style.fontSize = "" + font_size + "%" ;'
+      html.puts '}'
+      html.puts '</script>'
       html.puts "</head>"
-      html.puts "<body>"
-      html.puts "<p style='font-size:150%'>#{text}</p>"
+      html.puts "<body onload='set_font_size()'>"
+      html.puts "<p id='text' style='font-size:150%'>#{text}</p>"
       html.puts "</body>"
       html.puts "</html>"
     end

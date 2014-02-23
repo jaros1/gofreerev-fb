@@ -29,8 +29,10 @@ end # OmniAuth
 #  3) add provider in this file (9 API_... hash constants)
 #  4) add provider to OmniAuth::Builder setup in this file. options are different for each provider
 #  5) add any provider specific methods to OmniAuth::AuthHash. See config/initializers/omniauth_<provider>.rb.
-#     check auth_hash information received in auth/create
-#  6) add private post login task to UtilController.post_login_<provider> if any (get friends, permissions etc)
+#     check if auth_hash information is written correct to user record in auth/create
+#  6) add init_api_client_<provider> method to app. controller
+#     you must as minimum supply a gofreerev_get_friends instance method to new api_client
+#     you must supply a gofreerev_upload instance method to api_client if api supports upload
 #  7) add private post on task to UtilController.post_on_<provider> if wall posting is allowed for API
 #  8) check API_POST_PERMITTED and API_MUTUAL_FRIENDS hashes for new provider (environment.rb)
 #  9) search source for "API SETUP" and check if new provider should be added to existing case statements
@@ -154,6 +156,7 @@ API_GIFT_PICTURE_STORE = {:fallback => nil,
 # - 0: always, for example flickr (no picture attachment in post)
 # - 70: use text to picture if description > 70 characters. twitter. (no picture attachment in post)
 # - :append: append text to bottom of picture, for example flickr.
+# text to image convert is done in 3:4 format if possible (w:800, h:1066)
 API_TEXT_TO_PICTURE = {:facebook => nil,
                        :flickr => 0,
                        :foursquare => nil,
