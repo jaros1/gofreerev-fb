@@ -509,7 +509,7 @@
 
 110) check out open graph meta-tags in flickr.
      maybe some that could by used
-     <meta property="fb:app_id" content="137206539707334" />
+     <meta property="fb:app_id" content="137206539707334" />    x
      <meta property="al:ios:app_store_id" content="328407587" />
      <meta property="al:ios:app_name" content="Flickr" />
      <meta property="twitter:app:name:iphone" content="Flickr" />
