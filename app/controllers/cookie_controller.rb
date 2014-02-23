@@ -17,7 +17,7 @@ class CookieController < ApplicationController
   end
 
   private
-  def fetch_user
+  def fetch_users
     # no cookie - not logged in - get dummy user
     @users = [ User.find_by_user_id('gofreerev/gofreerev') ]
   end

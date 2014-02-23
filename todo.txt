@@ -545,6 +545,4 @@
 
 117) post on twitter - description > 70
      no picture - convert text to image - keep hash tags in shorten text
-     picture - convert text to image - append or overlay text to image - keep hash tags in shorten text
-
-118) text to picture. maybe use 4:3 for short texts and 3:4 for long texts
+     picture - convert text to image - append or overlay text to image - keep hash tags in short text
