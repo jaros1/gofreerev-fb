@@ -222,6 +222,7 @@ da:
         access_link_text_3: "(skriv)"
         post_th: "Opslag?"
         post_th_title: "Brug tjek-bokse i denne kolonne til at tillade eller forhindre opslag på væg hos din login-udbyder. Du kan senere blive bedt om yderligere rettigheder, hvis du vælger at sige ja til opslag på væg hos din login-udbyder."
+        description_html: "Brug <u>log ind</u> links i denne side til at oprette forbindelse til %{appname}. Jo flere log ind, jo flere venner kan du dele med.<br>Brug <u>log ud</u> links i denne side til at logge ud af enkelte netværk eller brug <u>log ud</u> link i menu til at logge ud af alle netværk på en gang."
         remove_cookies_link_text: "Fjern cookies"
      destroy:
         logged_off: "Adgang til %{appname} vha. %{apiname} er blevet afbrudt. Husk at bruge log ud funktion i %{apiname}, hvis du også ønsker at logge ud af %{apiname}. Vær opmærksom på, at du stadigvæk har adgang til %{appname} via en anden login-udbyder."

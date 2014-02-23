@@ -4,42 +4,61 @@
 <div style="width: 100%">
   <table>
     <tr>
-      <th title="<%= t ".visit_title", :appname => APP_NAME, :apiname => provider_downcase(nil) %>"><%= t ".visit_th" %></th>
-      <th style="width: 10px"></th>
-      <th title="<%= t ".connect_th_title", :appname => APP_NAME %>">
-        <%= t '.connect_th' %>
-      </th>
-      <th style="width: 10px"></th>
-      <th title="<%= t ".access_th_title", :appname => APP_NAME %>">
-        <%= t '.access_th' %>
-      </th>
-      <th style="width: 10px"></th>
-      <th title="<%= t ".post_th_title", :appname => APP_NAME %>">
-        <%= t '.post_th' %>
-      </th>
+      <td>
+        <table>
+          <tr>
+            <th title="<%= t ".visit_title", :appname => APP_NAME, :apiname => provider_downcase(nil) %>"><%= t ".visit_th" %></th>
+            <th style="width: 10px"></th>
+            <th title="<%= t ".connect_th_title", :appname => APP_NAME %>">
+              <%= t '.connect_th' %>
+            </th>
+            <th style="width: 10px"></th>
+            <th title="<%= t ".access_th_title", :appname => APP_NAME %>">
+              <%= t '.access_th' %>
+            </th>
+            <th style="width: 10px"></th>
+            <th title="<%= t ".post_th_title", :appname => APP_NAME %>">
+              <%= t '.post_th' %>
+            </th>
+          </tr>
+          <% @providers.each do |x| ; provider, logged_in, access, post_on_wall = x -%>
+              <tr>
+                <td title="<%= t ".visit_title", :appname => APP_NAME, :apiname => provider_downcase(provider) %>">
+                  <%= link_to provider_camelize(provider), API_URL[provider], :target => '_blank' %>
+                </td>
+                <td></td>
+                <td title="<%= t ".log_in_out_title#{logged_in}", :appname => APP_NAME, :apiname => provider_downcase(provider) %>">
+                  <% if logged_in == 0 -%>
+                      <%= link_to t(".log_in_link_text"), "/auth/#{provider}" %>
+                  <% else -%>
+                      <%= link_to t(".log_out_link_text"), auth_destroy_path(:id => provider), :method => :delete %>
+                  <% end -%>
+                </td>
+                <td></td>
+                <td title="<%= t ".access_title_#{access}", :appname => APP_NAME, :apiname => provider_downcase(provider) %>">
+                  <%= link_to t(".access_link_text_#{access}"), API_APP_SETTING_URL[provider] || '#', :target => '_blank' %>
+                </td>
+                <td></td>
+                <td style="text-align: center"><%= post_on_wall_checkbox(provider, post_on_wall) %></td>
+              </tr>
+          <% end -%>
+<% if false -%>
+          <tr class="auth-desc-small">
+            <td colspan="7">
+              <br><%= t '.description_html', :appname => APP_NAME %>
+            </td>
+          </tr>
+<% end -%>
+        </table>
+      </td>
+      <td class="auth-desc-large" style="vertical-align: middle"><%= t '.description_html', :appname => APP_NAME %></td>
     </tr>
-    <% @providers.each do |x| ; provider, logged_in, access, post_on_wall = x -%>
-    <tr>
-      <td title="<%= t ".visit_title", :appname => APP_NAME, :apiname => provider_downcase(provider) %>">
-        <%= link_to provider_camelize(provider), API_URL[provider], :target => '_blank' %>
-      </td>
-      <td></td>
-      <td title="<%= t ".log_in_out_title#{logged_in}", :appname => APP_NAME, :apiname => provider_downcase(provider) %>">
-        <% if logged_in == 0 -%>
-            <%= link_to t(".log_in_link_text"), "/auth/#{provider}" %>
-        <% else -%>
-            <%= link_to t(".log_out_link_text"), auth_destroy_path(:id => provider), :method => :delete %>
-        <% end -%>
-      </td>
-      <td></td>
-      <td title="<%= t ".access_title_#{access}", :appname => APP_NAME, :apiname => provider_downcase(provider) %>">
-        <%= link_to t(".access_link_text_#{access}"), API_APP_SETTING_URL[provider] || '#', :target => '_blank' %>
-      </td>
-      <td></td>
-      <td style="text-align: center"><%= post_on_wall_checkbox(provider, post_on_wall) %></td>
-    </tr>
-    <% end -%>
   </table>
+</div>
+
+<div class="auth-desc-small" style="width: 100%">
+  <br>
+  <%= t '.description_html', :appname => APP_NAME %>
 </div>
 
 

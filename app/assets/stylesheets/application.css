@@ -135,6 +135,25 @@ form {
     }
 }
 
+/* auth/index: description on small and large display */
+@media screen and (max-width: 599px) {
+    .auth-desc-small {
+        display: inline;
+    }
+    .auth-desc-large {
+        display: none
+    }
+}
+@media screen and (min-width: 600px) {
+    .auth-desc-small {
+        display: none
+    }
+    .auth-desc-large {
+        display: table-cell
+    }
+}
+
+
 /* gifts/index: image upload used in new gift form */
 .bottom {
     display: inline-block;

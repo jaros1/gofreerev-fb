@@ -220,6 +220,7 @@ en:
         access_link_text_3: "(write)"
         post_th: "Post?"
         post_th_title: "Use check boxes in this column to allow or prevent post on login provider walls. You might later be asked for more permissions if you select to allow post on your login providers wall."
+        description_html: "Use <u>log in</u> links in this page to connect to %{appname}. The more logs in, the more friends you can share with.<br>Use <u>log out</u> links i this page to disconnect from selected network or use <u>log out</u> link i page header to disconnect from all networks."
         remove_cookies_link_text: "Remove cookies"
      destroy:
         logged_off: "Connection with %{apiname} has been closed. Note that you are still connected to %{appname} with another login provider. Use links in this page to log in/out."

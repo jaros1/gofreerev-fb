@@ -1772,6 +1772,38 @@ class UtilController < ApplicationController
   end # hide_grant_write
 
 
+  # generic post on wall task - todo: refactor post_on_<provider> code to this method
+  private
+  def generic_post_on_wall (provider, id)
+    # get login user + initialize api client
+    login_user, api_client, key, options = get_login_user_and_api_client(provider)
+    return [key, options] if key
+    login_user_id = login_user.user_id
+
+    # check user privs before post on wall
+    # ( permissions is also checked in gifts/create before scheduling this task )
+    case login_user.get_write_on_wall_action
+      when User::WRITE_ON_WALL_NO then
+        return nil # ignore
+      when User::WRITE_ON_WALL_YES then
+        nil # continue
+      when User::WRITE_ON_WALL_MISSING_PRIVS then
+        return grant_write_link(provider) # inject link to grant missing priv.
+    end
+
+    # get gift, api_gift and deep_link
+    gift, api_gift, deep_link, key, options = get_gift_and_deep_link(id, login_user, provider)
+    return [key, options] if key
+
+
+
+
+    raise "not implemented"
+
+
+  end # generic_post_on_wall
+
+
   # post on facebook wall - with or without picture
   # picture is temporary saved local, but is deleted when the picture has been posted in wall(s)
   # task was inserted in gifts/create
@@ -2339,7 +2371,7 @@ class UtilController < ApplicationController
         elsif api_gift.picture?
           # post on vkontakte with picture - use picture as it is and use description with deep as description
           picture_url = Picture.url_from_rel_path api_gift.gift.app_picture_rel_path
-          api_response = api_client.gofreerev_upload api_gift, logger
+          api_response = api_client.gofreerev_post_on_wall api_gift, logger
           # api_response = {"id"=>"1396226023933952", "post_id"=>"100006397022113_1396195803936974"} (Hash)
           api_gift.api_gift_id = api_response
         elsif API_TEXT_TO_PICTURE[provider] != 0
@@ -2348,7 +2380,7 @@ class UtilController < ApplicationController
           gift_posted_on_wall_api_wall = 9
         else
           # post on vkontakte without picture - convert text to image and use deep link as description
-          api_response = api_client.gofreerev_upload api_gift, logger
+          api_response = api_client.gofreerev_post_on_wall api_gift, logger
           # api_response = {"id"=>"1396226023933952", "post_id"=>"100006397022113_1396195803936974"} (Hash)
           api_gift.api_gift_id = api_response
         end

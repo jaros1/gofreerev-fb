@@ -32,7 +32,7 @@ end # OmniAuth
 #     check if auth_hash information is written correct to user record in auth/create
 #  6) add init_api_client_<provider> method to app. controller
 #     you must as minimum supply a gofreerev_get_friends instance method to new api_client
-#     you must supply a gofreerev_upload instance method to api_client if api supports upload
+#     you must supply a gofreerev_post_on_wall instance method to api_client if api supports upload
 #  7) add private post on task to UtilController.post_on_<provider> if wall posting is allowed for API
 #  8) check API_POST_PERMITTED and API_MUTUAL_FRIENDS hashes for new provider (environment.rb)
 #  9) search source for "API SETUP" and check if new provider should be added to existing case statements

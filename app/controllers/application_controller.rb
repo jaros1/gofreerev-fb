@@ -727,7 +727,7 @@ class ApplicationController < ActionController::Base
   # define api clients. There must be one init_api_client_<provider> method for each provider
   # structure: initialize api_client, add one or more gofreerev_xxx instance methods, return api_client
   # instance method gofreerev_get_friends is required (download friend list)
-  # instance method gofreerev_upload is required if provider should support post on api wall
+  # instance method gofreerev_post_on_wall is required if provider should support post on api wall
   # instance method gofreerev_get_user can be added if user info. should be updated after login (facebook)
 
   private
@@ -1052,8 +1052,8 @@ class ApplicationController < ActionController::Base
       # return friends has to post_login_<provider> - see also Friend.update_api_friends_from_hash
       [friends_hash, nil, nil]
     end # gofreerev_get_friends
-    # add gofreerev_upload - used in post_on_<provider>
-    api_client.define_singleton_method :gofreerev_upload do |api_gift, logger|
+    # add gofreerev_post_on_wall - used in post_on_<provider>
+    api_client.define_singleton_method :gofreerev_post_on_wall do |api_gift, logger|
       # false: post to Gofreerev album, true: post to VK wall.
       wall = false # no errors but is do not looks like upload to VK wall is working. todo: check from a smartphone
       # find/create album with gofreerev pictures
@@ -1183,7 +1183,7 @@ class ApplicationController < ActionController::Base
       end
       api_gift_id = "#{save_res['owner_id']}_#{save_res['pid']}"
       api_gift_id
-    end # gofreerev_upload
+    end # gofreerev_post_on_wall
     # return api client
     api_client
   end # init_api_client_vkontakte
