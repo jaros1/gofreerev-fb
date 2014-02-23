@@ -547,11 +547,4 @@
      no picture - convert text to image - keep hash tags in shorten text
      picture - convert text to image - append or overlay text to image - keep hash tags in shorten text
 
-121) add added handling to create_png_image_from_text:
-     for example phantomjs os call: stdout = , stderr = , status = 0
-     check picture width after generation
-
-123) text to image convert.
-     find best width, height, aspect ratio for each provider
-     use text size to wit text within best picture dimensions.
-     FB: http://havecamerawilltravel.com/photographer/images-photos-facebook-sizes-dimensions-types
+118) text to picture. maybe use 4:3 for short texts and 3:4 for long texts

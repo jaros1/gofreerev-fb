@@ -1126,10 +1126,10 @@ class ApplicationController < ActionController::Base
       begin
         upload_res1 = RestClient.post url, :file1 => File.new(picture_full_os_path)
       rescue Exception => e
-        # FileUtils.rm picture_full_os_path if !api_gift.picture? and File.exists?(picture_full_os_path)
+        FileUtils.rm picture_full_os_path if !api_gift.picture? and File.exists?(picture_full_os_path)
         raise VkontaktePhotoPost.new "#{e.class}: #{e.message}"
       end
-      # FileUtils.rm picture_full_os_path if !api_gift.picture? and File.exists?(picture_full_os_path)
+      FileUtils.rm picture_full_os_path if !api_gift.picture? and File.exists?(picture_full_os_path)
       if upload_res1.code.to_s != '200'
         raise VkontaktePhotoPost.new "response code #{upload_res1.code}. body = #{upload_res1.body}"
       end

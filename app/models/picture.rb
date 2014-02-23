@@ -387,8 +387,8 @@ class Picture < ActiveRecord::Base
       raise TextToImage.new "phantomjs failed with #{status}: #{stderr}"
     end
     # cleanup files
-    # FileUtils.rm html_os_path
-    # FileUtils.rm js_os_path
+    FileUtils.rm html_os_path
+    FileUtils.rm js_os_path
     # check image
     raise TextToImage.new "Generated image was not found" unless File.exists?(png_os_path)
     size = FastImage.size(png_os_path)
