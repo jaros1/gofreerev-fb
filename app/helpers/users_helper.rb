@@ -170,7 +170,7 @@ module UsersHelper
   # nav links is displayed in 1, 2 or 3 lines in users/show page depending on screen width
   # prefix must match prefix for entries in users/user_nav_links in locals
   def user_nav_link (options)
-    # logger.debug2  "users_helper.user_nav_link: input options = #{options}"
+    logger.debug2  "users_helper.user_nav_link: input options = #{options}"
     prefix = options.delete(:prefix)
     symbol = case prefix
                when 'tabs' then :tab
@@ -182,16 +182,18 @@ module UsersHelper
     page_values = options.delete(:page_values)
     page_value = page_values[symbol]
     array_value = options.delete(:array_value)
-    options.delete(:array_values)
+    # options.delete(:array_values) # only :array_value is in options hash
+    raise "found :array_values" if options.has_key?(:array_values) # todo: remove
     if array_value == page_value
       # inactive link - current tab or current filter value
       t ".#{prefix}_#{page_value}"
     else
       # active link - link to new tab or new filter value
+      options = page_values.clone
       options[:id] = @user2.id
       options[symbol] = array_value
       key = ".#{prefix}_#{array_value}"
-      # logger.debug2  "link key = #{key}, link options = #{options}"
+      logger.debug2  "link key = #{key}, link options = #{options}"
       link_to (t key), user_path(options)
     end
   end # user_nav_link

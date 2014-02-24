@@ -546,3 +546,10 @@
 117) post on twitter - description > 70
      no picture - convert text to image - keep hash tags in shorten text
      picture - convert text to image - append or overlay text to image - keep hash tags in short text
+
+118) picture2text options:
+     0 - always - for example flickr or vkontakte
+     70 - text to image if description > 70 (no picture)
+     wrap - wrap text around picture - relevant for twitter
+
+119) users/show filters. combinations does not work. Only last choice is remembered.

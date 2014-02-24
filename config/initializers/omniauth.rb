@@ -155,8 +155,9 @@ API_GIFT_PICTURE_STORE = {:fallback => nil,
 # - integer: use if description.length > integer and no picture attachment in post
 # - 0: always, for example flickr (no picture attachment in post)
 # - 70: use text to picture if description > 70 characters. twitter. (no picture attachment in post)
-# - :append: append text to bottom of picture, for example flickr.
-# text to image convert is done in 3:4 format if possible (w:800, h:1066)
+# - :wrap: wrap text around picture. for example flickr or twitter
+# - :append: append text under picture. for example flickr or twitter
+# text to image convert is done in 3:4 format (w:800, h:1066, portrait format)
 API_TEXT_TO_PICTURE = {:facebook => nil,
                        :flickr => 0,
                        :foursquare => nil,

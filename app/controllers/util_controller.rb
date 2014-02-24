@@ -1795,8 +1795,13 @@ class UtilController < ApplicationController
     gift, api_gift, deep_link, key, options = get_gift_and_deep_link(id, login_user, provider)
     return [key, options] if key
 
-
-
+    # post on wall. cases:
+    # 1) post with picture but picture does not exist (error)
+    # 2) post with picture and text2picture = append
+    # 3) post with picture
+    # 4) post without picture and text2picture = 0 (always - flickr)
+    # 5) post without picture and text2picture = i and description.length > i (always)
+    # 5) post without picture
 
     raise "not implemented"
 
