@@ -548,8 +548,37 @@
      picture - convert text to image - append or overlay text to image - keep hash tags in short text
 
 118) picture2text options:
-     0 - always - for example flickr or vkontakte
-     70 - text to image if description > 70 (no picture)
+     0 - always - for example (no picture/flickr+vkontakte)
+     140 - text to image if description + deep link > 140 (no picture/twitter)
      wrap - wrap text around picture - relevant for twitter
+     append - append text after picture
+     right - wrap text right and below picture
+     left - wrap text left and below picture
+     wrap/append/right/left:
+     - gofreerev should display original picture. Not changed picture.
+       But pictures are not saved normally saved in gofreerev
 
-119) users/show filters. combinations does not work. Only last choice is remembered.
+120) localhost - looking af gift id 909 logged in as Jan R/FB
+     from user div ok = me
+     to user div = dummy FB user gofreerev/facebook
+     that is no information about google+ receiver 109316109373670614208/google_oauth2 Gofreerev A
+     irb(main):009:0> [ g.api_gifts[0].giver.debug_info, g.api_gifts[0].receiver.debug_info ]
+     => ["1705481075/facebook Jan R", "gofreerev/facebook Gofreerev F"]
+     irb(main):010:0> [ g.api_gifts[1].giver.debug_info, g.api_gifts[1].receiver.debug_info ]
+     => ["117657151428689087350/google_oauth2 Jan R", "109316109373670614208/google_oauth2 Gofreerev A"]
+     also a comments from 100006399422155/facebook Sandra Q
+     can not se that comments also was from 109316109373670614208/google_oauth2 Gofreerev A
+     Not necessarily a problem as users normally will use there real names, but can be a problem in test
+
+121) accepted deal comment. add accepted and price to comment
+
+122) add timestamps to comments.
+
+123) add a text truncated warning when posting on API and text is longer than allowed
+
+124) add a text length counter when entering text. Twitter users would like to known how long the text is.
+
+125) how to handle not logged in ajax errors
+     login_required filter stops and no ajax is returned to client
+
+

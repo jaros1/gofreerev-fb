@@ -1033,6 +1033,7 @@ class ApplicationController < ActionController::Base
     # add gofreerev_get_friends - used on post_login_<provider>
     api_client.define_singleton_method :gofreerev_get_friends do |logger|
       # get array with vkontakte friends
+      # VK also have follows/followers but information is not available for web site api
       # http://vk.com/developers.php?oid=-17680044&p=friends.get
       friends = self.friends.get :fields => "photo_medium,screen_name"
       # logger.debug2 "friends = #{friends}"
@@ -1053,8 +1054,11 @@ class ApplicationController < ActionController::Base
       [friends_hash, nil, nil]
     end # gofreerev_get_friends
     # add gofreerev_post_on_wall - used in post_on_<provider>
-    api_client.define_singleton_method :gofreerev_post_on_wall do |api_gift, logger|
+    api_client.define_singleton_method :gofreerev_post_on_wall do |options|
       # false: post to Gofreerev album, true: post to VK wall.
+      api_gift = options[:api_gift]
+      logger   = options[:logger]
+      picture  = options[:picture]
       wall = false # no errors but is do not looks like upload to VK wall is working. todo: check from a smartphone
       # find/create album with gofreerev pictures
       # http://vk.com/developers.php?oid=-17680044&p=photos.getAlbums
@@ -1066,6 +1070,7 @@ class ApplicationController < ActionController::Base
             e.message_options['error']['error_code'] == 5 and
             e.message_options['error']['error_msg'].to_s =~ /expired/
           logger.debug2 'access token has expired'
+          # todo: should log user out of vkontakte
           raise AccessTokenExpired.new(provider)
         end
         logger.debug2 "exception: #{e.message} (#{e.class})"
@@ -1099,7 +1104,7 @@ class ApplicationController < ActionController::Base
       if api_gift.picture?
         picture_full_os_path = Picture.full_os_path :rel_path => gift.app_picture_rel_path
       else
-        picture_full_os_path = Picture.create_png_image_from_text gift.description, 800
+        picture_full_os_path = options[:picture]
       end
       logger.debug2 "picture_full_os_path = #{picture_full_os_path}"
       # get upload server
@@ -1126,10 +1131,8 @@ class ApplicationController < ActionController::Base
       begin
         upload_res1 = RestClient.post url, :file1 => File.new(picture_full_os_path)
       rescue Exception => e
-        FileUtils.rm picture_full_os_path if !api_gift.picture? and File.exists?(picture_full_os_path)
         raise VkontaktePhotoPost.new "#{e.class}: #{e.message}"
       end
-      FileUtils.rm picture_full_os_path if !api_gift.picture? and File.exists?(picture_full_os_path)
       if upload_res1.code.to_s != '200'
         raise VkontaktePhotoPost.new "response code #{upload_res1.code}. body = #{upload_res1.body}"
       end
@@ -1181,8 +1184,10 @@ class ApplicationController < ActionController::Base
       if !save_res.has_key?('owner_id') or !save_res.has_key?('pid')
         raise VkontaktePhotoSave.new "Expected hash with owner_id and pid. save_res = #{save_res}"
       end
+      # ok response
       api_gift_id = "#{save_res['owner_id']}_#{save_res['pid']}"
-      api_gift_id
+      api_gift_url = "#{API_URL[provider]}photo#{api_gift_id}"
+      [ api_gift_id, api_gift_url ]
     end # gofreerev_post_on_wall
     # return api client
     api_client

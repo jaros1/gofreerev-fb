@@ -141,30 +141,45 @@ API_PROFILE_PICTURE_STORE = {}.with_indifferent_access
 API_GIFT_PICTURE_STORE = {:fallback => nil,
                           :facebook => :api,
                           :flickr => :api,
-                          :foursquare => nil, # todo: post allowed, but users do not have a wall like the other api's
+                          :foursquare => nil, # post possible, but no user wall like the other API's
                           :google_oauth2 => nil, # google+ is a readonly API
                           :instagram => nil, # instagram is a readonly API
                           :linkedin => :local, # images are not uploaded to LinkedIn and must be stored on gofreerev server
                           :twitter => :api,
                           :vkontakte => :api}.with_indifferent_access
 
+# technical max text lengths when posting on API walls.
+# Use nil for readonly API's (foursquare, google and instagram)
+# Use nil if no known max text length
+# Use an hash if more than one text field is available when posting on API wall
+# see also Open Graph lengths for title and description
+# Open Graph will in many cases have smaller size for title and description
+API_MAX_TEXT_LENGTHS = {:facebook => { :message => nil}, # could not find any facebook information
+                        :flickr => {:title => 255, :description => nil, :tags => nil },
+                        :foursquare => nil, # post allowed, but users do not have a wall like the other api's
+                        :google_oauth2 => nil, # google+ is a readonly API
+                        :instagram => nil, # instagram is a readonly API
+                        :linkedin => { :title => 200, :description => 256, :comment => 700 },
+                        :twitter => 140,
+                        :vkontakte => 475}.with_indifferent_access
+
 # text to picture options - PhantomJS (http://phantomjs.org/) is required for this - use empty hash {} if disabled.
-# note that PhantomJs required relative much memory and time to run and should maybe not run on a small plug computer
+# note that PhantomJs required relative much memory and time to run and should maybe not run on a small computer
+# used for post without pictures
 # values:
 # - nil: disabled / not allowed. use this option if phantomJS is not installed and for readonly API's
-# - integer: use if description.length > integer and no picture attachment in post
-# - 0: always, for example flickr (no picture attachment in post)
-# - 70: use text to picture if description > 70 characters. twitter. (no picture attachment in post)
-# - :wrap: wrap text around picture. for example flickr or twitter
-# - :append: append text under picture. for example flickr or twitter
-# text to image convert is done in 3:4 format (w:800, h:1066, portrait format)
+# - integer: use if description.length > integer
+#   -   0: always, for example flickr and vkontakte
+#   - 140: use text to picture if description + deep link > 140 characters. twitter.
+#   other options: append, right, left - merge image and text has been dropped
+# text to image convert is done in 3:4 format (w:800, h:1066, portrait format). Ok for short and long texts.
 API_TEXT_TO_PICTURE = {:facebook => nil,
                        :flickr => 0,
                        :foursquare => nil,
                        :google_oauth2 => nil,
                        :instagram => nil,
                        :linkedin => nil,
-                       :twitter => 70,
+                       :twitter => 140,
                        :vkontakte => 0}.with_indifferent_access
 
 # open graph values (http://ogp.me/) recommended max length for meta-tags used in deep links

@@ -162,29 +162,19 @@ class GiftsController < ApplicationController
     no_walls = 0
     tokens = session[:tokens] || {}
     tokens.keys.each do |provider|
+      next unless API_GIFT_PICTURE_STORE[provider] # skip readonly API's
+      # check permissions
+      login_user = @users.find { |u| u.provider == provider }
+      next if login_user.get_write_on_wall_action == User::WRITE_ON_WALL_NO # user has deselected post on api wall
+      # schedule post_on_<provider> or generic_post_on_wall task
       task_name = "post_on_#{provider}"
       if UtilController.new.private_methods.index(task_name.to_sym)
-        # post on provider wall
-        # check permission
-        login_user = @users.find { |u| u.provider == provider}
-        if login_user.get_write_on_wall_action != User::WRITE_ON_WALL_NO then
-          # User::WRITE_ON_WALL_YES or User::WRITE_ON_WALL_MISSING_PRIVS
-          add_task "#{task_name}(#{gift.id})", 5
-          no_walls += 1
-        end
-      elsif API_GIFT_PICTURE_STORE[provider] == :api
-        logger.error2 "API_GIFT_PICTURE_STORE setup problem for #{provider}"
-        logger.error2 "api gift picture store is :api, but no post_on_#{provider} task was found"
-        api_gift = gift.api_gifts.find { |ag| ag.provider == provider }
-        if api_gift
-          logger.error2 "api_gift for #{provider} was not found"
-        else
-          api_gift.picture = 'N'
-          api_gift.api_picture_url = nil
-          api_gift.save! if api_gift.changed?
-        end
+        add_task "#{task_name}(#{gift.id})", 5
+      else
+        add_task "generic_post_on_wall('#{provider}',#{gift.id})", 5
       end
-    end
+      no_walls += 1
+    end # each provider
 
     # write only warning once about missing write on wall privs. once
     if no_walls == 0
