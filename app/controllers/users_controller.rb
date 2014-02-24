@@ -400,9 +400,10 @@ class UsersController < ApplicationController
 
     @page_values[:tab] = tab
 
-    logger.debug2 "params          = #{params}"
-    logger.debug2 "@user_nav_links = #{@user_nav_links}"
-    logger.debug2 "@page_values    = #{@page_values}"
+    # debug nav links
+    # logger.debug2 "params          = #{params}"
+    # logger.debug2 "@user_nav_links = #{@user_nav_links}"
+    # logger.debug2 "@page_values    = #{@page_values}"
 
     respond_to do |format|
       format.html {}
