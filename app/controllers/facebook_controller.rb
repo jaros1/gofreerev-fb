@@ -170,10 +170,11 @@ class FacebookController < ApplicationController
     #       or could add ajax to post_on_facebook to enable/disable file upload button?
     logger.debug2  'get user id and name'
     api = init_api_client_facebook(access_token)
-    api_request = 'me?fields=name,locale,link'
-    logger.debug2  "api_request = #{api_request}"
+    api_request = 'me?fields=name,locale,link,picture'
+    # logger.debug2  "api_request = #{api_request}"
     api_response = api.get_object api_request
-    logger.debug2  "api_response = #{api_response.to_s}"
+    # logger.debug2  "api_response = #{api_response.to_s}"
+    image = api_response['picture']['data']['url'] if api_response['picture'] and api_response['picture']['data']
     # fb_locale was received in FacebookController.create post request from facebook
     # add to api_response hash - is used for user.currency
     # api_response["language"] = session[:language]
@@ -181,7 +182,7 @@ class FacebookController < ApplicationController
                 :token => access_token,
                 :uid => api_response["id"],
                 :name => api_response['name'],
-                :image => nil, # profile picture is updated in util.post_login_facebook
+                :image => image, # only used for new facebook users (50x50)
                 :country => api_response['locale'].to_s.last(2),
                 :language => api_response['locale'].to_s.first(2),
                 :profile_url => api_response['link']

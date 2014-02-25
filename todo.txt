@@ -580,3 +580,6 @@
 
 125) how to handle not logged in ajax errors
      login_required filter stops and no ajax is returned to client
+
+126) new user dev1 betty - profile picture blank after login and blank after refresh
+     user id 100007698374019/facebook  api_profile_picture_url is an empty string

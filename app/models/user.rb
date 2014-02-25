@@ -437,7 +437,9 @@ class User < ActiveRecord::Base
       user.balance_at = Date.parse(Sequence.get_last_exchange_rate_date)
       user.post_on_wall_yn = API_POST_PERMITTED[provider] ? 'Y' : 'N'
     end # outer if
-    user.api_profile_picture_url = image unless user.api_profile_picture_url # profile image is normally set in post_login_<provider>
+    # facebook profile image is set in post login task / post_login_update_friends
+    # ( unless new facebook user without profile picture )
+    user.api_profile_picture_url = image unless provider == 'facebook' and user.api_profile_picture_url.to_s != ''
     user.last_login_at = Time.new
     user.deauthorized_at = nil
     user.save!
@@ -493,6 +495,7 @@ class User < ActiveRecord::Base
       if picture_store == :api
         # preferred choice - profile pictures not downloaded - use profile picture url from provider as it is
         Picture.delete_if_app_url(user.api_profile_picture_url)
+        logger.debug2 "update profile picture: url = #{url}"
         user.api_profile_picture_url = url
         user.update_attribute('api_profile_picture_url', user.api_profile_picture_url) if user.api_profile_picture_url_changed?
         return nil
@@ -628,6 +631,7 @@ class User < ActiveRecord::Base
 
   # called from generic_post_login / post_login_update_friends if api_client instance method gofreerev_get_user exists
   def update_api_user_from_hash (user_hash)
+    logger.debug2 "user_hash = #{user_hash}"
     allowed_fields = [:permissions, :api_profile_picture_url]
     invalid_fields = user_hash.keys - allowed_fields
     if invalid_fields.size > 0
@@ -640,6 +644,7 @@ class User < ActiveRecord::Base
     update_attribute(:permissions, user_hash[:permissions]) if user_hash.has_key? :permissions
     # profile picture
     if user_hash.has_key?(:api_profile_picture_url)
+      logger.debug2 "update profile picture: api_profile_picture_url = #{user_hash[:api_profile_picture_url]}"
       key, options = User.update_profile_image(user_id, user_hash[:api_profile_picture_url])
       return [key, options] if key # error when updating profile picture information
     end

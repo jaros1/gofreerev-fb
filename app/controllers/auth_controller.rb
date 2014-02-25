@@ -45,7 +45,7 @@ class AuthController < ApplicationController
   # omniauth callback on success (login was started from rails)
   def create
     @auth_hash = auth_hash
-    # logger.secret2  "auth_hash = #{auth_hash}"
+    logger.secret2  "auth_hash = #{auth_hash}"
     # logger.debug2 "auth_hash.get_profile_url = #{auth_hash.get_profile_url}"
 
     # login - return nil (ok) or array with translate key and options for error message

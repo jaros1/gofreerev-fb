@@ -1029,10 +1029,16 @@ class UtilController < ApplicationController
     if api_client.respond_to? :gofreerev_get_user
       # fetch info about login user from API
       user_hash, key, options = api_client.gofreerev_get_user logger
+      logger.debug2 "user_hash = #{user_hash}, key = #{key}, options = #{options}"
       return [login_user, api_client, friends_hash, new_user, key, options] if key
       # update user
       key, options = login_user.update_api_user_from_hash user_hash
       return [login_user, api_client, friends_hash, new_user, key, options] if key
+      # todo. debug invalid profile picture update
+      login_user.reload
+      logger.debug2 "api_profile_picture_url = #{login_user.api_profile_picture_url}"
+    else
+      logger.debug "no gofreerev_get_user method was found for #{provider} api client"
     end
 
     # get facebook friends

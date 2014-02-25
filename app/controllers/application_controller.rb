@@ -451,8 +451,9 @@ class ApplicationController < ActionController::Base
     if image.to_s != ""
       if image =~ /^http/ and !image.index("''") and !image.index('"')
         # todo: other characters to filter? for example characters with a special os function
-        # facebook: profile picture from login is not used - profile picture from koala request in post_login_facebook is used
-        add_task "User.update_profile_image('#{user.user_id}', '#{image}')", 5
+        # facebook: profile picture from login is not used - profile picture from koala request in post login task is used
+        # see util_controller.post_login_update_friends / facebook api client gofreerev_get_user instance method
+        add_task "User.update_profile_image('#{user.user_id}', '#{image}')", 5 unless provider == 'facebook'
       else
         logger.debug2 "invalid picture received from #{provider}. image = #{image}"
       end
@@ -742,9 +743,9 @@ class ApplicationController < ActionController::Base
       key, options = nil
       # get user information - permissions and picture
       api_request = 'me?fields=permissions,picture'
-      # logger.debug2  "api_request = #{api_request}"
+      logger.debug2  "api_request = #{api_request}"
       api_response = api_client.get_object api_request
-      # logger.debug2  "api_response = #{api_response}"
+      logger.debug2  "api_response = #{api_response}"
       user_hash[:permissions] = api_response['permissions']['data'][0]
       user_hash[:permissions] = {} if user_hash[:permissions] == []
       image = api_response['picture']['data']['url'] if api_response['picture'] and api_response['picture']['data']
