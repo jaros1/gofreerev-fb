@@ -1238,6 +1238,55 @@ class ApplicationController < ActionController::Base
       # return friends has to post_login_<provider> - see also Friend.update_api_friends_from_hash
       [friends_hash, nil, nil]
     end # gofreerev_get_friends
+
+    # add gofreerev_post_on_wall - used in post_on_<provider> / generic_post_on_wall
+    api_client.define_singleton_method :gofreerev_post_on_wall do |options|
+      # get params
+      api_gift = options[:api_gift]
+      logger = options[:logger]
+      picture = options[:picture]
+      direction = options[:direction] # offers / seeks
+      open_graph = options[:open_graph]
+      gift = api_gift.gift
+      deep_link = api_gift.deep_link
+
+      text = "#{direction}#{api_gift.gift.description}"
+      text = text.first(140-3-deep_link.length) if text.length + 3 + deep_link.length > 140
+      tweet = "#{text} - #{deep_link}"
+
+      # post tweet
+      # todo: use text to image convert if long tweet and text to image is enabled for twitter.
+      x = nil
+      begin
+        if picture
+          # http://rubydoc.info/github/jnunemaker/twitter/Twitter/Client:update_with_media
+          x = self.update_with_media(tweet, File.new(picture))
+        else
+          x = self.update(tweet)
+        end
+      rescue Twitter::Error::Unauthorized => e
+        # # user has removed app from app settings page - https://twitter.com/settings/applications
+        logger.debug2  "Exception: #{e.message.to_s} (#{e.class})"
+        raise AppNotAuthorized if e.message == 'Invalid or expired token'
+        raise
+      rescue Twitter::Error, Timeout::Error => e
+        # maybe a problem with timeout for twitter post.
+        # https://github.com/sferik/twitter/issues/516
+        # https://github.com/sferik/twitter/issues/401
+        # todo: Could return warning to user and repeat post on twitter a few times
+        logger.debug2  "Exception: #{e.message.to_s} (#{e.class})"
+        logger.debug2  "Backtrace: " + e.backtrace.join("\n")
+        raise
+      end
+      raise Twitter::Error.new "Expected Twitter::Tweet. Found #{x.class}" if x.class != Twitter::Tweet
+
+      # save post id and picture url
+      # api_picture_url = x.media.first.media_url.to_s if api_gift.picture?
+      # todo: add api_picture_url to return?
+      api_gift_id  = x.id.to_s
+      api_gift_url = x.url.to_s
+      [api_gift_id, api_gift_url]
+    end
     # return api client
     api_client
   end # init_api_client_twitter

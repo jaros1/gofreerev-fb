@@ -267,7 +267,7 @@ class UtilController < ApplicationController
           if api_client
             begin
               # check api wall
-              key, options = get_api_picture_url(api_client.provider, api_gift, false, api_client)
+              key, options = get_api_picture_url(api_gift.provider, api_gift, false, api_client)
               #case api_gift.provider
               #  when 'facebook'
               #    key, options = get_api_picture_url_facebook(api_gift, false, api_client)
@@ -2395,75 +2395,75 @@ class UtilController < ApplicationController
   #  end
   #end # post_on_linkedin
 
-  private
-  def post_on_twitter (id)
-    begin
-      # get twitter user, friends and twitter api client
-      provider = "twitter"
-      login_user, api_client, key, options = get_login_user_and_api_client(provider)
-      return [key, options] if key
-      login_user_id = login_user.user_id
-
-      # check user privs before post in twitter wall
-      # ( permissions is also checked before scheduling post_on_twitter task )
-      case login_user.get_write_on_wall_action
-        when User::WRITE_ON_WALL_NO then return nil # ignore
-        when User::WRITE_ON_WALL_YES then nil # continue
-        when User::WRITE_ON_WALL_MISSING_PRIVS then return grant_write_link(provider) # inject link to grant missing priv.
-      end
-
-      # get gift, api_gift and deep_link
-      gift, api_gift, deep_link, key, options = get_gift_and_deep_link(id, login_user, provider)
-      return [key, options] if key
-
-      # tweet with deep link in tweet message
-      # tweet format: [offers/seeks] + gift.description + " - " + SITE_URL/gifts/xx/123456789012345678901234567890
-      # description will be truncated if tweet length > 140
-      # expect description longer than 70 characters to be truncated in tweet
-      # full description is available in deep link
-      # todo: maybe inject text in picture.
-      text = "#{format_direction_without_user(api_gift)}#{api_gift.gift.description}"
-      deep_link = " - #{api_gift.init_deep_link}"
-      text = text.first(140-deep_link.length) if text.length + deep_link.length > 140
-      tweet = "#{text}#{deep_link}"
-
-      # post tweet
-      # todo: use text to image convert if long tweet and text to image is enabled for twitter.
-      x = nil
-      begin
-        if api_gift.picture?
-          # http://rubydoc.info/github/jnunemaker/twitter/Twitter/Client:update_with_media
-          full_os_path = Picture.full_os_path :rel_path => gift.app_picture_rel_path
-          x = api_client.update_with_media(tweet, File.new(full_os_path))
-        else
-          x = api_client.update(tweet)
-        end
-      rescue Twitter::Error, Timeout::Error => e
-        # maybe a problem with timeout for twitter post.
-        # https://github.com/sferik/twitter/issues/516
-        # https://github.com/sferik/twitter/issues/401
-        # todo: Could return warning to user and repeat post on twitter a few times
-        logger.debug2  "Exception: #{e.message.to_s} (#{e.class})"
-        logger.debug2  "Backtrace: " + e.backtrace.join("\n")
-        raise
-      end
-      return ['.gift_posted_1_html', {:apiname => provider, :error => "Expected Twitter::Tweet. Found #{x.class}"}] if x.class != Twitter::Tweet
-
-      # save post id and picture url
-      api_gift.api_picture_url = x.media.first.media_url.to_s if api_gift.picture?
-      api_gift.api_gift_id  = x.id.to_s
-      api_gift.api_gift_url = x.url.to_s
-      api_gift.save!
-
-      # no errors - return posted message
-      return [".gift_posted_2_html", :apiname => provider, :error => nil]
-
-    rescue Exception => e
-      logger.debug2  "Exception: #{e.message.to_s} (#{e.class})"
-      logger.debug2  "Backtrace: " + e.backtrace.join("\n")
-      raise
-    end
-  end # post_on_twitter
+  #private
+  #def post_on_twitter (id)
+  #  begin
+  #    # get twitter user, friends and twitter api client
+  #    provider = "twitter"
+  #    login_user, api_client, key, options = get_login_user_and_api_client(provider)
+  #    return [key, options] if key
+  #    login_user_id = login_user.user_id
+  #
+  #    # check user privs before post in twitter wall
+  #    # ( permissions is also checked before scheduling post_on_twitter task )
+  #    case login_user.get_write_on_wall_action
+  #      when User::WRITE_ON_WALL_NO then return nil # ignore
+  #      when User::WRITE_ON_WALL_YES then nil # continue
+  #      when User::WRITE_ON_WALL_MISSING_PRIVS then return grant_write_link(provider) # inject link to grant missing priv.
+  #    end
+  #
+  #    # get gift, api_gift and deep_link
+  #    gift, api_gift, deep_link, key, options = get_gift_and_deep_link(id, login_user, provider)
+  #    return [key, options] if key
+  #
+  #    # tweet with deep link in tweet message
+  #    # tweet format: [offers/seeks] + gift.description + " - " + SITE_URL/gifts/xx/123456789012345678901234567890
+  #    # description will be truncated if tweet length > 140
+  #    # expect description longer than 70 characters to be truncated in tweet
+  #    # full description is available in deep link
+  #    # todo: maybe inject text in picture.
+  #    text = "#{format_direction_without_user(api_gift)}#{api_gift.gift.description}"
+  #    deep_link = " - #{api_gift.init_deep_link}"
+  #    text = text.first(140-deep_link.length) if text.length + deep_link.length > 140
+  #    tweet = "#{text}#{deep_link}"
+  #
+  #    # post tweet
+  #    # todo: use text to image convert if long tweet and text to image is enabled for twitter.
+  #    x = nil
+  #    begin
+  #      if api_gift.picture?
+  #        # http://rubydoc.info/github/jnunemaker/twitter/Twitter/Client:update_with_media
+  #        full_os_path = Picture.full_os_path :rel_path => gift.app_picture_rel_path
+  #        x = api_client.update_with_media(tweet, File.new(full_os_path))
+  #      else
+  #        x = api_client.update(tweet)
+  #      end
+  #    rescue Twitter::Error, Timeout::Error => e
+  #      # maybe a problem with timeout for twitter post.
+  #      # https://github.com/sferik/twitter/issues/516
+  #      # https://github.com/sferik/twitter/issues/401
+  #      # todo: Could return warning to user and repeat post on twitter a few times
+  #      logger.debug2  "Exception: #{e.message.to_s} (#{e.class})"
+  #      logger.debug2  "Backtrace: " + e.backtrace.join("\n")
+  #      raise
+  #    end
+  #    return ['.gift_posted_1_html', {:apiname => provider, :error => "Expected Twitter::Tweet. Found #{x.class}"}] if x.class != Twitter::Tweet
+  #
+  #    # save post id and picture url
+  #    api_gift.api_picture_url = x.media.first.media_url.to_s if api_gift.picture?
+  #    api_gift.api_gift_id  = x.id.to_s
+  #    api_gift.api_gift_url = x.url.to_s
+  #    api_gift.save!
+  #
+  #    # no errors - return posted message
+  #    return [".gift_posted_2_html", :apiname => provider, :error => nil]
+  #
+  #  rescue Exception => e
+  #    logger.debug2  "Exception: #{e.message.to_s} (#{e.class})"
+  #    logger.debug2  "Backtrace: " + e.backtrace.join("\n")
+  #    raise
+  #  end
+  #end # post_on_twitter
 
 
   ## post on vkontakte wall - with or without picture
