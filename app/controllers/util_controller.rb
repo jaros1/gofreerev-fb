@@ -1853,7 +1853,9 @@ class UtilController < ApplicationController
       elsif api_gift.picture?
         # case 2: post on wall with picture
         picture_url = Picture.url_from_rel_path api_gift.gift.app_picture_rel_path # used in a later check
+        picture_full_os_path = Picture.full_os_path_from_rel_path api_gift.gift.app_picture_rel_path
         api_gift.api_gift_id, api_gift.api_gift_url = api_client.gofreerev_post_on_wall :api_gift => api_gift,
+                                                                                        :picture => picture_full_os_path,
                                                                                         :logger => logger
       elsif API_TEXT_TO_PICTURE[provider] == 0 or
           API_TEXT_TO_PICTURE[provider].class == Fixnum and description_with_deep_link.length > API_TEXT_TO_PICTURE[provider]
@@ -1884,6 +1886,18 @@ class UtilController < ApplicationController
       logger.debug2 "#{provider} access token has expired"
       gift_posted_on_wall_api_wall = 10
       logout(provider)
+    rescue PostNotAllowed => e
+      # missing write permission to api wall or permission to write on api wall has been removed
+      return grant_write_link(provider)
+    rescue AppNotAuthorized => e
+      # user has deauthorized app
+      logout(provider)
+      gift_posted_on_wall_api_wall = 8
+    rescue DupPostOnWall => e
+      # delete gift and ignore error OAuthException, code: 506, message: (#506) Duplicate status message [HTTP 400]
+      # Gift posted in here but not on your facebook wall. Duplicate status message on facebook wall.
+      # error should not happen any longer as deep link now is included in message
+      gift_posted_on_wall_api_wall = 4
     rescue Exception => e
       logger.debug2 "Exception: #{e.message.to_s} (#{e.class})"
       logger.debug2 "Backtrace: " + e.backtrace.join("\n")
@@ -1924,155 +1938,155 @@ class UtilController < ApplicationController
   end # generic_post_on_wall
 
 
-  # post on facebook wall - with or without picture
-  # picture is temporary saved local, but is deleted when the picture has been posted in wall(s)
-  # task was inserted in gifts/create
-  private
-  def post_on_facebook (id)
-    begin
-      # get facebook user and koala api client
-      provider = "facebook"
-      login_user, api_client, key, options = get_login_user_and_api_client(provider)
-      return [key, options] if key
-      login_user_id = login_user.user_id
-
-      # check user privs before post in facebook wall
-      # ( permissions is also checked before scheduling post_on_facebook task )
-      case login_user.get_write_on_wall_action
-        when User::WRITE_ON_WALL_NO then
-          return nil # ignore
-        when User::WRITE_ON_WALL_YES then
-          nil # continue
-        when User::WRITE_ON_WALL_MISSING_PRIVS then
-          return grant_write_link(provider) # inject link to grant missing priv.
-      end
-
-      # get gift, api_gift and deep_link
-      gift, api_gift, deep_link, key, options = get_gift_and_deep_link(id, login_user, provider)
-      return [key, options] if key
-
-      # gift_posted_on_wall_api_wall. values:
-      #  1: "Gift posted in here but not on your %{apiname} wall. #{error}" # unhandled error message
-      #  2: "Gift posted in here and on your %{apiname} wall"
-      #  3: "Gift posted in here but not on your %{apiname} wall." # missing privileges
-      #  4: "Gift posted in here but not on your %{apiname} wall. Duplicate status message on #{apiname} wall."
-      #  5: "Gift posted in here but not on your %{apiname} wall. Post on #{apiname} wall not implemented."
-      gift_posted_on_wall_api_wall = 1
-      error = 'unknown error'
-
-      # post with or without picture - link is a deep link from facebook wall to gift in gofreerev
-      # link will be clickable if public url
-      # link will be not clickable if localhost or server behind firewall
-
-      # https://developers.facebook.com/docs/graph-api/reference/user/feed/
-      begin
-        # todo: add method gift.temp_picture_exists?
-        if api_gift.picture? and !gift.rel_path_picture_exists?
-          # post with picture but picture was not found.
-          # There must be some error handling in gifts/create that is missing
-          gift_posted_on_wall_api_wall = 6
-        elsif api_gift.picture?
-          # status post with picture
-          picture_url = Picture.url :rel_path => gift.app_picture_rel_path
-          picture_full_os_path = Picture.full_os_path :rel_path => gift.app_picture_rel_path
-          filetype = gift.app_picture_rel_path.split('.').last
-          content_type = "image/#{filetype}"
-          # ( post as an open graph story - gift picture store must be :local - is shown as a like in activity log / not on wall )
-          #   api_response = api_client.put_connections("me", "og.likes", :object => deep_link)
-          api_response = api_client.put_picture(picture_full_os_path,
-                                                content_type,
-                                                {:message => "#{gift.description} - #{deep_link}"
-                                                })
-          # api_response = {"id"=>"1396226023933952", "post_id"=>"100006397022113_1396195803936974"} (Hash)
-          api_gift.api_gift_id = api_response['post_id']
-        else
-          # status post without picture
-          # gift.description = "#{gift.description} - #{link}" # link only as text
-          # gift.description = "<a href='#{link}'>#{gift.description}</a>" # html code as text
-          api_response = api_client.put_connections('me', 'feed',
-                                                    :message => "#{gift.description} - #{deep_link}"
-          )
-          # api_response = {"id"=>"100006397022113_1396235850599636"}
-          api_gift.api_gift_id = api_response['id']
-        end
-        logger.debug2 "api_response = #{api_response} (#{api_response.class.name})"
-        gift_posted_on_wall_api_wall = 2 # Gift posted in here and on your facebook wall
-      rescue Koala::Facebook::ClientError => e
-        e.logger = logger
-        e.puts_exception("#{__method__}: ")
-        if e.fb_error_type == 'OAuthException' && e.fb_error_code == 506
-          # delete gift and ignore error OAuthException, code: 506, message: (#506) Duplicate status message [HTTP 400]
-          gift_posted_on_wall_api_wall = 4 # Gift posted in here but not on your facebook wall. Duplicate status message on facebook wall.
-        elsif e.fb_error_type == 'OAuthException' && e.fb_error_code == 200
-          # e.response_body = {"error":{"message":"(#200) The user hasn't authorized the application to perform this action","type":"OAuthException","code":200}}
-          # check if permission to post i api wall has been removed
-          error = e.to_s
-          login_user.get_permissions_facebook(api_client)
-          if !login_user.post_on_wall_authorized?
-            # permission to post on api wall has been removed.
-            # show request_post_gift_priv_link link in gifts/index page
-            return grant_write_link(provider)
-          else
-            # permission to post on api wall has NOT been removed. Unknown error
-            gift_posted_on_wall_api_wall = 1 # unknown error. no translation
-            api_gift.clear_deep_link
-          end
-        elsif e.fb_error_type == 'OAuthException' && e.fb_error_code == 190
-          # user has deauthorized gofreerev / removed gofreerev in facebook app setting page
-          # Koala::Facebook::ClientError
-          # fb_error_type    = OAuthException (String)
-          # fb_error_code    = 190 (Fixnum)
-          # fb_error_subcode = 458 (Fixnum)
-          # fb_error_message = Error validating access token: The user has not authorized application 193177257554775. (String)
-          # http_status      = 400 (Fixnum)
-          # response_body    = {"error":{"message":"Error validating access token: The user has not authorized application 193177257554775.","type":"OAuthException","code":190,"error_subcode":458}}
-          # logout and return error message to user
-          logout(provider)
-          gift_posted_on_wall_api_wall = 8
-        else
-          # unhandled exceptions
-          gift_posted_on_wall_api_wall = 1 # unknown error. no translation
-          error = e.to_s
-          api_gift.clear_deep_link
-        end
-      rescue Koala::Facebook::ServerError => e
-        e.logger = logger
-        e.puts_exception("#{__method__}: ")
-        gift_posted_on_wall_api_wall = 1 # unknown error. no translation
-        error = e.fb_error_message.to_s
-        api_gift.clear_deep_link
-      end # rescue
-
-      if gift_posted_on_wall_api_wall != 2
-        # error or warning
-        api_gift.picture = 'N'
-        api_gift.save!
-        return [".gift_posted_#{gift_posted_on_wall_api_wall}_html",
-                login_user.app_and_apiname_hash.merge(:error => error) ]
-      elsif (!api_gift.picture? or (api_gift.picture? and Picture.perm_app_url?(picture_url)))
-        # post ok - no picture or picture with perm app url
-        # no need to check read permission to gift on api wall
-        # return posted message
-        return [".gift_posted_#{gift_posted_on_wall_api_wall}_html", :apiname => login_user.apiname, :error => error]
-      else
-        # post ok - gift posted in facebook wall
-        # check read permissioin to gift and get picture url with best size > 200 x 200
-        # must have read access to post on facebook wall to display picture in gofreerev
-        # 1) use api_gift.api_gift_id to get object_id (picture size in first request is too small)
-        key, options = get_api_picture_url(provider, api_gift, true, api_client)
-        return [key, options] if key
-
-        # post ok and no permission problems
-        # no errors - return posted message
-        return [".gift_posted_#{gift_posted_on_wall_api_wall}_html", :apiname => login_user.apiname, :error => error]
-      end
-
-    rescue Exception => e
-      logger.debug2 "Exception: #{e.message.to_s} (#{e.class})"
-      logger.debug2 "Backtrace: " + e.backtrace.join("\n")
-      raise
-    end
-  end # post_on_facebook
+  ## post on facebook wall - with or without picture
+  ## picture is temporary saved local, but is deleted when the picture has been posted in wall(s)
+  ## task was inserted in gifts/create
+  #private
+  #def post_on_facebook (id)
+  #  begin
+  #    # get facebook user and koala api client
+  #    provider = "facebook"
+  #    login_user, api_client, key, options = get_login_user_and_api_client(provider)
+  #    return [key, options] if key
+  #    login_user_id = login_user.user_id
+  #
+  #    # check user privs before post in facebook wall
+  #    # ( permissions is also checked before scheduling post_on_facebook task )
+  #    case login_user.get_write_on_wall_action
+  #      when User::WRITE_ON_WALL_NO then
+  #        return nil # ignore
+  #      when User::WRITE_ON_WALL_YES then
+  #        nil # continue
+  #      when User::WRITE_ON_WALL_MISSING_PRIVS then
+  #        return grant_write_link(provider) # inject link to grant missing priv.
+  #    end
+  #
+  #    # get gift, api_gift and deep_link
+  #    gift, api_gift, deep_link, key, options = get_gift_and_deep_link(id, login_user, provider)
+  #    return [key, options] if key
+  #
+  #    # gift_posted_on_wall_api_wall. values:
+  #    #  1: "Gift posted in here but not on your %{apiname} wall. #{error}" # unhandled error message
+  #    #  2: "Gift posted in here and on your %{apiname} wall"
+  #    #  3: "Gift posted in here but not on your %{apiname} wall." # missing privileges
+  #    #  4: "Gift posted in here but not on your %{apiname} wall. Duplicate status message on #{apiname} wall."
+  #    #  5: "Gift posted in here but not on your %{apiname} wall. Post on #{apiname} wall not implemented."
+  #    gift_posted_on_wall_api_wall = 1
+  #    error = 'unknown error'
+  #
+  #    # post with or without picture - link is a deep link from facebook wall to gift in gofreerev
+  #    # link will be clickable if public url
+  #    # link will be not clickable if localhost or server behind firewall
+  #
+  #    # https://developers.facebook.com/docs/graph-api/reference/user/feed/
+  #    begin
+  #      # todo: add method gift.temp_picture_exists?
+  #      if api_gift.picture? and !gift.rel_path_picture_exists?
+  #        # post with picture but picture was not found.
+  #        # There must be some error handling in gifts/create that is missing
+  #        gift_posted_on_wall_api_wall = 6
+  #      elsif api_gift.picture?
+  #        # status post with picture
+  #        picture_url = Picture.url :rel_path => gift.app_picture_rel_path
+  #        picture_full_os_path = Picture.full_os_path :rel_path => gift.app_picture_rel_path
+  #        filetype = gift.app_picture_rel_path.split('.').last
+  #        content_type = "image/#{filetype}"
+  #        # ( post as an open graph story - gift picture store must be :local - is shown as a like in activity log / not on wall )
+  #        #   api_response = api_client.put_connections("me", "og.likes", :object => deep_link)
+  #        api_response = api_client.put_picture(picture_full_os_path,
+  #                                              content_type,
+  #                                              {:message => "#{gift.description} - #{deep_link}"
+  #                                              })
+  #        # api_response = {"id"=>"1396226023933952", "post_id"=>"100006397022113_1396195803936974"} (Hash)
+  #        api_gift.api_gift_id = api_response['post_id']
+  #      else
+  #        # status post without picture
+  #        # gift.description = "#{gift.description} - #{link}" # link only as text
+  #        # gift.description = "<a href='#{link}'>#{gift.description}</a>" # html code as text
+  #        api_response = api_client.put_connections('me', 'feed',
+  #                                                  :message => "#{gift.description} - #{deep_link}"
+  #        )
+  #        # api_response = {"id"=>"100006397022113_1396235850599636"}
+  #        api_gift.api_gift_id = api_response['id']
+  #      end
+  #      logger.debug2 "api_response = #{api_response} (#{api_response.class.name})"
+  #      gift_posted_on_wall_api_wall = 2 # Gift posted in here and on your facebook wall
+  #    rescue Koala::Facebook::ClientError => e
+  #      e.logger = logger
+  #      e.puts_exception("#{__method__}: ")
+  #      if e.fb_error_type == 'OAuthException' && e.fb_error_code == 506
+  #        # delete gift and ignore error OAuthException, code: 506, message: (#506) Duplicate status message [HTTP 400]
+  #        gift_posted_on_wall_api_wall = 4 # Gift posted in here but not on your facebook wall. Duplicate status message on facebook wall.
+  #      elsif e.fb_error_type == 'OAuthException' && e.fb_error_code == 200
+  #        # e.response_body = {"error":{"message":"(#200) The user hasn't authorized the application to perform this action","type":"OAuthException","code":200}}
+  #        # check if permission to post i api wall has been removed
+  #        error = e.to_s
+  #        login_user.get_permissions_facebook(api_client)
+  #        if !login_user.post_on_wall_authorized?
+  #          # permission to post on api wall has been removed.
+  #          # show request_post_gift_priv_link link in gifts/index page
+  #          return grant_write_link(provider)
+  #        else
+  #          # permission to post on api wall has NOT been removed. Unknown error
+  #          gift_posted_on_wall_api_wall = 1 # unknown error. no translation
+  #          api_gift.clear_deep_link
+  #        end
+  #      elsif e.fb_error_type == 'OAuthException' && e.fb_error_code == 190
+  #        # user has deauthorized gofreerev / removed gofreerev in facebook app setting page
+  #        # Koala::Facebook::ClientError
+  #        # fb_error_type    = OAuthException (String)
+  #        # fb_error_code    = 190 (Fixnum)
+  #        # fb_error_subcode = 458 (Fixnum)
+  #        # fb_error_message = Error validating access token: The user has not authorized application 193177257554775. (String)
+  #        # http_status      = 400 (Fixnum)
+  #        # response_body    = {"error":{"message":"Error validating access token: The user has not authorized application 193177257554775.","type":"OAuthException","code":190,"error_subcode":458}}
+  #        # logout and return error message to user
+  #        logout(provider)
+  #        gift_posted_on_wall_api_wall = 8
+  #      else
+  #        # unhandled exceptions
+  #        gift_posted_on_wall_api_wall = 1 # unknown error. no translation
+  #        error = e.to_s
+  #        api_gift.clear_deep_link
+  #      end
+  #    rescue Koala::Facebook::ServerError => e
+  #      e.logger = logger
+  #      e.puts_exception("#{__method__}: ")
+  #      gift_posted_on_wall_api_wall = 1 # unknown error. no translation
+  #      error = e.fb_error_message.to_s
+  #      api_gift.clear_deep_link
+  #    end # rescue
+  #
+  #    if gift_posted_on_wall_api_wall != 2
+  #      # error or warning
+  #      api_gift.picture = 'N'
+  #      api_gift.save!
+  #      return [".gift_posted_#{gift_posted_on_wall_api_wall}_html",
+  #              login_user.app_and_apiname_hash.merge(:error => error) ]
+  #    elsif (!api_gift.picture? or (api_gift.picture? and Picture.perm_app_url?(picture_url)))
+  #      # post ok - no picture or picture with perm app url
+  #      # no need to check read permission to gift on api wall
+  #      # return posted message
+  #      return [".gift_posted_#{gift_posted_on_wall_api_wall}_html", :apiname => login_user.apiname, :error => error]
+  #    else
+  #      # post ok - gift posted in facebook wall
+  #      # check read permissioin to gift and get picture url with best size > 200 x 200
+  #      # must have read access to post on facebook wall to display picture in gofreerev
+  #      # 1) use api_gift.api_gift_id to get object_id (picture size in first request is too small)
+  #      key, options = get_api_picture_url(provider, api_gift, true, api_client)
+  #      return [key, options] if key
+  #
+  #      # post ok and no permission problems
+  #      # no errors - return posted message
+  #      return [".gift_posted_#{gift_posted_on_wall_api_wall}_html", :apiname => login_user.apiname, :error => error]
+  #    end
+  #
+  #  rescue Exception => e
+  #    logger.debug2 "Exception: #{e.message.to_s} (#{e.class})"
+  #    logger.debug2 "Backtrace: " + e.backtrace.join("\n")
+  #    raise
+  #  end
+  #end # post_on_facebook
 
   # post on flickr wall - with or without picture
   # picture is temporary saved local, but is deleted when the picture has been posted in wall(s)

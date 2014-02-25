@@ -778,9 +778,92 @@ class ApplicationController < ActionController::Base
       # return friends has to post_login_<provider> - see also Friend.update_api_friends_from_hash
       [friends_hash, nil, nil]
     end # gofreerev_get_friends
+    # add gofreerev_post_on_wall - used in post_on_<provider> / generic_post_on_wall
+    login_user = @users.find { |user| user.provider == provider } # cache facebook login user - used in error handling
+    api_client.define_singleton_method :gofreerev_post_on_wall do |options|
+      # get params
+      api_gift = options[:api_gift]
+      logger   = options[:logger]
+      picture  = options[:picture]
+      gift = api_gift.gift
+      deep_link = api_gift.deep_link
+
+      begin
+        if picture
+          logger.debug2 'status post with picture'
+          filetype = picture.split('.').last
+          content_type = "image/#{filetype}"
+          api_response = api_client.put_picture(picture,
+                                                content_type,
+                                                {:message => "#{gift.description} - #{deep_link}"
+                                                })
+          # api_response = {"id"=>"1396226023933952", "post_id"=>"100006397022113_1396195803936974"} (Hash)
+          api_gift_id = api_response['post_id']
+        else
+          logger.debug2 'status post without picture'
+          # gift.description = "#{gift.description} - #{link}" # link only as text
+          # gift.description = "<a href='#{link}'>#{gift.description}</a>" # html code as text
+          api_response = api_client.put_connections('me', 'feed',
+                                                    :message => "#{gift.description} - #{deep_link}")
+          # api_response = {"id"=>"100006397022113_1396235850599636"}
+          api_gift_id = api_response['id']
+        end
+        logger.debug2 "api_response = #{api_response} (#{api_response.class.name})"
+      rescue Koala::Facebook::ClientError => e
+        e.logger = logger
+        e.puts_exception("#{__method__}: ")
+        if e.fb_error_type == 'OAuthException' && e.fb_error_code == 506
+          # delete gift and ignore error OAuthException, code: 506, message: (#506) Duplicate status message [HTTP 400]
+          # gift_posted_on_wall_api_wall = 4 # Gift posted in here but not on your facebook wall. Duplicate status message on facebook wall.
+          # error should not happen any longer as deep link now is included in message
+          raise DupPostOnWall
+        elsif e.fb_error_type == 'OAuthException' && e.fb_error_code == 200
+          # e.response_body = {"error":{"message":"(#200) The user hasn't authorized the application to perform this action","type":"OAuthException","code":200}}
+          # check if permission to post i api wall has been removed
+          error = e.to_s
+          login_user.get_permissions_facebook(api_client)
+          if !login_user.post_on_wall_authorized?
+            # permission to post on api wall has been removed.
+            # show request_post_gift_priv_link link in gifts/index page
+            raise PostNotAllowed
+          else
+            # permission to post on api wall has NOT been removed. Unknown error
+            # gift_posted_on_wall_api_wall = 1 # unknown error. no translation
+            api_gift.clear_deep_link
+            raise
+          end
+        elsif e.fb_error_type == 'OAuthException' && e.fb_error_code == 190
+          # user has deauthorized gofreerev / removed gofreerev in facebook app setting page
+          # Koala::Facebook::ClientError
+          # fb_error_type    = OAuthException (String)
+          # fb_error_code    = 190 (Fixnum)
+          # fb_error_subcode = 458 (Fixnum)
+          # fb_error_message = Error validating access token: The user has not authorized application 193177257554775. (String)
+          # http_status      = 400 (Fixnum)
+          # response_body    = {"error":{"message":"Error validating access token: The user has not authorized application 193177257554775.","type":"OAuthException","code":190,"error_subcode":458}}
+          # logout and return error message to user
+          # logout(provider)
+          # gift_posted_on_wall_api_wall = 8
+          raise AppNotAuthorized
+        else
+          # unhandled exceptions
+          gift_posted_on_wall_api_wall = 1 # unknown error. no translation
+          error = e.to_s
+          api_gift.clear_deep_link
+          raise
+        end
+      rescue Koala::Facebook::ServerError => e
+        e.logger = logger
+        e.puts_exception("#{__method__}: ")
+        api_gift.clear_deep_link
+        raise
+      end # rescue
+      # ok
+      [ api_gift_id, nil ] # api_gift_url will be looked up in generic_post_on_wall
+    end
     # return api client
     api_client
-  end
+  end # init_api_client_facebook
 
   private
   def init_api_client_flickr (token)
@@ -1053,7 +1136,7 @@ class ApplicationController < ActionController::Base
       # return friends has to post_login_<provider> - see also Friend.update_api_friends_from_hash
       [friends_hash, nil, nil]
     end # gofreerev_get_friends
-    # add gofreerev_post_on_wall - used in post_on_<provider>
+    # add gofreerev_post_on_wall - used in post_on_<provider> / generic_post_on_wall
     api_client.define_singleton_method :gofreerev_post_on_wall do |options|
       # false: post to Gofreerev album, true: post to VK wall.
       api_gift = options[:api_gift]
