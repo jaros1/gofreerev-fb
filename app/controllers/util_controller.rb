@@ -1844,6 +1844,8 @@ class UtilController < ApplicationController
     #  3) post without picture and text2picture = 0 (always - flickr)
     #  4) post without picture and text2picture = i and text length > i (i=140 twitter)
     #  5) post without picture
+    direction = format_direction_without_user(api_gift)
+    open_graph = open_graph_title_and_desc(api_gift)
     begin
       if api_gift.picture? and !gift.rel_path_picture_exists?
         # case 1: post with picture but picture was not found.
@@ -1855,6 +1857,8 @@ class UtilController < ApplicationController
         picture_url = Picture.url_from_rel_path api_gift.gift.app_picture_rel_path # used in a later check
         picture_full_os_path = Picture.full_os_path_from_rel_path api_gift.gift.app_picture_rel_path
         api_gift.api_gift_id, api_gift.api_gift_url = api_client.gofreerev_post_on_wall :api_gift => api_gift,
+                                                                                        :direction => direction,
+                                                                                        :open_graph => open_graph,
                                                                                         :picture => picture_full_os_path,
                                                                                         :logger => logger
       elsif API_TEXT_TO_PICTURE[provider] == 0 or
@@ -1862,12 +1866,16 @@ class UtilController < ApplicationController
         # case 3 and 4. convert text to image
         picture_full_os_path = Picture.create_png_image_from_text gift.description, 800
         api_gift.api_gift_id, api_gift.api_gift_url = api_client.gofreerev_post_on_wall :api_gift => api_gift,
+                                                                                        :direction => direction,
+                                                                                        :open_graph => open_graph,
                                                                                         :picture => picture_full_os_path,
                                                                                         :logger => logger
         FileUtils.rm picture_full_os_path if File.exists?(picture_full_os_path)
       else
         # case 5: post on wall without picture
         api_gift.api_gift_id, api_gift.api_gift_url = api_client.gofreerev_post_on_wall :api_gift => api_gift,
+                                                                                        :direction => direction,
+                                                                                        :open_graph => open_graph,
                                                                                         :logger => logger
       end
       if api_gift.api_gift_id
@@ -2249,144 +2257,143 @@ class UtilController < ApplicationController
   # def post_on_google_oauth2 (id)
   # end
 
-  def post_on_linkedin (id)
-    begin
-      # get linkedin user and linkedin api client
-      provider = "linkedin"
-      login_user, api_client, key, options = get_login_user_and_api_client(provider)
-      return [key, options] if key
-      login_user_id = login_user.user_id
-
-      # check user privs before post in linkedin wall
-      # ( permissions is also checked before scheduling post_on_linkedin task )
-      case login_user.get_write_on_wall_action
-        when User::WRITE_ON_WALL_NO # ignore
-          logger.debug2 "User::WRITE_ON_WALL_NO - Ignore post_on_linkedin wall."
-          return nil
-        when User::WRITE_ON_WALL_YES then nil # continue
-        when User::WRITE_ON_WALL_MISSING_PRIVS # inject link to grant missing priv.
-          logger.debug2 "User::WRITE_ON_WALL_MISSING_PRIVS - inject link into gifts/index page"
-          return grant_write_link(provider)
-      end
-
-      # get gift, api_gift and deep_link
-      gift, api_gift, deep_link, key, options = get_gift_and_deep_link(id, login_user, provider)
-      return [key, options] if key
-
-      # todo: add offers/seeks to description
-      # todo: add picture
-      # todo: add url for gift
-      begin
-
-        # http://stackoverflow.com/questions/15183107/rails-linked-post-message
-        # http://developer.linkedin.com/documents/share-api#toggleview:id=ruby
-        # Node                Parent Node    Value 	Notes
-        # comment             share          Text of member's comment.        Post must contain comment and/or (content/title and content/submitted-url).
-        #                                                                     Max length is 700 characters.
-        # content             share          Parent node for information on shared document
-        # title               share/content  Title of shared document         Post must contain comment and/or (content/title and content/submitted-url).
-        #                                                                     Max length is 200 characters.
-        # submitted-url       share/content  URL for shared content           Post must contain comment and/or (content/title and content/submitted-url).
-        # submitted-image-url share/content  URL for image of shared content  Invalid without (content/title and content/submitted-url).
-        # description         share/content  Description of shared content    Max length of 256 characters.
-        # note that linkedin uses meta property="og:description as default description
-        # todo: check layout with and without picture
-        # todo: check description length. <= 256 use only description. length <= 700. Use only comment. Length between 700 and 956 use comment and description
-        # my test says: title 60, description 245 and comment 600 characters
-        image_url = Picture.url :rel_path => gift.app_picture_rel_path if api_gift.picture? and gift.rel_path_picture_exists?
-        # logger.debug2 "image_url = #{image_url}"
-        image_url = SITE_URL + image_url.from(1) if image_url and image_url.first == '/'
-        text = "#{format_direction_without_user(api_gift)} #{gift.description}"
-        # logger.debug2 "picture = #{api_gift.picture?}, text.length = #{text.length}, image_url = #{image_url}"
-
-
-        comment = nil
-        content = { "submitted-url" => deep_link }
-        content["title"], content["description"] = open_graph_title_and_desc(api_gift)
-        comment = text if text.length > API_OG_TITLE_SIZE[:linkedin]
-        content["submitted-image-url"] = image_url if api_gift.picture?
-        #if api_gift.picture?
-        #  # title (max 200 characters) required for post with image.
-        #  content["submitted-image-url"] = image_url
-        #  # layout rules for post with image on linkedin:
-        #  case
-        #    when text.length <= 200
-        #      content["title"] = text
-        #      content["description"] = '.'
-        #    when text.length <= 456
-        #      content["title"] = text.first(200)
-        #      content["description"] = text.from(200)
-        #    else
-        #      raise "linkedin post with picture and text length > 456 is not implemented"
-        #  end
-        #else
-        #  case
-        #    when text.length <= 700
-        #      comment = text
-        #    else
-        #      raise "linkedin post without picture and text length > 700 is not implemented"
-        #  end
-        #end
-        logger.debug2 "content = #{content}, comment = #{comment}"
-        x = api_client.add_share :content => content, :comment => comment
-      rescue LinkedIn::Errors::AccessDeniedError => e
-        logger.debug2  "LinkedIn::Errors::AccessDeniedError"
-        logger.debug2  "e.message = #{e.message}"
-        api_gift.clear_deep_link
-        if e.message.to_s =~ /^\(403\)/
-          # e.message = (403): Access to posting shares denied
-          # inject link in tasks_errors table in gifts/index page to allow user to grant missing write permission
-          return grant_write_link(provider)
-        end
-        raise
-      end
-
-      # check response from client.add_share request
-      if x.class != Net::HTTPCreated
-        api_gift.clear_deep_link
-        logger.debug2 "no exception from client.add_share, but post was not created"
-        logger.debug2 "x = #{x} (#{x.class})"
-        logger.debug2 "x.body = #{x.body} (#{x.body.class})"
-        return ['.gift_posted_1_html', {:apiname => provider, :error => x.body}]
-      end
-
-      # post on linkedin ok
-      logger.debug2 "x = #{x} (#{x.class})"
-      # logger.debug2 "x.methods = #{x.methods.sort.join(', ')}"
-      logger.debug2 "x.body = #{x.body} (#{x.body.class})"
-      #post_on_linkedin: x.body = {
-      #    "updateKey": "UNIU-310307710-5824797827771314176-SHARE",
-      #    "updateUrl": "http://www.linkedin.com/updates?discuss=&scope=310307710&stype=M&topic=5824797827771314176&type=U&a=omJz"
-      #}
-
-      # extract update post id and post url - url for image is not relevant for linkedin - picture is stored at gofreerev
-      # todo: update_url redirects to linkedin login page
-      update_key = $1 if x.body.to_s =~ /"updateKey": "(.*?)"/
-      update_url = $1 if x.body.to_s =~ /"updateUrl": "(.*?)"/
-      logger.debug2 "update key = #{update_key}, update_url = #{update_url}"
-      api_gift.api_gift_id = update_key
-      api_gift.api_gift_url = update_url # note that post on linkedin wall is created in a batch process. Will work in one or 2 minutes
-      api_gift.save!
-
-      # https://developer.linkedin.com/documents/share-api
-      # You can use the update key to request the XML or JSON representation of the newly created share.
-      # This can be achieved by making a GET call to http://www.linkedin-ei.com/v1/people/~/network/updates/key={update_key}
-      # (setting {update_key} to the value you received in the previous response)
-      # can not lookup post in linkedin wall at this time - post is created batch - will be created in one or two minutes
-      # x2 = client.shares :key => update_key
-      # logger.debug2 "x2 = #{x2} (#{x2.class})"
-      # logger.debug2 "x2.methods = #{x2.methods.sort.join(', ')}"
-
-      # no errors - return posted message
-      return [".gift_posted_2_html", :apiname => provider, :error => nil]
-
-    rescue Exception => e
-      logger.debug2  "Exception: #{e.message.to_s} (#{e.class})"
-      logger.debug2  "Backtrace: " + e.backtrace.join("\n")
-      raise
-    end
-  end # post_on_linkedin
-
+  #def post_on_linkedin (id)
+  #  begin
+  #    # get linkedin user and linkedin api client
+  #    provider = "linkedin"
+  #    login_user, api_client, key, options = get_login_user_and_api_client(provider)
+  #    return [key, options] if key
+  #    login_user_id = login_user.user_id
+  #
+  #    # check user privs before post in linkedin wall
+  #    # ( permissions is also checked before scheduling post_on_linkedin task )
+  #    case login_user.get_write_on_wall_action
+  #      when User::WRITE_ON_WALL_NO # ignore
+  #        logger.debug2 "User::WRITE_ON_WALL_NO - Ignore post_on_linkedin wall."
+  #        return nil
+  #      when User::WRITE_ON_WALL_YES then nil # continue
+  #      when User::WRITE_ON_WALL_MISSING_PRIVS # inject link to grant missing priv.
+  #        logger.debug2 "User::WRITE_ON_WALL_MISSING_PRIVS - inject link into gifts/index page"
+  #        return grant_write_link(provider)
+  #    end
+  #
+  #    # get gift, api_gift and deep_link
+  #    gift, api_gift, deep_link, key, options = get_gift_and_deep_link(id, login_user, provider)
+  #    return [key, options] if key
+  #
+  #    # todo: add offers/seeks to description
+  #    # todo: add picture
+  #    # todo: add url for gift
+  #    begin
+  #
+  #      # http://stackoverflow.com/questions/15183107/rails-linked-post-message
+  #      # http://developer.linkedin.com/documents/share-api#toggleview:id=ruby
+  #      # Node                Parent Node    Value 	Notes
+  #      # comment             share          Text of member's comment.        Post must contain comment and/or (content/title and content/submitted-url).
+  #      #                                                                     Max length is 700 characters.
+  #      # content             share          Parent node for information on shared document
+  #      # title               share/content  Title of shared document         Post must contain comment and/or (content/title and content/submitted-url).
+  #      #                                                                     Max length is 200 characters.
+  #      # submitted-url       share/content  URL for shared content           Post must contain comment and/or (content/title and content/submitted-url).
+  #      # submitted-image-url share/content  URL for image of shared content  Invalid without (content/title and content/submitted-url).
+  #      # description         share/content  Description of shared content    Max length of 256 characters.
+  #      # note that linkedin uses meta property="og:description as default description
+  #      # todo: check layout with and without picture
+  #      # todo: check description length. <= 256 use only description. length <= 700. Use only comment. Length between 700 and 956 use comment and description
+  #      # my test says: title 60, description 245 and comment 600 characters
+  #      image_url = Picture.url :rel_path => gift.app_picture_rel_path if api_gift.picture? and gift.rel_path_picture_exists?
+  #      # logger.debug2 "image_url = #{image_url}"
+  #      image_url = SITE_URL + image_url.from(1) if image_url and image_url.first == '/'
+  #      text = "#{format_direction_without_user(api_gift)} #{gift.description}"
+  #      # logger.debug2 "picture = #{api_gift.picture?}, text.length = #{text.length}, image_url = #{image_url}"
+  #
+  #
+  #      comment = nil
+  #      content = { "submitted-url" => deep_link }
+  #      content["title"], content["description"] = open_graph_title_and_desc(api_gift)
+  #      comment = text if text.length > API_OG_TITLE_SIZE[:linkedin]
+  #      content["submitted-image-url"] = image_url if api_gift.picture?
+  #      #if api_gift.picture?
+  #      #  # title (max 200 characters) required for post with image.
+  #      #  content["submitted-image-url"] = image_url
+  #      #  # layout rules for post with image on linkedin:
+  #      #  case
+  #      #    when text.length <= 200
+  #      #      content["title"] = text
+  #      #      content["description"] = '.'
+  #      #    when text.length <= 456
+  #      #      content["title"] = text.first(200)
+  #      #      content["description"] = text.from(200)
+  #      #    else
+  #      #      raise "linkedin post with picture and text length > 456 is not implemented"
+  #      #  end
+  #      #else
+  #      #  case
+  #      #    when text.length <= 700
+  #      #      comment = text
+  #      #    else
+  #      #      raise "linkedin post without picture and text length > 700 is not implemented"
+  #      #  end
+  #      #end
+  #      logger.debug2 "content = #{content}, comment = #{comment}"
+  #      x = api_client.add_share :content => content, :comment => comment
+  #    rescue LinkedIn::Errors::AccessDeniedError => e
+  #      logger.debug2  "LinkedIn::Errors::AccessDeniedError"
+  #      logger.debug2  "e.message = #{e.message}"
+  #      api_gift.clear_deep_link
+  #      if e.message.to_s =~ /^\(403\)/
+  #        # e.message = (403): Access to posting shares denied
+  #        # inject link in tasks_errors table in gifts/index page to allow user to grant missing write permission
+  #        return grant_write_link(provider)
+  #      end
+  #      raise
+  #    end
+  #
+  #    # check response from client.add_share request
+  #    if x.class != Net::HTTPCreated
+  #      api_gift.clear_deep_link
+  #      logger.debug2 "no exception from client.add_share, but post was not created"
+  #      logger.debug2 "x = #{x} (#{x.class})"
+  #      logger.debug2 "x.body = #{x.body} (#{x.body.class})"
+  #      return ['.gift_posted_1_html', {:apiname => provider, :error => x.body}]
+  #    end
+  #
+  #    # post on linkedin ok
+  #    logger.debug2 "x = #{x} (#{x.class})"
+  #    # logger.debug2 "x.methods = #{x.methods.sort.join(', ')}"
+  #    logger.debug2 "x.body = #{x.body} (#{x.body.class})"
+  #    #post_on_linkedin: x.body = {
+  #    #    "updateKey": "UNIU-310307710-5824797827771314176-SHARE",
+  #    #    "updateUrl": "http://www.linkedin.com/updates?discuss=&scope=310307710&stype=M&topic=5824797827771314176&type=U&a=omJz"
+  #    #}
+  #
+  #    # extract update post id and post url - url for image is not relevant for linkedin - picture is stored at gofreerev
+  #    # todo: update_url redirects to linkedin login page
+  #    update_key = $1 if x.body.to_s =~ /"updateKey": "(.*?)"/
+  #    update_url = $1 if x.body.to_s =~ /"updateUrl": "(.*?)"/
+  #    logger.debug2 "update key = #{update_key}, update_url = #{update_url}"
+  #    api_gift.api_gift_id = update_key
+  #    api_gift.api_gift_url = update_url # note that post on linkedin wall is created in a batch process. Will work in one or 2 minutes
+  #    api_gift.save!
+  #
+  #    # https://developer.linkedin.com/documents/share-api
+  #    # You can use the update key to request the XML or JSON representation of the newly created share.
+  #    # This can be achieved by making a GET call to http://www.linkedin-ei.com/v1/people/~/network/updates/key={update_key}
+  #    # (setting {update_key} to the value you received in the previous response)
+  #    # can not lookup post in linkedin wall at this time - post is created batch - will be created in one or two minutes
+  #    # x2 = client.shares :key => update_key
+  #    # logger.debug2 "x2 = #{x2} (#{x2.class})"
+  #    # logger.debug2 "x2.methods = #{x2.methods.sort.join(', ')}"
+  #
+  #    # no errors - return posted message
+  #    return [".gift_posted_2_html", :apiname => provider, :error => nil]
+  #
+  #  rescue Exception => e
+  #    logger.debug2  "Exception: #{e.message.to_s} (#{e.class})"
+  #    logger.debug2  "Backtrace: " + e.backtrace.join("\n")
+  #    raise
+  #  end
+  #end # post_on_linkedin
 
   private
   def post_on_twitter (id)

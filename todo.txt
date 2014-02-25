@@ -580,5 +580,3 @@
 
 125) how to handle not logged in ajax errors
      login_required filter stops and no ajax is returned to client
-
-
