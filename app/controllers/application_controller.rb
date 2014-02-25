@@ -779,7 +779,8 @@ class ApplicationController < ActionController::Base
       [friends_hash, nil, nil]
     end # gofreerev_get_friends
     # add gofreerev_post_on_wall - used in post_on_<provider> / generic_post_on_wall
-    login_user = @users.find { |user| user.provider == provider } # cache facebook login user - used in error handling
+    # cache facebook login user - used in gofreerev_post_on_wall error handling
+    login_user = @users.find { |user| user.provider == provider }
     api_client.define_singleton_method :gofreerev_post_on_wall do |options|
       # get params
       api_gift = options[:api_gift]
@@ -787,10 +788,9 @@ class ApplicationController < ActionController::Base
       picture  = options[:picture]
       gift = api_gift.gift
       deep_link = api_gift.deep_link
-
       begin
         if picture
-          logger.debug2 'status post with picture'
+          # logger.debug2 'status post with picture'
           filetype = picture.split('.').last
           content_type = "image/#{filetype}"
           api_response = api_client.put_picture(picture,
@@ -800,7 +800,7 @@ class ApplicationController < ActionController::Base
           # api_response = {"id"=>"1396226023933952", "post_id"=>"100006397022113_1396195803936974"} (Hash)
           api_gift_id = api_response['post_id']
         else
-          logger.debug2 'status post without picture'
+          # logger.debug2 'status post without picture'
           # gift.description = "#{gift.description} - #{link}" # link only as text
           # gift.description = "<a href='#{link}'>#{gift.description}</a>" # html code as text
           api_response = api_client.put_connections('me', 'feed',
@@ -899,6 +899,32 @@ class ApplicationController < ActionController::Base
       # return friends has to post_login_<provider> - see also Friend.update_api_friends_from_hash
       [friends_hash, nil, nil]
     end # gofreerev_get_friends
+
+    # add gofreerev_post_on_wall - used in post_on_<provider> / generic_post_on_wall
+    api_client.define_singleton_method :gofreerev_post_on_wall do |options|
+      # get params
+      api_gift = options[:api_gift]
+      logger   = options[:logger]
+      picture  = options[:picture]
+      gift = api_gift.gift
+      deep_link = api_gift.deep_link
+      # always post with picture on flickr. API_TEXT_TO_PICTURE[:flickr] == 0
+      begin
+        api_gift_id = self.upload_photo picture, :description => "#{gift.description} - #{deep_link}"
+      rescue FlickRaw::OAuthClient::FailedResponse => e
+        logger.debug2 "exception: #{e.message} (#{e.message.class})"
+        # logger.debug2 "e.methods = #{e.methods.sort.join(', ')}"
+        if e.message == 'token_rejected'
+          # user has deauthorized app in app settings page http://www.flickr.com/services/auth/list.gne
+          raise AppNotAuthorized
+        end
+        # other unhandled errors
+        raise
+      end
+      api_gift_url = "#{API_URL[provider]}photos/gofreerev/#{api_gift_id}/"
+      [api_gift_id, api_gift_url]
+    end # gofreerev_post_on_wall
+
     # return api client
     api_client
   end # init_api_client_flickr
