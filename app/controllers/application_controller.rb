@@ -758,7 +758,7 @@ class ApplicationController < ActionController::Base
       # get facebook friends list (name and url for profile picture for each facebook friend)
       # note that some friends may have privacy settings that prevent client from pulling friends information from API
       # ( not all friends are returned )
-      api_request = 'me/friends?fields=name,id,picture'
+      api_request = 'me/friends?fields=name,id,picture.width(100).height(100)'
       # logger.debug2  "api_request = #{api_request}"
       friends = self.get_object api_request
       # logger.debug2  "friends = #{friends}"
