@@ -90,7 +90,8 @@ API_CALLBACK_URL = {:facebook => "#{SITE_URL}facebook/",
 # default user permissions after login.
 # facebook: koala me?fields=permissions request is used to check facebook permissions after login
 # twitter: authorization with write access, but user must enable post on twitter before write permission is used
-API_DEFAULT_PERMISSIONS = {:flickr => 'read',
+API_DEFAULT_PERMISSIONS = {:facebook => {},
+                           :flickr => 'read',
                            :foursquare => 'read',
                            :google_oauth2 => 'read',
                            :instagram => 'read',

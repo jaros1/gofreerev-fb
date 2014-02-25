@@ -147,7 +147,22 @@ class FacebookController < ApplicationController
       # todo: error handling?!
       logger.debug2  "code = #{params[:code]}"
       oauth = Koala::Facebook::OAuth.new(API_ID[provider], API_SECRET[provider], API_CALLBACK_URL[provider])
-      access_token = oauth.get_access_token(params[:code])
+      begin
+        access_token = oauth.get_access_token(params[:code])
+      rescue Koala::Facebook::OAuthTokenRequestError => e
+        if e.message =~ /authorization code has expired/
+          save_flash ".auth_code_expired", :appname => APP_NAME
+        else
+          save_flash ".auth_code_error", :appname => APP_NAME, :error => e.message
+        end
+        redirect_to :controller => :auth
+        return
+      rescue Exception => e
+        logger.debug2 "exception: #{e.message} (#{e.class})"
+        save_flash ".auth_code_error_", :appname => APP_NAME, :error => e.message
+        redirect_to :controller => :auth
+        return
+      end
       # logger.debug2  "access_token = #{access_token}"
       # login completed. access token is saved.
     end
@@ -169,10 +184,10 @@ class FacebookController < ApplicationController
     #       could refresh permissions here
     #       or could add ajax to post_on_facebook to enable/disable file upload button?
     logger.debug2  'get user id and name'
-    api = init_api_client_facebook(access_token)
-    api_request = 'me?fields=name,locale,link,picture'
+    api_client = init_api_client(provider, access_token)
+    api_request = 'me?fields=name,locale,link,picture.width(100).height(100)'
     # logger.debug2  "api_request = #{api_request}"
-    api_response = api.get_object api_request
+    api_response = api_client.get_object api_request
     # logger.debug2  "api_response = #{api_response.to_s}"
     image = api_response['picture']['data']['url'] if api_response['picture'] and api_response['picture']['data']
     # fb_locale was received in FacebookController.create post request from facebook
@@ -182,7 +197,7 @@ class FacebookController < ApplicationController
                 :token => access_token,
                 :uid => api_response["id"],
                 :name => api_response['name'],
-                :image => image, # only used for new facebook users (50x50)
+                :image => image, # only used for new facebook users
                 :country => api_response['locale'].to_s.last(2),
                 :language => api_response['locale'].to_s.first(2),
                 :profile_url => api_response['link']

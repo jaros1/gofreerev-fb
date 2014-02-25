@@ -742,7 +742,7 @@ class ApplicationController < ActionController::Base
       user_hash = {}
       key, options = nil
       # get user information - permissions and picture
-      api_request = 'me?fields=permissions,picture'
+      api_request = 'me?fields=permissions,picture.width(100).height(100)'
       logger.debug2  "api_request = #{api_request}"
       api_response = api_client.get_object api_request
       logger.debug2  "api_response = #{api_response}"
@@ -1595,8 +1595,7 @@ class ApplicationController < ActionController::Base
     # API_GIFT_PICTURE_STORE: nil (no picture/readonly api), :api (use api picture url) or :local (keep local copy of picture)
     return nil unless [:local, :api].index(API_GIFT_PICTURE_STORE[provider])
     method = "grant_write_link_#{provider}".to_sym
-    # todo: check if private method grant_write_link_#{provider} exists
-    logger.debug2 "private_methods = #{private_methods.join(', ')}"
+    # logger.debug2 "private_methods = #{private_methods.join(', ')}"
     return ['.grant_write_link_missing', :provider => provider, :apiname => provider_downcase(provider)] unless private_methods.index(method)
     send(method)
   end # grant_write_link
