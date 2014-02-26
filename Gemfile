@@ -17,7 +17,7 @@ gem 'omniauth'
 # register : https://developers.facebook.com/ - select Apps in menu
 # reference: https://developers.facebook.com/docs/graph-api/reference/
 gem 'omniauth-facebook' # https://github.com/mkdynamic/omniauth-facebook
-gem 'koala' #, '1.9.0' # facebook API calls - https://github.com/arsduo/koala/wiki/Koala-on-Rails
+gem 'koala' # facebook API calls - https://github.com/arsduo/koala/wiki/Koala-on-Rails
 
 # 2) flickr
 # register : http://www.flickr.com/services/apps/create/
@@ -46,14 +46,15 @@ gem 'instagram' #, '0.10.0' # Instagram API calls  - https://github.com/Instagra
 # 6) linkedin
 # register : https://www.linkedin.com/secure/developer
 # reference: https://developer.linkedin.com/apis
+# todo. is using linkedin-0.4.4 - map error in 0.4.6 - https://github.com/hexgnu/linkedin/issues/216
 gem 'omniauth-linkedin' # https://github.com/skorks/omniauth-linkedin
-gem 'linkedin', '0.4.4' # LinkedIn API calls   - https://rubygems.org/gems/linkedin
+gem 'linkedin', '0.4.4' # LinkedIn API calls - https://rubygems.org/gems/linkedin
 
 # 7) twitter
 # register : https://apps.twitter.com/
 # reference: https://dev.twitter.com/docs/api/1.1
 gem 'omniauth-twitter' # https://github.com/arunagw/omniauth-twitter
-gem 'twitter' # twitter API calls    - http://sferik.github.io/twitter/
+gem 'twitter' # twitter API calls - http://sferik.github.io/twitter/
 
 # 8) VKontakte
 # register : http://vk.com/dev

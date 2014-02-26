@@ -350,6 +350,13 @@ class Picture < ActiveRecord::Base
       html.puts '    if (font_factor > 1) font_factor = (font_factor - 1) / 2 + 1 ;'
       html.puts '    else font_factor = 1 - (1 - font_factor) / 2 ;'
       html.puts '    font_size = font_size * font_factor ;'
+      # fix word wrap for text without spaces
+      html.puts '    if ((font_size > 1000) && (!text.className)) {'
+      html.puts '      text.className = "wrapword" ;'
+      html.puts '      width  = (document.width !== undefined) ? document.width : document.body.offsetWidth;'
+      html.puts '      target_height = width / target_aspect_ratio ;'
+      html.puts '      font_size = 500 ;'
+      html.puts '    }'
       html.puts '    text.style.fontSize = "" + font_size + "%" ;'
       html.puts '    height = (document.height !== undefined) ? document.height : document.body.offsetHeight;'
       html.puts '    height_dif = Math.abs(height - target_height) ;'
@@ -357,7 +364,6 @@ class Picture < ActiveRecord::Base
       html.puts '      best_height_dif = height_dif ;'
       html.puts '      best_font_size = font_size ;'
       html.puts '    }'
-      html.puts '    if (font_size > 1000) text.className = "wrapword" ;'
       html.puts '  }'
       html.puts '  font_size = best_font_size ;'
       html.puts '  text.style.fontSize = "" + font_size + "%" ;'
@@ -377,7 +383,7 @@ class Picture < ActiveRecord::Base
       js.puts ""
       js.puts "setTimeout(function() {"
       js.puts "  page.open('#{html_os_path}');"
-      js.puts "}, 250);"
+      js.puts "}, 1000);"
       js.puts ""
       js.puts "page.onLoadFinished = function() {"
       js.puts "  page.render('#{png_os_path}');"
@@ -396,12 +402,14 @@ class Picture < ActiveRecord::Base
       raise TextToImage.new "phantomjs failed with #{status}: #{stderr}"
     end
     # cleanup files
-    # FileUtils.rm html_os_path
-    # FileUtils.rm js_os_path
+    FileUtils.rm html_os_path
+    FileUtils.rm js_os_path
     # check image
     raise TextToImage.new "Generated image was not found" unless File.exists?(png_os_path)
     size = FastImage.size(png_os_path)
-    logger.error2 "Expected #{width} wide picture. Found width #{size.first}" if size.first != width
+    if size.first != width or size.last < 767 or size.last > 1367
+      logger.error2 "Expected 800x1067 image. Found #{size.join('x')} image"
+    end
     # return full os path to png image
     png_os_path
   end # self.create_png_image_from_text
