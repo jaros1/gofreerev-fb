@@ -162,7 +162,7 @@ API_MAX_TEXT_LENGTHS = {:facebook => { :message => nil}, # could not find any fa
                         :google_oauth2 => nil, # google+ is a readonly API
                         :instagram => nil, # instagram is a readonly API
                         :linkedin => { :title => 200, :description => 256, :comment => 700 },
-                        :twitter => 140,
+                        :twitter => 116, # 24 characters reserved for deep link - max text length with image is 93
                         :vkontakte => 475}.with_indifferent_access
 
 # text to picture options - PhantomJS (http://phantomjs.org/) is required for this - use empty hash {} if disabled.
@@ -181,7 +181,7 @@ API_TEXT_TO_PICTURE = {:facebook => nil,
                        :google_oauth2 => nil,
                        :instagram => nil,
                        :linkedin => nil,
-                       :twitter => 140,
+                       :twitter => 116, # 24 characters reserved for deep link
                        :vkontakte => 0}.with_indifferent_access
 
 # open graph values (http://ogp.me/) recommended max length for meta-tags used in deep links

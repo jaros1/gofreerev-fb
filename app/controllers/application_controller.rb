@@ -1251,33 +1251,16 @@ class ApplicationController < ActionController::Base
       gift = api_gift.gift
       deep_link = api_gift.deep_link
 
-      # fix Status is over 140 characters error when tyweet with picture
-      # it looks like twitter adds a picture link to tweet.
-      tweet_max_length = picture ? 117 : 140
+      # twitter has some special restrictions on tweet length
+      # max tweet length 140 characters
+      # always reserve 23+1 characters for deep link (space + link)
+      # reserve 23 characters for picture link if attached image in tweet
+      deep_link_lng = 24 # space + link
+      picture_link_lng = picture ? 23 : 0 # picture link
+      text_max_lng = 140 - deep_link_lng - picture_link_lng
 
-      text = "#{direction}#{api_gift.gift.description}"
-      text = text.first(tweet_max_length-3-deep_link.length) if text.length + 3 + deep_link.length > tweet_max_length
-
-      ## fix Status is over 140 characters & multibyte characters problem
-      ##
-      #tweet = nil
-      #loop do
-      #  tweet = "#{text} - #{deep_link}".force_encoding('UTF-8')
-      #  break if tweet.bytesize <= 130
-      #  text = text[0..-2]
-      #end
-      #logger.debug2 "tweet = #{tweet}, length = #{tweet.length}, bytesize = #{tweet.bytesize}"
-      #
-      ## test without deep link
-      #tweet = "#{direction}#{api_gift.gift.description}".first(114)
-      #loop do
-      #  break if tweet.bytesize <= 120
-      #  tweet = tweet[0..-2]
-      #end
-      #
-      #tweet = "#{direction}#{api_gift.gift.description}".first(117)
-
-      tweet = "#{text} - #{deep_link}"
+      text = "#{direction}#{gift.description}".first(text_max_lng)
+      tweet = "#{text} #{deep_link}"
 
       # post tweet
       # todo: use text to image convert if long tweet and text to image is enabled for twitter.

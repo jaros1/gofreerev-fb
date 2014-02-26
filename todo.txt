@@ -595,3 +595,12 @@
      /Disk-0/OLAP-hosting/Ruby/railsapps/gofreerev-fb/app/controllers/util_controller.rb:1860:in `generic_post_on_wall'
      (eval):1:in `block in do_tasks'
      /Disk-0/OLAP-hosting/Ruby/railsapps/gofreerev-fb/app/controllers/util_controller.rb:906:in `eval'
+
+128) auth/index - remove post checkbox for foursquare
+
+129) tweet with picture.
+     text is now shorten to 48 characters.
+     tweet with picture should allow 97 + 23 (link) + 20 (image)
+     make test on dev1 from rails console
+
+130) tweet - remove ordinary text before removing hash tags.

@@ -965,6 +965,7 @@ class UtilController < ApplicationController
     login_user, token, key, options = get_login_user_and_token(provider)
     return [login_user, api_client, key, options] if key
     logger.secret2 "provider = #{provider}, token = #{token}"
+
     key, options = init_api_client(provider, token) # returns [key, options] (error) or [api_client, nil] (ok)
     api_client, key = key, nil if key.class != String
     [login_user, api_client, key, options]
