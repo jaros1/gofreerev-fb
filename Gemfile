@@ -17,7 +17,7 @@ gem 'omniauth'
 # register : https://developers.facebook.com/ - select Apps in menu
 # reference: https://developers.facebook.com/docs/graph-api/reference/
 gem 'omniauth-facebook' # https://github.com/mkdynamic/omniauth-facebook
-gem 'koala', '1.9.0' # facebook API calls - https://github.com/arsduo/koala/wiki/Koala-on-Rails
+gem 'koala' #, '1.9.0' # facebook API calls - https://github.com/arsduo/koala/wiki/Koala-on-Rails
 
 # 2) flickr
 # register : http://www.flickr.com/services/apps/create/
@@ -41,7 +41,7 @@ gem 'google-api-client' # google+ API calls - https://github.com/google/google-a
 # register : http://instagram.com/developer/clients/manage/#
 # reference: http://instagram.com/developer/endpoints/#
 gem "omniauth-instagram" # https://github.com/ropiku/omniauth-instagram
-gem 'instagram', '0.10.0' # Instagram API calls  - https://github.com/Instagram/instagram-ruby-gem
+gem 'instagram' #, '0.10.0' # Instagram API calls  - https://github.com/Instagram/instagram-ruby-gem
 
 # 6) linkedin
 # register : https://www.linkedin.com/secure/developer

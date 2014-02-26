@@ -1809,24 +1809,13 @@ class UtilController < ApplicationController
     return [key, options] if key
     description_with_deep_link = "#{gift.description} - #{deep_link}"
 
-
-    # setup/options:
-    # API_MAX_TEXT_LENGTHS = {:facebook => { :message => nil}, # could not find any facebook information
-    #                         :flickr => {:title => 255, :description => nil, :tags => nil },
-    #                         :foursquare => nil, # post allowed, but users do not have a wall like the other api's
-    #                         :google_oauth2 => nil, # google+ is a readonly API
-    #                         :instagram => nil, # instagram is a readonly API
-    #                         :linkedin => { :title => 200, :description => 256, :comment => 700 },
-    #                         :twitter => 140,
-    #                         :vkontakte => 475}.with_indifferent_access
-    # API_TEXT_TO_PICTURE = {:facebook => nil,
-    #                        :flickr => 0,
-    #                        :foursquare => nil,
-    #                        :google_oauth2 => nil,
-    #                        :instagram => nil,
-    #                        :linkedin => nil,
-    #                        :twitter => 140,
-    #                        :vkontakte => 0}.with_indifferent_access
+    # helpers ( app helpers are not available in instance method api_client.gofreerev_post_on_wall)
+    # direction: offers: or :seeks
+    # open_graph: array where post text is splitted in title, description and remainder (if long text)
+    # it is up to each api_client.gofreerev_post_on_wall instance method how to use max text and open graph lengths
+    # see array constants API_MAX_TEXT_LENGTHS, API_OG_TITLE_SIZE and API_OG_DESC_SIZE
+    direction = format_direction_without_user(api_gift)
+    open_graph = open_graph_title_and_desc(api_gift)
 
     # gift_posted_on_wall_api_wall. values:
     #  1: "Gift posted in here but not on your %{apiname} wall. #{error}" # unhandled error message
@@ -1850,8 +1839,6 @@ class UtilController < ApplicationController
     #  3) post without picture and text2picture = 0 (always - flickr)
     #  4) post without picture and text2picture = i and text length > i (i=140 twitter)
     #  5) post without picture
-    direction = format_direction_without_user(api_gift)
-    open_graph = open_graph_title_and_desc(api_gift)
     begin
       if api_gift.picture? and !gift.rel_path_picture_exists?
         # case 1: post with picture but picture was not found.

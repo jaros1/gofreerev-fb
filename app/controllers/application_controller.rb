@@ -1092,7 +1092,7 @@ class ApplicationController < ActionController::Base
       logger = options[:logger]
       picture = options[:picture]
       direction = options[:direction] # offers / seeks
-      open_graph = options[:open_graph]
+      open_graph = options[:open_graph] # array - post text in title, description and remainder
       gift = api_gift.gift
       deep_link = api_gift.deep_link
       begin
@@ -1251,8 +1251,32 @@ class ApplicationController < ActionController::Base
       gift = api_gift.gift
       deep_link = api_gift.deep_link
 
+      # fix Status is over 140 characters error when tyweet with picture
+      # it looks like twitter adds a picture link to tweet.
+      tweet_max_length = picture ? 117 : 140
+
       text = "#{direction}#{api_gift.gift.description}"
-      text = text.first(140-3-deep_link.length) if text.length + 3 + deep_link.length > 140
+      text = text.first(tweet_max_length-3-deep_link.length) if text.length + 3 + deep_link.length > tweet_max_length
+
+      ## fix Status is over 140 characters & multibyte characters problem
+      ##
+      #tweet = nil
+      #loop do
+      #  tweet = "#{text} - #{deep_link}".force_encoding('UTF-8')
+      #  break if tweet.bytesize <= 130
+      #  text = text[0..-2]
+      #end
+      #logger.debug2 "tweet = #{tweet}, length = #{tweet.length}, bytesize = #{tweet.bytesize}"
+      #
+      ## test without deep link
+      #tweet = "#{direction}#{api_gift.gift.description}".first(114)
+      #loop do
+      #  break if tweet.bytesize <= 120
+      #  tweet = tweet[0..-2]
+      #end
+      #
+      #tweet = "#{direction}#{api_gift.gift.description}".first(117)
+
       tweet = "#{text} - #{deep_link}"
 
       # post tweet
@@ -1261,8 +1285,11 @@ class ApplicationController < ActionController::Base
       begin
         if picture
           # http://rubydoc.info/github/jnunemaker/twitter/Twitter/Client:update_with_media
+          logger.debug2 "update_with_media: tweet.length = #{tweet.length}, bytesize = #{tweet.bytesize}"
+          logger.debug2 "picture = #{picture}"
           x = self.update_with_media(tweet, File.new(picture))
         else
+          logger.debug2 "update: tweet.length = #{tweet.length}, bytesize = #{tweet.bytesize}"
           x = self.update(tweet)
         end
       rescue Twitter::Error::Unauthorized => e

@@ -580,6 +580,18 @@
 
 125) how to handle not logged in ajax errors
      login_required filter stops and no ajax is returned to client
+     for example after expired token or deauthorization
 
-126) new user dev1 betty - profile picture blank after login and blank after refresh
-     user id 100007698374019/facebook  api_profile_picture_url is an empty string
+126) api_profile_picture_url with small (50x50) and big (100x100) pictures.
+     100x100 (5246 bytes) is only used in users/index and users/show
+     50x50   (1744/2877 bytes) is used everywhere else
+     can make a difference on a slow connection / slow device
+
+127) long åååå string gives rails error
+       Gift Load (0.8ms)  SELECT "gifts".* FROM "gifts" WHERE "gifts"."gift_id" = ? ORDER BY "gifts"."id" ASC LIMIT 1  [["gift_id", "zDRA7VGpqDn3kXq3y0mq"]]
+     filename = /Disk-0/OLAP-hosting/Ruby/railsapps/gofreerev-fb/public/images/temp/iys4gf5cgz.png
+     rescue in generic_post_on_wall: Exception: undefined method `first' for nil:NilClass (NoMethodError)
+     rescue in generic_post_on_wall: Backtrace: /Disk-0/OLAP-hosting/Ruby/railsapps/gofreerev-fb/app/models/picture.rb:395:in `create_png_image_from_text'
+     /Disk-0/OLAP-hosting/Ruby/railsapps/gofreerev-fb/app/controllers/util_controller.rb:1860:in `generic_post_on_wall'
+     (eval):1:in `block in do_tasks'
+     /Disk-0/OLAP-hosting/Ruby/railsapps/gofreerev-fb/app/controllers/util_controller.rb:906:in `eval'

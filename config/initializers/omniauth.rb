@@ -154,7 +154,8 @@ API_GIFT_PICTURE_STORE = {:fallback => nil,
 # Use nil if no known max text length
 # Use an hash if more than one text field is available when posting on API wall
 # see also Open Graph lengths for title and description
-# Open Graph will in many cases have smaller size for title and description
+# open graph will in many cases have smaller lengths for title and description
+# it is up to each api_client.gofreerev_post_on_wall instance method how to use max text and open graph lengths
 API_MAX_TEXT_LENGTHS = {:facebook => { :message => nil}, # could not find any facebook information
                         :flickr => {:title => 255, :description => nil, :tags => nil },
                         :foursquare => nil, # post allowed, but users do not have a wall like the other api's
