@@ -323,6 +323,14 @@ class Picture < ActiveRecord::Base
       html.puts "<head>"
       html.puts '<meta content="text/html;charset=utf-8" http-equiv="Content-Type">'
       html.puts '<meta content="utf-8" http-equiv="encoding">'
+      # fix word wrap for text without spaces
+      html.puts '<style>'
+      html.puts '.wrapword{'
+      html.puts '  white-space: pre-wrap;'
+      html.puts '  word-break: break-all;'
+      html.puts '  white-space: normal;'
+      html.puts '}'
+      html.puts '</style>'
       # js script to autoajust font size for aspect ratio 3/4
       html.puts '<script>'
       html.puts 'function set_font_size() {'
@@ -349,6 +357,7 @@ class Picture < ActiveRecord::Base
       html.puts '      best_height_dif = height_dif ;'
       html.puts '      best_font_size = font_size ;'
       html.puts '    }'
+      html.puts '    if (font_size > 1000) text.className = "wrapword" ;'
       html.puts '  }'
       html.puts '  font_size = best_font_size ;'
       html.puts '  text.style.fontSize = "" + font_size + "%" ;'
@@ -387,8 +396,8 @@ class Picture < ActiveRecord::Base
       raise TextToImage.new "phantomjs failed with #{status}: #{stderr}"
     end
     # cleanup files
-    FileUtils.rm html_os_path
-    FileUtils.rm js_os_path
+    # FileUtils.rm html_os_path
+    # FileUtils.rm js_os_path
     # check image
     raise TextToImage.new "Generated image was not found" unless File.exists?(png_os_path)
     size = FastImage.size(png_os_path)

@@ -598,9 +598,6 @@
 
 128) auth/index - remove post checkbox for foursquare
 
-129) tweet with picture.
-     text is now shorten to 48 characters.
-     tweet with picture should allow 97 + 23 (link) + 20 (image)
-     make test on dev1 from rails console
-
 130) tweet - remove ordinary text before removing hash tags.
+
+131) preserve cr/ln in text when using text2image convert

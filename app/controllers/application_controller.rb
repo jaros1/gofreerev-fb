@@ -1255,7 +1255,13 @@ class ApplicationController < ActionController::Base
       # max tweet length 140 characters
       # always reserve 23+1 characters for deep link (space + link)
       # reserve 23 characters for picture link if attached image in tweet
-      deep_link_lng = 24 # space + link
+      if FORCE_SSL
+        # must be a public web server - twitter shorten deep link to 23 characters
+        deep_link_lng = 24 # space + link
+      else
+        # must be an internal web server (localhost) - twitter does not shorten deep_link url
+        deep_link_lng = deep_link.size + 1
+      end
       picture_link_lng = picture ? 23 : 0 # picture link
       text_max_lng = 140 - deep_link_lng - picture_link_lng
 
