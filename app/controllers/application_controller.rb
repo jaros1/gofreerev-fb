@@ -1267,14 +1267,12 @@ class ApplicationController < ActionController::Base
       picture_link_lng = picture ? 23 : 0 # picture link
       text_max_lng = 140 - deep_link_lng - picture_link_lng
 
-      # make tweet. keep tags and truncate non tag text if needed
+      # make tweet. keep tags and truncate non tag text if text is too long
       text = "#{direction}#{gift.description}"
       text =  Gift.truncate_twitter_text text, text_max_lng
-      # text = text.first(text_max_lng)
       tweet = "#{text} #{deep_link}"
 
       # post tweet
-      # todo: use text to image convert if long tweet and text to image is enabled for twitter.
       x = nil
       begin
         if picture

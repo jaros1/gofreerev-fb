@@ -492,25 +492,27 @@ class Gift < ActiveRecord::Base
     indices.sort { |a,b| a[0] <=> b[0] }
   end # self.find_twitter_tags
 
+  # testcase: text.size.downto(1).each do |i| puts i.to_s + ': ' + Gift.truncate_twitter_text(x,i) ; end ; nil
   def self.truncate_twitter_text (text, max_lng)
     return text if text.to_s.size <= max_lng
-    text = original_text = text.to_s
+    text = original_text = text.to_s # keep original text for recursive call if too many tags in text
+    # find tags in text
     indices = Gift.find_twitter_tags(text)
     return text.first(max_lng) if indices.size == 0
-    deleted_tags = []
-    deleted_tags.define_singleton_method :lng do
+    # array with temporary removed tags
+    removed_tags = []
+    removed_tags.define_singleton_method :lng do
       self.size == 0 ? 0 : 1 + self.join.size
     end
+    # loop for each. Start with last tag. Copy tags to removed tags and remove non tag text
     indices.reverse.each do |from, to|
-      break if text.size + deleted_tags.lng <= max_lng
+      break if text.size + removed_tags.lng <= max_lng # text ok
       # check if text ends with a tag
-      # puts "text.lng = #{text.size}, from = #{from}, to = #{to}, tag = #{text[from..to]}"
       if to >= text.length
         # remove tag from end of text and continue
-        # puts "remove tag from end of text and continue"
-        deleted_tags << text[from..to]
-        if deleted_tags.size == 1 and deleted_tags[0].last == ' '
-          deleted_tags[0] = deleted_tags[0][0..-2]
+        removed_tags << text[from..to]
+        if removed_tags.size == 1 and removed_tags[0].last == ' '
+          removed_tags[0] = removed_tags[0][0..-2]
         end
         if from == 0
           text = ''
@@ -519,16 +521,14 @@ class Gift < ActiveRecord::Base
         end
         next
       end
-      # check if text after tag should be removed
+      # check if text after tag (postfix) could be removed
       postfix = text.from(to+1)
       postfix_lng = postfix.length
-      # puts "postfix = #{postfix}, postfix_lng = #{postfix_lng}"
-      if to + deleted_tags.lng >= max_lng
+      if to + removed_tags.lng >= max_lng
         # remove text after tag. Text is still too long
-        # puts "remove text after tag. Text is still too long"
-        deleted_tags << text[from..to]
-        if deleted_tags.size == 1 and deleted_tags[0].last == ' '
-          deleted_tags[0] = deleted_tags[0][0..-2]
+        removed_tags << text[from..to]
+        if removed_tags.size == 1 and removed_tags[0].last == ' '
+          removed_tags[0] = removed_tags[0][0..-2]
         end
         if from == 0
           text = ''
@@ -537,53 +537,45 @@ class Gift < ActiveRecord::Base
         end
         next
       end
-      # truncate prefix and exit
-      # puts "truncate postfix and exit"
-      new_postfix_lng = max_lng - to - deleted_tags.lng - 1
-      # puts "max_lng = #{max_lng}, to = #{to}, deleted_tags.lng = #{deleted_tags.lng}, postfix = #{postfix}, postfix_lng = #{postfix_lng}, new_postfix_lng = #{new_postfix_lng}"
+      # truncate postfix and exit
+      new_postfix_lng = max_lng - to - removed_tags.lng - 1
       raise "negative new_postfix_lng #{new_postfix_lng}" if new_postfix_lng < 0
       text = text.to(to+new_postfix_lng)
       break
     end # each indice
     # check if text before first tag should be shorter
-    if deleted_tags.lng > max_lng
-      # puts "delete text before first tag" if max_lng <= 58
+    if removed_tags.lng > max_lng
+      # many tags in tweet - blank non tag text
       text = ''
-    elsif text.size + deleted_tags.lng > max_lng and indices.size > 0
+    elsif text.size + removed_tags.lng > max_lng and indices.size > 0
       # truncate text before first tag
-      # puts "shorten text before first tag"  if max_lng <= 58
       from, to = indices[0]
       prefix = text
       prefix_lng = prefix.length
-      new_prefix_lng = max_lng - deleted_tags.lng
-      # puts "max_lng = #{max_lng}, deleted_tags.lng = #{deleted_tags.lng}, prefix = '#{prefix}', prefix_lng = #{prefix_lng}, new_prefix_lng = #{new_prefix_lng}"
+      new_prefix_lng = max_lng - removed_tags.lng
       text = text.first(new_prefix_lng)
     end
-    # merge text and tags
+    # merge non tag text and tags
     if text == ''
-      # puts "null text. use only deleted tags" if max_lng <= 58
-      text = deleted_tags.reverse.join
+      text = removed_tags.reverse.join
       text = ' ' + text if text.length < max_lng
-    elsif deleted_tags.size > 0
-      # puts "use text and deleted tags. text = '#{text}'" if max_lng <= 58
-      text = text + ' ' + deleted_tags.reverse.join
+    elsif removed_tags.size > 0
+      text = text + ' ' + removed_tags.reverse.join
     end
     # check if tags must be removed from text
     if text.size > max_lng
-      # puts "remove last tag from text and retry" if max_lng < 6
+      # remove last tag from text and retry (recursive call)
       text = original_text
       from, to = indices.last
-      # puts "text.lng = #{text.size}, from = #{from}, to = #{to}, tag = #{text[from..to]}" if max_lng < 6
-      # puts "old text = #{text}" if max_lng < 6
       if from == 0 and to == original_text.size
-        # text = one tag - can not be shorten
+        # text = one tag - can not be shorter
+        text = text.from(1)
         return text.first(max_lng)
       elsif to == original_text.size
         text = original_text.to(from-1)
       else
         text = original_text.to(from-1) + original_text.from(to+1)
       end
-      # puts "new text = #{text}" if max_lng < 6
       return Gift.truncate_twitter_text(text, max_lng)
     end
     if text.length != max_lng
