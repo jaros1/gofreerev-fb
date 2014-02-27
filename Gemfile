@@ -54,7 +54,8 @@ gem 'linkedin', '0.4.4' # LinkedIn API calls - https://rubygems.org/gems/linkedi
 # register : https://apps.twitter.com/
 # reference: https://dev.twitter.com/docs/api/1.1
 gem 'omniauth-twitter' # https://github.com/arunagw/omniauth-twitter
-gem 'twitter' # twitter API calls - http://sferik.github.io/twitter/
+gem 'twitter', '>= 5.5.1' # twitter API calls - http://sferik.github.io/twitter/
+# gem 'twitter-text' # https://github.com/twitter/twitter-text-rb (truncate text & preserve tags)
 
 # 8) VKontakte
 # register : http://vk.com/dev

@@ -1065,7 +1065,8 @@ class ApplicationController < ActionController::Base
     api_client.define_singleton_method :gofreerev_get_friends do |logger|
       # get array with linkedin connections
       # http://developer.linkedin.com/documents/profile-fields#profile
-      fields = %w(id,first-name,last-name,public-profile-url,picture-url,num-connections)
+      # fields = %w(id,first-name,last-name,public-profile-url,picture-url,num-connections)
+      fields = %w(id first-name last-name public-profile-url picture-url num-connections)
       friends = self.connections(:fields => fields).all
       # logger.debug2 "friends = #{friends}"
       # copy array with linkedin connections into gofreerev friends_hash
@@ -1211,6 +1212,7 @@ class ApplicationController < ActionController::Base
     # logger.debug2  "token = #{token.join(', ')}"
     # create twitter api client
     api_client = Twitter::REST::Client.new do |config|
+    # api_client = Twitter::Client.new do |config|
       config.consumer_key        = API_ID[provider]
       config.consumer_secret     = API_SECRET[provider]
       config.access_token        = token[0]
@@ -1265,7 +1267,10 @@ class ApplicationController < ActionController::Base
       picture_link_lng = picture ? 23 : 0 # picture link
       text_max_lng = 140 - deep_link_lng - picture_link_lng
 
-      text = "#{direction}#{gift.description}".first(text_max_lng)
+      # make tweet. keep tags and truncate non tag text if needed
+      text = "#{direction}#{gift.description}"
+      # text =  Gift.truncate_twitter_text text, text_max_lng
+      text = text.first(text_max_lng)
       tweet = "#{text} #{deep_link}"
 
       # post tweet
@@ -1285,6 +1290,14 @@ class ApplicationController < ActionController::Base
         # # user has removed app from app settings page - https://twitter.com/settings/applications
         logger.debug2  "Exception: #{e.message.to_s} (#{e.class})"
         raise AppNotAuthorized if e.message == 'Invalid or expired token'
+        raise
+      rescue Twitter::Error::Forbidden => e
+        # Unable to verify your credentials (Twitter::Error::Forbidden)
+        logger.debug2  "Exception: #{e.message.to_s} (#{e.class})"
+        if e.message == 'Unable to verify your credentials'
+          # could be expired access token - force log out + log in
+          raise AccessTokenExpired
+        end
         raise
       rescue Twitter::Error, Timeout::Error => e
         # maybe a problem with timeout for twitter post.

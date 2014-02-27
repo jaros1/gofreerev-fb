@@ -494,8 +494,6 @@
      add a page for Gofreerev and ?
      maybe j has some ideas
 
-105) gifts/index new gift text area is not resize to small size after post with a long text
-
 107) picture.create_png_image_from_text
      only png image looks nice
      there should be support for jpg, jpeg, gif, png and bmp
@@ -599,5 +597,7 @@
 128) auth/index - remove post checkbox for foursquare
 
 130) tweet - remove ordinary text before removing hash tags.
+     find a good regular expression. Should
+     http://wordpress.org/support/topic/problem-with-national-characters
+     regexp = /((^|\s)#(\w*[a-zA-Zàáâãäåçèéêëìíîïðòóôõöùúûüýÿ_]+\w*))/i
 
-131) preserve cr/ln in text when using text2image convert

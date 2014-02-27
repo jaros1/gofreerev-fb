@@ -137,6 +137,7 @@ module ApplicationHelper
 
   # todo: config sanitize
   def my_sanitize (text)
+    # also used in Picture.create_png_image_from_text
     sanitize(text.to_s).gsub(/\n/, '<br/>').html_safe
   end # my_sanitize
 

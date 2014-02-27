@@ -309,6 +309,7 @@ class Picture < ActiveRecord::Base
 
 
   def self.create_png_image_from_text (text, width=800)
+    text = text.gsub(/\n/, '<br/>') # keep cr/lf in text - also used in application_helper.my_sanitize
     rel_path = Picture.new_temp_rel_path('png')
     png_os_path = Picture.full_os_path :rel_path => rel_path
     File.open(png_os_path,'w')

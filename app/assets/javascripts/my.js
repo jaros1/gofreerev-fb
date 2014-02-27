@@ -689,7 +689,10 @@ $(document).ready(function () {
             var gift_price = document.getElementById('gift_price');
             if (gift_price) gift_price.value = '';
             var gift_description = document.getElementById('gift_description');
-            if (gift_description) gift_description.value = '';
+            if (gift_description) {
+                gift_description.value = '';
+                autoresize_text_field(gift_description) ;
+            }
             var gift_file = document.getElementById('gift_file');
             if (gift_file) gift_file.value = '';
             var disp_gift_file = document.getElementById('disp_gift_file');
