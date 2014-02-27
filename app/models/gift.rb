@@ -1,6 +1,6 @@
 class Gift < ActiveRecord::Base
 
-  # include Twitter::Extractor
+  include Twitter::Extractor
 
   has_many :comments, :class_name => 'Comment', :primary_key => :gift_id, :foreign_key => :gift_id, :dependent => :destroy
   has_many :api_comments, :class_name => 'ApiComment', :primary_key => :gift_id, :foreign_key => :gift_id, :dependent => :destroy
@@ -478,120 +478,120 @@ class Gift < ActiveRecord::Base
     File.exists?(full_os_path)
   end
 
-  ## find twitter tags in text / description. Use when truncating too long tweets & preserving tags
-  ## https://github.com/twitter/twitter-text-rb
-  #def self.find_twitter_tags (text)
-  #  indices = []
-  #  x = Gift.new
-  #  x.extract_entities_with_indices(text).each do |hash|
-  #    next unless hash[:indices]
-  #    next unless hash[:indices].class == Array
-  #    next unless hash[:indices].size == 2
-  #    indices << hash[:indices]
-  #  end
-  #  indices.sort { |a,b| a[0] <=> b[0] }
-  #end # self.find_twitter_tags
-  #
-  #def self.truncate_twitter_text (text, max_lng)
-  #  return text if text.to_s.size <= max_lng
-  #  text = original_text = text.to_s
-  #  indices = Gift.find_twitter_tags(text)
-  #  return text.first(max_lng) if indices.size == 0
-  #  deleted_tags = []
-  #  deleted_tags.define_singleton_method :lng do
-  #    self.size == 0 ? 0 : 1 + self.join.size
-  #  end
-  #  indices.reverse.each do |from, to|
-  #    break if text.size + deleted_tags.lng <= max_lng
-  #    # check if text ends with a tag
-  #    # puts "text.lng = #{text.size}, from = #{from}, to = #{to}, tag = #{text[from..to]}"
-  #    if to >= text.length
-  #      # remove tag from end of text and continue
-  #      # puts "remove tag from end of text and continue"
-  #      deleted_tags << text[from..to]
-  #      if deleted_tags.size == 1 and deleted_tags[0].last == ' '
-  #        deleted_tags[0] = deleted_tags[0][0..-2]
-  #      end
-  #      if from == 0
-  #        text = ''
-  #      else
-  #        text = text.to(from-1)
-  #      end
-  #      next
-  #    end
-  #    # check if text after tag should be removed
-  #    postfix = text.from(to+1)
-  #    postfix_lng = postfix.length
-  #    # puts "postfix = #{postfix}, postfix_lng = #{postfix_lng}"
-  #    if to + deleted_tags.lng >= max_lng
-  #      # remove text after tag. Text is still too long
-  #      # puts "remove text after tag. Text is still too long"
-  #      deleted_tags << text[from..to]
-  #      if deleted_tags.size == 1 and deleted_tags[0].last == ' '
-  #        deleted_tags[0] = deleted_tags[0][0..-2]
-  #      end
-  #      if from == 0
-  #        text = ''
-  #      else
-  #        text = text.to(from-1)
-  #      end
-  #      next
-  #    end
-  #    # truncate prefix and exit
-  #    # puts "truncate postfix and exit"
-  #    new_postfix_lng = max_lng - to - deleted_tags.lng - 1
-  #    # puts "max_lng = #{max_lng}, to = #{to}, deleted_tags.lng = #{deleted_tags.lng}, postfix = #{postfix}, postfix_lng = #{postfix_lng}, new_postfix_lng = #{new_postfix_lng}"
-  #    raise "negative new_postfix_lng #{new_postfix_lng}" if new_postfix_lng < 0
-  #    text = text.to(to+new_postfix_lng)
-  #    break
-  #  end # each indice
-  #  # check if text before first tag should be shorter
-  #  if deleted_tags.lng > max_lng
-  #    # puts "delete text before first tag" if max_lng <= 58
-  #    text = ''
-  #  elsif text.size + deleted_tags.lng > max_lng and indices.size > 0
-  #    # truncate text before first tag
-  #    # puts "shorten text before first tag"  if max_lng <= 58
-  #    from, to = indices[0]
-  #    prefix = text
-  #    prefix_lng = prefix.length
-  #    new_prefix_lng = max_lng - deleted_tags.lng
-  #    # puts "max_lng = #{max_lng}, deleted_tags.lng = #{deleted_tags.lng}, prefix = '#{prefix}', prefix_lng = #{prefix_lng}, new_prefix_lng = #{new_prefix_lng}"
-  #    text = text.first(new_prefix_lng)
-  #  end
-  #  # merge text and tags
-  #  if text == ''
-  #    # puts "null text. use only deleted tags" if max_lng <= 58
-  #    text = deleted_tags.reverse.join
-  #    text = ' ' + text if text.length < max_lng
-  #  elsif deleted_tags.size > 0
-  #    # puts "use text and deleted tags. text = '#{text}'" if max_lng <= 58
-  #    text = text + ' ' + deleted_tags.reverse.join
-  #  end
-  #  # check if tags must be removed from text
-  #  if text.size > max_lng
-  #    # puts "remove last tag from text and retry" if max_lng < 6
-  #    text = original_text
-  #    from, to = indices.last
-  #    # puts "text.lng = #{text.size}, from = #{from}, to = #{to}, tag = #{text[from..to]}" if max_lng < 6
-  #    # puts "old text = #{text}" if max_lng < 6
-  #    if from == 0 and to == original_text.size
-  #      # text = one tag - can not be shorten
-  #      return text.first(max_lng)
-  #    elsif to == original_text.size
-  #      text = original_text.to(from-1)
-  #    else
-  #      text = original_text.to(from-1) + original_text.from(to+1)
-  #    end
-  #    # puts "new text = #{text}" if max_lng < 6
-  #    return Gift.truncate_twitter_text(text, max_lng)
-  #  end
-  #  if text.length != max_lng
-  #    puts "new text = #{text}"
-  #    raise "invalid length. Expected #{max_lng} text. Found #{text.length} text."
-  #  end
-  #  text
-  #end # self.truncate_twitter_text
+  # find twitter tags in text / description. Use when truncating too long tweets & preserving tags
+  # https://github.com/twitter/twitter-text-rb
+  def self.find_twitter_tags (text)
+    indices = []
+    x = Gift.new
+    x.extract_entities_with_indices(text).each do |hash|
+      next unless hash[:indices]
+      next unless hash[:indices].class == Array
+      next unless hash[:indices].size == 2
+      indices << hash[:indices]
+    end
+    indices.sort { |a,b| a[0] <=> b[0] }
+  end # self.find_twitter_tags
+
+  def self.truncate_twitter_text (text, max_lng)
+    return text if text.to_s.size <= max_lng
+    text = original_text = text.to_s
+    indices = Gift.find_twitter_tags(text)
+    return text.first(max_lng) if indices.size == 0
+    deleted_tags = []
+    deleted_tags.define_singleton_method :lng do
+      self.size == 0 ? 0 : 1 + self.join.size
+    end
+    indices.reverse.each do |from, to|
+      break if text.size + deleted_tags.lng <= max_lng
+      # check if text ends with a tag
+      # puts "text.lng = #{text.size}, from = #{from}, to = #{to}, tag = #{text[from..to]}"
+      if to >= text.length
+        # remove tag from end of text and continue
+        # puts "remove tag from end of text and continue"
+        deleted_tags << text[from..to]
+        if deleted_tags.size == 1 and deleted_tags[0].last == ' '
+          deleted_tags[0] = deleted_tags[0][0..-2]
+        end
+        if from == 0
+          text = ''
+        else
+          text = text.to(from-1)
+        end
+        next
+      end
+      # check if text after tag should be removed
+      postfix = text.from(to+1)
+      postfix_lng = postfix.length
+      # puts "postfix = #{postfix}, postfix_lng = #{postfix_lng}"
+      if to + deleted_tags.lng >= max_lng
+        # remove text after tag. Text is still too long
+        # puts "remove text after tag. Text is still too long"
+        deleted_tags << text[from..to]
+        if deleted_tags.size == 1 and deleted_tags[0].last == ' '
+          deleted_tags[0] = deleted_tags[0][0..-2]
+        end
+        if from == 0
+          text = ''
+        else
+          text = text.to(from-1)
+        end
+        next
+      end
+      # truncate prefix and exit
+      # puts "truncate postfix and exit"
+      new_postfix_lng = max_lng - to - deleted_tags.lng - 1
+      # puts "max_lng = #{max_lng}, to = #{to}, deleted_tags.lng = #{deleted_tags.lng}, postfix = #{postfix}, postfix_lng = #{postfix_lng}, new_postfix_lng = #{new_postfix_lng}"
+      raise "negative new_postfix_lng #{new_postfix_lng}" if new_postfix_lng < 0
+      text = text.to(to+new_postfix_lng)
+      break
+    end # each indice
+    # check if text before first tag should be shorter
+    if deleted_tags.lng > max_lng
+      # puts "delete text before first tag" if max_lng <= 58
+      text = ''
+    elsif text.size + deleted_tags.lng > max_lng and indices.size > 0
+      # truncate text before first tag
+      # puts "shorten text before first tag"  if max_lng <= 58
+      from, to = indices[0]
+      prefix = text
+      prefix_lng = prefix.length
+      new_prefix_lng = max_lng - deleted_tags.lng
+      # puts "max_lng = #{max_lng}, deleted_tags.lng = #{deleted_tags.lng}, prefix = '#{prefix}', prefix_lng = #{prefix_lng}, new_prefix_lng = #{new_prefix_lng}"
+      text = text.first(new_prefix_lng)
+    end
+    # merge text and tags
+    if text == ''
+      # puts "null text. use only deleted tags" if max_lng <= 58
+      text = deleted_tags.reverse.join
+      text = ' ' + text if text.length < max_lng
+    elsif deleted_tags.size > 0
+      # puts "use text and deleted tags. text = '#{text}'" if max_lng <= 58
+      text = text + ' ' + deleted_tags.reverse.join
+    end
+    # check if tags must be removed from text
+    if text.size > max_lng
+      # puts "remove last tag from text and retry" if max_lng < 6
+      text = original_text
+      from, to = indices.last
+      # puts "text.lng = #{text.size}, from = #{from}, to = #{to}, tag = #{text[from..to]}" if max_lng < 6
+      # puts "old text = #{text}" if max_lng < 6
+      if from == 0 and to == original_text.size
+        # text = one tag - can not be shorten
+        return text.first(max_lng)
+      elsif to == original_text.size
+        text = original_text.to(from-1)
+      else
+        text = original_text.to(from-1) + original_text.from(to+1)
+      end
+      # puts "new text = #{text}" if max_lng < 6
+      return Gift.truncate_twitter_text(text, max_lng)
+    end
+    if text.length != max_lng
+      puts "new text = #{text}"
+      raise "invalid length. Expected #{max_lng} text. Found #{text.length} text."
+    end
+    text
+  end # self.truncate_twitter_text
 
 
   # psydo attributea

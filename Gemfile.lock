@@ -214,9 +214,9 @@ GEM
       bundler (>= 1.3.0, < 2.0)
       railties (= 4.0.0)
       sprockets-rails (~> 2.0.0)
-    rails-i18n (4.0.1)
+    rails-i18n (4.0.0)
       i18n (~> 0.6)
-      rails (~> 4.0)
+      rails (~> 4.0.0)
     railties (4.0.0)
       actionpack (= 4.0.0)
       activesupport (= 4.0.0)
@@ -282,10 +282,15 @@ GEM
       json (~> 1.8)
       memoizable (~> 0.4.0)
       simple_oauth (~> 0.2.0)
+    twitter-text (1.8.0)
+      unf (~> 0.1.0)
     tzinfo (0.3.38)
     uglifier (2.4.0)
       execjs (>= 0.3.0)
       json (>= 1.8.0)
+    unf (0.1.3)
+      unf_ext
+    unf_ext (0.0.6)
     uuidtools (2.1.4)
 
 PLATFORMS
@@ -335,5 +340,6 @@ DEPENDENCIES
   sqlite3
   turbolinks
   twitter (>= 5.5.1)
+  twitter-text
   uglifier (>= 1.3.0)
   vkontakte (= 0.0.3)!

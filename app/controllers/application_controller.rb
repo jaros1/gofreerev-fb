@@ -1269,8 +1269,8 @@ class ApplicationController < ActionController::Base
 
       # make tweet. keep tags and truncate non tag text if needed
       text = "#{direction}#{gift.description}"
-      # text =  Gift.truncate_twitter_text text, text_max_lng
-      text = text.first(text_max_lng)
+      text =  Gift.truncate_twitter_text text, text_max_lng
+      # text = text.first(text_max_lng)
       tweet = "#{text} #{deep_link}"
 
       # post tweet
