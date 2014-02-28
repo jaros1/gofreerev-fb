@@ -222,7 +222,7 @@ class GiftsController < ApplicationController
       # return "empty" ajax response with dummy row with correct last_row_id to client
       logger.debug2  "return empty ajax response with dummy row with correct last_row_id to client"
       @api_gifts = []
-      @last_row_id = session[:last_row_id]
+      @last_row_id = get_last_row_id()
       respond_to do |format|
         format.js {}
       end
@@ -263,12 +263,12 @@ class GiftsController < ApplicationController
     limit = last_row_id ? 10 : 1
     @api_gifts, @last_row_id = User.api_gifts(@users, :last_status_update_at => last_row_id, :limit => limit)
 
-    session[:last_row_id] = @last_row_id # control - is checked in next ajax request
+    set_last_row_id(@last_row_id) # control - is checked in next ajax request
     if last_row_id
-      session[:last_row_at] = Time.new.to_f
+      set_last_row_at(Time.new.to_f)
     else
       # first http request at startup - ajax request for the next 10 rows in a split second
-      session[:last_row_at] = GET_MORE_ROWS_INTERVAL.seconds.ago.to_f
+      set_last_row_at(GET_MORE_ROWS_INTERVAL.seconds.ago.to_f)
     end
 
     # use this gifts select for ajax debug - returns all gifts

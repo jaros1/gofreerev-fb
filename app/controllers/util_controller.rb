@@ -891,6 +891,8 @@ class UtilController < ApplicationController
     logger.debug2 "session[:session_id] = #{session[:session_id]}, session[:state] = #{session[:state]}"
     # save timezone received from javascript
     set_timezone(params[:timezone])
+    # todo: debug problems with session[:last_row_id]
+    logger.debug2 "session[:last_row_id] = #{get_last_row_id()}"
     # cleanup old tasks
     Task.where("created_at < ? and ajax = ?", 2.minute.ago, 'Y').destroy_all
     Task.where("created_at < ? and ajax = ?", 10.minute.ago, 'N').destroy_all

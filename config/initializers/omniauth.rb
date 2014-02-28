@@ -185,28 +185,30 @@ API_MAX_TEXT_LENGTHS = {:facebook => { :message => nil}, # could not find any fa
                         :twitter => 116, # 24 characters reserved for deep link - max text length with image is 93
                         :vkontakte => 475}.with_indifferent_access
 
-# O) text to picture options - PhantomJS (http://phantomjs.org/) is required for this - use empty hash {} if disabled.
+# O) text to picture options - PhantomJS (http://phantomjs.org/) is required for this - use empty hash {} to disable.
 # note that PhantomJs required relative much memory and time to run and should maybe not run on a small computer
-# used for post without pictures
+# used for post without pictures (flickr) or twitter where allowed tweet length is very small
+# text to image convert is done in 3:4 format (w:800, h:1066, portrait format). Ok for short and long texts.
 # values:
 # - nil: disabled / not allowed. use this option if phantomJS is not installed and for readonly API's
 # - integer: use if description.length > integer
 #   -   0: always, for example flickr and vkontakte
-#   - 140: use text to picture if description + deep link > 140 characters. twitter.
-#   other options: append, right, left - merge image and text has been dropped
-# text to image convert is done in 3:4 format (w:800, h:1066, portrait format). Ok for short and long texts.
+#   - 116: use text to picture if direction + description > 116 characters (twitter).
+#   other options: append, right, left - merge image and text - has been deselected.
+#   would require local picture store for original pictures before merge operation
 API_TEXT_TO_PICTURE = {:facebook => nil,
                        :flickr => 0,
                        :foursquare => nil,
                        :google_oauth2 => nil,
                        :instagram => nil,
                        :linkedin => nil,
-                       :twitter => 116, # 24 characters reserved for deep link
+                       :twitter => 116, # 24 characters reserved for deep link - max text length with image is 93
                        :vkontakte => 0}.with_indifferent_access
 
 # open graph values (http://ogp.me/) recommended max length for meta-tags used in deep links
+# it is up to each api_client.gofreerev_post_on_wall instance method how to use max text and open graph lengths
 # default values: 70 characters for title and 200 characters for description
-# P)
+# P) OG title meta-tag
 API_OG_TITLE_SIZE = {:facebook => 94, # http://wptest.means.us.com/online-meta-tag-length-checker/
                      :flickr => 60, # todo: check
                      :foursquare => 60, # todo: check
@@ -215,7 +217,7 @@ API_OG_TITLE_SIZE = {:facebook => 94, # http://wptest.means.us.com/online-meta-t
                      :linkedin => 60,
                      :twitter => 70,
                      :vkontakte => 60}.with_indifferent_access
-# Q)
+# Q) OG description meta-tag
 API_OG_DESC_SIZE = {:facebook => 255, # http://www.joshspeters.com/how-to-optimize-the-ogdescription-tag-for-search-and-social
                     :flickr => 155, # todo: check
                     :foursquare => 155, # todo: check
@@ -224,7 +226,7 @@ API_OG_DESC_SIZE = {:facebook => 255, # http://www.joshspeters.com/how-to-optimi
                     :linkedin => 220, # max 220 in util.post_on_linkedin ( up to 245 characters allowed in og:description meta-tag )
                     :twitter => 200,
                     :vkontakte => 155}.with_indifferent_access
-# R)
+# R) OG dummy image - used for post without picture
 API_OG_DEF_IMAGE = {:facebook => "#{SITE_URL}images/sacred-economics.jpg",
                     :flickr => "#{SITE_URL}images/sacred-economics.jpg",
                     :foursquare => "#{SITE_URL}images/sacred-economics.jpg",

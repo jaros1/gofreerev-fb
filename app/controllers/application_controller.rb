@@ -244,14 +244,14 @@ class ApplicationController < ActionController::Base
   # last_low_id must be correct - max one get-more-rows ajax request every GET_MORE_ROWS_INTERVAL seconds
   private
   def get_next_set_of_rows_error?(last_row_id)
-    raise "get_next_set_of_rows: session[:last_row_id] was not found" unless session[:last_row_id]
-    raise "get_next_set_of_rows: session[:last_row_at] was not found" unless session[:last_row_at]
+    raise "get_next_set_of_rows: session[:last_row_id] was not found" unless get_last_row_id()
+    raise "get_next_set_of_rows: session[:last_row_at] was not found" unless get_last_row_at()
     # max one get-more-rows request once every GET_MORE_ROWS_INTERVAL seconds
     new_last_row_at = Time.new.to_f
-    dif = new_last_row_at - session[:last_row_at]
-    if last_row_id != session[:last_row_id]
+    dif = new_last_row_at - get_last_row_at()
+    if last_row_id != get_last_row_id()
       # wrong last_row_id received in get-more-rows ajax request. Must be an error a javascript/ajax error
-      msg = "problem with get-more-rows ajax request. expected #{session[:last_row_id]}. found #{last_row_id}."
+      msg = "problem with get-more-rows ajax request. expected #{get_last_row_id()}. found #{last_row_id}."
       if debug_ajax?
         raise msg
       else
@@ -265,7 +265,8 @@ class ApplicationController < ActionController::Base
       # todo: problem with GET_MORE_ROWS_INTERVAL delay in javascript and in rails.
       #       dif < GET_MORE_ROWS_INTERVAL gives too many "Max one get-more-rows ajax request" errors
       #       javascript code in /shared/show_more_rows partial. 3 seconds wait in JS and in rails should work
-      msg = "Max one get-more-rows ajax request every #{GET_MORE_ROWS_INTERVAL} seconds. session[:last_row_at_debug] = #{session[:last_row_at_debug]}. Time.new = #{Time.new}. Wait for #{GET_MORE_ROWS_INTERVAL-dif} seconds"
+      msg = "Max one get-more-rows ajax request every #{GET_MORE_ROWS_INTERVAL} seconds. " +
+          "Time.new = #{Time.new}. Wait for #{GET_MORE_ROWS_INTERVAL-dif} seconds"
       if debug_ajax?
         logger.debug2  msg
         logger.debug2  msg
@@ -285,7 +286,7 @@ class ApplicationController < ActionController::Base
   # used in ajax expanding pages (gifts/index, users/index and users/show pages)
   private
   def get_next_set_of_rows (rows, last_row_id, no_rows=nil)
-    logger.debug2  "last_row_id = #{last_row_id}"
+    logger.debug2  "last_row_id (input) = #{last_row_id}"
     ajax_request = (last_row_id != nil)
     no_rows = ajax_request ? 10 : 1 unless no_rows # default - return 1 row in first http request - return 10 rows in ajax requests
     total_no_rows = rows.size
@@ -309,11 +310,10 @@ class ApplicationController < ActionController::Base
     end
     logger.debug2  "returning next #{rows.size} of #{total_no_rows} rows . last_row_id = #{last_row_id}"
     # keep last_row_id and timestamp - checked in get_next_set_of_rows_error? before calling this method
-    session[:last_row_id] = last_row_id # control - is checked in next ajax request
-    session[:last_row_at] = Time.new.to_f
-    session[:last_row_at_debug] = Time.new
-    logger.debug2  "last_row_at_debug = #{session[:last_row_at_debug]}"
-    session[:last_row_at] = GET_MORE_ROWS_INTERVAL.seconds.ago.to_f unless ajax_request # first http request at startup - ajax request for the next 10 rows in a split second
+    set_last_row_id(last_row_id) # control - is checked in next ajax request
+    set_last_row_at(Time.new.to_f)
+    set_last_row_at(GET_MORE_ROWS_INTERVAL.seconds.ago.to_f) unless ajax_request # first http request at startup - ajax request for the next 10 rows in a split second
+    logger.debug2  "last_row_id (output) = #{last_row_id}"
     [ rows, last_row_id]
   end # get_next_set_of_rows
 
@@ -634,6 +634,12 @@ class ApplicationController < ActionController::Base
     locale
   end
 
+  
+  # session get/set methods
+  # session cookie store is used now, but there is problems with session updates and multiple ajax requests
+  # for example last_row_id set is updated in one ajax request and reset to old value in an other ajax request
+  # maybe move some session variable to a db table
+  
   # set timezone used in views
   private
   def get_timezone
@@ -652,6 +658,47 @@ class ApplicationController < ActionController::Base
     logger.debug2  "timezone = #{timezone}"
     Time.zone = session[:timezone] = timezone.to_f
   end
+
+  # get/set last_row_id 
+  private
+  def set_last_row_id (last_row_id)
+    session.delete(:last_row_id) if session.has_key?(:last_row_id)
+    s = Session.find_by_session_id(session[:session_id])
+    if !s
+      s = Session.new
+      s.session_id = session[:session_id]
+    end
+    s.last_row_id = last_row_id
+    s.save!
+    last_row_id
+  end
+  def get_last_row_id
+    set_last_row_id(session[:last_row_id]) if session.has_key?(:last_row_id)
+    s = Session.find_by_session_id(session[:session_id])
+    return nil unless s
+    s.last_row_id
+  end
+
+  # get/set last_row_at 
+  private
+  def set_last_row_at (last_row_at)
+    session.delete(:last_row_at) if session.has_key?(:last_row_at)
+    s = Session.find_by_session_id(session[:session_id])
+    if !s
+      s = Session.new
+      s.session_id = session[:session_id]
+    end
+    s.last_row_at = last_row_at
+    s.save!
+    last_row_at
+  end
+  def get_last_row_at
+    set_last_row_at(session[:last_row_at]) if session.has_key?(:last_row_at)
+    s = Session.find_by_session_id(session[:session_id])
+    return nil unless s
+    s.last_row_at
+  end
+
 
   # used in api posts
   private

@@ -285,7 +285,9 @@ module ApplicationHelper
   end
 
   def ajax_tasks?
-    Task.where("session_id = ?", session[:session_id]).count > 0
+    ajax_tasks = (Task.where("session_id = ? and ajax = ?", session[:session_id], 'Y').count > 0)
+    # logger.debug2 "session_id = #{session[:session_id]}, ajax_tasks = #{ajax_tasks}"
+    ajax_tasks
   end
 
   def link_to_logout

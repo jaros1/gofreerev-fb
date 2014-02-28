@@ -445,9 +445,9 @@
     maybe a list of officiel gofreerev sites
 
 88) users/index apiname=<provider> filter. Use login user = selected provider.
-    in that way all user pictures are from the same login provider.
+    in that way all user dev pictures are from the same login provider.
 
-89) ajax spinner is missing while fetchning new exchange rates
+89) ajax spinner is missing while fetching new exchange rates
 
 90) check if there is a generic JS way to count number of running/pending ajax requests
 
@@ -455,16 +455,7 @@
     maybe add a special search word that can be used to find all relevant points in source code when adding a new login provider
     add "API SETUP" comment for all case provider statements
 
-94) auth/index & wide screen
-    two columns with api providers
-
 95) users/index friends filter: add follows and followed by filters?
-
-96) your friend list is now downloaded. please refresh page or goto friends page to see your friend list
-
-97) add flickr photo upload. use flickr.upload_photo method
-    http://www.flickr.com/services/api/upload.api.html
-    add link to request 'write' permission
 
 98) auth/index page
     - add * note for login providers that does not support post on wall
@@ -475,20 +466,12 @@
     - add github page about changing translations and adding new languages
 
 100) linkedin gem. frozen to an old version due to error. Unfreeze when error is solved
+     https://github.com/hexgnu/linkedin/issues/216
 
 101) check if there is a problem with missing state in omniauth login.
      normally state should be included when using omniauth and callbacks
 
-102) refactor linkedin & flickr translate keys into shared? Almost identical translations
-
-103) flickr & twitter.
-     use phantomjs to convert text to image before upload to API.
-     - test if it can be installed on plug server
-     - add method to Picture for generating image from text
-     - check best width for flickr and twitter. width must be a param
-     - css text effects. For example color, shadow
-     - twitter. use if description > 70 characters and no picture
-     - flickr. use if no picture
+102) refactor linkedin & flickr controller translate keys into shared? Almost identical translations
 
 104) post in foursquare. Foursquare is different from the other api's
      add a page for Gofreerev and ?
@@ -541,21 +524,6 @@
      return warning to user and try once more time
      delete_local_picture task and expired post on wall exception!
 
-117) post on twitter - description > 70
-     no picture - convert text to image - keep hash tags in shorten text
-     picture - convert text to image - append or overlay text to image - keep hash tags in short text
-
-118) picture2text options:
-     0 - always - for example (no picture/flickr+vkontakte)
-     140 - text to image if description + deep link > 140 (no picture/twitter)
-     wrap - wrap text around picture - relevant for twitter
-     append - append text after picture
-     right - wrap text right and below picture
-     left - wrap text left and below picture
-     wrap/append/right/left:
-     - gofreerev should display original picture. Not changed picture.
-       But pictures are not saved normally saved in gofreerev
-
 120) localhost - looking af gift id 909 logged in as Jan R/FB
      from user div ok = me
      to user div = dummy FB user gofreerev/facebook
@@ -573,6 +541,7 @@
 122) add timestamps to comments.
 
 123) add a text truncated warning when posting on API and text is longer than allowed
+     special relevant for tweets
 
 124) add a text length counter when entering text. Twitter users would like to known how long the text is.
 
@@ -584,3 +553,18 @@
      100x100 (5246 bytes) is only used in users/index and users/show
      50x50   (1744/2877 bytes) is used everywhere else
      can make a difference on a slow connection / slow device
+
+127) localhost: flickr login:
+     Started GET "/auth/flickr/callback?oauth_token=72157641644497944-d443818f9eff8967&oauth_verifier=19d5f22bd2a1bcab" for 127.0.0.1 at 2014-02-28 09:32:22 +0100
+     I, [2014-02-28T09:32:22.371701 #10351]  INFO -- omniauth: (flickr) Callback phase initiated.
+     E, [2014-02-28T09:32:22.648600 #10351] ERROR -- omniauth: (flickr) Authentication failure! invalid_credentials: OAuth::Unauthorized, 401 Unauthorized
+     Processing by AuthController#oauth_failure as HTML
+       Parameters: {"oauth_token"=>"72157641644497944-d443818f9eff8967", "oauth_verifier"=>"19d5f22bd2a1bcab"}
+     Error message in gofreerev is "flickr login fejlede! invalid_credentials: 401 Unauthorized"
+     but login status is logged in in Gofreerev
+
+128) ajax queue? or session table
+     there are some small problems with cokie session store update and 2 running ajax requests
+     request 1 updates a session variable and request 2 resets session variable to old value
+     can be solved with an ajax queue
+     can be solved by moving non vital session variables to session table

@@ -178,7 +178,7 @@ class UsersController < ApplicationController
       logger.debug2  "return empty ajax response with dummy row with correct last_row_id to client"
       @api_gifts = []
       @users2 = []
-      @last_row_id = session[:last_row_id]
+      @last_row_id = get_last_row_id()
       respond_to do |format|
         format.js {}
       end
@@ -314,7 +314,7 @@ class UsersController < ApplicationController
       # return "empty" ajax response with dummy row with correct last_row_id to client
       logger.debug2  "return empty ajax response with dummy row with correct last_row_id to client"
       @api_gifts = @users2 = []
-      @last_row_id = session[:last_row_id]
+      @last_row_id = get_last_row_id()
       respond_to do |format|
         format.js {}
       end
