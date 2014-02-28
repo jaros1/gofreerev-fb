@@ -692,7 +692,7 @@ class ApplicationController < ActionController::Base
       s = Session.new
       s.session_id = session[:session_id]
     end
-    s.last_row_at = last_row_at
+    s.last_row_at = last_row_at - 1400000000 # temp fix for float precision problems in mysql
     s.save!
     logger.debug2 "last_row_at = #{last_row_at}, Time.now = #{Time.new.to_f}, session_id = #{session[:session_id]}"
     last_row_at
@@ -701,6 +701,7 @@ class ApplicationController < ActionController::Base
     set_last_row_at(session[:last_row_at]) if session.has_key?(:last_row_at)
     s = Session.find_by_session_id(session[:session_id])
     last_row_at = s.last_row_at if s
+    last_row_at = last_row_at + 1400000000 if last_row_at # temp fix for float precision problems in mysql
     logger.debug2 "last_row_at = #{last_row_at}, Time.now = #{Time.new.to_f}, session_id = #{session[:session_id]}"
     last_row_at
   end

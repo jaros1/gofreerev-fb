@@ -564,3 +564,10 @@
      request 1 updates a session variable and request 2 resets session variable to old value
      can be solved with an ajax queue
      can be solved by moving non vital session variables to session table
+
+129) check all sorts
+     old sort_by_user_name did have a very bad performance
+     problem was detail sort by master fields
+
+130) check all floats
+     there was problem with lost decimals for session.last_row_at on dev1 / mysql
