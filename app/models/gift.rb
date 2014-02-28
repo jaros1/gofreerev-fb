@@ -478,7 +478,7 @@ class Gift < ActiveRecord::Base
     File.exists?(full_os_path)
   end
 
-  # find twitter tags in text / description. Use when truncating too long tweets & preserving tags
+  # find twitter tags in text. Use when "truncating" too long tweets & preserving tags
   # https://github.com/twitter/twitter-text-rb
   def self.find_twitter_tags (text)
     indices = []
@@ -492,6 +492,7 @@ class Gift < ActiveRecord::Base
     indices.sort { |a,b| a[0] <=> b[0] }
   end # self.find_twitter_tags
 
+  # truncate long tweet. preserve tags if possible.
   # testcase: text.size.downto(1).each do |i| puts i.to_s + ': ' + Gift.truncate_twitter_text(x,i) ; end ; nil
   def self.truncate_twitter_text (text, max_lng)
     return text if text.to_s.size <= max_lng

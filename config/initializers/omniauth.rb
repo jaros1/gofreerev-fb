@@ -1,7 +1,6 @@
 # http://stackoverflow.com/questions/13112430/find-loaded-providers-for-omniauth
 # add OmniAuth::Builder.providers method to return list of loaded providers
 module OmniAuth
-
   class Builder < ::Rack::Builder
     def provider_patch(klass, *args, &block)
       @@providers ||= []
@@ -18,28 +17,27 @@ module OmniAuth
   end
 end # OmniAuth
 
-# setup list of providers to be used for authorization. Must be login provider API with som kind of friend lists
+# check list for provider setup. Must be a login provider API with som kind of friend lists
 # providers: https://github.com/intridea/omniauth/wiki/List-of-Strategies
-# check list when adding a new omniauth provider:
 #  1) add gem omniauth-<provider> (authorization ) and gem <provider> (client API operations) to GemFile.
-#     that is normally two gems for each omniauth supported strategy (authorization and client API operations)
+#     that is normally two gems for each omniauth supported strategy
+#     one gem for omniauth authorization and one gem for client API operations (get friends, post on wall)
 #  2) get API_ID and API_SECRET for new provider. Register and add environment variables with API_ID and API_SECRET.
 #     environment variable names "GOFREEREV_<env>_APP_ID_<provider>" and "GOFREEREV_<env>_APP_SECRET_<provider>"
 #     for example GOFREEREV_DEV_APP_ID_FACEBOOK and GOFREEREV_DEV_APP_SECRET_FACEBOOK for facebook / development
-#  3) add provider in this file (9 API_... hash constants)
-#  4) add provider to OmniAuth::Builder setup in this file. options are different for each provider
+#     see A) and B)
+#  3) add provider to OmniAuth::Builder setup in this file. options are different for each provider. see C)
+#  4) add provider to API_... hash constants in this file. 16 hah constants. See D) - S)
 #  5) add any provider specific methods to OmniAuth::AuthHash. See config/initializers/omniauth_<provider>.rb.
 #     check if auth_hash information is written correct to user record in auth/create
-#  6) add init_api_client_<provider> method to app. controller
+#  6) add init_api_client_<provider> method to application controller
 #     you must as minimum supply a gofreerev_get_friends instance method to new api_client
 #     you must supply a gofreerev_post_on_wall instance method to api_client if api supports upload
-#  7) add private post on task to UtilController.post_on_<provider> if wall posting is allowed for API
-#  8) check API_POST_PERMITTED and API_MUTUAL_FRIENDS hashes for new provider (environment.rb)
-#  9) search source for "API SETUP" and check if new provider should be added to existing case statements
+#  7) search source code for "API SETUP" and check if new provider should be added to case statements
 
-# initialize API_ID and API_SECRET hashes to be used in authorization and API requests
-api_id = {}
-api_secret = {}
+# initialize A) API_ID and B) API_SECRET hashes to be used in authorization and API requests
+api_id     = {} # A)
+api_secret = {} # B)
 %w(facebook flickr foursquare google_oauth2 instagram linkedin twitter vkontakte).each do |provider|
   rails_env = case Rails.env when "development" then "DEV" when "test" then "TEST" when "production" then "PROD" end
   # get api_id for provider
@@ -51,9 +49,11 @@ api_secret = {}
   api_secret[provider] = ENV[name]
   puts "Warning: environment variable #{name} was not found" if api_secret[provider].to_s == ""
 end
-API_ID     = api_id.with_indifferent_access
-API_SECRET = api_secret.with_indifferent_access
+# omniauth application id and secret from login provider
+API_ID     = api_id.with_indifferent_access     # A
+API_SECRET = api_secret.with_indifferent_access # B
 
+# C) - omniauth setup
 Rails.application.config.middleware.use OmniAuth::Builder do
   provider :facebook,      API_ID[:facebook],      API_SECRET[:facebook], :scope => "", :image_size => :normal, :info_fields => "name,permissions,friends,picture,timezone"
   provider :flickr,        API_ID[:flickr],        API_SECRET[:flickr], :scope => 'read'
@@ -65,9 +65,7 @@ Rails.application.config.middleware.use OmniAuth::Builder do
   provider :vkontakte,     API_ID[:vkontakte],     API_SECRET[:vkontakte], { :scope => 'friends,photos' }
 end
 
-# additional API setup
-
-# visit or redirect to API
+# D) visit or redirect to API
 API_URL = {:facebook => "https://www.facebook.com",
            :flickr => 'https://www.flickr.com/',
            :foursquare => 'https://foursquare.com',
@@ -77,7 +75,7 @@ API_URL = {:facebook => "https://www.facebook.com",
            :twitter => "https://twitter.com/",
            :vkontakte => 'https://vk.com/'}.with_indifferent_access
 
-# callback url used in util controller and in API specific controllers (facebook, linkedin) - request extra privs.
+# E) callback url used in util controller and in API specific controllers (facebook, linkedin) - request extra privs.
 API_CALLBACK_URL = {:facebook => "#{SITE_URL}facebook/",
                     :flickr => "#{SITE_URL}flickr/index",
                     :foursquare => '',
@@ -87,7 +85,29 @@ API_CALLBACK_URL = {:facebook => "#{SITE_URL}facebook/",
                     :twitter => '',
                     :vkontakte => ''}.with_indifferent_access
 
-# default user permissions after login.
+# F) post on wall implemented for API?
+API_POST_PERMITTED = {:facebook => true,
+                      :flickr => true,
+                      :foursquare => false, # API with write operations but no wall
+                      :google_oauth2 => false, # readonly API
+                      :instagram => false, # readonly API
+                      :linkedin => true,
+                      :twitter => true,
+                      :vkontakte => true}.with_indifferent_access
+
+# G) API friend concept. true if API friends are mutual friends. false if API is using follows and followers
+# mutual friends are also Gofreerev friends but can be deselected
+# follows/followers are not Gofreerev friends but Gofreerev friend invitation is allowed
+API_MUTUAL_FRIENDS = {:facebook => true,
+                      :flickr => false,
+                      :foursquare => true,
+                      :google_oauth2 => false,
+                      :instagram => false,
+                      :linkedin => true,
+                      :twitter => false,
+                      :vkontakte => true}.with_indifferent_access
+
+# H) default user permissions after login.
 # facebook: koala me?fields=permissions request is used to check facebook permissions after login
 # twitter: authorization with write access, but user must enable post on twitter before write permission is used
 API_DEFAULT_PERMISSIONS = {:facebook => {},
@@ -99,7 +119,7 @@ API_DEFAULT_PERMISSIONS = {:facebook => {},
                            :twitter => 'read',
                            :vkontakte => 'read'}.with_indifferent_access
 
-# link to API app settings so that user easy can review and change permissions
+# I) link to API app settings so that user easy can review and change permissions
 API_APP_SETTING_URL = {:facebook => 'https://www.facebook.com/settings?tab=applications',
                        :flickr => 'http://www.flickr.com/services/auth/list.gne',
                        :foursquare => 'https://foursquare.com/settings/connections',
@@ -109,7 +129,7 @@ API_APP_SETTING_URL = {:facebook => 'https://www.facebook.com/settings?tab=appli
                        :twitter => 'https://twitter.com/settings/applications',
                        :vkontakte => 'https://vk.com/settings'}.with_indifferent_access
 
-# API name to be used in messages and mouse over texts
+# J) API name to be used in messages and mouse over texts
 # text for "nil" API provider (not logged in or generic messages) /locales/xx.yml/shared/providers
 API_DOWNCASE_NAME = {:facebook => 'facebook',
                      :flickr => 'flickr',
@@ -120,7 +140,7 @@ API_DOWNCASE_NAME = {:facebook => 'facebook',
                      :twitter => 'twitter',
                      :vkontakte => 'vkontakte'}.with_indifferent_access
 
-# API name to be used in views and links
+# K) API name to be used in views and links
 # text for "nil" API provider (not logged in or generic messages) /locales/xx.yml/shared/providers
 API_CAMELIZE_NAME = {:facebook => 'Facebook',
                      :flickr => 'Flickr',
@@ -131,10 +151,10 @@ API_CAMELIZE_NAME = {:facebook => 'Facebook',
                      :twitter => 'Twitter',
                      :vkontakte => 'VKontakte'}.with_indifferent_access
 
-# API profile pictures: :api or :local. Default is :api <=> Profile pictures are not downloaded from provider
+# L) API profile pictures: :api or :local. Default is :api <=> Profile pictures are not downloaded from provider
 API_PROFILE_PICTURE_STORE = {}.with_indifferent_access
 
-# gift pictures: nil (no picture/readonly api), :api (use api picture url) or :local (keep local copy of picture)
+# M) gift pictures: nil (no picture/readonly api), :api (use api picture url) or :local (keep local copy of picture)
 # gooogle+ must be :local or nil (readonly api)
 # instagram must be :local or nil (readonly api)
 # linkedin must be :local or nil (only picture url is uploaded to linkedin)
@@ -149,7 +169,7 @@ API_GIFT_PICTURE_STORE = {:fallback => nil,
                           :twitter => :api,
                           :vkontakte => :api}.with_indifferent_access
 
-# technical max text lengths when posting on API walls.
+# N) technical max text lengths when posting on API walls.
 # Use nil for readonly API's (foursquare, google and instagram)
 # Use nil if no known max text length
 # Use an hash if more than one text field is available when posting on API wall
@@ -165,7 +185,7 @@ API_MAX_TEXT_LENGTHS = {:facebook => { :message => nil}, # could not find any fa
                         :twitter => 116, # 24 characters reserved for deep link - max text length with image is 93
                         :vkontakte => 475}.with_indifferent_access
 
-# text to picture options - PhantomJS (http://phantomjs.org/) is required for this - use empty hash {} if disabled.
+# O) text to picture options - PhantomJS (http://phantomjs.org/) is required for this - use empty hash {} if disabled.
 # note that PhantomJs required relative much memory and time to run and should maybe not run on a small computer
 # used for post without pictures
 # values:
@@ -186,6 +206,7 @@ API_TEXT_TO_PICTURE = {:facebook => nil,
 
 # open graph values (http://ogp.me/) recommended max length for meta-tags used in deep links
 # default values: 70 characters for title and 200 characters for description
+# P)
 API_OG_TITLE_SIZE = {:facebook => 94, # http://wptest.means.us.com/online-meta-tag-length-checker/
                      :flickr => 60, # todo: check
                      :foursquare => 60, # todo: check
@@ -194,6 +215,7 @@ API_OG_TITLE_SIZE = {:facebook => 94, # http://wptest.means.us.com/online-meta-t
                      :linkedin => 60,
                      :twitter => 70,
                      :vkontakte => 60}.with_indifferent_access
+# Q)
 API_OG_DESC_SIZE = {:facebook => 255, # http://www.joshspeters.com/how-to-optimize-the-ogdescription-tag-for-search-and-social
                     :flickr => 155, # todo: check
                     :foursquare => 155, # todo: check
@@ -202,6 +224,7 @@ API_OG_DESC_SIZE = {:facebook => 255, # http://www.joshspeters.com/how-to-optimi
                     :linkedin => 220, # max 220 in util.post_on_linkedin ( up to 245 characters allowed in og:description meta-tag )
                     :twitter => 200,
                     :vkontakte => 155}.with_indifferent_access
+# R)
 API_OG_DEF_IMAGE = {:facebook => "#{SITE_URL}images/sacred-economics.jpg",
                     :flickr => "#{SITE_URL}images/sacred-economics.jpg",
                     :foursquare => "#{SITE_URL}images/sacred-economics.jpg",
@@ -211,8 +234,9 @@ API_OG_DEF_IMAGE = {:facebook => "#{SITE_URL}images/sacred-economics.jpg",
                     :twitter => "#{SITE_URL}images/sacred-economics.jpg",
                     :vkontakte => "#{SITE_URL}images/sacred-economics.jpg"}.with_indifferent_access
 
-# for twitter:site card meta-tag - The Twitter username of the owner of this card's domain. - only twitter
+# S) for twitter:site card meta-tag - The Twitter username of the owner of this card's domain. - only twitter
 API_OWNER = { :twitter => ENV['GOFREEREV_APP_OWNER_TWITTER'] }.with_indifferent_access
+
 
 # extract basic information from auth_hash (provider, uid, user_name, token, language)
 # provider specific versions can be implemented with get_<method>_<provider>.
