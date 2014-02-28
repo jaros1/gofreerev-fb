@@ -91,6 +91,11 @@ class Friend < ActiveRecord::Base
     encrypt_remove_pre_and_postfix(extended_app_friend, 'app_friend', 17)
   end # app_friend_was
 
+  # cache friend when sortering users - used in sort_by_user_name
+  # sort on dev1 server took 5 seconds for a relative little sort with 74 users without cache
+  attr_accessor :cache_friend_id
+  attr_accessor :cache_friend_user_name
+
 
   ##################
   # helper methods #
@@ -433,20 +438,23 @@ class Friend < ActiveRecord::Base
     [new_user, nil, nil]
   end # self.update_friends_from_hash
 
+  # sort_by_user_name
+  # cache_friend_id and cache_friend_user_name is for performance
+  # sort on dev1 server took 5 seconds for a relative little sort with 74 users without cache
   def self.define_sort_by_user_name (friends)
     friends.define_singleton_method :sort_by_user_name do
       self.sort do |a, b|
-        if a.friend.user_name == b.friend.user_name
-          a.friend.id <=> b.friend.id
+        a.cache_friend_id, a.cache_friend_user_name = a.friend.id, a.friend.user_name unless a.cache_friend_id
+        b.cache_friend_id, b.cache_friend_user_name = b.friend.id, b.friend.user_name unless b.cache_friend_id
+        if a.cache_friend_user_name == b.cache_friend_user_name
+          a.cache_friend_id <=> b.cache_friend_id
         else
-          a.friend.user_name <=> b.friend.user_name
+          a.cache_friend_user_name <=> b.cache_friend_user_name
         end
       end # sort
     end # sort_by_user_name
     friends
   end
-
-
 
 
   ##############

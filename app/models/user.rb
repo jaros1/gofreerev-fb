@@ -863,7 +863,8 @@ class User < ActiveRecord::Base
     return [] if login_users.size == 1 and login_users.first.dummy_user?
     login_user_ids = login_users.collect { |login_user| login_user.user_id }
     friends = Friend.where("user_id_giver in (?)", login_user_ids).includes(:friend)
-    Friend.define_sort_by_user_name(friends)
+    friends = Friend.define_sort_by_user_name(friends)
+    friends
   end # self.all_friends
 
 
@@ -875,7 +876,7 @@ class User < ActiveRecord::Base
   # 5) deselected api friends - show few info
   # 6) friends of friends     - show few info
   def self.app_friends (login_users, user_categories = [1,2]) # 1: logged in users + 2: mutual friends
-    login_users_text = login_users.collect { |u| "#{u.user_id} #{u.short_user_name}"}.join(', ')
+    # login_users_text = login_users.collect { |u| "#{u.user_id} #{u.short_user_name}"}.join(', ')
     friends = User.friends(login_users).find_all do |f|
       friend = user_categories.index(f.friend.friend?(login_users))
       # logger.debug2 "#{f.friend.user_id} #{f.friend.short_user_name} is " + (friend ? '' : 'not ') + "friend with login users " + login_users_text

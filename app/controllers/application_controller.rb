@@ -659,7 +659,9 @@ class ApplicationController < ActionController::Base
     Time.zone = session[:timezone] = timezone.to_f
   end
 
-  # get/set last_row_id 
+  # get/set last_row_id
+  # has been moved from cookie session store to sessions table
+  # ( problem with concurrent ajax requests and session store update )
   private
   def set_last_row_id (last_row_id)
     session.delete(:last_row_id) if session.has_key?(:last_row_id)
@@ -680,6 +682,8 @@ class ApplicationController < ActionController::Base
   end
 
   # get/set last_row_at 
+  # has been moved from cookie session store to sessions table
+  # ( problem with concurrent ajax requests and session store update )
   private
   def set_last_row_at (last_row_at)
     session.delete(:last_row_at) if session.has_key?(:last_row_at)
@@ -690,15 +694,16 @@ class ApplicationController < ActionController::Base
     end
     s.last_row_at = last_row_at
     s.save!
+    logger.debug2 "last_row_at = #{last_row_at}, Time.now = #{Time.new.to_f}, session_id = #{session[:session_id]}"
     last_row_at
   end
   def get_last_row_at
     set_last_row_at(session[:last_row_at]) if session.has_key?(:last_row_at)
     s = Session.find_by_session_id(session[:session_id])
-    return nil unless s
-    s.last_row_at
+    last_row_at = s.last_row_at if s
+    logger.debug2 "last_row_at = #{last_row_at}, Time.now = #{Time.new.to_f}, session_id = #{session[:session_id]}"
+    last_row_at
   end
-
 
   # used in api posts
   private

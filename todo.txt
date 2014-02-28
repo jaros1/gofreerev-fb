@@ -379,10 +379,6 @@
     where user_id_giver in (select ...) and user_id_giver not in (1,2,3, ..)
     or    user_id_receiver in (select ...) and user_id_receiver not in (1,2,3, ..)
 
-69) check set_timezone task
-    it looks like it is running too often
-    should only run once during login
-
 70) users/index status mouse over with number of mutual friends was been dropped
     maybe add a ajax mouse over title - that is - calculate number of mutual friends when needed and not always
     good performance at startup and nice to have for the users when selecting friends

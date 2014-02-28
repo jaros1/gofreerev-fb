@@ -217,7 +217,6 @@ class UsersController < ApplicationController
         (@page_values[:appuser] == 'no' and u.app_user?) )
     end
 
-
     # use this users select for ajax test - returns all users
     # users = User.all # uncomment to test ajax
 
