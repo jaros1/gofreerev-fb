@@ -877,6 +877,7 @@ class User < ActiveRecord::Base
   # 6) friends of friends     - show few info
   def self.app_friends (login_users, user_categories = [1,2]) # 1: logged in users + 2: mutual friends
     # login_users_text = login_users.collect { |u| "#{u.user_id} #{u.short_user_name}"}.join(', ')
+    # logger.debug2 "User.app_friends - start"
     friends = User.friends(login_users).find_all do |f|
       friend = user_categories.index(f.friend.friend?(login_users))
       # logger.debug2 "#{f.friend.user_id} #{f.friend.short_user_name} is " + (friend ? '' : 'not ') + "friend with login users " + login_users_text
