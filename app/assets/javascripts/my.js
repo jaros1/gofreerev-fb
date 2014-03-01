@@ -1000,6 +1000,7 @@ function show_more_rows_scroll () {
         if (debug_ajax) add2log('Sleep ' + sleep + ' seconds' + '. previous timestamp ' + previous_timestamp + ', next timestamp ' + next_timestamp);
         old_show_more_rows_request_at = next_timestamp;
         add2log('show_more_rows_scroll: table_name = ' + table_name + '. call show_more_rows in ' + Math.round(sleep*1000) + ' milliseconds');
+        start_show_more_rows_spinner(table_name, debug_ajax) ;
         if (sleep == 0) show_more_rows();
         else setTimeout("show_more_rows()", Math.round(sleep*1000));
     }
@@ -1078,10 +1079,10 @@ function show_more_rows_success (table_name, debug)
         var tr_id_a = tr_id.split("-") ;
         var last_row_id = tr_id_a[tr_id_a.length-1] ;
         var href = link.href ;
-        add2log(pgm + 'old href = ' + href)
+        // add2log(pgm + 'old href = ' + href)
         href = href.replace(/last_row_id=[0-9]+/, 'last_row_id=' + last_row_id) ;
         link.href = href ;
-        add2log(pgm + 'new href = ' + href)
+        // add2log(pgm + 'new href = ' + href)
         end_of_page = false ;
     }
 } // show_more_rows_success
@@ -1102,13 +1103,13 @@ function show_more_rows_ajax() {
     $(link).unbind("click") ;
     $(link).bind("click", function(xhr, settings){
         var pgm = link + '.click: ' ;
-        try { start_show_more_rows_spinner(table_name, debug_ajax) }
-        catch (err) {
-            var msg = pgm + 'failed with JS error: ' + err;
-            add2log(msg);
-            add_to_tasks_errors(msg);
-            return;
-        }
+//        try { start_show_more_rows_spinner(table_name, debug_ajax) }
+//        catch (err) {
+//            var msg = pgm + 'failed with JS error: ' + err;
+//            add2log(msg);
+//            add_to_tasks_errors(msg);
+//            return;
+//        }
     });
     $(link).unbind("ajax:success");
     $(link).bind("ajax:success", function (evt, data, status, xhr) {

@@ -584,5 +584,3 @@
      http://david.paluy.org/blog/2013/04/09/profiling-rails-applications/
 
 133) collect and organize screendumps
-
-134) display show-more-rows spinner while sleepning before next get more rows request
