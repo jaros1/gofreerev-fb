@@ -569,5 +569,20 @@
      old sort_by_user_name did have a very bad performance
      problem was detail sort by master fields
 
-130) check all floats
-     there was problem with lost decimals for session.last_row_at on dev1 / mysql
+130) sessions.last_row_at - do not use float - lost precession in db
+     drop day part of timestamp
+
+131) distribute option:
+     find friends / see gifts on other gofreerev servers
+     user-a id api friend with user-b, user-a is on server-a and user-b on server-b.
+     user-a should be allowed to see user-b's gifts on server b
+     user-b should be allowed to see user-a's gifts on server a
+
+132) ruby profiler. It could be nice with a good ruby profiler statistic.
+     http://hiltmon.com/blog/2012/02/27/quick-and-dirty-rails-performance-profiling/
+     https://github.com/ruby-prof/ruby-prof
+     http://david.paluy.org/blog/2013/04/09/profiling-rails-applications/
+
+133) collect and organize screendumps
+
+134) display show-more-rows spinner while sleepning before next get more rows request

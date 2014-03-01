@@ -953,7 +953,17 @@ var old_number_of_rows ;
 
 // remember timestamp in milliseconds for last show-more-rows ajax request
 // should only request more rows once every 3 seconds
-var old_show_more_rows_request_at = 0 ;
+var old_show_more_rows_request_at ;
+
+// http://stackoverflow.com/questions/10944396/how-to-calculate-ms-since-midnight-in-javascript
+function getMsSinceMidnight() {
+    var d = new Date() ;
+    var e = new Date(d);
+    return d - e.setHours(0,0,0,0);
+} // getMsSinceMidnight
+function getSecondsSinceMidnight() {
+    return 1.0 * getMsSinceMidnight() / 1000 ;
+} // getSecondsSinceMidnight
 
 // scroll event - click show_more_rows when user scrolls to end of page
 // table_name should be gifts or users
@@ -969,17 +979,29 @@ function show_more_rows_scroll () {
         var table = document.getElementById(table_name);
         if (!table) return; // not
         old_number_of_rows = table.rows.length;
-        var now = (new Date()).getTime();
+        var now = getSecondsSinceMidnight();
         // There is a minor problem with wait between show-more-rows request
         // Implemented here and implemented in get_next_set_of_rows_error? and get_next_set_of_rows methods in application controller
         // For now wait is 3 seconds in javascript/client and 2 seconds in rails/server
-        var sleep = get_more_rows_interval - (now - old_show_more_rows_request_at);
-        if (sleep < 0) sleep = 0;
-        if (debug_ajax) add2log('Sleep ' + (sleep / 1000.0) + ' seconds' + '. old timestamp ' + old_show_more_rows_request_at + ', new timestamp ' + now);
-        old_show_more_rows_request_at = now + sleep;
-        add2log('show_more_rows_scroll: table_name = ' + table_name || '. call show_more_rows in ' + sleep || ' milliseconds');
+        var twenty_four_hours = 60 * 60 * 24 ;
+        var sleep ;
+        if (old_show_more_rows_request_at === undefined) sleep = 0 ;
+        else {
+//            add2log('get_more_rows_interval = ' + get_more_rows_interval + ', now = ' + now +
+//                ', old_show_more_rows_request_at = ' + old_show_more_rows_request_at) ;
+            var interval = now - old_show_more_rows_request_at ;
+            if (interval < 0) interval = interval + twenty_four_hours ;
+            sleep = get_more_rows_interval - interval;
+            if (sleep < 0) sleep = 0 ;
+        }
+        var previous_timestamp = old_show_more_rows_request_at ;
+        var next_timestamp = now + sleep;
+        if (next_timestamp > twenty_four_hours) next_timestamp = next_timestamp - twenty_four_hours ;
+        if (debug_ajax) add2log('Sleep ' + sleep + ' seconds' + '. previous timestamp ' + previous_timestamp + ', next timestamp ' + next_timestamp);
+        old_show_more_rows_request_at = next_timestamp;
+        add2log('show_more_rows_scroll: table_name = ' + table_name + '. call show_more_rows in ' + Math.round(sleep*1000) + ' milliseconds');
         if (sleep == 0) show_more_rows();
-        else setTimeout("show_more_rows()", sleep);
+        else setTimeout("show_more_rows()", Math.round(sleep*1000));
     }
 } // show_more_rows_scroll
 
@@ -1056,10 +1078,10 @@ function show_more_rows_success (table_name, debug)
         var tr_id_a = tr_id.split("-") ;
         var last_row_id = tr_id_a[tr_id_a.length-1] ;
         var href = link.href ;
-        add2log(pgm + 'old href = ' + href)
+        // add2log(pgm + 'href = ' + href)
         href = href.replace(/last_row_id=[0-9]+/, 'last_row_id=' + last_row_id) ;
         link.href = href ;
-        add2log(pgm + 'new href = ' + href)
+        // add2log(pgm + 'href = ' + href)
         end_of_page = false ;
     }
 } // show_more_rows_success

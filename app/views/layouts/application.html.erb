@@ -30,7 +30,7 @@
   get_more_rows_interval - min interval between show-more-rows requests. 3.0 for 3 seconds.
   debug_ajax - true or false - true - write messages to debug_log table in page footer
 -%>
-    var get_more_rows_interval = <%=(GET_MORE_ROWS_INTERVAL*1000).round %> ;
+    var get_more_rows_interval = <%=GET_MORE_ROWS_INTERVAL %> ;
     var debug_ajax = <%= debug_ajax? %> ;
   </script>
 </head>

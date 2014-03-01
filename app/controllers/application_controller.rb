@@ -247,8 +247,9 @@ class ApplicationController < ActionController::Base
     raise "get_next_set_of_rows: session[:last_row_id] was not found" unless get_last_row_id()
     raise "get_next_set_of_rows: session[:last_row_at] was not found" unless get_last_row_at()
     # max one get-more-rows request once every GET_MORE_ROWS_INTERVAL seconds
-    new_last_row_at = Time.new.to_f
+    new_last_row_at = Time.new.seconds_since_midnight
     dif = new_last_row_at - get_last_row_at()
+    dif += 1.day if dif < 0
     if last_row_id != get_last_row_id()
       # wrong last_row_id received in get-more-rows ajax request. Must be an error a javascript/ajax error
       msg = "problem with get-more-rows ajax request. expected #{get_last_row_id()}. found #{last_row_id}."
@@ -259,7 +260,7 @@ class ApplicationController < ActionController::Base
       end
       # return dummy row with correct last_row_id to client x
       return true
-    elsif dif < GET_MORE_ROWS_INTERVAL - 1
+    elsif dif < GET_MORE_ROWS_INTERVAL - 0.5
       # client should only send get-more-rows once every GET_MORE_ROWS_INTERVAL seconds. Must be an javascript/ajax error.
       # it should be client that waits between get-more-rows ajax requests - not server
       # todo: problem with GET_MORE_ROWS_INTERVAL delay in javascript and in rails.
@@ -311,8 +312,8 @@ class ApplicationController < ActionController::Base
     logger.debug2  "returning next #{rows.size} of #{total_no_rows} rows . last_row_id = #{last_row_id}"
     # keep last_row_id and timestamp - checked in get_next_set_of_rows_error? before calling this method
     set_last_row_id(last_row_id) # control - is checked in next ajax request
-    set_last_row_at(Time.new.to_f)
-    set_last_row_at(GET_MORE_ROWS_INTERVAL.seconds.ago.to_f) unless ajax_request # first http request at startup - ajax request for the next 10 rows in a split second
+    set_last_row_at(Time.new.seconds_since_midnight)
+    set_last_row_at(Time.new.seconds_since_midnight-GET_MORE_ROWS_INTERVAL) unless ajax_request # first http request at startup - ajax request for the next 10 rows in a split second
     logger.debug2  "last_row_id (output) = #{last_row_id}"
     [ rows, last_row_id]
   end # get_next_set_of_rows
@@ -686,23 +687,23 @@ class ApplicationController < ActionController::Base
   # ( problem with concurrent ajax requests and session store update )
   private
   def set_last_row_at (last_row_at)
+    logger.debug "last_row_at = #{last_row_at}"
     session.delete(:last_row_at) if session.has_key?(:last_row_at)
     s = Session.find_by_session_id(session[:session_id])
     if !s
       s = Session.new
       s.session_id = session[:session_id]
     end
-    s.last_row_at = last_row_at - 1400000000 # temp fix for float precision problems in mysql
+    s.last_row_at = last_row_at
     s.save!
-    logger.debug2 "last_row_at = #{last_row_at}, Time.now = #{Time.new.to_f}, session_id = #{session[:session_id]}"
+    logger.debug2 "last_row_at = #{last_row_at}, Time.new.seconds_since_midnight = #{Time.new.seconds_since_midnight}, session_id = #{session[:session_id]}"
     last_row_at
   end
   def get_last_row_at
     set_last_row_at(session[:last_row_at]) if session.has_key?(:last_row_at)
     s = Session.find_by_session_id(session[:session_id])
     last_row_at = s.last_row_at if s
-    last_row_at = last_row_at + 1400000000 if last_row_at # temp fix for float precision problems in mysql
-    logger.debug2 "last_row_at = #{last_row_at}, Time.now = #{Time.new.to_f}, session_id = #{session[:session_id]}"
+    logger.debug2 "last_row_at = #{last_row_at}, Time.new.seconds_since_midnight = #{Time.new.seconds_since_midnight}, session_id = #{session[:session_id]}"
     last_row_at
   end
 

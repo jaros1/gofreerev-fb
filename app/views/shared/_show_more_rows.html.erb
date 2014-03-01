@@ -27,7 +27,7 @@
     // remember timestamp in milliseconds for last show-more-rows ajax request
     // should only request more rows once every 3 seconds
 -%>
-    var old_show_more_rows_request_at = 0 ;
+    var old_show_more_rows_request_at = undefined ;
 <%#
     // setup show-more-rows ajax handlers. Check number of new rows. Change link for next show-more-rows ajax request
     // show_more_rows is id for html table, gifts or users
