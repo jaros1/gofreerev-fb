@@ -4,6 +4,8 @@ require 'money/bank/google_currency'
 #noinspection RubyResolve
 class ApplicationController < ActionController::Base
 
+  before_filter :request_start_time
+
   # protect cookie information on public web servers
   force_ssl if: :ssl_configured?
 
@@ -46,6 +48,11 @@ class ApplicationController < ActionController::Base
     @request_fullpath = request.fullpath
   end
 
+  private
+  # get start time for request for show-more-rows check
+  def request_start_time
+    @request_start_time = Time.new.seconds_since_midnight
+  end
 
   private
   def add_dummy_user
@@ -260,12 +267,10 @@ class ApplicationController < ActionController::Base
       end
       # return dummy row with correct last_row_id to client x
       return true
-    elsif dif < GET_MORE_ROWS_INTERVAL - 0.5
-      # client should only send get-more-rows once every GET_MORE_ROWS_INTERVAL seconds. Must be an javascript/ajax error.
-      # it should be client that waits between get-more-rows ajax requests - not server
-      # todo: problem with GET_MORE_ROWS_INTERVAL delay in javascript and in rails.
-      #       dif < GET_MORE_ROWS_INTERVAL gives too many "Max one get-more-rows ajax request" errors
-      #       javascript code in /shared/show_more_rows partial. 3 seconds wait in JS and in rails should work
+    elsif dif < GET_MORE_ROWS_INTERVAL - 0.1
+      # client must only send get-more-rows once every GET_MORE_ROWS_INTERVAL seconds.
+      # Must be an javascript/ajax error. See my.js show_more_rows_scroll
+      logger.debug2 "last_row_at = #{get_last_row_at()}, now = #{new_last_row_at}, dif = #{dif}"
       msg = "Max one get-more-rows ajax request every #{GET_MORE_ROWS_INTERVAL} seconds. " +
           "Time.new = #{Time.new}. Wait for #{GET_MORE_ROWS_INTERVAL-dif} seconds"
       if debug_ajax?
@@ -312,8 +317,11 @@ class ApplicationController < ActionController::Base
     logger.debug2  "returning next #{rows.size} of #{total_no_rows} rows . last_row_id = #{last_row_id}"
     # keep last_row_id and timestamp - checked in get_next_set_of_rows_error? before calling this method
     set_last_row_id(last_row_id) # control - is checked in next ajax request
-    set_last_row_at(Time.new.seconds_since_midnight)
-    set_last_row_at(Time.new.seconds_since_midnight-GET_MORE_ROWS_INTERVAL) unless ajax_request # first http request at startup - ajax request for the next 10 rows in a split second
+    if ajax_request
+      set_last_row_at(@request_start_time)
+    else
+      set_last_row_at(@request_start_time-GET_MORE_ROWS_INTERVAL)
+    end
     logger.debug2  "last_row_id (output) = #{last_row_id}"
     [ rows, last_row_id]
   end # get_next_set_of_rows

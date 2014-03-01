@@ -265,10 +265,10 @@ class GiftsController < ApplicationController
 
     set_last_row_id(@last_row_id) # control - is checked in next ajax request
     if last_row_id
-      set_last_row_at(Time.new.seconds_since_midnight)
+      set_last_row_at(@request_start_time)
     else
       # first http request at startup - ajax request for the next 10 rows in a split second
-      set_last_row_at(Time.new.seconds_since_midnight-GET_MORE_ROWS_INTERVAL)
+      set_last_row_at(@request_start_time-GET_MORE_ROWS_INTERVAL)
     end
 
     # use this gifts select for ajax debug - returns all gifts

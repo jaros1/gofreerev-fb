@@ -1078,10 +1078,10 @@ function show_more_rows_success (table_name, debug)
         var tr_id_a = tr_id.split("-") ;
         var last_row_id = tr_id_a[tr_id_a.length-1] ;
         var href = link.href ;
-        // add2log(pgm + 'href = ' + href)
+        add2log(pgm + 'old href = ' + href)
         href = href.replace(/last_row_id=[0-9]+/, 'last_row_id=' + last_row_id) ;
         link.href = href ;
-        // add2log(pgm + 'href = ' + href)
+        add2log(pgm + 'new href = ' + href)
         end_of_page = false ;
     }
 } // show_more_rows_success
