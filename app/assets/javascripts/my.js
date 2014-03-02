@@ -210,6 +210,9 @@ function ajax_flash_new_table_rows (tablename, number_of_rows)
 } // ajax_flash_new_table_rows
 
 
+// long gift description is hidden inside div with max-height and overflow
+// link under gift with long description is used to remove max-height from div (show full text)
+// find_overflow is called at startup, after show-more-rows and after ajax injecting new or changed gifts into page
 
 // show full text for div with overflow
 function show_overflow(overflow_link) {
@@ -243,30 +246,70 @@ function show_overflow(overflow_link) {
 function find_overflow () {
     var pgm = 'find_overflow: ' ;
     var divs = document.getElementsByClassName('overflow') ;
-    add2log(pgm + 'divs.length = ' + divs.length) ;
+    // add2log(pgm + 'divs.length = ' + divs.length) ;
     // split overflow in text and link divs
     var overflow_link = {} ;
     var overflow_text = {} ;
-    var div, id, id_split, gift_id, div_type ;
+    var div, id, id_split, id_type, key, key, div_type ;
     for (var i=0 ; i<divs.length ; i++) {
         div = divs[i] ;
         id = div.id ;
         id_split = id.split('-') ;
-        gift_id = id_split[1] ;
-        div_type = id_split[3] ;
-        if (div_type == 'text') overflow_text[gift_id] = i ;
-        if (div_type == 'link') overflow_link[gift_id] = i ;
+        div_type = id_split.pop() ;
+        key = id_split.join('-') ;
+        if (div_type == 'text') overflow_text[key] = i ;
+        else if (div_type == 'link') {
+            if (div.style.display == 'none') overflow_link[key] = i ;
+        }
+        else add2log(pgm + 'invalid overflow id ' + id) ;
     } // i
-    var text, link ;
-    for (gift_id in overflow_text) {
-        add2log(pgm + 'gift id = ' + gift_id + ', text = ' + overflow_text[gift_id] + ', link = ' + overflow_link[gift_id]) ;
-        text = divs[overflow_text[gift_id]] ;
-        link = divs[overflow_link[gift_id]] ;
-        if (link.style.display != 'none') continue ;
-        add2log(pgm + 'gift id = ' + gift_id + ', client height = ' + text.clientHeight + ', scroll height = ' + text.scrollHeight) ;
-        if (text.scrollHeight <= text.clientHeight) continue ;
+
+    var text, link, text_max_height ;
+    var screen_width = (document.width !== undefined) ? document.width : document.body.offsetWidth;
+    var screen_width_factor = screen_width / 320.0 ;
+    if (screen_width_factor < 1) screen_width_factor = 1 ;
+    // add2log('screen_width = ' + screen_width + ', screen_width_factor = ' + screen_width_factor) ;
+    var skip_keys = [] ;
+    for (key in overflow_link) {
+        // add2log(pgm + 'key = ' + key + ', text = ' + overflow_text[key] + ', link = ' + overflow_link[key]) ;
+        text = divs[overflow_text[key]] ;
+        if (!text) {
+            add2log(pgm + 'error. overflow text with key ' + key + ' was not found.') ;
+            continue ;
+        }
+        link = divs[overflow_link[key]] ;
+        if (!link) {
+            add2log(pgm + 'error. overflow link with key ' + key + ' was not found.') ;
+            continue ;
+        }
+        if (!text.style.maxHeight) {
+            add2log(pgm + 'error. found overflow text key ' + key + ' without maxHeight') ;
+            continue ;
+        }
+        text_max_height = parseInt(text.style.maxHeight) ;
+        // add2log(pgm + 'key = ' + key + ', text.style.maxHeight = ' + text_max_height +
+        //        ', text.client height = ' + text.clientHeight + ', text.scroll height = ' + text.scrollHeight +
+        //        ', link.style.display = ' + link.style.display) ;
+        if (text.scrollHeight * screen_width_factor < text_max_height) {
+            // small text - overflow is not relevant - skip in next call
+            skip_keys.push(key) ;
+            continue ;
+        }
+        if (text.scrollHeight <= text.clientHeight) continue ; // not relevant whis actual screen width
+        // show link
         link.style.display = '' ;
-    } // gift_id
+    } // key
+    // divs not to check next call
+    // add2log('skip_keys = ' + skip_keys.join(', ')) ;
+    for (i=0 ; i<skip_keys.length ; i++) {
+        key = skip_keys[i] ;
+        text = document.getElementById(key + '-text') ;
+        if (text) text.className = '' ;
+        else add2log(pgm + 'error. key ' + key + '-text was not found') ;
+        link = document.getElementById(key + '-link') ;
+        if (link) link.className = '' ;
+        else add2log(pgm + 'error. key ' + key + '-link was not found') ;
+    } // key
 } // find_overflow
 
 $(document).ready(function() {

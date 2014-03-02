@@ -299,6 +299,7 @@ da:
         gift_comment_mismatch: "Ugyldigt kald. Opslag og kommentar passer ikke sammen."
         exception: "Systemfejl. Kunne ikke hente ældre kommentarer. %{error}. Mere information i server log."
      api_comments2:
+        show_more_text: "Vis mere tekst"
         like_gift: "Synes om"
         unlike_gift: "Synes ikke længere om"
         follow_gift: "Følg opslag"
@@ -386,7 +387,6 @@ da:
         gift_link_text: "%{date} %{optional_price} / %{direction}"  # nested translate
         gift_text_html: " : %{text}" # text is sanitized. Only todo: tags is allowed
         optional_price: "/ %{price}"
-        show_more_text: "Vis mere tekst"
         like_gift: "Synes om"
         unlike_gift: "Synes ikke længere om"
         follow_gift: "Følg opslag"

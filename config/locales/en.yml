@@ -296,6 +296,7 @@ en:
         gift_comment_mismatch: "Invalid request. Gift and comment do not match."
         exception: "System error. Could not get older comments. %{error}. More information in server log."
      api_comments2:
+        show_more_text: "Show more text"
         like_gift: "Like"
         unlike_gift: "Unlike"
         follow_gift: "Follow"
@@ -383,7 +384,6 @@ en:
         gift_link_text: "%{date} %{optional_price} / %{direction}"  # nested translate
         gift_text_html: " : %{text}" # text is sanitized. Only todo tags is allowed
         optional_price: "/ %{price}"
-        show_more_text: "Show more text"
         like_gift: "Like"
         unlike_gift: "Unlike"
         follow_gift: "Follow"
