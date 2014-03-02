@@ -27,13 +27,15 @@
         <%= format_price gift.balance(@user2, @users.first) %>
       </td>
       <td></td>
-      <td style="height: 52px; vertical-align: top">
+      <td class="wrapword" style="height: 52px; vertical-align: top">
+        <div style="max-height: 75px; overflow:hidden">
         <%= link_to t('.gift_link_text', format_gift_param(api_gift)), url_for(gift), :title => (t '.gift_link_title') %>
         <%= t('.gift_text_html', format_gift_param(api_gift)) %>
         <% if api_gift.picture? and !api_gift.api_picture_url_on_error_at -%>
             <br/><br/>
             <%= image_tag api_gift.api_picture_url, :onload => "imgonload(#{api_gift.id}, this)" %>
         <% end -%>
+        </div>
       </td>
     </tr>
 <% end -%>

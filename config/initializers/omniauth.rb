@@ -176,7 +176,7 @@ API_GIFT_PICTURE_STORE = {:fallback => nil,
 # see also Open Graph lengths for title and description
 # open graph will in many cases have smaller lengths for title and description
 # it is up to each api_client.gofreerev_post_on_wall instance method how to use max text and open graph lengths
-API_MAX_TEXT_LENGTHS = {:facebook => { :message => nil}, # could not find any facebook information
+API_MAX_TEXT_LENGTHS = {:facebook => { :message => 47950}, # guess after some tests - not 100% stable
                         :flickr => {:title => 255, :description => nil, :tags => nil },
                         :foursquare => nil, # post allowed, but users do not have a wall like the other api's
                         :google_oauth2 => nil, # google+ is a readonly API

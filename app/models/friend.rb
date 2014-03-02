@@ -254,7 +254,7 @@ class Friend < ActiveRecord::Base
     provider = login_user_id.split('/').last
 
     # check fields in friends_hash
-    allowed_fields = [:name, :api_profile_url, :api_profile_picture_url, :no_api_friends]
+    allowed_fields = [:name, :api_profile_url, :api_profile_picture_url, :no_api_friends, :api_friend]
     required_fields = [:name]
     new_friends.each do |user_id, hash|
       fields = hash.keys

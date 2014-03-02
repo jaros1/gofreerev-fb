@@ -71,13 +71,6 @@
     There maybe are missing an index or two
     there maybe are some sql to be rewritten
 
-16) some problems in user.recalculate balance after splitting gifts in gifts and api_gifts
-    check /auth/facebook and post_login error for price
-
-17) twitter returns to  127.0.0.1 - not to localhost
-    127.0.0.1 should redirect to localhost
-    or change app setup on twitter
-
 18) check session variables
     session variables should only be used from accessor methods in app. controller
     gives a better overview and an easier to maintain code
@@ -104,21 +97,12 @@
     google+: todo
     linkedin: 180 x 110 (done)
     twitter: todo
-    maybe a mouse over text with best picture dimensions
+    maybe a mouse over text with best picture dimensions when attaching pictures
 
 23) add mysql development environment on localhost.
     there are some select statements that are not working in mysql
     maybe is only was problem with "" around table names!
-
-24) insert "?" picture in /user div/ temporary real profile picture has been downloaded from API
-    there is a minor profile picture problem first time when a new gofreerev user logs in
-
-25) problem after show-more-rows error
-    javascript variable end_of_page is set to true and is never changed back to false
-    share link does not set end_of_page variable back to false
-    /gifts/index does set end_of_page back to true
-    maybe use document.ready to set end_of_page to false when user clicks on share link i page header
-    google a solution
+    also problems with float. Less float precession in mysql than in sqlite3
 
 26) remove api friend:
     - facebook: link to profile
@@ -149,27 +133,14 @@
 33) add server site cleanup for api_gifts with temp url
     created in gifts/create - removed in util.delete_local_picture after post_on_<provider> tasks
 
-34) profile picture store = :api.
-    should display no-picture.jpg if user profile picture was not found
-
 35) check if user div onclick events could be handled on a higher level - for example on document
     can not use user_id in id. user divs are repeated many times for each user.
     use data-id attribute for user.id
 
-36) link from post on gofreerev to post on facebook. api_gift.api_gift_id => url
-    but only if FB friend
-
-37) link from post on gofreerev to post on linkedin. updateUrl
-    but only if LinkedIn connection
-
-38) facebook and open graph
-    - replace api_client.put_picture and api_client.put_connections with something else to add open graph tags?
-    - facebook object api: https://developers.facebook.com/docs/opengraph/using-object-api/
-    - koala with og.likes:
-      http://stackoverflow.com/questions/12199608/koala-like-doesn-t-work
-      api_response = api.put_connections("me", "og.likes", :object => deep_link)
-      can be used, but requires :local gift picture store and activity is  only shown in activity log / not on wall
-    - facebook object debugger: https://developers.facebook.com/tools/debug/
+36) link from post on gofreerev to post on facebook but only if FB friend
+    link from post on gofreerev to post on linkedin but only if LinkedIn connection
+    should have small API icons for each post.
+    multiple icons if multiple logins and post in multiple API's
 
 39) check response from FastImage.type(gift_file.path) if site is temporary unavailable
     should not error mark pictures if a api picture server is temporary out of service
@@ -177,18 +148,10 @@
     Must combine FastImage = nil with a http get page notfound check
     http://stackoverflow.com/questions/2695020/how-can-i-use-ruby-to-check-if-a-domain-exists
 
-40) found class wrapword in source - used in api_gift.html.erb - could be a workaround for response web pages with small width
-
 41) add share icons to api_gift (one icon for each api provider)
     share with a deep link
     allow all to share or allow only giver/receiver to share?
     http://jquery-plugins.net/tag/social-share-button
-
-42) inject text into picture
-    most relevant for twitter where description is truncated to about 70 characters to include deep link
-    but could be an option for all login providers
-    for example a merge text and picture checkbox when posting new gift
-    could be relevant for other login providers where text overlay in pictures is being used
 
 43) my.js - split gift-action-link ajax handler in one for each gift action?
     should use translated error messages in js error messages
@@ -212,10 +175,9 @@
     In that way updated gifts will be at top of page and will be ajax injected to top of page
     how to keep actual user view point when ajax injecting new rows in top of page?
 
-48) check if notification cleanup still is running. Find 68 notifications for 3 login users.
-
 49) edit user options
     - cross provider balance y/n checkbox
+    - share balance
 
 50) a number of "invalid" inbox notification keys. Could be missing keys. Could be wrong notifications
 
@@ -339,18 +301,12 @@
 
 56) add language LOV to page header if width > xxx
 
-57) edit/user share balance
-
-58) performance problem in users/index page - 12 seconds for 10 rows at dev1 / my FB account
-
 60) "false" ajax:error message if user clicks in a link before ajax request has finished.
     "tasks_form.error: error. check server log for more information."
     maybe cancel ajax requests or ignore ajax:error message when changing page
     check if there is an "before leave page" event that can be used to cancel ajax request
     or disable error from ajax:error handlers
     also a special problem in chrome where you have to link twice on links if ajax tasks is running
-
-61) add profile picture for a new user in auth, facebook and linkedin controllers to prevent blank profile picture after login
 
 64) gift giver pic mouse over text should have information about multiple provider givers
     gift receiver pic mouse over text should have information about multiple provider receivers
@@ -383,15 +339,17 @@
     maybe add a ajax mouse over title - that is - calculate number of mutual friends when needed and not always
     good performance at startup and nice to have for the users when selecting friends
 
-71) check out JS API's for facebook, linkedin, google+ and twitter
+71) check out JS API's for login providers. most interesting are readonly API's (google+ and instagram)
     some not supported server site operations could be implemented with client side JS
 
 72) users/index - friends of friends - why in list - show name(s) of friend
     maybe the same issue as in previous dropped mutual friends
 
-75) find a better location for ajax tasks spinner
-    show/hide spinner makes the page to bounce
+75) find a better location for ajax tasks spinner in top of page
+    show/hide spinner makes the page bouncing
     add mouse over title to ajax tasks title with explanation.
+    maybe after ".create_gift_header_line"
+    Maybe under ".description_prompt"
 
 76) add mini spinners for some time consuming tasks.
     for example deleting a closed deal (recalculate balance)
@@ -400,7 +358,6 @@
 
 79) users/index: search, friend name filter or alphabetical tabs
     it is slow to scroll down (bad performance + 3 seconds delay for each 10 rows lookup)
-    ( still problem with bad performance in users/index page )
 
 80) chrome and running ajax tasks
     you have to click twice on links if an ajax tasks is running when clicking on link
@@ -410,20 +367,16 @@
 81) opera 12.16 bug when gofreerev starts from facebook https://apps.facebook.com/gofreerev-dev/
     Warning
     https://dev1.gofreerev.com/
-    A page on the public internet requests data from your private intranet. For security reasons, automatic access is blocked, but you may choose to continue.
+    A page on the public internet requests data from your private intranet.
+    For security reasons, automatic access is blocked, but you may choose to continue.
     Continue
     Always continue when data is requested from this server on my private intranet
     Generated by Opera.
     Only problem in first https://apps.facebook.com/gofreerev-dev/ request => get /
     Second https://apps.facebook.com/gofreerev-dev/ request => post /
-    Opera console does not reveal any rejected localhost requests. But should not start with get /
+    Opera console does not reveal any rejected localhost requests. But should not start with a "get /" in log
 
 82) opera. displays auth/index page within facebook iframe when gofreerev starts from facebook.
-
-84) ajax error message in inbox page:
-    #check-new-messages-link::ajax:success: show_more_rows_scroll failed: ReferenceError: get_more_rows_table is not defined
-    The problem is in #check-new-messages-link:ajax:success handler
-    Should only call show_more_rows_scroll() in pages where scroll is enabled (gifts, users)
 
 85) localhost / login servers Sandra/fb and Gofreerev A/gp
     2+2 notifications. 2 accepted and 2 accepted follow notification.
@@ -433,17 +386,17 @@
     the same pattern for "outbox" for Jan R/google+ as sender of message.
     also 13. feb. 2014 11.58
 
-86) add a API check to omniauth.rb og environment.rb
-    check that all array constrants are initialized for all login providers
+86) add a API check to omniauth.rb
+    check that all array constants are initialized for all login providers
 
 87) how to check for an "official" gofreerev version
-    easy to copy gofreerev and misuse the concept.
+    easy to copy gofreerev and misuse the concept (harvest user information from API's)
     maybe a list of officiel gofreerev sites
 
 88) users/index apiname=<provider> filter. Use login user = selected provider.
     in that way all user dev pictures are from the same login provider.
 
-89) ajax spinner is missing while fetching new exchange rates
+89) min ajax spinner in page header is missing while fetching new exchange rates
 
 90) check if there is a generic JS way to count number of running/pending ajax requests
 
@@ -473,11 +426,7 @@
      add a page for Gofreerev and ?
      maybe j has some ideas
 
-107) picture.create_png_image_from_text
-     only png image looks nice
-     there should be support for jpg, jpeg, gif, png and bmp
-
-109) problem with post from an empty gifts/index page
+109) problem with post from an empty gifts/index page (new users)
      rails post ok. client js fails with
      insert_update_gifts: 3 gifts lines in old page
      insert_update_gifts: error - id with format format gift-<999>- was not found
@@ -487,10 +436,6 @@
 110) check out open graph meta-tags in flickr.
      maybe some that could by used
      <meta property="fb:app_id" content="137206539707334" />    x
-     <meta property="al:ios:app_store_id" content="328407587" />
-     <meta property="al:ios:app_name" content="Flickr" />
-     <meta property="twitter:app:name:iphone" content="Flickr" />
-     <meta property="twitter:app:id:iphone" content="328407587" />
      <meta property="og:title" content="u6bbc6h8oy" />
      <meta property="og:type" content="flickr_photos:photo" />
      <meta property="og:url" content="http://www.flickr.com/photos/gofreerev/12593199523/" />
@@ -503,8 +448,6 @@
      <meta property="og:image:height" content="640" />
      <meta property="flickr_photos:by" content="http://www.flickr.com/people/gofreerev/" />
      <meta property="twitter:description" content="localhost/da/gifts/VyGiwGM7NXQ1JzBA2XAj1VV5zeGEtb" />
-     <meta property="al:ios:url" content="flickr://flickr.com/photos/gofreerev/12593199523/" />
-     <meta property="twitter:app:url:iphone" content="flickr://flickr.com/photos/gofreerev/12593199523/" />
 
 113) check just_posted variable in get_api_picture_url_<provider> methods
      should raise exception if just posted and picture was not found.
@@ -512,6 +455,11 @@
 
 115) two or three column friend list in users/index page.
      responsive design or use javascript to organize table layout
+     could use float divs in a multi column users/index page
+     that is fixed width, height and fixed table column size
+     number of users in http/ajax requests should match number of columns.
+     2 columns: get 2 friends in first request - get 20 friends in next request
+     3 columns: get 3 friends in first request - get 30 friends in next request
 
 116) post on twitter: Exception: execution expired (Twitter::Error) after 6 seconds
      added exception to post on twitter for debug
@@ -550,27 +498,16 @@
      50x50   (1744/2877 bytes) is used everywhere else
      can make a difference on a slow connection / slow device
 
-127) localhost: flickr login:
-     Started GET "/auth/flickr/callback?oauth_token=72157641644497944-d443818f9eff8967&oauth_verifier=19d5f22bd2a1bcab" for 127.0.0.1 at 2014-02-28 09:32:22 +0100
-     I, [2014-02-28T09:32:22.371701 #10351]  INFO -- omniauth: (flickr) Callback phase initiated.
-     E, [2014-02-28T09:32:22.648600 #10351] ERROR -- omniauth: (flickr) Authentication failure! invalid_credentials: OAuth::Unauthorized, 401 Unauthorized
-     Processing by AuthController#oauth_failure as HTML
-       Parameters: {"oauth_token"=>"72157641644497944-d443818f9eff8967", "oauth_verifier"=>"19d5f22bd2a1bcab"}
-     Error message in gofreerev is "flickr login fejlede! invalid_credentials: 401 Unauthorized"
-     but login status is logged in in Gofreerev
-
 128) ajax queue? or session table
      there are some small problems with cokie session store update and 2 running ajax requests
      request 1 updates a session variable and request 2 resets session variable to old value
      can be solved with an ajax queue
      can be solved by moving non vital session variables to session table
+     last_row_id and last_row_at is now in sessions table
 
 129) check all sorts
      old sort_by_user_name did have a very bad performance
      problem was detail sort by master fields
-
-130) sessions.last_row_at - do not use float - lost precession in db
-     drop day part of timestamp
 
 131) distribute option:
      find friends / see gifts on other gofreerev servers
@@ -584,3 +521,29 @@
      http://david.paluy.org/blog/2013/04/09/profiling-rails-applications/
 
 133) collect and organize screendumps
+
+134) check that API_MAX_TEXT_LENGTHS constant is used for all api's
+
+135) show-more-text link for long descriptions.
+     could be a pure client JS solution.
+     xxxx <a href="javascript: yyy" title="zzzz">show more</a>
+     replace link with zzzz
+
+136) check that direction is included for all wall posts
+
+137) tests
+     long text post without picture for all API's
+     long text post with picture for all API's
+     maybe different limit between short and long text in gifts/api_gift (share) and in users/api_gift (balance)
+     longer texts in gifts/api_gift and shorter texts in users/api_gift
+     make limit responsive? shorter texts in a small screen and longer texts in a big screen? (JS)
+
+138) compare gifts/api_gift and users/api_gift partial
+     merge into one shared partial?
+     also compare translate keys
+
+139) get screen width together with timezone
+     get screen width in show-more-rows ajax request
+     shorter text on small screen - longer text on wide screen
+     I would be nice if JS could handle display text lengths
+

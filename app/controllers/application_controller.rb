@@ -847,27 +847,32 @@ class ApplicationController < ActionController::Base
     api_client.define_singleton_method :gofreerev_post_on_wall do |options|
       # get params
       api_gift = options[:api_gift]
-      logger   = options[:logger]
-      picture  = options[:picture]
+      logger = options[:logger]
+      picture = options[:picture]
+      direction = options[:direction] # offers / seeks
+      open_graph = options[:open_graph]
       gift = api_gift.gift
-      deep_link = api_gift.deep_link
+      deep_link = " - #{api_gift.deep_link}"
+
+      # have not found FB documentation about max message length
+      message_max_lng = API_MAX_TEXT_LENGTHS[:facebook][:message] if API_MAX_TEXT_LENGTHS[:facebook]
+      message_max_lng = 47950 unless message_max_lng
+      description_max_lng = message_max_lng - deep_link.size
+      message = gift.description.first(description_max_lng) + deep_link
+
       begin
         if picture
           # logger.debug2 'status post with picture'
           filetype = picture.split('.').last
           content_type = "image/#{filetype}"
-          api_response = api_client.put_picture(picture,
-                                                content_type,
-                                                {:message => "#{gift.description} - #{deep_link}"
-                                                })
+          api_response = api_client.put_picture(picture, content_type, {:message => message})
           # api_response = {"id"=>"1396226023933952", "post_id"=>"100006397022113_1396195803936974"} (Hash)
           api_gift_id = api_response['post_id']
         else
           # logger.debug2 'status post without picture'
           # gift.description = "#{gift.description} - #{link}" # link only as text
           # gift.description = "<a href='#{link}'>#{gift.description}</a>" # html code as text
-          api_response = api_client.put_connections('me', 'feed',
-                                                    :message => "#{gift.description} - #{deep_link}")
+          api_response = api_client.put_connections('me', 'feed', :message => message)
           # api_response = {"id"=>"100006397022113_1396235850599636"}
           api_gift_id = api_response['id']
         end
@@ -967,11 +972,15 @@ class ApplicationController < ActionController::Base
     api_client.define_singleton_method :gofreerev_post_on_wall do |options|
       # get params
       api_gift = options[:api_gift]
-      logger   = options[:logger]
-      picture  = options[:picture]
+      logger = options[:logger]
+      picture = options[:picture]
+      direction = options[:direction] # offers / seeks
+      open_graph = options[:open_graph]
       gift = api_gift.gift
       deep_link = api_gift.deep_link
       # always post with picture on flickr. API_TEXT_TO_PICTURE[:flickr] == 0
+      # todo: add title? For example title from OG - max 255 characters
+      # todo: no max length for flickr description?
       begin
         api_gift_id = self.upload_photo picture, :description => "#{gift.description} - #{deep_link}"
       rescue FlickRaw::OAuthClient::FailedResponse => e
@@ -1176,12 +1185,14 @@ class ApplicationController < ActionController::Base
         # todo: check description length. <= 256 use only description. length <= 700. Use only comment. Length between 700 and 956 use comment and description
         # my test says: title 60, description 245 and comment 600 characters
         logger.debug2 "picture = #{picture}"
-        image_url = Picture.url :rel_path => gift.app_picture_rel_path if picture
+        image_url = Picture.url :full_os_path => picture if picture
         # logger.debug2 "image_url = #{image_url}"
         image_url = SITE_URL + image_url.from(1) if image_url and image_url.first == '/'
         logger.debug2 "image_url = #{image_url}"
         text = "#{direction} #{gift.description}"
         # logger.debug2 "picture = #{api_gift.picture?}, text.length = #{text.length}, image_url = #{image_url}"
+
+        # max
 
         comment = nil
         content = {"submitted-url" => deep_link}
@@ -1422,8 +1433,10 @@ class ApplicationController < ActionController::Base
     api_client.define_singleton_method :gofreerev_post_on_wall do |options|
       # false: post to Gofreerev album, true: post to VK wall.
       api_gift = options[:api_gift]
-      logger   = options[:logger]
-      picture  = options[:picture]
+      logger = options[:logger]
+      picture = options[:picture]
+      direction = options[:direction] # offers / seeks
+      open_graph = options[:open_graph]
       wall = false # no errors but is do not looks like upload to VK wall is working. todo: check from a smartphone
       # find/create album with gofreerev pictures
       # http://vk.com/developers.php?oid=-17680044&p=photos.getAlbums
@@ -1466,12 +1479,6 @@ class ApplicationController < ActionController::Base
       logger.debug2 "aid = #{aid}"
       # get full os path for image
       gift = api_gift.gift
-      if api_gift.picture?
-        picture_full_os_path = Picture.full_os_path :rel_path => gift.app_picture_rel_path
-      else
-        picture_full_os_path = options[:picture]
-      end
-      logger.debug2 "picture_full_os_path = #{picture_full_os_path}"
       # get upload server
       begin
         if wall
@@ -1494,7 +1501,7 @@ class ApplicationController < ActionController::Base
       # upload - maybe vkontakte gem has a method for this?!
       # http://vk.com/developers.php?oid=-17680044&p=Uploading_Files_to_the_VK_Server_Procedure
       begin
-        upload_res1 = RestClient.post url, :file1 => File.new(picture_full_os_path)
+        upload_res1 = RestClient.post url, :file1 => File.new(picture)
       rescue Exception => e
         raise VkontaktePhotoPost.new "#{e.class}: #{e.message}"
       end
