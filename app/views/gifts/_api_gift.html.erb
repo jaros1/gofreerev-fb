@@ -26,7 +26,7 @@
         <% end -%>
       </td>
       <td colspan="2" class="wrapword" style="vertical-align: top;">
-        <div style="max-height: 150px; overflow:hidden">
+        <div style="max-height: 150px; overflow: hidden" class="overflow" id="<%= "gift-#{gift.id}-overflow-text" %>">
         <%= link_to t('.gift_link_text', format_gift_param(api_gift)), url_for(gift), :title => (t '.gift_link_title') %>
         <%= t('.gift_text_html', format_gift_param(api_gift)) %>
         <%# logger.debug2 "api_gift.provider = #{api_gift.provider}, api_gift.picture? = #{api_gift.picture?}, api_gift.api_picture_url_on_error_at = #{api_gift.api_picture_url_on_error_at}" -%>

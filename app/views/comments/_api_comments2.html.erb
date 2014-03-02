@@ -6,6 +6,9 @@
 <tr id='<%= "gift-#{gift.id}-links" %>'>
   <td colspan="2"></td>
   <td colspan="2">
+    <div id="<%= "gift-#{gift.id}-overflow-link" %>" style="display: none">
+      <%= link_to t('.show_more_text'), "#", :onclick => "show_overflow(this)" %> -
+    </div>
     <%= link_to_gift_like_unlike(gift) %>
     - <%= link_to_gift_follow_unfollow(gift) %>
     <% if gift.show_delete_gift_link?(@users) -%>

@@ -383,6 +383,7 @@ en:
         gift_link_text: "%{date} %{optional_price} / %{direction}"  # nested translate
         gift_text_html: " : %{text}" # text is sanitized. Only todo tags is allowed
         optional_price: "/ %{price}"
+        show_more_text: "Show more text"
         like_gift: "Like"
         unlike_gift: "Unlike"
         follow_gift: "Follow"
