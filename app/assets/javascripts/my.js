@@ -210,6 +210,71 @@ function ajax_flash_new_table_rows (tablename, number_of_rows)
 } // ajax_flash_new_table_rows
 
 
+
+// show full text for div with overflow
+function show_overflow(overflow_link) {
+    var pgm = 'show_overflow: ' ;
+    overflow_link = overflow_link.parentNode ;
+    var link_id = overflow_link.id ;
+    if (!link_id) {
+        add2log(pgm + 'overflow link without id') ;
+        return ;
+    }
+    var link_id_split = link_id.split('-') ;
+    var pos = link_id_split.length-1 ;
+    if (link_id_split[pos] != 'link') {
+        add2log(pgm + 'overflow link id ' + link_id + ' is invalid') ;
+        return ;
+    } // error - id should be gift-<nnn>-overflow-link
+    link_id_split[pos] = 'text' ;
+    var text_id = link_id_split.join('-') ;
+    var overflow_text = document.getElementById(text_id) ;
+    if (!overflow_text) {
+        add2log(pgm + 'overflow text id ' + text_id + ' was not found') ;
+        return ;
+    } // error - overflow text was not found
+    overflow_link.display = 'none' ;
+    overflow_text.style.maxHeight = 'none' ;
+    overflow_text.style.overflow = 'visible' ;
+    overflow_link.style.display = 'none' ;
+} // show_overflow
+
+// find div with overflow - show link
+function find_overflow () {
+    var pgm = 'find_overflow: ' ;
+    var divs = document.getElementsByClassName('overflow') ;
+    add2log(pgm + 'divs.length = ' + divs.length) ;
+    // split overflow in text and link divs
+    var overflow_link = {} ;
+    var overflow_text = {} ;
+    var div, id, id_split, gift_id, div_type ;
+    for (var i=0 ; i<divs.length ; i++) {
+        div = divs[i] ;
+        id = div.id ;
+        id_split = id.split('-') ;
+        gift_id = id_split[1] ;
+        div_type = id_split[3] ;
+        if (div_type == 'text') overflow_text[gift_id] = i ;
+        if (div_type == 'link') overflow_link[gift_id] = i ;
+    } // i
+    var text, link ;
+    for (gift_id in overflow_text) {
+        add2log(pgm + 'gift id = ' + gift_id + ', text = ' + overflow_text[gift_id] + ', link = ' + overflow_link[gift_id]) ;
+        text = divs[overflow_text[gift_id]] ;
+        link = divs[overflow_link[gift_id]] ;
+        if (link.style.display != 'none') continue ;
+        add2log(pgm + 'gift id = ' + gift_id + ', client height = ' + text.clientHeight + ', scroll height = ' + text.scrollHeight) ;
+        if (text.scrollHeight <= text.clientHeight) continue ;
+        link.style.display = '' ;
+    } // gift_id
+} // find_overflow
+
+$(document).ready(function() {
+    find_overflow () ;
+})
+
+
+
 // check for new messages once every 15, 60 or 300 seconds
 // once every 15 seconds for active users - once every 5 minutes for inactive users
 // onclick event on remote link check-new-messages-link"
@@ -609,6 +674,8 @@ function insert_update_gifts (tasks_sleep)
         } // if
     } // for
     // that's it
+
+    find_overflow();
 
     add2log(pgm + 'ajax_tasks_sleep = ' + tasks_sleep) ;
     if (!tasks_sleep) return ;
@@ -1085,6 +1152,8 @@ function show_more_rows_success (table_name, debug)
         // add2log(pgm + 'new href = ' + href)
         end_of_page = false ;
     }
+    // show show-more-text for div with text overflow
+    find_overflow() ;
 } // show_more_rows_success
 
 function show_more_rows_error(jqxhr, textStatus, errorThrown, debug) {
