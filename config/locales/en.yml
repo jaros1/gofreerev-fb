@@ -659,6 +659,7 @@ en:
         direction_receiver: "%{username} seeks"
         direction_giver_and_receiver: "from %{givername} to %{receivername}"
         gift_text_html: " : %{text}" # text is sanitized. Only todo tags is allowed
+        show_more_text: "Show more text"
         # 12 balance title keys. Documentation for balance calculation.
         # variables: new_balance, old_balance, sign_price, price, exchange_rate, sign_negative_interest, negative_interest,
         #            sign_currency_gain_loss, currency_gain_loss, new_currency, old_currency and number_of_days
