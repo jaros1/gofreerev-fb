@@ -547,3 +547,428 @@
      shorter text on small screen - longer text on wide screen
      I would be nice if JS could handle display text lengths
 
+140) class "wrapword" does not work in 12.16
+     .wrapword{
+         white-space: -moz-pre-wrap !important;  /* Mozilla, since 1999 */
+         white-space: -o-pre-wrap;    /* Opera 7 */
+         white-space: pre-wrap;       /* css-3 */
+         word-wrap: break-word;       /* Internet Explorer 5.5+ */
+         word-break: break-all;
+         white-space: normal;
+     }
+
+141) problem with ie10 new gift with very large text.
+     submit bottom is moved under text area on wide pc screen
+
+142) show-more-link is used for pictures.
+     should only by used for text part of gift.
+
+143) autoremove max height if text if only a bit heigher than max heigt
+
+144) force a space after "-" in show more text link (gifts/index page)
+
+145) opera 12, gifts/index page
+     gift text starts inside empty receiver user div
+     that is - table layout is not respected
+
+146) opera 12 - check errors - 111 errors :
+            Invalid value for property: white-space
+          white-space: -moz-pre-wrap !important;  /* Mozilla, since 1999 */
+      ------------------------------------------^	Linked-in stylesheet	application.css:66
+            Invalid value for property: white-space
+          white-space: -o-pre-wrap;    /* Opera 7 */
+      -----------------------------^	Linked-in stylesheet	application.css:67
+            word-break is an unknown property
+          word-break: break-all;
+      ---------------^	Linked-in stylesheet	application.css:70
+            -ms-text-size-adjust is an unknown property
+          -ms-text-size-adjust: 100%; /* 2 */
+      -------------------------^	Linked-in stylesheet	normalize.css:69
+            -webkit-text-size-adjust is an unknown property
+          -webkit-text-size-adjust: 100%; /* 2 */
+      -----------------------------^	Linked-in stylesheet	normalize.css:70
+            -moz-box-sizing is an unknown property
+          -moz-box-sizing: content-box;
+      --------------------^	Linked-in stylesheet	normalize.css:154
+            -webkit-appearance is an unknown property
+          -webkit-appearance: button; /* 2 */
+      -----------------------^	Linked-in stylesheet	normalize.css:329
+            -webkit-appearance is an unknown property
+          -webkit-appearance: textfield; /* 1 */
+      -----------------------^	Linked-in stylesheet	normalize.css:360
+            -moz-box-sizing is an unknown property
+          -moz-box-sizing: content-box;
+      --------------------^	Linked-in stylesheet	normalize.css:361
+            -webkit-box-sizing is an unknown property
+          -webkit-box-sizing: content-box; /* 2 */
+      -----------------------^	Linked-in stylesheet	normalize.css:362
+            "::" not followed by known pseudo element
+      input[type="search"]::-webkit-search-cancel-button,
+      --------------------------------------------------^	Linked-in stylesheet	normalize.css:371
+            "::" not followed by known pseudo element
+      input[type="search"]::-webkit-search-decoration {
+      -----------------------------------------------^	Linked-in stylesheet	normalize.css:372
+            -webkit-appearance is an unknown property
+          -webkit-appearance: none;
+      -----------------------^	Linked-in stylesheet	normalize.css:373
+            "::" not followed by known pseudo element
+      button::-moz-focus-inner,
+      ------------------------^	Linked-in stylesheet	normalize.css:380
+            "::" not followed by known pseudo element
+      input::-moz-focus-inner {
+      -----------------------^	Linked-in stylesheet	normalize.css:381
+            Unknown pseudo class
+      *,:x
+      ----^	HTML style attribute	HTML style attribute:1
+            Invalid value for property: zoom
+      border:0;margin:0;width:1px;padding:1px;display:inline;zoom:1
+      -------------------------------------------------------------^	HTML style attribute	auth:1
+            Invalid value for property: zoom
+      1
+      -^	DOM style property	auth:1
+            text-wrap is an unknown property
+      text-wrap: none
+      ----------^	HTML style attribute	en:1
+            -ms-text-size-adjust is an unknown property
+          -ms-text-size-adjust: 100%; /* 2 */
+      -------------------------^	Linked-in stylesheet	normalize.css:69
+            -webkit-text-size-adjust is an unknown property
+          -webkit-text-size-adjust: 100%; /* 2 */
+      -----------------------------^	Linked-in stylesheet	normalize.css:70
+            -moz-box-sizing is an unknown property
+          -moz-box-sizing: content-box;
+      --------------------^	Linked-in stylesheet	normalize.css:154
+            -webkit-appearance is an unknown property
+          -webkit-appearance: button; /* 2 */
+      -----------------------^	Linked-in stylesheet	normalize.css:329
+            -webkit-appearance is an unknown property
+          -webkit-appearance: textfield; /* 1 */
+      -----------------------^	Linked-in stylesheet	normalize.css:360
+            -moz-box-sizing is an unknown property
+          -moz-box-sizing: content-box;
+      --------------------^	Linked-in stylesheet	normalize.css:361
+            -webkit-box-sizing is an unknown property
+          -webkit-box-sizing: content-box; /* 2 */
+      -----------------------^	Linked-in stylesheet	normalize.css:362
+            "::" not followed by known pseudo element
+      input[type="search"]::-webkit-search-cancel-button,
+      --------------------------------------------------^	Linked-in stylesheet	normalize.css:371
+            "::" not followed by known pseudo element
+      input[type="search"]::-webkit-search-decoration {
+      -----------------------------------------------^	Linked-in stylesheet	normalize.css:372
+            -webkit-appearance is an unknown property
+          -webkit-appearance: none;
+      -----------------------^	Linked-in stylesheet	normalize.css:373
+            "::" not followed by known pseudo element
+      button::-moz-focus-inner,
+      ------------------------^	Linked-in stylesheet	normalize.css:380
+            "::" not followed by known pseudo element
+      input::-moz-focus-inner {
+      -----------------------^	Linked-in stylesheet	normalize.css:381
+            Invalid value for property: white-space
+          white-space: -moz-pre-wrap !important;  /* Mozilla, since 1999 */
+      ------------------------------------------^	Linked-in stylesheet	application.css:66
+            Invalid value for property: white-space
+          white-space: -o-pre-wrap;    /* Opera 7 */
+      -----------------------------^	Linked-in stylesheet	application.css:67
+            word-break is an unknown property
+          word-break: break-all;
+      ---------------^	Linked-in stylesheet	application.css:70
+            Unknown pseudo class
+      *,:x
+      ----^	HTML style attribute	HTML style attribute:1
+            Invalid value for property: zoom
+      border:0;margin:0;width:1px;padding:1px;display:inline;zoom:1
+      -------------------------------------------------------------^	HTML style attribute	en:1
+            Invalid value for property: zoom
+      1
+      -^	DOM style property	en:1
+            text-wrap is an unknown property
+      text-wrap: none
+      ----------^	HTML style attribute	en:1
+            Invalid value for property: white-space
+          white-space: -moz-pre-wrap !important;  /* Mozilla, since 1999 */
+      ------------------------------------------^	Linked-in stylesheet	application.css:67
+            Invalid value for property: white-space
+          white-space: -o-pre-wrap;    /* Opera 7 */
+      -----------------------------^	Linked-in stylesheet	application.css:68
+            word-break is an unknown property
+          word-break: break-all;
+      ---------------^	Linked-in stylesheet	application.css:73
+            Unknown pseudo class
+      *,:x
+      ----^	HTML style attribute	HTML style attribute:1
+            -ms-text-size-adjust is an unknown property
+          -ms-text-size-adjust: 100%; /* 2 */
+      -------------------------^	Linked-in stylesheet	normalize.css:69
+            -webkit-text-size-adjust is an unknown property
+          -webkit-text-size-adjust: 100%; /* 2 */
+      -----------------------------^	Linked-in stylesheet	normalize.css:70
+            -moz-box-sizing is an unknown property
+          -moz-box-sizing: content-box;
+      --------------------^	Linked-in stylesheet	normalize.css:154
+            -webkit-appearance is an unknown property
+          -webkit-appearance: button; /* 2 */
+      -----------------------^	Linked-in stylesheet	normalize.css:329
+            -webkit-appearance is an unknown property
+          -webkit-appearance: textfield; /* 1 */
+      -----------------------^	Linked-in stylesheet	normalize.css:360
+            -moz-box-sizing is an unknown property
+          -moz-box-sizing: content-box;
+      --------------------^	Linked-in stylesheet	normalize.css:361
+            -webkit-box-sizing is an unknown property
+          -webkit-box-sizing: content-box; /* 2 */
+      -----------------------^	Linked-in stylesheet	normalize.css:362
+            "::" not followed by known pseudo element
+      input[type="search"]::-webkit-search-cancel-button,
+      --------------------------------------------------^	Linked-in stylesheet	normalize.css:371
+            "::" not followed by known pseudo element
+      input[type="search"]::-webkit-search-decoration {
+      -----------------------------------------------^	Linked-in stylesheet	normalize.css:372
+            -webkit-appearance is an unknown property
+          -webkit-appearance: none;
+      -----------------------^	Linked-in stylesheet	normalize.css:373
+            "::" not followed by known pseudo element
+      button::-moz-focus-inner,
+      ------------------------^	Linked-in stylesheet	normalize.css:380
+            "::" not followed by known pseudo element
+      input::-moz-focus-inner {
+      -----------------------^	Linked-in stylesheet	normalize.css:381
+            Invalid value for property: zoom
+      border:0;margin:0;width:1px;padding:1px;display:inline;zoom:1
+      -------------------------------------------------------------^	HTML style attribute	en:1
+            Invalid value for property: zoom
+      1
+      -^	DOM style property	en:1
+            text-wrap is an unknown property
+      text-wrap: none
+      ----------^	HTML style attribute	gifts:1
+            Invalid value for property: white-space
+          white-space: -moz-pre-wrap !important;  /* Mozilla, since 1999 */
+      ------------------------------------------^	Linked-in stylesheet	application.css:67
+            Invalid value for property: white-space
+          white-space: -o-pre-wrap;    /* Opera 7 */
+      -----------------------------^	Linked-in stylesheet	application.css:68
+            word-break is an unknown property
+          word-break: break-all;
+      ---------------^	Linked-in stylesheet	application.css:73
+            Unknown pseudo class
+      *,:x
+      ----^	HTML style attribute	HTML style attribute:1
+            -ms-text-size-adjust is an unknown property
+          -ms-text-size-adjust: 100%; /* 2 */
+      -------------------------^	Linked-in stylesheet	normalize.css:69
+            -webkit-text-size-adjust is an unknown property
+          -webkit-text-size-adjust: 100%; /* 2 */
+      -----------------------------^	Linked-in stylesheet	normalize.css:70
+            -moz-box-sizing is an unknown property
+          -moz-box-sizing: content-box;
+      --------------------^	Linked-in stylesheet	normalize.css:154
+            -webkit-appearance is an unknown property
+          -webkit-appearance: button; /* 2 */
+      -----------------------^	Linked-in stylesheet	normalize.css:329
+            -webkit-appearance is an unknown property
+          -webkit-appearance: textfield; /* 1 */
+      -----------------------^	Linked-in stylesheet	normalize.css:360
+            -moz-box-sizing is an unknown property
+          -moz-box-sizing: content-box;
+      --------------------^	Linked-in stylesheet	normalize.css:361
+            -webkit-box-sizing is an unknown property
+          -webkit-box-sizing: content-box; /* 2 */
+      -----------------------^	Linked-in stylesheet	normalize.css:362
+            "::" not followed by known pseudo element
+      input[type="search"]::-webkit-search-cancel-button,
+      --------------------------------------------------^	Linked-in stylesheet	normalize.css:371
+            "::" not followed by known pseudo element
+      input[type="search"]::-webkit-search-decoration {
+      -----------------------------------------------^	Linked-in stylesheet	normalize.css:372
+            -webkit-appearance is an unknown property
+          -webkit-appearance: none;
+      -----------------------^	Linked-in stylesheet	normalize.css:373
+            "::" not followed by known pseudo element
+      button::-moz-focus-inner,
+      ------------------------^	Linked-in stylesheet	normalize.css:380
+            "::" not followed by known pseudo element
+      input::-moz-focus-inner {
+      -----------------------^	Linked-in stylesheet	normalize.css:381
+            Invalid value for property: zoom
+      border:0;margin:0;width:1px;padding:1px;display:inline;zoom:1
+      -------------------------------------------------------------^	HTML style attribute	gifts:1
+            Invalid value for property: zoom
+      1
+      -^	DOM style property	gifts:1
+            text-wrap is an unknown property
+      text-wrap: none
+      ----------^	HTML style attribute	gifts:1
+            Invalid value for property: white-space
+          white-space: -moz-pre-wrap !important;  /* Mozilla, since 1999 */
+      ------------------------------------------^	Linked-in stylesheet	application.css:67
+            word-break is an unknown property
+          word-break: break-all;
+      ---------------^	Linked-in stylesheet	application.css:72
+            Unknown pseudo class
+      *,:x
+      ----^	HTML style attribute	HTML style attribute:1
+            -ms-text-size-adjust is an unknown property
+          -ms-text-size-adjust: 100%; /* 2 */
+      -------------------------^	Linked-in stylesheet	normalize.css:69
+            -webkit-text-size-adjust is an unknown property
+          -webkit-text-size-adjust: 100%; /* 2 */
+      -----------------------------^	Linked-in stylesheet	normalize.css:70
+            -moz-box-sizing is an unknown property
+          -moz-box-sizing: content-box;
+      --------------------^	Linked-in stylesheet	normalize.css:154
+            -webkit-appearance is an unknown property
+          -webkit-appearance: button; /* 2 */
+      -----------------------^	Linked-in stylesheet	normalize.css:329
+            -webkit-appearance is an unknown property
+          -webkit-appearance: textfield; /* 1 */
+      -----------------------^	Linked-in stylesheet	normalize.css:360
+            -moz-box-sizing is an unknown property
+          -moz-box-sizing: content-box;
+      --------------------^	Linked-in stylesheet	normalize.css:361
+            -webkit-box-sizing is an unknown property
+          -webkit-box-sizing: content-box; /* 2 */
+      -----------------------^	Linked-in stylesheet	normalize.css:362
+            "::" not followed by known pseudo element
+      input[type="search"]::-webkit-search-cancel-button,
+      --------------------------------------------------^	Linked-in stylesheet	normalize.css:371
+            "::" not followed by known pseudo element
+      input[type="search"]::-webkit-search-decoration {
+      -----------------------------------------------^	Linked-in stylesheet	normalize.css:372
+            -webkit-appearance is an unknown property
+          -webkit-appearance: none;
+      -----------------------^	Linked-in stylesheet	normalize.css:373
+            "::" not followed by known pseudo element
+      button::-moz-focus-inner,
+      ------------------------^	Linked-in stylesheet	normalize.css:380
+            "::" not followed by known pseudo element
+      input::-moz-focus-inner {
+      -----------------------^	Linked-in stylesheet	normalize.css:381
+            Invalid value for property: zoom
+      border:0;margin:0;width:1px;padding:1px;display:inline;zoom:1
+      -------------------------------------------------------------^	HTML style attribute	gifts:1
+            Invalid value for property: zoom
+      1
+      -^	DOM style property	gifts:1
+            text-wrap is an unknown property
+      text-wrap: none
+      ----------^	HTML style attribute	gifts:1
+            Invalid value for property: white-space
+          white-space: -moz-pre-wrap !important;  /* Mozilla, since 1999 */
+      ------------------------------------------^	Linked-in stylesheet	application.css:67
+            word-break is an unknown property
+          word-break: break-all;
+      ---------------^	Linked-in stylesheet	application.css:72
+            Unknown pseudo class
+      *,:x
+      ----^	HTML style attribute	HTML style attribute:1
+            -ms-text-size-adjust is an unknown property
+          -ms-text-size-adjust: 100%; /* 2 */
+      -------------------------^	Linked-in stylesheet	normalize.css:69
+            -webkit-text-size-adjust is an unknown property
+          -webkit-text-size-adjust: 100%; /* 2 */
+      -----------------------------^	Linked-in stylesheet	normalize.css:70
+            -moz-box-sizing is an unknown property
+          -moz-box-sizing: content-box;
+      --------------------^	Linked-in stylesheet	normalize.css:154
+            -webkit-appearance is an unknown property
+          -webkit-appearance: button; /* 2 */
+      -----------------------^	Linked-in stylesheet	normalize.css:329
+            -webkit-appearance is an unknown property
+          -webkit-appearance: textfield; /* 1 */
+      -----------------------^	Linked-in stylesheet	normalize.css:360
+            -moz-box-sizing is an unknown property
+          -moz-box-sizing: content-box;
+      --------------------^	Linked-in stylesheet	normalize.css:361
+            -webkit-box-sizing is an unknown property
+          -webkit-box-sizing: content-box; /* 2 */
+      -----------------------^	Linked-in stylesheet	normalize.css:362
+            "::" not followed by known pseudo element
+      input[type="search"]::-webkit-search-cancel-button,
+      --------------------------------------------------^	Linked-in stylesheet	normalize.css:371
+            "::" not followed by known pseudo element
+      input[type="search"]::-webkit-search-decoration {
+      -----------------------------------------------^	Linked-in stylesheet	normalize.css:372
+            -webkit-appearance is an unknown property
+          -webkit-appearance: none;
+      -----------------------^	Linked-in stylesheet	normalize.css:373
+            "::" not followed by known pseudo element
+      button::-moz-focus-inner,
+      ------------------------^	Linked-in stylesheet	normalize.css:380
+            "::" not followed by known pseudo element
+      input::-moz-focus-inner {
+      -----------------------^	Linked-in stylesheet	normalize.css:381
+            Invalid value for property: zoom
+      border:0;margin:0;width:1px;padding:1px;display:inline;zoom:1
+      -------------------------------------------------------------^	HTML style attribute	gifts:1
+            Invalid value for property: zoom
+      1
+      -^	DOM style property	gifts:1
+
+147) old invalid flash in ajax injected into gifts/index page
+     "Opslag opretter her og på din facebook væg. Foto blev uploaded til din facebook væg, men Gofreerev mangler rettigheder til at se billedet på din facebook væg og kan derfor ikke vise foto herinde. Måske du har ændret rettighedsindstillinger for Gofreerev."
+     key fb_pic_post_unknown_problem
+     problem is in get_api_picture_url_facebook
+     called from /util/missing_api_picture_urls.js
+     should only check pictures - should not ajax inject error messages into gifts/index page
+     error message could come already when posting on wall
+     not after next refresh page
+
+148) check css errors in other browsers.
+
+149) firefox :
+        19:00:49.251 GET http://localhost/da/gifts [HTTP/1.1 304 Not Modified  1748ms]
+        19:00:49.253 reflow: 0.77ms
+        19:00:51.205 reflow: 0ms
+        19:00:50.986 Use of getUserData() or setUserData() is deprecated.  Use WeakMap or element.dataset instead. requestNotifier.js:64
+        19:00:51.209 GET http://localhost/assets/application.css [HTTP/1.1 304 Not Modified  192ms]
+        19:00:51.211 GET http://localhost/assets/normalize.css [HTTP/1.1 304 Not Modified  229ms]
+        19:00:51.213 GET http://localhost/assets/jquery.js [HTTP/1.1 304 Not Modified  266ms]
+        19:00:51.215 GET http://localhost/assets/jquery.turbolinks.js [HTTP/1.1 304 Not Modified  301ms]
+        19:00:51.216 GET http://localhost/assets/jquery.ui.effect.js [HTTP/1.1 304 Not Modified  354ms]
+        19:00:51.218 GET http://localhost/assets/jquery_ujs.js [HTTP/1.1 304 Not Modified  417ms]
+        19:00:51.220 GET http://localhost/assets/jquery.cookie.js [HTTP/1.1 304 Not Modified  391ms]
+        19:00:51.222 GET http://localhost/assets/jquery.form.js [HTTP/1.1 304 Not Modified  459ms]
+        19:00:51.224 GET http://localhost/assets/modernizr.js [HTTP/1.1 304 Not Modified  492ms]
+        19:00:51.226 GET http://localhost/assets/my.js [HTTP/1.1 304 Not Modified  545ms]
+        19:00:51.437 GET http://localhost/assets/application.js [HTTP/1.1 304 Not Modified  690ms]
+        19:00:51.350 Error in parsing value for 'white-space'.  Declaration dropped. application.css:67
+        19:00:51.350 Error in parsing value for 'white-space'.  Declaration dropped. application.css:68
+        19:00:51.481 Unknown property 'box-sizing'.  Declaration dropped. normalize.css:155
+        19:00:51.481 Unknown property 'box-sizing'.  Declaration dropped. normalize.css:349
+        19:00:51.481 Unknown property 'box-sizing'.  Declaration dropped. normalize.css:363
+        19:00:51.481 Unknown pseudo-class or pseudo-element '-webkit-search-cancel-button'.  Ruleset ignored due to bad selector. normalize.css:371
+        19:00:53.071 reflow: 241.12ms
+        19:00:52.065 Unknown property 'text-wrap'.  Declaration dropped. gifts
+        19:00:53.073 reflow: 0.66ms function find_overflow, my.js line 268
+        19:00:53.075 reflow: 1.44ms function find_overflow, my.js line 268
+        19:00:53.077 reflow: 1.29ms function jQuery.fn[method]/<, jquery.js line 10209
+        19:00:53.078 GET http://localhost/gifts [HTTP/1.1 304 Not Modified  1696ms]
+        19:00:55.002 POST http://localhost/util/missing_api_picture_urls.js [HTTP/1.1 200 OK  2299ms]
+        19:00:55.417 reflow: 2.11ms function find_overflow, my.js line 268
+        19:00:55.418 reflow: 2.77ms function find_overflow, my.js line 268
+        19:00:55.419 reflow: 2.21ms function find_overflow, my.js line 293
+        19:00:55.420 reflow: 0.12ms
+        19:00:55.421 reflow: 0.48ms
+        19:00:56.667 reflow: 0.17ms
+        19:00:56.668 reflow: 0.57ms
+
+150) post with picture.
+     show-more-text missing is missing after post.
+     show-more-text is displayed after refresh.
+
+151) gifts/index - show-more-post link
+     picture:
+       N - display together with other gift links
+       Y - display under text - not together with other gift links
+
+152) users/index?friends=me + only one logged in user => go to users/show/xxx
+     or render show as part of users/index page (display filters in top of page)
+
+153) preserve scroll from top when click on show-more-text links
+
+154) users/show?tab=gifts
+     show_more_rows.ajax.error: error. check server log for more information
+     log: RuntimeError (problem with get-more-rows ajax request. expected 1285. found 1296.)
+

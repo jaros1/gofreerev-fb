@@ -267,7 +267,7 @@ class UtilController < ApplicationController
           if api_client
             begin
               # check api wall
-              key, options = get_api_picture_url(api_gift.provider, api_gift, false, api_client)
+              key, options = get_api_picture_url(api_gift.provider, api_gift, false, api_client) # just_posted = false
               #case api_gift.provider
               #  when 'facebook'
               #    key, options = get_api_picture_url_facebook(api_gift, false, api_client)
@@ -1471,7 +1471,12 @@ class UtilController < ApplicationController
           login_user.get_permissions_facebook(api_client)
         end
         if login_user.read_gifts_allowed?
-          # error - this should not happen.
+          if !just_posted
+            # called from missing_api_picture_urls - user has deleted post on api wall
+            logger.debug2 "user has deleted post on api wall - ok"
+            return nil
+          end
+          # just posted + read permission to call - error - this should not happen.
           key = api_gift.picture? ? '.fb_pic_post_unknown_problem' : '.fb_msg_post_unknown_problem'
           return [key, {:appname => APP_NAME, :apiname => login_user.apiname}]
         else
@@ -1932,7 +1937,7 @@ class UtilController < ApplicationController
       # check read permissioin to gift and get picture url with best size > 200 x 200
       # must have read access to post on flickr wall to display picture in gofreerev
       # 1) use api_gift.api_gift_id to get object_id (picture size in first request is too small)
-      key, options = get_api_picture_url(provider, api_gift, true, api_client)
+      key, options = get_api_picture_url(provider, api_gift, true, api_client) # just_posted = true
       return [key, options] if key
 
       # post ok and no permission problems

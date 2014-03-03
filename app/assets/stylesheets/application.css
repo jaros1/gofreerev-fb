@@ -61,6 +61,7 @@ form {
     height: 100px;
 }
 
+/* cross browser break word - todo: is not working for opera 12 */
 .wrapword{
     white-space: -moz-pre-wrap !important;  /* Mozilla, since 1999 */
     white-space: -o-pre-wrap;    /* Opera 7 */
@@ -69,9 +70,6 @@ form {
     word-break: break-all;
     white-space: normal;
 }
-
-
-
 
 /* responsive header. show/hide username/api and/or balance/currency information in page header */
 @media screen and (max-width: 440px) {

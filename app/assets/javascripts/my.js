@@ -718,6 +718,7 @@ function insert_update_gifts (tasks_sleep)
     } // for
     // that's it
 
+    add2log(pgm + 'call find_overflow') ;
     find_overflow();
 
     add2log(pgm + 'ajax_tasks_sleep = ' + tasks_sleep) ;
