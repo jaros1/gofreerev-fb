@@ -966,9 +966,6 @@
 152) users/index?friends=me + only one logged in user => go to users/show/xxx
      or render show as part of users/index page (display filters in top of page)
 
-153) preserve scroll from top when click on show-more-text links
-
 154) users/show?tab=gifts
      show_more_rows.ajax.error: error. check server log for more information
      log: RuntimeError (problem with get-more-rows ajax request. expected 1285. found 1296.)
-

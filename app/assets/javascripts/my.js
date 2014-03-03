@@ -221,25 +221,29 @@ function show_overflow(overflow_link) {
     var link_id = overflow_link.id ;
     if (!link_id) {
         add2log(pgm + 'overflow link without id') ;
-        return ;
+        return false ;
     }
     var link_id_split = link_id.split('-') ;
     var pos = link_id_split.length-1 ;
     if (link_id_split[pos] != 'link') {
         add2log(pgm + 'overflow link id ' + link_id + ' is invalid') ;
-        return ;
+        return false ;
     } // error - id should be gift-<nnn>-overflow-link
     link_id_split[pos] = 'text' ;
     var text_id = link_id_split.join('-') ;
     var overflow_text = document.getElementById(text_id) ;
     if (!overflow_text) {
         add2log(pgm + 'overflow text id ' + text_id + ' was not found') ;
-        return ;
+        return false ;
     } // error - overflow text was not found
+    // var tempScrollTop = $(window).scrollTop();
+    // add2log(pgm + 'empScrollTop = ' + tempScrollTop) ;
     overflow_link.display = 'none' ;
     overflow_text.style.maxHeight = 'none' ;
     overflow_text.style.overflow = 'visible' ;
     overflow_link.style.display = 'none' ;
+    // $(window).scrollTop(tempScrollTop);
+    return false ;
 } // show_overflow
 
 // find div with overflow - show link
