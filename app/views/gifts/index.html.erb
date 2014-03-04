@@ -21,7 +21,7 @@
 <%# create new gift form -%>
 <div style="width: 100%"><%= t '.create_gift_header_line' %></div>
 <div style="width: 100%">
-  <%= form_for @gift, :html => {:enctype => 'multipart/form-data', :id => 'new_gift'} do |f| -%>
+  <%= form_for @gift, :html => {:enctype => 'multipart/form-data', :id => 'new_gift'}, :format => :js do |f| -%>
       <table>
         <tr title="<%= t '.price_title', :min_interest => NEG_INT_POS_BALANCE_PER_YEAR, :max_interest => NEG_INT_NEG_BALANCE_PER_YEAR %>">
           <td><%= t '.price_prompt' %></td>

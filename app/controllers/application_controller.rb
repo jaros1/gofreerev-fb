@@ -389,7 +389,10 @@ class ApplicationController < ActionController::Base
   private
   def format_ajax_response
     respond_to do |format|
-      format.js { render :content_type => "text/javascript" }
+      # fix for ie8/ie9 error (xxx.js.erb response is being downloaded instead of executed)
+      # "to help protect your security internet explorer blocked this site from downloading files to your computer"
+      format.js { render :content_type => "text/plain" }
+      # format.js {  }
     end
     nil
   end

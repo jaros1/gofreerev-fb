@@ -1,6 +1,31 @@
 // some global JS variables - see app layout and shared/show_more_rows partial
 // var debug_ajax, get_more_rows_interval, get_more_rows_table ;
 
+// fix missing Array.indexOf in IE8
+// http://stackoverflow.com/questions/3629183/why-doesnt-indexof-work-on-an-array-ie8
+if (!Array.prototype.indexOf)
+{
+    Array.prototype.indexOf = function(elt /*, from*/)
+    {
+        var len = this.length >>> 0;
+
+        var from = Number(arguments[1]) || 0;
+        from = (from < 0)
+            ? Math.ceil(from)
+            : Math.floor(from);
+        if (from < 0)
+            from += len;
+
+        for (; from < len; from++)
+        {
+            if (from in this &&
+                this[from] === elt)
+                return from;
+        }
+        return -1;
+    };
+}
+
 // freeze user_currency when user enters text for new gift (auto submit when currency changes)
 function gifts_index_disabled_user_currency() {
     var currency_id;
@@ -677,108 +702,135 @@ function insert_new_comments() {
 function insert_update_gifts (tasks_sleep)
 {
     var pgm = 'insert_update_gifts: ' ;
-    // process ajax response received from new_messages_count ajax request
-    // response has been inserted in new_messages_buffer_div in page header
-    // also used after util/accept_new_deal to ajax replace gift
-    // add2log('insert_update_gifts: start') ;
+    var debug ;
+    try {
+        debug = 10 ;
+        add2log(pgm + 'start') ;
+        // process ajax response received from new_messages_count ajax request
+        // response has been inserted in new_messages_buffer_div in page header
+        // also used after util/accept_new_deal to ajax replace gift
+        // add2log('insert_update_gifts: start') ;
 
-    // check/update newest_gift_id (id for latest created gift)
-    var new_newest_gift_id = document.getElementById("new-newest-gift-id") ; // from new_messages_buffer_div
-    if (!new_newest_gift_id) return ; // ok - not gifts/index page or no new/updated/deleted gifts
-    if  (new_newest_gift_id.value != "") {
-        // util/new_message_count returned new newest giftid
-        var newest_gift_id = document.getElementById("newest-gift-id") ;
-        if (!newest_gift_id) return // error - hidden field was not found i gifts/index page - ignore error silently
-        newest_gift_id.value = new_newest_gift_id.value ;
-    }
+        // check/update newest_gift_id (id for latest created gift)
+        debug = 20 ;
+        var new_newest_gift_id = document.getElementById("new-newest-gift-id") ; // from new_messages_buffer_div
+        if (!new_newest_gift_id) return ; // ok - not gifts/index page or no new/updated/deleted gifts
+        if  (new_newest_gift_id.value != "") {
+            // util/new_message_count returned new newest giftid
+            var newest_gift_id = document.getElementById("newest-gift-id") ;
+            if (!newest_gift_id) return // error - hidden field was not found i gifts/index page - ignore error silently
+            newest_gift_id.value = new_newest_gift_id.value ;
+        }
 
-    // check/update newest_status_update_at (stamp for latest updated or deleted gift )
-    var new_newest_status_update_at = document.getElementById("new-newest-status-update-at") ; // from new_messages_buffer_div
-    if (!new_newest_status_update_at) return ; // ok - not gifts/index page or no new/updated/deleted gifts
-    if  (new_newest_status_update_at.value != "") {
-        // util/new_message_count returned new newest status_update_at
-        var newest_status_update_at = document.getElementById("newest-status-update-at") ;
-        if (!newest_status_update_at) return // error - hidden field was not found i gifts/index page - ignore error silently
-        newest_status_update_at.value = new_newest_status_update_at.value ;
-    }
+        // check/update newest_status_update_at (stamp for latest updated or deleted gift )
+        debug = 30 ;
+        var new_newest_status_update_at = document.getElementById("new-newest-status-update-at") ; // from new_messages_buffer_div
+        if (!new_newest_status_update_at) return ; // ok - not gifts/index page or no new/updated/deleted gifts
+        if  (new_newest_status_update_at.value != "") {
+            // util/new_message_count returned new newest status_update_at
+            var newest_status_update_at = document.getElementById("newest-status-update-at") ;
+            if (!newest_status_update_at) return // error - hidden field was not found i gifts/index page - ignore error silently
+            newest_status_update_at.value = new_newest_status_update_at.value ;
+        }
 
-    // check if new_messages_count response has a table with new gifts (new_messages_buffer_div in page header)
-    var new_gifts_tbody = document.getElementById("new_gifts_tbody") ;
-    if (!new_gifts_tbody) return ; // ok - not gifts/index page or no new gifts to error tbody with new gifts was not found
-    // find gift ids received in new_gifts_tbody table. Any existing old rows with these gift ids must be removed before inserting new rows
-    var new_gifts_trs = new_gifts_tbody.rows ;
-    var new_gifts_tr ;
-    var new_gifts_id ;
-    var new_gifts_gift_id ;
-    var new_gifts_ids = [] ;
-    var re = new RegExp('^gift-[0-9]+-') ;
-    for (var i=0 ; i<new_gifts_trs.length ; i++) {
-        new_gifts_id = new_gifts_trs[i].id ;
-        if (new_gifts_id && new_gifts_id.match(re)) {
-            new_gifts_gift_id = new_gifts_id.split('-')[1] ;
-            if (new_gifts_ids.indexOf(new_gifts_gift_id) == -1) new_gifts_ids.push(new_gifts_gift_id) ;
-        } // if
-    } // for
-    // alert('new_gifts_trs.length = ' + new_gifts_trs.length + ', new_gifts_ids = ' + new_gifts_ids.join(',')) ;
-    // old page: find first gift row in gifts table. id format gift-220-header.
-    // new gifts from ajax response are to be inserted before this row
-    var old_gifts_table = document.getElementById("gifts") ;
-    if (!old_gifts_table) return ; // not gifts/index or gifts/show pages - ok
-    var old_gifts_trs = old_gifts_table.rows ;
-    var old_gifts_tr ;
-    var old_gifts_id ;
-    var old_gifts_gift_id ;
-    if (new_gifts_ids.length > 0) {
-        // remove any old gift rows found in new_gifts_ids array
-        // will be replaced by new gift rows from new_messages_buffer_div
-        for (i=old_gifts_trs.length-1 ; i>= 0 ; i--) {
-            old_gifts_tr = old_gifts_trs[i] ;
-            old_gifts_id = old_gifts_tr.id ;
-            if (old_gifts_id && old_gifts_id.match(re)) {
-                old_gifts_gift_id = old_gifts_id.split('-')[1] ;
-                if (new_gifts_ids.indexOf(old_gifts_gift_id) != -1) {
-                    // remove old row with gift id. old_gifts_gift_id from gifts table
-                    old_gifts_tr.parentNode.removeChild(old_gifts_tr) ;
-                } // if
+        // check if new_messages_count response has a table with new gifts (new_messages_buffer_div in page header)
+        debug = 40 ;
+        var new_gifts_tbody = document.getElementById("new_gifts_tbody") ;
+        if (!new_gifts_tbody) return ; // ok - not gifts/index page or no new gifts to error tbody with new gifts was not found
+        // find gift ids received in new_gifts_tbody table. Any existing old rows with these gift ids must be removed before inserting new rows
+        var new_gifts_trs = new_gifts_tbody.rows ;
+        var new_gifts_tr ;
+        var new_gifts_id ;
+        var new_gifts_gift_id ;
+        var new_gifts_ids = [] ;
+        var re = new RegExp('^gift-[0-9]+-') ;
+        debug = 50 ;
+        for (var i=0 ; i<new_gifts_trs.length ; i++) {
+            debug = 51 ;
+            new_gifts_id = new_gifts_trs[i].id ;
+            debug = 52 ;
+            if (new_gifts_id && new_gifts_id.match(re)) {
+                debug = 53 ;
+                new_gifts_gift_id = new_gifts_id.split('-')[1] ;
+                debug = 54 ;
+                if (new_gifts_ids.indexOf(new_gifts_gift_id) == -1) {
+                    debug = 55 ;
+                    new_gifts_ids.push(new_gifts_gift_id) ;
+                }
             } // if
         } // for
-    } // if
-    add2log(pgm + old_gifts_trs.length + ' gifts lines in old page') ;
-    var old_gifts_index = -1 ;
-    for (var i=0 ; ((old_gifts_index == -1) && (i<old_gifts_trs.length)) ; i++) {
-        if (old_gifts_trs[i].id.match(re)) old_gifts_index = i ;
-    } // for
-    // add2log(pgm + 'old_gifts_index = ' + old_gifts_index) ;
-    // check for first row to be inserted in gifts table - for example for a new gofreerev user
-    if ((old_gifts_index == -1) && (old_gifts_trs.length >= 1) && (old_gifts_trs.length <= 2)) old_gifts_index = old_gifts_trs.length-1 ;
-    // add2log(pgm + 'old_gifts_index = ' + old_gifts_index) ;
-    if (old_gifts_index == -1) {
-        // error - id with format format gift-<999>-1 was not found - ignore error silently
-        add2log(pgm + 'error - id with format format gift-<999>- was not found') ;
-        return ;
-    }
-    var first_old_gift_tr = old_gifts_trs[old_gifts_index] ;
-    var old_gifts_tbody = first_old_gift_tr.parentNode ;
-    // new gifts from ajax response are to be inserted before first_old_gift_tr
-    for (i=new_gifts_trs.length-1 ; i>= 0 ; i--) {
-        new_gifts_tr = new_gifts_trs[i] ;
-        if (new_gifts_tr.id.match(re)) {
-            // insert before "first_old_gift_tr" and move "first_old_gift_tr" to new inserted row
-            new_gifts_tr.parentNode.removeChild(new_gifts_tr) ;
-            old_gifts_tbody.insertBefore(new_gifts_tr, first_old_gift_tr) ;
-            first_old_gift_tr = new_gifts_tr ;
-            ajax_flash(first_old_gift_tr.id) ;
+        // alert('new_gifts_trs.length = ' + new_gifts_trs.length + ', new_gifts_ids = ' + new_gifts_ids.join(',')) ;
+        // old page: find first gift row in gifts table. id format gift-220-header.
+        // new gifts from ajax response are to be inserted before this row
+        debug = 60 ;
+        var old_gifts_table = document.getElementById("gifts") ;
+        if (!old_gifts_table) return ; // not gifts/index or gifts/show pages - ok
+        var old_gifts_trs = old_gifts_table.rows ;
+        var old_gifts_tr ;
+        var old_gifts_id ;
+        var old_gifts_gift_id ;
+        debug = 70 ;
+        if (new_gifts_ids.length > 0) {
+            // remove any old gift rows found in new_gifts_ids array
+            // will be replaced by new gift rows from new_messages_buffer_div
+            for (i=old_gifts_trs.length-1 ; i>= 0 ; i--) {
+                old_gifts_tr = old_gifts_trs[i] ;
+                old_gifts_id = old_gifts_tr.id ;
+                if (old_gifts_id && old_gifts_id.match(re)) {
+                    old_gifts_gift_id = old_gifts_id.split('-')[1] ;
+                    if (new_gifts_ids.indexOf(old_gifts_gift_id) != -1) {
+                        // remove old row with gift id. old_gifts_gift_id from gifts table
+                        old_gifts_tr.parentNode.removeChild(old_gifts_tr) ;
+                    } // if
+                } // if
+            } // for
         } // if
-    } // for
-    // that's it
+        debug = 80 ;
+        add2log(pgm + old_gifts_trs.length + ' gifts lines in old page') ;
+        var old_gifts_index = -1 ;
+        for (var i=0 ; ((old_gifts_index == -1) && (i<old_gifts_trs.length)) ; i++) {
+            if (old_gifts_trs[i].id.match(re)) old_gifts_index = i ;
+        } // for
+        // add2log(pgm + 'old_gifts_index = ' + old_gifts_index) ;
+        // check for first row to be inserted in gifts table - for example for a new gofreerev user
+        debug = 90 ;
+        if ((old_gifts_index == -1) && (old_gifts_trs.length >= 1) && (old_gifts_trs.length <= 2)) old_gifts_index = old_gifts_trs.length-1 ;
+        // add2log(pgm + 'old_gifts_index = ' + old_gifts_index) ;
+        if (old_gifts_index == -1) {
+            // error - id with format format gift-<999>-1 was not found - ignore error silently
+            add2log(pgm + 'error - id with format format gift-<999>- was not found') ;
+            return ;
+        }
+        var first_old_gift_tr = old_gifts_trs[old_gifts_index] ;
+        var old_gifts_tbody = first_old_gift_tr.parentNode ;
+        // new gifts from ajax response are to be inserted before first_old_gift_tr
+        debug = 100 ;
+        for (i=new_gifts_trs.length-1 ; i>= 0 ; i--) {
+            new_gifts_tr = new_gifts_trs[i] ;
+            if (new_gifts_tr.id.match(re)) {
+                // insert before "first_old_gift_tr" and move "first_old_gift_tr" to new inserted row
+                new_gifts_tr.parentNode.removeChild(new_gifts_tr) ;
+                old_gifts_tbody.insertBefore(new_gifts_tr, first_old_gift_tr) ;
+                first_old_gift_tr = new_gifts_tr ;
+                ajax_flash(first_old_gift_tr.id) ;
+            } // if
+        } // for
+        // that's it
 
-    add2log(pgm + 'call find_overflow') ;
-    find_overflow();
+        debug = 110 ;
+        add2log(pgm + 'call find_overflow') ;
+        find_overflow();
 
-    add2log(pgm + 'ajax_tasks_sleep = ' + tasks_sleep) ;
-    if (!tasks_sleep) return ;
-    // execute some more tasks - for example post status on api wall(s)
-    trigger_tasks_form(tasks_sleep);
+        add2log(pgm + 'ajax_tasks_sleep = ' + tasks_sleep) ;
+        if (!tasks_sleep) return ;
+        // execute some more tasks - for example post status on api wall(s)
+        debug = 120 ;
+        trigger_tasks_form(tasks_sleep);
+    }
+    catch (e) {
+        add2log(pgm + 'failed with JS exception ' + e + ', debug = ' + debug) ;
+        throw e ;
+    }
 } //  insert_update_gifts
 
 // catch load errors  for api pictures. Gift could have been deleted. url could have been changed
@@ -846,6 +898,7 @@ $(document).ready(function () {
     // bind 'myForm' and provide a simple callback function
     // http://malsup.com/jquery/form/#options-object
     $('#new_gift').ajaxForm({
+        dataType: 'script',
         beforeSubmit: function (formData, jqForm, options) {
             add2log('#new_gift.beforeSubmit');
             var submit_buttons = document.getElementsByName('commit_gift') ;
@@ -853,25 +906,51 @@ $(document).ready(function () {
             for (var i=0 ; i< submit_buttons.length ; i++) submit_buttons[i].disabled = true ;
         },
         success: function (responseText, statusText, xhr, $form) {
-            add2log('#new_gift.success');
-            document.getElementById('progressbar-div').style.display = 'none';
-            var gift_price = document.getElementById('gift_price');
-            if (gift_price) gift_price.value = '';
-            var gift_description = document.getElementById('gift_description');
-            if (gift_description) {
-                gift_description.value = '';
-                autoresize_text_field(gift_description) ;
+            var debug ;
+            try{
+                debug = 1 ;
+                document.getElementById('progressbar-div').style.display = 'none';
+                debug = 2 ;
+                var gift_price = document.getElementById('gift_price');
+                debug = 3 ;
+                if (gift_price) gift_price.value = '';
+                debug = 4 ;
+                var gift_description = document.getElementById('gift_description');
+                debug = 5 ;
+                if (gift_description) {
+                    gift_description.value = '';
+                    autoresize_text_field(gift_description) ;
+                }
+                debug = 6 ;
+                var gift_file = document.getElementById('gift_file');
+                debug = 7 ;
+                if (gift_file) gift_file.value = '';
+                debug = 8 ;
+                var disp_gift_file = document.getElementById('disp_gift_file');
+                debug = 9 ;
+                if (disp_gift_file) disp_gift_file.value = '';
+                debug = 10 ;
+                // first gift for a new gofreerev user - show gifts table - hide no api gift found message
+                var gifts = document.getElementById('gifts');
+                debug = 11 ;
+                if (gifts) gifts.style.display = 'inline';
+                debug = 12 ;
+                var no_gifts_div = document.getElementById('no-gifts-div');
+                debug = 13 ;
+                if (no_gifts_div) no_gifts_div.style.display = 'none';
+                // IE8 debug - JS code from create.js.erb is not executed
+                debug = 14 ;
+                var new_messages_buffer_div = document.getElementById('new_messages_buffer_div') ;
+                debug = 15 ;
+                add2log('new_messages_buffer_div = ' + new_messages_buffer_div.innerHTML) ;
             }
-            var gift_file = document.getElementById('gift_file');
-            if (gift_file) gift_file.value = '';
-            var disp_gift_file = document.getElementById('disp_gift_file');
-            if (disp_gift_file) disp_gift_file.value = '';
-            // first gift for a new gofreerev user - show gifts table - hide no api gift found message
-            var gifts = document.getElementById('gifts');
-            if (gifts) gifts.style.display = 'inline';
-            var no_gifts_div = document.getElementById('no-gifts-div');
-            if (no_gifts_div) no_gifts_div.style.display = 'none';
-        },
+            catch (err) {
+                    var msg = '#new_gift.success failed with JS error: ' + err + ', debug = ' + debug ;
+                    add2log(msg);
+                    add_to_tasks_errors(msg);
+                    return;
+            }
+        }, // success
         error: function (jqxhr, textStatus, errorThrown) {
             document.getElementById('progressbar-div').style.display = 'none';
             add2log('#new_gift.error');

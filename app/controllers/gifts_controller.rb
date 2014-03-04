@@ -192,7 +192,7 @@ class GiftsController < ApplicationController
     # find api gift - api gift with picture is preferred
     api_gift = gift.api_gifts.sort { |a, b| b.picture <=> a.picture}.first
     @api_gifts = ApiGift.where("id = ?", api_gift.id).includes(:gift)
-    # format_ajax_response
+    format_ajax_response
     return
   end # create
 
