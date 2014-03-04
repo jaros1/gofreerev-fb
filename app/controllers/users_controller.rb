@@ -140,6 +140,11 @@ class UsersController < ApplicationController
     @page_values[:friends] = friends_filter
     if @page_values[:friends] == 'me'
       # show logged in users - ignore appuser and apiname filters
+      if @users.size == 1
+        # one and only login user - go direct to users/show page
+        redirect_to :action => :show, :id => @users.first.id
+        return
+      end
       @page_values[:appuser] = @page_values[:apiname] = 'all'
     else
       # appuser filter: yes: show gofreerev users, no: show users that is not using gofreerev, all: show all users (*)

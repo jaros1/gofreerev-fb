@@ -547,25 +547,17 @@
      shorter text on small screen - longer text on wide screen
      I would be nice if JS could handle display text lengths
 
-140) class "wrapword" does not work in 12.16
-     .wrapword{
-         white-space: -moz-pre-wrap !important;  /* Mozilla, since 1999 */
-         white-space: -o-pre-wrap;    /* Opera 7 */
-         white-space: pre-wrap;       /* css-3 */
-         word-wrap: break-word;       /* Internet Explorer 5.5+ */
-         word-break: break-all;
-         white-space: normal;
-     }
+140) css wrapword. word-break: break-all;.
+     works fine on small width screens but do not look nice on wide screens.
+     there has been implemented a workaround for opera 12 that does not support break-all.
+     it could be nice to avoid break-all on wide screens but there would still be a problems with long texts without spaces
+     a possibility could be hyphenator to insert soft hyphen into text: https://code.google.com/p/hyphenator/
+
 
 141) problem with ie10 new gift with very large text.
      submit bottom is moved under text area on wide pc screen
 
-142) show-more-link is used for pictures.
-     should only by used for text part of gift.
-
 143) autoremove max height if text if only a bit heigher than max heigt
-
-144) force a space after "-" in show more text link (gifts/index page)
 
 145) opera 12, gifts/index page
      gift text starts inside empty receiver user div
@@ -918,54 +910,11 @@
 148) check css errors in other browsers.
 
 149) firefox :
-        19:00:49.251 GET http://localhost/da/gifts [HTTP/1.1 304 Not Modified  1748ms]
-        19:00:49.253 reflow: 0.77ms
-        19:00:51.205 reflow: 0ms
         19:00:50.986 Use of getUserData() or setUserData() is deprecated.  Use WeakMap or element.dataset instead. requestNotifier.js:64
-        19:00:51.209 GET http://localhost/assets/application.css [HTTP/1.1 304 Not Modified  192ms]
-        19:00:51.211 GET http://localhost/assets/normalize.css [HTTP/1.1 304 Not Modified  229ms]
-        19:00:51.213 GET http://localhost/assets/jquery.js [HTTP/1.1 304 Not Modified  266ms]
-        19:00:51.215 GET http://localhost/assets/jquery.turbolinks.js [HTTP/1.1 304 Not Modified  301ms]
-        19:00:51.216 GET http://localhost/assets/jquery.ui.effect.js [HTTP/1.1 304 Not Modified  354ms]
-        19:00:51.218 GET http://localhost/assets/jquery_ujs.js [HTTP/1.1 304 Not Modified  417ms]
-        19:00:51.220 GET http://localhost/assets/jquery.cookie.js [HTTP/1.1 304 Not Modified  391ms]
-        19:00:51.222 GET http://localhost/assets/jquery.form.js [HTTP/1.1 304 Not Modified  459ms]
-        19:00:51.224 GET http://localhost/assets/modernizr.js [HTTP/1.1 304 Not Modified  492ms]
-        19:00:51.226 GET http://localhost/assets/my.js [HTTP/1.1 304 Not Modified  545ms]
-        19:00:51.437 GET http://localhost/assets/application.js [HTTP/1.1 304 Not Modified  690ms]
         19:00:51.350 Error in parsing value for 'white-space'.  Declaration dropped. application.css:67
         19:00:51.350 Error in parsing value for 'white-space'.  Declaration dropped. application.css:68
         19:00:51.481 Unknown property 'box-sizing'.  Declaration dropped. normalize.css:155
         19:00:51.481 Unknown property 'box-sizing'.  Declaration dropped. normalize.css:349
         19:00:51.481 Unknown property 'box-sizing'.  Declaration dropped. normalize.css:363
         19:00:51.481 Unknown pseudo-class or pseudo-element '-webkit-search-cancel-button'.  Ruleset ignored due to bad selector. normalize.css:371
-        19:00:53.071 reflow: 241.12ms
         19:00:52.065 Unknown property 'text-wrap'.  Declaration dropped. gifts
-        19:00:53.073 reflow: 0.66ms function find_overflow, my.js line 268
-        19:00:53.075 reflow: 1.44ms function find_overflow, my.js line 268
-        19:00:53.077 reflow: 1.29ms function jQuery.fn[method]/<, jquery.js line 10209
-        19:00:53.078 GET http://localhost/gifts [HTTP/1.1 304 Not Modified  1696ms]
-        19:00:55.002 POST http://localhost/util/missing_api_picture_urls.js [HTTP/1.1 200 OK  2299ms]
-        19:00:55.417 reflow: 2.11ms function find_overflow, my.js line 268
-        19:00:55.418 reflow: 2.77ms function find_overflow, my.js line 268
-        19:00:55.419 reflow: 2.21ms function find_overflow, my.js line 293
-        19:00:55.420 reflow: 0.12ms
-        19:00:55.421 reflow: 0.48ms
-        19:00:56.667 reflow: 0.17ms
-        19:00:56.668 reflow: 0.57ms
-
-150) post with picture.
-     show-more-text missing is missing after post.
-     show-more-text is displayed after refresh.
-
-151) gifts/index - show-more-post link
-     picture:
-       N - display together with other gift links
-       Y - display under text - not together with other gift links
-
-152) users/index?friends=me + only one logged in user => go to users/show/xxx
-     or render show as part of users/index page (display filters in top of page)
-
-154) users/show?tab=gifts
-     show_more_rows.ajax.error: error. check server log for more information
-     log: RuntimeError (problem with get-more-rows ajax request. expected 1285. found 1296.)

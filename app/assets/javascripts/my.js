@@ -211,8 +211,13 @@ function ajax_flash_new_table_rows (tablename, number_of_rows)
 
 
 // long gift description is hidden inside div with max-height and overflow
-// link under gift with long description is used to remove max-height from div (show full text)
+// show-more-text link under text is used to remove max-height from div (show full text)
 // find_overflow is called at startup, after show-more-rows and after ajax injecting new or changed gifts into page
+// class overflow is used to identify text and link in web page
+// expects id <key>-text and <key>-link ( id="gift-1298-overflow-text" and id="gift-1298-overflow-link" )
+// class "wrapword" is used for text. word-break: break-all is used.
+// word-break: break-all works best on small width screens but not on wide screens
+// but it is hard to find a solution that looks good on all devices
 
 // show full text for div with overflow
 function show_overflow(overflow_link) {
@@ -247,11 +252,43 @@ function show_overflow(overflow_link) {
 } // show_overflow
 
 // find div with overflow - show link
+// opera 12 fix for missing word-break=break-all support-
+// insert soft hyphen in div text - expects format link + text
+function hyphenate_div (div) {
+    var pgm = 'find_overflow: ' ;
+    var shy_div = document.createElement('DIV') ;
+    shy_div.innerHTML = '&shy;' ;
+    var shy = shy_div.innerHTML ;
+    var innerHTML = div.innerHTML ;
+    if (innerHTML.indexOf(shy) != -1) return ;
+    var pos = innerHTML.indexOf('</a>') ; // expected format: link + text
+    // add2log(pgm + 'pos = ' + pos) ;
+    var link, text ;
+    if (pos == -1) {
+        link = '' ;
+        text = innerHTML ;
+    }
+    else if (pos + 4 == innerHTML.length) return ;
+    else {
+        link = innerHTML.substr(0, pos+4) ;
+        text = innerHTML.substr(pos+4) ;
+    }
+    text = text.split('').join(shy) ;
+    div.innerHTML = link + text ;
+} // hyphenate_element
+
+// find div with hidden overflow - display show-more-text link
 function find_overflow () {
     var pgm = 'find_overflow: ' ;
+    // fix for old browsers that does not support word break = break all (opera 12).
+    var hyphenate = false ;
+    if (navigator.userAgent.indexOf('Opera/9.80') != -1) hyphenate = true ;
+    if (hyphenate) add2log(pgm + 'hyphenate text (opera 12)') ;
+    var shy_div = document.createElement('DIV') ;
+    shy_div.innerHTML = '&shy;' ;
+    var shy = shy_div.innerHTML ;
+    // find overflow texts and links in page - one array with texts - one array with hidden links
     var divs = document.getElementsByClassName('overflow') ;
-    // add2log(pgm + 'divs.length = ' + divs.length) ;
-    // split overflow in text and link divs
     var overflow_link = {} ;
     var overflow_text = {} ;
     var div, id, id_split, id_type, key, key, div_type ;
@@ -267,7 +304,17 @@ function find_overflow () {
         }
         else add2log(pgm + 'invalid overflow id ' + id) ;
     } // i
-
+    // fix word break = break all in old browser (opera 12) - insert soft hyphen in text
+    if (hyphenate) {
+        for (key in overflow_text) {
+            text = divs[overflow_text[key]] ;
+            if (text.innerHTML.indexOf(shy) == -1) {
+                // add2log(pgm + 'key = ' + key + ', hyphenate ' + text.children.length + ' children') ;
+                hyphenate_div(text) ;
+            }
+        }
+    }
+    // check for vertical hidden overflow - display show-more-text link if overflow
     var text, link, text_max_height ;
     var screen_width = (document.width !== undefined) ? document.width : document.body.offsetWidth;
     var screen_width_factor = screen_width / 320.0 ;
@@ -299,11 +346,12 @@ function find_overflow () {
             skip_keys.push(key) ;
             continue ;
         }
-        if (text.scrollHeight <= text.clientHeight) continue ; // not relevant whis actual screen width
+        if (text.scrollHeight <= text.clientHeight) continue ; // not relevant with actual screen width
         // show link
         link.style.display = '' ;
+        skip_keys.push(key) ;
     } // key
-    // divs not to check next call
+    // blank overflow class for text and links not to check next call (show-more-rows request)
     // add2log('skip_keys = ' + skip_keys.join(', ')) ;
     for (i=0 ; i<skip_keys.length ; i++) {
         key = skip_keys[i] ;
