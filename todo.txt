@@ -918,3 +918,34 @@
         19:00:51.481 Unknown property 'box-sizing'.  Declaration dropped. normalize.css:363
         19:00:51.481 Unknown pseudo-class or pseudo-element '-webkit-search-cancel-button'.  Ruleset ignored due to bad selector. normalize.css:371
         19:00:52.065 Unknown property 'text-wrap'.  Declaration dropped. gifts
+
+150) opera 12: A page on the public internet requests data from your private intranet. For security reasons, automatic access is blocked, but you may choose to continue.
+     problem is not in opera 19 on windows.
+     opera:config#Network|AllowCrossNetworkNavigation
+
+151) cross browser check:
+     https://spoon.net/browsers/
+     IE8 - checking now
+
+153) IE8: getElementsByClassName is not supported.
+     Use document.querySelectorAll('.overflow)
+     check js code for getElementsByClassName usage.
+     if (document.getElementsByClassName) divs = document.getElementsByClassName('overflow') ;
+     else divs = document.querySelectorAll('.overflow') ;
+
+
+154) IE8: there is a problem with main menu in IE 8.
+     both 1 and 2 lines menu is shown.
+
+155) IE8 is downloading gifts.js after post new gift
+     Gift is posted but no message about post in top of gifts/index page
+     It must be a problem in post ajax / ajax:success handling. Check log.
+     same problem for add comment.
+     added format.js { render :content_type => "text/javascript" }
+     ok if answering yes to download (and execute) js file
+     gift and comment links work ok (also post links)
+     check difference in post gift/comment and post links
+     maybe the difference is remote submit form / remote submit link
+
+
+156) IE8: new gift submit bottom is not disabled

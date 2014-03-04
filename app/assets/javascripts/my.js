@@ -288,7 +288,9 @@ function find_overflow () {
     shy_div.innerHTML = '&shy;' ;
     var shy = shy_div.innerHTML ;
     // find overflow texts and links in page - one array with texts - one array with hidden links
-    var divs = document.getElementsByClassName('overflow') ;
+    var divs ;
+    if (document.getElementsByClassName) divs = document.getElementsByClassName('overflow') ;
+    else divs = document.querySelectorAll('.overflow') ;
     var overflow_link = {} ;
     var overflow_text = {} ;
     var div, id, id_split, id_type, key, key, div_type ;
@@ -786,7 +788,9 @@ function insert_update_gifts (tasks_sleep)
 var missing_api_picture_urls = [];
 // function used in onload for img tags
 function imgonload(img) {
-    api_gift_id = img.dataset.id ;
+    var api_gift_id ;
+    if (img.dataset) api_gift_id = img.dataset.id ;
+    else api_gift_id = img.getAttribute('data-id') ;
 //    add2log('imgonload. api gift id = ' + api_gift_id + ', img.width = ' + img.width + ', img.height = ' + img.height +
 //        ', naturalWidth = ' + img.naturalWidth + ', naturalHeight = ' + img.naturalHeight + ', complete = ' + img.complete) ;
     if ((img.width <= 1) && (img.height <= 1)) {
@@ -806,7 +810,9 @@ function imgonload(img) {
 } // imgonload
 // function used in onload for img tags
 function imgonerror(img) {
-    api_gift_id = img.dataset.id ;
+    var api_gift_id ;
+    if (img.dataset) api_gift_id = img.dataset.id ;
+    else api_gift_id = img.getAttribute('data-id') ;
     add2log('imgonerror. api gift id = ' + api_gift_id + ', img.width = ' + img.width + ', img.height = ' + img.height +
         ', naturalWidth = ' + img.naturalWidth + ', naturalHeight = ' + img.naturalHeight + ', complete = ' + img.complete) ;
     missing_api_picture_urls.push(api_gift_id);
@@ -836,7 +842,7 @@ function report_missing_api_picture_urls() {
 $(document).ready(function () {
     var new_gift = document.getElementById('new_gift');
     if (!new_gift) return; // not gifts/index page
-    new_gift.action = '/gifts.js'; // ajax request
+    // new_gift.action = '/gifts.js'; // ajax request
     // bind 'myForm' and provide a simple callback function
     // http://malsup.com/jquery/form/#options-object
     $('#new_gift').ajaxForm({
@@ -1527,18 +1533,18 @@ $(document).ready(function() {
             return;
         }
     }) // click
-    $(id).unbind("ajax:success") ;
-    $(id).bind("ajax:success", function (evt, data, status, xhr) {
-        // find tr for old link, first added row and last added row
-        var pgm = link_id + '.ajax.success: ';
-        try {}
-        catch (err) {
-            var msg = pgm + 'failed with JS error: ' + err;
-            add2log(msg);
-            add_to_tasks_errors(msg);
-            return;
-        }
-    }) ; // ajax:success
+//    $(id).unbind("ajax:success") ;
+//    $(id).bind("ajax:success", function (evt, data, status, xhr) {
+//        // find tr for old link, first added row and last added row
+//        var pgm = link_id + '.ajax.success: ';
+//        try {}
+//        catch (err) {
+//            var msg = pgm + 'failed with JS error: ' + err;
+//            add2log(msg);
+//            add_to_tasks_errors(msg);
+//            return;
+//        }
+//    }) ; // ajax:success
     $(id).unbind("ajax:error") ;
     $(id).bind("ajax:error", function(jqxhr, textStatus, errorThrown){
         var pgm = id + '.ajax.error: ' ;

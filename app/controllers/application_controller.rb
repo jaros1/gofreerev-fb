@@ -389,7 +389,7 @@ class ApplicationController < ActionController::Base
   private
   def format_ajax_response
     respond_to do |format|
-      format.js {}
+      format.js { render :content_type => "text/javascript" }
     end
     nil
   end
