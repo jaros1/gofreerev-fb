@@ -1713,7 +1713,7 @@ function post_ajax_add_new_comment_handler(giftid) {
             // fix for ie8/ie9 error. ajax response from comment/create was not executed
             // content type in comment/create response is now text/plain
             // execute js response
-            add2log(pgm + 'xhr.responseText = ' + xhr['responseText']) ;
+            // add2log(pgm + 'xhr.responseText = ' + xhr['responseText']) ;
             // try { eval(xhr['responseText']) }
             // catch (e) { add2log(pgm + 'JS eval error for xhr.responseText: ' + e) }
             var checkbox, gifts, trs, re, i, new_comment_tr, id2, add_new_comment_tr, tbody;
@@ -1745,10 +1745,10 @@ function post_ajax_add_new_comment_handler(giftid) {
             // move new table row up before add new comment table row
             new_comment_tr.parentNode.removeChild(new_comment_tr);
             var no_gifts = document.getElementById('gifts').rows.length ;
-            add2log(pgm + 'gifts.rows = ' + no_gifts) ;
+            // add2log(pgm + 'gifts.rows = ' + no_gifts) ;
             add_new_comment_tr.parentNode.insertBefore(new_comment_tr, add_new_comment_tr); // error: Node was not found
-            var no_gifts = document.getElementById('gifts').rows.length ;
-            add2log(pgm + 'gifts.rows = ' + no_gifts) ;
+            // var no_gifts = document.getElementById('gifts').rows.length ;
+            // add2log(pgm + 'gifts.rows = ' + no_gifts) ;
             // save timestamp for last new ajax comment
             last_user_ajax_comment_at = new Date();
             restart_check_new_messages();

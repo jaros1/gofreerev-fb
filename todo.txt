@@ -947,5 +947,8 @@
      check difference in post gift/comment and post links
      maybe the difference is remote submit form / remote submit link
 
-
 156) IE8: new gift submit bottom is not disabled
+
+157) deleted comments is included in "show-older-comments" count
+
+158) show older comments link gives error for deleted comments
