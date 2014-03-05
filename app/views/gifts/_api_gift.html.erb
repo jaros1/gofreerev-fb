@@ -76,7 +76,7 @@
         Post ajax processing done in my.js / add_post_ajax_comment_handler
     -%>
         <% comment = Comment.new ; comment.gift_id = gift.gift_id -%>
-        <%= form_for comment, :remote => true, :html => {:id => "gift-#{gift.id}-new-comment-form"}, :format => :js do |f| %>
+        <%= form_for comment, :remote => true, :html => {:id => "gift-#{gift.id}-new-comment-form", :class => 'new_comment' }, :format => :js do |f| %>
             <%= f.hidden_field :gift_id, :id => "gift-#{gift.id}-comment-gift-id" %>
             <%= f.hidden_field :new_deal_yn, :id => "gift-#{gift.id}-comment-new-deal-yn" %>
 
