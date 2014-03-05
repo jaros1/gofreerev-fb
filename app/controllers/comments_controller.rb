@@ -52,6 +52,7 @@ class CommentsController < ApplicationController
 
       # return new comment to browser
       @api_comment = comment.api_comments.shuffle.first
+      format_ajax_response
 
     rescue Exception => e
       logger.error2  "Exception: #{e.message.to_s}"
@@ -172,6 +173,7 @@ class CommentsController < ApplicationController
     table = gift_row_id ? "gift-#{gift_row_id}-comment-new-errors" : "tasks_errors"
     logger.debug2 "table = #{table}, key = #{key}"
     @errors2 << { :msg => t(key, options), :id => table }
+    format_ajax_response
   end
 
   private

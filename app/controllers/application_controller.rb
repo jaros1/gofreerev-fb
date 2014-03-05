@@ -389,8 +389,10 @@ class ApplicationController < ActionController::Base
   private
   def format_ajax_response
     respond_to do |format|
-      # fix for ie8/ie9 error (xxx.js.erb response is being downloaded instead of executed)
-      # "to help protect your security internet explorer blocked this site from downloading files to your computer"
+      # fix for ie8/ie9 error:
+      #  "to help protect your security internet explorer blocked this site from downloading files to your computer"
+      # (x.js.erb response is being downloaded instead of being executed)
+      # only a problem in remote forms (new gifts and new comments)
       format.js { render :content_type => "text/plain" }
       # format.js {  }
     end

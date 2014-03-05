@@ -1,4 +1,5 @@
 <% if @api_comment %>
+<%= puts j(render("api_comment", :api_comment => @api_comment)) -%>
 $('#gifts').append('<%= j render("api_comment", :api_comment => @api_comment) %>');
 <% end %>
 <% if @errors2.size > 0 -%>

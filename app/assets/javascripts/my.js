@@ -1698,10 +1698,20 @@ function create_new_com_errors_table(table_id) {
 // clear comment text area and reset frequency for new message check
 function post_ajax_add_new_comment_handler(giftid) {
     var id = '#gift-' + giftid + '-new-comment-form';
+    // var gifts2 = document.getElementById('gifts') ;
+    // add2log(id + '. old gifts.rows = ' + gifts2.rows.length) ;
     $(id).unbind("ajax:success");
     $(id).bind("ajax:success", function (evt, data, status, xhr) {
         var pgm = id + '.ajax.success: ' ;
         try {
+            // dump xhr
+            // if (xhr['statusText'] != 'OK') {
+            //    for (var key in xhr) add2log(id + '. ajax.success. xhr[' + key + '] = ' + xhr[key]) ;
+            // }
+            // fix for ie8/ie9 error. ajax response from comment/create was not executed
+            // content type in comment/create response is now text/plain
+            // execute js response
+            eval(xhr['responseText']) ;
             var checkbox, gifts, trs, re, i, new_comment_tr, id2, add_new_comment_tr, tbody;
             // reset new comment line
             document.getElementById('gift-' + giftid + '-comment-new-price').value = '';
@@ -1712,6 +1722,7 @@ function post_ajax_add_new_comment_handler(giftid) {
             // find new comment table row last in gifts table
             gifts = document.getElementById("gifts");
             trs = gifts.rows;
+            // add2log(id + '. ajax.success: new gifts.rows = ' + trs.length) ;
             re = new RegExp("^gift-" + giftid + "-comment-[0-9]+$");
             i = trs.length - 1;
             for (i = trs.length - 1; ((i >= 0) && !new_comment_tr); i--) {
