@@ -573,129 +573,149 @@ function update_title() {
 } // update_title
 
 function insert_new_comments() {
-    var debug = false ;
-    var new_comments_tbody, new_comments_trs, new_comment_tr, new_comment_id, new_comment_id_split, new_comment_gift_id, new_comment_comment_id;
-    var old_comments_tbody_id, old_comments1_tbody, old_comments1_trs, old_comments1_tr, old_comments1_tr_id;
-    var i, j, old_comments2_trs, old_comments2_tr, re1, re2, old_length, old_comments2_length, old_comments2_tr_id;
-    var old_comments2_comment_id, inserted, old_comments2_tr_id_split, new_comments_length;
-    var summary ; // for debug info.
-    var gifts, old_comments2_add_new_comment_tr ;
     var pgm = 'insert_new_comments: ' ;
-    add2log(pgm + 'start') ;
-    gifts = document.getElementById("gifts") ;
-    if (!gifts) {
-        // no gifts table - not gifts/index page
-        add2log('no gifts table - not gifts/index page') ;
-        return ;
-    }
-    new_comments_tbody = document.getElementById("new_comments_tbody");
-    if (!new_comments_tbody) {
-        add2log('new_comments_tbody was not found');
-        return; // ignore error silently
-    }
-    new_comments_trs = new_comments_tbody.rows;
-    new_comments_length = new_comments_trs.length ;
-    if (new_comments_length == 0) {
-        // no new comments
-        add2log('no new comments') ;
-        return;
-    }
-    // find old gift rows (header, links, comments, footers)
-    old_comments1_trs = gifts.rows ;
-    if (old_comments1_trs.length == 0) {
-        // no old gifts
-        add2log('no old gifts') ;
-        return
-    }
-    old_comments1_tbody = old_comments1_trs[0].parentNode ;
-    // insert new comments in gifts/index page. Loop for each new comment.
-    summary = 'Summary. ' +  new_comments_length + ' messages received' ;
-    re1 = new RegExp("^gift-[0-9]+-comment-[0-9]+$") ;
-    for (i=new_comments_length-1; i >= 0 ; i--) {
-        // find gift id and comment id. id format format: gift-218-comment-174
-        new_comment_tr = new_comments_trs[i];
-        new_comment_id = new_comment_tr.id;
-        if (!new_comment_id || !new_comment_id.match(re1)) {
-            add2log('invalid id format ' + new_comment_id) ;
-            continue ;
+    var debug = 0 ;
+    try {
+        var new_comments_tbody, new_comments_trs, new_comment_tr, new_comment_id, new_comment_id_split, new_comment_gift_id, new_comment_comment_id;
+        var old_comments_tbody_id, old_comments1_tbody, old_comments1_trs, old_comments1_tr, old_comments1_tr_id;
+        var i, j, old_comments2_trs, old_comments2_tr, re1, re2, old_length, old_comments2_length, old_comments2_tr_id;
+        var old_comments2_comment_id, inserted, old_comments2_tr_id_split, new_comments_length;
+        var summary ; // for debug info.
+        var gifts, old_comments2_add_new_comment_tr ;
+        add2log(pgm + 'start') ;
+        debug = 10 ;
+        gifts = document.getElementById("gifts") ;
+        if (!gifts) {
+            // no gifts table - not gifts/index page
+            add2log('no gifts table - not gifts/index page') ;
+            return ;
         }
-        new_comment_id_split = new_comment_id.split("-");
-        new_comment_gift_id = new_comment_id_split[1];
-        new_comment_comment_id = parseInt(new_comment_id_split[3]);
-        summary = summary + '. ' + i + ', id = ' + new_comment_id ;
-        summary = summary + '. ' + i + ', split[3] = ' + new_comment_id_split[3] ;
-        add2log('i = ' + i + ', gift id = ' + new_comment_gift_id + ', comment id = ' + new_comment_comment_id);
-        // find any old comments with format gift-218-comment-174
-        re2 = new RegExp("^gift-" + new_comment_gift_id + "-comment-[0-9]+$") ;
-        old_comments2_trs = [];
-        old_comments2_add_new_comment_tr = null ;
-        old_length = old_comments1_trs.length;
-        for (j = 0; j < old_length; j++) {
-            old_comments1_tr = old_comments1_trs[j];
-            old_comments1_tr_id = old_comments1_tr.id;
-            if (old_comments1_tr_id.match(re2)) old_comments2_trs.push(old_comments1_tr);
-            if (old_comments1_tr_id == "gift-" + new_comment_gift_id + "-comment-new") old_comments2_add_new_comment_tr = old_comments1_tr ;
-        } // end old comments loop
-        if (!old_comments2_add_new_comment_tr) {
-            // gift was not found - that is ok
-            add2log('Gift ' + new_comment_gift_id + ' was not found') ;
-            continue ;
+        new_comments_tbody = document.getElementById("new_comments_tbody");
+        if (!new_comments_tbody) {
+            add2log('new_comments_tbody was not found');
+            return; // ignore error silently
         }
-        old_comments2_length = old_comments2_trs.length;
-        // add2log('old length = ' + old_length + ', new length = ' + new_length);
-        if (old_comments2_length == 0) {
-            // insert first comment for gift before add new comment row
-            new_comments_tbody.removeChild(new_comment_tr) ;
-            old_comments1_tbody.insertBefore(new_comment_tr, old_comments2_add_new_comment_tr);
-            ajax_flash(new_comment_tr.id) ;
-            add2log('First comment ' + new_comment_comment_id + ' for gift ' + new_comment_gift_id);
-            continue;
+        new_comments_trs = new_comments_tbody.rows;
+        new_comments_length = new_comments_trs.length ;
+        if (new_comments_length == 0) {
+            // no new comments
+            add2log('no new comments') ;
+            return;
         }
-        // insert new comment in old comment table (sorted by ascending comment id)
-        inserted = false;
-        for (j = old_comments2_length-1; ((!inserted) && (j >= 0)); j--) {
-            // find comment id for current row
-            old_comments2_tr = old_comments2_trs[j];
-            old_comments2_tr_id = old_comments2_tr.id;
-            old_comments2_tr_id_split = old_comments2_tr_id.split('-') ;
-            old_comments2_comment_id = parseInt(old_comments2_tr_id_split[3]);
-            add2log('j = ' + j + ', new comment id = ' + new_comment_comment_id + ', old id = ' + old_comments2_tr_id + ', old comment id = ' + old_comments2_comment_id);
-            if (new_comment_comment_id > old_comments2_comment_id) {
-                // insert after current row
+        // find old gift rows (header, links, comments, footers)
+        old_comments1_trs = gifts.rows ;
+        if (old_comments1_trs.length == 0) {
+            // no old gifts
+            add2log('no old gifts') ;
+            return
+        }
+        old_comments1_tbody = old_comments1_trs[0].parentNode ;
+        // insert new comments in gifts/index page. Loop for each new comment.
+        summary = 'Summary. ' +  new_comments_length + ' messages received' ;
+        re1 = new RegExp("^gift-[0-9]+-comment-[0-9]+$") ;
+        debug = 20 ;
+        for (i=new_comments_length-1; i >= 0 ; i--) {
+            // find gift id and comment id. id format format: gift-218-comment-174
+            debug = 30 ;
+            new_comment_tr = new_comments_trs[i];
+            new_comment_id = new_comment_tr.id;
+            if (!new_comment_id || !new_comment_id.match(re1)) {
+                add2log('invalid id format ' + new_comment_id) ;
+                continue ;
+            }
+            new_comment_id_split = new_comment_id.split("-");
+            new_comment_gift_id = new_comment_id_split[1];
+            new_comment_comment_id = parseInt(new_comment_id_split[3]);
+            summary = summary + '. ' + i + ', id = ' + new_comment_id ;
+            summary = summary + '. ' + i + ', split[3] = ' + new_comment_id_split[3] ;
+            add2log('i = ' + i + ', gift id = ' + new_comment_gift_id + ', comment id = ' + new_comment_comment_id);
+            debug = 40 ;
+            // find any old comments with format gift-218-comment-174
+            re2 = new RegExp("^gift-" + new_comment_gift_id + "-comment-[0-9]+$") ;
+            old_comments2_trs = [];
+            old_comments2_add_new_comment_tr = null ;
+            old_length = old_comments1_trs.length;
+            for (j = 0; j < old_length; j++) {
+                old_comments1_tr = old_comments1_trs[j];
+                old_comments1_tr_id = old_comments1_tr.id;
+                if (old_comments1_tr_id.match(re2)) old_comments2_trs.push(old_comments1_tr);
+                if (old_comments1_tr_id == "gift-" + new_comment_gift_id + "-comment-new") old_comments2_add_new_comment_tr = old_comments1_tr ;
+            } // end old comments loop
+            debug = 50 ;
+            if (!old_comments2_add_new_comment_tr) {
+                // gift was not found - that is ok
+                add2log('Gift ' + new_comment_gift_id + ' was not found') ;
+                continue ;
+            }
+            old_comments2_length = old_comments2_trs.length;
+            // add2log('old length = ' + old_length + ', new length = ' + new_length);
+            if (old_comments2_length == 0) {
+                // insert first comment for gift before add new comment row
                 new_comments_tbody.removeChild(new_comment_tr) ;
-                old_comments2_tr.parentNode.insertBefore(new_comment_tr, old_comments2_tr.nextSibling);
+                old_comments1_tbody.insertBefore(new_comment_tr, old_comments2_add_new_comment_tr);
                 ajax_flash(new_comment_tr.id) ;
-                inserted = true ;
-                summary = summary + '. ' + i + ': comment ' + new_comment_comment_id + ' inserted (b) for gift id ' + new_comment_gift_id  ;
+                add2log('First comment ' + new_comment_comment_id + ' for gift ' + new_comment_gift_id);
                 continue;
             }
-            if (new_comment_comment_id == old_comments2_comment_id) {
-                // new comment already in old comments table
-                // replace old comment with new comment
-                // add2log('comment ' + new_comment_comment_id + ' is already in page');
-                old_comments2_tr.id = "" ;
+            debug = 60 ;
+            // insert new comment in old comment table (sorted by ascending comment id)
+            inserted = false;
+            for (j = old_comments2_length-1; ((!inserted) && (j >= 0)); j--) {
+                // find comment id for current row
+                debug = 70 ;
+                old_comments2_tr = old_comments2_trs[j];
+                old_comments2_tr_id = old_comments2_tr.id;
+                old_comments2_tr_id_split = old_comments2_tr_id.split('-') ;
+                old_comments2_comment_id = parseInt(old_comments2_tr_id_split[3]);
+                add2log('j = ' + j + ', new comment id = ' + new_comment_comment_id + ', old id = ' + old_comments2_tr_id + ', old comment id = ' + old_comments2_comment_id);
+                debug = 80 ;
+                if (new_comment_comment_id > old_comments2_comment_id) {
+                    // insert after current row
+                    new_comments_tbody.removeChild(new_comment_tr) ;
+                    old_comments2_tr.parentNode.insertBefore(new_comment_tr, old_comments2_tr.nextSibling);
+                    ajax_flash(new_comment_tr.id) ;
+                    inserted = true ;
+                    summary = summary + '. ' + i + ': comment ' + new_comment_comment_id + ' inserted (b) for gift id ' + new_comment_gift_id  ;
+                    continue;
+                }
+                debug = 90 ;
+                if (new_comment_comment_id == old_comments2_comment_id) {
+                    // new comment already in old comments table
+                    // replace old comment with new comment
+                    // add2log('comment ' + new_comment_comment_id + ' is already in page');
+                    old_comments2_tr.id = "" ;
+                    new_comments_tbody.removeChild(new_comment_tr) ;
+                    old_comments2_tr.parentNode.insertBefore(new_comment_tr, old_comments2_tr.nextSibling);
+                    ajax_flash(new_comment_tr.id) ;
+                    old_comments2_tr.parentNode.removeChild(old_comments2_tr) ;
+                    inserted = true;
+                    summary = summary + '. ' + i + ': comment ' + new_comment_comment_id + ' inserted (c) for gift id ' + new_comment_gift_id  ;
+                    continue;
+                }
+                // insert before current row - continue loop
+            } // end old comments loop
+            debug = 100 ;
+            if (!inserted) {
+                // insert before first old comment
+                // add2log('insert new comment ' + new_comment_id + ' first in old comments table');
+                old_comments2_tr = old_comments2_trs[0];
+                add2log('old_comments2_tr = ' + old_comments2_tr) ;
                 new_comments_tbody.removeChild(new_comment_tr) ;
-                old_comments2_tr.parentNode.insertBefore(new_comment_tr, old_comments2_tr.nextSibling);
+                old_comments2_tr.parentNode.insertBefore(new_comment_tr, old_comments2_tr);
                 ajax_flash(new_comment_tr.id) ;
-                old_comments2_tr.parentNode.removeChild(old_comments2_tr) ;
-                inserted = true;
-                summary = summary + '. ' + i + ': comment ' + new_comment_comment_id + ' inserted (c) for gift id ' + new_comment_gift_id  ;
-                continue;
-            }
-            // insert before current row - continue loop
-        } // end old comments loop
-        if (!inserted) {
-            // insert before first old comment
-            // add2log('insert new comment ' + new_comment_id + ' first in old comments table');
-            old_comments2_tr = old_comments2_trs[0];
-            add2log('old_comments2_tr = ' + old_comments2_tr) ;
-            new_comments_tbody.removeChild(new_comment_tr) ;
-            old_comments2_tr.parentNode.insertBefore(new_comment_tr, old_comments2_tr);
-            ajax_flash(new_comment_tr.id) ;
-            summary = summary + '. ' + i + ': comment ' + new_comment_comment_id + ' inserted (d) for gift id ' + new_comment_gift_id  ;
-        } // if
-    } // end new comments loop
-    add2log(summary) ;
+                summary = summary + '. ' + i + ': comment ' + new_comment_comment_id + ' inserted (d) for gift id ' + new_comment_gift_id  ;
+            } // if
+        } // end new comments loop
+        add2log(summary) ;
+        // unbind and bind ajax for comment action links
+        setup_comment_action_link_ajax() ;
+    }
+    catch (e) {
+        var msg = pgm + 'failed with JS error ' + e + ', debug = ' + debug ;
+        add2log(msg);
+        add_to_tasks_errors(msg);
+        throw e;
+    }
 } // insert_new_comments
 
 // tasks_sleep: missing: no tasks - number: sleep (milliseconds) before executing tasks - for example post status on api walls
@@ -1335,6 +1355,14 @@ function show_more_rows_success (table_name, debug)
     }
     // show show-more-text for div with text overflow
     find_overflow() ;
+
+    if (table_name == 'gifts') {
+        // unbind and bind ajax handlers for comment links (new rows)
+        // todo: use jquery on with delegated event handling: https://api.jquery.com/on/
+        setup_comment_action_link_ajax() ;
+    }
+
+
 } // show_more_rows_success
 
 function show_more_rows_error(jqxhr, textStatus, errorThrown, debug) {
@@ -1516,6 +1544,8 @@ function add_to_tasks_errors2 (table_id, error) {
     if (!table) {
         add2log(pgm + table_id + ' was not found.') ;
         add2log(pgm + 'error was ' + error + '') ;
+        add_to_tasks_errors(pgm + 'expected error table ' + table_id + ' was not found. Error ' + error) ;
+        return ;
     }
     var length = table.rows.size ;
     add2log(pgm + 'length = ' + length) ;
@@ -1588,6 +1618,7 @@ $(document).ready(function() {
         // clear any old ajax error messages if any
         // clear within page ajax error messages if any
         var pgm = id + '.click: ' ;
+        add2log(pgm + 'start') ;
         try {
             // add2log(pgm + 'xhr = ' + xhr + ', settings = ' + settings) ;
             var url = xhr.target ;
@@ -1627,6 +1658,7 @@ $(document).ready(function() {
     $(id).unbind("ajax:error") ;
     $(id).bind("ajax:error", function(jqxhr, textStatus, errorThrown){
         var pgm = id + '.ajax.error: ' ;
+        add2log(pgm + 'start') ;
         try {
             add2log(pgm);
             add2log('jqxhr = ' + jqxhr);
@@ -1692,13 +1724,11 @@ function create_new_com_errors_table(table_id) {
     return true ;
 } // create_new_com_errors_table
 
-// old handler for new comments
 // post ajax processing after adding a comment.
-// comments/create.js.rb inserts new comment as last row i gifts table
+// comments/create.js.rb inserts new comment as last row i gifts table body
 // move new comment from last row to row before new comment row
 // clear comment text area and reset frequency for new message check
 function post_ajax_add_new_comment_handler(giftid) {
-    // return ;
     var id = '#gift-' + giftid + '-new-comment-form';
     // var gifts2 = document.getElementById('gifts') ;
     // add2log(id + '. old gifts.rows = ' + gifts2.rows.length) ;
@@ -1707,15 +1737,9 @@ function post_ajax_add_new_comment_handler(giftid) {
         var pgm = id + '.ajax.success: ' ;
         try {
             // dump xhr
-            // if (xhr['statusText'] != 'OK') {
-            //    for (var key in xhr) add2log(id + '. ajax.success. xhr[' + key + '] = ' + xhr[key]) ;
-            // }
+            // for (var key in xhr) add2log(id + '. ajax.success. xhr[' + key + '] = ' + xhr[key]) ;
             // fix for ie8/ie9 error. ajax response from comment/create was not executed
             // content type in comment/create response is now text/plain
-            // execute js response
-            // add2log(pgm + 'xhr.responseText = ' + xhr['responseText']) ;
-            // try { eval(xhr['responseText']) }
-            // catch (e) { add2log(pgm + 'JS eval error for xhr.responseText: ' + e) }
             var checkbox, gifts, trs, re, i, new_comment_tr, id2, add_new_comment_tr, tbody;
             // reset new comment line
             document.getElementById('gift-' + giftid + '-comment-new-price').value = '';
@@ -1744,14 +1768,14 @@ function post_ajax_add_new_comment_handler(giftid) {
             }
             // move new table row up before add new comment table row
             new_comment_tr.parentNode.removeChild(new_comment_tr);
+            // IE8 fix. removeChild + insertBefore did not work in IE8
             var no_gifts = document.getElementById('gifts').rows.length ;
-            // add2log(pgm + 'gifts.rows = ' + no_gifts) ;
             add_new_comment_tr.parentNode.insertBefore(new_comment_tr, add_new_comment_tr); // error: Node was not found
-            // var no_gifts = document.getElementById('gifts').rows.length ;
-            // add2log(pgm + 'gifts.rows = ' + no_gifts) ;
-            // save timestamp for last new ajax comment
+            // move ok
             last_user_ajax_comment_at = new Date();
             restart_check_new_messages();
+            // unbind and bind ajax for comment action links
+            setup_comment_action_link_ajax() ;
         }
         catch (err) {
             var msg = pgm + 'failed with JS error: ' + err;
@@ -1797,99 +1821,6 @@ function post_ajax_add_new_comment_handler(giftid) {
         add2log(pgm + 'done') ;
     }) ;
 } // post_ajax_add_new_comment_handler
-
-//// new handler for new comments
-//// handle ajax submit for new comments in gifts/index page
-//$(document).ready(function () {
-//    var new_gift = document.getElementById('new_gift');
-//    if (!new_gift) return; // not gifts/index page
-//    // new_gift.action = '/gifts.js'; // ajax request
-//    // bind 'myForm' and provide a simple callback function
-//    // http://malsup.com/jquery/form/#options-object
-//    var id = '.new_comment' ;
-//    $(id).ajaxForm({
-//        dataType: 'script',
-////        beforeSubmit: function (formData, jqForm, options) {
-////            var pgm = id + '.beforeSubmit: ' ;
-////            add2log(pgm + 'start');
-////            var submit_buttons = document.getElementsByName('commit_gift') ;
-////            // add2log('submit_buttons.length = ' + submit_buttons.length) ;
-////            for (var i=0 ; i< submit_buttons.length ; i++) submit_buttons[i].disabled = true ;
-////        },
-//        success: function (responseText, statusText, xhr, $form) {
-//            var pgm = id + '.success: ' ;
-//            add2log(pgm + 'start');
-//            // dump xhr
-//            // if (xhr['statusText'] != 'OK') {
-//            for (var key in xhr) add2log(id + '. ajax.success. xhr[' + key + '] = ' + xhr[key]) ;
-//            for (var key in $form) add2log(id + '. ajax.success. $form[' + key + '] = ' + $form[key]) ;
-//            add2log(pgm + '$form[0] = ' + $form[0]) ;
-//            add2log(pgm + '$form[0].id = ' + $form[0].id) ;
-//            var new_comment_form = $form[0] ;
-//            var new_comment_form_id = new_comment_form.id ;
-//            add2log(pgm + 'new_comment_form_id = ' + new_comment_form_id) ;
-//            var giftid = new_comment_form_id.split('-')[1] ;
-//            add2log(pgm + 'giftid = ' + giftid) ;
-//            // }
-//            // fix for ie8/ie9 error. ajax response from comment/create was not executed
-//            // content type in comment/create response is now text/plain
-//            // execute js response
-//            add2log(pgm + 'xhr.responseText = ' + xhr['responseText']) ;
-//            // try { eval(xhr['responseText']) }
-//            // catch (e) { add2log(pgm + 'JS eval error for xhr.responseText: ' + e) }
-//            var checkbox, gifts, trs, re, i, new_comment_tr, id2, add_new_comment_tr, tbody;
-//            // reset new comment line
-//            document.getElementById('gift-' + giftid + '-comment-new-price').value = '';
-//            document.getElementById('gift-' + giftid + '-comment-new-textarea').value = '';
-//            document.getElementById('gift-' + giftid + '-comment-new-price-tr').style.display = 'none';
-//            checkbox = document.getElementById('gift-' + giftid + '-new-deal-check-box');
-//            if (checkbox) checkbox.checked = false;
-//            // find new comment table row last in gifts table
-//            gifts = document.getElementById("gifts");
-//            trs = gifts.rows;
-//            // add2log(id + '. ajax.success: new gifts.rows = ' + trs.length) ;
-//            re = new RegExp("^gift-" + giftid + "-comment-[0-9]+$");
-//            i = trs.length - 1;
-//            for (i = trs.length - 1; ((i >= 0) && !new_comment_tr); i--) {
-//                id2 = trs[i].id;
-//                if (id2 && id2.match(re)) new_comment_tr = trs[i];
-//            } // for
-//            if (!new_comment_tr) {
-//                add2log(pgm + "new comment row with format " + re + " was not found. There could be more information in server log.");
-//                return;
-//            }
-//            add_new_comment_tr = document.getElementById("gift-" + giftid + "-comment-new");
-//            if (!add_new_comment_tr) {
-//                add2log(pgm + "gift-" + giftid + "-comment-new was not found");
-//                return;
-//            }
-//            // move new table row up before add new comment table row
-//            new_comment_tr.parentNode.removeChild(new_comment_tr);
-//            add_new_comment_tr.parentNode.insertBefore(new_comment_tr, add_new_comment_tr); // error: Node was not found
-//            // save timestamp for last new ajax comment
-//            last_user_ajax_comment_at = new Date();
-//            restart_check_new_messages();
-//        }, // success
-//        error: function (jqxhr, textStatus, errorThrown) {
-//            var pgm = id + '.error: ' ;
-//            add2log(pgm + 'start');
-//            document.getElementById('progressbar-div').style.display = 'none';
-//            add2log('#new_gift.error');
-//            add2log('jqxhr = ' + jqxhr);
-//            add2log('textStatus = ' + textStatus);
-//            add2log('errorThrown = ' + errorThrown);
-//            add_to_tasks_errors('new_form.ajaxform.error: ' + errorThrown + '. check server log for more information.');
-//        },
-//        complete: function() {
-//            var pgm = id + 'complete: ' ;
-//            add2log(pgm + 'start');
-//            add2log('#new_gift.complete');
-//            var submit_buttons = document.getElementsByName('commit_gift') ;
-//            // add2log('submit_buttons.length = ' + submit_buttons.length) ;
-//            for (var i=0 ; i< submit_buttons.length ; i++) submit_buttons[i].disabled = false ;
-//        }
-//    });
-//});
 
 function create_com_link_errors_table(table_id) {
     // table_id = gift-891-comment-729-errors
@@ -1959,9 +1890,11 @@ function comment_action_url_table_id (url) {
     return table_id ;
 } // comment_action_url_table_id
 
-// error callback for comment actions (cancel, accept, reject, delete - write to debug log + page header
-// using click event instead of beforeSend or ajaxSend as rails confirm box seems to "disable" use of the 2 events
-$(document).ready(function () {
+// comment-action-link bind only works for existing rows in gifts table
+// setup_comment_action_link_ajax set called after adding new comments to gifts/index page
+// todo: use jquery on and delegated events: https://api.jquery.com/on/
+function setup_comment_action_link_ajax ()
+{
     var id = ".comment-action-link" ;
     $(id).unbind("click");
     $(id).bind("click", function (xhr, settings) {
@@ -1988,6 +1921,7 @@ $(document).ready(function () {
     $(id).unbind("ajax:error");
     $(id).bind("ajax:error", function (jqxhr, textStatus, errorThrown) {
         var pgm = id + '.ajax.error: ' ;
+        var debug = 0 ;
         try {
             add2log(pgm + 'jqxhr = ' + jqxhr);
             add2log(pgm + 'textStatus = ' + textStatus);
@@ -1997,25 +1931,35 @@ $(document).ready(function () {
             // add2log(pgm + 'xhr = ' + xhr + ', settings = ' + settings) ;
             var url = '' + jqxhr.target + '' ;
             add2log(pgm + 'url = "' + url + '"') ;
-
+            debug = 10 ;
             var table_id = comment_action_url_table_id(url) ;
+            var table = document.getElementById(table_id) ;
+            debug = 20 ;
             add2log(pgm + 'table_id = ' + table_id) ;
-            if (!table_id && !create_com_link_errors_table(table_id)) {
+            if (!table && !create_com_link_errors_table(table_id)) {
                 // could not find table id and table for ajax error messages could not be created
+                debug = 30 ;
                 add_to_tasks_errors(pgm + error);
             }
             else {
                 // could find table_id or table for ajax error messages has been created
+                debug = 40 ;
                 add_to_tasks_errors2(table_id, error) ;
             }
         }
         catch (err) {
-            var msg = pgm + 'failed with JS error: ' + err;
+            var msg = pgm + 'failed with JS error: ' + err + ', debug = ' + debug ;
             add2log(msg);
             add_to_tasks_errors(msg);
             return;
         }
     }) // ajax:error
+}
+
+// error callback for comment actions (cancel, accept, reject, delete - write to debug log + page header
+// using click event instead of beforeSend or ajaxSend as rails confirm box seems to "disable" use of the 2 events
+$(document).ready(function () {
+    setup_comment_action_link_ajax() ;
 })
 
 

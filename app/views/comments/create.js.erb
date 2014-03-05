@@ -1,6 +1,6 @@
 <% if @api_comment %>
-<%= puts j(render("api_comment", :api_comment => @api_comment)) -%>
-$('#gifts').append('<%= j render("api_comment", :api_comment => @api_comment) %>');
+<%# puts j(render("api_comment", :api_comment => @api_comment)) -%>
+$('#gifts_tbody').append('<%= j render("api_comment", :api_comment => @api_comment) %>');
 <% end %>
 <% if @errors2.size > 0 -%>
 $('#tasks_errors2').append('<%= j render('shared/ajax_errors2') %>');

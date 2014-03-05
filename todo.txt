@@ -952,3 +952,9 @@
 157) deleted comments is included in "show-older-comments" count
 
 158) show older comments link gives error for deleted comments
+
+159) use jquery on and delegated events: https://api.jquery.com/on/
+     bind works only for existing elements in page
+     have to unbind + bind after adding new rows
+     it would be better to use "on" and delegated events
+     could not get it to work for comment-action-link ajax

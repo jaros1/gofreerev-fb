@@ -89,11 +89,11 @@
 
 <%# gifts table -%>
 <div style="width: 100%">
-  <table style="display: <%= @api_gifts.size == 0 ? 'none' : 'inline' %>">
+  <table  id="gifts" style="display: <%= @api_gifts.size == 0 ? 'none' : 'inline' %>">
     <thead>
     <%= render :partial => 'table_header_row' %>
     </thead>
-    <tbody id="gifts">
+    <tbody id="gifts_tbody">
     <%= render :partial => 'api_gifts' %>
     </tbody>
     <tfoot>
