@@ -1698,7 +1698,7 @@ function create_new_com_errors_table(table_id) {
 // move new comment from last row to row before new comment row
 // clear comment text area and reset frequency for new message check
 function post_ajax_add_new_comment_handler(giftid) {
-    return ;
+    // return ;
     var id = '#gift-' + giftid + '-new-comment-form';
     // var gifts2 = document.getElementById('gifts') ;
     // add2log(id + '. old gifts.rows = ' + gifts2.rows.length) ;
@@ -1794,98 +1794,98 @@ function post_ajax_add_new_comment_handler(giftid) {
     }) ;
 } // post_ajax_add_new_comment_handler
 
-// new handler for new comments
-// handle ajax submit for new comments in gifts/index page
-$(document).ready(function () {
-    var new_gift = document.getElementById('new_gift');
-    if (!new_gift) return; // not gifts/index page
-    // new_gift.action = '/gifts.js'; // ajax request
-    // bind 'myForm' and provide a simple callback function
-    // http://malsup.com/jquery/form/#options-object
-    var id = '.new_comment' ;
-    $(id).ajaxForm({
-        dataType: 'script',
-//        beforeSubmit: function (formData, jqForm, options) {
-//            var pgm = id + '.beforeSubmit: ' ;
+//// new handler for new comments
+//// handle ajax submit for new comments in gifts/index page
+//$(document).ready(function () {
+//    var new_gift = document.getElementById('new_gift');
+//    if (!new_gift) return; // not gifts/index page
+//    // new_gift.action = '/gifts.js'; // ajax request
+//    // bind 'myForm' and provide a simple callback function
+//    // http://malsup.com/jquery/form/#options-object
+//    var id = '.new_comment' ;
+//    $(id).ajaxForm({
+//        dataType: 'script',
+////        beforeSubmit: function (formData, jqForm, options) {
+////            var pgm = id + '.beforeSubmit: ' ;
+////            add2log(pgm + 'start');
+////            var submit_buttons = document.getElementsByName('commit_gift') ;
+////            // add2log('submit_buttons.length = ' + submit_buttons.length) ;
+////            for (var i=0 ; i< submit_buttons.length ; i++) submit_buttons[i].disabled = true ;
+////        },
+//        success: function (responseText, statusText, xhr, $form) {
+//            var pgm = id + '.success: ' ;
 //            add2log(pgm + 'start');
+//            // dump xhr
+//            // if (xhr['statusText'] != 'OK') {
+//            for (var key in xhr) add2log(id + '. ajax.success. xhr[' + key + '] = ' + xhr[key]) ;
+//            for (var key in $form) add2log(id + '. ajax.success. $form[' + key + '] = ' + $form[key]) ;
+//            add2log(pgm + '$form[0] = ' + $form[0]) ;
+//            add2log(pgm + '$form[0].id = ' + $form[0].id) ;
+//            var new_comment_form = $form[0] ;
+//            var new_comment_form_id = new_comment_form.id ;
+//            add2log(pgm + 'new_comment_form_id = ' + new_comment_form_id) ;
+//            var giftid = new_comment_form_id.split('-')[1] ;
+//            add2log(pgm + 'giftid = ' + giftid) ;
+//            // }
+//            // fix for ie8/ie9 error. ajax response from comment/create was not executed
+//            // content type in comment/create response is now text/plain
+//            // execute js response
+//            add2log(pgm + 'xhr.responseText = ' + xhr['responseText']) ;
+//            // try { eval(xhr['responseText']) }
+//            // catch (e) { add2log(pgm + 'JS eval error for xhr.responseText: ' + e) }
+//            var checkbox, gifts, trs, re, i, new_comment_tr, id2, add_new_comment_tr, tbody;
+//            // reset new comment line
+//            document.getElementById('gift-' + giftid + '-comment-new-price').value = '';
+//            document.getElementById('gift-' + giftid + '-comment-new-textarea').value = '';
+//            document.getElementById('gift-' + giftid + '-comment-new-price-tr').style.display = 'none';
+//            checkbox = document.getElementById('gift-' + giftid + '-new-deal-check-box');
+//            if (checkbox) checkbox.checked = false;
+//            // find new comment table row last in gifts table
+//            gifts = document.getElementById("gifts");
+//            trs = gifts.rows;
+//            // add2log(id + '. ajax.success: new gifts.rows = ' + trs.length) ;
+//            re = new RegExp("^gift-" + giftid + "-comment-[0-9]+$");
+//            i = trs.length - 1;
+//            for (i = trs.length - 1; ((i >= 0) && !new_comment_tr); i--) {
+//                id2 = trs[i].id;
+//                if (id2 && id2.match(re)) new_comment_tr = trs[i];
+//            } // for
+//            if (!new_comment_tr) {
+//                add2log(pgm + "new comment row with format " + re + " was not found. There could be more information in server log.");
+//                return;
+//            }
+//            add_new_comment_tr = document.getElementById("gift-" + giftid + "-comment-new");
+//            if (!add_new_comment_tr) {
+//                add2log(pgm + "gift-" + giftid + "-comment-new was not found");
+//                return;
+//            }
+//            // move new table row up before add new comment table row
+//            new_comment_tr.parentNode.removeChild(new_comment_tr);
+//            add_new_comment_tr.parentNode.insertBefore(new_comment_tr, add_new_comment_tr); // error: Node was not found
+//            // save timestamp for last new ajax comment
+//            last_user_ajax_comment_at = new Date();
+//            restart_check_new_messages();
+//        }, // success
+//        error: function (jqxhr, textStatus, errorThrown) {
+//            var pgm = id + '.error: ' ;
+//            add2log(pgm + 'start');
+//            document.getElementById('progressbar-div').style.display = 'none';
+//            add2log('#new_gift.error');
+//            add2log('jqxhr = ' + jqxhr);
+//            add2log('textStatus = ' + textStatus);
+//            add2log('errorThrown = ' + errorThrown);
+//            add_to_tasks_errors('new_form.ajaxform.error: ' + errorThrown + '. check server log for more information.');
+//        },
+//        complete: function() {
+//            var pgm = id + 'complete: ' ;
+//            add2log(pgm + 'start');
+//            add2log('#new_gift.complete');
 //            var submit_buttons = document.getElementsByName('commit_gift') ;
 //            // add2log('submit_buttons.length = ' + submit_buttons.length) ;
-//            for (var i=0 ; i< submit_buttons.length ; i++) submit_buttons[i].disabled = true ;
-//        },
-        success: function (responseText, statusText, xhr, $form) {
-            var pgm = id + '.success: ' ;
-            add2log(pgm + 'start');
-            // dump xhr
-            // if (xhr['statusText'] != 'OK') {
-            for (var key in xhr) add2log(id + '. ajax.success. xhr[' + key + '] = ' + xhr[key]) ;
-            for (var key in $form) add2log(id + '. ajax.success. $form[' + key + '] = ' + $form[key]) ;
-            add2log(pgm + '$form[0] = ' + $form[0]) ;
-            add2log(pgm + '$form[0].id = ' + $form[0].id) ;
-            var new_comment_form = $form[0] ;
-            var new_comment_form_id = new_comment_form.id ;
-            add2log(pgm + 'new_comment_form_id = ' + new_comment_form_id) ;
-            var giftid = new_comment_form_id.split('-')[1] ;
-            add2log(pgm + 'giftid = ' + giftid) ;
-            // }
-            // fix for ie8/ie9 error. ajax response from comment/create was not executed
-            // content type in comment/create response is now text/plain
-            // execute js response
-            add2log(pgm + 'xhr.responseText = ' + xhr['responseText']) ;
-            // try { eval(xhr['responseText']) }
-            // catch (e) { add2log(pgm + 'JS eval error for xhr.responseText: ' + e) }
-            var checkbox, gifts, trs, re, i, new_comment_tr, id2, add_new_comment_tr, tbody;
-            // reset new comment line
-            document.getElementById('gift-' + giftid + '-comment-new-price').value = '';
-            document.getElementById('gift-' + giftid + '-comment-new-textarea').value = '';
-            document.getElementById('gift-' + giftid + '-comment-new-price-tr').style.display = 'none';
-            checkbox = document.getElementById('gift-' + giftid + '-new-deal-check-box');
-            if (checkbox) checkbox.checked = false;
-            // find new comment table row last in gifts table
-            gifts = document.getElementById("gifts");
-            trs = gifts.rows;
-            // add2log(id + '. ajax.success: new gifts.rows = ' + trs.length) ;
-            re = new RegExp("^gift-" + giftid + "-comment-[0-9]+$");
-            i = trs.length - 1;
-            for (i = trs.length - 1; ((i >= 0) && !new_comment_tr); i--) {
-                id2 = trs[i].id;
-                if (id2 && id2.match(re)) new_comment_tr = trs[i];
-            } // for
-            if (!new_comment_tr) {
-                add2log(pgm + "new comment row with format " + re + " was not found. There could be more information in server log.");
-                return;
-            }
-            add_new_comment_tr = document.getElementById("gift-" + giftid + "-comment-new");
-            if (!add_new_comment_tr) {
-                add2log(pgm + "gift-" + giftid + "-comment-new was not found");
-                return;
-            }
-            // move new table row up before add new comment table row
-            new_comment_tr.parentNode.removeChild(new_comment_tr);
-            add_new_comment_tr.parentNode.insertBefore(new_comment_tr, add_new_comment_tr); // error: Node was not found
-            // save timestamp for last new ajax comment
-            last_user_ajax_comment_at = new Date();
-            restart_check_new_messages();
-        }, // success
-        error: function (jqxhr, textStatus, errorThrown) {
-            var pgm = id + '.error: ' ;
-            add2log(pgm + 'start');
-            document.getElementById('progressbar-div').style.display = 'none';
-            add2log('#new_gift.error');
-            add2log('jqxhr = ' + jqxhr);
-            add2log('textStatus = ' + textStatus);
-            add2log('errorThrown = ' + errorThrown);
-            add_to_tasks_errors('new_form.ajaxform.error: ' + errorThrown + '. check server log for more information.');
-        },
-        complete: function() {
-            var pgm = id + 'complete: ' ;
-            add2log(pgm + 'start');
-            add2log('#new_gift.complete');
-            var submit_buttons = document.getElementsByName('commit_gift') ;
-            // add2log('submit_buttons.length = ' + submit_buttons.length) ;
-            for (var i=0 ; i< submit_buttons.length ; i++) submit_buttons[i].disabled = false ;
-        }
-    });
-});
+//            for (var i=0 ; i< submit_buttons.length ; i++) submit_buttons[i].disabled = false ;
+//        }
+//    });
+//});
 
 function create_com_link_errors_table(table_id) {
     // table_id = gift-891-comment-729-errors
