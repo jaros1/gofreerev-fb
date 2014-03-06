@@ -1204,7 +1204,13 @@ function show_more_rows()
 {
     var link = document.getElementById("show-more-rows-link") ;
     if (!link) return ;
-    link.click() ;
+    if (link.click) link.click() ;
+    else {
+        // safari 5 workaround - http://stackoverflow.com/questions/12744202/undefined-is-not-a-function-evaluating-el-click-in-safari
+        var click_ev = document.createEvent("MouseEvent");
+        click_ev.initEvent("click", true /* bubble */, true /* cancelable */);
+        link.dispatchEvent(click_ev);
+    }
 } // show_more_rows()
 
 // end_of_page - true or false
@@ -1378,9 +1384,9 @@ function show_more_rows_error(jqxhr, textStatus, errorThrown, debug) {
 function show_more_rows_ajax() {
     var table_name = get_more_rows_table ;
     var link = '#show-more-rows-link'
-    $(link).unbind("click") ;
-    $(link).bind("click", function(xhr, settings){
-        var pgm = link + '.click: ' ;
+//    $(link).unbind("click") ;
+//    $(link).bind("click", function(xhr, settings){
+//        var pgm = link + '.click: ' ;
 //        try { start_show_more_rows_spinner(table_name, debug_ajax) }
 //        catch (err) {
 //            var msg = pgm + 'failed with JS error: ' + err;
@@ -1388,7 +1394,7 @@ function show_more_rows_ajax() {
 //            add_to_tasks_errors(msg);
 //            return;
 //        }
-    });
+//    });
     $(link).unbind("ajax:success");
     $(link).bind("ajax:success", function (evt, data, status, xhr) {
         var pgm = link + '.ajax.success: ' ;
@@ -1891,7 +1897,7 @@ function comment_action_url_table_id (url) {
 } // comment_action_url_table_id
 
 // comment-action-link bind only works for existing rows in gifts table
-// setup_comment_action_link_ajax set called after adding new comments to gifts/index page
+// setup_comment_action_link_ajax is called at startup and after adding new comments to gifts/index page
 // todo: use jquery on and delegated events: https://api.jquery.com/on/
 function setup_comment_action_link_ajax ()
 {
