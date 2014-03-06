@@ -1001,6 +1001,3 @@
 
 166) ie8 target=blank opens in a new window and no shared cookie.
      could be a special spoon.net test problem - could be a reel problem with IE
-
-167) show-mor-rows does not work in safari 5
-
