@@ -996,6 +996,8 @@
      display elements for large screen - hide elements for small screens
      http://caniuse.com/css-mediaqueries
      ie8 does not support media query
+     rollback modernizr.js to version without media query support
+     insert default values in application.css before media queries
 
 165) make test check list. every test should be done in every supported browser.
 

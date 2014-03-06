@@ -2094,19 +2094,6 @@ $(document).ready(function() {
 })
 
 
-// fix for missing media query support (ie8)
-// http://modernizr.com/docs/#s25
-function mediaQueriesEnabled ()
-{
-    try { return Modernizr.mq('only all'); }
-    catch (e) { add2log('mediaQueriesEnabled: ' + e) ; return false }
-}
-$(document).ready(function() {
-    if (mediaQueriesEnabled()) return ;
-    alert('media query is not supported') ;
-})
-
-
 
 // custom confirm box - for styling
 // http://lesseverything.com/blog/archives/2012/07/18/customizing-confirmation-dialog-in-rails/
