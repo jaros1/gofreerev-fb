@@ -647,13 +647,19 @@ function insert_new_comments() {
                 add2log('Gift ' + new_comment_gift_id + ' was not found') ;
                 continue ;
             }
+            debug = 51 ;
             old_comments2_length = old_comments2_trs.length;
+            debug = 52 ;
             // add2log('old length = ' + old_length + ', new length = ' + new_length);
             if (old_comments2_length == 0) {
                 // insert first comment for gift before add new comment row
+                debug = 53 ;
                 new_comments_tbody.removeChild(new_comment_tr) ;
+                debug = 54 ;
                 old_comments1_tbody.insertBefore(new_comment_tr, old_comments2_add_new_comment_tr);
+                debug = 55 ;
                 ajax_flash(new_comment_tr.id) ;
+                debug = 56 ;
                 add2log('First comment ' + new_comment_comment_id + ' for gift ' + new_comment_gift_id);
                 continue;
             }

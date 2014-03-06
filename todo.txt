@@ -997,10 +997,13 @@
 166) ie8 target=blank opens in a new window and no shared cookie.
      could be a special spoon.net test problem - could be a reel problem with IE
 
-167) problem with comment text align in ie8. xxxx
-
 168) check if there is any virtual machines available for test
 
 169) ie8 layout bug in gifts/index page.
      3 column med user div for comment. width = 52px is being ignored.
      have added table-layout:fixed to table, but that is also being ignored
+     layout is ok if compatibility view is enabled, but compatibility view destroys show-more-rows functionality
+     maybe modernizr has a solution for this.
+
+170) ie8 - new-messages-count - new comments are not ajax injected into gifts/index page
+     fixed with :data => { :type => :script }, :format => :js,
