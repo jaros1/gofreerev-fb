@@ -951,29 +951,6 @@
 
 157) deleted comments is included in "show-older-comments" count
 
-158) show older comments link gives error for deleted comments
-     a) only ajax for first gift. solved now
-     b) no error message in gifts/index page
-     c) @api_gift is not setted in comments/index - required in api_comments3
-        check how api_gift is selected in gifts/index page. see User.api_gifts
-        # multiple logins - find and remove any doublet gifts
-        # priority:
-        # 1) sort by status_update_at desc (also order by condition in select statement)
-        # 2) closed gift before open gift
-        # 3) api gift with picture
-        # 4) api picture url with error and creator of gift in login_users - recheck picture with login user privs.
-        # 5) api gift without picture
-        ags = ags.sort do |a, b|
-          if b.gift.status_update_at != a.gift.status_update_at
-            # 1) keep sort by status_update_at desc (also order by condition in select statement)
-            b.gift.status_update_at <=> a.gift.status_update_at
-          elsif a.status_sort != b.status_sort
-            a.status_sort <=> b.status_sort # 2) closed gift before open gift
-          else
-            a.picture_sort(login_users) <=> b.picture_sort(login_users) # 3, 4 and 5
-          end
-        end # ags sort 1
-
 159) gifts link and comments links
      use jquery "on" and delegated events: https://api.jquery.com/on/
      "bind" works only for existing elements in page
@@ -1007,3 +984,7 @@
 
 170) ie8 - new-messages-count - new comments are not ajax injected into gifts/index page
      fixed with :data => { :type => :script }, :format => :js,
+
+171) ie8:
+     document.querySelectorAll workaround querySelectorAll does not work in compatibility mode
+     layout does not work unless ie8 runs in compatibility mode

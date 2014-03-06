@@ -103,10 +103,25 @@ class CommentsController < ApplicationController
         @errors2 << { :msg => t('.gift_comment_mismatch'),:id => "gift-#{gift.id}-links-errors" }
         return
       end
+      # find api gift - same sort/selection as in User.api_gifts
+      ags = gift.api_gifts
+      ags = ags.sort do |a, b|
+        if b.gift.status_update_at != a.gift.status_update_at
+          # 1) keep sort by status_update_at desc (also order by condition in select statement)
+          b.gift.status_update_at <=> a.gift.status_update_at
+        elsif a.status_sort != b.status_sort
+          a.status_sort <=> b.status_sort # 2) closed gift before open gift
+        else
+          a.picture_sort(@users) <=> b.picture_sort(@users) # 3, 4 and 5
+        end
+      end # ags sort 1
+      api_gift = ags.first
       # ok - get next set older comments (comment.id < params[:first_comment_id])
       @first_comment_id = first_comment.id
       @api_comments = gift.api_comments_with_filter(@users, first_comment.id)
       @gift = gift
+      @api_gift = api_gift
+
     rescue Exception => e
       # todo: refactor exception handling - almust identical for all gift action links
       logger.error2 "Exception: #{e.message.to_s}"
