@@ -89,7 +89,7 @@
 
 <%# gifts table -%>
 <div style="width: 100%">
-  <table  id="gifts" style="display: <%= @api_gifts.size == 0 ? 'none' : 'inline' %>">
+  <table  id="gifts" style="table-layout:fixed; <%= 'display: none; ' if @api_gifts.size == 0  %>">
     <thead>
     <%= render :partial => 'table_header_row' %>
     </thead>

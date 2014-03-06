@@ -992,14 +992,15 @@
      check http://stackoverflow.com/questions/1340872/how-to-get-javascript-caller-function-line-number-how-to-get-javascript-caller
      check https://github.com/stacktracejs/stacktrace.js
 
-164) old browsers without media query support
-     display elements for large screen - hide elements for small screens
-     http://caniuse.com/css-mediaqueries
-     ie8 does not support media query
-     rollback modernizr.js to version without media query support
-     insert default values in application.css before media queries
-
 165) make test check list. every test should be done in every supported browser.
 
 166) ie8 target=blank opens in a new window and no shared cookie.
      could be a special spoon.net test problem - could be a reel problem with IE
+
+167) problem with comment text align in ie8. xxxx
+
+168) check if there is any virtual machines available for test
+
+169) ie8 layout bug in gifts/index page.
+     3 column med user div for comment. width = 52px is being ignored.
+     have added table-layout:fixed to table, but that is also being ignored
