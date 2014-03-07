@@ -290,6 +290,7 @@ class GiftsController < ApplicationController
       @users.each do |user|
         if user.get_write_on_wall_action == User::WRITE_ON_WALL_MISSING_PRIVS
           key, options = grant_write_link(user.provider)
+          logger.debug2 "grant_write_link: key = #{key}, options = #{options}"
           @errors << [key, options] if key
         end # if
       end # each user

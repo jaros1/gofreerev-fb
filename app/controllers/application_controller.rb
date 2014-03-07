@@ -1590,6 +1590,7 @@ class ApplicationController < ActionController::Base
   # link is injected in tasks_errors table in page header
   private
   def grant_write_link_facebook
+    logger.debug2 "start"
     provider = 'facebook'
     oauth = Koala::Facebook::OAuth.new(API_ID[provider], API_SECRET[provider], API_CALLBACK_URL[provider])
     url = oauth.url_for_oauth_code(:permissions => 'status_update', :state => set_state_cookie_store('status_update'))
@@ -1698,7 +1699,9 @@ class ApplicationController < ActionController::Base
     method = "grant_write_link_#{provider}".to_sym
     # logger.debug2 "private_methods = #{private_methods.join(', ')}"
     return ['.grant_write_link_missing', :provider => provider, :apiname => provider_downcase(provider)] unless private_methods.index(method)
-    send(method)
+    key, options = send(method)
+    logger.debug2 "key = #{key}, options = #{options}"
+    [key, options]
   end # grant_write_link
 
 

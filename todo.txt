@@ -974,12 +974,10 @@
      maybe modernizr has a solution for this.
 
 170) ie8 new user
-     grant write link is not displayed on gifts/index page when page is empty
+     grant write link is not displayed on gifts/index page when page is empty (ok in firefox)
      posted message is not ajax injected into page header after first post
      new gift is not ajax injected into page after first post
      grant write link is displayed in gifts/index page after refresh
-
-
 
 170) nice to have: decrease number of older comments in show older comments link if older comments has been deleted
      hard to implement without ajax replacing gift in gifts/index page
@@ -988,3 +986,8 @@
      problem is that user could be entering a new comment and that this new unsaved comment will be removed
      testcase: create new gift and start adding a comment for new gift - will be deleted in next new_messages_count request
 
+172) add wordwrap for comments
+     add show-more-text link for long comments with overflow
+     add opera 12 fallback for missing wordwrap support
+
+173) ie8 - check all deleteRow usages. ie8 removes deleted rows from memory and tr variable can not be used as placeholder.

@@ -2043,9 +2043,15 @@ $(document).ready(function() {
     if (!from_table) return ; // not gifts/index page
     var to_table = document.getElementById('tasks_errors') ;
     var from_trs = from_table.rows ;
+    var tr, td, error ;
     for (var i=from_trs.length-1; i>= 0 ; i--) {
-        var tr = from_trs[i];
+        tr = from_trs[i];
+        td = tr.cells[0] ;
+        error = td.innerHTML ;
         from_table.deleteRow(i) ;
+        tr = document.createElement('TR') ;
+        td = tr.insertCell(0) ;
+        td.innerHTML = error ;
         to_table.appendChild(tr) ;
     }
 });

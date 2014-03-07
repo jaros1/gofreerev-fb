@@ -14,8 +14,10 @@
 </script>
 
 <%# hidden table with links to grant write access to api walls %>
-<table id="hidden_tasks_errors" style="display:none">
-<%= render :partial => 'shared/translate_ajax_errors' %>
+<table style="display:none">
+  <tbody id="hidden_tasks_errors">
+    <%= render :partial => 'shared/translate_ajax_errors' %>
+  </tbody>
 </table>
 
 <%# create new gift form -%>
