@@ -736,34 +736,53 @@ function insert_update_gifts (tasks_sleep)
         // process ajax response received from new_messages_count ajax request
         // response has been inserted in new_messages_buffer_div in page header
         // also used after util/accept_new_deal to ajax replace gift
-        // add2log('insert_update_gifts: start') ;
 
         // check/update newest_gift_id (id for latest created gift)
         debug = 20 ;
         var new_newest_gift_id = document.getElementById("new-newest-gift-id") ; // from new_messages_buffer_div
-        if (!new_newest_gift_id) return ; // ok - not gifts/index page or no new/updated/deleted gifts
+        if (!new_newest_gift_id) {
+            // ok - not gifts/index page or no new/updated/deleted gifts
+            add2log(pgm + 'new-newest-gift-id was not found') ;
+            return ;
+        }
         if  (new_newest_gift_id.value != "") {
             // util/new_message_count returned new newest giftid
             var newest_gift_id = document.getElementById("newest-gift-id") ;
-            if (!newest_gift_id) return // error - hidden field was not found i gifts/index page - ignore error silently
+            if (!newest_gift_id) {
+                // error - hidden field was not found i gifts/index page - ignore error silently
+                add2log(pgm + 'newest-gift-id as not found') ;
+                return
+            }
             newest_gift_id.value = new_newest_gift_id.value ;
         }
 
         // check/update newest_status_update_at (stamp for latest updated or deleted gift )
         debug = 30 ;
         var new_newest_status_update_at = document.getElementById("new-newest-status-update-at") ; // from new_messages_buffer_div
-        if (!new_newest_status_update_at) return ; // ok - not gifts/index page or no new/updated/deleted gifts
+        if (!new_newest_status_update_at) {
+            // ok - not gifts/index page or no new/updated/deleted gifts
+            add2log(pgm + 'new-newest-status-update-at was not found') ;
+            return ;
+        }
         if  (new_newest_status_update_at.value != "") {
             // util/new_message_count returned new newest status_update_at
             var newest_status_update_at = document.getElementById("newest-status-update-at") ;
-            if (!newest_status_update_at) return // error - hidden field was not found i gifts/index page - ignore error silently
+            if (!newest_status_update_at) {
+                // error - hidden field was not found i gifts/index page - ignore error silently
+                add2log(pgm + 'newest-status-update-at was not found') ;
+                return
+            }
             newest_status_update_at.value = new_newest_status_update_at.value ;
         }
 
         // check if new_messages_count response has a table with new gifts (new_messages_buffer_div in page header)
         debug = 40 ;
         var new_gifts_tbody = document.getElementById("new_gifts_tbody") ;
-        if (!new_gifts_tbody) return ; // ok - not gifts/index page or no new gifts to error tbody with new gifts was not found
+        if (!new_gifts_tbody) {
+            // ok - not gifts/index page or no new gifts to error tbody with new gifts was not found
+            add2log(pgm + 'new_gifts_tbody was not found') ;
+            return ;
+        }
         // find gift ids received in new_gifts_tbody table. Any existing old rows with these gift ids must be removed before inserting new rows
         var new_gifts_trs = new_gifts_tbody.rows ;
         var new_gifts_tr ;
@@ -790,8 +809,11 @@ function insert_update_gifts (tasks_sleep)
         // old page: find first gift row in gifts table. id format gift-220-header.
         // new gifts from ajax response are to be inserted before this row
         debug = 60 ;
-        var old_gifts_table = document.getElementById("gifts") ;
-        if (!old_gifts_table) return ; // not gifts/index or gifts/show pages - ok
+        var old_gifts_table = document.getElementById("gifts_tbody") ;
+        if (!old_gifts_table) {
+            add2log(pgm + 'gifts_tbody was not found') ;
+            return ;
+        } // not gifts/index or gifts/show pages - ok
         var old_gifts_trs = old_gifts_table.rows ;
         var old_gifts_tr ;
         var old_gifts_id ;
@@ -824,8 +846,8 @@ function insert_update_gifts (tasks_sleep)
         if ((old_gifts_index == -1) && (old_gifts_trs.length >= 1) && (old_gifts_trs.length <= 2)) old_gifts_index = old_gifts_trs.length-1 ;
         // add2log(pgm + 'old_gifts_index = ' + old_gifts_index) ;
         if (old_gifts_index == -1) {
-            // error - id with format format gift-<999>-1 was not found - ignore error silently
-            add2log(pgm + 'error - id with format format gift-<999>- was not found') ;
+            // error - id with format gift-<999>-1 was not found - ignore error silently
+            add2log(pgm + 'error - id with format gift-<999>- was not found') ;
             return ;
         }
         var first_old_gift_tr = old_gifts_trs[old_gifts_index] ;
@@ -2039,11 +2061,21 @@ $(document).ready(function() {
 
 // gifts/index page - copy rows from hidden_tasks_errors to tasks_errors - links to grant write permission to api walls
 $(document).ready(function() {
+    var pgm = 'hidden_tasks_errors: ' ;
     var from_table = document.getElementById('hidden_tasks_errors') ;
-    if (!from_table) return ; // not gifts/index page
+    if (!from_table) {
+        // ok - not gifts/index page
+        add2log(pgm + 'not gifts/index page') ;
+        return ;
+    }
     var to_table = document.getElementById('tasks_errors') ;
     var from_trs = from_table.rows ;
     var tr, td, error ;
+    if (from_trs.length == 0) {
+        add2log(pgm + 'no rows in hidden_tasks_errors') ;
+        return ;
+    }
+    add2log(pgm + 'moving ' + from_trs.length + ' rows') ;
     for (var i=from_trs.length-1; i>= 0 ; i--) {
         tr = from_trs[i];
         td = tr.cells[0] ;

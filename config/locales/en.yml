@@ -141,6 +141,7 @@ en:
         post_on_api_unknown_gift_id: "Unknown id %{id} when posting on %{provider} wall"
         post_on_api_invalid_gift_id: "Invalid id %{id} when posting on %{provider} wall (1)"
         post_on_api_old_gift: "Old id %{id} when posting on %{provider} wall"
+        post_on_api_deleted_gift: "Id %{id} for deleted post when posting on %{provider} wall"
         no_local_picture: "Invalid id %{id} when posting on %{provider} wall (2)"
         local_picture_not_found: "Invalid id %{id} when posting on %{provider} wall (3)"
         api_client_gofreerev_post_on_wall: "System error. Cannot post on %{apiname} wall. Instance method gofreerev_post_on_wall is missing for %{apiname} API client."

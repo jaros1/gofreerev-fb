@@ -143,7 +143,8 @@ da:
         post_on_api_unknown_gift_id: "Ukendt id %{id} ved opslag på %{provider} væg"
         post_on_api_invalid_gift_id: "Ugyldigt id %{id} ved opslag på %{provider} væg (1)"
         post_on_api_old_gift: "Gammelt id %{id} ved opslag på %{provider} væg"
-        no_local_picture: "Ugyldigt id %{id} ved opslag på %{provider} væg (2)"
+        post_on_api_deleted_gift: "Id %{id} for slettet opslag ved opslag på %{provider} væg"
+        no_local_picture: "Ugyldigt opslag id %{id} ved opslag på %{provider} væg (2)"
         local_picture_not_found: "Ugyldigt id %{id} ved opslag på %{provider} væg (3)"
         api_client_gofreerev_post_on_wall: "Systemfejl. Kan ikke lave opslag på %{apiname} væg da instance metode gofreerev_post_on_wall for %{apiname} API klient."
         gift_posted_1_html: "Opslag oprettet her, men ikke på din %{apiname} væg (%{error})" # unhandled error message

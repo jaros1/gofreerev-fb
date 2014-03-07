@@ -983,6 +983,7 @@ class UtilController < ApplicationController
     return [gift, api_gift, deep_link, '.post_on_api_invalid_gift_id', { :provider => provider, :id => gift.id }] unless api_gift
     return [gift, api_gift, deep_link, '.post_on_api_invalid_gift_id', { :provider => provider, :id => gift.id }] unless [api_gift.user_id_giver, api_gift.user_id_receiver].index(login_user.user_id)
     return [gift, api_gift, deep_link, '.post_on_api_old_gift', { :provider => provider, :id => gift.id }] unless gift.created_at > 5.minute.ago
+    return [gift, api_gift, deep_link, '.post_on_api_deleted_gift', { :provider => provider, :id => gift.id }] if gift.deleted_at
 
     # check picture if any - must exists in /images/temp folder before post on API wall
     return [gift, api_gift, deep_link, 'gift_posted_6_html', { :apiname => provider}] if api_gift.picture? and !gift.rel_path_picture_exists?

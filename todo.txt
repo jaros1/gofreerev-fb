@@ -990,4 +990,4 @@
      add show-more-text link for long comments with overflow
      add opera 12 fallback for missing wordwrap support
 
-173) ie8 - check all deleteRow usages. ie8 removes deleted rows from memory and tr variable can not be used as placeholder.
+174) ie8 - first post on wall - generic_post_on_wall starts after page refresh
