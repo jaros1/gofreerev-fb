@@ -927,13 +927,6 @@
      https://spoon.net/browsers/
      IE8 - checking now
 
-153) IE8: getElementsByClassName is not supported.
-     Use document.querySelectorAll('.overflow)
-     check js code for getElementsByClassName usage.
-     if (document.getElementsByClassName) divs = document.getElementsByClassName('overflow') ;
-     else divs = document.querySelectorAll('.overflow') ;
-
-
 154) IE8: there is a problem with main menu in IE 8.
      both 1 and 2 lines menu is shown.
 
@@ -948,8 +941,6 @@
      maybe the difference is remote submit form / remote submit link
 
 156) IE8: new gift submit bottom is not disabled. check if double post are possible from IE8.
-
-157) deleted comments is included in "show-older-comments" count
 
 159) gifts link and comments links
      use jquery "on" and delegated events: https://api.jquery.com/on/
@@ -982,9 +973,18 @@
      layout is ok if compatibility view is enabled, but compatibility view destroys show-more-rows functionality
      maybe modernizr has a solution for this.
 
-170) ie8 - new-messages-count - new comments are not ajax injected into gifts/index page
-     fixed with :data => { :type => :script }, :format => :js,
+170) ie8 new user
+     grant write link is not displayed on gifts/index page when page is empty
+     posted message is not ajax injected into page header after first post
+     new gift is not ajax injected into page after first post
+     grant write link is displayed in gifts/index page after refresh
 
-171) ie8:
-     document.querySelectorAll workaround querySelectorAll does not work in compatibility mode
-     layout does not work unless ie8 runs in compatibility mode
+
+
+170) nice to have: decrease number of older comments in show older comments link if older comments has been deleted
+     hard to implement without ajax replacing gift in gifts/index page
+
+171) there is a little problem with ajax replace new gift after new gift has been created
+     problem is that user could be entering a new comment and that this new unsaved comment will be removed
+     testcase: create new gift and start adding a comment for new gift - will be deleted in next new_messages_count request
+

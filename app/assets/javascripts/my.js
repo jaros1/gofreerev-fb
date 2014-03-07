@@ -315,7 +315,8 @@ function find_overflow () {
     // find overflow texts and links in page - one array with texts - one array with hidden links
     var divs ;
     if (document.getElementsByClassName) divs = document.getElementsByClassName('overflow') ;
-    else divs = document.querySelectorAll('.overflow') ;
+    else if (document.querySelectorAll) divs = document.querySelectorAll('.overflow') ;
+    else return ; // IE8 running in compatibility mode - ignore div overflow
     var overflow_link = {} ;
     var overflow_text = {} ;
     var div, id, id_split, id_type, key, key, div_type ;

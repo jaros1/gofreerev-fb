@@ -366,8 +366,11 @@ class Gift < ActiveRecord::Base
     # 1) comments from friends
     # 2) comments from friends of friends (clickable user div)
     # 3) random sort
+
+    # todo: remove delete marked comments
+
     logger.debug2 "get comments for gift id #{id}. sort"
-    acs = api_comments.includes(:user).sort do |a,b|
+    acs = api_comments.includes(:user,:comment).where('"comments".deleted_at is null').references(:comments).sort do |a,b|
       a_friend = (a.user.friend?(login_users) <= 2) ? 1 : 2
       b_friend = (b.user.friend?(login_users) <= 2) ? 1 : 2
       if a_friend != b_friend
