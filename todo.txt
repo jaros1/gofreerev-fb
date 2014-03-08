@@ -940,8 +940,6 @@
      check difference in post gift/comment and post links
      maybe the difference is remote submit form / remote submit link
 
-156) IE8: new gift submit bottom is not disabled. check if double post are possible from IE8.
-
 159) gifts link and comments links
      use jquery "on" and delegated events: https://api.jquery.com/on/
      "bind" works only for existing elements in page
@@ -990,4 +988,7 @@
      add show-more-text link for long comments with overflow
      add opera 12 fallback for missing wordwrap support
 
-174) ie8 - first post on wall - generic_post_on_wall starts after page refresh
+173) dev1 / user_id = 100007787314708/facebook, user_name = Maria Amgghgcadgjh Smithberg,
+     post picture on wall does not work
+     picture was posted but gofreerev cannot read picture (public read + read to Maria's wall)
+

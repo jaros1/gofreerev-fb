@@ -137,6 +137,18 @@ function csv_invalid_price (id)
 var csv_gift_description_required = 'Description is required.';
 var csv_gift_price_invalid = 'Price is invalid. Only numbers, max 2 decimals, thousands separator not allowed.';
 function csv_gift() {
+    // todo: ie fix. check if submit bottom has been disabled
+    var submit_buttons = document.getElementsByName('commit_gift') ;
+    add2log('submit_buttons.length = ' + submit_buttons.length) ;
+    for (var i=0 ; i< submit_buttons.length ; i++) {
+        add2log('csv_gift: submit_buttons[' + i + '].disabled = ' + submit_buttons[i].disabled) ;
+        if (submit_buttons[i].disabled) {
+            // ie8 fix - submit new gift must be in progress - ignore
+            add2log('csv_gift: ie8 fix - submit new gift must be in progress - ignore click') ;
+            return false ;
+        }
+    }
+
     // check required description
     if (csv_empty_field('gift_description')) {
         alert(csv_gift_description_required);

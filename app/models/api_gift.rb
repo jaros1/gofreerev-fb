@@ -347,6 +347,8 @@ class ApiGift < ActiveRecord::Base
       response = ApiGift.http_get(link)
     rescue HttpRequestTimeOut => e
       return e.message
+    rescue Net::ReadTimeout => e
+      return e.message
     end
     return nil if response.class == Net::HTTPOK
     # error in deep link page
