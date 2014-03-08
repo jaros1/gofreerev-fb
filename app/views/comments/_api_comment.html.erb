@@ -9,6 +9,23 @@
         <%= @comment = comment ; render 'comments/api_comment_status' %>
       </td>
       <td style="vertical-align: top;"><%= render '/shared/user_div', :user_div => api_comment.user %></td>
-      <td style="text-align: left; vertical-align: top"><%= my_sanitize comment.comment %></td>
+      <td class="wrapword" style="text-align: left; vertical-align: top">
+        <table>
+          <tr>
+            <td>
+              <div style="max-height: 150px; overflow: hidden" class="overflow" id="<%= "comment-#{comment.id}-overflow-text" %>">
+                <%= my_sanitize comment.comment %>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td style="text-align: center">
+              <div id="<%= "comment-#{comment.id}-overflow-link" %>" class="overflow" style="display: none; float: none">
+                <%= link_to t('.show_more_text'), "#", :onclick => "return show_overflow(this)" %>
+              </div>
+            </td>
+          </tr>
+        </table>
+      </td>
     </tr>
 <% end -%>

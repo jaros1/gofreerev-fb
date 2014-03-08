@@ -1790,7 +1790,9 @@ function post_ajax_add_new_comment_handler(giftid) {
             var checkbox, gifts, trs, re, i, new_comment_tr, id2, add_new_comment_tr, tbody;
             // reset new comment line
             document.getElementById('gift-' + giftid + '-comment-new-price').value = '';
-            document.getElementById('gift-' + giftid + '-comment-new-textarea').value = '';
+            var textarea = document.getElementById('gift-' + giftid + '-comment-new-textarea') ;
+            textarea.value = '';
+            autoresize_text_field(textarea) ;
             document.getElementById('gift-' + giftid + '-comment-new-price-tr').style.display = 'none';
             checkbox = document.getElementById('gift-' + giftid + '-new-deal-check-box');
             if (checkbox) checkbox.checked = false;
@@ -1821,6 +1823,8 @@ function post_ajax_add_new_comment_handler(giftid) {
             // move ok
             last_user_ajax_comment_at = new Date();
             restart_check_new_messages();
+            // check overflow for new comment - display show-more-text link for comment with long text
+            find_overflow();
             // unbind and bind ajax for comment action links
             setup_comment_action_link_ajax() ;
         }
