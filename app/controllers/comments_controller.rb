@@ -8,19 +8,18 @@ class CommentsController < ApplicationController
   def create
     # start with empty ajax response
     @api_comment = nil
-
-    gift_row_id = nil
+    table = 'tasks_errors'
     begin
-      return append_create_comment_error(gift_row_id, '.invalid_request_no_comment_form') unless params.has_key?(:comment)
+      return format_response_key '.invalid_request_no_comment_form', :table => table unless params.has_key?(:comment)
       gift = Gift.find_by_gift_id(params[:comment][:gift_id])
-      return append_create_comment_error(gift_row_id, '.invalid_request_unknown_gift') unless gift
-      gift_row_id = gift.id
-      return append_create_comment_error(gift_row_id, '.not_logged_in') unless logged_in?
-      return append_create_comment_error(gift_row_id, '.invalid_request_invalid_gift') unless gift.visible_for?(@users)
+      return format_response_key '.invalid_request_unknown_gift', :table => table unless gift
+      table = "gift-#{gift.id}-comment-new-errors"
+      return format_response_key '.not_logged_in', :table => table unless logged_in?
+      return format_response_key '.invalid_request_invalid_gift', :table => table unless gift.visible_for?(@users)
       # get user from @users. Must be giver, receiver or friend of giver or receiver.
       user = @users.find { |user2| gift.visible_for?([user2]) }
       logger.debug2 "user_id = #{user.user_id}"
-      return append_create_comment_error(gift_row_id, '.deleted_user') if user.deleted_at
+      return format_response_key '.deleted_user', :table => table if user.deleted_at
       comment = Comment.new
       comment.gift_id = gift.gift_id if gift
       comment.comment = params[:comment][:comment].to_s.force_encoding('UTF-8')
@@ -40,26 +39,26 @@ class CommentsController < ApplicationController
         api_comment.user_id = user.user_id
         comment.api_comments << api_comment
       end
-      return append_create_comment_error(gift_row_id, '.no_providers') if comment.api_comments.size == 0
+      return format_response_key '.no_providers', :table => table if comment.api_comments.size == 0
 
       # validate comment - price= accepts only float and model can not return invalid price errors
       comment.valid?
       comment.errors.add :price, :invalid if params[:comment][:new_deal_yn] == 'Y' and invalid_price?(params[:comment][:price])
       if comment.errors.size > 1
-        append_create_comment_error(gift_row_id, '.comment_error', {:error => comment.errors.full_messages.join(', ') })
+        return format_response_key '.comment_error', :error => comment.errors.full_messages.join(', '), :table => table
       else
         comment.save!
       end
 
       # return new comment to browser
       @api_comment = comment.api_comments.shuffle.first
-      format_ajax_response
+      format_response
 
     rescue Exception => e
       logger.error2  "Exception: #{e.message.to_s}"
       logger.error2  "Backtrace: " + e.backtrace.join("\n")
       @api_comment = nil
-      append_create_comment_error(gift_row_id, '.exception', :error => e.message)
+      format_response_key '.exception', :error => e.message, :table => table
     end
   end # create
 
@@ -71,38 +70,22 @@ class CommentsController < ApplicationController
     @gift = nil
     @api_comments = nil
     gift = nil
+    table = 'tasks_errors'
     begin
       # find gift
-      if params[:gift_id].to_s == ""
-        @errors2 <<  { :msg => t('.gift_id_is_missing'), :id => 'tasks_errors' }
-        return
-      end
+      return format_response_key '.gift_id_is_missing', :table => table  if params[:gift_id].to_s == ""
       gift = Gift.find_by_id(params[:gift_id])
-      if !gift
-        @errors2 << { :msg => t('.gift_not_found'), :id => 'tasks_errors'}
-        return
-      end
+      return format_response_key '.gift_not_found', :table => table if !gift
+      table = "gift-#{gift.id}-links-errors"
       # gift was found.
       # any ajax error messages are now ajax injected into row under gifts link in gifts/index page
       # check if user may see gift. Must be giver, receiver, friend with giver or friend with receiver
-      if !gift.visible_for?(@users)
-        @errors2 << { :msg => t('.gift_not_friends'), :id => "gift-#{gift.id}-links-errors" }
-        return
-      end
+      return format_response_key '.gift_not_friends', :table => table unless gift.visible_for?(@users)
       # check first_comment_id
-      if params[:first_comment_id].to_s == ""
-        @errors2 <<  { :msg => t('.first_comment_id_is_missing'), :id => "gift-#{gift.id}-links-errors" }
-        return
-      end
+      return format_response_key '.first_comment_id_is_missing', :table => table if params[:first_comment_id].to_s == ""
       first_comment = Comment.find_by_id(params[:first_comment_id])
-      if !first_comment
-        @errors2 << { :msg => t('.first_comment_not_found'),:id => "gift-#{gift.id}-links-errors" }
-        return
-      end
-      if first_comment.gift_id != gift.gift_id
-        @errors2 << { :msg => t('.gift_comment_mismatch'),:id => "gift-#{gift.id}-links-errors" }
-        return
-      end
+      return format_response_key '.first_comment_not_found', :table => table unless first_comment
+      return format_response_key '.gift_comment_mismatch', :table => table unless first_comment.gift_id == gift.gift_id
       # find api gift - same sort/selection as in User.api_gifts
       ags = gift.api_gifts
       ags = ags.sort do |a, b|
@@ -123,14 +106,12 @@ class CommentsController < ApplicationController
       @api_gift = api_gift
 
     rescue Exception => e
-      # todo: refactor exception handling - almust identical for all gift action links
       logger.error2 "Exception: #{e.message.to_s}"
       logger.error2 "Backtrace: " + e.backtrace.join("\n")
-      @errors2 << {:msg => t('.exception', :error => e.message.to_s, :raise => I18n::MissingTranslationData),
-                   :id => gift ? "gift-#{gift.id}-links-errors" : "tasks_errors"}
-      logger.error2 "@errors2 = #{@errors2}"
       @old_first_comment_id = nil
       @api_comments = nil
+      format_response_key '.exception', :error => e.message.to_s, :raise => I18n::MissingTranslationData, :table => table
+      logger.error2 "@errors2 = #{@errors2}"
     end
   end # index
 

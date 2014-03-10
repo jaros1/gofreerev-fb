@@ -1,4 +1,5 @@
-<% # logger.debug2  "@errors.size = #{@errors.size}, @gifts.size = #{@api_gifts.size}"
+<% logger.debug2  "@errors2.size = #{@errors2.size}"
+   logger.debug2 " @api_gifts.size = #{@api_gifts.size}"
    raise "empty response from gifts/create" if @errors2.size == 0 and @api_gifts.size == 0
 -%>
 <% if @errors2.size > 0 -%>

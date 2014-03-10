@@ -73,7 +73,8 @@ class GiftsController < ApplicationController
 
     gift.valid?
     gift.errors.add :price, :invalid if invalid_price?(params[:gift][:price]) # price= accepts only float and model can not return invalid price error
-    return add_error_and_format_ajax_resp(gift.errors.full_messages.join(', ')) if gift.errors.size > 0
+    logger.debug2 "gifts.errors = #{gift.errors.full_messages.join(', ')}"
+    return format_response_text(gift.errors.full_messages.join(', ')) if gift.errors.size > 0
 
     # add api_gifts - one api_gifts for each provider
     # api_gift_id will be added in post_on_<provider> tasks
@@ -195,6 +196,8 @@ class GiftsController < ApplicationController
     # find api gift - api gift with picture is preferred
     api_gift = gift.api_gifts.sort { |a, b| b.picture <=> a.picture}.first
     @api_gifts = ApiGift.where("id = ?", api_gift.id).includes(:gift)
+    logger.debug2  "@errors2.size = #{@errors2.size}"
+    logger.debug2 " @api_gifts.size = #{@api_gifts.size}"
     format_ajax_response
   end # create
 

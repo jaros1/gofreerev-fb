@@ -386,7 +386,7 @@ class UtilController < ApplicationController
     logger.error2 "Action   : #{params[:action]}"
     logger.error2 "Exception: #{exception.message.to_s}"
     logger.error2 "Backtrace: " + exception.backtrace.join("\n")
-    format_response '.exception',
+    format_response_key '.exception',
                     :error => exception.message.to_s,
                     :raise => I18n::MissingTranslationData,
                     :table => gift ? "gift-#{gift.id}-links-errors" : "tasks_errors"
@@ -401,7 +401,7 @@ class UtilController < ApplicationController
     begin
       gift, key, options = check_gift_action('like')
       if key
-        return format_response key, options.merge(:table => gift ? "gift-#{gift.id}-links-errors" : "tasks_errors")
+        return format_response_key key, options.merge(:table => gift ? "gift-#{gift.id}-links-errors" : "tasks_errors")
       end
       # like gift
       @users.each do |user|
@@ -422,7 +422,7 @@ class UtilController < ApplicationController
       @gift_link_id = "gift-#{gift.id}-like-unlike-link"
       @gift_link_href = util_unlike_gift_path(:gift_id => gift.id)
       @gift_link_text = t('gifts.api_gift.unlike_gift')
-      format_response
+      format_response_key
     rescue Exception => e
       format_gift_action_exception(gift, e)
     end
@@ -435,7 +435,7 @@ class UtilController < ApplicationController
     begin
       gift, key, options = check_gift_action('unlike')
       if key
-        return format_response key, options.merge(:table => gift ? "gift-#{gift.id}-links-errors" : "tasks_errors")
+        return format_response_key key, options.merge(:table => gift ? "gift-#{gift.id}-links-errors" : "tasks_errors")
       end
       # unlike gift
       @users.each do |user|
@@ -449,7 +449,7 @@ class UtilController < ApplicationController
       @gift_link_id = "gift-#{gift.id}-like-unlike-link"
       @gift_link_href = util_like_gift_path(:gift_id => gift.id)
       @gift_link_text = t('gifts.api_gift.like_gift')
-      format_response
+      format_response_key
     rescue Exception => e
       format_gift_action_exception(gift, e)
     end
@@ -462,7 +462,7 @@ class UtilController < ApplicationController
     begin
       gift, key, options = check_gift_action('follow')
       if key
-        return format_response key, options.merge(:table => gift ? "gift-#{gift.id}-links-errors" : "tasks_errors")
+        return format_response_key key, options.merge(:table => gift ? "gift-#{gift.id}-links-errors" : "tasks_errors")
       end
       # follow gift
       @users.each do |user|
@@ -483,7 +483,7 @@ class UtilController < ApplicationController
       @gift_link_id = "gift-#{gift.id}-follow-unfollow-link"
       @gift_link_href = util_unfollow_gift_path(:gift_id => gift.id)
       @gift_link_text = t('gifts.api_gift.unfollow_gift')
-      format_response
+      format_response_key
     rescue Exception => e
       format_gift_action_exception(gift, e)
     end
@@ -496,7 +496,7 @@ class UtilController < ApplicationController
     begin
       gift, key, options = check_gift_action('unfollow')
       if key
-        return format_response key, options.merge(:table => gift ? "gift-#{gift.id}-links-errors" : "tasks_errors")
+        return format_response_key key, options.merge(:table => gift ? "gift-#{gift.id}-links-errors" : "tasks_errors")
       end
       # unfollow gift
       @users.each do |user|
@@ -515,7 +515,7 @@ class UtilController < ApplicationController
       @gift_link_id = "gift-#{gift.id}-follow-unfollow-link"
       @gift_link_href = util_follow_gift_path(:gift_id => gift.id)
       @gift_link_text = t('gifts.api_gift.follow_gift')
-      format_response
+      format_response_key
     rescue Exception => e
       format_gift_action_exception(gift, e)
     end
@@ -529,7 +529,7 @@ class UtilController < ApplicationController
       # validate hide gift
       gift, key, options = check_gift_action('hide')
       if key
-        return format_response key, options.merge(:table => gift ? "gift-#{gift.id}-links-errors" : "tasks_errors")
+        return format_response_key key, options.merge(:table => gift ? "gift-#{gift.id}-links-errors" : "tasks_errors")
       end
       # hide gift - db
       @users.each do |user|
@@ -548,7 +548,7 @@ class UtilController < ApplicationController
       end
       # hide gift ok - remove gift from gifts/index page
       @gift_id = gift.id
-      format_response
+      format_response_key
     rescue Exception => e
       format_gift_action_exception(gift, e)
     end
@@ -562,7 +562,7 @@ class UtilController < ApplicationController
       # validate delete gift
       gift, key, options = check_gift_action('delete')
       if key
-        return format_response key, options.merge(:table => gift ? "gift-#{gift.id}-links-errors" : "tasks_errors")
+        return format_response_key key, options.merge(:table => gift ? "gift-#{gift.id}-links-errors" : "tasks_errors")
       end
       # delete mark gift. Delete marked gifts will be ajax removed from other sessions within the
       # next 5 minutes and will be physical deleted after 5 minutes
@@ -575,7 +575,7 @@ class UtilController < ApplicationController
       end
       # delete gift ok - remove gift from gifts/index page
       @gift_id = gift.id
-      format_response
+      format_response_key
     rescue Exception => e
       format_gift_action_exception(gift, e)
     end

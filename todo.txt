@@ -1021,6 +1021,7 @@
 
 181) replace all @errors usages to @errors2 - array with :msg and :id
 
-
+182) problem with new ajax error handling and ie8.
+     maybe request.xhr? is not true for ie8 ...
 
 

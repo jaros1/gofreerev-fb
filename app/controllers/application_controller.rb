@@ -4,7 +4,7 @@ require 'money/bank/google_currency'
 #noinspection RubyResolve
 class ApplicationController < ActionController::Base
 
-  before_filter :check_ajax
+  before_filter :setup_errors
   before_filter :request_start_time
 
   # protect cookie information on public web servers
@@ -400,11 +400,6 @@ class ApplicationController < ActionController::Base
     end
     nil
   end
-  private
-  def add_error_and_format_ajax_resp (error)
-    @errors2 << { :msg => error, :id => 'tasks_errors' }
-    format_ajax_response
-  end
 
   private
   def logged_in?
@@ -436,7 +431,7 @@ class ApplicationController < ActionController::Base
         end # case action gifts controller
     end # case controller
     if table
-      @errors2 << { :msg => t('gifts.index.not_logged_in_ajax'), :id => table }
+      add_error_key 'gifts.index.not_logged_in_ajax', :id => table
     else
       logger.error2 "not logged in ajax response not implemented for controller = #{params[:controller]}, action = #{params[:action]}"
       save_flash 'gifts.index.not_logged_in_ajax'
@@ -1769,7 +1764,7 @@ class ApplicationController < ActionController::Base
   # add_error adds error to @errors
   # format_response adds any error to @errors and format js or html response
   private
-  def add_error (key, options = {})
+  def add_error_key (key, options = {})
     if request.xhr?
       table = options.delete(:table) || 'tasks_errors'
       @errors2 << { :msg => t(key, options), :id => table }
@@ -1779,10 +1774,19 @@ class ApplicationController < ActionController::Base
   end
 
   private
+  def add_error_text (text, options = {})
+    if request.xhr?
+      table = options.delete(:table) || 'tasks_errors'
+      @errors2 << { :msg => text, :id => table }
+    else
+      @errors2 << text
+    end
+  end
+
+  private
   def format_response (key = nil, options = {})
     action = options.delete(:action) if options
     action = params[:action] unless action
-    add_error(key, options) if key
     respond_to do |format|
       if request.xhr?
         # fix for ie8/ie9 error:
@@ -1812,6 +1816,18 @@ class ApplicationController < ActionController::Base
     nil
   end # format_response
 
+  private
+  def format_response_key (key = nil, options = {})
+    add_error_key(key, options) if key
+    format_response options
+  end # format_response
+
+  private
+  def format_response_text (text = nil, options = {})
+    add_error_text(text, options) if text
+    format_response options
+  end # format_response
+
   # protect cookie information on public web servers
   private
   def ssl_configured?
@@ -1820,8 +1836,9 @@ class ApplicationController < ActionController::Base
 
   # use @errors array to report ajax errors
   private
-  def check_ajax
-    @errors2 = [] if request.xhr?
+  def setup_errors
+    # logger.debug2 "request.xhr? = #{request.xhr?}, HTTP_X_REQUESTED_WITH = #{request.headers['HTTP_X_REQUESTED_WITH']}"
+    @errors2 = []
   end
 
 end # ApplicationController
