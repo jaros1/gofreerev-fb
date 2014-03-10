@@ -969,7 +969,8 @@
      3 column med user div for comment. width = 52px is being ignored.
      have added table-layout:fixed to table, but that is also being ignored
      layout is ok if compatibility view is enabled, but compatibility view destroys show-more-rows functionality
-     maybe modernizr has a solution for this.
+     maybe modernizr has a solution for this
+     modernizr has a lot of modules that can be added - what module to add to fix this problem?
 
 170) ie8 new user
      grant write link is not displayed on gifts/index page when page is empty (ok in firefox)
@@ -995,7 +996,7 @@
      retest ie8 ok! looks like a temporary problem!
 
 174) show-more-text link is not displayed after create new comment - ajax inject from create
-     tested ok in firefox and opera 12
+     tested ok in firefox and opera 12.
 
 175) comment text box is not resized after creating a new comment with a very large text
      tested ok in firefox and opera 12
@@ -1003,4 +1004,23 @@
 176) create new comment - no ajax error message if not logged in
      test with 2 tabs. One tab in gifts/index page and an other tab where user logs out
 
-177) no leave page yes/no dialog box opera and entering a new comment + click on link
+177) entering new comment + click on menu link - no leave page yes/no dialog box
+     entering new gift + click on menu link - no leave page yes/no dialog box
+     maybe a generic solution - see also solution for currency LOV
+
+178) ie8 problem - new comment with very large text
+     first click - resized to a smaller text area with scroll bars
+     second click - submitted ok
+     not a problem for new gift with very large text - what is the difference?
+
+179) my.js - clear_ajax_errors(table_id) and clear_flash_and_ajax_errors
+     clear all ajax error messages in web page
+
+180) call login required for all http requests
+     do not call login required for ajax requests (action must report error)
+
+181) replace all @errors usages to @errors2 - array with :msg and :id
+
+
+
+

@@ -286,7 +286,8 @@ da:
   comments:
      create:
         invalid_request_no_comment_form: "Ugyldigt kald. Systemfejl. Kommentar-form ej fundet."
-        invalid_request_unknown_gift: "Ugyldigt kald. Systemfejl. Ukendt id for gave."
+        invalid_request_unknown_gift: "Ugyldigt kald. Systemfejl. Ukendt id for opslag."
+        not_logged_in: "Du er ikke logget ind og kan ikke oprette nye kommentarer. Opdater venligst siden."
         invalid_request_invalid_gift: "Ugyldigt kald. Du har ikke adgang til dette opslag. Opdater venligst siden."
         deleted_user: "Din konto er ved at blive slettet, og du kan ikke oprette nye kommentarer"
         no_providers: "Kunne ikke oprette kommentar. Ingen fælles loginudbydere. Kan evt. være en systemfejl."
@@ -323,6 +324,7 @@ da:
         confirm_delete_comment: "Slet kommentar?"
      destroy:
         unknown_comment: "Kunne ikke slette kommentar. Kommentar blev ikke fundet. Opdater venligst siden."
+        not_logged_in: "Sletning af kommentar er ikke mulig. Du er ikke logget ind. Opdater venligst siden."
         invalid_comment: "Sletning af kommentar er ikke mulig. Opdater venligst siden."
         deleted_user: "Sletning af kommentar er ikke mulig. Din konto er ved at blive slettet."
         exception: "Systemfejl. Kunne ikke slette kommentar. %{error}. Se mere information i log."
@@ -347,6 +349,7 @@ da:
         gift_not_posted_5: "Opslag på %{apiname} væg er endnu ikke implementeret."
         no_api_walls: "Opslag blev oprettet herinde, men ikke på nogen loginudbyders væg. Dit opslag vil kun set af venner, der benytter %{appname}. Gå evt. til \"Log ind\" siden og tjek læse/skriveadgang til loginudbyder væg, og om du har tilladt opslag på login udbyder væg."
      index:
+        not_logged_in_ajax: "Opdatering blev afvist. Du er ikke logget på. Genopfrisk venligst siden."
         not_logged_in_flash: "Siden kan desværre ikke vises. Du er ikke logget på. Brug nedenstående links til at logge ind."
         not_logged_in_text: "Du er ikke logget ind, og der kan ikke oprettes opslag."
         welcome_msg_after_login: "Velkommen %{username} til %{appname}"
@@ -801,6 +804,7 @@ da:
         exception: "Systemfejl. Kunne ikke skjule opslag. %{error}. Mere information i server log."
      delete_gift:
         invalid_action: "Systemfejl. Kunne ikke slette opslag. Ugyldig aktion. Mere information i server log."
+        not_logged_in: "Kan ikke slette opslag. Du er ikke logget ind. Genopfrisk venligst siden."
         gift_deleted: "Kan ikke slette opslag. Opslag er blevet slettet. Opdater venligst siden."
         not_authorized: "Systemfejl. Kunne ikke slette opslag. Der er ikke (længere) adgang til opslag. Opdater venligst siden."
         deleted_user: "Kan ikke slette opslag. Din konto er ved at blive slettet."

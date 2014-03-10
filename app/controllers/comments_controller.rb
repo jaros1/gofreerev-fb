@@ -1,21 +1,22 @@
 class CommentsController < ApplicationController
 
-  before_filter :login_required
+  before_filter :login_required, :except => [:create, :destroy]
 
   # POST /comments
   # POST /comments.json
   # Parameters: {"utf8"=>"✓", "comment"=>{"gift_id"=>"j0N0uppxbj1nmDfsWBbk", "new_deal_yn"=>"Y", "price"=>"1", "comment"=>"25"}, "commit"=>"Gem"}
   def create
     # start with empty ajax response
-    @errors2 = []
     @api_comment = nil
+
     gift_row_id = nil
     begin
       return append_create_comment_error(gift_row_id, '.invalid_request_no_comment_form') unless params.has_key?(:comment)
       gift = Gift.find_by_gift_id(params[:comment][:gift_id])
       return append_create_comment_error(gift_row_id, '.invalid_request_unknown_gift') unless gift
-      return append_create_comment_error(gift_row_id, '.invalid_request_invalid_gift') unless gift.visible_for?(@users)
       gift_row_id = gift.id
+      return append_create_comment_error(gift_row_id, '.not_logged_in') unless logged_in?
+      return append_create_comment_error(gift_row_id, '.invalid_request_invalid_gift') unless gift.visible_for?(@users)
       # get user from @users. Must be giver, receiver or friend of giver or receiver.
       user = @users.find { |user2| gift.visible_for?([user2]) }
       logger.debug2 "user_id = #{user.user_id}"
@@ -67,7 +68,6 @@ class CommentsController < ApplicationController
   #   gift_id: required
   #   first_comment_id: Used in ajax request from gifts/index page to get more comments for a gift
   def index
-    @errors2 = []
     @gift = nil
     @api_comments = nil
     gift = nil
@@ -140,7 +140,6 @@ class CommentsController < ApplicationController
   # ajax request from gifts/index page
   def destroy
     comment = nil
-    @errors2 = []
     @link_id = nil
     begin
       id = params[:id]
@@ -148,6 +147,11 @@ class CommentsController < ApplicationController
       if !comment
         logger.debug2 "Comment with id #{id} was not found"
         append_destroy_comment_error(comment, '.unknown_comment')
+        return
+      end
+      if !logged_in?
+        logger.debug2 "User are not logged in"
+        append_destroy_comment_error(comment, '.not_logged_in')
         return
       end
       if !comment.show_delete_comment_link?(@users)

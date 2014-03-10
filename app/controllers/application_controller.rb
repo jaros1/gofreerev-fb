@@ -4,6 +4,7 @@ require 'money/bank/google_currency'
 #noinspection RubyResolve
 class ApplicationController < ActionController::Base
 
+  before_filter :check_ajax
   before_filter :request_start_time
 
   # protect cookie information on public web servers
@@ -72,6 +73,7 @@ class ApplicationController < ActionController::Base
   # 7) others                 - not clickable user div - for example comments from other login providers
   private
   def cache_friend_info (users)
+    return if users.size == 0
     user_ids = users.collect { |u| u.user_id}
     # get friends. split in 4 categories. Y: mutual friends, F: follows, S: Stalked by, N: not app friend
     logger.debug2 "get friends. user_ids = #{user_ids.join(', ')}"
@@ -400,7 +402,7 @@ class ApplicationController < ActionController::Base
   end
   private
   def add_error_and_format_ajax_resp (error)
-    @errors << error
+    @errors2 << { :msg => error, :id => 'tasks_errors' }
     format_ajax_response
   end
 
@@ -410,11 +412,37 @@ class ApplicationController < ActionController::Base
   end
   helper_method "logged_in?"
 
+  # note that login_required? check filter is skipped in many ajax requests
+  # ( customized error messages for not logged in users )
   private
   def login_required
     return true if logged_in?
-    save_flash 'gifts.index.not_logged_in_flash'
-    redirect_to :controller => :auth, :action => :index
+    if !request.xhr?
+      save_flash 'gifts.index.not_logged_in_flash'
+      redirect_to :controller => :auth, :action => :index
+      return
+    end
+    # ajax request and not logged in.
+    table = nil
+    tasks_errors = 'tasks_errors'
+    controller = params[:controller]
+    action = params[:action]
+    logger.debug2 "controller = #{controller}, action = #{action}"
+    case controller
+      when 'gifts'
+        case action
+          when  'create'
+            table = tasks_errors
+        end # case action gifts controller
+    end # case controller
+    if table
+      @errors2 << { :msg => t('gifts.index.not_logged_in_ajax'), :id => table }
+    else
+      logger.error2 "not logged in ajax response not implemented for controller = #{params[:controller]}, action = #{params[:action]}"
+      save_flash 'gifts.index.not_logged_in_ajax'
+      redirect_to :controller => :auth, :action => :index
+      # JS error: ....: "SyntaxError: syntax error. check server log for more information"
+    end
   end # login_required
 
   private
@@ -1735,10 +1763,65 @@ class ApplicationController < ActionController::Base
   end
   helper_method :get_flash
 
+  # generic error handler.
+  # html request errors are stored in simple array and returned as a flash
+  # ajax errors are stored with :id for html table where error should be ajax injected into
+  # add_error adds error to @errors
+  # format_response adds any error to @errors and format js or html response
+  private
+  def add_error (key, options = {})
+    if request.xhr?
+      table = options.delete(:table) || 'tasks_errors'
+      @errors2 << { :msg => t(key, options), :id => table }
+    else
+      @errors2 << t(key, options)
+    end
+  end
+
+  private
+  def format_response (key = nil, options = {})
+    action = options.delete(:action) if options
+    action = params[:action] unless action
+    add_error(key, options) if key
+    respond_to do |format|
+      if request.xhr?
+        # fix for ie8/ie9 error:
+        #  "to help protect your security internet explorer blocked this site from downloading files to your computer"
+        # (x.js.erb response is being downloaded instead of being executed)
+        # only a problem in remote forms (new gifts and new comments)
+        logger.debug2 "format.js: action = #{action}"
+        format.js {render action, :content_type => "text/plain" }
+      else
+        # delete any old flash
+        flash_id = session[:flash_id]
+        if flash_id
+          flash = Flash.find_by_id(flash_id)
+          flash.destroy if flash
+          session.delete(:flash_id)
+        end
+        if @errors2.size > 0
+          # create new flash
+          flash = Flash.new
+          flash.message = @errors2.join(' ')
+          flash.save!
+          session[:flash_id] = flash.id
+        end
+        format.html unless request.xhr?
+      end
+    end
+    nil
+  end # format_response
+
   # protect cookie information on public web servers
   private
   def ssl_configured?
     FORCE_SSL
+  end
+
+  # use @errors array to report ajax errors
+  private
+  def check_ajax
+    @errors2 = [] if request.xhr?
   end
 
 end # ApplicationController

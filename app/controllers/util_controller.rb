@@ -3,6 +3,10 @@ require 'linkedin'
 
 class UtilController < ApplicationController
 
+  before_filter :login_required,
+                :except => [:new_messages_count,
+                            :like_gift, :unlike_gift, :follow_gift, :unfollow_gift, :hide_gift, :delete_gift]
+
   # update new message count in menu line in page header
   # called from hidden check-new-messages-link link in page header once every 15, 60 or 300 seconds
   # new_message_count is also ajax injecting gifts and comments into gifts pages
@@ -347,66 +351,57 @@ class UtilController < ApplicationController
     actions = %w(like unlike follow unfollow hide delete)
     if !actions.index(action)
       logger.error2 "Invalid call. action #{action}. allowed actions are #{actions.join(', ')}"
-      return [gift, '.invalid_action', {:action => action}]
+      return [gift, '.invalid_action', {:action => action, :raise => I18n::MissingTranslationData}]
     end
     gift_id = params[:gift_id]
     gift = Gift.find_by_id(gift_id)
     if !gift
       logger.debug2 "Gift with id #{gift_id} was not found"
-      return [gift, '.gift_not_found', {}]
+      return [gift, '.gift_not_found', {:raise => I18n::MissingTranslationData}]
     end
-    return [gift, '.gift_deleted', {}] if gift.deleted_at
+    logger.debug2 "logged_in? = #{logged_in?}"
+    return [gift, '.not_logged_in', {:raise => I18n::MissingTranslationData}] unless logged_in?
+    return [gift, '.gift_deleted', {:raise => I18n::MissingTranslationData}] if gift.deleted_at
     if !gift.visible_for?(@users)
       logger.debug2 "#{User.debug_info(@users)} is/are not allowed to see gift id #{gift_id}"
-      return [gift, '.not_authorized', {}]
+      return [gift, '.not_authorized', {:raise => I18n::MissingTranslationData}]
     end
     @users.remove_deleted_users
     if !gift.visible_for?(@users)
       logger.debug2 "Found one or more deleted accounts. Remaining users #{User.debug_info(@users)} is/are not allowed to see gift id #{gift_id}"
-      return [gift, '.deleted_user', {}]
+      return [gift, '.deleted_user', {:raise => I18n::MissingTranslationData}]
     end
-
-    if false
-      show_action = case action
-                      when 'like' then
-                        gift.show_like_gift_link?(@users)
-                      when 'unlike' then
-                        gift.show_unlike_gift_link?(@users)
-                      when 'follow' then
-                        gift.show_follow_gift_link?(@users)
-                      when 'unfollow' then
-                        gift.show_unfollow_gift_link?(@users)
-                      when 'hide' then
-                        gift.show_hide_gift_link?(@users)
-                      when 'hide' then
-                        gift.show_delete_gift_link?(@users)
-                    end # case
-    else
-      method_name = "show_#{action}_gift_link?".to_sym
-      show_action = gift.send(method_name, @users)
-    end
+    method_name = "show_#{action}_gift_link?".to_sym
+    show_action = gift.send(method_name, @users)
     if !show_action
       logger.debug2 "#{action} link no longer active for gift with id #{gift_id}"
-      return [gift, '.not_allowed', {}]
+      return [gift, '.not_allowed', {:raise => I18n::MissingTranslationData}]
     end
     # ok
     gift
   end # check_gift_action
 
+  private
+  def format_gift_action_exception (gift, exception)
+    logger.error2 "Action   : #{params[:action]}"
+    logger.error2 "Exception: #{exception.message.to_s}"
+    logger.error2 "Backtrace: " + exception.backtrace.join("\n")
+    format_response '.exception',
+                    :error => exception.message.to_s,
+                    :raise => I18n::MissingTranslationData,
+                    :table => gift ? "gift-#{gift.id}-links-errors" : "tasks_errors"
+  end # format_gift_action_exception
+
+
   public
   def like_gift
-    @errors2 = []
     @gift_link_id = @gift_link_href = @gift_link_text = nil
     gift = nil
+    params[:action] = 'like_follow_gift' # render this js.erb view
     begin
       gift, key, options = check_gift_action('like')
       if key
-        options = options || {}
-        options[:raise] = I18n::MissingTranslationData
-        @errors2 << { :msg => t(key, options), :id => gift ? "gift-#{gift.id}-links-errors" : "tasks_errors" }
-        logger.debug2 "@errors2 = #{@errors2}"
-        render 'like_follow_gift'
-        return
+        return format_response key, options.merge(:table => gift ? "gift-#{gift.id}-links-errors" : "tasks_errors")
       end
       # like gift
       @users.each do |user|
@@ -423,35 +418,24 @@ class UtilController < ApplicationController
         end
         gl.save!
       end # each user
-      # change link
+      # like gift ok - change link in gifts/index page
       @gift_link_id = "gift-#{gift.id}-like-unlike-link"
       @gift_link_href = util_unlike_gift_path(:gift_id => gift.id)
       @gift_link_text = t('gifts.api_gift.unlike_gift')
-      render 'like_follow_gift'
+      format_response
     rescue Exception => e
-      @errors2 << { :msg => t('.exception', :error => e.message.to_s, :raise => I18n::MissingTranslationData),
-                    :id => gift ? "gift-#{gift.id}-links-errors" : "tasks_errors" }
-      logger.error2 "Exception: #{e.message.to_s}"
-      logger.error2 "Backtrace: " + e.backtrace.join("\n")
-      logger.error2 "@errors = #{@errors}"
-      @gift_link_id = @gift_link_href = @gift_link_text = nil
-      render 'like_follow_gift'
+      format_gift_action_exception(gift, e)
     end
   end # like_gift
 
   def unlike_gift
-    @errors2 = []
     @gift_link_id = @gift_link_href = @gift_link_text = nil
     gift = nil
+    params[:action] = 'like_follow_gift' # render this js.erb view
     begin
       gift, key, options = check_gift_action('unlike')
       if key
-        options = options || {}
-        options[:raise] = I18n::MissingTranslationData
-        @errors2 << { :msg => t(key, options), :id => gift ? "gift-#{gift.id}-links-errors" : "tasks_errors" }
-        logger.debug2 "@errors2 = #{@errors2}"
-        render 'like_follow_gift'
-        return
+        return format_response key, options.merge(:table => gift ? "gift-#{gift.id}-links-errors" : "tasks_errors")
       end
       # unlike gift
       @users.each do |user|
@@ -461,35 +445,24 @@ class UtilController < ApplicationController
           gl.save!
         end
       end # each user
-      # change link
+      # unlike gift ok - change link in gifts/index page
       @gift_link_id = "gift-#{gift.id}-like-unlike-link"
       @gift_link_href = util_like_gift_path(:gift_id => gift.id)
       @gift_link_text = t('gifts.api_gift.like_gift')
-      render 'like_follow_gift'
+      format_response
     rescue Exception => e
-      @errors2 << {:msg => t('.exception', :error => e.message.to_s, :raise => I18n::MissingTranslationData),
-                   :id => gift ? "gift-#{gift.id}-links-errors" : "tasks_errors"}
-      logger.error2 "Exception: #{e.message.to_s}"
-      logger.error2 "Backtrace: " + e.backtrace.join("\n")
-      logger.error2 "@errors = #{@errors}"
-      @gift_link_id = @gift_link_href = @gift_link_text = nil
-      render 'like_follow_gift'
+      format_gift_action_exception(gift, e)
     end
   end # unlike_gift
 
   def follow_gift
-    @errors2 = []
     @gift_link_id = @gift_link_href = @gift_link_text = nil
     gift = nil
+    params[:action] = 'like_follow_gift' # render this js.erb view
     begin
       gift, key, options = check_gift_action('follow')
       if key
-        options = options || {}
-        options[:raise] = I18n::MissingTranslationData
-        @errors2 << { :msg => t(key, options), :id => gift ? "gift-#{gift.id}-links-errors" : "tasks_errors" }
-        logger.debug2 "@errors2 = #{@errors2}"
-        render 'like_follow_gift'
-        return
+        return format_response key, options.merge(:table => gift ? "gift-#{gift.id}-links-errors" : "tasks_errors")
       end
       # follow gift
       @users.each do |user|
@@ -506,38 +479,24 @@ class UtilController < ApplicationController
         end
         gl.save!
       end # each user
-      # change link
+      # follow gift ok - change link in gifts/index page
       @gift_link_id = "gift-#{gift.id}-follow-unfollow-link"
       @gift_link_href = util_unfollow_gift_path(:gift_id => gift.id)
       @gift_link_text = t('gifts.api_gift.unfollow_gift')
-      logger.debug2 "@gift_link_id   = #{@gift_link_id}"
-      logger.debug2 "@gift_link_href = #{@gift_link_href}"
-      logger.debug2 "@gift_link_text = #{@gift_link_text}"
-      render 'like_follow_gift'
+      format_response
     rescue Exception => e
-      @errors2 << {:msg => t('.exception', :error => e.message.to_s, :raise => I18n::MissingTranslationData),
-                   :id => gift ? "gift-#{gift.id}-links-errors" : "tasks_errors"}
-      logger.error2 "Exception: #{e.message.to_s}"
-      logger.error2 "Backtrace: " + e.backtrace.join("\n")
-      logger.error2 "@errors = #{@errors}"
-      @gift_link_id = @gift_link_href = @gift_link_text = nil
-      render 'like_follow_gift'
+      format_gift_action_exception(gift, e)
     end
   end # follow_gift
 
   def unfollow_gift
-    @errors2 = []
     @gift_link_id = @gift_link_href = @gift_link_text = nil
     gift = nil
+    params[:action] = 'like_follow_gift' # render this js.erb view
     begin
       gift, key, options = check_gift_action('unfollow')
       if key
-        options = options || {}
-        options[:raise] = I18n::MissingTranslationData
-        @errors2 << { :msg => t(key, options), :id => gift ? "gift-#{gift.id}-links-errors" : "tasks_errors" }
-        logger.debug2 "@errors2 = #{@errors2}"
-        render 'like_follow_gift'
-        return
+        return format_response key, options.merge(:table => gift ? "gift-#{gift.id}-links-errors" : "tasks_errors")
       end
       # unfollow gift
       @users.each do |user|
@@ -552,36 +511,25 @@ class UtilController < ApplicationController
         gl.follow = 'N'
         gl.save!
       end # each user
-      # change link
+      # unfollow gift ok - change link in gifts/index page
       @gift_link_id = "gift-#{gift.id}-follow-unfollow-link"
       @gift_link_href = util_follow_gift_path(:gift_id => gift.id)
       @gift_link_text = t('gifts.api_gift.follow_gift')
-      render 'like_follow_gift'
+      format_response
     rescue Exception => e
-      @errors2 << {:msg => t('.exception', :error => e.message.to_s, :raise => I18n::MissingTranslationData),
-                   :id => gift ? "gift-#{gift.id}-links-errors" : "tasks_errors"}
-      logger.error2 "Exception: #{e.message.to_s}"
-      logger.error2 "Backtrace: " + e.backtrace.join("\n")
-      logger.error2 "@errors = #{@errors}"
-      @gift_link_id = @gift_link_href = @gift_link_text = nil
-      render 'like_follow_gift'
+      format_gift_action_exception(gift, e)
     end
   end # unfollow_gift
 
   def hide_gift
-    @errors2 = []
     @gift_id = nil
     gift = nil
+    params[:action] = 'hide_delete_gift' # render this js.erb view
     begin
       # validate hide gift
       gift, key, options = check_gift_action('hide')
       if key
-        options = options || {}
-        options[:raise] = I18n::MissingTranslationData
-        @errors2 << { :msg => t(key, options), :id => gift ? "gift-#{gift.id}-links-errors" : "tasks_errors" }
-        logger.debug2 "@errors2 = #{@errors2}"
-        render 'hide_delete_gift'
-        return
+        return format_response key, options.merge(:table => gift ? "gift-#{gift.id}-links-errors" : "tasks_errors")
       end
       # hide gift - db
       @users.each do |user|
@@ -598,61 +546,41 @@ class UtilController < ApplicationController
         end
         gl.save!
       end
-      # hide gift - web page
+      # hide gift ok - remove gift from gifts/index page
       @gift_id = gift.id
-      render 'hide_delete_gift'
+      format_response
     rescue Exception => e
-      # todo: refactor exception handling - almust identical for all gift action links
-      @errors2 << {:msg => t('.exception', :error => e.message.to_s, :raise => I18n::MissingTranslationData),
-                   :id => gift ? "gift-#{gift.id}-links-errors" : "tasks_errors"}
-      logger.error2 "Exception: #{e.message.to_s}"
-      logger.error2 "Backtrace: " + e.backtrace.join("\n")
-      logger.error2 "@errors = #{@errors}"
-      @gift_id = nil
-      render 'hide_delete_gift'
+      format_gift_action_exception(gift, e)
     end
   end # hide_gift
 
   def delete_gift
-    @errors2 = []
     @gift_id = nil
     gift = nil
+    params[:action] = 'hide_delete_gift' # render this js.erb view
     begin
       # validate delete gift
       gift, key, options = check_gift_action('delete')
       if key
-        options = options || {}
-        options[:raise] = I18n::MissingTranslationData
-        @errors2 << { :msg => t(key, options), :id => gift ? "gift-#{gift.id}-links-errors" : "tasks_errors" }
-        logger.debug2 "@errors2 = #{@errors2}"
-        render 'hide_delete_gift'
-        return
+        return format_response key, options.merge(:table => gift ? "gift-#{gift.id}-links-errors" : "tasks_errors")
       end
       # delete mark gift. Delete marked gifts will be ajax removed from other sessions within the
       # next 5 minutes and will be physical deleted after 5 minutes
       gift.deleted_at = Time.new
       gift.save!
-      # todo: there is a problem with api gifts without gift. - raise exception to trace problem
-      Gift.check_gift_and_api_gift_rel
       if gift.received_at and gift.price and gift.price != 0.0
         # recalculate balance - todo: should only recalculate balance from previous gift and forward
         gift.giver.recalculate_balance if gift.giver
         gift.receiver.recalculate_balance if gift.receiver
       end
-      # remove gift from gift from current gifts table
+      # delete gift ok - remove gift from gifts/index page
       @gift_id = gift.id
-      render 'hide_delete_gift'
+      format_response
     rescue Exception => e
-      # todo: refactor exception handling - almust identical for all gift action links
-      @errors2 << {:msg => t('.exception', :error => e.message.to_s, :raise => I18n::MissingTranslationData),
-                   :id => gift ? "gift-#{gift.id}-links-errors" : "tasks_errors"}
-      logger.error2 "Exception: #{e.message.to_s}"
-      logger.error2 "Backtrace: " + e.backtrace.join("\n")
-      logger.error2 "@errors = #{@errors}"
-      @gift_id = nil
-      render 'hide_delete_gift'
+      format_gift_action_exception(gift, e)
     end
   end # delete_gift
+
 
   #
   # comment link ajax methods
@@ -717,7 +645,6 @@ class UtilController < ApplicationController
   # Parameters: {"comment_id"=>"478"}
   public
   def cancel_new_deal
-    @errors2 = []
     @link_id = nil
     table_id = 'tasks_errors' # tasks errors table in top of page
     begin
@@ -752,7 +679,6 @@ class UtilController < ApplicationController
   end # cancel_new_deal
 
   def reject_new_deal
-    @errors2 = []
     @link_id = nil
     table_id = 'tasks_errors' # tasks errors table in top of page
     begin
@@ -790,7 +716,6 @@ class UtilController < ApplicationController
   end # reject_new_deal
 
   def accept_new_deal
-    @errors2 = []
     @api_gifts = nil
     table_id = 'tasks_errors' # tasks errors table in top of page
     begin

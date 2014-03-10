@@ -13,13 +13,14 @@ class GiftsController < ApplicationController
   # JS function insert_update_gifts will move new gift from div buffer to gifts table in html page
   def create
     # start with empty ajax response
-    @errors = []
     @api_gifts = []
+    return if !logged_in? # error has already been reported in login_required filter
+    tasks_errors = 'tasks_errors'
 
     # check if user account is being deleted (do not create new gift)
     users2 = @users.find_all { |u| !u.deleted_at }
     if users2.size == 0
-      @errors << t('.deleted_user')
+      @errors2 << { :msg => t('.deleted_user'), :id => tasks_errors }
       return
     end
     @users = users2 if @users.size != users2.size
@@ -34,20 +35,22 @@ class GiftsController < ApplicationController
     gift_file = params[:gift_file]
     picture = (gift_file.class.name == 'ActionDispatch::Http::UploadedFile')
     if picture and !User.post_on_wall_authorized?(@users)
-      @errors << t('.file_upload_not_allowed',
-                   :appname => APP_NAME,
-                   :apiname => (@users.length > 1 ? 'login provider' : @users.first.apiname))
+      @errors2 << {:msg => t('.file_upload_not_allowed',
+                             :appname => APP_NAME,
+                             :apiname => (@users.length > 1 ? 'login provider' : @users.first.apiname)),
+                   :id => tasks_errors }
       picture = false
     end
     if picture
       filetype = FastImage.type(gift_file.path).to_s
       if !%w(jpg jpeg gif png bmp).index(filetype)
-        @errors << t('.unsupported_filetype', :filetype => filetype)
+        @errors2 << { :msg => t('.unsupported_filetype', :filetype => filetype),
+                     :id => tasks_errors }
         picture = false
       end
     end
     if picture and gift_file.size > 2.megabytes
-      @errors << t('.file_is_too_big', :maxsize => '2 Mb')
+      @errors2 << { :msg => t('.file_is_too_big', :maxsize => '2 Mb'), :id => tasks_errors }
       picture = false
     end
     if picture
@@ -63,7 +66,7 @@ class GiftsController < ApplicationController
         # error - picture store setup was not found for logged in users
         # invalid picture store setup (API_GIFT_PICTURE_STORE) or file upload should not be allowed
         providers = @users.collect { |u| u.provider }
-        @errors << t('.invalid_pic_store', :providers => providers.join(', '))
+        @errors2 << { :msg => t('.invalid_pic_store', :providers => providers.join(', ')), :id => tasks_errors }
         picture = false
       end
     end
@@ -112,7 +115,7 @@ class GiftsController < ApplicationController
           logger.error2 "mv: OS cleanup failed. error = #{e.message}"
         end
         # continue post without picture
-        @errors << t(".file_mv_error", :error => stderr)
+        @errors2 << { :msg => t(".file_mv_error", :error => stderr), :id => tasks_errors }
         gift.app_picture_rel_path = nil
         gift.save!
         gift.api_gifts.each do |api_gift|
@@ -139,7 +142,7 @@ class GiftsController < ApplicationController
             logger.error2 "chmod: OS cleanup failed. error = #{e.message}"
           end
           # continue post without picture
-          @errors << t(".file_chmod_error", :error => stderr)
+          @errors2 << { :msg => t(".file_chmod_error", :error => stderr), :id => tasks_errors }
           gift.app_picture_rel_path = nil
           gift.save!
           gift.api_gifts.each do |api_gift|
@@ -178,7 +181,7 @@ class GiftsController < ApplicationController
 
     # write only warning once about missing write on wall privs. once
     if no_walls == 0
-      @errors << t('.no_api_walls', :appname => APP_NAME) unless session[:walls] == false
+      @errors2 << { :msg => t('.no_api_walls', :appname => APP_NAME), :id => tasks_errors } unless session[:walls] == false
     end
     session[:walls] = (no_walls > 0)
 
@@ -207,10 +210,18 @@ class GiftsController < ApplicationController
   def index
     # http request: return first 10 gifts (last_row_id = nil)
     # ajax request: return next 10 gifts (last_row_id != nil)
-    last_row_id = params[:last_row_id].to_s
-    last_row_id = nil if last_row_id == ''
-    if last_row_id =~ /^[0-9]+$/
-      last_row_id = last_row_id.to_i
+    if request.xhr?
+      last_row_id = params[:last_row_id].to_s
+      last_row_id = nil if last_row_id == ''
+      if last_row_id.to_s =~ /^[0-9]+$/
+        last_row_id = last_row_id.to_i
+      else
+        logger.error2 "xhr request without a valid last_row_id. params[:last_row_id] = #{params[:last_row_id]}"
+        @api_gifts = []
+        @last_row_id = get_last_row_id()
+        format_ajax_response
+        return
+      end
     else
       last_row_id = nil
     end
@@ -222,9 +233,11 @@ class GiftsController < ApplicationController
       logger.debug2  "return empty ajax response with dummy row with correct last_row_id to client"
       @api_gifts = []
       @last_row_id = get_last_row_id()
-      respond_to do |format|
-        format.js {}
-      end
+      format_ajax_response
+      ## todo: use method format_js_response
+      #respond_to do |format|
+      #  format.js {}
+      #end
       return
     end
 

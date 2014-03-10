@@ -435,6 +435,7 @@ class Friend < ActiveRecord::Base
 
     # new gofreerev user? special post_login_<provider> ok message for new users.
     new_user = ((old_friends.size == 0) and (new_friends.size > 0))
+    logger.debug2 "old_friends.size = #{old_friends.size}, new_friends.size = #{new_friends.size}, new_user = #{new_user}"
     [new_user, nil, nil]
   end # self.update_friends_from_hash
 

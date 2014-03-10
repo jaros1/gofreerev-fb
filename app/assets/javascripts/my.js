@@ -605,7 +605,8 @@ function insert_new_comments() {
         }
         new_comments_tbody = document.getElementById("new_comments_tbody");
         if (!new_comments_tbody) {
-            add2log('new_comments_tbody was not found');
+            // add2log('new_comments_tbody was not found');
+            // ok - no new comments in new_messages_count response
             return; // ignore error silently
         }
         new_comments_trs = new_comments_tbody.rows;
@@ -1680,6 +1681,7 @@ $(document).ready(function() {
             var table = document.getElementById(table_id) ;
             if (table) clear_ajax_errors(table_id) ;
             // else add2log(pgm + table_id + ' was not found.') ;
+            // else add2log(pgm + table_id + ' was not found.') ;
             // clear page header error messages if any
             clear_flash_and_ajax_errors() ;
         }
@@ -2018,16 +2020,18 @@ $(document).ready(function () {
 // first column is error message. Second column is id for error table in page
 // tasks_errors table in page header will be used of more specific location can not be found
 function move_tasks_errors2() {
+    var pgm = 'move_tasks_errors2' ;
+    add2log(pgm + 'start') ;
     var from_table = document.getElementById('tasks_errors2');
     if (!from_table) {
-        add_to_tasks_errors('tasks_errors2 was not found');
+        add_to_tasks_errors(pgm + 'tasks_errors2 was not found');
         return;
     }
     var rows = from_table.rows;
     var lng = rows.length;
     var row, cells, msg, to_table_id, to_table;
     var re1, giftid, ref_id, ref, new_tr, new_td, j;
-    // add2log(lng + ' rows in tasks_errors2 table') ;
+    add2log(pgm + lng + ' rows in tasks_errors2 table') ;
     for (var i = lng - 1; i >= 0; i--) {
         row = rows[i];
         cells = row.cells;

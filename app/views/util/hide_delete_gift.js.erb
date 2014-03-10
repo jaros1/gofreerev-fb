@@ -16,7 +16,7 @@
 <% end -%>
 <% if @errors2.size > 0 %>
 <%# error response - inject error into tasks_errors2 table and move error to placeholder table within gifts/index page -%>
-<% logger.debug2 "error response - @errors2 = #{@errors2}" -%>
+<%# logger.debug2 "error response - @errors2 = #{@errors2}" -%>
 $('#tasks_errors2').append('<%= j render('shared/ajax_errors2') %>');
 move_tasks_errors2();
 <% end %>

@@ -284,6 +284,7 @@ en:
      create:
         invalid_request_no_comment_form: "Invalid request. System error. Comment form was not found."
         invalid_request_unknown_gift: "Invalid request. System error. Unknown id for gift."
+        not_logged_in: "You are not logged in and you cannot create comments. Please refresh web page."
         invalid_request_invalid_gift: "Invalid request. You have no access to this post. Please refresh web page."
         deleted_user: "You account is being deleted and you cannot create comments"
         no_providers: "Comment was not created. No shared login providers. May be a system error."
@@ -320,6 +321,7 @@ en:
         confirm_delete_comment: "Delete comment?"
      destroy:
         unknown_comment: "Could not delete comment. Comment was not found. Please refresh page."
+        not_logged_in: "Delete comment was not allowed. You are not logged in. Please refresh page."
         invalid_comment: "Delete comment was not allowed. Please refresh page."
         deleted_user: "Could not delete comment. Your account is being deleted."
         exception: "System error. Could not delete comment. %{error}. More information available in log."
@@ -344,6 +346,7 @@ en:
         gift_not_posted_5: "Posting on %{apiname} has not yet been implemented"
         no_api_walls: "Post was created here but not on any login provider wall. Your post will been seen only by friends that also uses %{appname}. You may go to \"Log in\" page and check read/write permissions to login provider wall and check if you have allowed post to login provider wall."
      index:
+        not_logged_in_ajax: "Sorry. Action was rejected. Not logged in. Please refresh page."
         not_logged_in_flash: "Sorry. Page not available. Not logged in."
         not_logged_in_text: "You are not logged in and you cannot create wall postings."
         welcome_msg_after_login: "Welcome %{username} to %{appname}"
@@ -758,6 +761,7 @@ en:
   util:
      like_gift:
         invalid_action: "System error. Could not \"like\" post. Invalid action. More information in server log."
+        not_logged_in: "Cannot \"like\" post. You are not logged in. Please refresh the page."
         gift_deleted: "Cannot \"like\" post. Post has been deleted. Please refresh the page."
         not_authorized: "System error. Could not \"like\" post. You are no longer allowed to see the post. Please refresh the page."
         deleted_user: "Cannot \"like\" post. Your user account is being deleted."
@@ -766,6 +770,7 @@ en:
         exception: "System error. Could not \"like\" post. %{error}. More information in server log."
      unlike_gift:
         invalid_action: "System error. Could not remove \"like\" post. Invalid action. More information in server log."
+        not_logged_in: "Cannot remove \"like\" post. You are not logged in. Please refresh the page."
         gift_deleted: "Cannot remove \"like\" post. Post has been deleted. Please refresh the page."
         not_authorized: "System error. Could not remove \"like\" post. You are no longer allowed to see the post. Please refresh the page."
         deleted_user: "Cannot remove \"like\" post. Your user account is being deleted."
@@ -774,6 +779,7 @@ en:
         exception: "System error. Could not remove \"like\" post. %{error}. More information in server log."
      follow_gift:
         invalid_action: "System error. Could not \"follow\" post. Invalid action. More information in server log."
+        not_logged_in: "Cannot \"follow\" post. You are not logged in. Please refresh the page."
         gift_deleted: "Cannot \"follow\" post. Post has been deleted. Please refresh the page."
         not_authorized: "System error. Could not \"follow\" post. You are no longer allowed to see the post. Please refresh the page."
         deleted_user: "Cannot \"follow\" post. Your user account is being deleted."
@@ -782,6 +788,7 @@ en:
         exception: "System error. Could not \"follow\" post. %{error}. More information in server log."
      unfollow_gift:
         invalid_action: "System error. Could not remove \"follow\" post. Invalid action. More information in server log."
+        not_logged_in: "Cannot remove \"follow\" post. You are not logged in. Please refresh the page."
         gift_deleted: "Cannot remove \"follow\" post. Post has been deleted. Please refresh the page."
         not_authorized: "System error. Could not remove \"follow\" post. You are no longer allowed to see the post. Please refresh the page."
         deleted_user: "Cannot remove \"follow\" post. Your user account is being deleted."
@@ -790,6 +797,7 @@ en:
         exception: "System error. Could not remove \"follow\" post. %{error}. More information in server log."
      hide_gift:
         invalid_action: "System error. Could not hide post. Invalid action. More information in server log."
+        not_logged_in: "Cannot hide post. You are not logged in. Please refresh the page."
         gift_deleted: "Cannot hide post. Post has been deleted. Please refresh the page."
         not_authorized: "System error. Could not hide post. You are no longer allowed to see the post. Please refresh the page."
         deleted_user: "Cannot hide post. Your user account is being deleted."
@@ -798,6 +806,7 @@ en:
         exception: "System error. Could not hide post. %{error}. More information in server log."
      delete_gift:
         invalid_action: "System error. Could not delete post. Invalid action. More information in server log."
+        not_logged_in: "Cannot delete post. You are not logged in. Please refresh the page."
         gift_deleted: "Cannot delete post. Post has been deleted. Please refresh the page."
         not_authorized: "System error. Could not delete post. You are no longer allowed to see the post. Please refresh the page."
         deleted_user: "Cannot delete post. Your user account is being deleted."

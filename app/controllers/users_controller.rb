@@ -69,8 +69,8 @@ class UsersController < ApplicationController
 
   # delete user data and close account ajax request
   def destroy
-    @errors = []
     @trigger_tasks_form = false
+    table = 'tasks_errors'
     begin
 
       # check user.id
@@ -78,14 +78,13 @@ class UsersController < ApplicationController
       user = User.find_by_id(id)
       if !user
         logger.debug2 "invalid request. User with id #{id} was not found"
-        @errors << t('.invalid_request')
+        @errors2 << { :msg => t('.invalid_request'), :id => table }
         return
       end
       logger.debug2 "user2 = #{user.debug_info}"
       if !login_user_ids.index(user.user_id)
         logger.debug2 "invalid request. Not logged in with user id #{id}"
-        save_flash '.invalid_request'
-        redirect_to :action => :index, :friends => 'me'
+        @errors2 << { :msg => t('.invalid_request'), :id => table }
         return
       end
 
@@ -93,32 +92,35 @@ class UsersController < ApplicationController
         user.update_attribute(:deleted_at, Time.new)
         other_user = @users.find { |u| u.id != user.id and !u.deleted_at }
         key = other_user ? '.ok2_html' : '.ok1_html'
-        @errors << t(key, user.app_and_apiname_hash.merge(:url => API_APP_SETTING_URL[user.provider] || '#'))
+        @errors2 << { :msg => t(key, user.app_and_apiname_hash.merge(:url => API_APP_SETTING_URL[user.provider] || '#')),
+                      :id => table }
         add_task "User.delete_user(#{user.id})",5
         @trigger_tasks_form = true
         return
       end
 
       if user.deleted_at > 6.minutes.ago
-        @errors << t('.pending_html', user.app_and_apiname_hash.merge(:url => API_APP_SETTING_URL[user.provider] || '#'))
+        @errors2 << { :msg => t('.pending_html', user.app_and_apiname_hash.merge(:url => API_APP_SETTING_URL[user.provider] || '#')),
+                      :id => table }
         return
       end
 
       key, options = User.delete_user(user.id)
       if key
         key = "shared.translate_ajax_errors#{key}"
-        @errors << t(key, options)
+        @errors2 << { :msg => t(key, options), :id => table }
         return
       end
 
       # delete completed
-      @errors << t('.completed_html', user.app_and_apiname_hash.merge(:url => API_APP_SETTING_URL[user.provider] || '#'))
+      @errors2 << { :msg => t('.completed_html', user.app_and_apiname_hash.merge(:url => API_APP_SETTING_URL[user.provider] || '#')),
+                    :id => table }
       logout(user.provider)
 
     rescue Exception => e
       logger.debug2 "Exception: #{e.message.to_s}"
       logger.debug2 "Backtrace: " + e.backtrace.join("\n")
-      @errors << t(".exception", :error => e.message.to_s)
+      @errors2 << { :msg => t(".exception", :error => e.message.to_s), :id => table }
     end
   end # destroy
 
