@@ -1024,4 +1024,14 @@
 182) problem with new ajax error handling and ie8.
      maybe request.xhr? is not true for ie8 ...
 
+183) fix sort when creating new comments in gifts/index page
+     looks like character sort - must be number sort (gift id and comment id)
+
+184) reject_new_deal: reject link was removed - accept link was not removed
+
+185) reject_new_deal: line with comment error message (proposal was rejected)
+     is not removed when comment is ajax replaced with new comment from util.new_messages_count
+
+186) accept new deal: old deal was not deleted from gifts/index page when new accepted deal
+     was ajax injected into page. Could be same problem as in 183. char sort instead of number sort.
 

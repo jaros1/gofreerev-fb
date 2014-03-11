@@ -5,7 +5,8 @@ class UtilController < ApplicationController
 
   before_filter :login_required,
                 :except => [:new_messages_count,
-                            :like_gift, :unlike_gift, :follow_gift, :unfollow_gift, :hide_gift, :delete_gift]
+                            :like_gift, :unlike_gift, :follow_gift, :unfollow_gift, :hide_gift, :delete_gift,
+                            :cancel_new_deal, :reject_new_deal, :accept_new_deal]
 
   # update new message count in menu line in page header
   # called from hidden check-new-messages-link link in page header once every 15, 60 or 300 seconds
@@ -595,16 +596,17 @@ class UtilController < ApplicationController
     actions = %w(cancel reject accept)
     if !actions.index(action)
       logger.error2 "Invalid call. action #{action}. allowed actions are #{actions.join(', ')}"
-      return [comment, '.invalid_action', {:action => action} ]
+      return [comment, '.invalid_action', {:raise => I18n::MissingTranslationData} ]
     end
     comment_id = params[:comment_id]
     comment = Comment.find_by_id(comment_id)
     if !comment
       logger.warn2 "Comment with id #{comment_id} was not found. Possible error as deleted comments are ajax removed from gifts/index page within 5 minutes"
-      return [comment, '.comment_not_found', {}]
+      return [comment, '.comment_not_found', {:raise => I18n::MissingTranslationData}]
     end
+    return [comment, '.not_logged_in', {:raise => I18n::MissingTranslationData}] unless logged_in?
     gift = comment.gift
-    return [comment, '.gift_deleted', {}] if gift.deleted_at
+    return [comment, '.gift_deleted', {:raise => I18n::MissingTranslationData}] if gift.deleted_at
     if !gift.visible_for?(@users)
       if action == 'cancel'
         # cancel proposal - changed friend relation
@@ -613,30 +615,19 @@ class UtilController < ApplicationController
         # rejected or accept proposal
         logger.error2 "System error. Login users are not allowed to see gift id #{gift_id}"
       end
-      return [comment, '.not_authorized', {}]
+      return [comment, '.not_authorized', {:raise => I18n::MissingTranslationData}]
     end
     @users.remove_deleted_users
     if !gift.visible_for?(@users)
       logger.debug2 "Found one or more deleted accounts. Remaining users #{User.debug_info(@users)} is/are not allowed to see gift id #{gift_id}"
-      return [comment, '.deleted_user', {}]
+      return [comment, '.deleted_user', {:raise => I18n::MissingTranslationData}]
     end
-    return [comment, gift, '.comment_deleted', {}] if comment.deleted_at
-    if false
-      show_action = case action
-                      when 'cancel' then
-                        comment.show_cancel_new_deal_link?(@users)
-                      when 'reject' then
-                        comment.show_reject_new_deal_link?(@users)
-                      when 'accept' then
-                        comment.show_accept_new_deal_link?(@users)
-                    end # case
-    else
-      method_name = "show_#{action}_new_deal_link?".to_sym
-      show_action = comment.send(method_name, @users)
-    end
+    return [comment, gift, '.comment_deleted', {:raise => I18n::MissingTranslationData}] if comment.deleted_at
+    method_name = "show_#{action}_new_deal_link?".to_sym
+    show_action = comment.send(method_name, @users)
     if !show_action
       logger.debug2  "#{action} link no longer active for comment with id #{comment_id}"
-      return [comment, '.not_allowed', {}]
+      return [comment, '.not_allowed', {:raise => I18n::MissingTranslationData}]
     end
     # ok
     comment
@@ -646,52 +637,39 @@ class UtilController < ApplicationController
   public
   def cancel_new_deal
     @link_id = nil
-    table_id = 'tasks_errors' # tasks errors table in top of page
+    table = 'tasks_errors' # tasks errors table in top of page
+    params[:action] = 'cancel_reject_new_deal' # render this js.erb view
     begin
       # validate new deal reject action
       comment, key, options = check_new_deal_action('cancel')
-      table_id = "gift-#{comment.gift.id}-comment-#{comment.id}-errors" if comment # ajax error table under comment row
-      if key
-        options = options || {}
-        options[:raise] = I18n::MissingTranslationData
-        @errors2 << { :msg => t(key, options), :id => table_id }
-        render 'cancel_reject_new_deal'
-        return
-      end
+      table = "gift-#{comment.gift.id}-comment-#{comment.id}-errors" if comment # ajax error table under comment row
+      return format_response_key key, options.merge(:table => table) if key
       gift = comment.gift
       # cancel agreement proposal
       comment.new_deal_yn = nil
       comment.updated_by = login_user_ids.join(',')
       comment.save!
-      @errors2 << { :msg => t('.ok'), :id => table_id }
       # hide link
       @link_id = "gift-#{gift.id}-comment-#{comment.id}-cancel-link"
-      render 'cancel_reject_new_deal'
+      format_response_key 'cancel_reject_new_deal', :table => table
     rescue Exception => e
-      @errors2 << { :msg => t('.exception', :error => e.message.to_s, :raise => I18n::MissingTranslationData),
-                    :id => table_id }
       logger.error2 "Exception: #{e.message.to_s}"
       logger.error2 "Backtrace: " + e.backtrace.join("\n")
+      @link_id = nil
+      format_response_key '.exception', :error => e.message.to_s, :raise => I18n::MissingTranslationData, :table => table
       logger.error2 "@errors2 = #{@errors2}"
-      @link = nil
-      render 'cancel_reject_new_deal'
     end
   end # cancel_new_deal
 
   def reject_new_deal
     @link_id = nil
-    table_id = 'tasks_errors' # tasks errors table in top of page
+    table = 'tasks_errors' # tasks errors table in top of page
+    params[:action] = 'cancel_reject_new_deal' # render this js.erb view
     begin
       # validate new deal reject action
       comment, key, options = check_new_deal_action('reject')
-      table_id = "gift-#{comment.gift.id}-comment-#{comment.id}-errors" if comment # ajax error table under comment row
-      if key
-        options = options || {}
-        options[:raise] = I18n::MissingTranslationData
-        @errors2 << { :msg => t(key, options), :id => table_id }
-        render 'cancel_reject_new_deal'
-        return
-      end
+      table = "gift-#{comment.gift.id}-comment-#{comment.id}-errors" if comment # ajax error table under comment row
+      return format_response_key key, options.merge(:table => table) if key
       gift = comment.gift
       # reject agreement proposal
       comment.accepted_yn = 'N'
@@ -701,33 +679,24 @@ class UtilController < ApplicationController
       # todo: other comment changes? Maybe an other layout, style, color for accepted gift/comments
       # todo: change gift and comment for other users after reject (new messages count ajax)?
       @link_id = "gift-#{gift.id}-comment-#{comment.id}-reject-link"
-      logger.debug2 "link_id = #{@link_id}"
-      @errors2 << { :msg => t('.ok'), :id => table_id }
-      render 'cancel_reject_new_deal'
+      format_response_key '.ok', :table => table
     rescue Exception => e
-      @errors2 << { :msg => t('.exception', :error => e.message.to_s, :raise => I18n::MissingTranslationData),
-                    :id => table_id }
       logger.error2 "Exception: #{e.message.to_s}"
       logger.error2 "Backtrace: " + e.backtrace.join("\n")
+      @link_id = nil
+      format_response_key '.exception', :error => e.message.to_s, :raise => I18n::MissingTranslationData, :table => table
       logger.error2 "@errors2 = #{@errors2}"
-      @link = nil
-      render 'cancel_reject_new_deal'
     end
   end # reject_new_deal
 
   def accept_new_deal
     @api_gifts = nil
-    table_id = 'tasks_errors' # tasks errors table in top of page
+    table = 'tasks_errors' # tasks errors table in top of page
     begin
       # validate new deal action
       comment, key, options = check_new_deal_action('accept')
-      table_id = "gift-#{comment.gift.id}-comment-#{comment.id}-errors" if comment # ajax error table under comment row
-      if key
-        options = options || {}
-        options[:raise] = I18n::MissingTranslationData
-        @errors2 << { :msg => t(key, options), :id => table_id }
-        return
-      end
+      table = "gift-#{comment.gift.id}-comment-#{comment.id}-errors" if comment # ajax error table under comment row
+      return format_response_key key, options.merge(:table => table) if key
       # accept agreement proposal - mark proposal as accepted - callbacks sent notifications and updates gift
       # logger.debug2  "comment.currency = #{comment.currency}"
       # find correct updated_by users
@@ -759,8 +728,7 @@ class UtilController < ApplicationController
         logger.error2 "gift created by " + gift.api_gifts.collect { |ag| ag.user_id_giver || ag.user_id_receiver }.join(', ')
         logger.error2 "logged in users " + @users.collect { |u| u.user_id }.join(', ')
         logger.error2 "new deal providers " + api_comment_providers.join(', ')
-        @errors2 << { :msg => t('.invalid_updated_by'), :id => table_id }
-        return
+        return format_response_key '.invalid_updated_by', :table => table
       end
       comment.accepted_yn = 'Y'
       comment.updated_by = updated_by.join(',')
@@ -782,11 +750,11 @@ class UtilController < ApplicationController
       # next new_mesage_count request will ajax replace this gift once more, but that is a minor problem
       api_gift.reload
       @api_gifts = [api_gift]
+      format_response_key '.ok', :table => table
     rescue Exception => e
-      @errors2 << { :msg => t('.exception', :error => e.message.to_s, :raise => I18n::MissingTranslationData),
-                    :id => table_id }
       logger.error2 "Exception: #{e.message.to_s}"
       logger.error2 "Backtrace: " + e.backtrace.join("\n")
+      format_response_key '.exception', :error => e.message.to_s, :raise => I18n::MissingTranslationData, :table => table
       logger.error2 "@errors2 = #{@errors2}"
       @api_gifts = nil
     end

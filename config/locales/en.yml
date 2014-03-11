@@ -818,6 +818,7 @@ en:
         exception: "System error. Could not delete post. %{error}. More information in server log."
      cancel_new_deal:
         invalid_action: "System error. Could not cancel proposal. Invalid action. More information in server log."
+        not_logged_in: "Could not cancel proposal. You are not logged in. Please refresh page."
         comment_not_found: "System error. Could not cancel proposal. Proposal was not found."
         gift_deleted: "Could not cancel proposal. Post has been deleted. Please refresh page."
         not_authorized: "System error. Could not cancel proposal. You are not allowed to see post. Please refresh page."
@@ -828,6 +829,7 @@ en:
         exception: "System error. Could not cancel proposal. %{error}. More information in server log."
      reject_new_deal:
         invalid_action: "System error. Could not reject proposal. Invalid action. More information in server log."
+        not_logged_in: "Could not reject proposal. You are not logged in. Please refresh page."
         comment_not_found: "System error. Could not reject proposal. Proposal was not found."
         gift_deleted: "Could not reject proposal. Post has been deleted. Please refresh page."
         not_authorized: "System error. Could not reject proposal. You are not allowed to see post. Please refresh page."
@@ -838,6 +840,7 @@ en:
         exception: "System error. Could not reject proposal. %{error}. More information in server log."
      accept_new_deal:
         invalid_action: "System error. Could not accept proposal. Invalid action. More information in server log."
+        not_logged_in: "Could not accept proposal. You are not logged in. Please refresh page."
         comment_not_found: "System error. Could not accept proposal. Proposal was not found."
         gift_deleted: "Could not accept proposal. Post has been deleted. Please refresh page."
         not_authorized: "System error. Could not accept proposal. You are not allowed to see post. Please refresh page."
