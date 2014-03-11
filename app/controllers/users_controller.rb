@@ -1,6 +1,6 @@
 class UsersController < ApplicationController
 
-  before_filter :login_required
+  before_filter :login_required, :except =>  [:destroy]
   before_filter :clear_state_cookie_store
 
   def new
@@ -67,60 +67,52 @@ class UsersController < ApplicationController
     end
   end # edit
 
-  # delete user data and close account ajax request
+  # delete user data and close account (ajax request)
   def destroy
     @trigger_tasks_form = false
     table = 'tasks_errors'
     begin
-
+      return format_response_key '.not_logged_in' unless logged_in?
       # check user.id
       id = params[:id]
       user = User.find_by_id(id)
       if !user
         logger.debug2 "invalid request. User with id #{id} was not found"
-        @errors2 << { :msg => t('.invalid_request'), :id => table }
-        return
+        return format_response_key '.invalid_request'
       end
       logger.debug2 "user2 = #{user.debug_info}"
       if !login_user_ids.index(user.user_id)
         logger.debug2 "invalid request. Not logged in with user id #{id}"
-        @errors2 << { :msg => t('.invalid_request'), :id => table }
-        return
+        return format_response_key '.not_logged_in'
       end
 
       if !user.deleted_at
+        # delete mark user and schedule logical delete task
         user.update_attribute(:deleted_at, Time.new)
         other_user = @users.find { |u| u.id != user.id and !u.deleted_at }
-        key = other_user ? '.ok2_html' : '.ok1_html'
-        @errors2 << { :msg => t(key, user.app_and_apiname_hash.merge(:url => API_APP_SETTING_URL[user.provider] || '#')),
-                      :id => table }
-        add_task "User.delete_user(#{user.id})",5
+        add_task "User.delete_user(#{user.id})", 5
         @trigger_tasks_form = true
-        return
+        key = other_user ? '.ok2_html' : '.ok1_html'
+        return format_response_key key, user.app_and_apiname_hash.merge(:url => API_APP_SETTING_URL[user.provider] || '#')
       end
 
       if user.deleted_at > 6.minutes.ago
-        @errors2 << { :msg => t('.pending_html', user.app_and_apiname_hash.merge(:url => API_APP_SETTING_URL[user.provider] || '#')),
-                      :id => table }
-        return
+        # wait - waiting for logical and physical delete
+        return format_response_key '.pending_html', user.app_and_apiname_hash.merge(:url => API_APP_SETTING_URL[user.provider] || '#')
       end
 
+      # physical delete user now (is normally done in util.new_messages_count)
       key, options = User.delete_user(user.id)
-      if key
-        key = "shared.translate_ajax_errors#{key}"
-        @errors2 << { :msg => t(key, options), :id => table }
-        return
-      end
+      return format_response_key "shared.translate_ajax_errors#{key}", options if key
 
-      # delete completed
-      @errors2 << { :msg => t('.completed_html', user.app_and_apiname_hash.merge(:url => API_APP_SETTING_URL[user.provider] || '#')),
-                    :id => table }
+      # delete ok
       logout(user.provider)
+      format_response_key '.completed_html', user.app_and_apiname_hash.merge(:url => API_APP_SETTING_URL[user.provider] || '#')
 
     rescue Exception => e
       logger.debug2 "Exception: #{e.message.to_s}"
       logger.debug2 "Backtrace: " + e.backtrace.join("\n")
-      @errors2 << { :msg => t(".exception", :error => e.message.to_s), :id => table }
+      format_response_key ".exception", :error => e.message.to_s
     end
   end # destroy
 

@@ -423,13 +423,14 @@ class ApplicationController < ActionController::Base
     controller = params[:controller]
     action = params[:action]
     logger.debug2 "controller = #{controller}, action = #{action}"
-    case controller
-      when 'gifts'
-        case action
-          when  'create'
-            table = tasks_errors
-        end # case action gifts controller
-    end # case controller
+    # todo: add case with controller and actions to be handled here
+    #case controller
+    #  when 'gifts'
+    #    case action
+    #      when  'create'
+    #        table = tasks_errors
+    #    end # case action gifts controller
+    #end # case controller
     if table
       add_error_key 'gifts.index.not_logged_in_ajax', :id => table
     else

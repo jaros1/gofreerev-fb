@@ -333,6 +333,7 @@ en:
   # gift controller
   gifts:
      create:
+        not_logged_in: "You are not logged in and you cannot create new posts. Please refresh web page."
         deleted_user: "You account is being deleted and you cannot create new posts"
         file_upload_not_allowed: "File upload not allowed. %{appname} lack access to write on your %{apiname} wall."
         unsupported_filetype: "Unsupported filetype %{filetype} in file upload. Supported filetypes are jpg, gif, png and bmp."
@@ -345,6 +346,7 @@ en:
         gift_not_posted_4: "Duplicate status message on %{apiname} wall"
         gift_not_posted_5: "Posting on %{apiname} has not yet been implemented"
         no_api_walls: "Post was created here but not on any login provider wall. Your post will been seen only by friends that also uses %{appname}. You may go to \"Log in\" page and check read/write permissions to login provider wall and check if you have allowed post to login provider wall."
+        exception: "System error. Gift was not created. %{error}. More information available in log."
      index:
         not_logged_in_ajax: "Sorry. Action was rejected. Not logged in. Please refresh page."
         not_logged_in_flash: "Sorry. Page not available. Not logged in."
@@ -750,6 +752,7 @@ en:
         delete_account_link_text: "delete"
         delete_account_link_confirm: "Delete account! All your posts, comments and downloaded information in %{appname} will be deleted. Continue?"
      destroy:
+        not_logged_in: "Cannot delete account. You are not logged in. Please refresh web page."
         invalid_request: "Invalid request. Could not delete user account."
         ok1_html: "Your data for your %{apiname} account here at %{appname} is being deleted. Account will be deleted within the next 5-10 minutes. Thank you for visiting %{appname}. Use <a href=\"%{url}\">link</a> to remove %{appname} from your app settings on %{apiname}."
         ok2_html: "Your data for your %{apiname} account here at %{appname} is being deleted. Account will be deleted within the next 5-10 minutes. Note that you are logged in with multiple login providers and you may want to repeat \"Delete account\" for your other %{appname} accounts. Thank you for visiting %{appname}. Use <a href=\"%{url}\">link</a> to remove %{appname} access at %{apiname}."

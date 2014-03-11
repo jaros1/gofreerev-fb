@@ -1764,6 +1764,7 @@ class User < ActiveRecord::Base
           # no other login provider involved for this comment
           # mark comment as deleted - will be ajax removed from gifts/index pages within 5 minutes
           c.deleted_at = Time.new
+          c.updated_by = user.user_id
           c.save!
         else
           # other login providers found for this login provider

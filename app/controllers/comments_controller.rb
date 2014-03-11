@@ -10,9 +10,9 @@ class CommentsController < ApplicationController
     @api_comment = nil
     table = 'tasks_errors'
     begin
-      return format_response_key '.invalid_request_no_comment_form', :table => table unless params.has_key?(:comment)
+      return format_response_key '.invalid_request_no_comment_form' unless params.has_key?(:comment)
       gift = Gift.find_by_gift_id(params[:comment][:gift_id])
-      return format_response_key '.invalid_request_unknown_gift', :table => table unless gift
+      return format_response_key '.invalid_request_unknown_gift' unless gift
       table = "gift-#{gift.id}-comment-new-errors"
       return format_response_key '.not_logged_in', :table => table unless logged_in?
       return format_response_key '.invalid_request_invalid_gift', :table => table unless gift.visible_for?(@users)
@@ -73,9 +73,9 @@ class CommentsController < ApplicationController
     table = 'tasks_errors'
     begin
       # find gift
-      return format_response_key '.gift_id_is_missing', :table => table  if params[:gift_id].to_s == ""
+      return format_response_key '.gift_id_is_missing' if params[:gift_id].to_s == ""
       gift = Gift.find_by_id(params[:gift_id])
-      return format_response_key '.gift_not_found', :table => table if !gift
+      return format_response_key '.gift_not_found' if !gift
       table = "gift-#{gift.id}-links-errors"
       # gift was found.
       # any ajax error messages are now ajax injected into row under gifts link in gifts/index page
@@ -120,32 +120,17 @@ class CommentsController < ApplicationController
 
   # ajax request from gifts/index page
   def destroy
-    comment = nil
+    table = 'tasks_errors'
     @link_id = nil
     begin
       id = params[:id]
       comment = Comment.find_by_id(id)
-      if !comment
-        logger.debug2 "Comment with id #{id} was not found"
-        append_destroy_comment_error(comment, '.unknown_comment')
-        return
-      end
-      if !logged_in?
-        logger.debug2 "User are not logged in"
-        append_destroy_comment_error(comment, '.not_logged_in')
-        return
-      end
-      if !comment.show_delete_comment_link?(@users)
-        logger.debug2 "User can not delete comment with #{id}"
-        append_destroy_comment_error(comment, '.invalid_comment')
-        return
-      end
+      return format_response_key '.unknown_comment' unless comment
+      table = "gift-#{comment.gift.id}-comment-#{comment.id}-errors"
+      return format_response_key '.not_logged_in', :table => table unless logged_in?
+      return format_response_key '.invalid_comment', :table => table unless comment.show_delete_comment_link?(@users)
       @users.remove_deleted_users
-      if !comment.show_delete_comment_link?(@users)
-        logger.debug2 "One or more user accounts are being deleted. User can not delete comment with #{id}"
-        append_destroy_comment_error(comment, '.deleted_user')
-        return
-      end
+      return format_response_key '.deleted_user', :table => table unless comment.show_delete_comment_link?(@users)
 
       # delete mark comment
       # delete marked comment will be ajax removed from gifts/index page for current user now
@@ -153,34 +138,18 @@ class CommentsController < ApplicationController
       # old delete marked comments will be deleted from database in util/new_messages_count
       comment.deleted_at = Time.new
       comment.updated_by = login_user_ids.join(',')
-      if comment.errors.size > 1
-        append_destroy_comment_error(comment, '.comment_error', {:error => comment.errors.full_messages.join(', ') })
-      else
-        comment.save!
+      if !comment.save
+        return format_response_key '.comment_error', :error => comment.errors.full_messages.join(', '), :table => table
       end
       # hide row with comment
       @link_id = comment.table_row_id
+      format_response
     rescue Exception => e
       logger.error2 "Exception: #{e.message.to_s}"
       logger.error2 "Backtrace: " + e.backtrace.join("\n")
       @link_id = nil
-      append_destroy_comment_error(comment, '.exception', :error => e.message)
+      format_response_key '.exception', :error => e.message, :table => table
     end
   end # destroy
-
-  private
-  def append_create_comment_error (gift_row_id, key, options = {})
-    table = gift_row_id ? "gift-#{gift_row_id}-comment-new-errors" : "tasks_errors"
-    logger.debug2 "table = #{table}, key = #{key}"
-    @errors2 << { :msg => t(key, options), :id => table }
-    format_ajax_response
-  end
-
-  private
-  def append_destroy_comment_error (comment, key, options = {})
-    table = comment ? "gift-#{comment.gift.id}-comment-#{comment.id}-errors" : "tasks_errors"
-    logger.debug2 "table = #{table}, key = #{key}"
-    @errors2 << { :msg => t(key, options), :id => table }
-  end
 
 end

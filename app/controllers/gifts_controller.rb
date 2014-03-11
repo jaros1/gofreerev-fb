@@ -2,7 +2,7 @@
 class GiftsController < ApplicationController
 
   before_filter :clear_state_cookie_store, :if => lambda {|c| !request.xhr?}
-  before_filter :login_required, :except => :show # allow deep link without login
+  before_filter :login_required, :except => [:create, :show]
 
   def new
   end
@@ -12,138 +12,105 @@ class GiftsController < ApplicationController
   # both in page header
   # JS function insert_update_gifts will move new gift from div buffer to gifts table in html page
   def create
-    # start with empty ajax response
     @api_gifts = []
-    return if !logged_in? # error has already been reported in login_required filter
-    tasks_errors = 'tasks_errors'
+    begin
+      return format_response_key '.not_logged_in' unless logged_in?
 
-    # check if user account is being deleted (do not create new gift)
-    users2 = @users.find_all { |u| !u.deleted_at }
-    if users2.size == 0
-      @errors2 << { :msg => t('.deleted_user'), :id => tasks_errors }
-      return
-    end
-    @users = users2 if @users.size != users2.size
+      # check if user account is being deleted (do not create new gift)
+      users2 = @users.find_all { |u| !u.deleted_at }
+      return format_response_key '.deleted_user' if users2.size == 0
+      @users = users2 if @users.size != users2.size
 
-    # initialize gift
-    gift = Gift.new
-    gift.price = params[:gift][:price].gsub(',', '.').to_f unless invalid_price?(params[:gift][:price])
-    gift.direction = 'giver' if gift.direction.to_s == ''
-    gift.created_by = gift.direction
-    gift.currency = @users.first.currency
-    gift.description = params[:gift][:description]
-    gift_file = params[:gift_file]
-    picture = (gift_file.class.name == 'ActionDispatch::Http::UploadedFile')
-    if picture and !User.post_on_wall_authorized?(@users)
-      @errors2 << {:msg => t('.file_upload_not_allowed',
-                             :appname => APP_NAME,
-                             :apiname => (@users.length > 1 ? 'login provider' : @users.first.apiname)),
-                   :id => tasks_errors }
-      picture = false
-    end
-    if picture
-      filetype = FastImage.type(gift_file.path).to_s
-      if !%w(jpg jpeg gif png bmp).index(filetype)
-        @errors2 << { :msg => t('.unsupported_filetype', :filetype => filetype),
-                     :id => tasks_errors }
-        picture = false
+      # initialize gift
+      gift = Gift.new
+      gift.price = params[:gift][:price].gsub(',', '.').to_f unless invalid_price?(params[:gift][:price])
+      gift.direction = 'giver' if gift.direction.to_s == ''
+      gift.created_by = gift.direction
+      gift.currency = @users.first.currency
+      gift.description = params[:gift][:description]
+      gift_file = params[:gift_file]
+      picture = (gift_file.class.name == 'ActionDispatch::Http::UploadedFile')
+      if picture and !User.post_on_wall_authorized?(@users)
+        add_error_key '.file_upload_not_allowed',
+                      :appname => APP_NAME,
+                      :apiname => (@users.length > 1 ? 'login provider' : @users.first.apiname)
+        picture = false # continue post without picture
       end
-    end
-    if picture and gift_file.size > 2.megabytes
-      @errors2 << { :msg => t('.file_is_too_big', :maxsize => '2 Mb'), :id => tasks_errors }
-      picture = false
-    end
-    if picture
-      # perm or temp picture store - for example perm for linkedin and temp for facebook
-      # ( configuration in hash constant API_GIFT_PICTURE_STORE - /config/initializers/omniauth.rb )
-      picture_rel_path = Picture.new_temp_or_perm_rel_path @users, filetype
-      if picture_rel_path
-        gift.app_picture_rel_path = picture_rel_path
-        logger.debug2 "gift.app_picture_rel_path = #{gift.app_picture_rel_path}"
-        picture_url = Picture.url :rel_path => picture_rel_path
-        picture_full_os_path = Picture.full_os_path :rel_path => picture_rel_path
-      else
-        # error - picture store setup was not found for logged in users
-        # invalid picture store setup (API_GIFT_PICTURE_STORE) or file upload should not be allowed
-        providers = @users.collect { |u| u.provider }
-        @errors2 << { :msg => t('.invalid_pic_store', :providers => providers.join(', ')), :id => tasks_errors }
-        picture = false
-      end
-    end
-
-    gift.valid?
-    gift.errors.add :price, :invalid if invalid_price?(params[:gift][:price]) # price= accepts only float and model can not return invalid price error
-    logger.debug2 "gifts.errors = #{gift.errors.full_messages.join(', ')}"
-    return format_response_text(gift.errors.full_messages.join(', ')) if gift.errors.size > 0
-
-    # add api_gifts - one api_gifts for each provider
-    # api_gift_id will be added in post_on_<provider> tasks
-    # api_picture_url may change in post_on_<provider> tasks if picture store is :api
-    @users.each do |user|
-      api_gift = ApiGift.new
-      api_gift.gift_id = gift.gift_id
-      api_gift.provider = user.provider
-      api_gift.user_id_giver = gift.direction == 'giver' ? user.user_id : nil
-      api_gift.user_id_receiver = gift.direction == 'receiver' ? user.user_id : nil
-      api_gift.picture = picture ? 'Y' : 'N'
-      api_gift.api_picture_url = picture_url if picture # temporary or perm local url
-      if !API_GIFT_PICTURE_STORE[user.provider]
-        # no picture store for this provider
-        # this is - provider does not support picture uploads and local perm picture store is not being used
-        api_gift.picture = 'N'
-        api_gift.api_picture_url = nil
-      end
-      gift.api_gifts << api_gift
-    end
-    gift.save!
-
-    if picture
-      # create dir
-      Picture.create_parent_dirs :rel_path => picture_rel_path
-      # move uploaded file to location in perm or temp picture store
-      cmd = "mv #{gift_file.path} #{picture_full_os_path}"
-      stdout, stderr, status = User.open4(cmd)
-      if status != 0
-        # mv failed
-        logger.error2 "mv: cmd = #{cmd}"
-        logger.error2 "mv: stdout = #{stdout}, stderr = #{stderr}, status = #{status}"
-        # OS cleanup
-        begin
-          File.delete(picture_full_os_path) if File.exists?(picture_full_os_path)
-          Picture.delete_empty_parent_dirs(:rel_path => picture_rel_path)
-        rescue Exception => e
-          # ignore OS cleanup errors - write message on log and continue
-          logger.error2 "mv: OS cleanup failed. error = #{e.message}"
+      if picture
+        filetype = FastImage.type(gift_file.path).to_s
+        if !%w(jpg jpeg gif png bmp).index(filetype)
+          add_error_key '.unsupported_filetype', :filetype => filetype
+          picture = false # continue post without picture
         end
-        # continue post without picture
-        @errors2 << { :msg => t(".file_mv_error", :error => stderr), :id => tasks_errors }
-        gift.app_picture_rel_path = nil
-        gift.save!
-        gift.api_gifts.each do |api_gift|
+      end
+      if picture and gift_file.size > 2.megabytes
+        add_error_key '.file_is_too_big', :maxsize => '2 Mb'
+        picture = false # continue post without picture
+      end
+      if picture
+        # perm or temp picture store - for example perm for linkedin and temp for facebook
+        # ( configuration in hash constant API_GIFT_PICTURE_STORE - /config/initializers/omniauth.rb )
+        picture_rel_path = Picture.new_temp_or_perm_rel_path @users, filetype
+        if picture_rel_path
+          gift.app_picture_rel_path = picture_rel_path
+          logger.debug2 "gift.app_picture_rel_path = #{gift.app_picture_rel_path}"
+          picture_url = Picture.url :rel_path => picture_rel_path
+          picture_full_os_path = Picture.full_os_path :rel_path => picture_rel_path
+        else
+          # error - picture store setup was not found for logged in users
+          # invalid picture store setup (API_GIFT_PICTURE_STORE) or file upload should not be allowed
+          providers = @users.collect { |u| u.provider }
+          add_error_key '.invalid_pic_store', :providers => providers.join(', ')
+          picture = false # continue post without picture
+        end
+      end
+
+      gift.valid?
+      gift.errors.add :price, :invalid if invalid_price?(params[:gift][:price]) # price= accepts only float and model can not return invalid price error
+      logger.debug2 "gifts.errors = #{gift.errors.full_messages.join(', ')}"
+      return format_response_text(gift.errors.full_messages.join(', ')) if gift.errors.size > 0
+
+      # add api_gifts - one api_gifts for each provider
+      # api_gift_id will be added in post_on_<provider> tasks
+      # api_picture_url may change in post_on_<provider> tasks if picture store is :api
+      @users.each do |user|
+        api_gift = ApiGift.new
+        api_gift.gift_id = gift.gift_id
+        api_gift.provider = user.provider
+        api_gift.user_id_giver = gift.direction == 'giver' ? user.user_id : nil
+        api_gift.user_id_receiver = gift.direction == 'receiver' ? user.user_id : nil
+        api_gift.picture = picture ? 'Y' : 'N'
+        api_gift.api_picture_url = picture_url if picture # temporary or perm local url
+        if !API_GIFT_PICTURE_STORE[user.provider]
+          # no picture store for this provider
+          # this is - provider does not support picture uploads and local perm picture store is not being used
           api_gift.picture = 'N'
           api_gift.api_picture_url = nil
-          api_gift.save!
         end
-        picture = false
-      else
-        # mv ok - change file permissions
-        # apache must have read access to image files
-        cmd = "chmod o+r #{picture_full_os_path}"
+        gift.api_gifts << api_gift
+      end
+      gift.save!
+
+      if picture
+        # create dir
+        Picture.create_parent_dirs :rel_path => picture_rel_path
+        # move uploaded file to location in perm or temp picture store
+        cmd = "mv #{gift_file.path} #{picture_full_os_path}"
         stdout, stderr, status = User.open4(cmd)
         if status != 0
-          # chmod failed
-          logger.error2 "chmod: cmd = #{cmd}"
-          logger.error2 "chmod: stdout = #{stdout}, stderr = #{stderr}, status = #{status}"
+          # mv failed
+          logger.error2 "mv: cmd = #{cmd}"
+          logger.error2 "mv: stdout = #{stdout}, stderr = #{stderr}, status = #{status}"
           # OS cleanup
           begin
             File.delete(picture_full_os_path) if File.exists?(picture_full_os_path)
             Picture.delete_empty_parent_dirs(:rel_path => picture_rel_path)
           rescue Exception => e
             # ignore OS cleanup errors - write message on log and continue
-            logger.error2 "chmod: OS cleanup failed. error = #{e.message}"
+            logger.error2 "mv: OS cleanup failed. error = #{e.message}"
           end
           # continue post without picture
-          @errors2 << { :msg => t(".file_chmod_error", :error => stderr), :id => tasks_errors }
+          add_error_key ".file_mv_error", :error => stderr
           gift.app_picture_rel_path = nil
           gift.save!
           gift.api_gifts.each do |api_gift|
@@ -152,53 +119,86 @@ class GiftsController < ApplicationController
             api_gift.save!
           end
           picture = false
+        else
+          # mv ok - change file permissions
+          # apache must have read access to image files
+          cmd = "chmod o+r #{picture_full_os_path}"
+          stdout, stderr, status = User.open4(cmd)
+          if status != 0
+            # chmod failed
+            logger.error2 "chmod: cmd = #{cmd}"
+            logger.error2 "chmod: stdout = #{stdout}, stderr = #{stderr}, status = #{status}"
+            # OS cleanup
+            begin
+              File.delete(picture_full_os_path) if File.exists?(picture_full_os_path)
+              Picture.delete_empty_parent_dirs(:rel_path => picture_rel_path)
+            rescue Exception => e
+              # ignore OS cleanup errors - write message on log and continue
+              logger.error2 "chmod: OS cleanup failed. error = #{e.message}"
+            end
+            # continue post without picture
+            add_error_key ".file_chmod_error", :error => stderr
+            gift.app_picture_rel_path = nil
+            gift.save!
+            gift.api_gifts.each do |api_gift|
+              api_gift.picture = 'N'
+              api_gift.api_picture_url = nil
+              api_gift.save!
+            end
+            picture = false
+          end
         end
       end
-    end
 
-    # post on api wall(s) - priority = 5
-    # status:
-    # - facebook ok -
-    # - google+ not implemented - The Google+ API is at current time a read only API
-    # - linkedin - ok
-    # - twitter - todo
-    # note that post_on_<provider> is called even if post_gift_allowed? is false (inject link to grant missing permission)
-    no_walls = 0
-    tokens = session[:tokens] || {}
-    tokens.keys.each do |provider|
-      next unless API_GIFT_PICTURE_STORE[provider] # skip readonly API's
-      # check permissions
-      login_user = @users.find { |u| u.provider == provider }
-      next if login_user.get_write_on_wall_action == User::WRITE_ON_WALL_NO # user has deselected post on api wall
-      # schedule post_on_<provider> or generic_post_on_wall task
-      task_name = "post_on_#{provider}"
-      if UtilController.new.private_methods.index(task_name.to_sym)
-        add_task "#{task_name}(#{gift.id})", 5
-      else
-        add_task "generic_post_on_wall('#{provider}',#{gift.id})", 5
+      # post on api wall(s) - priority = 5
+      # status:
+      # - facebook ok -
+      # - google+ not implemented - The Google+ API is at current time a read only API
+      # - linkedin - ok
+      # - twitter - todo
+      # note that post_on_<provider> is called even if post_gift_allowed? is false (inject link to grant missing permission)
+      no_walls = 0
+      tokens = session[:tokens] || {}
+      tokens.keys.each do |provider|
+        next unless API_GIFT_PICTURE_STORE[provider] # skip readonly API's
+                                                     # check permissions
+        login_user = @users.find { |u| u.provider == provider }
+        next if login_user.get_write_on_wall_action == User::WRITE_ON_WALL_NO # user has deselected post on api wall
+                                                     # schedule post_on_<provider> or generic_post_on_wall task
+        task_name = "post_on_#{provider}"
+        if UtilController.new.private_methods.index(task_name.to_sym)
+          add_task "#{task_name}(#{gift.id})", 5
+        else
+          add_task "generic_post_on_wall('#{provider}',#{gift.id})", 5
+        end
+        no_walls += 1
+      end # each provider
+
+      # write only warning once about missing write on wall privs. once
+      if no_walls == 0
+        add_error_key '.no_api_walls', :appname => APP_NAME unless session[:walls] == false
       end
-      no_walls += 1
-    end # each provider
+      session[:walls] = (no_walls > 0)
 
-    # write only warning once about missing write on wall privs. once
-    if no_walls == 0
-      @errors2 << { :msg => t('.no_api_walls', :appname => APP_NAME), :id => tasks_errors } unless session[:walls] == false
+      # disable file upload button if post on provider wall was rejected for all apis
+      # enable file upload button if post on wall was allowed for one provider
+      add_task "disable_enable_file_upload", 5
+
+      # delete picture after posting on api wall(s) - priority = 10
+      add_task "delete_local_picture(#{gift.id})", 10 if picture and Picture.temp_app_url?(picture_url)
+
+      # find api gift - api gift with picture is preferred
+      api_gift = gift.api_gifts.sort { |a, b| b.picture <=> a.picture }.first
+      @api_gifts = ApiGift.where("id = ?", api_gift.id).includes(:gift)
+      logger.debug2 "@errors2.size = #{@errors2.size}"
+      logger.debug2 " @api_gifts.size = #{@api_gifts.size}"
+      format_response
+    rescue Exception => e
+      logger.error2 "Exception: #{e.message.to_s}"
+      logger.error2 "Backtrace: " + e.backtrace.join("\n")
+      @api_gifts = []
+      format_response_key '.exception', :error => e.message
     end
-    session[:walls] = (no_walls > 0)
-
-    # disable file upload button if post on provider wall was rejected for all apis
-    # enable file upload button if post on wall was allowed for one provider
-    add_task "disable_enable_file_upload", 5
-
-    # delete picture after posting on api wall(s) - priority = 10
-    add_task "delete_local_picture(#{gift.id})", 10 if picture and Picture.temp_app_url?(picture_url)
-
-    # find api gift - api gift with picture is preferred
-    api_gift = gift.api_gifts.sort { |a, b| b.picture <=> a.picture}.first
-    @api_gifts = ApiGift.where("id = ?", api_gift.id).includes(:gift)
-    logger.debug2  "@errors2.size = #{@errors2.size}"
-    logger.debug2 " @api_gifts.size = #{@api_gifts.size}"
-    format_ajax_response
   end # create
 
   def update

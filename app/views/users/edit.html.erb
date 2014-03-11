@@ -71,7 +71,10 @@
     <td><%= t '.delete_account_prompt', @user2.app_and_apiname_hash %></td>
     <td>:</td>
     <td>
-      <%= link_to t('.delete_account_link_text'), user_path(:id => @user2.id), :id => 'delete-account', :remote => true, :method => :delete, :data => { :confirm => t('.delete_account_link_confirm', @user2.app_and_apiname_hash) } %>
+      <%= link_to t('.delete_account_link_text'), user_path(:id => @user2.id), :id => 'delete-account',
+                  :remote => true, :format => :js, :method => :delete,
+                  :data => { :confirm => t('.delete_account_link_confirm', @user2.app_and_apiname_hash),
+                             :type => :script } %>
     </td>
   </tr>
 </table>

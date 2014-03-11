@@ -336,6 +336,7 @@ da:
   # gift controller - general texts
   gifts:
      create:
+        not_logged_in: "Du er ikke logget ind og kan ikke oprette nye opslag. Opdater venligst siden."
         deleted_user: "Din konto er ved at blive slettet, og du kan ikke oprette nye opslag"
         file_upload_not_allowed: "Fil upload ej tilladt. %{appname} mangler adgang til at skrive på din %{apiname} væg."
         unsupported_filetype: "Usupporteret filtype %{filetype} i fil upload. Supporterede filtyper er jpg, gif, png og bmp."
@@ -348,6 +349,7 @@ da:
         gift_not_posted_4: "Opslag findes allerede på %{apiname} væg."
         gift_not_posted_5: "Opslag på %{apiname} væg er endnu ikke implementeret."
         no_api_walls: "Opslag blev oprettet herinde, men ikke på nogen loginudbyders væg. Dit opslag vil kun set af venner, der benytter %{appname}. Gå evt. til \"Log ind\" siden og tjek læse/skriveadgang til loginudbyder væg, og om du har tilladt opslag på login udbyder væg."
+        exception: "Systemfejl. Kunne ikke oprette opslag. %{error}. Se mere information i log."
      index:
         not_logged_in_ajax: "Opdatering blev afvist. Du er ikke logget på. Genopfrisk venligst siden."
         not_logged_in_flash: "Siden kan desværre ikke vises. Du er ikke logget på. Brug nedenstående links til at logge ind."
@@ -753,6 +755,7 @@ da:
         delete_account_link_text: "slet"
         delete_account_link_confirm: "Slet konto! Alle dine opslag, kommentarer og downloadede oplysninger i %{appname} vil blive slettet. Fortsæt?"
      destroy:
+        not_logged_in: "Kan ikke slette konto. Du er ikke logget ind. Opdater venligst siden."
         invalid_request: "Ugyldigt kald. Kunne ikke slette konto."
         ok1_html: "Dine data for din %{apiname} konto her hos %{appname} er ved at blive slettet. Sletning vil ske inden for de næste 5-10 minutter. Tak for besøget. Brug <a href=\"%{url}\">link</a> for også at fjerne %{appname} adgang hos %{apiname}."
         ok2_html: "Dine data for din %{apiname} konto her hos %{appname} er ved at blive slettet. Sletning vil ske inden for de næste 5-10 minutter. Bemærk, at du er logget ind med flere loginudbydere, og du ønsker evt. at gentage \"Slet konto\" for disse. Tak for besøget. Brug <a href=\"%{url}\">link</a> for også at fjerne %{appname} adgang hos %{apiname}."

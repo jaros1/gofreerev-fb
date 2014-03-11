@@ -83,9 +83,9 @@ module GiftHelper
     key = action == 'delete' ? 'delete_comment' : "#{action}_new_deal"
     { :id => "gift-#{comment.gift.id}-comment-#{comment.id}-#{action}-link",
       :class => 'comment-action-link',
-      :remote => true,
+      :remote => true, :format => :js,
       :method => action == 'delete' ? :delete : :post,
-      :data => { :confirm => t(".confirm_#{key}")}
+      :data => { :confirm => t(".confirm_#{key}"), :type => :script }
     }
   end
 
@@ -101,13 +101,17 @@ module GiftHelper
   def link_to_accept_new_deal (comment)
     link_to t('.accept_new_deal'),
             util_accept_new_deal_path(:comment_id => comment.id, :giftid => comment.gift.id),
-            :id => "gift-#{comment.gift.id}-comment-#{comment.id}-accept-link", :class => 'comment-action-link', :remote => true, :method => :post, :data => { :confirm => t('.confirm_accept_new_deal') }
+            :id => "gift-#{comment.gift.id}-comment-#{comment.id}-accept-link", :class => 'comment-action-link',
+            :remote => true, :format => :js, :method => :post, :data => { :confirm => t('.confirm_accept_new_deal'),
+                                                                          :type => :script }
   end
 
   def link_to_reject_new_deal (comment)
     link_to t('.reject_new_deal'),
             util_reject_new_deal_path(:comment_id => comment.id, :giftid => comment.gift.id),
-            :id => "gift-#{comment.gift.id}-comment-#{comment.id}-reject-link", :class => 'comment-action-link', :remote => true, :method => :post, :data => { :confirm => t('.confirm_reject_new_deal') }
+            :id => "gift-#{comment.gift.id}-comment-#{comment.id}-reject-link", :class => 'comment-action-link',
+            :remote => true, :format => :js, :method => :post, :data => { :confirm => t('.confirm_reject_new_deal'),
+                                                                          :type => :script }
   end
 
   def link_to_delete_comment (comment)
