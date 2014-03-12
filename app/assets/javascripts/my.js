@@ -2079,34 +2079,34 @@ $(document).ready(function() {
     // add2log('timezone = ' + timezone.value) ;
 })
 
-// gifts/index page - copy rows from hidden_tasks_errors to tasks_errors - links to grant write permission to api walls
-$(document).ready(function() {
-    var pgm = 'hidden_tasks_errors: ' ;
-    var from_table = document.getElementById('hidden_tasks_errors') ;
-    if (!from_table) {
-        // ok - not gifts/index page
-        add2log(pgm + 'not gifts/index page') ;
-        return ;
-    }
-    var to_table = document.getElementById('tasks_errors') ;
-    var from_trs = from_table.rows ;
-    var tr, td, error ;
-    if (from_trs.length == 0) {
-        add2log(pgm + 'no rows in hidden_tasks_errors') ;
-        return ;
-    }
-    add2log(pgm + 'moving ' + from_trs.length + ' rows') ;
-    for (var i=from_trs.length-1; i>= 0 ; i--) {
-        tr = from_trs[i];
-        td = tr.cells[0] ;
-        error = td.innerHTML ;
-        from_table.deleteRow(i) ;
-        tr = document.createElement('TR') ;
-        td = tr.insertCell(0) ;
-        td.innerHTML = error ;
-        to_table.appendChild(tr) ;
-    }
-});
+//// gifts/index page - copy rows from hidden_tasks_errors to tasks_errors - links to grant write permission to api walls
+//$(document).ready(function() {
+//    var pgm = 'hidden_tasks_errors: ' ;
+//    var from_table = document.getElementById('hidden_tasks_errors') ;
+//    if (!from_table) {
+//        // ok - not gifts/index page
+//        add2log(pgm + 'not gifts/index page') ;
+//        return ;
+//    }
+//    var to_table = document.getElementById('tasks_errors') ;
+//    var from_trs = from_table.rows ;
+//    var tr, td, error ;
+//    if (from_trs.length == 0) {
+//        add2log(pgm + 'no rows in hidden_tasks_errors') ;
+//        return ;
+//    }
+//    add2log(pgm + 'moving ' + from_trs.length + ' rows') ;
+//    for (var i=from_trs.length-1; i>= 0 ; i--) {
+//        tr = from_trs[i];
+//        td = tr.cells[0] ;
+//        error = td.innerHTML ;
+//        from_table.deleteRow(i) ;
+//        tr = document.createElement('TR') ;
+//        td = tr.insertCell(0) ;
+//        td.innerHTML = error ;
+//        to_table.appendChild(tr) ;
+//    }
+//});
 
 // send post_on_wall choise to server - no feedback
 // used in auth/index and in users/edit pages
@@ -2114,10 +2114,24 @@ function post_on_wall_ajax(checkbox) {
     var provider = checkbox.name.substr(5) ;
     var post_on_wall = checkbox.checked ;
     // alert('checkbox = provider = ' + provider + ', post_on_wall = ' + post_on_wall) ;
+    clear_flash_and_ajax_errors();
     $.ajax({
         url: "/util/post_on_wall_yn.js",
         type: "POST",
-        data: { provider: provider, post_on_wall: post_on_wall }
+        dataType: 'script',
+        data: { provider: provider, post_on_wall: post_on_wall },
+        success: function (responseText, statusText, xhr, $form) {
+            var pgm = 'post_on_wall_ajax:success: ' ;
+            add2log(pgm + 'start') ;
+        }, // success
+        error: function (jqxhr, textStatus, errorThrown) {
+            var pgm = 'post_on_wall_ajax:error: ' ;
+            add2log(pgm);
+            add2log('jqxhr = ' + jqxhr);
+            add2log('textStatus = ' + textStatus);
+            add2log('errorThrown = ' + errorThrown);
+            add_to_tasks_errors(pgm + errorThrown + '. check server log for more information.');
+        }
     });
 } // post_on_wall_ajax
 

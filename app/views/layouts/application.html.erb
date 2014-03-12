@@ -48,7 +48,8 @@
     <% end -%>
     <%# Hidden form for ajax task processing (for example downloading profile image after login) -%>
     <div style="display:none">
-      <%= form_tag url_for(:controller => :util, :action => :do_tasks), :remote => true, :id => 'tasks_form' do %>
+      <%= form_tag url_for(:controller => :util, :action => :do_tasks),
+                   :remote => true, :data => { :type => :script }, :format => :js, :id => 'tasks_form' do %>
           <%= hidden_field_tag :timezone, "" %>
       <% end %>
     </div>
@@ -77,7 +78,14 @@ ected to row under comment
 -%>
     <div style="width: 100%">
       <table>
-        <td><table><tbody id="tasks_errors"></tbody></table></td>
+        <td>
+          <table>
+            <tbody id="tasks_errors">
+              <%= render :partial => 'shared/translate_ajax_errors' %>
+              <%= render :partial => 'shared/ajax_errors2' %>
+            </tbody>
+          </table>
+        </td>
         <td style="width: 20px;"><img src="/images/ajax-loading-18.gif" id="ajax-tasks-spinner" style="display: none" /></td>
       </table>
     </div>

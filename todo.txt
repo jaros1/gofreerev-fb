@@ -1035,3 +1035,5 @@
 186) accept new deal: old deal was not deleted from gifts/index page when new accepted deal
      was ajax injected into page. Could be same problem as in 183. char sort instead of number sort.
 
+187) testcase: check not logged in ajax response on show-more-rows request
+

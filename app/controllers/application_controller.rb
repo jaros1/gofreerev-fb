@@ -1768,10 +1768,12 @@ class ApplicationController < ActionController::Base
   def add_error_key (key, options = {})
     if request.xhr?
       table = options.delete(:table) || 'tasks_errors'
+      options[:raise] = I18n::MissingTranslationData
       @errors2 << { :msg => t(key, options), :id => table }
     else
       @errors2 << t(key, options)
     end
+    nil
   end
 
   private
@@ -1782,6 +1784,7 @@ class ApplicationController < ActionController::Base
     else
       @errors2 << text
     end
+    nil
   end
 
   private

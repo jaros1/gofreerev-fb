@@ -6,7 +6,8 @@ class UtilController < ApplicationController
   before_filter :login_required,
                 :except => [:new_messages_count,
                             :like_gift, :unlike_gift, :follow_gift, :unfollow_gift, :hide_gift, :delete_gift,
-                            :cancel_new_deal, :reject_new_deal, :accept_new_deal]
+                            :cancel_new_deal, :reject_new_deal, :accept_new_deal,
+                            :post_on_wall_yn]
 
   # update new message count in menu line in page header
   # called from hidden check-new-messages-link link in page header once every 15, 60 or 300 seconds
@@ -830,34 +831,41 @@ class UtilController < ApplicationController
       # logger.debug2  "task = #{at.task}, res = #{res}"
       @errors << res
     end
-    logger.debug2 "@errors.size = #{@errors.size}"
-    if @errors.size == 0
+    logger.debug2 "@errors.size = #{@errors.size}, @errors2.size = #{@errors2.size}"
+    if @errors.size == 0 and @errors2.size == 0
       render :nothing => true
-      return
+    else
+      format_response
     end
   end # do_tasks
 
   private
-  def get_login_user_and_token (provider)
+  def get_login_user_and_token (provider, task)
     login_user = token = nil
     # find user id and token for provider
     login_user = @users.find { |user| user.provider == provider }
     login_user_id = login_user.user_id if login_user
-    return [login_user, token, '.post_login_user_id_not_found', {:provider => provider}] unless login_user_id
+    return [login_user, token,
+            'util.do_tasks.login_user_id_not_found',
+            {:provider => provider, :apiname => provider_downcase(provider), :task => task}] unless login_user_id
     login_user = User.find_by_user_id(login_user_id)
-    return [login_user, token, '.post_login_unknown_user_id', {:provider => provider, :user_id => login_user_id}] unless login_user
+    return [login_user, token,
+            'util.do_tasks.login_user_id_unknown',
+            {:provider => provider, :apiname => provider_downcase(provider), :user_id => login_user_id, :task => task}] unless login_user
     # get token for api requests
     token = (session[:tokens] || {})[provider]
-    return [login_user, token, '.post_login_token_not_found', {:provider => provider}] if token.to_s == ""
+    return [login_user, token,
+            'util.do_tasks.login_token_not_found',
+            {:provider => provider, :apiname => provider_downcase(provider), :task => task}] if token.to_s == ""
     # logger.debug2  "token = #{token}"
     # ok
     return [login_user, token]
   end # get_login_user_and_token
 
   private
-  def get_login_user_and_api_client (provider)
+  def get_login_user_and_api_client (provider, task)
     api_client = nil
-    login_user, token, key, options = get_login_user_and_token(provider)
+    login_user, token, key, options = get_login_user_and_token(provider, task)
     return [login_user, api_client, key, options] if key
     logger.secret2 "provider = #{provider}, token = #{token}"
 
@@ -879,7 +887,7 @@ class UtilController < ApplicationController
     return [gift, api_gift, deep_link, '.post_on_api_deleted_gift', { :provider => provider, :id => gift.id }] if gift.deleted_at
 
     # check picture if any - must exists in /images/temp folder before post on API wall
-    return [gift, api_gift, deep_link, 'gift_posted_6_html', { :apiname => provider}] if api_gift.picture? and !gift.rel_path_picture_exists?
+    return [gift, api_gift, deep_link, '.gift_posted_6_html', { :apiname => provider}] if api_gift.picture? and !gift.rel_path_picture_exists?
 
     # initialize and check deep link
     deep_link = api_gift.init_deep_link()
@@ -916,7 +924,7 @@ class UtilController < ApplicationController
   private
   def post_login_update_friends (provider)
     friends_hash = new_user = nil
-    login_user, api_client, key, options = get_login_user_and_api_client(provider)
+    login_user, api_client, key, options = get_login_user_and_api_client(provider, __method__)
     return [login_user, api_client, friends_hash, new_user, key, options] if key
     login_user_id = login_user.user_id
 
@@ -1307,7 +1315,7 @@ class UtilController < ApplicationController
     return nil if api_gift.deleted_at_api == 'Y' # ignore - post/picture has been deleted from facebook wall
 
     provider = "facebook"
-    login_user, token, key, options = get_login_user_and_token(provider)
+    login_user, token, key, options = get_login_user_and_token(provider, __method__)
     return [key, options] if key
 
     #if !api_client
@@ -1439,7 +1447,7 @@ class UtilController < ApplicationController
     return nil if api_gift.deleted_at_api == 'Y' # ignore - post/picture has been deleted from flickr wall
 
     provider = "flickr"
-    login_user, api_client, key, options = get_login_user_and_api_client(provider)
+    login_user, api_client, key, options = get_login_user_and_api_client(provider, __method__)
     return [key, options] if key
 
     #if !api_client
@@ -1496,7 +1504,7 @@ class UtilController < ApplicationController
   def get_api_picture_url_twitter (api_gift, just_posted=true, api_client) # api is twitter API client
 
     provider = "twitter"
-    login_user, api_client, key, options = get_login_user_and_api_client(provider)
+    login_user, api_client, key, options = get_login_user_and_api_client(provider, __method__)
     return [key, options] if key
 
     ## initialize twitter api client
@@ -1579,30 +1587,23 @@ class UtilController < ApplicationController
     logger.debug2 "params = #{params}"
     # check provider
     provider = params[:provider]
-    if !valid_provider?(provider)
-      @errors << ['.unknown_provider', {:apiname => provider }]
-      return
-    end
+    return format_response_key('.unknown_provider', :apiname => provider) unless valid_provider?(provider)
     # check post_on_wall_yn
     post_on_wall = case params[:post_on_wall]
                         when 'true' then 'Y'
                         when 'false' then 'N'
                         else
                           logger.error2 "Invalid post_on_wall value received from client. params = #{params}"
-                          return ['.unknown_post_on_wall', {:apiname => provider }]
+                          return format_response_key('.unknown_post_on_wall', :apiname => provider)
                       end # case
 
     # get user
-    login_user, token, key, options = get_login_user_and_token(provider)
-    if key
-      @errors << [key, options]
-      return
-    end
-
+    login_user, token, key, options = get_login_user_and_token(provider, __method__)
+    return format_response_key(key, options) if key
 
     # update user
     login_user.update_attribute('post_on_wall_yn', post_on_wall)
-
+    format_response
   end # post_on_wall_yn
 
 
@@ -1614,7 +1615,7 @@ class UtilController < ApplicationController
     @link = nil
     provider = 'twitter'
     # get user
-    login_user, token, key, options = get_login_user_and_token(provider)
+    login_user, token, key, options = get_login_user_and_token(provider, __method__)
     if key
       @errors << [key, options]
       render 'grant_write'
@@ -1637,7 +1638,7 @@ class UtilController < ApplicationController
     @link = nil
     provider = 'vkontakte'
     # get user
-    login_user, token, key, options = get_login_user_and_token(provider)
+    login_user, token, key, options = get_login_user_and_token(provider, __method__)
     if key
       @errors << [key, options]
       render 'grant_write'
@@ -1666,7 +1667,7 @@ class UtilController < ApplicationController
       return
     end
     # get user
-    login_user, token, key, options = get_login_user_and_token(provider)
+    login_user, token, key, options = get_login_user_and_token(provider, __method__)
     if key
       @errors << [key, options]
       return
@@ -1684,8 +1685,8 @@ class UtilController < ApplicationController
   private
   def generic_post_on_wall (provider, id)
     # get login user + initialize api client
-    login_user, api_client, key, options = get_login_user_and_api_client(provider)
-    return [key, options] if key
+    login_user, api_client, key, options = get_login_user_and_api_client(provider, __method__)
+    return add_error_key(key, options) if key
     login_user_id = login_user.user_id
 
     # check user privs before post on wall
@@ -1696,19 +1697,20 @@ class UtilController < ApplicationController
       when User::WRITE_ON_WALL_YES then
         nil # continue
       when User::WRITE_ON_WALL_MISSING_PRIVS then
-        return grant_write_link(provider) # inject link to grant missing priv.
+        key, options = grant_write_link(provider)
+        return add_error_key(key, options) # inject link to grant missing priv.
     end
 
     # check if Gofreerev_post_on_wall method has been implemented for api client
     # cannot post on api wall without a gofreerev_post_on_wall method.
     # see application_controller.init_api_client_<provider> for examples
     if !api_client.respond_to? :gofreerev_post_on_wall
-      return ['.api_client_gofreerev_post_on_wall', login_user.app_and_apiname_hash]
+      return add_error_key('.api_client_gofreerev_post_on_wall', login_user.app_and_apiname_hash)
     end
 
     # get gift, api_gift and deep_link
     gift, api_gift, deep_link, key, options = get_gift_and_deep_link(id, login_user, provider)
-    return [key, options] if key
+    return add_error_key(key, options) if key
     description_with_deep_link = "#{gift.description} - #{deep_link}"
 
     # helpers ( app helpers are not available in instance method api_client.gofreerev_post_on_wall)
@@ -1791,7 +1793,8 @@ class UtilController < ApplicationController
       logout(provider)
     rescue PostNotAllowed => e
       # missing write permission to api wall or permission to write on api wall has been removed
-      return grant_write_link(provider)
+      key, options = grant_write_link(provider)
+      return add_error_key(key, options)
     rescue AppNotAuthorized => e
       # user has deauthorized app
       logger.debug2 "#{provider} user has deauthorizd app"
@@ -1817,14 +1820,15 @@ class UtilController < ApplicationController
       api_gift.picture = 'N'
       api_gift.api_picture_url = nil
       api_gift.save!
-      return [".gift_posted_#{gift_posted_on_wall_api_wall}_html",
-              login_user.app_and_apiname_hash.merge(:error => error)]
+      add_error_key ".gift_posted_#{gift_posted_on_wall_api_wall}_html",
+                    login_user.app_and_apiname_hash.merge(:error => error)
     elsif (!api_gift.picture? or (api_gift.picture? and Picture.perm_app_url?(picture_url)))
       # post ok - no picture or picture with perm app url
       # no need to check read permission to gift on api wall
       # return posted message
       logger.debug2 "post ok without picture"
-      return [".gift_posted_#{gift_posted_on_wall_api_wall}_html", login_user.app_and_apiname_hash.merge(:error => error)]
+      # return [".gift_posted_#{gift_posted_on_wall_api_wall}_html", login_user.app_and_apiname_hash.merge(:error => error)]
+      add_error_key ".gift_posted_#{gift_posted_on_wall_api_wall}_html", login_user.app_and_apiname_hash.merge(:error => error)
     else
       logger.debug2 "post ok with picture"
       # post ok - gift posted in flickr wall
@@ -1832,11 +1836,12 @@ class UtilController < ApplicationController
       # must have read access to post on flickr wall to display picture in gofreerev
       # 1) use api_gift.api_gift_id to get object_id (picture size in first request is too small)
       key, options = get_api_picture_url(provider, api_gift, true, api_client) # just_posted = true
-      return [key, options] if key
+      return add_error_key(key, options) if key
 
       # post ok and no permission problems
       # no errors - return posted message
-      return [".gift_posted_#{gift_posted_on_wall_api_wall}_html", :apiname => login_user.apiname, :error => error]
+      # return [".gift_posted_#{gift_posted_on_wall_api_wall}_html", :apiname => login_user.apiname, :error => error]
+      add_error_key ".gift_posted_#{gift_posted_on_wall_api_wall}_html", :apiname => login_user.apiname, :error => error
     end
 
   end # generic_post_on_wall

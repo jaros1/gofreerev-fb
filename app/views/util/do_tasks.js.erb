@@ -1,4 +1,9 @@
 <%# logger.debug2  "table rows = #{j(render('shared/translate_ajax_errors'))}" -%>
+<% logger.debug2 "@errors.size = #{@errors.size}, @errors2.size = #{@errors2.size}" -%>
 $('#tasks_errors').append('<%= j render('shared/translate_ajax_errors') %>');
 ajax_flash_new_table_rows('tasks_errors',<%= @errors.size %>);
+<% if @errors2.size > 0 -%>
+$('#tasks_errors2').append('<%= j render('shared/ajax_errors2') %>');
+move_tasks_errors2();
+<% end -%>
 disable_enable_file_upload(<%= @gift_file %>) ;

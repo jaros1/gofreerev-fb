@@ -128,8 +128,6 @@ da:
         profile_image_cp2_failed: "Systemfejl. Kunne ikke indsætte nyt profilbillede modtaget fra %{provider}: \"%{error}\""
         too_few_exchange_rates: "Advarsel. Opslag af dagens valuta kurser fra %{bank} fejlede. Forventede >= %{expected} kurser. Modtag %{found} kurser"
         # post_login_task_not_found: "Systemfejl. Fandt ikke nogen util.post_login_%{provider} opgave for login udbyder %{provider}. Der blev ikke downloaded nogle venneliste fra %{provider}."
-        post_login_user_id_not_found: "Advarsel. Fandt ikke bruger-id. Kunne ikke hente venneliste fra %{provider}"
-        post_login_token_not_found: "Advarsel. Fandt ikke adgangs \"billet\". Kunne ikke hente venneliste fra %{provider}"
         init_api_client_missing: "Systemfejl. Kan ikke kommunikerer med #{provider} da privat metode init_api_client_%{provider} mangler i app. controller."
         api_client_gofreerev_get_friends: "Systemfejl. Kan ikke downloade venneliste fra %{apiname} da instance metode gofreerev_get_friends mangler for %{apiname} API klient."
         get_api_picture_url_missing: "Systemfejl. Opslag på %{apiname} væg, men fandt ikke metode get_api_picture_%{provider}. Foto kan ikke vises her."
@@ -140,24 +138,8 @@ da:
         google_insufficient_permission: "Fejl ved hentning af venneliste fra Google+ API. Manglende adgang. Tjek liste ved API opsætning: 1) scope plus.login mangler i provider opsætning for google"
         google_other_errors: "Fejl ved hentning af venneliste fra Google+ API. \"%{error}\""
         linkedin_access_denied: "Fejl ved hentning af connections fra LinkedIn API. Access to connections denied. Tjek liste ved API opsætning. 1) scope r_network mangler i provider opsætning for linkedin"
-        post_on_api_unknown_gift_id: "Ukendt id %{id} ved opslag på %{provider} væg"
-        post_on_api_invalid_gift_id: "Ugyldigt id %{id} ved opslag på %{provider} væg (1)"
-        post_on_api_old_gift: "Gammelt id %{id} ved opslag på %{provider} væg"
-        post_on_api_deleted_gift: "Id %{id} for slettet opslag ved opslag på %{provider} væg"
         no_local_picture: "Ugyldigt opslag id %{id} ved opslag på %{provider} væg (2)"
         local_picture_not_found: "Ugyldigt id %{id} ved opslag på %{provider} væg (3)"
-        api_client_gofreerev_post_on_wall: "Systemfejl. Kan ikke lave opslag på %{apiname} væg da instance metode gofreerev_post_on_wall for %{apiname} API klient."
-        gift_posted_1_html: "Opslag oprettet her, men ikke på din %{apiname} væg (%{error})" # unhandled error message
-        gift_posted_2_html: "Opslag oprettet her og på din %{apiname} væg"
-        gift_posted_3_html: "<div title='%{appname} mangler adgang til at skrive på din %{apiname} væg. Du kan godt dele dine ressourcer med dine venner herinde, men opslag vil kun blive vist her og ikke på din %{apiname} væg. Dvs. dine opslag vil sandsynligvis kun blive set af få venner. Du kan give %{appname} tilladelse til at skrive på din %{apiname} væg. %{appname} laver kun de opslag, du selv beder om. Billeder gemmes kun hos din login udbyder (i dette tilfælde %{apiname}). Uden adgang til at skrive på mindst en væg kan der ikke vedlægges billeder i forbindelse med opslag herinde. Vælg skjul, hvis du ikke ønsker at se denne meddelelse.' id='grant_write_div_%{provider}'>Kan ikke lave opslag på din %{apiname} væg. <a href=\"javascript: {top.location.href='%{url}'}\">Giv %{appname} lov til at lave opslag på min %{apiname} væg!</a> <a href=\"%{hide_url}\" data-remote=\"true\" data-method=\"post\">(skjul)</a></div>" # missing privileges
-        gift_posted_3b_html: "<div title='%{appname} mangler adgang til at skrive på din %{apiname} væg. Du kan godt dele dine ressourcer med dine venner herinde, men opslag vil kun blive vist her og ikke på din %{apiname} væg. Dvs. dine opslag vil sandsynligvis kun blive set af få venner. Du kan give %{appname} tilladelse til at skrive på din %{apiname} væg. %{appname} laver kun de opslag, du selv beder om. Billeder gemmes kun hos din login udbyder (i dette tilfælde %{apiname}). Uden adgang til at skrive på mindst en væg kan der ikke vedlægges billeder i forbindelse med opslag herinde. Vælg skjul, hvis du ikke ønsker at se denne meddelelse.' id='grant_write_div_%{provider}'>Kan ikke lave opslag på din %{apiname} væg. <a href=\"%{url}\" data-remote=\"true\" data-method=\"post\" data-confirm=\"%{confirm}\" class=\"grant_write_ajax_link\">Giv %{appname} lov til at lave opslag på min %{apiname} væg!</a>  <a href=\"%{hide_url}\" data-remote=\"true\" data-method=\"post\">(skjul)</a></div>" # missing privileges
-        gift_posted_4_html: "Opslag oprettet her, men ikke på din %{apiname} væg. Opslag findes allerede på %{apiname} væg"
-        gift_posted_5_html: "Opslag oprettet her, men ikke på din %{apiname} væg. Opslag på %{apiname} væg er endnu ikke implementeret"
-        gift_posted_6_html: "Opslag med billede kunne ikke oprettes på din %{apiname} væg. Intern systemfejl. Fandt ikke billede."
-        gift_posted_7_html: "Opslag kunne ikke oprettes på din %{apiname} væg. Fejl i dybt <a href='%{link}'>link</a>. Fejlmeddelelse \"%{error}\"."
-        gift_posted_8_html: "Opslag oprettet her, men ikke på din %{apiname} væg. Du har fjernet %{appname} fra %{apiname}, og du har derfor ikke længere adgang til %{appname} vha. din %{apiname} konto. Du bør opdatere siden, da adgangsrettigheder er blevet ændret."
-        gift_posted_9_html: "Opslag oprettet her, men ikke på din %{apiname} væg. Opslag på %{apiname} kræver et vedhæftet billede eller at tekst til billede konvertering er slået til (API_TEXT_TO_PICTURE)."
-        gift_posted_10_html: "Opslag oprettet her, men ikke på din %{apiname} væg. Autorisation gælder ikke længere. Log venligst ind igen."
         no_api_picture_url: "Foto blev uploaded, men ingen URL til foto blev modtaget fra %{apiname}."
         fb_pic_post_unknown_problem: "Opslag oprettet her og på din %{apiname} væg. Foto blev uploaded til din %{apiname} væg, men %{appname} mangler rettigheder til at se billedet på din %{apiname} væg og kan derfor ikke vise foto herinde. Måske du har ændret rettighedsindstillinger for %{appname}."
         fb_pic_post_missing_permission_html: "<div title='Foto blev uploaded til din %{apiname} væg, men %{appname} mangler rettigheder til at se billedet på din %{apiname} væg og kan derfor ikke vise foto herinde. Du kan løse dette problem ved enten at ændre synlighed for %{appname} opslag til offentlig eller ved at give %{appname} lov til at læse opslag på din %{apiname} væg.'>Opslag oprettet herinde og på din %{apiname} væg, men foto kan ikke vises her. <a href=\"javascript: {top.location.href='%{url}'}\">Giv Gofreerev lov til at læse opslag på min væg!</a></div>"
@@ -172,9 +154,6 @@ da:
         mis_api_pic_not_implemented2: "Tjek for flyttede eller slettede billeder er ikke implementeret for %{apiname}."
         mis_api_pic_file_exists: "Advarsel. Browser fandt ikke billede %{rel_path}, men billede findes på serveren."
         # auth/index + util.post_on_wall_yn:
-        unknown_provider: "Systemfejl. Ukendt login udbyder %{apiname}. Ændring af Opslag? er ikke blevet gemt."
-        unknown_post_on_wall: "Systemfejl. Ukendt valg med ændring af Opslag? for %{apiname}. Valg er ikke blevet gemt."
-        grant_write_link_missing: "Systemfejl. Kan ikke indsætte link til at give skrive skrivetilladelse til %{apiname} væg. Enten mangler privat metode grant_write_link_%{provider} i application controller eller også skal API_GIFT_PICTURE_STORE[:%{provider}] ændres til nil hvis %{apiname} API ikke understøtter opslag på %{apiname} væg."
         confirm_grant_write: "Tillad opslag på din %{apiname} væg?"
         grant_write_ok: "%{appname} fik tilladelse til at lave opslag på din %{apiname} væg."
         hide_grant_write_ok: "%{appname} vil fremover ikke bede om tilladelse til at lave opslag på din %{apiname} væg. Du kan på et senere tidspunkt give %{appname} lov til at lave opslag på din %{apiname} væg ved at sætte hak i Opslag? tjekbox på \"Log ind\" siden."
@@ -765,6 +744,27 @@ da:
 
   # util controller
   util:
+     do_tasks:
+        login_user_id_not_found: "Opgave %{task} kunne ikke udføres. Intet gyldigt %{apiname} log ind fundet. Opdater venligst siden."
+        login_user_id_unknown: "Systemfej. Opgave %{task} kunne ikke udføres. Ukendt %{provider} bruger-id."
+        login_token_not_found: "Systemfejl. Opgave %{task} kunne ikke udføres. Fandt ikke %{provider} adgangs \"billet\"."
+        grant_write_link_missing: "Systemfejl. Kan ikke indsætte link til at give skrive skrivetilladelse til %{apiname} væg. Enten mangler privat metode grant_write_link_%{provider} i application controller eller også skal API_GIFT_PICTURE_STORE[:%{provider}] ændres til nil hvis %{apiname} API ikke understøtter opslag på %{apiname} væg."
+        api_client_gofreerev_post_on_wall: "Systemfejl. Kan ikke lave opslag på %{apiname} væg da instance metode gofreerev_post_on_wall for %{apiname} API klient."
+        post_on_api_unknown_gift_id: "Ukendt opslag-id %{id} ved opslag på %{provider} væg"
+        post_on_api_invalid_gift_id: "Ugyldigt opslag-id %{id} ved opslag på %{provider} væg (1)"
+        post_on_api_old_gift: "Gammelt opslag-id %{id} ved opslag på %{provider} væg"
+        post_on_api_deleted_gift: "Id %{id} for slettet opslag ved opslag på %{provider} væg"
+        gift_posted_1_html: "Opslag oprettet her, men ikke på din %{apiname} væg (%{error})" # unhandled error message
+        gift_posted_2_html: "Opslag oprettet her og på din %{apiname} væg"
+        gift_posted_3_html: "<div title='%{appname} mangler adgang til at skrive på din %{apiname} væg. Du kan godt dele dine ressourcer med dine venner herinde, men opslag vil kun blive vist her og ikke på din %{apiname} væg. Dvs. dine opslag vil sandsynligvis kun blive set af få venner. Du kan give %{appname} tilladelse til at skrive på din %{apiname} væg. %{appname} laver kun de opslag, du selv beder om. Billeder gemmes kun hos din login udbyder (i dette tilfælde %{apiname}). Uden adgang til at skrive på mindst en væg kan der ikke vedlægges billeder i forbindelse med opslag herinde. Vælg skjul, hvis du ikke ønsker at se denne meddelelse.' id='grant_write_div_%{provider}'>Kan ikke lave opslag på din %{apiname} væg. <a href=\"javascript: {top.location.href='%{url}'}\">Giv %{appname} lov til at lave opslag på min %{apiname} væg!</a> <a href=\"%{hide_url}\" data-remote=\"true\" data-method=\"post\">(skjul)</a></div>" # missing privileges
+        gift_posted_3b_html: "<div title='%{appname} mangler adgang til at skrive på din %{apiname} væg. Du kan godt dele dine ressourcer med dine venner herinde, men opslag vil kun blive vist her og ikke på din %{apiname} væg. Dvs. dine opslag vil sandsynligvis kun blive set af få venner. Du kan give %{appname} tilladelse til at skrive på din %{apiname} væg. %{appname} laver kun de opslag, du selv beder om. Billeder gemmes kun hos din login udbyder (i dette tilfælde %{apiname}). Uden adgang til at skrive på mindst en væg kan der ikke vedlægges billeder i forbindelse med opslag herinde. Vælg skjul, hvis du ikke ønsker at se denne meddelelse.' id='grant_write_div_%{provider}'>Kan ikke lave opslag på din %{apiname} væg. <a href=\"%{url}\" data-remote=\"true\" data-method=\"post\" data-confirm=\"%{confirm}\" class=\"grant_write_ajax_link\">Giv %{appname} lov til at lave opslag på min %{apiname} væg!</a>  <a href=\"%{hide_url}\" data-remote=\"true\" data-method=\"post\">(skjul)</a></div>" # missing privileges
+        gift_posted_4_html: "Opslag oprettet her, men ikke på din %{apiname} væg. Opslag findes allerede på %{apiname} væg"
+        gift_posted_5_html: "Opslag oprettet her, men ikke på din %{apiname} væg. Opslag på %{apiname} væg er endnu ikke implementeret"
+        gift_posted_6_html: "Opslag med billede kunne ikke oprettes på din %{apiname} væg. Intern systemfejl. Fandt ikke billede."
+        gift_posted_7_html: "Opslag kunne ikke oprettes på din %{apiname} væg. Fejl i dybt <a href='%{link}'>link</a>. Fejlmeddelelse \"%{error}\"."
+        gift_posted_8_html: "Opslag oprettet her, men ikke på din %{apiname} væg. Du har fjernet %{appname} fra %{apiname}, og du har derfor ikke længere adgang til %{appname} vha. din %{apiname} konto. Du bør opdatere siden, da adgangsrettigheder er blevet ændret."
+        gift_posted_9_html: "Opslag oprettet her, men ikke på din %{apiname} væg. Opslag på %{apiname} kræver et vedhæftet billede eller at tekst til billede konvertering er slået til (API_TEXT_TO_PICTURE)."
+        gift_posted_10_html: "Opslag oprettet her, men ikke på din %{apiname} væg. Autorisation gælder ikke længere. Log venligst ind igen."
      like_gift:
         invalid_action: "Systemfejl. Kunne ikke \"synes om\" opslag. Ugyldig aktion. Mere information i server log."
         gift_deleted: "Kan ikke \"synes om\" opslag. Opslag er blevet slettet. Opdater venligst siden."
@@ -848,3 +848,6 @@ da:
         invalid_updated_by: "Systemfejl. Fandt ingen lovlige \"opdateret af\" brugere."
         ok: "Forslag er blevet godkendt."
         exception: "Systemfejl. Kunne ikke godkende forslag. %{error}. Mere information i server log."
+     post_on_wall_yn:
+        unknown_provider: "Systemfejl. Ukendt login udbyder %{apiname}. Ændring af Opslag? er ikke blevet gemt."
+        unknown_post_on_wall: "Systemfejl. Ukendt valg med ændring af Opslag? for %{apiname}. Valg er ikke blevet gemt."
