@@ -689,10 +689,7 @@ class ApplicationController < ActionController::Base
   def set_timezone(timezone)
     timezone = "#{timezone}.0" unless timezone.to_s.index('.')
     timezones = ActiveSupport::TimeZone.all.collect { |tz| (tz.tzinfo.current_period.utc_offset / 60.0 / 60.0).to_s }.uniq
-    if !timezones.index(timezone)
-      logger.debug2  "unknown timezome #{timezone}"
-      return
-    end
+    return add_error_key '.unknown_timezone', :timezone => timezone unless timezones.index(timezone)
     logger.debug2  "timezone = #{timezone}"
     Time.zone = session[:timezone] = timezone.to_f
   end

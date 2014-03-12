@@ -623,10 +623,12 @@ class User < ActiveRecord::Base
             logger.error2 "Error in tmp dir cleanup after exception. Error = #{e.message}"
           end
         end
-      rescue Exception => e
-        logger.error2 "Error in picture cleanup after exception. Error = #{e.message}"
+      rescue Exception => e2
+        logger.error2 "Error in picture cleanup after exception. Error = #{e2.message}"
       end
+      return ['.profile_image_exception', :error => e.message, :provider => (user ? user.provider : 'API') ]
     end
+    nil
   end # self.download_profile_image
 
   # called from generic_post_login / post_login_update_friends if api_client instance method gofreerev_get_user exists

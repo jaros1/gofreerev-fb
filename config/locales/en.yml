@@ -110,20 +110,6 @@ en:
         ajax_task_invalid_response: "System error. Invalid response from task \"%{task}\". Must be Nil or a valid input to translate." # task, response and exception. response is invalid response from task and exception is exception from translate
         ajax_task_missing_translate_key: "System error. Missing translation key \"%{key}\" for task \"%{task}\""
         ajax_task_missing_translate_arg: "System error. Argument %{argument} is missing for translation key \"%{key}\" for task \"%{task}\""
-        update_timezone_invalid_user_id: "System error. Invalid user id %{user_id} when updating timezone information"
-        update_timezone_timezone_missing: "System error. Did not receive timezone information from browser/javascript"
-        update_timezone_save_error: "System error. Could not update user timezone information: \"%{errors}\""
-        profile_image_invalid_user: "System error. Invalid user id %{user_id} when downloading profile picture"
-        profile_image_blank: "Profile picture was not received from %{provider}" # provider
-        profile_image_invalid_url: "Invalid profile picture url \"%{image}\" received from %{provider}" # image and provider - image must be an url (http or https)
-        profile_image_not_found: "Invalid profile picture url \"%{image}\" received from %{provider}"
-        profile_image_invalid_type: "Warning. Profile picture type %{image_type} from %{provider} is not supported. Url to profile picture was \"%{image}\""
-        profile_image_unsupported_store: "System error. Please check API_PROFILE_PICTURE_STORE setup for %{provider}."
-        profile_image_wget_failed: "Profile picture download from %{provider} failed: \"%{error}\". Url was \"%{image}\""
-        profile_image_count_failed: "Profile picture download from %{provider} failed. Expected one profile picture. Found %{count} profile pictures. Url was \"%{image}\""
-        profile_image_mv_failed: "System error. Could not insert new profile picture received from %{provider}: \"%{error}\""
-        profile_image_cp1_failed: "System error. Could not insert new profile picture received from %{provider}: \"%{error}\""
-        profile_image_cp2_failed: "System error. Could not insert new profile picture received from %{provider}: \"%{error}\""
         too_few_exchange_rates: "Warning. Lookup of exchange rates from google %{bank} failed. Expected >= %{expected} currencies. Received %{found} currencies."
         # post_login_task_not_found: "System error. No post login task util.post_login_%{provider} was found for login provider %{provider}. No friend list was downloaded from %{provider}."
         init_api_client_missing: "System  error. Private method init_api_client_%{provider} is missing in app. controller and cannot communicate with %{provider}."
@@ -742,9 +728,22 @@ en:
   # util controller
   util:
      do_tasks:
+        unknown_timezone: "Warning. Unknown timezone %{timezone}."
         login_user_id_not_found: "Task %{task} aborted. No valid %{apiname} log in was found. Please refresh web page."
         login_user_id_unknown: "System error. Task %{task} aborted. Unknown %{provider} user id."
         login_token_not_found: "System error. Task %{task} aborted. Could not find %{provider} access token."
+        profile_image_invalid_user: "System error. Invalid user id %{user_id} when downloading profile picture"
+        profile_image_blank: "Profile picture was not received from %{provider}" # provider
+        profile_image_invalid_url: "Invalid profile picture url \"%{image}\" received from %{provider}" # image and provider - image must be an url (http or https)
+        profile_image_not_found: "Invalid profile picture url \"%{image}\" received from %{provider}"
+        profile_image_invalid_type: "Warning. Profile picture type %{image_type} from %{provider} is not supported. Url to profile picture was \"%{image}\""
+        profile_image_unsupported_store: "System error. Please check API_PROFILE_PICTURE_STORE setup for %{provider}."
+        profile_image_wget_failed: "Profile picture download from %{provider} failed: \"%{error}\". Url was \"%{image}\""
+        profile_image_count_failed: "Profile picture download from %{provider} failed. Expected one profile picture. Found %{count} profile pictures. Url was \"%{image}\""
+        profile_image_mv_failed: "System error. Could not insert new profile picture received from %{provider}: \"%{error}\""
+        profile_image_cp1_failed: "System error. Could not insert new profile picture received from %{provider}: \"%{error}\""
+        profile_image_cp2_failed: "System error. Could not insert new profile picture received from %{provider}: \"%{error}\""
+        profile_image_exception: "System error. Could not update %{provider} profile picture: \"%{error}\". More information in server log."
         grant_write_link_missing: "System error. Cannot insert link to grant permission to post on %{apiname} wall. Either private method grant_write_link_%{provider} is missing in application controller or API_GIFT_PICTURE_STORE[:%{provider}] should be set to nil if %{apiname} API does not support post on %{apiname} wall."
         api_client_gofreerev_post_on_wall: "System error. Cannot post on %{apiname} wall. Instance method gofreerev_post_on_wall is missing for %{apiname} API client."
         post_on_api_unknown_gift_id: "Unknown post id %{id} when posting on %{provider} wall"

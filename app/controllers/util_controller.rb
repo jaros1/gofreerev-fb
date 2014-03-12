@@ -973,7 +973,7 @@ class UtilController < ApplicationController
       #logger.debug2 "new_user     = #{new_user}"
       #logger.debug2 "key          = #{key}"
       #logger.debug2 "options      = #{options}"
-      return [key, options] if key
+      return add_error_key(key, options) if key
 
       # update number of friends.
       # facebook: number of friends is not 100 % correct as not all friends are returned from facebook api
