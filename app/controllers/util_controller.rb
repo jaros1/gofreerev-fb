@@ -1624,46 +1624,50 @@ class UtilController < ApplicationController
   # ( remote link was ajax injected in post_on_twitter if missing write priv. )
   public
   def grant_write_twitter
-    @errors = []
-    @link = nil
     provider = 'twitter'
-    # get user
-    login_user, token, key, options = get_login_user_and_token(provider, __method__)
-    if key
-      @errors << [key, options]
-      render 'grant_write'
-      return
+    params[:action] = 'grant_write'
+    @link = nil
+    begin
+      # get user
+      login_user, token, key, options = get_login_user_and_token(provider, __method__)
+      return format_response_key(key, options) if key
+      # change twitter user permissions from read to write
+      login_user.update_attribute('permissions', 'write')
+      # hide ajax injected link to grant write permission to twitter wall
+      @link = "grant_write_div_#{provider}"
+      # ok
+      format_response_key '.ok', login_user.app_and_apiname_hash
+    rescue Exception => e
+      logger.debug2 "Exception: #{e.message.to_s} (#{e.class})"
+      logger.debug2 "Backtrace: " + e.backtrace.join("\n")
+      format_response_key '.exception',
+                          :error => e.message, :provider => provider, :apiname => provider_downcase(provider)
     end
-    # change twitter user permissions from read to write
-    login_user.update_attribute('permissions', 'write')
-    # hide ajax injected link to grant write permission to twitter wall
-    @link = "grant_write_div_#{provider}"
-    # ok
-    @errors << ['.grant_write_ok', login_user.app_and_apiname_hash ]
-    render 'grant_write'
   end # grant_write_twitter
 
   # grant_write_vkontakte is called from gifts/index page
   # ( remote link was ajax injected in post_on_vkontakte if missing write priv. )
   public
   def grant_write_vkontakte
-    @errors = []
-    @link = nil
     provider = 'vkontakte'
-    # get user
-    login_user, token, key, options = get_login_user_and_token(provider, __method__)
-    if key
-      @errors << [key, options]
-      render 'grant_write'
-      return
+    params[:action] = 'grant_write'
+    @link = nil
+    begin
+      # get user
+      login_user, token, key, options = get_login_user_and_token(provider, __method__)
+      return format_response_key(key, options) if key
+      # change vkontakte user permissions from read to write
+      login_user.update_attribute('permissions', 'write')
+      # hide ajax injected link to grant write permission to vkontakte wall
+      @link = "grant_write_div_#{provider}"
+      # ok
+      format_response_key '.ok', login_user.app_and_apiname_hash
+    rescue Exception => e
+      logger.debug2 "Exception: #{e.message.to_s} (#{e.class})"
+      logger.debug2 "Backtrace: " + e.backtrace.join("\n")
+      format_response_key '.exception',
+                          :error => e.message, :provider => provider, :apiname => provider_downcase(provider)
     end
-    # change vkontakte user permissions from read to write
-    login_user.update_attribute('permissions', 'write')
-    # hide ajax injected link to grant write permission to vkontakte wall
-    @link = "grant_write_div_#{provider}"
-    # ok
-    @errors << ['.grant_write_ok', login_user.app_and_apiname_hash ]
-    render 'grant_write'
   end # grant_write_vkontakte
 
   
@@ -1671,26 +1675,26 @@ class UtilController < ApplicationController
   # that is - set user.post_on_wall_yn to N and hide link
   public
   def hide_grant_write
-    @errors = []
-    @link = nil
-    # check provider
     provider = params[:provider]
-    if !valid_provider?(provider)
-      @errors << ['.unknown_provider', {:apiname => provider }]
-      return
+    @link = nil
+    begin
+      # check provider
+      return format_response_key('.unknown_provider', :provider => provider) unless valid_provider?(provider)
+      # get user
+      login_user, token, key, options = get_login_user_and_token(provider, __method__)
+      return format_response_key(key, options) if key
+      # disable post on wall <=> do not ajax inject links to authorize post on wall permission
+      login_user.update_attribute :post_on_wall_yn, 'N'
+      # hide ajax injected link to grant write permission to api provider wall
+      @link = "grant_write_div_#{provider}"
+      # ok
+      format_response_key '.ok', login_user.app_and_apiname_hash
+    rescue Exception => e
+      logger.debug2 "Exception: #{e.message.to_s} (#{e.class})"
+      logger.debug2 "Backtrace: " + e.backtrace.join("\n")
+      format_response_key '.exception',
+                          :error => e.message, :provider => provider, :apiname => provider_downcase(provider)
     end
-    # get user
-    login_user, token, key, options = get_login_user_and_token(provider, __method__)
-    if key
-      @errors << [key, options]
-      return
-    end
-    # disable post on wall <=> do not ajax inject links to authorize post on wall permission
-    login_user.update_attribute :post_on_wall_yn, 'N'
-    # hide ajax injected link to grant write permission to api provider wall
-    @link = "grant_write_div_#{provider}"
-    # ok
-    @errors << ['.hide_grant_write_ok', login_user.app_and_apiname_hash ]
   end # hide_grant_write
 
 

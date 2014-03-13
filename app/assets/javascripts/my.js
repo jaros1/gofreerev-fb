@@ -2161,6 +2161,11 @@ function show_debug_log_checkbox(checkbox) {
 $(document).ready(function() {
     var id = ".grant_write_ajax_link" ;
     var pgm, msg ;
+    $(id).unbind("ajax:beforeSend") ;
+    $(id).bind("ajax:beforeSend", function (xhr, settings) {
+        var pgm = id + '.ajax:beforeSend: ' ;
+        clear_flash_and_ajax_errors() ;
+    })
     $(id).unbind("ajax:error") ;
     $(id).bind("ajax:error", function(jqxhr, textStatus, errorThrown){
         pgm = id + '::ajax:error: ' ;
@@ -2180,8 +2185,6 @@ $(document).ready(function() {
         }
     }) // ajax:error
 })
-
-
 
 // custom confirm box - for styling
 // http://lesseverything.com/blog/archives/2012/07/18/customizing-confirmation-dialog-in-rails/

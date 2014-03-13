@@ -1682,11 +1682,11 @@ class ApplicationController < ActionController::Base
   def grant_write_link_twitter
     provider = 'twitter'
     url = '/util/grant_write_twitter'
-    confirm = t 'shared.translate_ajax_errors.confirm_grant_write', :apiname => provider_downcase(provider)
+    confirm = t 'util.do_tasks.confirm_grant_write', :apiname => provider_downcase(provider)
     hide_url = "/util/hide_grant_write?provider=#{provider}"
 
     # ajax inject link in gifts/index page
-    return ['.gift_posted_3b_html',
+    return ['util.to_tasks.gift_posted_3b_html',
             { :appname => APP_NAME,
               :apiname => provider_downcase(provider),
               :provider => provider,
@@ -1701,11 +1701,11 @@ class ApplicationController < ActionController::Base
   def grant_write_link_vkontakte
     provider = 'vkontakte'
     url = '/util/grant_write_vkontakte'
-    confirm = t 'shared.translate_ajax_errors.confirm_grant_write', :apiname => provider_downcase(provider)
+    confirm = t 'util.do_tasks.confirm_grant_write', :apiname => provider_downcase(provider)
     hide_url = "/util/hide_grant_write?provider=#{provider}"
 
     # ajax inject link in gifts/index page
-    return ['.gift_posted_3b_html',
+    return ['util.do_tasks.gift_posted_3b_html',
             { :appname => APP_NAME,
               :apiname => provider_downcase(provider),
               :provider => provider,

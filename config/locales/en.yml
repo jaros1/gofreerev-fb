@@ -113,9 +113,6 @@ en:
         # post_login_task_not_found: "System error. No post login task util.post_login_%{provider} was found for login provider %{provider}. No friend list was downloaded from %{provider}."
         # util.missing_api_picture_urls - feedback from browser with invalid image references
         # auth/index + util.post_on_wall_yn:
-        confirm_grant_write: "Allow post on your %{apiname} wall?"
-        grant_write_ok: "%{appname} was granted access to write on your %{apiname} wall."
-        hide_grant_write_ok: "%{appname} will in future not ask for permission to make postings on your %{apiname} wall. You can later allow %{appname} to make postings on your %{apiname} wall by checking \"Post?\" checkbox on \"Log in\" page."
         delete_user_id_not_found: "Cannot delete user account. User was not found. Maybe user account has already been deleted."
         delete_user_invalid_id: "Invalid request. Cannot delete user account. User account has not been delete marked."
      languages:
@@ -742,6 +739,7 @@ en:
         post_login_new_user: "Your friend list is ready. Please refresh page to see any posts from your friends."
         # post on wall
         grant_write_link_missing: "System error. Cannot insert link to grant permission to post on %{apiname} wall. Either private method grant_write_link_%{provider} is missing in application controller or API_GIFT_PICTURE_STORE[:%{provider}] should be set to nil if %{apiname} API does not support post on %{apiname} wall."
+        confirm_grant_write: "Allow post on your %{apiname} wall?"
         api_client_gofreerev_post_on_wall: "System error. Cannot post on %{apiname} wall. Instance method gofreerev_post_on_wall is missing for %{apiname} API client."
         post_on_api_unknown_gift_id: "System error. Unknown post id %{id} when posting on %{provider} wall."
         post_on_api_invalid_gift_id: "Invalid post id %{id} when posting on %{provider} wall (1)."
@@ -750,7 +748,7 @@ en:
         gift_posted_1_html: "Gift posted in here but not on your %{apiname} wall (%{error})." # unhandled error message
         gift_posted_2_html: "Gift posted in here and on your %{apiname} wall."
         gift_posted_3_html: "<div title='%{appname} lack access to write on your %{apiname} wall. You can share your resources with your friends in here, but postings will only appear here and not on your %{apiname} wall. This means your message is likely to be seen by few friends. You should therefore allow %{appname} permission to write on your wall. %{appname} will only make the postings you ask for. Pictures are uploaded to %{apiname}. Pictures cannot be uploaded without permission to write on your %{apiname} wall. Select hide if you do not want to see this message.' id='grant_write_div_%{provider}'>Cannot post updates on your %{apiname} wall. <a href=\"javascript: {top.location.href='%{url}'}\">Allow %{appname} to post on my behalf!</a> <a href=\"%{hide_url}\" data-remote=\"true\" data-method=\"post\">(hide)</a></div>" # missing privileges
-        gift_posted_3b_html: "<div title='%{appname} lack access to write on your %{apiname} wall. You can share your resources with your friends in here, but postings will only appear here and not on your %{apiname} wall. This means your message is likely to be seen by few friends. You should therefore allow %{appname} permission to write on your wall. %{appname} will only make the postings you ask for. Pictures are uploaded to %{apiname}. Pictures cannot be uploaded without permission to write on your %{apiname} wall. Select hide if you do not want to see this message.' id='grant_write_div_%{provider}'>Cannot post updates on your %{apiname} wall. <a href=\"%{url}\" data-remote=\"true\" data-method=\"post\" data-confirm=\"%{confirm}\" class=\"grant_write_ajax_link\">Allow %{appname} to post on my behalf!</a>  <a href=\"%{hide_url}\" data-remote=\"true\" data-method=\"post\">(hide)</a></div>" # missing privileges
+        gift_posted_3b_html: "<div title='%{appname} lack access to write on your %{apiname} wall. You can share your resources with your friends in here, but postings will only appear here and not on your %{apiname} wall. This means your message is likely to be seen by few friends. You should therefore allow %{appname} permission to write on your wall. %{appname} will only make the postings you ask for. Pictures are uploaded to %{apiname}. Pictures cannot be uploaded without permission to write on your %{apiname} wall. Select hide if you do not want to see this message.' id='grant_write_div_%{provider}'>Cannot post updates on your %{apiname} wall. <a href=\"%{url}\" data-remote=\"true\" format=\"js\" data-type=\"script\" data-method=\"post\" data-confirm=\"%{confirm}\" class=\"grant_write_ajax_link\">Allow %{appname} to post on my behalf!</a>  <a href=\"%{hide_url}\" data-remote=\"true\" format=\"js\" data-type=\"script\" data-method=\"post\">(hide)</a></div>" # missing privileges
         gift_posted_4_html: "Gift posted in here but not on your %{apiname} wall. Duplicate status message on %{apiname} wall"
         gift_posted_5_html: "Gift posted in here but not on your %{apiname} wall. Posting on %{apiname} has not yet been implemented"
         gift_posted_6_html: "Gift with picture was not posted on your %{apiname} wall. Internal error. Picture was not found."
@@ -854,6 +852,16 @@ en:
         invalid_updated_by: "System error. Did not find any valid \"updated by\" users."
         ok: "Proposal has been accepted."
         exception: "System error. Could not accept proposal. %{error}. More information in server log."
+     grant_write_twitter:
+        ok: "%{appname} was granted access to write on your %{apiname} wall."
+        exception: "System error. Could not grant write access to your %{apiname} wall. %{error}. More information in server log."
+     grant_write_vkontakte:
+        ok: "%{appname} was granted access to write on your %{apiname} wall."
+        exception: "System error. Could not grant write access to your %{apiname} wall. %{error}. More information in server log."
+     hide_grant_write:
+        unknown_provider: "System error. Could not hide %{provider} grant write link. Unknown login provider."
+        ok: "%{appname} will in future not ask for permission to make postings on your %{apiname} wall. You can later allow %{appname} to make postings on your %{apiname} wall by checking \"Post?\" checkbox in \"Log in\" page."
+        exception: "System error. Could not hide %{apiname} grant write link. %{error}. More information in server log."
      post_on_wall_yn:
         unknown_provider: "System error. Unknown login provider %{apiname}. Change in Post? has not been saved."
         unknown_post_on_wall: "System error. Unknown choise for login provider %{apiname}. Change in Post? has not been saved."
