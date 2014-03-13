@@ -946,8 +946,17 @@ function report_missing_api_picture_urls() {
     $.ajax({
         url: "/util/missing_api_picture_urls.js",
         type: "POST",
+        dataType: 'script',
         data: { api_gifts: {
-            ids: missing_api_picture_urls_local}}
+            ids: missing_api_picture_urls_local}},
+        error: function (jqxhr, textStatus, errorThrown) {
+            var pgm = 'missing_api_picture_urls.error: ' ;
+            add2log(pgm);
+            add2log('jqxhr = ' + jqxhr);
+            add2log('textStatus = ' + textStatus);
+            add2log('errorThrown = ' + errorThrown);
+            add_to_tasks_errors(pgm + errorThrown + '. check server log for more information.');
+        }
     });
     missing_api_picture_urls = [];
 } // report_missing_picture_urls

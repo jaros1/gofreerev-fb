@@ -193,7 +193,7 @@ class ApplicationController < ActionController::Base
     add_dummy_user if @users.size == 0
 
     # get new exchange rates? add to task queue
-    add_task 'ExchangeRate.fetch_exchange_rates', 10 if logged_in? and ExchangeRate.fetch_exchange_rates?
+    add_task 'fetch_exchange_rates', 10 if logged_in? and ExchangeRate.fetch_exchange_rates?
   end # fetch_user
 
 
@@ -1594,7 +1594,7 @@ class ApplicationController < ActionController::Base
   private
   def init_api_client (provider, token)
     method = "init_api_client_#{provider}".to_sym
-    return ['.init_api_client_missing', :provider => provider] unless private_methods.index(method)
+    return ['util.do_tasks.init_api_client_missing', :provider => provider] unless private_methods.index(method)
     send(method, token)
   end
 

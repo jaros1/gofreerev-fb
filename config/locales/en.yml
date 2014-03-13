@@ -110,33 +110,8 @@ en:
         ajax_task_invalid_response: "System error. Invalid response from task \"%{task}\". Must be Nil or a valid input to translate." # task, response and exception. response is invalid response from task and exception is exception from translate
         ajax_task_missing_translate_key: "System error. Missing translation key \"%{key}\" for task \"%{task}\""
         ajax_task_missing_translate_arg: "System error. Argument %{argument} is missing for translation key \"%{key}\" for task \"%{task}\""
-        too_few_exchange_rates: "Warning. Lookup of exchange rates from google %{bank} failed. Expected >= %{expected} currencies. Received %{found} currencies."
         # post_login_task_not_found: "System error. No post login task util.post_login_%{provider} was found for login provider %{provider}. No friend list was downloaded from %{provider}."
-        init_api_client_missing: "System  error. Private method init_api_client_%{provider} is missing in app. controller and cannot communicate with %{provider}."
-        api_client_gofreerev_get_friends: "System error. Cannot download friend list from %{apiname}. Instance method gofreerev_get_friends is missing for %{apiname} API client."
-        get_api_picture_url_missing: "System error. Posted on %{apiname} wall but did not found method get_api_picture_%{provider}. Photo cannot be displayed here."
-        post_login_fl_missing_field: "System error. Cannot update %{apiname} friend list. Field %{field} was not found for user id %{userid}."
-        post_login_fl_invalid_field: "System error. Cannot update %{apiname} friend list. Invalid field %{field} for user id %{userid}."
-        post_login_new_user: "Your friend list is ready. Please refresh page to see any posts from your friends."
-        google_access_not_configured: "Error when fetching friend list from Google+ API. Access Not Configured. Check list: 1) Status is ON for Google+ API in Google Cloud Console"
-        google_insufficient_permission: "Error when fetching friend list from Google+ API. API. Insufficient Permission. Check list: 1) scope plus.login maybe missing in provider setup for google+"
-        google_other_errors: "Error when fetching friend list from Google+ API. \"%{error}\""
-        linkedin_access_denied: "Error when fetching connections from LinkedIn API. Access to connections denied. Check list: 1) scope r_network maybe  missing in provider setup for LinkedIn"
-        no_local_picture: "Invalid id %{id} when posting on %{provider} wall (2)"
-        local_picture_not_found: "Invalid id %{id} when posting on %{provider} wall (3)"
-        no_api_picture_url: "Picture uploaded, but did not get a picture url from #{apiname}"
-        fb_pic_post_unknown_problem: "Gift was posted in here and on your %{apiname} wall. Picture was uploaded to your %{apiname} wall but %{appname} did not have permission to read the picture on your %{apiname} wall and cannot display the picture in here. Maybe you have changed permissions for %{appname}."
-        fb_pic_post_missing_permission_html: "<div title='%{appname} lack access to read posts on your %{apiname} wall. You can upload gift with pictures to %{apiname} but pictures cannot be displayed in %{appname}. You can change visibility for %{appname} posts to public or you could grant %{appname} permission to read posts on your wall. %{appname} will only use read posts permission to display pictures witin %{appname}.'>Gift was posted in here and on your %{apiname} wall but picture cannot be displayed. <a href=\"javascript: {top.location.href='%{url}'}\">Allow %{appname} to read posts on my %{apiname} wall!</a></p>"
-        fb_msg_post_unknown_problem: "Gift was posted in here and on your %{apiname} wall. Picture was uploaded to your %{apiname} wall but %{appname} did not have permission to read the picture on your %{apiname} wall and cannot display the picture in here. Maybe you have changed permissions for %{appname}."
-        fb_msg_post_missing_permission_html: "<div title='%{appname} lack access to read posts on your %{apiname} wall. You can upload gift with pictures to %{apiname} but pictures cannot be displayed in %{appname}. You can change visibility for %{appname} posts to public or you could grant %{appname} permission to read posts on your wall. %{appname} will only use read posts permission to display pictures witin %{appname}.'>Gift was posted in here and on your %{apiname} wall but picture cannot be displayed. <a href=\"javascript: {top.location.href='%{url}'}\">Allow %{appname} to read posts on my %{apiname} wall!</a></p>"
         # util.missing_api_picture_urls - feedback from browser with invalid image references
-        mis_api_pic_exception: "System error when checking moved or deleted images. Error: \"%{error}\". More information in log."
-        mis_api_pic_no_param: "System error when checking moved or deleted images. Did not receive a list with image ids."
-        mis_api_pic_no_tokens: "System error when checking moved or deleted images. Did not find any login information."
-        mis_api_pic_no_token: "System error when checking moved or deleted images. Warning: Received id for an %{apiname} image but user is not connected to %{apiname}."
-        mis_api_pic_not_implemented1: "Check for moved or deleted images is not implemented for %{apiname}."
-        mis_api_pic_not_implemented2: "Check for moved or deleted images is not implemented for %{apiname}."
-        mis_api_pic_file_exists: "Warning. Browser did not find picture %{rel_path}, but picture exists on the server."
         # auth/index + util.post_on_wall_yn:
         confirm_grant_write: "Allow post on your %{apiname} wall?"
         grant_write_ok: "%{appname} was granted access to write on your %{apiname} wall."
@@ -727,11 +702,23 @@ en:
 
   # util controller
   util:
+     missing_api_picture_urls:
+        mis_api_pic_exception: "System error when checking moved or deleted images. Error: \"%{error}\". More information in log."
+        mis_api_pic_no_param: "System error when checking moved or deleted images. Did not receive a list with image ids."
+        mis_api_pic_no_tokens: "System error when checking moved or deleted images. Did not find any login information."
+        mis_api_pic_no_token: "System error when checking moved or deleted images. Warning: Received id for an %{apiname} image but user is not connected to %{apiname}."
+        mis_api_pic_not_implemented1: "Check for moved or deleted images is not implemented for %{apiname}."
+        mis_api_pic_not_implemented2: "Check for moved or deleted images is not implemented for %{apiname}."
+        mis_api_pic_file_exists: "Warning. Browser did not find picture %{rel_path}, but picture exists on the server."
+        mis_api_pic_url_exists: "Warning. Browser did not find picture %{url}, but picture exists on the server."
      do_tasks:
         unknown_timezone: "Warning. Unknown timezone %{timezone}."
+        too_few_exchange_rates: "Warning. Lookup of exchange rates from google %{bank} failed. Expected >= %{expected} currencies. Received %{found} currencies."
         login_user_id_not_found: "Task %{task} aborted. No valid %{apiname} log in was found. Please refresh web page."
         login_user_id_unknown: "System error. Task %{task} aborted. Unknown %{provider} user id."
         login_token_not_found: "System error. Task %{task} aborted. Could not find %{provider} access token."
+        init_api_client_missing: "System  error. Private method init_api_client_%{provider} is missing in app. controller and cannot communicate with %{provider}."
+        # profile image
         profile_image_invalid_user: "System error. Invalid user id %{user_id} when downloading profile picture"
         profile_image_blank: "Profile picture was not received from %{provider}" # provider
         profile_image_invalid_url: "Invalid profile picture url \"%{image}\" received from %{provider}" # image and provider - image must be an url (http or https)
@@ -744,14 +731,24 @@ en:
         profile_image_cp1_failed: "System error. Could not insert new profile picture received from %{provider}: \"%{error}\""
         profile_image_cp2_failed: "System error. Could not insert new profile picture received from %{provider}: \"%{error}\""
         profile_image_exception: "System error. Could not update %{provider} profile picture: \"%{error}\". More information in server log."
+        # friend list
+        api_client_gofreerev_get_friends: "System error. Cannot download friend list from %{apiname}. Instance method gofreerev_get_friends is missing for %{apiname} API client."
+        post_login_fl_missing_field: "System error. Cannot update %{apiname} friend list. Field %{field} was not found for user id %{userid}."
+        post_login_fl_invalid_field: "System error. Cannot update %{apiname} friend list. Invalid field %{field} for user id %{userid}."
+        google_access_not_configured: "Error when fetching friend list from Google+ API. Access Not Configured. Check list: 1) Status is ON for Google+ API in Google Cloud Console"
+        google_insufficient_permission: "Error when fetching friend list from Google+ API. API. Insufficient Permission. Check list: 1) scope plus.login maybe missing in provider setup for google+"
+        google_other_errors: "Error when fetching friend list from Google+ API. \"%{error}\""
+        linkedin_access_denied: "Error when fetching connections from LinkedIn API. Access to connections denied. Check list: 1) scope r_network maybe  missing in provider setup for LinkedIn"
+        post_login_new_user: "Your friend list is ready. Please refresh page to see any posts from your friends."
+        # post on wall
         grant_write_link_missing: "System error. Cannot insert link to grant permission to post on %{apiname} wall. Either private method grant_write_link_%{provider} is missing in application controller or API_GIFT_PICTURE_STORE[:%{provider}] should be set to nil if %{apiname} API does not support post on %{apiname} wall."
         api_client_gofreerev_post_on_wall: "System error. Cannot post on %{apiname} wall. Instance method gofreerev_post_on_wall is missing for %{apiname} API client."
-        post_on_api_unknown_gift_id: "Unknown post id %{id} when posting on %{provider} wall"
-        post_on_api_invalid_gift_id: "Invalid post id %{id} when posting on %{provider} wall (1)"
-        post_on_api_old_gift: "Old post id %{id} when posting on %{provider} wall"
-        post_on_api_deleted_gift: "Id %{id} for deleted post when posting on %{provider} wall"
-        gift_posted_1_html: "Gift posted in here but not on your %{apiname} wall (%{error})" # unhandled error message
-        gift_posted_2_html: "Gift posted in here and on your %{apiname} wall"
+        post_on_api_unknown_gift_id: "System error. Unknown post id %{id} when posting on %{provider} wall."
+        post_on_api_invalid_gift_id: "Invalid post id %{id} when posting on %{provider} wall (1)."
+        post_on_api_old_gift: "System error. Old post id %{id} when posting on %{provider} wall."
+        post_on_api_deleted_gift: "Id %{id} for deleted post when posting on %{provider} wall."
+        gift_posted_1_html: "Gift posted in here but not on your %{apiname} wall (%{error})." # unhandled error message
+        gift_posted_2_html: "Gift posted in here and on your %{apiname} wall."
         gift_posted_3_html: "<div title='%{appname} lack access to write on your %{apiname} wall. You can share your resources with your friends in here, but postings will only appear here and not on your %{apiname} wall. This means your message is likely to be seen by few friends. You should therefore allow %{appname} permission to write on your wall. %{appname} will only make the postings you ask for. Pictures are uploaded to %{apiname}. Pictures cannot be uploaded without permission to write on your %{apiname} wall. Select hide if you do not want to see this message.' id='grant_write_div_%{provider}'>Cannot post updates on your %{apiname} wall. <a href=\"javascript: {top.location.href='%{url}'}\">Allow %{appname} to post on my behalf!</a> <a href=\"%{hide_url}\" data-remote=\"true\" data-method=\"post\">(hide)</a></div>" # missing privileges
         gift_posted_3b_html: "<div title='%{appname} lack access to write on your %{apiname} wall. You can share your resources with your friends in here, but postings will only appear here and not on your %{apiname} wall. This means your message is likely to be seen by few friends. You should therefore allow %{appname} permission to write on your wall. %{appname} will only make the postings you ask for. Pictures are uploaded to %{apiname}. Pictures cannot be uploaded without permission to write on your %{apiname} wall. Select hide if you do not want to see this message.' id='grant_write_div_%{provider}'>Cannot post updates on your %{apiname} wall. <a href=\"%{url}\" data-remote=\"true\" data-method=\"post\" data-confirm=\"%{confirm}\" class=\"grant_write_ajax_link\">Allow %{appname} to post on my behalf!</a>  <a href=\"%{hide_url}\" data-remote=\"true\" data-method=\"post\">(hide)</a></div>" # missing privileges
         gift_posted_4_html: "Gift posted in here but not on your %{apiname} wall. Duplicate status message on %{apiname} wall"
@@ -761,6 +758,14 @@ en:
         gift_posted_8_html: "Gift posted here but not on your %{apiname}. You have removed %{appname} from %{apiname} and you no longer have access to %{appname} using your %{apiname} account. You should refresh the page as access rights have been changed."
         gift_posted_9_html: "Gift posted here but not on your %{apiname} wall. Post on %{apiname} requires a photo attachment or that text to image convert is enabled (API_TEXT_TO_PICTURE)."
         gift_posted_10_html: "Gift posted here but not in your %{apiname} wall. Authorization expired. Please log in again to renew your authorization."
+        get_api_picture_url_missing: "System error. Posted on %{apiname} wall but did not found method get_api_picture_%{provider}. Photo cannot be displayed in %{appname}."
+        no_api_picture_url: "Picture uploaded, but did not get a picture url from #{apiname}"
+        fb_pic_post_unknown_problem: "Gift was posted in here and on your %{apiname} wall. Picture was uploaded to your %{apiname} wall but %{appname} did not have permission to read the picture on your %{apiname} wall and cannot display the picture in here. Maybe you have changed permissions for %{appname}."
+        fb_pic_post_missing_permission_html: "<div title='%{appname} lack access to read posts on your %{apiname} wall. You can upload gift with pictures to %{apiname} but pictures cannot be displayed in %{appname}. You can change visibility for %{appname} posts to public or you could grant %{appname} permission to read posts on your wall. %{appname} will only use read posts permission to display pictures witin %{appname}.'>Gift was posted in here and on your %{apiname} wall but picture cannot be displayed. <a href=\"javascript: {top.location.href='%{url}'}\">Allow %{appname} to read posts on my %{apiname} wall!</a></p>"
+        fb_msg_post_unknown_problem: "Gift was posted in here and on your %{apiname} wall. Picture was uploaded to your %{apiname} wall but %{appname} did not have permission to read the picture on your %{apiname} wall and cannot display the picture in here. Maybe you have changed permissions for %{appname}."
+        fb_msg_post_missing_permission_html: "<div title='%{appname} lack access to read posts on your %{apiname} wall. You can upload gift with pictures to %{apiname} but pictures cannot be displayed in %{appname}. You can change visibility for %{appname} posts to public or you could grant %{appname} permission to read posts on your wall. %{appname} will only use read posts permission to display pictures witin %{appname}.'>Gift was posted in here and on your %{apiname} wall but picture cannot be displayed. <a href=\"javascript: {top.location.href='%{url}'}\">Allow %{appname} to read posts on my %{apiname} wall!</a></p>"
+        no_local_picture: "System error. Invalid id %{id} when posting on %{provider} wall (2)."
+        local_picture_not_found: "Invalid id %{id} when posting on %{provider} wall (3)."
      like_gift:
         invalid_action: "System error. Could not \"like\" post. Invalid action. More information in server log."
         not_logged_in: "Cannot \"like\" post. You are not logged in. Please refresh the page."

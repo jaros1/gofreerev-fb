@@ -7,7 +7,7 @@ class UtilController < ApplicationController
                 :except => [:new_messages_count,
                             :like_gift, :unlike_gift, :follow_gift, :unfollow_gift, :hide_gift, :delete_gift,
                             :cancel_new_deal, :reject_new_deal, :accept_new_deal,
-                            :post_on_wall_yn]
+                            :do_tasks, :post_on_wall_yn]
 
   # update new message count in menu line in page header
   # called from hidden check-new-messages-link link in page header once every 15, 60 or 300 seconds
@@ -159,11 +159,9 @@ class UtilController < ApplicationController
   # temp api url can have changed / picture may have been deleted
   # Parameters: {"gifts"=>{"ids"=>"161"}}
   def missing_api_picture_urls
-    @errors = []
     begin
       if !params.has_key?("api_gifts") or !params[:api_gifts].has_key?(:ids) or params[:api_gifts][:ids] == ''
-        @errors << ['.mis_api_pic_no_param', {}]
-        return
+        return format_response_key('.mis_api_pic_no_param')
       end
       ids = params[:api_gifts][:ids].split(',')
       logger.debug2 "ids = #{ids}"
@@ -180,11 +178,7 @@ class UtilController < ApplicationController
 
       # todo: 3 - max request picture url once every hour
       tokens = session[:tokens]
-      if !tokens
-        @errors << ['.mis_api_pic_no_tokens', {}]
-        return
-      end
-      return unless tokens
+      return format_response_key('.mis_api_pic_no_tokens') unless tokens
       api_clients = {}
       api_gifts.each do |api_gift|
         if !api_gift.picture? or api_gift.api_picture_url.to_s == ""
@@ -200,7 +194,7 @@ class UtilController < ApplicationController
             # picture exists on filesystem but was reported as missing by browser/js
             # must be invalid file protection for /images/temp/ or /images/perm/ folder
             logger.error2 "picture #{rel_path} exists in file system but was not found by browser. check file protection"
-            @errors << ['.mis_api_pic_file_exists', {:rel_path => rel_path}]
+            add_error_key '.mis_api_pic_file_exists', :rel_path => rel_path
             next
           end
           # local picture file has been deleted. Continue. Maybe picture is available from an other api provider
@@ -210,7 +204,7 @@ class UtilController < ApplicationController
           if %w(jpg jpeg gif png bmp).index(image_type)
             # api url still exists. Could be a temporary problem
             logger.warn2 "api gift #{api_gift.id} url #{api_gift.api_picture_url} exists, but was not found by browser"
-            @errors << ['.mis_api_pic_url_exists', {:url => api_gift.api_picture_url}]
+            add_error_key '.mis_api_pic_url_exists', :url => api_gift.api_picture_url
             next
           end
         end
@@ -238,14 +232,14 @@ class UtilController < ApplicationController
             token = tokens[api_gift.provider]
             if !token
               logger.warn2 "received api_gift.id #{api_gift.id} for provider #{api_gift.provider}, but user is not connected with provider #{api_gift.provider}"
-              @errors << ['.mis_api_pic_no_token', api_gift.app_and_apiname_hash]
+              add_error_key '.mis_api_pic_no_token', api_gift.app_and_apiname_hash
               next
             end
 
             # todo: refactor - use generic init_api_client(provider, token) method
             key, options = init_api_client(api_gift.provider, token)
             if key.class == String
-              @errors << [key, options]
+              add_error_key key, options
               next
             end
             api_clients[api_gift.provider] = api_client = key
@@ -285,7 +279,7 @@ class UtilController < ApplicationController
               #    next
               #end
               if key
-                @errors << [key, options]
+                add_error_key key, options
                 next
               end
               # ok - post/picture os still on api wall and new api gift picture url has been received
@@ -335,10 +329,13 @@ class UtilController < ApplicationController
         api_gift.save!
 
       end # each api_gift
+
+      format_response
+
     rescue Exception => e
       logger.debug2 "Exception: #{e.message.to_s} (#{e.class})"
       logger.debug2 "Backtrace: " + e.backtrace.join("\n")
-      @errors << ['.mis_api_pic_exception', {:error => e.message} ]
+      format_response_key '.mis_api_pic_exception', :error => e.message
     end
   end # missing_api_picture_urls
 
@@ -793,6 +790,10 @@ class UtilController < ApplicationController
     @errors = []
     Task.where("session_id = ? and ajax = ?", session[:session_id], 'Y').order('priority, id').each do |at|
       at.destroy
+      if !logged_in?
+        logger.warn2 "not logged in. Ignoring task #{at.task}"
+        next
+      end
       # all tasks must have exception handlers with backtrace.
       # Exception handler for eval will not display backtrace within the called task
       logger.debug2  ""
@@ -838,6 +839,18 @@ class UtilController < ApplicationController
       format_response
     end
   end # do_tasks
+
+  private
+  def fetch_exchange_rates
+    begin
+      key, options = ExchangeRate.fetch_exchange_rates
+      return add_error_key key, options if key
+    rescue Exception => e
+      logger.debug2  "Exception: #{e.message.to_s} (#{e.class})"
+      logger.debug2  "Backtrace: " + e.backtrace.join("\n")
+      raise
+    end
+  end
 
   private
   def get_login_user_and_token (provider, task)
@@ -939,7 +952,6 @@ class UtilController < ApplicationController
       # update user
       key, options = login_user.update_api_user_from_hash user_hash
       return [login_user, api_client, friends_hash, new_user, key, options] if key
-      # todo. debug invalid profile picture update
       login_user.reload
       logger.debug2 "api_profile_picture_url = #{login_user.api_profile_picture_url}"
     else
@@ -949,7 +961,7 @@ class UtilController < ApplicationController
     # get facebook friends
     if !api_client.respond_to? :gofreerev_get_friends
       # api client without gofreerev_get_friends method - cannot download and update friend list from api provider
-      key, options = ['.api_client_gofreerev_get_friends', login_user.app_and_api_name]
+      key, options = ['.api_client_gofreerev_get_friends', login_user.app_and_apiname_hash]
       return [login_user, api_client, friends_hash, new_user, key, options]
     end
     friends_hash, key, options = api_client.gofreerev_get_friends logger
@@ -986,13 +998,13 @@ class UtilController < ApplicationController
       login_user.recalculate_balance if today and login_user.balance_at != today
 
       # special post login message to new users (refresh page when friend list has been downloaded)
-      return ['.post_login_new_user', login_user.app_and_apiname_hash ]if new_user
+      return add_error_key('.post_login_new_user', login_user.app_and_apiname_hash) if new_user
 
       # ok
       nil
 
     rescue LinkedIn::Errors::AccessDeniedError => e
-      return ['.linkedin_access_denied', {:provider => provider}] if e.message.to_s =~ /Access to connections denied/
+      return add_error_key('.linkedin_access_denied', {:provider => provider}) if e.message.to_s =~ /Access to connections denied/
       logger.debug2  "Exception: #{e.message.to_s} (#{e.class})"
       logger.debug2  "Backtrace: " + e.backtrace.join("\n")
       raise
@@ -1573,7 +1585,8 @@ class UtilController < ApplicationController
     method = "get_api_picture_url_#{provider}".to_sym
     if !private_methods.index(method)
       logger.error2 "System error. private method #{method} was not found in app. controller"
-      return ['.get_api_picture_url_missing', :provider => provider, :apiname => provider_downcase(provider) ]
+      return ['util.do_tasks.get_api_picture_url_missing',
+              {:provider => provider, :apiname => provider_downcase(provider), :appname => APP_NAME} ]
     end
     logger.debug2 "calling #{method}"
     send(method, api_gift, just_posted, api_client)
@@ -2505,20 +2518,21 @@ class UtilController < ApplicationController
   end # disable_file_upload
 
   # delete local picture file that was used when posting picture in api wall(s) - see post_on_facebook etc.
+  private
   def delete_local_picture (id)
     begin
       logger.debug2  ""
 
       # get and check gift
       gift = Gift.find_by_id(id)
-      return ['.post_on_api_unknown_gift_id', { :provider => 'API', :id => id }] unless gift
-      return ['.post_on_api_old_gift', { :provider => 'API', :id => gift.id }] unless gift.created_at > 5.minute.ago
+      return add_error_key('.post_on_api_unknown_gift_id', { :provider => 'API', :id => id }) unless gift
+      return add_error_key('.post_on_api_old_gift', { :provider => 'API', :id => gift.id }) unless gift.created_at > 5.minute.ago
 
       # check local picture file
-      return ['.no_local_picture', { :provider => 'API', :id => id }] unless gift.app_picture_rel_path
+      return add_error_key('.no_local_picture', { :provider => 'API', :id => id }) unless gift.app_picture_rel_path
       app_picture_full_os_path = Picture.full_os_path :rel_path => gift.app_picture_rel_path
       app_picture_url          = Picture.url :rel_path => gift.app_picture_rel_path
-      return ['.local_picture_not_found', { :provider => 'API', :id => id }] unless File.exist?(app_picture_full_os_path)
+      return add_error_key('.local_picture_not_found', { :provider => 'API', :id => id }) unless File.exist?(app_picture_full_os_path)
 
       # delete file
       perm_app_picture = Picture.perm_app_url?(app_picture_url)
