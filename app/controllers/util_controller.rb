@@ -778,65 +778,68 @@ class UtilController < ApplicationController
   # - get currency rates for a new date (ok)
   # - upload post and optional picture to login provider (ok)
   def do_tasks
-    # todo: debug why IE is not setting state before redirecting to facebook in facebook/autologin
-    logger.debug2 "session[:session_id] = #{session[:session_id]}, session[:state] = #{session[:state]}"
-    # save timezone received from javascript
-    set_timezone(params[:timezone])
-    # todo: debug problems with session[:last_row_id]
-    logger.debug2 "session[:last_row_id] = #{get_last_row_id()}"
-    # cleanup old tasks
-    Task.where("created_at < ? and ajax = ?", 2.minute.ago, 'Y').destroy_all
-    Task.where("created_at < ? and ajax = ?", 10.minute.ago, 'N').destroy_all
-    @errors = []
-    Task.where("session_id = ? and ajax = ?", session[:session_id], 'Y').order('priority, id').each do |at|
-      at.destroy
-      if !logged_in?
-        logger.warn2 "not logged in. Ignoring task #{at.task}"
-        next
+    begin
+      # todo: debug why IE is not setting state before redirecting to facebook in facebook/autologin
+      logger.debug2 "session[:session_id] = #{session[:session_id]}, session[:state] = #{session[:state]}"
+      # save timezone received from javascript
+      set_timezone(params[:timezone])
+      # todo: debug problems with session[:last_row_id]
+      logger.debug2 "session[:last_row_id] = #{get_last_row_id()}"
+      # cleanup old tasks
+      Task.where("created_at < ? and ajax = ?", 2.minute.ago, 'Y').destroy_all
+      Task.where("created_at < ? and ajax = ?", 10.minute.ago, 'N').destroy_all
+      Task.where("session_id = ? and ajax = ?", session[:session_id], 'Y').order('priority, id').each do |at|
+        at.destroy
+        if !logged_in?
+          logger.warn2 "not logged in. Ignoring task #{at.task}"
+          next
+        end
+        # all tasks must have exception handlers with backtrace.
+        # Exception handler for eval will not display backtrace within the called task
+        logger.debug2 ""
+        logger.debug2 "executing task #{at.task}\n"
+        begin
+          eval(at.task)
+        rescue Exception => e
+          logger.debug2 "error when processing task #{at.task}"
+          logger.debug2 "Exception: #{e.message.to_s}"
+          logger.debug2 "Backtrace: " + e.backtrace.join("\n")
+          add_error_key '.do_task_exception', :task => at.task, :error => e.message.to_s
+        end
+        # logger.debug2  "task #{at.task}, response = #{res}"
+        # next unless res
+        ## check response from task. Must be a valid input to translate
+        #begin
+        #  key, options = res
+        #  key2 = key
+        #  key2 = 'shared.translate_ajax_errors' + key if key2.to_s.first(1) == '.'
+        #  options = {} unless options
+        #  options[:raise] = I18n::MissingTranslationData
+        #  t key2, options
+        #rescue I18n::MissingTranslationData => e
+        #  res = [ '.ajax_task_missing_translate_key', { :key => key, :task => at.task, :response => res, :exception => e.message.to_s } ]
+        #rescue I18n::MissingInterpolationArgument => e
+        #  logger.debug2  "exception = #{e.message.to_s}"
+        #  logger.debug2  "response = #{res}"
+        #  argument = $1 if e.message.to_s =~ /:(.+?)\s/
+        #  logger.debug2  "argument = #{argument}"
+        #  res = [ '.ajax_task_missing_translate_arg', { :key => key, :task => at.task, :argument => argument, :response => res, :exception => e.message.to_s } ]
+        #rescue Exception => e
+        #  logger.debug2  "invalid response from task #{at.task}. Must be nil or a valid input to translate. Response: #{res}"
+        #  res = [ '.ajax_task_invalid_response', { :task => at.task, :response => res, :exception => e.message.to_s }]
+        #end
+        # logger.debug2  "task = #{at.task}, res = #{res}"
       end
-      # all tasks must have exception handlers with backtrace.
-      # Exception handler for eval will not display backtrace within the called task
-      logger.debug2  ""
-      logger.debug2  "executing task #{at.task}\n"
-      res = nil
-      begin
-        res = eval(at.task)
-      rescue Exception => e
-        logger.debug2  "error when processing task #{at.task}"
-        logger.debug2  "Exception: #{e.message.to_s}"
-        logger.debug2  "Backtrace: " + e.backtrace.join("\n")
-        res = [ '.ajax_task_exception', { :task => at.task, :exception => e.message.to_s }]
+      logger.debug2 "@errors2.size = #{@errors2.size}"
+      if @errors2.size == 0
+        render :nothing => true
+      else
+        format_response
       end
-      # logger.debug2  "task #{at.task}, response = #{res}"
-      next unless res
-      # check response from task. Must be a valid input to translate
-      begin
-        key, options = res
-        key2 = key
-        key2 = 'shared.translate_ajax_errors' + key if key2.to_s.first(1) == '.'
-        options = {} unless options
-        options[:raise] = I18n::MissingTranslationData
-        t key2, options
-      rescue I18n::MissingTranslationData => e
-        res = [ '.ajax_task_missing_translate_key', { :key => key, :task => at.task, :response => res, :exception => e.message.to_s } ]
-      rescue I18n::MissingInterpolationArgument => e
-        logger.debug2  "exception = #{e.message.to_s}"
-        logger.debug2  "response = #{res}"
-        argument = $1 if e.message.to_s =~ /:(.+?)\s/
-        logger.debug2  "argument = #{argument}"
-        res = [ '.ajax_task_missing_translate_arg', { :key => key, :task => at.task, :argument => argument, :response => res, :exception => e.message.to_s } ]
-      rescue Exception => e
-        logger.debug2  "invalid response from task #{at.task}. Must be nil or a valid input to translate. Response: #{res}"
-        res = [ '.ajax_task_invalid_response', { :task => at.task, :response => res, :exception => e.message.to_s }]
-      end
-      # logger.debug2  "task = #{at.task}, res = #{res}"
-      @errors << res
-    end
-    logger.debug2 "@errors.size = #{@errors.size}, @errors2.size = #{@errors2.size}"
-    if @errors.size == 0 and @errors2.size == 0
-      render :nothing => true
-    else
-      format_response
+    rescue Exception => e
+      logger.debug2  "Exception: #{e.message.to_s} (#{e.class})"
+      logger.debug2  "Backtrace: " + e.backtrace.join("\n")
+      format_response_key '.do_tasks_exception', :error => e.message.to_s
     end
   end # do_tasks
 
@@ -1711,166 +1714,172 @@ class UtilController < ApplicationController
   # generic post on wall task - todo: refactor post_on_<provider> code to this method
   private
   def generic_post_on_wall (provider, id)
-    # get login user + initialize api client
-    login_user, api_client, key, options = get_login_user_and_api_client(provider, __method__)
-    return add_error_key(key, options) if key
-    login_user_id = login_user.user_id
-
-    # check user privs before post on wall
-    # ( permissions is also checked in gifts/create before scheduling this task )
-    case login_user.get_write_on_wall_action
-      when User::WRITE_ON_WALL_NO then
-        return nil # ignore
-      when User::WRITE_ON_WALL_YES then
-        nil # continue
-      when User::WRITE_ON_WALL_MISSING_PRIVS then
-        key, options = grant_write_link(provider)
-        return add_error_key(key, options) # inject link to grant missing priv.
-    end
-
-    # check if Gofreerev_post_on_wall method has been implemented for api client
-    # cannot post on api wall without a gofreerev_post_on_wall method.
-    # see application_controller.init_api_client_<provider> for examples
-    if !api_client.respond_to? :gofreerev_post_on_wall
-      return add_error_key('.api_client_gofreerev_post_on_wall', login_user.app_and_apiname_hash)
-    end
-
-    # get gift, api_gift and deep_link
-    gift, api_gift, deep_link, key, options = get_gift_and_deep_link(id, login_user, provider)
-    return add_error_key(key, options) if key
-    description_with_deep_link = "#{gift.description} - #{deep_link}"
-
-    # helpers ( app helpers are not available in instance method api_client.gofreerev_post_on_wall)
-    # direction: offers: or :seeks
-    # open_graph: array where post text is splitted in title, description and remainder (if long text)
-    # it is up to each api_client.gofreerev_post_on_wall instance method how to use max text and open graph lengths
-    # see array constants API_MAX_TEXT_LENGTHS, API_OG_TITLE_SIZE and API_OG_DESC_SIZE
-    direction = format_direction_without_user(api_gift)
-    open_graph = open_graph_title_and_desc(api_gift)
-
-    # gift_posted_on_wall_api_wall. values:
-    #  1: "Gift posted in here but not on your %{apiname} wall. #{error}" # unhandled error message
-    #  2: "Gift posted in here and on your %{apiname} wall"
-    #  3: "Gift posted in here but not on your %{apiname} wall." # missing privileges
-    #  4: "Gift posted in here but not on your %{apiname} wall. Duplicate status message on #{apiname} wall."
-    #  5: "Gift posted in here but not on your %{apiname} wall. Post on #{apiname} wall not implemented."
-    #  6: "Gift with picture was not posted on your %{apiname} wall. Internal error. Picture was not found."
-    #  7: "Gift was not posted on your %{apiname} wall. Error in deep link."
-    #  8: "Gift posted here but not on your %{apiname}. You have removed %{appname} from %{apiname}"
-    #  9: "Gift posted here but not on your %{apiname} wall. Post on %{apiname} requires a photo attachment or PhantomJS enabled"
-    # 10: "Gift posted here but not in your %{apiname} wall. Authorization expired."
-
-    # start with 1 unknown error
-    gift_posted_on_wall_api_wall = 1
-    error = 'unknown error'
-
-    # post on wall. cases:
-    #  1) post with picture but picture does not exist (error)
-    #  2) post with picture
-    #  3) post without picture and text2picture = 0 (always - flickr)
-    #  4) post without picture and text2picture = i and text length > i (i=140 twitter)
-    #  5) post without picture
     begin
-      if api_gift.picture? and !gift.rel_path_picture_exists?
-        # case 1: post with picture but picture was not found.
-        # There must be some error handling in gifts/create that is missing
-        gift_posted_on_wall_api_wall = 6
-        api_gift.api_gift_id = nil
-      elsif api_gift.picture?
-        # case 2: post on wall with picture
-        picture_url = Picture.url_from_rel_path api_gift.gift.app_picture_rel_path # used in a later check
-        picture_full_os_path = Picture.full_os_path_from_rel_path api_gift.gift.app_picture_rel_path
-        api_gift.api_gift_id, api_gift.api_gift_url = api_client.gofreerev_post_on_wall :api_gift => api_gift,
-                                                                                        :direction => direction,
-                                                                                        :open_graph => open_graph,
-                                                                                        :picture => picture_full_os_path,
-                                                                                        :logger => logger
-      elsif API_TEXT_TO_PICTURE[provider] == 0 or
-          API_TEXT_TO_PICTURE[provider].class == Fixnum and description_with_deep_link.length > API_TEXT_TO_PICTURE[provider]
-        # case 3 and 4. convert text to image
-        picture_full_os_path = Picture.create_png_image_from_text gift.description, 800
-        api_gift.api_gift_id, api_gift.api_gift_url = api_client.gofreerev_post_on_wall :api_gift => api_gift,
-                                                                                        :direction => direction,
-                                                                                        :open_graph => open_graph,
-                                                                                        :picture => picture_full_os_path,
-                                                                                        :logger => logger
-        FileUtils.rm picture_full_os_path if File.exists?(picture_full_os_path)
-      else
-        # case 5: post on wall without picture
-        api_gift.api_gift_id, api_gift.api_gift_url = api_client.gofreerev_post_on_wall :api_gift => api_gift,
-                                                                                        :direction => direction,
-                                                                                        :open_graph => open_graph,
-                                                                                        :logger => logger
-      end
-      if api_gift.api_gift_id
-        # post ok - post id received from API
-        api_gift.save!
-        gift_posted_on_wall_api_wall = 2 # Gift posted in here and on your vkontakte wall
-      elsif gift_posted_on_wall_api_wall == 1
-        error = 'unknown error. No post id was returned from API'
-      end
-        #rescue VkontakteCreateAlbumException => e
-        #rescue VkontakteAlbumMissingException => e
-        #rescue VkontakteUploadserverException => e
-        #rescue VkontaktePostException => e
-        #rescue VkontakteSaveException => e
-    rescue AccessTokenExpired => e
-      logger.debug2 "#{provider} access token has expired"
-      gift_posted_on_wall_api_wall = 10
-      logout(provider)
-    rescue PostNotAllowed => e
-      # missing write permission to api wall or permission to write on api wall has been removed
-      key, options = grant_write_link(provider)
-      return add_error_key(key, options)
-    rescue AppNotAuthorized => e
-      # user has deauthorized app
-      logger.debug2 "#{provider} user has deauthorizd app"
-      logout(provider)
-      gift_posted_on_wall_api_wall = 8
-    rescue DupPostOnWall => e
-      # delete gift and ignore error OAuthException, code: 506, message: (#506) Duplicate status message [HTTP 400]
-      # Gift posted in here but not on your facebook wall. Duplicate status message on facebook wall.
-      # error should not happen any longer as deep link now is included in message
-      gift_posted_on_wall_api_wall = 4
-    rescue Exception => e
-      logger.debug2 "Exception: #{e.message.to_s} (#{e.class})"
-      logger.debug2 "Backtrace: " + e.backtrace.join("\n")
-      gift_posted_on_wall_api_wall = 1
-      error = e.message
-    end
-
-    # post post-on-wall processing. Return error message, check read permission to wall if picture attachment
-
-    if gift_posted_on_wall_api_wall != 2
-      # error or warning
-      logger.debug2 "error or warning: gift_posted_on_wall_api_wall = #{gift_posted_on_wall_api_wall}"
-      api_gift.picture = 'N'
-      api_gift.api_picture_url = nil
-      api_gift.save!
-      add_error_key ".gift_posted_#{gift_posted_on_wall_api_wall}_html",
-                    login_user.app_and_apiname_hash.merge(:error => error)
-    elsif (!api_gift.picture? or (api_gift.picture? and Picture.perm_app_url?(picture_url)))
-      # post ok - no picture or picture with perm app url
-      # no need to check read permission to gift on api wall
-      # return posted message
-      logger.debug2 "post ok without picture"
-      # return [".gift_posted_#{gift_posted_on_wall_api_wall}_html", login_user.app_and_apiname_hash.merge(:error => error)]
-      add_error_key ".gift_posted_#{gift_posted_on_wall_api_wall}_html", login_user.app_and_apiname_hash.merge(:error => error)
-    else
-      logger.debug2 "post ok with picture"
-      # post ok - gift posted in flickr wall
-      # check read permissioin to gift and get picture url with best size > 200 x 200
-      # must have read access to post on flickr wall to display picture in gofreerev
-      # 1) use api_gift.api_gift_id to get object_id (picture size in first request is too small)
-      key, options = get_api_picture_url(provider, api_gift, true, api_client) # just_posted = true
+      # get login user + initialize api client
+      login_user, api_client, key, options = get_login_user_and_api_client(provider, __method__)
       return add_error_key(key, options) if key
+      login_user_id = login_user.user_id
 
-      # post ok and no permission problems
-      # no errors - return posted message
-      # return [".gift_posted_#{gift_posted_on_wall_api_wall}_html", :apiname => login_user.apiname, :error => error]
-      add_error_key ".gift_posted_#{gift_posted_on_wall_api_wall}_html", :apiname => login_user.apiname, :error => error
+      # check user privs before post on wall
+      # ( permissions is also checked in gifts/create before scheduling this task )
+      case login_user.get_write_on_wall_action
+        when User::WRITE_ON_WALL_NO then
+          return nil # ignore
+        when User::WRITE_ON_WALL_YES then
+          nil # continue
+        when User::WRITE_ON_WALL_MISSING_PRIVS then
+          key, options = grant_write_link(provider)
+          return add_error_key(key, options) # inject link to grant missing priv.
+      end
+
+      # check if Gofreerev_post_on_wall method has been implemented for api client
+      # cannot post on api wall without a gofreerev_post_on_wall method.
+      # see application_controller.init_api_client_<provider> for examples
+      if !api_client.respond_to? :gofreerev_post_on_wall
+        return add_error_key('.api_client_gofreerev_post_on_wall', login_user.app_and_apiname_hash)
+      end
+
+      # get gift, api_gift and deep_link
+      gift, api_gift, deep_link, key, options = get_gift_and_deep_link(id, login_user, provider)
+      return add_error_key(key, options) if key
+      description_with_deep_link = "#{gift.description} - #{deep_link}"
+
+      # helpers ( app helpers are not available in instance method api_client.gofreerev_post_on_wall)
+      # direction: offers: or :seeks
+      # open_graph: array where post text is splitted in title, description and remainder (if long text)
+      # it is up to each api_client.gofreerev_post_on_wall instance method how to use max text and open graph lengths
+      # see array constants API_MAX_TEXT_LENGTHS, API_OG_TITLE_SIZE and API_OG_DESC_SIZE
+      direction = format_direction_without_user(api_gift)
+      open_graph = open_graph_title_and_desc(api_gift)
+
+      # gift_posted_on_wall_api_wall. values:
+      #  1: "Gift posted in here but not on your %{apiname} wall. #{error}" # unhandled error message
+      #  2: "Gift posted in here and on your %{apiname} wall"
+      #  3: "Gift posted in here but not on your %{apiname} wall." # missing privileges
+      #  4: "Gift posted in here but not on your %{apiname} wall. Duplicate status message on #{apiname} wall."
+      #  5: "Gift posted in here but not on your %{apiname} wall. Post on #{apiname} wall not implemented."
+      #  6: "Gift with picture was not posted on your %{apiname} wall. Internal error. Picture was not found."
+      #  7: "Gift was not posted on your %{apiname} wall. Error in deep link."
+      #  8: "Gift posted here but not on your %{apiname}. You have removed %{appname} from %{apiname}"
+      #  9: "Gift posted here but not on your %{apiname} wall. Post on %{apiname} requires a photo attachment or PhantomJS enabled"
+      # 10: "Gift posted here but not in your %{apiname} wall. Authorization expired."
+
+      # start with 1 unknown error
+      gift_posted_on_wall_api_wall = 1
+      error = 'unknown error'
+
+      # post on wall. cases:
+      #  1) post with picture but picture does not exist (error)
+      #  2) post with picture
+      #  3) post without picture and text2picture = 0 (always - flickr)
+      #  4) post without picture and text2picture = i and text length > i (i=140 twitter)
+      #  5) post without picture
+      begin
+        if api_gift.picture? and !gift.rel_path_picture_exists?
+          # case 1: post with picture but picture was not found.
+          # There must be some error handling in gifts/create that is missing
+          gift_posted_on_wall_api_wall = 6
+          api_gift.api_gift_id = nil
+        elsif api_gift.picture?
+          # case 2: post on wall with picture
+          picture_url = Picture.url_from_rel_path api_gift.gift.app_picture_rel_path # used in a later check
+          picture_full_os_path = Picture.full_os_path_from_rel_path api_gift.gift.app_picture_rel_path
+          api_gift.api_gift_id, api_gift.api_gift_url = api_client.gofreerev_post_on_wall :api_gift => api_gift,
+                                                                                          :direction => direction,
+                                                                                          :open_graph => open_graph,
+                                                                                          :picture => picture_full_os_path,
+                                                                                          :logger => logger
+        elsif API_TEXT_TO_PICTURE[provider] == 0 or
+            API_TEXT_TO_PICTURE[provider].class == Fixnum and description_with_deep_link.length > API_TEXT_TO_PICTURE[provider]
+          # case 3 and 4. convert text to image
+          picture_full_os_path = Picture.create_png_image_from_text gift.description, 800
+          api_gift.api_gift_id, api_gift.api_gift_url = api_client.gofreerev_post_on_wall :api_gift => api_gift,
+                                                                                          :direction => direction,
+                                                                                          :open_graph => open_graph,
+                                                                                          :picture => picture_full_os_path,
+                                                                                          :logger => logger
+          FileUtils.rm picture_full_os_path if File.exists?(picture_full_os_path)
+        else
+          # case 5: post on wall without picture
+          api_gift.api_gift_id, api_gift.api_gift_url = api_client.gofreerev_post_on_wall :api_gift => api_gift,
+                                                                                          :direction => direction,
+                                                                                          :open_graph => open_graph,
+                                                                                          :logger => logger
+        end
+        if api_gift.api_gift_id
+          # post ok - post id received from API
+          api_gift.save!
+          gift_posted_on_wall_api_wall = 2 # Gift posted in here and on your vkontakte wall
+        elsif gift_posted_on_wall_api_wall == 1
+          error = 'unknown error. No post id was returned from API'
+        end
+          #rescue VkontakteCreateAlbumException => e
+          #rescue VkontakteAlbumMissingException => e
+          #rescue VkontakteUploadserverException => e
+          #rescue VkontaktePostException => e
+          #rescue VkontakteSaveException => e
+      rescue AccessTokenExpired => e
+        logger.debug2 "#{provider} access token has expired"
+        gift_posted_on_wall_api_wall = 10
+        logout(provider)
+      rescue PostNotAllowed => e
+        # missing write permission to api wall or permission to write on api wall has been removed
+        key, options = grant_write_link(provider)
+        return add_error_key(key, options)
+      rescue AppNotAuthorized => e
+        # user has deauthorized app
+        logger.debug2 "#{provider} user has deauthorizd app"
+        logout(provider)
+        gift_posted_on_wall_api_wall = 8
+      rescue DupPostOnWall => e
+        # delete gift and ignore error OAuthException, code: 506, message: (#506) Duplicate status message [HTTP 400]
+        # Gift posted in here but not on your facebook wall. Duplicate status message on facebook wall.
+        # error should not happen any longer as deep link now is included in message
+        gift_posted_on_wall_api_wall = 4
+      rescue Exception => e
+        logger.debug2 "Exception: #{e.message.to_s} (#{e.class})"
+        logger.debug2 "Backtrace: " + e.backtrace.join("\n")
+        gift_posted_on_wall_api_wall = 1
+        error = e.message
+      end
+
+      # post post-on-wall processing. Return error message, check read permission to wall if picture attachment
+
+      if gift_posted_on_wall_api_wall != 2
+        # error or warning
+        logger.debug2 "error or warning: gift_posted_on_wall_api_wall = #{gift_posted_on_wall_api_wall}"
+        api_gift.picture = 'N'
+        api_gift.api_picture_url = nil
+        api_gift.save!
+        add_error_key ".gift_posted_#{gift_posted_on_wall_api_wall}_html",
+                      login_user.app_and_apiname_hash.merge(:error => error)
+      elsif (!api_gift.picture? or (api_gift.picture? and Picture.perm_app_url?(picture_url)))
+        # post ok - no picture or picture with perm app url
+        # no need to check read permission to gift on api wall
+        # return posted message
+        logger.debug2 "post ok without picture"
+        # return [".gift_posted_#{gift_posted_on_wall_api_wall}_html", login_user.app_and_apiname_hash.merge(:error => error)]
+        add_error_key ".gift_posted_#{gift_posted_on_wall_api_wall}_html", login_user.app_and_apiname_hash.merge(:error => error)
+      else
+        logger.debug2 "post ok with picture"
+        # post ok - gift posted in flickr wall
+        # check read permissioin to gift and get picture url with best size > 200 x 200
+        # must have read access to post on flickr wall to display picture in gofreerev
+        # 1) use api_gift.api_gift_id to get object_id (picture size in first request is too small)
+        key, options = get_api_picture_url(provider, api_gift, true, api_client) # just_posted = true
+        return add_error_key(key, options) if key
+
+        # post ok and no permission problems
+        # no errors - return posted message
+        # return [".gift_posted_#{gift_posted_on_wall_api_wall}_html", :apiname => login_user.apiname, :error => error]
+        add_error_key ".gift_posted_#{gift_posted_on_wall_api_wall}_html", :apiname => login_user.apiname, :error => error
+      end
+
+    rescue Exception => e
+      logger.debug2  "Exception: #{e.message.to_s} (#{e.class})"
+      logger.debug2  "Backtrace: " + e.backtrace.join("\n")
+      raise
     end
-
   end # generic_post_on_wall
 
 

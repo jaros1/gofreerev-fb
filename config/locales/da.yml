@@ -116,14 +116,6 @@ da:
         last_row_at_missing: "Systemfejl. Kan ikke vise flere rækker. Fandt ikke last_row_at i sessions info."
         last_row_id_invalid: "Fejl. Kan ikke vise flere rækker. Ugyldigt last_row_id. Forventede %{expected}. Faldt %{found}."
         invalid_interval: "Advarsel. Der skal være %{interval} sekunder imellem hvert vis flere rækker kald. Ventede i %{sleep} sekunder."
-     translate_ajax_errors:
-        ajax_task_exception: "Systemfejl \"%{exception}\" for opgave \"%{task}\". Tjek backtrace i server log for mere information." # task, exception
-        ajax_task_invalid_response: "Systemfejl. Ugyldigt svar fra opgave \"%{task}\". Skal være Nil eller gyldigt input til translate." # task, response and exception. response is invalid response from opgave and exception is ruby exception from translate
-        ajax_task_missing_translate_key: "System error. Oversættelse mangler for \"%{key}\" for opgave \"%{task}\"."
-        ajax_task_missing_translate_arg: "System error. Variabel %{argument} mangler i oversættelse af \"%{key}\" for opgave \"%{task}\"."
-        # post_login_task_not_found: "Systemfejl. Fandt ikke nogen util.post_login_%{provider} opgave for login udbyder %{provider}. Der blev ikke downloaded nogle venneliste fra %{provider}."
-        # util.missing_api_picture_urls - feedback from browser with invalid image references
-        # auth/index + util.post_on_wall_yn:
      languages:
         da: "Dansk"
         en: "Engelsk"
@@ -721,6 +713,8 @@ da:
         mis_api_pic_file_exists: "Advarsel. Browser fandt ikke billede %{rel_path}, men billede findes på serveren."
         mis_api_pic_url_exists: "Advarsel. Browser fandt ikke billede %{url}, men billede findes på serveren."
      do_tasks:
+        do_tasks_exception: "Systemfejl ved afvikling af baggrundsopgave. %{error}. Mere information i server log."
+        do_task_exception: "Systemfejl for opgave \"%{task}\". %{error}. Mere information i server log." # task, exception
         unknown_timezone: "Advarsel. Ukendt tidszone %{timezone}."
         too_few_exchange_rates: "Advarsel. Opslag af dagens valuta kurser fra %{bank} fejlede. Forventede >= %{expected} kurser. Modtag %{found} kurser"
         login_user_id_not_found: "Opgave %{task} kunne ikke udføres. Intet gyldigt %{apiname} log ind fundet. Opdater venligst siden."

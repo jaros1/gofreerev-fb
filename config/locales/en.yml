@@ -114,14 +114,6 @@ en:
         last_row_at_missing: "System error. Cannot show more rows. last_row_at was not found in sessions info."
         last_row_id_invalid: "Error. Cannot show more rows. Invalid last_row_id. Expected %{expected}. Found %{found}."
         invalid_interval: "Warning. There should be %{interval} seconds between each show more rows request. Waited for %{sleep} seconds."
-     translate_ajax_errors:
-        ajax_task_exception: "System error \"%{exception}\" for task \"%{task}\". Check backtrace in server log for more information."
-        ajax_task_invalid_response: "System error. Invalid response from task \"%{task}\". Must be Nil or a valid input to translate." # task, response and exception. response is invalid response from task and exception is exception from translate
-        ajax_task_missing_translate_key: "System error. Missing translation key \"%{key}\" for task \"%{task}\""
-        ajax_task_missing_translate_arg: "System error. Argument %{argument} is missing for translation key \"%{key}\" for task \"%{task}\""
-        # post_login_task_not_found: "System error. No post login task util.post_login_%{provider} was found for login provider %{provider}. No friend list was downloaded from %{provider}."
-        # util.missing_api_picture_urls - feedback from browser with invalid image references
-        # auth/index + util.post_on_wall_yn:
      languages:
         da: "Danish"
         en: "Engelsk"
@@ -718,6 +710,8 @@ en:
         mis_api_pic_file_exists: "Warning. Browser did not find picture %{rel_path}, but picture exists on the server."
         mis_api_pic_url_exists: "Warning. Browser did not find picture %{url}, but picture exists on the server."
      do_tasks:
+        do_tasks_exception: "System error when executing tasks. %{error}. More information in server log."
+        do_task_exception: "System error for task \"%{task}\". %{error}. More information in server log."
         unknown_timezone: "Warning. Unknown timezone %{timezone}."
         too_few_exchange_rates: "Warning. Lookup of exchange rates from google %{bank} failed. Expected >= %{expected} currencies. Received %{found} currencies."
         login_user_id_not_found: "Task %{task} aborted. No valid %{apiname} log in was found. Please refresh web page."
