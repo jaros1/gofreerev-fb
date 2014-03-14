@@ -82,6 +82,10 @@ da:
 
   # shared partials
   shared:
+     not_logged_in:
+        redirect_flash: "Siden kan desværre ikke vises. Du er ikke logget på. Brug nedenstående links til at logge ind."
+        ajax_get: "Forespørgsel blev afvist. Du er ikke logget på. Opdater venligst siden."
+        ajax_post: "Opdatering blev afvist. Du er ikke logget på. Opdater venligst siden."
      user_div:
         title_non_friend: "%{username}/%{apiname}. Klik her for at se brugeroplysninger."
         title_friend: "%{username}/%{apiname}. Saldo %{balance}. Klik her for at se brugeroplysninger."
@@ -107,6 +111,11 @@ da:
         not_implemented: "inviter %{apiname} venner er endnu ikke implementeret"
      providers:
         blank: "login udbyder" # not logged in or generic text used in provider_downcase and provider_camelize methods
+     show_more_rows:
+        last_row_id_missing: "Systemfejl. Kan ikke vise flere rækker. Fandt ikke last_row_id i sessions info."
+        last_row_at_missing: "Systemfejl. Kan ikke vise flere rækker. Fandt ikke last_row_at i sessions info."
+        last_row_id_invalid: "Fejl. Kan ikke vise flere rækker. Ugyldigt last_row_id. Forventede %{expected}. Faldt %{found}."
+        invalid_interval: "Advarsel. Der skal være %{interval} sekunder imellem hvert vis flere rækker kald. Ventede i %{sleep} sekunder."
      translate_ajax_errors:
         ajax_task_exception: "Systemfejl \"%{exception}\" for opgave \"%{task}\". Tjek backtrace i server log for mere information." # task, exception
         ajax_task_invalid_response: "Systemfejl. Ugyldigt svar fra opgave \"%{task}\". Skal være Nil eller gyldigt input til translate." # task, response and exception. response is invalid response from opgave and exception is ruby exception from translate
@@ -115,8 +124,6 @@ da:
         # post_login_task_not_found: "Systemfejl. Fandt ikke nogen util.post_login_%{provider} opgave for login udbyder %{provider}. Der blev ikke downloaded nogle venneliste fra %{provider}."
         # util.missing_api_picture_urls - feedback from browser with invalid image references
         # auth/index + util.post_on_wall_yn:
-        delete_user_id_not_found: "Kan ikke slette brugerkonto. Brugerkonto blev ikke fundet. Kontoen er evt. allerede blevet slettet."
-        delete_user_invalid_id: "Ugyldigt kald. Kan ikke slette brugerkonto, da den ikke er blevet slet- markeret."
      languages:
         da: "Dansk"
         en: "Engelsk"
@@ -288,9 +295,7 @@ da:
         no_api_walls: "Opslag blev oprettet herinde, men ikke på nogen loginudbyders væg. Dit opslag vil kun set af venner, der benytter %{appname}. Gå evt. til \"Log ind\" siden og tjek læse/skriveadgang til loginudbyder væg, og om du har tilladt opslag på login udbyder væg."
         exception: "Systemfejl. Kunne ikke oprette opslag. %{error}. Se mere information i log."
      index:
-        not_logged_in_ajax: "Opdatering blev afvist. Du er ikke logget på. Opdater venligst siden."
-        not_logged_in_flash: "Siden kan desværre ikke vises. Du er ikke logget på. Brug nedenstående links til at logge ind."
-        not_logged_in_text: "Du er ikke logget ind, og der kan ikke oprettes opslag."
+        not_logged_in: "Kan ikke vise flere rækker. Du er ikke logget ind. Opdater venligst siden."
         welcome_msg_after_login: "Velkommen %{username} til %{appname}"
         create_gift_header_line: "Hjælp hinanden og miljøet. Del jeres ressourcer. Giv, lån/lej ud, sælg etc."
         price_title: "Pris i virtuelle frie penge. Valgfri. Kan sættes nu eller senere. Bedst, hvis køber/modtager sætter pris, der så bliver et mål for, hvor meget pris vedkommende satte på den modtagne ting/hjælp. Der anvendes frie virtuelle nationale penge herinde med en negativ rente. %{min_interest}% om året for en positiv saldo og %{max_interest}% om året for en negativ saldo. Et formål med den negative rente er at sikre, at penge og ressourcer cirkulerer. Den negative rente gør det muligt med et samfund uden vækst, uden overforbrug og med mere fritid."
@@ -310,6 +315,8 @@ da:
         no_gifts_was_found_html: "<p>Der blev ikke fundet nogle opslag. Hverken du eller dine venner har endnu oprettet<br />nogle opslag herinde i %{appname}. For at komme i gang bør du nu oprette et eller flere opslag<br />med noget, du gerne vil dele med dine venner eller med noget, du søger eller mangler<br />, og som du tror dine venner måske kan hjælpe dig med.</p>"
         comment_comment_required_text: "Kommentar felt skal udfyldes"
         comment_price_invalid_text: "Pris er ugyldig. Brug kun cifre, højst et decimal-komma/-punktum og højst 2 decimaler. Tusindtalsseparator er ikke tilladt."
+        http_invalid_last_row_id: "Systemfejl. last_row_id skal være tom ved første http kald. last_row_id = %{last_row_id}."
+        ajax_invalid_last_row_id: "Systemfejl. Ugyldigt eller blank last_row_id i ajax kald. last_row_id = %{last_row_id}."
      table_header_row:
         giver_column_heading_html: "Fra:"
         receiver_column_heading_html: "Til:"
@@ -694,6 +701,8 @@ da:
      destroy:
         not_logged_in: "Kan ikke slette konto. Du er ikke logget ind. Opdater venligst siden."
         invalid_request: "Ugyldigt kald. Kunne ikke slette konto."
+        delete_user_id_not_found: "Kan ikke slette brugerkonto. Brugerkonto blev ikke fundet. Kontoen er evt. allerede blevet slettet."
+        delete_user_invalid_id: "Ugyldigt kald. Kan ikke slette brugerkonto, da den ikke er blevet slet- markeret."
         ok1_html: "Dine data for din %{apiname} konto her hos %{appname} er ved at blive slettet. Sletning vil ske inden for de næste 5-10 minutter. Tak for besøget. Brug <a href=\"%{url}\">link</a> for også at fjerne %{appname} adgang hos %{apiname}."
         ok2_html: "Dine data for din %{apiname} konto her hos %{appname} er ved at blive slettet. Sletning vil ske inden for de næste 5-10 minutter. Bemærk, at du er logget ind med flere loginudbydere, og du ønsker evt. at gentage \"Slet konto\" for disse. Tak for besøget. Brug <a href=\"%{url}\">link</a> for også at fjerne %{appname} adgang hos %{apiname}."
         pending_html: "Dine data for din %{apiname} konto her hos %{appname} er ved at blive slettet. Vent venligst. Brug <a href=\"%{url}\">link</a> for også at fjerne %{appname} adgang hos %{apiname}."

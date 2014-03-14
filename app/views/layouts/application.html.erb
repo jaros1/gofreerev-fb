@@ -65,7 +65,7 @@
     <div style="width: 100%"><hr></div>
     <% if msg = get_flash -%>
         <br/>
-        <div id="notification" style="width: 100%"><%= msg %></div>
+        <div id="notification" style="width: 100%"><%= msg.html_safe %></div>
         <br/>
     <% end -%>
 <%# tasks_errors is used to display error messages from ajax tasks in page header

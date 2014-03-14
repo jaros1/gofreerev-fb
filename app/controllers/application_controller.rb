@@ -253,38 +253,42 @@ class ApplicationController < ActionController::Base
   # last_low_id must be correct - max one get-more-rows ajax request every GET_MORE_ROWS_INTERVAL seconds
   private
   def get_next_set_of_rows_error?(last_row_id)
-    raise "get_next_set_of_rows: session[:last_row_id] was not found" unless get_last_row_id()
-    raise "get_next_set_of_rows: session[:last_row_at] was not found" unless get_last_row_at()
+    if !get_last_row_id()
+      logger.error2 "get_next_set_of_rows: session[:last_row_id] was not found"
+      add_error_key 'shared.show_more_rows.last_row_id_missing'
+      return true
+    end
+    if !get_last_row_at()
+      logger.error2 "get_next_set_of_rows: session[:last_row_at] was not found"
+      add_error_key 'shared.show_more_rows.last_row_at_missing'
+      return true
+    end
     # max one get-more-rows request once every GET_MORE_ROWS_INTERVAL seconds
     new_last_row_at = Time.new.seconds_since_midnight
     dif = new_last_row_at - get_last_row_at()
     dif += 1.day if dif < 0
     if last_row_id != get_last_row_id()
       # wrong last_row_id received in get-more-rows ajax request. Must be an error a javascript/ajax error
-      msg = "problem with get-more-rows ajax request. expected #{get_last_row_id()}. found #{last_row_id}."
-      if debug_ajax?
-        raise msg
-      else
-        logger.debug2  msg
-      end
+      logger.warn2  "problem with get-more-rows ajax request. expected #{get_last_row_id()}. found #{last_row_id}."
+      add_error_key 'shared.show_more_rows.last_row_id_invalid', :expected => get_last_row_id(), :found => last_row_id
       # return dummy row with correct last_row_id to client x
       return true
     elsif dif < GET_MORE_ROWS_INTERVAL - 0.1
       # client must only send get-more-rows once every GET_MORE_ROWS_INTERVAL seconds.
       # Must be an javascript/ajax error. See my.js show_more_rows_scroll
-      logger.debug2 "last_row_at = #{get_last_row_at()}, now = #{new_last_row_at}, dif = #{dif}"
+      # best if client waits between requests - server should not spend time sleeping
+      wait = GET_MORE_ROWS_INTERVAL-dif
+      logger.warn2 "last_row_at = #{get_last_row_at()}, now = #{new_last_row_at}, dif = #{dif}"
       msg = "Max one get-more-rows ajax request every #{GET_MORE_ROWS_INTERVAL} seconds. " +
-          "Time.new = #{Time.new}. Wait for #{GET_MORE_ROWS_INTERVAL-dif} seconds"
+          "Time.new = #{Time.new}. Wait for #{wait} seconds"
+      logger.warn2  msg
       if debug_ajax?
-        logger.debug2  msg
-        logger.debug2  msg
-        logger.debug2  msg
-      else
-        logger.debug2  msg
-        sleep(GET_MORE_ROWS_INTERVAL-dif) # there mst be error in javascript wait between get-more-rows ajax requests
+        logger.warn2  msg
+        logger.warn2  msg
       end
-      # return dummy row with correct last_row_id to client
-      return true
+      sleep(wait)
+      add_error_key 'shared.show_more_rows.invalid_interval', :interval => GET_MORE_ROWS_INTERVAL, :sleep => wait
+      return false
     else
       # normal ajax response with next set of gifts or users
       return false
@@ -413,7 +417,7 @@ class ApplicationController < ActionController::Base
   def login_required
     return true if logged_in?
     if !request.xhr?
-      save_flash 'gifts.index.not_logged_in_flash'
+      save_flash 'shared.not_logged_in.redirect_flash'
       redirect_to :controller => :auth, :action => :index
       return
     end
@@ -431,11 +435,12 @@ class ApplicationController < ActionController::Base
     #        table = tasks_errors
     #    end # case action gifts controller
     #end # case controller
+    key = 'shared.not_logged_in.ajax_' + (request.get? ? 'get' : 'post')
     if table
-      add_error_key 'gifts.index.not_logged_in_ajax', :id => table
+      add_error_key key, :id => table
     else
       logger.error2 "not logged in ajax response not implemented for controller = #{params[:controller]}, action = #{params[:action]}"
-      save_flash 'gifts.index.not_logged_in_ajax'
+      save_flash key
       redirect_to :controller => :auth, :action => :index
       # JS error: ....: "SyntaxError: syntax error. check server log for more information"
     end
@@ -1762,25 +1767,36 @@ class ApplicationController < ActionController::Base
   # add_error adds error to @errors
   # format_response adds any error to @errors and format js or html response
   private
+  #def add_error_key (key, options = {})
+  #  if request.xhr?
+  #    table = options.delete(:table) || 'tasks_errors'
+  #    options[:raise] = I18n::MissingTranslationData
+  #    @errors2 << { :msg => t(key, options), :id => table }
+  #  else
+  #    @errors2 << t(key, options)
+  #  end
+  #  nil
+  #end
   def add_error_key (key, options = {})
-    if request.xhr?
-      table = options.delete(:table) || 'tasks_errors'
-      options[:raise] = I18n::MissingTranslationData
-      @errors2 << { :msg => t(key, options), :id => table }
-    else
-      @errors2 << t(key, options)
-    end
+    table = options.delete(:table) || 'tasks_errors'
+    options[:raise] = I18n::MissingTranslationData if request.xhr? # force stack dump
+    @errors2 << { :msg => t(key, options), :id => table }
     nil
   end
 
   private
+  #def add_error_text (text, options = {})
+  #  if request.xhr?
+  #    table = options.delete(:table) || 'tasks_errors'
+  #    @errors2 << { :msg => text, :id => table }
+  #  else
+  #    @errors2 << text
+  #  end
+  #  nil
+  #end
   def add_error_text (text, options = {})
-    if request.xhr?
-      table = options.delete(:table) || 'tasks_errors'
-      @errors2 << { :msg => text, :id => table }
-    else
-      @errors2 << text
-    end
+    table = options.delete(:table) || 'tasks_errors'
+    @errors2 << { :msg => text, :id => table }
     nil
   end
 
@@ -1807,9 +1823,10 @@ class ApplicationController < ActionController::Base
         if @errors2.size > 0
           # create new flash
           flash = Flash.new
-          flash.message = @errors2.join(' ')
+          flash.message = @errors2.collect { |x| x[:msg] }.join('<br>')
           flash.save!
           session[:flash_id] = flash.id
+          @errors2 = []
         end
         format.html unless request.xhr?
       end

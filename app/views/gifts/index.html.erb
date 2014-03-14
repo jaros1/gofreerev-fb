@@ -112,7 +112,9 @@
 <br/>
 
 <%# add remote link to get more rows and call javascript to setup end of page event and post ajax handling of the new rows. set DEBUG_AJAX to true in initializers/constraints.rb to get more ajax debug information -%>
-<%= link_to "show-more-rows", "/gifts?last_row_id=#{@last_row_id}", :remote => true, :id => "show-more-rows-link", :style => "display: none" %>
+<%= link_to "show-more-rows", "/gifts?last_row_id=#{@last_row_id}",
+            :remote => true, :data => { :type => :script }, :format => :js,
+            :id => "show-more-rows-link", :style => "display: none" %>
 <%= render :partial => 'shared/show_more_rows', :locals => {:show_more_rows => 'gifts'} %>
 
 <script>

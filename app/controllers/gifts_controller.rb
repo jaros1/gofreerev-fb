@@ -2,7 +2,7 @@
 class GiftsController < ApplicationController
 
   before_filter :clear_state_cookie_store, :if => lambda {|c| !request.xhr?}
-  before_filter :login_required, :except => [:create, :show]
+  before_filter :login_required, :except => [:create, :index, :show]
 
   def new
   end
@@ -211,8 +211,20 @@ class GiftsController < ApplicationController
   end
 
   def index
-    # http request: return first 10 gifts (last_row_id = nil)
-    # ajax request: return next 10 gifts (last_row_id != nil)
+    if !logged_in?
+      if request.xhr?
+        @api_gifts = []
+        @last_row_id = nil
+        return format_response_key '.not_logged_in'
+      else
+        save_flash 'shared.not_logged_in.redirect_flash'
+        redirect_to :controller => :auth, :action => :index
+        return
+      end
+    end
+
+    # http request: return first gift (last_row_id = nil)
+    # ajax request (show more rows): return next 10 gifts (last_row_id != nil). last_row_id == gift.status_update_at
     if request.xhr?
       last_row_id = params[:last_row_id].to_s
       last_row_id = nil if last_row_id == ''
@@ -222,10 +234,11 @@ class GiftsController < ApplicationController
         logger.error2 "xhr request without a valid last_row_id. params[:last_row_id] = #{params[:last_row_id]}"
         @api_gifts = []
         @last_row_id = get_last_row_id()
-        format_ajax_response
-        return
+        # format_ajax_response
+        return format_response_key '.ajax_invalid_last_row_id', :last_row_id => params[:last_row_id]
       end
     else
+      add_error_key '.http_invalid_last_row_id', :last_row_id => params[:last_row_id] unless params[:last_row_id].to_s == ''
       last_row_id = nil
     end
 
@@ -236,12 +249,8 @@ class GiftsController < ApplicationController
       logger.debug2  "return empty ajax response with dummy row with correct last_row_id to client"
       @api_gifts = []
       @last_row_id = get_last_row_id()
-      format_ajax_response
-      ## todo: use method format_js_response
-      #respond_to do |format|
-      #  format.js {}
-      #end
-      return
+      # ajax error message has already been inserted into @errors2
+      return format_response
     end
 
     # get any pictures with invalid picture urls
@@ -260,9 +269,11 @@ class GiftsController < ApplicationController
     @gift = Gift.new
     @gift.direction = 'giver'
     if User.dummy_users?(@users)
+      # todo: this looks like an error (not logged in user)
+      # http: should redirect to auth/index page
+      # ajax: should return an not logged in error message
       @api_gifts = []
-      render_with_language __method__
-      return
+      return format_response
     end
     @gift.currency = @users.first.currency unless @gift.currency
     # logger.debug2  "index: description = #{@gift.description}"
@@ -302,15 +313,14 @@ class GiftsController < ApplicationController
       # insert dummy profile pictures in first row - force fixed size for empty from or to columns
       @first_gift = true
       # check write on wall settings
-      @errors = []
       @users.each do |user|
         if user.get_write_on_wall_action == User::WRITE_ON_WALL_MISSING_PRIVS
           key, options = grant_write_link(user.provider)
-          logger.debug2 "grant_write_link: key = #{key}, options = #{options}"
-          @errors << [key, options] if key
+          logger.secret2 "grant_write_link: key = #{key}, options = #{options}"
+          add_error_key key, options if key
         end # if
       end # each user
-      logger.secret2 "@errors = #{@errors}" # use logger.secret2 - @errors can have request write on wall priv. links
+      logger.secret2 "@errors2 = #{@errors2}" # use logger.secret2 - @errors can have request write on wall priv. links
     end
 
     if false
@@ -320,11 +330,12 @@ class GiftsController < ApplicationController
     # show 4 last comments for each gift
     @first_comment_id = nil
 
-    respond_to do |format|
-      format.html { render :action => "index" }
-      # format.json { render json: @comment, status: :created, location: @comment }
-      format.js {}
-    end
+    #respond_to do |format|
+    #  format.html { render :action => "index" }
+    #  # format.json { render json: @comment, status: :created, location: @comment }
+    #  format.js {}
+    #end
+    format_response
 
   end # index
 

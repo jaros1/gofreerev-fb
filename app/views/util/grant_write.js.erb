@@ -2,4 +2,9 @@
 $('#tasks_errors2').append('<%= j render('shared/ajax_errors2') %>');
 move_tasks_errors2();
 <% end -%>
-<% if @link %>document.getElementById('<%= @link %>').style.display = 'none';<% end %>
+<% if @link %>
+(function () {
+    var link = document.getElementById('<%= @link %>') ;
+    if (link) link.style.display = 'none';
+})();
+<% end %>

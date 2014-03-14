@@ -1660,6 +1660,7 @@ class UtilController < ApplicationController
       login_user.update_attribute('permissions', 'write')
       # hide ajax injected link to grant write permission to vkontakte wall
       @link = "grant_write_div_#{provider}"
+      logger.debug2 "@link = #{@link}"
       # ok
       format_response_key '.ok', login_user.app_and_apiname_hash
     rescue Exception => e
@@ -1687,6 +1688,7 @@ class UtilController < ApplicationController
       login_user.update_attribute :post_on_wall_yn, 'N'
       # hide ajax injected link to grant write permission to api provider wall
       @link = "grant_write_div_#{provider}"
+      logger.debug2 "@link = #{@link}"
       # ok
       format_response_key '.ok', login_user.app_and_apiname_hash
     rescue Exception => e

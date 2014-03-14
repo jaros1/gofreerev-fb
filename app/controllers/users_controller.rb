@@ -103,7 +103,7 @@ class UsersController < ApplicationController
 
       # physical delete user now (is normally done in util.new_messages_count)
       key, options = User.delete_user(user.id)
-      return format_response_key "shared.translate_ajax_errors#{key}", options if key
+      return format_response_key(key, options) if key
 
       # delete ok
       logout(user.provider)

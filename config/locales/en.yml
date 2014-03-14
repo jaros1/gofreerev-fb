@@ -81,6 +81,10 @@ en:
 
   # shared partials
   shared:
+     not_logged_in:
+        redirect_flash: "Sorry. Page not available. Not logged in. Use links in this page to log in."
+        ajax_get: "Sorry. Request was rejected. Not logged in. Please refresh page."
+        ajax_post: "Sorry. Action was rejected. Not logged in. Please refresh page."
      user_div:
         title_non_friend: "%{username}/%{apiname}. Click here to see user info."
         title_friend: "%{username}/%{apiname}. Balance %{balance}. Click here to see user info."
@@ -105,6 +109,11 @@ en:
         not_implemented: "invite %{apiname} friends is not implemented"
      providers:
         blank: "login provider" # not logged in or generic text used in provider_downcase and provider_camelize methods
+     show_more_rows:
+        last_row_id_missing: "System error. Cannot show more rows. last_row_id was not found in session data."
+        last_row_at_missing: "System error. Cannot show more rows. last_row_at was not found in sessions info."
+        last_row_id_invalid: "Error. Cannot show more rows. Invalid last_row_id. Expected %{expected}. Found %{found}."
+        invalid_interval: "Warning. There should be %{interval} seconds between each show more rows request. Waited for %{sleep} seconds."
      translate_ajax_errors:
         ajax_task_exception: "System error \"%{exception}\" for task \"%{task}\". Check backtrace in server log for more information."
         ajax_task_invalid_response: "System error. Invalid response from task \"%{task}\". Must be Nil or a valid input to translate." # task, response and exception. response is invalid response from task and exception is exception from translate
@@ -113,8 +122,6 @@ en:
         # post_login_task_not_found: "System error. No post login task util.post_login_%{provider} was found for login provider %{provider}. No friend list was downloaded from %{provider}."
         # util.missing_api_picture_urls - feedback from browser with invalid image references
         # auth/index + util.post_on_wall_yn:
-        delete_user_id_not_found: "Cannot delete user account. User was not found. Maybe user account has already been deleted."
-        delete_user_invalid_id: "Invalid request. Cannot delete user account. User account has not been delete marked."
      languages:
         da: "Danish"
         en: "Engelsk"
@@ -285,9 +292,7 @@ en:
         no_api_walls: "Post was created here but not on any login provider wall. Your post will been seen only by friends that also uses %{appname}. You may go to \"Log in\" page and check read/write permissions to login provider wall and check if you have allowed post to login provider wall."
         exception: "System error. Gift was not created. %{error}. More information available in log."
      index:
-        not_logged_in_ajax: "Sorry. Action was rejected. Not logged in. Please refresh page."
-        not_logged_in_flash: "Sorry. Page not available. Not logged in."
-        not_logged_in_text: "You are not logged in and you cannot create wall postings."
+        not_logged_in: "Cannot show more rows. You are not logged in. Please refresh web page."
         welcome_msg_after_login: "Welcome %{username} to %{appname}"
         create_gift_header_line: "Help each other and the environment. Share your resources. Give, rent, loan, sell."
         price_title: "Price in virtual free money. Optional. Can be set now or later. Best set be buyer / receiver so that the price becomes a measure of how much the thing / help was appreciated. Free virtual national money with a negative interest is being used here. %{min_interest}% per year with a positive balance and %{max_interest}% per year for a negative balance. One goal of the negative rate is to ensure that money and resources circulates. The negative interest rate makes it possible with a society without growth, overconsumption and with plenty of leisure to all."
@@ -307,6 +312,8 @@ en:
         no_gifts_was_found_html: "<p>There was not found any posts. Neither you nor your friends have yet created<br />any posts here in %{appname}. To get started, you must now create a few posts<br />with something you want to share with your friends or with something you are looking<br />for or are missing, and with which you think your friends might be able to help you.</p>"
         comment_comment_required_text: "Comment is required"
         comment_price_invalid_text: "Price is invalid. Only numbers, max 2 decimals, thousands separator not allowed."
+        http_invalid_last_row_id: "System error. last_row_id must be blank in first http request. last_row_id = \"%{last_row_id}\"."
+        ajax_invalid_last_row_id: "System error. Invalid or empty last_row_id in ajax request. last_row_id = \"%{last_row_id}\"."
      table_header_row:
         giver_column_heading_html: "From:"
         receiver_column_heading_html: "To:"
@@ -691,6 +698,8 @@ en:
      destroy:
         not_logged_in: "Cannot delete account. You are not logged in. Please refresh web page."
         invalid_request: "Invalid request. Could not delete user account."
+        delete_user_id_not_found: "Cannot delete user account. User was not found. Maybe user account has already been deleted."
+        delete_user_invalid_id: "Invalid request. Cannot delete user account. User account has not been delete marked."
         ok1_html: "Your data for your %{apiname} account here at %{appname} is being deleted. Account will be deleted within the next 5-10 minutes. Thank you for visiting %{appname}. Use <a href=\"%{url}\">link</a> to remove %{appname} from your app settings on %{apiname}."
         ok2_html: "Your data for your %{apiname} account here at %{appname} is being deleted. Account will be deleted within the next 5-10 minutes. Note that you are logged in with multiple login providers and you may want to repeat \"Delete account\" for your other %{appname} accounts. Thank you for visiting %{appname}. Use <a href=\"%{url}\">link</a> to remove %{appname} access at %{apiname}."
         pending_html: "Your data for your %{apiname} account here at %{appname} is being deleted. Please wait. Use <a href=\"%{url}\">link</a> to remove %{appname} access at %{apiname}."

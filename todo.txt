@@ -1037,3 +1037,14 @@
 
 187) testcase: check not logged in ajax response on show-more-rows request
 
+188) check all :remote links and forms. Must have :data => { :type => :script }, :format => :js
+
+189) add an ajax error table for show-more-rows errors.
+     could be in table tfoot section
+
+190) show-more-rows ajax errors. Should ajax inject error message in header and in bottom of page
+     maybe just use table = 'show_more_rows_errors' and let error handling copy msg to both error tables.
+
+191) ajax application layout? for error messages. should be identical for all ajax requests.
+
+192) gifts/index test. logged out user + show more rows request
