@@ -655,7 +655,7 @@ class UtilController < ApplicationController
       logger.error2 "Backtrace: " + e.backtrace.join("\n")
       @link_id = nil
       format_response_key '.exception', :error => e.message.to_s, :raise => I18n::MissingTranslationData, :table => table
-      logger.error2 "@errors2 = #{@errors2}"
+      logger.error2 "@errors = #{@errors}"
     end
   end # cancel_new_deal
 
@@ -683,7 +683,7 @@ class UtilController < ApplicationController
       logger.error2 "Backtrace: " + e.backtrace.join("\n")
       @link_id = nil
       format_response_key '.exception', :error => e.message.to_s, :raise => I18n::MissingTranslationData, :table => table
-      logger.error2 "@errors2 = #{@errors2}"
+      logger.error2 "@errors = #{@errors}"
     end
   end # reject_new_deal
 
@@ -753,7 +753,7 @@ class UtilController < ApplicationController
       logger.error2 "Exception: #{e.message.to_s}"
       logger.error2 "Backtrace: " + e.backtrace.join("\n")
       format_response_key '.exception', :error => e.message.to_s, :raise => I18n::MissingTranslationData, :table => table
-      logger.error2 "@errors2 = #{@errors2}"
+      logger.error2 "@errors = #{@errors}"
       @api_gifts = nil
     end
   end # accept_new_deal
@@ -830,8 +830,8 @@ class UtilController < ApplicationController
         #end
         # logger.debug2  "task = #{at.task}, res = #{res}"
       end
-      logger.debug2 "@errors2.size = #{@errors2.size}"
-      if @errors2.size == 0
+      logger.debug2 "@errors.size = #{@errors.size}"
+      if @errors.size == 0
         render :nothing => true
       else
         format_response

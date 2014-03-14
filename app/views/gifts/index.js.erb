@@ -1,5 +1,5 @@
-<% if @errors2.size > 0 -%>
-$('#tasks_errors2').append('<%= j render('shared/ajax_errors2') %>');
+<% if @errors.size > 0 -%>
+$('#tasks_errors2').append('<%= j render('shared/ajax_errors') %>');
 move_tasks_errors2();
 <% end -%>
 $('#gifts').append('<%= j render("api_gifts", :gifts => @api_gifts, :last_row_id => @last_row_id) %>');

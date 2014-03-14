@@ -1771,16 +1771,16 @@ class ApplicationController < ActionController::Base
   #  if request.xhr?
   #    table = options.delete(:table) || 'tasks_errors'
   #    options[:raise] = I18n::MissingTranslationData
-  #    @errors2 << { :msg => t(key, options), :id => table }
+  #    @errors << { :msg => t(key, options), :id => table }
   #  else
-  #    @errors2 << t(key, options)
+  #    @errors << t(key, options)
   #  end
   #  nil
   #end
   def add_error_key (key, options = {})
     table = options.delete(:table) || 'tasks_errors'
     options[:raise] = I18n::MissingTranslationData if request.xhr? # force stack dump
-    @errors2 << { :msg => t(key, options), :id => table }
+    @errors << { :msg => t(key, options), :id => table }
     nil
   end
 
@@ -1788,15 +1788,15 @@ class ApplicationController < ActionController::Base
   #def add_error_text (text, options = {})
   #  if request.xhr?
   #    table = options.delete(:table) || 'tasks_errors'
-  #    @errors2 << { :msg => text, :id => table }
+  #    @errors << { :msg => text, :id => table }
   #  else
-  #    @errors2 << text
+  #    @errors << text
   #  end
   #  nil
   #end
   def add_error_text (text, options = {})
     table = options.delete(:table) || 'tasks_errors'
-    @errors2 << { :msg => text, :id => table }
+    @errors << { :msg => text, :id => table }
     nil
   end
 
@@ -1820,13 +1820,13 @@ class ApplicationController < ActionController::Base
           flash.destroy if flash
           session.delete(:flash_id)
         end
-        if @errors2.size > 0
+        if @errors.size > 0
           # create new flash
           flash = Flash.new
-          flash.message = @errors2.collect { |x| x[:msg] }.join('<br>')
+          flash.message = @errors.collect { |x| x[:msg] }.join('<br>')
           flash.save!
           session[:flash_id] = flash.id
-          @errors2 = []
+          @errors = []
         end
         format.html unless request.xhr?
       end
@@ -1856,7 +1856,7 @@ class ApplicationController < ActionController::Base
   private
   def setup_errors
     # logger.debug2 "request.xhr? = #{request.xhr?}, HTTP_X_REQUESTED_WITH = #{request.headers['HTTP_X_REQUESTED_WITH']}"
-    @errors2 = []
+    @errors = []
   end
 
 end # ApplicationController

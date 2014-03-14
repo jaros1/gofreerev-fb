@@ -1,9 +1,9 @@
-<% logger.debug2  "@errors2.size = #{@errors2.size}"
+<% logger.debug2  "@errors.size = #{@errors.size}"
    logger.debug2 " @api_gifts.size = #{@api_gifts.size}"
-   raise "empty response from gifts/create" if @errors2.size == 0 and @api_gifts.size == 0
+   raise "empty response from gifts/create" if @errors.size == 0 and @api_gifts.size == 0
 -%>
-<% if @errors2.size > 0 -%>
-$('#tasks_errors2').append('<%= j render('shared/ajax_errors2') %>');
+<% if @errors.size > 0 -%>
+$('#tasks_errors2').append('<%= j render('shared/ajax_errors') %>');
 move_tasks_errors2();
 <% end -%>
 <% if @api_gifts.size > 0 -%>

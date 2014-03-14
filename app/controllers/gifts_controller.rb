@@ -190,7 +190,7 @@ class GiftsController < ApplicationController
       # find api gift - api gift with picture is preferred
       api_gift = gift.api_gifts.sort { |a, b| b.picture <=> a.picture }.first
       @api_gifts = ApiGift.where("id = ?", api_gift.id).includes(:gift)
-      logger.debug2 "@errors2.size = #{@errors2.size}"
+      logger.debug2 "@errors.size = #{@errors.size}"
       logger.debug2 " @api_gifts.size = #{@api_gifts.size}"
       format_response
     rescue Exception => e
@@ -249,7 +249,7 @@ class GiftsController < ApplicationController
       logger.debug2  "return empty ajax response with dummy row with correct last_row_id to client"
       @api_gifts = []
       @last_row_id = get_last_row_id()
-      # ajax error message has already been inserted into @errors2
+      # ajax error message has already been inserted into @errors
       return format_response
     end
 
@@ -320,7 +320,7 @@ class GiftsController < ApplicationController
           add_error_key key, options if key
         end # if
       end # each user
-      logger.secret2 "@errors2 = #{@errors2}" # use logger.secret2 - @errors2 can have request write on wall priv. links
+      logger.secret2 "@errors = #{@errors}" # use logger.secret2 - @errors can have request write on wall priv. links
     end
 
     if false

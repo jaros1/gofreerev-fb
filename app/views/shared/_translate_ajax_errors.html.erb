@@ -1,8 +1,0 @@
-<% if @errors -%>
-    <% for error in @errors do -%>
-        <% key, options = error -%>
-        <tr>
-          <td><%= t key, my_sanitize_hash(options) %></td>
-        </tr>
-    <% end -%>
-<% end -%>

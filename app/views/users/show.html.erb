@@ -25,7 +25,10 @@
     <% end -%>
 
 <%# add remote link to get more rows and call javascript to setup end of page event and post ajax handling of the new rows -%>
-    <%= link_to "show-more-rows", user_path(:id => @user2.id, :last_row_id => @last_row_id, :tab => @page_values[:tab]), :remote => true, :id => "show-more-rows-link", :style => "display: none" if @last_row_id %>
+    <%= link_to "show-more-rows",
+                user_path(:id => @user2.id, :last_row_id => @last_row_id, :tab => @page_values[:tab]),
+                :remote => true, :data => { :type => :script }, :format => :js,
+                :id => "show-more-rows-link", :style => "display: none" if @last_row_id %>
     <%= render :partial => 'shared/show_more_rows', :locals => {:show_more_rows => (@page_values[:tab] == 'friends' ? 'users' : 'gifts')} %>
 
 <% end -%>

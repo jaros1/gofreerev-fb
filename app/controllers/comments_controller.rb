@@ -111,7 +111,7 @@ class CommentsController < ApplicationController
       @old_first_comment_id = nil
       @api_comments = nil
       format_response_key '.exception', :error => e.message.to_s, :raise => I18n::MissingTranslationData, :table => table
-      logger.error2 "@errors2 = #{@errors2}"
+      logger.error2 "@errors = #{@errors}"
     end
   end # index
 
