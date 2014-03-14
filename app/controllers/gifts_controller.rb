@@ -320,7 +320,7 @@ class GiftsController < ApplicationController
           add_error_key key, options if key
         end # if
       end # each user
-      logger.secret2 "@errors2 = #{@errors2}" # use logger.secret2 - @errors can have request write on wall priv. links
+      logger.secret2 "@errors2 = #{@errors2}" # use logger.secret2 - @errors2 can have request write on wall priv. links
     end
 
     if false

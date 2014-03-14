@@ -874,3 +874,4 @@ en:
      post_on_wall_yn:
         unknown_provider: "System error. Unknown login provider %{apiname}. Change in Post? has not been saved."
         unknown_post_on_wall: "System error. Unknown choise for login provider %{apiname}. Change in Post? has not been saved."
+        exception: "System error. Could not change Post? choice. %{error}. More information in server log."

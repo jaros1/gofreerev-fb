@@ -1596,27 +1596,35 @@ class UtilController < ApplicationController
   # change user.post_on_wall_yn. ajax request from auth/index page
   public
   def post_on_wall_yn
-    @errors = []
-    logger.debug2 "params = #{params}"
-    # check provider
     provider = params[:provider]
-    return format_response_key('.unknown_provider', :apiname => provider) unless valid_provider?(provider)
-    # check post_on_wall_yn
-    post_on_wall = case params[:post_on_wall]
-                        when 'true' then 'Y'
-                        when 'false' then 'N'
-                        else
-                          logger.error2 "Invalid post_on_wall value received from client. params = #{params}"
-                          return format_response_key('.unknown_post_on_wall', :apiname => provider)
-                      end # case
+    begin
+      logger.debug2 "params = #{params}"
+      # check provider
+      return format_response_key('.unknown_provider', :apiname => provider) unless valid_provider?(provider)
+      # check post_on_wall_yn
+      post_on_wall = case params[:post_on_wall]
+                       when 'true' then
+                         'Y'
+                       when 'false' then
+                         'N'
+                       else
+                         logger.error2 "Invalid post_on_wall value received from client. params = #{params}"
+                         return format_response_key('.unknown_post_on_wall', :apiname => provider)
+                     end # case
 
-    # get user
-    login_user, token, key, options = get_login_user_and_token(provider, __method__)
-    return format_response_key(key, options) if key
+      # get user
+      login_user, token, key, options = get_login_user_and_token(provider, __method__)
+      return format_response_key(key, options) if key
 
-    # update user
-    login_user.update_attribute('post_on_wall_yn', post_on_wall)
-    format_response
+      # update user
+      login_user.update_attribute('post_on_wall_yn', post_on_wall)
+      format_response
+    rescue Exception => e
+      logger.debug2 "Exception: #{e.message.to_s} (#{e.class})"
+      logger.debug2 "Backtrace: " + e.backtrace.join("\n")
+      format_response_key '.exception',
+                          :error => e.message, :provider => provider, :apiname => provider_downcase(provider)
+    end
   end # post_on_wall_yn
 
 
