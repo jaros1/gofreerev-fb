@@ -1043,10 +1043,6 @@
 
 192) gifts/index test. logged out user + show more rows request
 
-193) ie8 - users/index layout problem
-
-194) ie8 - users/index - show more rows problem - no errors in client js log or in server log
-
 195) check if hidden_tasks_errors can be dropped
 
 196) rename tasks_errors2 to tmp_tasks_errors?
@@ -1054,3 +1050,5 @@
 197) controllers. add http/ajax comment to all relevant methods
 
 198) controllers. check format_response in end of all ajax methods
+
+199) ie8 - all tables must have a tbody and tbody must be used in ajax inject

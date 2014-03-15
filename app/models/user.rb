@@ -405,7 +405,8 @@ class User < ActiveRecord::Base
         logger.warn2 "plase check API_DEFAULT_PERMISSIONS in /config/initializers/omniauth.rb"
     end # case
     user.api_profile_url = profile_url if profile_url
-    if user.new_record?
+    active_currencies = ExchangeRate.active_currencies
+    if !user.currency or !active_currencies.index(user.currency)
       # initialize currency from country - for example google and twitter
       country_code = options[:country].to_s
       if country_code == ''
@@ -430,13 +431,12 @@ class User < ActiveRecord::Base
       else
         currency = c.currency.code
       end
-      active_currencies = ExchangeRate.active_currencies
       currency = BASE_CURRENCY if active_currencies.size > 0 and !active_currencies.index(currency)
       user.currency = currency
-      user.balance = { BALANCE_KEY => 0.0 }
-      user.balance_at = Date.parse(Sequence.get_last_exchange_rate_date)
-      user.post_on_wall_yn = API_POST_PERMITTED[provider] ? 'Y' : 'N'
     end # outer if
+    user.balance = { BALANCE_KEY => 0.0 } unless user.balance
+    user.balance_at = Date.parse(Sequence.get_last_exchange_rate_date) unless user.balance_at
+    user.post_on_wall_yn = API_POST_PERMITTED[provider] ? 'Y' : 'N' unless user.post_on_wall_yn
     # facebook profile image is set in post login task / post_login_update_friends
     # ( unless new facebook user without profile picture )
     user.api_profile_picture_url = image unless provider == 'facebook' and user.api_profile_picture_url.to_s != ''

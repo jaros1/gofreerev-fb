@@ -215,7 +215,7 @@ class GiftsController < ApplicationController
       if request.xhr?
         @api_gifts = []
         @last_row_id = nil
-        return format_response_key '.not_logged_in'
+        return format_response_key '.not_logged_in', :table => 'show-more-rows-errors'
       else
         save_flash 'shared.not_logged_in.redirect_flash'
         redirect_to :controller => :auth, :action => :index
@@ -235,7 +235,7 @@ class GiftsController < ApplicationController
         @api_gifts = []
         @last_row_id = get_last_row_id()
         # format_ajax_response
-        return format_response_key '.ajax_invalid_last_row_id', :last_row_id => params[:last_row_id]
+        return format_response_key '.ajax_invalid_last_row_id', :last_row_id => params[:last_row_id], :table => 'show-more-rows-errors'
       end
     else
       add_error_key '.http_invalid_last_row_id', :last_row_id => params[:last_row_id] unless params[:last_row_id].to_s == ''

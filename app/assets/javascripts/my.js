@@ -1419,7 +1419,6 @@ function show_more_rows_success (table_name, debug)
         setup_comment_action_link_ajax() ;
     }
 
-
 } // show_more_rows_success
 
 function show_more_rows_error(jqxhr, textStatus, errorThrown, debug) {
@@ -1429,7 +1428,7 @@ function show_more_rows_error(jqxhr, textStatus, errorThrown, debug) {
         add2log('textStatus = ' + textStatus);
         add2log('errorThrown = ' + errorThrown);
     }
-    add_to_tasks_errors('show_more_rows.ajax.error: ' + errorThrown + '. check server log for more information.') ;
+    add_to_tasks_errors2('show-more-rows-errors', 'show_more_rows.ajax.error: ' + errorThrown + '. check server log for more information.') ;
 } // show_more_rows_error
 
 function show_more_rows_ajax() {
@@ -1463,6 +1462,7 @@ function show_more_rows_ajax() {
     $(link).unbind("ajax:error");
     $(link).bind("ajax:error", function (jqxhr, textStatus, errorThrown) {
         var pgm = link + '.ajax.error: ' ;
+        add2log(pgm + 'start') ;
         try {
             show_more_rows_error(jqxhr, textStatus, errorThrown);
             stop_show_more_rows_spinner();
@@ -1596,6 +1596,7 @@ function add_to_tasks_errors (error) {
 // called from move_tasks_errors2 and from gift/comment link ajax handlers
 // ajax error tables under gift links and comments are created dynamic when needed
 function add_to_tasks_errors2 (table_id, error) {
+    if (table_id == 'show-more-rows-errors') add_to_tasks_errors(error) ; // inject into top and bottom of web page
     var pgm = 'add_to_tasks_errors2: ' ;
     var table = document.getElementById(table_id) ;
     if (!table) {

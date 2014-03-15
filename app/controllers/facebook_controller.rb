@@ -33,6 +33,8 @@ class FacebookController < ApplicationController
   #                    "user_id"=>"1705481075"}
 
   def create
+    # logout any old facebook user
+    logout(provider)
 
     signed_request = params[:signed_request]
     logger.debug2  "signed_request = #{signed_request}"

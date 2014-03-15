@@ -178,11 +178,19 @@ class ApplicationController < ActionController::Base
 
     # check currencies. all logged in users must use same currency
     currencies = @users.collect { |user| user.currency }.uniq
-    logger.debug2  "more when one currency found for logged in users: #{}" if currencies.length > 1
+    logger.warn2  "more when one currency found for logged in users: #{}" if currencies.length > 1
 
     # add some instance variables
     if user
-      Money.default_currency = Money::Currency.new(user.currency)
+      begin
+        Money.default_currency = Money::Currency.new(user.currency)
+      rescue Money::Currency::UnknownCurrency => e
+        # todo: this is only a workaround - fix missing or invalid currency at login time
+        logger.warn2 "#{e.class}: #{e.message}"
+        logger.warn2 "User #{user.debug_info} with invalid currency #{user.currency}"
+        user.currency = Money.default_currency = BASE_CURRENCY
+        user.save!
+      end
       # todo: set decimal mark and thousands separator from language - not from currency
       @user_currency_separator = Money::Currency.table[user.currency.downcase.to_sym][:decimal_mark]
       @user_currency_delimiter = Money::Currency.table[user.currency.downcase.to_sym][:thousands_separator]
@@ -255,12 +263,12 @@ class ApplicationController < ActionController::Base
   def get_next_set_of_rows_error?(last_row_id)
     if !get_last_row_id()
       logger.error2 "get_next_set_of_rows: session[:last_row_id] was not found"
-      add_error_key 'shared.show_more_rows.last_row_id_missing'
+      add_error_key 'shared.show_more_rows.last_row_id_missing', :table => 'show-more-rows-errors'
       return true
     end
     if !get_last_row_at()
       logger.error2 "get_next_set_of_rows: session[:last_row_at] was not found"
-      add_error_key 'shared.show_more_rows.last_row_at_missing'
+      add_error_key 'shared.show_more_rows.last_row_at_missing', :table => 'show-more-rows-errors'
       return true
     end
     # max one get-more-rows request once every GET_MORE_ROWS_INTERVAL seconds
@@ -270,7 +278,7 @@ class ApplicationController < ActionController::Base
     if last_row_id != get_last_row_id()
       # wrong last_row_id received in get-more-rows ajax request. Must be an error a javascript/ajax error
       logger.warn2  "problem with get-more-rows ajax request. expected #{get_last_row_id()}. found #{last_row_id}."
-      add_error_key 'shared.show_more_rows.last_row_id_invalid', :expected => get_last_row_id(), :found => last_row_id
+      add_error_key 'shared.show_more_rows.last_row_id_invalid', :expected => get_last_row_id(), :found => last_row_id, :table => 'show-more-rows-errors'
       # return dummy row with correct last_row_id to client x
       return true
     elsif dif < GET_MORE_ROWS_INTERVAL - 0.1
@@ -287,7 +295,7 @@ class ApplicationController < ActionController::Base
         logger.warn2  msg
       end
       sleep(wait)
-      add_error_key 'shared.show_more_rows.invalid_interval', :interval => GET_MORE_ROWS_INTERVAL, :sleep => wait
+      add_error_key 'shared.show_more_rows.invalid_interval', :interval => GET_MORE_ROWS_INTERVAL, :sleep => wait, :table => 'show-more-rows-errors'
       return false
     else
       # normal ajax response with next set of gifts or users

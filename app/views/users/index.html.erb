@@ -86,7 +86,7 @@
     <%= hr = true ; render :partial => 'shared/no_app_friends' %>
 <% end -%>
 <div style="width: 100%">
-  <table id="users" style="width: 100%">
+  <table style="width: 100%">
     <thead>
     <tr>
       <td width="1px"></td>
@@ -100,7 +100,7 @@
       </td>
     </tr>
     </thead>
-    <tbody>
+    <tbody id="users">
     <% for user in @users2 do -%>
         <%= render :partial => 'user', :locals => {:user => user} %>
     <% end -%>
@@ -111,13 +111,21 @@
         <img src="/images/ajax-loading-64.gif"/>
       </td>
     </tr>
+    <tr>
+      <td colspan="4">
+        <table>
+          <tbody id='show-more-rows-errors'>
+          </tbody>
+        </table>
+      </td>
+    </tr>
     </tfoot>
   </table>
 </div>
 
 <br/>
 <%# add remote link to get more rows and call javascript to setup end of page event and post ajax handling of the new rows. set DEBUG_AJAX to true in initializers/constraints.rb to get more ajax debug information -%>
-<%= link_to "show-more-lines",
+<%= link_to "show-more-rows",
             users_path(@page_values.merge(:last_row_id => @last_row_id)),
             :remote => true, :data => { :type => :script }, :format => :js,
             :id => "show-more-rows-link", :style => "display: none" %>
