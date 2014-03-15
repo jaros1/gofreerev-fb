@@ -1,6 +1,6 @@
 class CommentsController < ApplicationController
 
-  before_filter :login_required, :except => [:create, :destroy]
+  before_filter :login_required, :except => [:create, :index, :destroy]
 
   # POST /comments
   # POST /comments.json
@@ -76,9 +76,10 @@ class CommentsController < ApplicationController
       return format_response_key '.gift_id_is_missing' if params[:gift_id].to_s == ""
       gift = Gift.find_by_id(params[:gift_id])
       return format_response_key '.gift_not_found' if !gift
-      table = "gift-#{gift.id}-links-errors"
       # gift was found.
       # any ajax error messages are now ajax injected into row under gifts link in gifts/index page
+      table = "gift-#{gift.id}-links-errors"
+      return format_response_key '.not_logged_in', :table => table unless logged_in?
       # check if user may see gift. Must be giver, receiver, friend with giver or friend with receiver
       return format_response_key '.gift_not_friends', :table => table unless gift.visible_for?(@users)
       # check first_comment_id

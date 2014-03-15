@@ -228,6 +228,7 @@ en:
      index:
         gift_id_is_missing: "Invalid request. Gift id is missing."
         gift_not_found: "Invalid request. Gift was not found."
+        not_logged_in: "Cannot show older comments. You are not logged in. Please refresh web page."
         gift_not_friends: "Invalid request. You are not allowed to see this gift."
         first_comment_id_is_missing: "Invalid request. Comment id is missing."
         first_comment_not_found: "Invalid request. Comment was not found."

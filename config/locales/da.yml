@@ -231,6 +231,7 @@ da:
      index:
         gift_id_is_missing: "Ugyldigt kald. Opslagsnr. mangler."
         gift_not_found: "Ugyldigt kald. Opslag blev ikke fundet."
+        not_logged_in: "Kan ikke vise ældre kommentarer. Du er ikke logget ind. Opdater venligst siden."
         gift_not_friends: "Ugyldigt kald. Du må ikke se dette opslag."
         first_comment_id_is_missing: "Ugyldig kald. Kommentarnr. mangler."
         first_comment_not_found: "Ugyldigt kald. Kommentar blev ikke fundet."

@@ -1035,20 +1035,22 @@
 186) accept new deal: old deal was not deleted from gifts/index page when new accepted deal
      was ajax injected into page. Could be same problem as in 183. char sort instead of number sort.
 
-187) testcase: check not logged in ajax response on show-more-rows request
-
-188) check all :remote links and forms. Must have :data => { :type => :script }, :format => :js
-
 189) add an ajax error table for show-more-rows errors.
      could be in table tfoot section
 
 190) show-more-rows ajax errors. Should ajax inject error message in header and in bottom of page
      maybe just use table = 'show_more_rows_errors' and let error handling copy msg to both error tables.
 
-191) ajax application layout? for error messages. should be identical for all ajax requests.
-
 192) gifts/index test. logged out user + show more rows request
 
 193) ie8 - users/index layout problem
 
-194) ie8 - users/index - show more rows problem
+194) ie8 - users/index - show more rows problem - no errors in client js log or in server log
+
+195) check if hidden_tasks_errors can be dropped
+
+196) rename tasks_errors2 to tmp_tasks_errors?
+
+197) controllers. add http/ajax comment to all relevant methods
+
+198) controllers. check format_response in end of all ajax methods

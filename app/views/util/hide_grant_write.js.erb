@@ -1,5 +1,1 @@
-<% if @errors.size > 0 -%>
-$('#tasks_errors2').append('<%= j render('shared/ajax_errors') %>');
-move_tasks_errors2();
-<% end -%>
 <% if @link %>document.getElementById('<%= @link %>').style.display = 'none';<% end %>

@@ -1732,6 +1732,8 @@ class ApplicationController < ActionController::Base
 
 
   # use flash table to prevent CookieOverflow for big flash messages when using session cookie
+  # use save_flash before redirect
+  # use add_error_key or add_error_text for flash messages in page header without redirect
   private
   def save_flash (key, options = {})
     # delete old flash
@@ -1761,22 +1763,15 @@ class ApplicationController < ActionController::Base
   end
   helper_method :get_flash
 
-  # generic error handler.
-  # html request errors are stored in simple array and returned as a flash
-  # ajax errors are stored with :id for html table where error should be ajax injected into
-  # add_error adds error to @errors
-  # format_response adds any error to @errors and format js or html response
+
+  # generic error methods add_error_key, add_error_text, format_response, format_response_key and format_response_text
+  # all errors and messages are stored on @errors array with { :id => id, :msg => msg}
+  # html request errors and messages are returned in notification div in page header as a "flash" message
+  # ajax errors are injected in tasks_errors table in page header or error tables within page (:table option)
+  # ( see layouts/application.js.erb and JS method move_tasks_errors2 method (my.js) )
+  # add_error_xxx adds error to @errors. format_response_xxx adds any error to @errors and format js or html response
+  # note that all ajax calls must set format and datatype: :remote => true, :data => { :type => :script }, :format => :js
   private
-  #def add_error_key (key, options = {})
-  #  if request.xhr?
-  #    table = options.delete(:table) || 'tasks_errors'
-  #    options[:raise] = I18n::MissingTranslationData
-  #    @errors << { :msg => t(key, options), :id => table }
-  #  else
-  #    @errors << t(key, options)
-  #  end
-  #  nil
-  #end
   def add_error_key (key, options = {})
     table = options.delete(:table) || 'tasks_errors'
     options[:raise] = I18n::MissingTranslationData if request.xhr? # force stack dump
@@ -1785,15 +1780,6 @@ class ApplicationController < ActionController::Base
   end
 
   private
-  #def add_error_text (text, options = {})
-  #  if request.xhr?
-  #    table = options.delete(:table) || 'tasks_errors'
-  #    @errors << { :msg => text, :id => table }
-  #  else
-  #    @errors << text
-  #  end
-  #  nil
-  #end
   def add_error_text (text, options = {})
     table = options.delete(:table) || 'tasks_errors'
     @errors << { :msg => text, :id => table }
