@@ -687,9 +687,9 @@ function insert_new_comments() {
                 old_comments2_tr_id = old_comments2_tr.id;
                 old_comments2_tr_id_split = old_comments2_tr_id.split('-') ;
                 old_comments2_comment_id = parseInt(old_comments2_tr_id_split[3]);
-                add2log('j = ' + j + ', new comment id = ' + new_comment_comment_id + ', old id = ' + old_comments2_tr_id + ', old comment id = ' + old_comments2_comment_id);
+                add2log('j = ' + j + ', new comment id = ' + new_comment_comment_id + ', old comment id = ' + old_comments2_comment_id);
                 debug = 80 ;
-                if (new_comment_comment_id > old_comments2_comment_id) {
+                if (parseInt(new_comment_comment_id) > parseInt(old_comments2_comment_id)) {
                     // insert after current row
                     new_comments_tbody.removeChild(new_comment_tr) ;
                     old_comments2_tr.parentNode.insertBefore(new_comment_tr, old_comments2_tr.nextSibling);
@@ -1800,16 +1800,28 @@ function post_ajax_add_new_comment_handler(giftid) {
             // fix for ie8/ie9 error. ajax response from comment/create was not executed
             // content type in comment/create response is now text/plain
             var checkbox, gifts, trs, re, i, new_comment_tr, id2, add_new_comment_tr, tbody;
-            // reset new comment line
+            // reset new comment row
+            var tempScrollTop = $(window).scrollTop();
+            add2log(pgm + 'scrollTop = ' + tempScrollTop) ;
+            // $(window).scrollTop(tempScrollTop);
             document.getElementById('gift-' + giftid + '-comment-new-price').value = '';
-            var textarea = document.getElementById('gift-' + giftid + '-comment-new-textarea') ;
+            var textarea_id = 'gift-' + giftid + '-comment-new-textarea' ;
+            var textarea = document.getElementById(textarea_id) ;
+            var textarea_old_height = textarea.offsetHeight ;
+            add2log(pgm + 'textarea old height (1) = ' + textarea_old_height) ;
+            if (textarea_old_height > 150) textarea_old_height = 150 ;
+            add2log(pgm + 'textarea old height (2) = ' + textarea_old_height) ;
+            var textarea_old_offset = $('#' + textarea_id).offset().top ;
+            add2log(pgm + 'textarea old offset = ' + textarea_old_offset) ;
             textarea.value = '';
             autoresize_text_field(textarea) ;
+            var textarea_new_height = textarea.offsetHeight ;
+            add2log(pgm + 'textarea new height = ' + textarea_new_height) ;
             document.getElementById('gift-' + giftid + '-comment-new-price-tr').style.display = 'none';
             checkbox = document.getElementById('gift-' + giftid + '-new-deal-check-box');
             if (checkbox) checkbox.checked = false;
             // find new comment table row last in gifts table
-            gifts = document.getElementById("gifts");
+            gifts = document.getElementById("gifts_tbody");
             trs = gifts.rows;
             // add2log(id + '. ajax.success: new gifts.rows = ' + trs.length) ;
             re = new RegExp("^gift-" + giftid + "-comment-[0-9]+$");
@@ -1829,7 +1841,7 @@ function post_ajax_add_new_comment_handler(giftid) {
             }
             // move new table row up before add new comment table row
             new_comment_tr.parentNode.removeChild(new_comment_tr);
-            // IE8 fix. removeChild + insertBefore did not work in IE8
+            // IE8 fix. removeChild + insertBefore did not work in IE8 - todo: recheck this IE8 fix
             var no_gifts = document.getElementById('gifts').rows.length ;
             add_new_comment_tr.parentNode.insertBefore(new_comment_tr, add_new_comment_tr); // error: Node was not found
             // move ok
@@ -1837,6 +1849,13 @@ function post_ajax_add_new_comment_handler(giftid) {
             restart_check_new_messages();
             // check overflow for new comment - display show-more-text link for comment with long text
             find_overflow();
+            // restore scroll - not working 100% correct - problems with big comments
+            var textarea_new_offset = $('#' + textarea_id).offset().top ;
+            add2log(pgm + 'textarea new offset = ' + textarea_new_offset) ;
+            tempScrollTop = tempScrollTop - textarea_old_offset + textarea_new_offset ; //  - textarea_old_height + textarea_new_height ;
+            tempScrollTop = tempScrollTop + textarea_old_height - textarea_old_height ;
+            if (tempScrollTop < 0) tempScrollTop = 0 ;
+            $(window).scrollTop(tempScrollTop);
             // unbind and bind ajax for comment action links
             setup_comment_action_link_ajax() ;
         }
@@ -2089,36 +2108,8 @@ $(document).ready(function() {
     // add2log('timezone = ' + timezone.value) ;
 })
 
-//// gifts/index page - copy rows from hidden_tasks_errors to tasks_errors - links to grant write permission to api walls
-//$(document).ready(function() {
-//    var pgm = 'hidden_tasks_errors: ' ;
-//    var from_table = document.getElementById('hidden_tasks_errors') ;
-//    if (!from_table) {
-//        // ok - not gifts/index page
-//        add2log(pgm + 'not gifts/index page') ;
-//        return ;
-//    }
-//    var to_table = document.getElementById('tasks_errors') ;
-//    var from_trs = from_table.rows ;
-//    var tr, td, error ;
-//    if (from_trs.length == 0) {
-//        add2log(pgm + 'no rows in hidden_tasks_errors') ;
-//        return ;
-//    }
-//    add2log(pgm + 'moving ' + from_trs.length + ' rows') ;
-//    for (var i=from_trs.length-1; i>= 0 ; i--) {
-//        tr = from_trs[i];
-//        td = tr.cells[0] ;
-//        error = td.innerHTML ;
-//        from_table.deleteRow(i) ;
-//        tr = document.createElement('TR') ;
-//        td = tr.insertCell(0) ;
-//        td.innerHTML = error ;
-//        to_table.appendChild(tr) ;
-//    }
-//});
 
-// send post_on_wall choise to server - no feedback
+// send post_on_wall y/n choice to server - only feedback after ajax errors
 // used in auth/index and in users/edit pages
 function post_on_wall_ajax(checkbox) {
     var provider = checkbox.name.substr(5) ;

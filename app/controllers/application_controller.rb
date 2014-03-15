@@ -1795,7 +1795,7 @@ class ApplicationController < ActionController::Base
   end
 
   private
-  def format_response (key = nil, options = {})
+  def format_response (options = {})
     action = options.delete(:action) if options
     action = params[:action] unless action
     respond_to do |format|

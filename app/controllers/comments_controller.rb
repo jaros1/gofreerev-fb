@@ -2,8 +2,7 @@ class CommentsController < ApplicationController
 
   before_filter :login_required, :except => [:create, :index, :destroy]
 
-  # POST /comments
-  # POST /comments.json
+  # POST /comments.js
   # Parameters: {"utf8"=>"✓", "comment"=>{"gift_id"=>"j0N0uppxbj1nmDfsWBbk", "new_deal_yn"=>"Y", "price"=>"1", "comment"=>"25"}, "commit"=>"Gem"}
   def create
     # start with empty ajax response
@@ -62,7 +61,7 @@ class CommentsController < ApplicationController
     end
   end # create
 
-  # Get /comments - always ajax from get older comments link
+  # GET /comments.js
   # params:
   #   gift_id: required
   #   first_comment_id: Used in ajax request from gifts/index page to get more comments for a gift
@@ -105,6 +104,7 @@ class CommentsController < ApplicationController
       @api_comments = gift.api_comments_with_filter(@users, first_comment.id)
       @gift = gift
       @api_gift = api_gift
+      format_response
 
     rescue Exception => e
       logger.error2 "Exception: #{e.message.to_s}"
@@ -116,9 +116,7 @@ class CommentsController < ApplicationController
     end
   end # index
 
-  def update
-  end
-
+  # DELETE /comments/933.js?giftid=1426
   # ajax request from gifts/index page
   def destroy
     table = 'tasks_errors'
