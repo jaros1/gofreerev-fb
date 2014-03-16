@@ -1034,7 +1034,17 @@
 
 199) ie8 - all tables must have a tbody and tbody must be used in ajax inject
 
-120) add hidden timestamps to errors tables.
+200) add hidden timestamps to errors tables.
      add cleanup for old error messages.
      add class for error tables
      http://css-tricks.com/forums/topic/hiding-table-columns-any-simple-way/
+
+201) ie8 new user first gift is not displayed after create
+     post on wall starts after page refresh
+     There must be a submit problem for first gift
+     looks like a generel problem.
+
+202) ie8 - new_messages_count was submitted as a normal http request instead as a ajax request
+     problem when not logged in
+
+203) double comment submit - should use same solution as for new gift submit

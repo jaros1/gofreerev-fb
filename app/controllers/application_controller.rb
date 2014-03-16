@@ -209,7 +209,7 @@ class ApplicationController < ActionController::Base
   # locale is also saved in session for language support in api provider callbacks
   private
   def set_locale
-    params[:locale] = nil if params.has_key?(:locale) and request.xhr?
+    params[:locale] = nil if params.has_key?(:locale) and xhr?
     session[:language] = params[:locale] if filter_locale(params[:locale])
     I18n.locale = filter_locale(params[:locale]) || filter_locale(session[:language]) || filter_locale(I18n.default_locale) || 'en'
     # logger.debug2  "I18n.locale = #{I18n.locale}. params[:locale] = #{params[:locale]}, session[:language] = #{session[:language]}, "
@@ -424,7 +424,7 @@ class ApplicationController < ActionController::Base
   private
   def login_required
     return true if logged_in?
-    if !request.xhr?
+    if !xhr?
       save_flash 'shared.not_logged_in.redirect_flash'
       redirect_to :controller => :auth, :action => :index
       return
@@ -1629,7 +1629,7 @@ class ApplicationController < ActionController::Base
     oauth = Koala::Facebook::OAuth.new(API_ID[provider], API_SECRET[provider], API_CALLBACK_URL[provider])
     url = oauth.url_for_oauth_code(:permissions => 'status_update', :state => set_state_cookie_store('status_update'))
     hide_url = "/util/hide_grant_write?provider=#{provider}"
-    ['.gift_posted_3_html', {:apiname => provider_downcase(provider),
+    ['util.do_tasks.gift_posted_3_html', {:apiname => provider_downcase(provider),
                              :url => url,
                              :provider => provider,
                              :appname => APP_NAME,
@@ -1656,7 +1656,7 @@ class ApplicationController < ActionController::Base
     # too big for session cookie - to saved in task_data
     save_flickr_api_client(api_client, request_token)
     # ajax inject link in gifts/index page
-    ['.gift_posted_3_html', { :appname => APP_NAME,
+    ['util.do_tasks.gift_posted_3_html', { :appname => APP_NAME,
                               :apiname => provider_downcase(provider),
                               :provider => provider,
                               :url => url,
@@ -1681,7 +1681,7 @@ class ApplicationController < ActionController::Base
     # too big for session cookie - to saved in task_data
     save_linkedin_api_client(api_client)
     # ajax inject link in gifts/index page
-    ['.gift_posted_3_html', { :appname => APP_NAME,
+    ['util.do_tasks.gift_posted_3_html', { :appname => APP_NAME,
                               :apiname => provider_downcase(provider),
                               :provider => provider,
                               :url => url,
@@ -1699,7 +1699,7 @@ class ApplicationController < ActionController::Base
     hide_url = "/util/hide_grant_write?provider=#{provider}"
 
     # ajax inject link in gifts/index page
-    return ['util.to_tasks.gift_posted_3b_html',
+    return ['util.do_tasks.gift_posted_3b_html',
             { :appname => APP_NAME,
               :apiname => provider_downcase(provider),
               :provider => provider,
@@ -1782,7 +1782,7 @@ class ApplicationController < ActionController::Base
   private
   def add_error_key (key, options = {})
     table = options.delete(:table) || 'tasks_errors'
-    options[:raise] = I18n::MissingTranslationData if request.xhr? # force stack dump
+    options[:raise] = I18n::MissingTranslationData if xhr? # force stack dump
     @errors << { :msg => t(key, options), :id => table }
     nil
   end
@@ -1794,12 +1794,24 @@ class ApplicationController < ActionController::Base
     nil
   end
 
+  # ie8 fix for blank HTTP_X_REQUESTED_WITH / jquery.ajaxForm
+  private
+  def xhr?
+    return true if request.xhr?
+    # ie8 fix
+    return true if request.headers['HTTP_X_REQUESTED_WITH'].to_s == '' and request.format.to_s == 'text/javascript'
+    false
+  end
+
   private
   def format_response (options = {})
     action = options.delete(:action) if options
     action = params[:action] unless action
     respond_to do |format|
-      if request.xhr?
+      #logger.debug2 "format = #{format}, request.xhr? = #{request.xhr?}, xhr? = #{xhr?}" +
+      #                  ", HTTP_X_REQUESTED_WITH = #{request.headers['HTTP_X_REQUESTED_WITH']}" +
+      #                  ", request.format = #{request.format}"
+      if xhr?
         # fix for ie8/ie9 error:
         #  "to help protect your security internet explorer blocked this site from downloading files to your computer"
         # (x.js.erb response is being downloaded instead of being executed)
@@ -1822,7 +1834,7 @@ class ApplicationController < ActionController::Base
           session[:flash_id] = flash.id
           @errors = []
         end
-        format.html unless request.xhr?
+        format.html
       end
     end
     nil

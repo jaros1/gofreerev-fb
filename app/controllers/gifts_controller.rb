@@ -1,7 +1,7 @@
 # encoding: utf-8
 class GiftsController < ApplicationController
 
-  before_filter :clear_state_cookie_store, :if => lambda {|c| !request.xhr?}
+  before_filter :clear_state_cookie_store, :if => lambda {|c| !xhr?}
   before_filter :login_required, :except => [:create, :index, :show]
 
   def new
@@ -212,7 +212,7 @@ class GiftsController < ApplicationController
 
   def index
     if !logged_in?
-      if request.xhr?
+      if xhr?
         @api_gifts = []
         @last_row_id = nil
         return format_response_key '.not_logged_in', :table => 'show-more-rows-errors'
@@ -225,7 +225,7 @@ class GiftsController < ApplicationController
 
     # http request: return first gift (last_row_id = nil)
     # ajax request (show more rows): return next 10 gifts (last_row_id != nil). last_row_id == gift.status_update_at
-    if request.xhr?
+    if xhr?
       last_row_id = params[:last_row_id].to_s
       last_row_id = nil if last_row_id == ''
       if last_row_id.to_s =~ /^[0-9]+$/

@@ -969,7 +969,14 @@ $(document).ready(function () {
     // bind 'myForm' and provide a simple callback function
     // http://malsup.com/jquery/form/#options-object
     $('#new_gift').ajaxForm({
+        type: "POST",
         dataType: 'script',
+//        beforeSend: function (request)
+//        {
+//            // ie8 fix for missing HTTP_X_REQUESTED_WITH header not working
+//            add2log('#new_gift.beforeSend') ;
+//            request.setRequestHeader("HTTP_X_REQUESTED_WITH",'xmlhttprequest');
+//        },
         beforeSubmit: function (formData, jqForm, options) {
             add2log('#new_gift.beforeSubmit');
             var submit_buttons = document.getElementsByName('commit_gift') ;
