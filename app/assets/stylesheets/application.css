@@ -61,7 +61,7 @@ form {
     height: 100px;
 }
 
-/* cross browser break word - todo: is not working for opera 12 */
+/* cross browser break word - not working for opera 12 - see JS methods find_overflow & hyphenate_div */
 .wrapword{
     white-space: -moz-pre-wrap !important;  /* Mozilla, since 1999 */
     white-space: -o-pre-wrap;    /* Opera 7 */
@@ -69,6 +69,11 @@ form {
     word-wrap: break-word;       /* Internet Explorer 5.5+ */
     word-break: break-all;
     white-space: normal;
+}
+
+/* hide timestamp column in ajax error tables. */
+.ajax_errors td+td {
+    display: none;
 }
 
 /* responsive header. show/hide username/api and/or balance/currency information in page header */

@@ -1033,3 +1033,8 @@
 198) controllers. check format_response in end of all ajax methods
 
 199) ie8 - all tables must have a tbody and tbody must be used in ajax inject
+
+120) add hidden timestamps to errors tables.
+     add cleanup for old error messages.
+     add class for error tables
+     http://css-tricks.com/forums/topic/hiding-table-columns-any-simple-way/

@@ -312,7 +312,7 @@ function hyphenate_div (div) {
     }
     text = text.split('').join(shy) ;
     div.innerHTML = link + text ;
-} // hyphenate_element
+} // hyphenate_div
 
 // find div with hidden overflow - display show-more-text link
 function find_overflow () {
@@ -1608,8 +1608,10 @@ function add_to_tasks_errors2 (table_id, error) {
     var length = table.rows.size ;
     add2log(pgm + 'length = ' + length) ;
     var row = table.insertRow(length) ;
-    var cell = row.insertCell(0) ;
-    cell.innerHTML = error ;
+    var cell1 = row.insertCell(0) ;
+    cell1.innerHTML = error ;
+    var cell2 = row.insertCell(1) ;
+    cell2.innerHTML = (new Date).getTime() ;
     ajax_flash_new_table_rows(table_id, 1);
 } // add_to_tasks_errors2
 
@@ -1659,7 +1661,7 @@ function create_gift_links_errors_table (table_id) {
         new_td.innerHTML = '' ;
     }
     add2log('initialize tr[2]')
-    new_td.innerHTML = '<table id="' + table_id + '"></table>' ;
+    new_td.innerHTML = '<table><tbody id="' + table_id + '" class="ajax_errors"></tbody></table>' ;
     new_td.setAttribute("colspan",2);
     add2log('insertBefore') ;
     ref.parentNode.insertBefore(new_tr, ref) ;
@@ -1778,7 +1780,7 @@ function create_new_com_errors_table(table_id) {
     var row = tbody.insertRow(rows.length) ;
     var cell = row.insertCell(0) ;
     cell.setAttribute("colspan",2);
-    cell.innerHTML = '<table id="' + table_id + '"></table>' ;
+    cell.innerHTML = '<table><tbody id="' + table_id + '" class="ajax_errors"></tbody></table>' ;
     add2log(pgm + table_id + ' has been created') ;
     return true ;
 } // create_new_com_errors_table
@@ -1930,7 +1932,7 @@ function create_com_link_errors_table(table_id) {
     var row = document.createElement('tr');
     var cell = row.insertCell(0);
     cell.setAttribute("colspan", 4);
-    cell.innerHTML = '<table id="' + table_id + '"></table>';
+    cell.innerHTML = '<table><tbody id="' + table_id + '" class="ajax_errors"></tbody></table>';
     // insert new row
     tbody.insertBefore(row, ref);
     // new error table created
