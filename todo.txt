@@ -165,6 +165,29 @@
     signature for #new_gift ajax handler (ajaxForm). $form[0] was form object.
     jquery .bind("ajax:success", function (evt, data, status, xhr) signature
     dump properties for all 4 parameters. Maybe there is a back reference to element that triggered the event.
+    dump of a beforeSend xhr object:
+    tasks_form_xhr.status = undefined
+    tasks_form_xhr.statusText = undefined
+    tasks_form_xhr.readyState = undefined
+    tasks_form_xhr[type] = ajax:beforeSend
+    tasks_form_xhr[timeStamp] = 1395056109867
+    tasks_form_xhr[jQuery1110005057767523957335] = true
+    tasks_form_xhr[isTrigger] = 3
+    tasks_form_xhr[namespace] =
+    tasks_form_xhr[namespace_re] = null
+    tasks_form_xhr[result] = undefined
+    tasks_form_xhr[target] = [object HTMLFormElement]
+    tasks_form_xhr[delegateTarget] = [object HTMLDocument]
+    tasks_form_xhr[currentTarget] = [object HTMLFormElement]
+    tasks_form_xhr[handleObj] = [object Object]
+    tasks_form_xhr[data] = undefined
+    tasks_form_xhr[isDefaultPrevented] = function returnFalse() { return false; }
+    tasks_form_xhr[isPropagationStopped] = function returnFalse() { return false; }
+    tasks_form_xhr[isImmediatePropagationStopped] = function returnFalse() { return false; }
+    tasks_form_xhr[preventDefault] = function () { var e = this.originalEvent; this.isDefaultPrevented = returnTrue; if ( !e ) { return; } // If preventDefault exists, run it on the original event if ( e.preventDefault ) { e.preventDefault(); // Support: IE // Otherwise set the returnValue property of the original event to false } else { e.returnValue = false; } }
+    tasks_form_xhr[stopPropagation] = function () { var e = this.originalEvent; this.isPropagationStopped = returnTrue; if ( !e ) { return; } // If stopPropagation exists, run it on the original event if ( e.stopPropagation ) { e.stopPropagation(); } // Support: IE // Set the cancelBubble property of the original event to true e.cancelBubble = true; }
+    tasks_form_xhr[stopImmediatePropagation] = function () { this.isImmediatePropagationStopped = returnTrue; this.stopPropagation(); }
+    xhr.target and xhr.currentTarget looks interesting
 
 47) new gift.status_update_at after new comments?
     In that way updated gifts will be at top of page and will be ajax injected to top of page

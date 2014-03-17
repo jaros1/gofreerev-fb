@@ -1824,7 +1824,7 @@ class ApplicationController < ActionController::Base
         # merge any flash message with any @errors messages into a (new) flash message
         if @errors.size > 0
           flash_id = session[:flash_id]
-          f = Flash.find_by_flash_id(flash_id) if flash_id
+          f = Flash.find_by_id(flash_id) if flash_id
           errors = []
           errors = errors + get_flash.to_s.split('<br>') if f
           errors = errors + @errors.collect { |x| x[:msg] }

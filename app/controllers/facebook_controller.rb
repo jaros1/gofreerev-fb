@@ -222,9 +222,8 @@ class FacebookController < ApplicationController
         # add publish_actions to facebook user before redirecting to gifts/index page
         # permissions will be updated in post_login_facebook task, but that is to late for this redirect
         # adding publish_actions enables file upload in gifts/index page now
-        permissions = user.permissions
-        permissions["publish_actions"] = 1
-        user.permissions = permissions
+        # permissions["publish_actions"] = 1
+        user.permissions = api_response['permissions']['data'][0]
         user.save!
       end
       save_flash ".ok_#{context}", user.app_and_apiname_hash

@@ -5,6 +5,10 @@
 var leaving_page = false ;
 window.onbeforeunload = function() {
     leaving_page = true;
+    if (tasks_form_xhr) {
+        for (var name in tasks_form_xhr) add2log('tasks_form_xhr[' + name + '] = ' + tasks_form_xhr[name]) ;
+        tasks_form_xhr.abort() ;
+    }
 }
 
 // fix missing Array.indexOf in IE8
@@ -1043,12 +1047,12 @@ $(document).ready(function () {
             }
         }, // success
         error: function (jqxhr, textStatus, errorThrown) {
+            if (leaving_page) return ;
             document.getElementById('progressbar-div').style.display = 'none';
             add2log('#new_gift.error');
             add2log('jqxhr = ' + jqxhr);
             add2log('textStatus = ' + textStatus);
             add2log('errorThrown = ' + errorThrown);
-            alert('#new_gift.error: leaving_page = ' + leaving_page) ;
             add_to_tasks_errors('new_form.ajaxform.error: ' + errorThrown + '. check server log for more information.');
         },
         complete: function() {
@@ -1562,8 +1566,13 @@ function trigger_tasks_form (sleep) {
 
 // error callback for executing tasks - write to debug log + page header
 // debug log in bottom of page is shown if DEBUG_AJAX = true (constants.rb)
+var tasks_form_xhr ;
 $(document).ready(function() {
     var id = "#tasks_form" ;
+    $(id).unbind('ajax:beforeSend') ;
+    $(id).bind("ajax:beforeSend", function (xhr, settings) {
+        tasks_form_xhr = xhr ;
+    });
     $(id).unbind("ajax:success");
     $(id).bind("ajax:success", function (evt, data, status, xhr) {
         var pgm = id + '.ajax.success: ' ;
@@ -1588,7 +1597,6 @@ $(document).ready(function() {
             add2log('textStatus = ' + textStatus);
             add2log('errorThrown = ' + errorThrown);
             add2log('leaving_page = ' + leaving_page) ;
-            alert(pgm + 'leaving_page = ' + leaving_page) ;
             add_to_tasks_errors('tasks_form.error: ' + errorThrown + '. check server log for more information.') ;
         }
         catch (err) {
