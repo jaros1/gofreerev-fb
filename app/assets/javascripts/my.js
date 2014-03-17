@@ -2,13 +2,21 @@
 // var debug_ajax, get_more_rows_interval, get_more_rows_table ;
 
 // ignore ajax errors when leaving page
+// http://stackoverflow.com/questions/1906023/jquery-ajaxerror-handler-fires-if-user-leaves-page-before-page-finishes-loadin
+var ajaxing ;
+$(document).ajaxStart(function() {
+    ajaxing = true;
+});
+$(document).ajaxStop(function() {
+    ajaxing = false;
+});
 var leaving_page = false ;
+$(document).ready(function () {
+    leaving_page = false ;
+});
 window.onbeforeunload = function() {
+    if (!leaving_page && typeof(ajaxing) != 'undefined' && ajaxing) add_to_tasks_errors('Waiting for some tasks to finish. Please wait.') ;
     leaving_page = true;
-    if (tasks_form_xhr) {
-        for (var name in tasks_form_xhr) add2log('tasks_form_xhr[' + name + '] = ' + tasks_form_xhr[name]) ;
-        tasks_form_xhr.abort() ;
-    }
 }
 
 // fix missing Array.indexOf in IE8
@@ -498,6 +506,7 @@ $(document).ready(function() {
     $(link).bind("ajax:error", function(jqxhr, textStatus, errorThrown){
         pgm = link + '::ajax:error: ' ;
         try {
+            if (leaving_page) return ;
             add2log(pgm);
             add2log('jqxhr = ' + jqxhr);
             add2log('jqxhr.target = ' + jqxhr.target);
@@ -1489,6 +1498,7 @@ function show_more_rows_ajax() {
         var pgm = link + '.ajax.error: ' ;
         add2log(pgm + 'start') ;
         try {
+            if (leaving_page) return ;
             show_more_rows_error(jqxhr, textStatus, errorThrown);
             stop_show_more_rows_spinner();
         }
@@ -1566,13 +1576,8 @@ function trigger_tasks_form (sleep) {
 
 // error callback for executing tasks - write to debug log + page header
 // debug log in bottom of page is shown if DEBUG_AJAX = true (constants.rb)
-var tasks_form_xhr ;
 $(document).ready(function() {
     var id = "#tasks_form" ;
-    $(id).unbind('ajax:beforeSend') ;
-    $(id).bind("ajax:beforeSend", function (xhr, settings) {
-        tasks_form_xhr = xhr ;
-    });
     $(id).unbind("ajax:success");
     $(id).bind("ajax:success", function (evt, data, status, xhr) {
         var pgm = id + '.ajax.success: ' ;
@@ -1596,7 +1601,6 @@ $(document).ready(function() {
             add2log('jqxhr = ' + jqxhr);
             add2log('textStatus = ' + textStatus);
             add2log('errorThrown = ' + errorThrown);
-            add2log('leaving_page = ' + leaving_page) ;
             add_to_tasks_errors('tasks_form.error: ' + errorThrown + '. check server log for more information.') ;
         }
         catch (err) {
@@ -1753,6 +1757,7 @@ $(document).ready(function() {
         var pgm = id + '.ajax.error: ' ;
         add2log(pgm + 'start') ;
         try {
+            if (leaving_page) return ;
             add2log(pgm);
             add2log('jqxhr = ' + jqxhr);
             add2log('jqxhr.target = ' + jqxhr.target);
@@ -1905,6 +1910,7 @@ function post_ajax_add_new_comment_handler(giftid) {
     $(id).bind("ajax:error", function(jqxhr, textStatus, errorThrown){
         var pgm = id + '.ajax.error: ' ;
         try {
+            if (leaving_page) return ;
             add2log(pgm + 'ajax.error');
             add2log('jqxhr = ' + jqxhr);
             add2log('jqxhr.target = ' + jqxhr.target) ;
@@ -2039,6 +2045,7 @@ function setup_comment_action_link_ajax ()
         var pgm = id + '.ajax.error: ' ;
         var debug = 0 ;
         try {
+            if (leaving_page) return ;
             add2log(pgm + 'jqxhr = ' + jqxhr);
             add2log(pgm + 'textStatus = ' + textStatus);
             add2log(pgm + 'errorThrown = ' + errorThrown);
@@ -2161,6 +2168,7 @@ function post_on_wall_ajax(checkbox) {
         }, // success
         error: function (jqxhr, textStatus, errorThrown) {
             var pgm = 'post_on_wall_ajax:error: ' ;
+            if (leaving_page) return ;
             add2log(pgm);
             add2log('jqxhr = ' + jqxhr);
             add2log('textStatus = ' + textStatus);
@@ -2196,6 +2204,7 @@ $(document).ready(function() {
     $(id).bind("ajax:error", function(jqxhr, textStatus, errorThrown){
         pgm = id + '::ajax:error: ' ;
         try {
+            if (leaving_page) return ;
             add2log(pgm);
             add2log('jqxhr = ' + jqxhr);
             add2log('jqxhr.target = ' + jqxhr.target);
