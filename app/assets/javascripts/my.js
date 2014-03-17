@@ -1,6 +1,12 @@
 // some global JS variables - see app layout and shared/show_more_rows partial
 // var debug_ajax, get_more_rows_interval, get_more_rows_table ;
 
+// ignore ajax errors when leaving page
+var leaving_page = false ;
+window.onbeforeunload = function() {
+    leaving_page = true;
+}
+
 // fix missing Array.indexOf in IE8
 // http://stackoverflow.com/questions/3629183/why-doesnt-indexof-work-on-an-array-ie8
 if (!Array.prototype.indexOf)
@@ -228,6 +234,13 @@ function ajax_flash (id)
 {
     $('#' + id).css({'background-color':'green'}).animate({'background-color':'white'}, 2000) ;
 } // ajax_flash
+
+// effect for flash message in page header
+$(document).ready(function () {
+    var id = 'notification' ;
+    if (!document.getElementById(id)) return ;
+    ajax_flash(id) ;
+});
 
 // ajax flash for row table rows - for example new rows in ajax_task_errors table
 function ajax_flash_new_table_rows (tablename, number_of_rows)
@@ -1035,6 +1048,7 @@ $(document).ready(function () {
             add2log('jqxhr = ' + jqxhr);
             add2log('textStatus = ' + textStatus);
             add2log('errorThrown = ' + errorThrown);
+            alert('#new_gift.error: leaving_page = ' + leaving_page) ;
             add_to_tasks_errors('new_form.ajaxform.error: ' + errorThrown + '. check server log for more information.');
         },
         complete: function() {
@@ -1567,11 +1581,14 @@ $(document).ready(function() {
     $(id).bind("ajax:error", function(jqxhr, textStatus, errorThrown){
         var pgm = id + '.ajax.error: ' ;
         try {
+            if (leaving_page) return ;
             stop_tasks_form_spinner();
-            add2log('#tasks_form.error');
+            add2log(pgm);
             add2log('jqxhr = ' + jqxhr);
             add2log('textStatus = ' + textStatus);
             add2log('errorThrown = ' + errorThrown);
+            add2log('leaving_page = ' + leaving_page) ;
+            alert(pgm + 'leaving_page = ' + leaving_page) ;
             add_to_tasks_errors('tasks_form.error: ' + errorThrown + '. check server log for more information.') ;
         }
         catch (err) {

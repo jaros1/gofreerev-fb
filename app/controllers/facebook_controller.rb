@@ -33,7 +33,7 @@ class FacebookController < ApplicationController
   #                    "user_id"=>"1705481075"}
 
   def create
-    # logout any old facebook user
+    # logout any old facebook user before (new) login
     logout(provider)
 
     signed_request = params[:signed_request]
@@ -52,10 +52,10 @@ class FacebookController < ApplicationController
     logger.debug2  "hash = #{hash}"
     # hash = {"algorithm"=>"HMAC-SHA256", "issued_at"=>1373284394, "user"=>{"country"=>"dk", "locale"=>"da_DK", "age"=>{"min"=>21}}}
 
-    # save language (only if language was nil)
+    # fix invalid or missing language for translate
     locale = hash['user']['locale']
     language = locale.to_s.first(2)
-    session[:language] = language if !filter_locale(session[:language]) and filter_locale(language)
+    session[:language] = valid_locale(language) unless valid_locale(session[:language])
     logger.debug2  "session[:language] = #{session[:language]}"
 
     # todo: check if user already has authorized the required FB privileges

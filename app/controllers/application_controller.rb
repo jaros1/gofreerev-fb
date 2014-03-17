@@ -15,7 +15,7 @@ class ApplicationController < ActionController::Base
   protect_from_forgery with: :exception
   before_filter :request_url_for_header
   before_filter :fetch_users
-  before_action :set_locale
+  before_action :set_locale_from_params
   before_action :get_timezone
 
   # render to language specific pages.
@@ -208,10 +208,10 @@ class ApplicationController < ActionController::Base
   # 1. priority is locale from url - 2. priority is locale from session - 3. priority is default locale (en)
   # locale is also saved in session for language support in api provider callbacks
   private
-  def set_locale
+  def set_locale_from_params
     params[:locale] = nil if params.has_key?(:locale) and xhr?
-    session[:language] = params[:locale] if filter_locale(params[:locale])
-    I18n.locale = filter_locale(params[:locale]) || filter_locale(session[:language]) || filter_locale(I18n.default_locale) || 'en'
+    session[:language] = valid_locale(params[:locale]) || session[:language]
+    I18n.locale = valid_locale(params[:locale]) || valid_locale(session[:language]) || valid_locale(I18n.default_locale) || 'en'
     # logger.debug2  "I18n.locale = #{I18n.locale}. params[:locale] = #{params[:locale]}, session[:language] = #{session[:language]}, "
   end
 
@@ -485,9 +485,9 @@ class ApplicationController < ActionController::Base
     tokens[provider] = token
     session[:user_ids] = login_user_ids
     session[:tokens] = tokens
-    # save language for translate
-    session[:language] = language if !filter_locale(session[:language]) and filter_locale(language)
-    set_locale
+    # fix invalid or missing language for translate
+    session[:language] = valid_locale(language) unless valid_locale(session[:language])
+    set_locale_from_params
 
     return nil if user.deleted_at # no post login tasks for delete marked users
 
@@ -678,13 +678,13 @@ class ApplicationController < ActionController::Base
   end
   helper_method :login_user_ids
 
+  # valid: return locale, :invalid: return nil
   private
-  def filter_locale (locale)
+  def valid_locale (locale)
     available_locales = Rails.application.config.i18n.available_locales.collect { |locale| locale.to_s }
     return nil unless available_locales.index(locale.to_s)
     locale
   end
-
   
   # session get/set methods
   # session cookie store is used now, but there is problems with session updates and multiple ajax requests

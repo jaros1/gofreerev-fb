@@ -13,7 +13,7 @@ class CookieController < ApplicationController
   private
   def set_locale
     params[:locale] = nil if params.has_key?(:locale) and xhr?
-    I18n.locale = params[:locale] if filter_locale(params[:locale])
+    I18n.locale = params[:locale] if valid_locale(params[:locale])
   end
 
   private

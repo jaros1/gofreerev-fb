@@ -69,7 +69,7 @@
 
 15) stress test. make a db with really many rows and test performance.
     There maybe are missing an index or two
-    there maybe are some sql to be rewritten
+    there maybe are some sql that should be rewritten
 
 18) check session variables
     session variables should only be used from accessor methods in app. controller
@@ -889,7 +889,6 @@
      "bind" works only for existing elements in page
      are using unbind+bind after adding new rows
      could not get it to work for comment-action-link ajax
-
 
 163) JS error handling. It would be nice with line number for JS errors.
      special a problem in old browsers (IE8)
