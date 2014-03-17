@@ -1747,30 +1747,32 @@ class ApplicationController < ActionController::Base
     # delete old flash
     flash_id = session[:flash_id]
     if flash_id
-      flash = Flash.find_by_id(flash_id)
-      flash.destroy if flash
+      f = Flash.find_by_id(flash_id)
+      f.destroy if f
       session.delete(:flash_id)
     end
     # create new flash
-    flash = Flash.new
-    flash.message = t key, options
-    flash.save!
-    session[:flash_id] = flash.id
+    f = Flash.new
+    f.message = t key, options
+    f.save!
+    session[:flash_id] = f.id
+    logger.debug2 "flash.id = #{f.id}, session[:flash_id] = #{session[:flash_id]}, message = #{f.message}"
   end
 
   private
   def get_flash
     flash_id = session[:flash_id]
+    logger.debug "flash_id = #{flash_id}"
     return nil unless flash_id
-    flash = Flash.find_by_id(flash_id)
+    f = Flash.find_by_id(flash_id)
     session.delete(:flash_id)
-    return nil unless flash
-    message = flash.message
-    flash.destroy!
+    return nil unless f
+    message = f.message
+    f.destroy!
+    logger.debug2 "message = #{message}"
     message
   end
   helper_method :get_flash
-
 
   # generic error methods add_error_key, add_error_text, format_response, format_response_key and format_response_text
   # all errors and messages are stored on @errors array with { :id => id, :msg => msg}
@@ -1819,19 +1821,18 @@ class ApplicationController < ActionController::Base
         logger.debug2 "format.js: action = #{action}"
         format.js {render action, :content_type => "text/plain" }
       else
-        # delete any old flash
-        flash_id = session[:flash_id]
-        if flash_id
-          flash = Flash.find_by_id(flash_id)
-          flash.destroy if flash
-          session.delete(:flash_id)
-        end
+        # merge any flash message with any @errors messages into a (new) flash message
         if @errors.size > 0
+          flash_id = session[:flash_id]
+          f = Flash.find_by_flash_id(flash_id) if flash_id
+          errors = []
+          errors = errors + get_flash.to_s.split('<br>') if f
+          errors = errors + @errors.collect { |x| x[:msg] }
           # create new flash
-          flash = Flash.new
-          flash.message = @errors.collect { |x| x[:msg] }.join('<br>')
-          flash.save!
-          session[:flash_id] = flash.id
+          f = Flash.new
+          f.message = errors.join('<br>')
+          f.save!
+          session[:flash_id] = f.id
           @errors = []
         end
         format.html

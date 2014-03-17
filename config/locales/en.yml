@@ -185,6 +185,7 @@ en:
         ok_login_new_user: "Facebook log in ok. Welcome to %{appname}. Your friends list is being downloaded and will be ready for use in a minute."
         ok_status_update: "You have granted %{appname} permission to write on your %{apiname} wall."
         ok_read_stream: "%{appname} was granted access to read posts on your %{apiname} wall."
+        ok_read_stream_skip: "You did not grant %{appname} access to read posts on your %{apiname} wall. Photos will be uploaded to %{apiname} but can not be displayed in %{appname}."
         ok_other: "System error. Unknown facebook request was accepted."
 
   flickr:

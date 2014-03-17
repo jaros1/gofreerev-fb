@@ -188,6 +188,7 @@ da:
         ok_login_new_user: "Facebook login ok. Velkommen til %{appname}. Din venneliste er ved at blive hentet og vil være klar til brug lige om lidt."
         ok_status_update: "%{appname} fik tilladelse til at lave opslag på din %{apiname} væg."
         ok_read_stream: "%{appname} fik tilladelse til at læse opslag på din %{apiname} væg."
+        ok_read_stream_skip: "Du gav ikke %{appname} tilladelse at læse opslag på din %{apiname} væg. Billeder vil blive uploaded til %{apiname}, men kan ikke vises i %{appname}."
         ok_other: "Ukendt facebook anmodning ok."
 
   flickr:

@@ -63,7 +63,7 @@
 <%# page header -%>
     <%= render :partial => 'layouts/page_header' %>
     <div style="width: 100%"><hr></div>
-    <% if msg = get_flash -%>
+    <% if (msg = get_flash) -%>
         <br/>
         <div id="notification" style="width: 100%"><%= msg.html_safe %></div>
         <br/>

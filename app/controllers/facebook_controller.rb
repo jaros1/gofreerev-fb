@@ -177,7 +177,7 @@ class FacebookController < ApplicationController
     end
 
     # FB login completed
-    logger.debug2  'login completed'
+    logger.debug2 "login completed. context = #{context}"
 
     # get some basic user information
     # todo: what to do with permissions?
@@ -187,7 +187,7 @@ class FacebookController < ApplicationController
     #       or could add ajax to post_on_facebook to enable/disable file upload button?
     logger.debug2  'get user id and name'
     api_client = init_api_client(provider, access_token)
-    api_request = 'me?fields=name,locale,link,picture.width(100).height(100)'
+    api_request = 'me?fields=name,locale,link,picture.width(100).height(100),permissions'
     # logger.debug2  "api_request = #{api_request}"
     api_response = api_client.get_object api_request
     # logger.debug2  "api_response = #{api_response.to_s}"
@@ -207,6 +207,17 @@ class FacebookController < ApplicationController
       # login ok
       user_id = "#{api_response['id']}/#{provider}"
       user = User.find_by_user_id(user_id)
+      if context == 'login'
+        no_friends = user.friends.size-1
+        context = 'login_new_user' if no_friends == 0
+      end
+      if context == 'read_stream'
+        logger.debug2 "identical facebook signatur for ok and skip response when requesting read_stream priv."
+        logger.debug2  "api_response = #{api_response.to_s}"
+        user.permissions = api_response['permissions']['data'][0]
+        user.save
+        context = 'read_stream_skip' unless user.read_gifts_allowed?
+      end
       if context == 'status_update'
         # add publish_actions to facebook user before redirecting to gifts/index page
         # permissions will be updated in post_login_facebook task, but that is to late for this redirect
@@ -215,10 +226,6 @@ class FacebookController < ApplicationController
         permissions["publish_actions"] = 1
         user.permissions = permissions
         user.save!
-      end
-      if context == 'login'
-        no_friends = user.friends.size-1
-        context = 'login_new_user' if no_friends == 0
       end
       save_flash ".ok_#{context}", user.app_and_apiname_hash
       redirect_to :controller => :gifts

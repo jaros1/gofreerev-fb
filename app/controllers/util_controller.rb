@@ -1398,6 +1398,7 @@ class UtilController < ApplicationController
           return [key, {:appname => APP_NAME, :apiname => login_user.apiname}]
         else
           # message with link to grant missing read stream priv.
+          logger.debug2 "user.permissions = #{login_user.permissions}"
           oauth = Koala::Facebook::OAuth.new(API_ID[provider], API_SECRET[provider], API_CALLBACK_URL[provider])
           url = oauth.url_for_oauth_code(:permissions => 'read_stream', :state => set_state_cookie_store('read_stream'))
           key = api_gift.picture? ? '.fb_pic_post_missing_permission_html' : '.fb_msg_post_missing_permission_html'
