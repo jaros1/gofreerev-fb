@@ -159,3 +159,6 @@ gem 'routing-filter', '~> 0.4.0.pre'
 
 # https://github.com/kares/session_off
 gem 'session_off'
+
+# client side translations: https://github.com/PikachuEXE/i18n-js/tree/rails4
+gem "i18n-js-pika", require: "i18n-js"

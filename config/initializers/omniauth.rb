@@ -26,6 +26,7 @@ end # OmniAuth
 #     environment variable names "GOFREEREV_<env>_APP_ID_<provider>" and "GOFREEREV_<env>_APP_SECRET_<provider>"
 #     for example GOFREEREV_DEV_APP_ID_FACEBOOK and GOFREEREV_DEV_APP_SECRET_FACEBOOK for facebook / development
 #     see A) and B)
+#     http://developers.gigya.com/010_Developer_Guide/82_Socialize_Setup/005_Opening_External_Applications
 #  3) add provider to OmniAuth::Builder setup in this file. options are different for each provider. see C)
 #  4) add provider to API_... hash constants in this file. 16 hah constants. See D) - S)
 #  5) add any provider specific methods to OmniAuth::AuthHash. See config/initializers/omniauth_<provider>.rb.

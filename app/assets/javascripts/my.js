@@ -1,7 +1,7 @@
 // some global JS variables - see app layout and shared/show_more_rows partial
 // var debug_ajax, get_more_rows_interval, get_more_rows_table ;
 
-// ignore ajax errors when leaving page
+// allow running ajax to complete before leaving page / executing new http request
 // http://stackoverflow.com/questions/1906023/jquery-ajaxerror-handler-fires-if-user-leaves-page-before-page-finishes-loadin
 var ajaxing ;
 $(document).ajaxStart(function() {
@@ -15,7 +15,7 @@ $(document).ready(function () {
     leaving_page = false ;
 });
 window.onbeforeunload = function() {
-    if (!leaving_page && typeof(ajaxing) != 'undefined' && ajaxing) add_to_tasks_errors('Waiting for some tasks to finish. Please wait.') ;
+    if (!leaving_page && typeof(ajaxing) != 'undefined' && ajaxing) add_to_tasks_errors('Waiting for some finish some unfinished business to finish. Please wait.') ;
     leaving_page = true;
 }
 

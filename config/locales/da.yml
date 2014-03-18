@@ -869,3 +869,8 @@ da:
         unknown_provider: "Systemfejl. Ukendt login udbyder %{apiname}. Ændring af Opslag? er ikke blevet gemt."
         unknown_post_on_wall: "Systemfejl. Ukendt valg med ændring af Opslag? for %{apiname}. Valg er ikke blevet gemt."
         exception: "Systemfejl. Kunne ikke ændre Opslag? valg. %{error}. Mere information i server log."
+
+  js:
+     function:
+        label1: "this is a test"
+        label2: "this is a test"

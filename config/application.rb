@@ -25,5 +25,8 @@ module GofreerevFb
     # Custom directories with classes and modules you want to be autoloadable.
     config.autoload_paths += %W(#{config.root}/lib)
     config.autoload_paths += %W(#{config.root}/lib/custom_exceptions)
+
+    # config.assets.enabled = true
+    # config.middleware.use I18n::JS::Middleware
   end
 end

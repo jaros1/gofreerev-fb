@@ -10,12 +10,10 @@ Low priority todo list. Minor errors, wishlist etc.
    some features are not implemented yet / text should be rewritten
    text can be seen for FB user that not yet have accepted gofreerev
 
-3) remote links - disable on ajax start and enable when ajax request has finished
-
 4) rails.validations.js - don't look like rails.validations is used
    there was some problems with rails 4 and rails validations in summer 2013, but maybe rails 4 is supported now
 
-5) move show-more-rows functionality to a gem
+5) move show-more-rows functionality to a gem if possible
 
 6) implement other login providers
    http://www.ebizmba.com/articles/social-networking-websites
@@ -23,20 +21,25 @@ Low priority todo list. Minor errors, wishlist etc.
    https://github.com/intridea/omniauth/wiki/List-of-Strategies
     7) Pinterest - no API at current time
     8) Tumblr - no friends
-   10) VK / Vkontakte - todo: add post on wall
-   11) DeviantArt
+   11) DeviantArt - no friends endpoints in api reference
    12) MySpace - cannot find any usable documentation - 6 years old gem
-   13) Meetup
+   13) Meetup - no friends endpoints in api reference
    14) Weibo - can not signup for an account - no sms verification for denmark
    15) Odnoklassniki - one account created - cannot register app. (wrong error about missing email)
    16) Renren
-   17) mixi
-   18) XING
+   17) mixi - no friends endpoints in api reference
+   18) XING - ok api with contacts - a german linkedin
    19) Kaixin001
    20) SoundCloud
    21) Goodreads
    22) Viadeo
    23) Last.fm
+
+7) check gigya http://developers.gigya.com/037_API_reference
+   Gigya markets social infrastructure technology to website operators, handling login, registration,
+   user identity storage, gamification tools, and social plug-ins and APIs that collect users' personal
+   data on any of several social networking services online. As of February 2013 Gigya services reached
+   1.5 billion users per month
 
 8) add/show deep link for old post?
    maybe only giver/receiver to add/show deep links
@@ -55,7 +58,7 @@ Low priority todo list. Minor errors, wishlist etc.
     - show gift on gofreerev.
     deep link makes it easy to return from api to gofreerev
 
-12) maybe get/display number of post comments on api wall
+12) maybe get/display number of comments on api wall for each gift
 
 13) deep link page - should be cached - without information about logged in user
     http write page with an dummy page header and without title for user divs

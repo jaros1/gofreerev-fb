@@ -319,13 +319,6 @@
 
 56) add language LOV to page header if width > xxx
 
-60) "false" ajax:error message if user clicks in a link before ajax request has finished.
-    "tasks_form.error: error. check server log for more information."
-    maybe cancel ajax requests or ignore ajax:error message when changing page
-    check if there is an "before leave page" event that can be used to cancel ajax request
-    or disable error from ajax:error handlers
-    also a special problem in chrome where you have to link twice on links if ajax tasks is running
-
 64) gift giver pic mouse over text should have information about multiple provider givers
     gift receiver pic mouse over text should have information about multiple provider receivers
 
