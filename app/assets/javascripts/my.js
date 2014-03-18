@@ -19,7 +19,7 @@ window.onbeforeunload = function() {
         // Waiting for some finish some unfinished business to finish. Please wait.
         // todo: second click re-flash effect not working
         if (leaving_page) ajax_flash_new_table_rows('tasks_errors', 1) ;
-        else add_to_tasks_errors(I18n.t('js.general.ajax_leave_page')) ;
+        else add_to_tasks_errors(I18n.t('js.general.ajax_leave_page', {location: 1, debug: 0})) ;
     }
     leaving_page = true;
 }
@@ -49,29 +49,29 @@ if (!Array.prototype.indexOf)
     };
 }
 
-// freeze user_currency when user enters text for new gift (auto submit when currency changes)
-function gifts_index_disabled_user_currency() {
-    var currency_id;
-    currency_id = document.getElementById('user_currency');
-    alert('gifts_index_disabled_user_currency, isDisabled = ' + currency_id.isDisabled);
-
-    currency_id.disabled = true;
-    var field_id;
-    field_id = document.getElementById('gift_price');
-    if (field_id.value != '') {
-        currency_id.disabled = true;
-        return
-    }
-    field_id = document.getElementById('gift_description');
-    if (field_id.value != '') {
-        currency_id.disabled = true;
-        return
-    }
-    field_id = document.getElementById('gift_file');
-    if (field_id.value != '') {
-        currency_id.disabled = true
-    }
-} // gifts_index_disabled_user_currency
+//// freeze user_currency when user enters text for new gift (auto submit when currency changes)
+//function gifts_index_disabled_user_currency() {
+//    var currency_id;
+//    currency_id = document.getElementById('user_currency');
+//    alert('gifts_index_disabled_user_currency, isDisabled = ' + currency_id.isDisabled);
+//
+//    currency_id.disabled = true;
+//    var field_id;
+//    field_id = document.getElementById('gift_price');
+//    if (field_id.value != '') {
+//        currency_id.disabled = true;
+//        return
+//    }
+//    field_id = document.getElementById('gift_description');
+//    if (field_id.value != '') {
+//        currency_id.disabled = true;
+//        return
+//    }
+//    field_id = document.getElementById('gift_file');
+//    if (field_id.value != '') {
+//        currency_id.disabled = true
+//    }
+//} // gifts_index_disabled_user_currency
 
 
 // functions used in page header. Update user currency and return to current page
@@ -133,7 +133,6 @@ function gifts_pre_update_currency() {
 
 // Client side validations
 // https://github.com/bcardarella/client_side_validations gem was not ready for rails 4 when this app was developed
-
 function csv_empty_field (id)
 {
     var value = document.getElementById(id).value ;
@@ -160,7 +159,7 @@ function csv_invalid_price (id)
 
 // Client side validation for new gift
 function csv_gift() {
-    // todo: ie fix. check if submit bottom has been disabled
+    // ie fix. check if submit bottom has been disabled
     var submit_buttons = document.getElementsByName('commit_gift') ;
     add2log('submit_buttons.length = ' + submit_buttons.length) ;
     for (var i=0 ; i< submit_buttons.length ; i++) {
@@ -441,7 +440,7 @@ $(document).ready(function() {
 
 // check for new messages once every 15, 60 or 300 seconds
 // once every 15 seconds for active users - once every 5 minutes for inactive users
-// onclick event on remote link check-new-messages-link"
+// onclick event on remote link new_messages_count_link
 var check_new_messages_interval ; // interval in seconds between each new messages check
 var check_new_messages_interval_id ; // interval id for setInterval function
 var last_user_ajax_comment_at ; // timestamp (JS Date) for last new comment created by user
@@ -472,9 +471,9 @@ function start_check_new_messages()
                 // + new gifts to be inserted in top of page gifts/index page
                 // + new comments to be inserted in gifts/index page
                 // + todo: changed gifts and comments to be replaced in gifts/index page
-                // is post ajax processed in #check-new-messages-link::ajax:success event handler
+                // is post ajax processed in #new_messages_count_link::ajax:success event handler
                 // (update_new_messages_count, update_title, insert_new_comments and insert_update_gifts)
-                var check_new_messages_link = document.getElementById("check-new-messages-link");
+                var check_new_messages_link = document.getElementById("new_messages_count_link");
                 // update newest_gift_id and newest_status_update_at before ajax request.
                 // only newer gifts (>newest_gift_id) are ajax inserted in gifts/index page
                 // only gifts and comments with > newest_status_update_at are ajax replaced into gifts/index page
@@ -499,30 +498,33 @@ function start_check_new_messages()
 } // start_check_new_messages
 
 
+function add2log_ajax_error (pgm, jqxhr, textStatus, errorThrown) {
+    add2log(pgm) ;
+    add2log('jqxhr = ' + jqxhr);
+    add2log('jqxhr.target = ' + jqxhr.target);
+    add2log('textStatus = ' + textStatus);
+    add2log('errorThrown = ' + errorThrown);
+} // add2log_ajax_error
+
+
 
 // new_messages_count ajax event handlers
 // ajax:error - catch server side errors
 // ajax:success - catch any errors in post ajax JS code
 $(document).ready(function() {
-    var link = "#check-new-messages-link" ;
-    var pgm, msg ;
+    var link = "#new_messages_count_link" ;
+    var pgm ;
     $(link).unbind("ajax:error") ;
     $(link).bind("ajax:error", function(jqxhr, textStatus, errorThrown){
         pgm = link + '::ajax:error: ' ;
         try {
             if (leaving_page) return ;
-            add2log(pgm);
-            add2log('jqxhr = ' + jqxhr);
-            add2log('jqxhr.target = ' + jqxhr.target);
-            add2log('textStatus = ' + textStatus);
-            add2log('errorThrown = ' + errorThrown);
-            add_to_tasks_errors(pgm + errorThrown + '. check server log for more information.') ;
+            add2log_ajax_error(pgm, jqxhr, textStatus, errorThrown) ;
+            add_to_tasks_errors(I18n.t('js.new_messages_count.ajax_error', {error: errorThrown, location: 2, debug: 0})) ;
         }
         catch (err) {
-            msg = pgm + 'failed with JS error: ' + err ;
-            add2log(msg) ;
-            add_to_tasks_errors(msg) ;
-            return ;
+            add2log(pgm + 'failed with JS error: ' + err) ;
+            add_to_tasks_errors(I18n.t('js.new_messages_count.js_error', {error: err, location: 3, debug: 0})) ;
         }
     }) // ajax:error
     $(link).unbind("ajax:success");
@@ -530,37 +532,32 @@ $(document).ready(function() {
         pgm = link + '::ajax:success: ' ;
         try {update_new_messages_count() }
         catch (err) {
-            msg = pgm + 'update_new_messages_count failed: ' + err ;
-            add2log(msg) ;
-            add_to_tasks_errors(msg) ;
+            add2log(pgm + 'update_new_messages_count failed: ' + err) ;
+            add_to_tasks_errors(I18n.t('js.new_messages_count.js_error', {error: err, location: 4, debug: 1})) ;
             return ;
         }
         try { update_title() }
         catch (err) {
-            msg = pgm + 'update_title failed: ' + err ;
-            add2log(msg) ;
-            add_to_tasks_errors(msg) ;
+            add2log(pgm + 'update_title failed: ' + err) ;
+            add_to_tasks_errors(I18n.t('js.new_messages_count.js_error', {error: err, location: 4, debug: 2})) ;
             return ;
         }
         try { insert_new_comments() }
         catch (err) {
-            msg = pgm + 'insert_new_comments failed: ' + err ;
-            add2log(msg) ;
-            add_to_tasks_errors(msg) ;
+            add2log(pgm + 'insert_new_comments failed: ' + err) ;
+            add_to_tasks_errors(I18n.t('js.new_messages_count.js_error', {error: err, location: 4, debug: 3})) ;
             return ;
         }
         try { insert_update_gifts() }
         catch (err) {
-            msg = pgm + 'insert_update_gifts failed: ' + err ;
-            add2log(msg) ;
-            add_to_tasks_errors(msg) ;
+            add2log(pgm + 'insert_update_gifts failed: ' + err) ;
+            add_to_tasks_errors(I18n.t('js.new_messages_count.js_error', {error: err, location: 4, debug: 4})) ;
             return ;
         }
         try { show_more_rows_scroll() }
         catch (err) {
-            msg = pgm + 'show_more_rows_scroll failed: ' + err ;
-            add2log(msg) ;
-            add_to_tasks_errors(msg) ;
+            add2log(pgm + 'show_more_rows_scroll failed: ' + err) ;
+            add_to_tasks_errors(I18n.t('js.new_messages_count.js_error', {error: err, location: 4, debug: 5})) ;
             return ;
         }
     }); // ajax:success
@@ -760,11 +757,10 @@ function insert_new_comments() {
         // unbind and bind ajax for comment action links
         setup_comment_action_link_ajax() ;
     }
-    catch (e) {
-        var msg = pgm + 'failed with JS error ' + e + ', debug = ' + debug ;
-        add2log(msg);
-        add_to_tasks_errors(msg);
-        throw e;
+    catch (err) {
+        add2log(pgm + 'failed with JS error ' + err + ', debug = ' + debug);
+        add_to_tasks_errors(I18n.t('js.insert_new_comments.js_error', {error: err, location: 5, debug: debug})) ;
+        throw err;
     }
 } // insert_new_comments
 
@@ -919,9 +915,10 @@ function insert_update_gifts (tasks_sleep)
         debug = 120 ;
         trigger_tasks_form(tasks_sleep);
     }
-    catch (e) {
-        add2log(pgm + 'failed with JS exception ' + e + ', debug = ' + debug) ;
-        throw e ;
+    catch (err) {
+        add2log(pgm + 'failed with JS exception ' + err + ', debug = ' + debug) ;
+        add_to_tasks_errors(I18n.t('js.insert_update_gifts.js_error', {error: err, location: 6, debug: debug})) ;
+        // throw err ;
     }
 } //  insert_update_gifts
 
@@ -977,8 +974,7 @@ function report_missing_api_picture_urls() {
         url: "/util/missing_api_picture_urls.js",
         type: "POST",
         dataType: 'script',
-        data: { api_gifts: {
-            ids: missing_api_picture_urls_local}},
+        data: { api_gifts: {ids: missing_api_picture_urls_local } },
         error: function (jqxhr, textStatus, errorThrown) {
             var pgm = 'missing_api_picture_urls.error: ' ;
             add2log(pgm);
@@ -1276,6 +1272,7 @@ function disable_user_currency_new_lov() {
     }, 100) ;
 } // disable_user_currency_new_lov
 
+
 // for client side debugging - writes JS messages to debug_log div - only used if DEBUG_AJAX = true
 function add2log (text) {
     // if (debug_ajax != true) return ;
@@ -1283,6 +1280,17 @@ function add2log (text) {
     if (!log) return ;
     log.innerHTML = log.innerHTML + text + '<br>' ;
 } // add2log
+
+// http://stackoverflow.com/questions/10944396/how-to-calculate-ms-since-midnight-in-javascript
+function getMsSinceMidnight() {
+    var d = new Date() ;
+    var e = new Date(d);
+    return d - e.setHours(0,0,0,0);
+} // getMsSinceMidnight
+function getSecondsSinceMidnight() {
+    return 1.0 * getMsSinceMidnight() / 1000 ;
+} // getSecondsSinceMidnight
+
 
 
 // implementing show-more-rows ajax / endless expanding page ==>
@@ -1317,16 +1325,6 @@ var old_number_of_rows ;
 // remember timestamp in milliseconds for last show-more-rows ajax request
 // should only request more rows once every 3 seconds
 var old_show_more_rows_request_at ;
-
-// http://stackoverflow.com/questions/10944396/how-to-calculate-ms-since-midnight-in-javascript
-function getMsSinceMidnight() {
-    var d = new Date() ;
-    var e = new Date(d);
-    return d - e.setHours(0,0,0,0);
-} // getMsSinceMidnight
-function getSecondsSinceMidnight() {
-    return 1.0 * getMsSinceMidnight() / 1000 ;
-} // getSecondsSinceMidnight
 
 // scroll event - click show_more_rows when user scrolls to end of page
 // table_name should be gifts or users
@@ -1504,6 +1502,7 @@ function show_more_rows_ajax() {
         try {
             if (leaving_page) return ;
             show_more_rows_error(jqxhr, textStatus, errorThrown);
+            // add2log_ajax_error('', jqxhr, textStatus, errorThrown, 'show-more-rows-errors') ;
             stop_show_more_rows_spinner();
         }
         catch (err) {
@@ -1522,6 +1521,8 @@ function show_more_rows_ajax() {
 
 function clear_ajax_errors(table_id) {
     // empty table with ajax messages if any
+    var pgm = 'clear_ajax_errors: ' ;
+    add2log(pgm + 'table_id = ' + table_id) ;
     var table = document.getElementById(table_id) ;
     if (!table) return ;
     var rows = table.rows ;
@@ -1636,7 +1637,11 @@ function add_to_tasks_errors (error) {
 // called from move_tasks_errors2 and from gift/comment link ajax handlers
 // ajax error tables under gift links and comments are created dynamic when needed
 function add_to_tasks_errors2 (table_id, error) {
-    if (table_id == 'show-more-rows-errors') add_to_tasks_errors(error) ; // inject into top and bottom of web page
+    if (table_id == 'show-more-rows-errors') {
+        // also inject error message into top of page
+        clear_ajax_errors('show-more-rows-errors') ;
+        add_to_tasks_errors(error) ;
+    }
     var pgm = 'add_to_tasks_errors2: ' ;
     var table = document.getElementById(table_id) ;
     if (!table) {

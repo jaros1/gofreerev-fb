@@ -10,7 +10,7 @@ class UtilController < ApplicationController
                             :do_tasks, :post_on_wall_yn]
 
   # update new message count in menu line in page header
-  # called from hidden check-new-messages-link link in page header once every 15, 60 or 300 seconds
+  # called from hidden new_messages_count_link link in page header once every 15, 60 or 300 seconds
   # new_message_count is also ajax injecting gifts and comments into gifts pages
   # Parameters: {"request_fullpath"=>"/gifts", "newest_gift_id"=>"275", "newest_status_update_at"=>"417"}
   # - request_fullpath is request path for current page where ajax request was send from

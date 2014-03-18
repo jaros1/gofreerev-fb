@@ -884,3 +884,10 @@ en:
         price_invalid_text: "Price is invalid. Only numbers, max 2 decimals, thousands separator not allowed."
         comment_comment_required_text: "Comment is required"
         comment_price_invalid_text: "Price is invalid. Only numbers, max 2 decimals, thousands separator not allowed."
+     new_messages_count:
+        ajax_error: "Error when checking for new messages. %{error}. More information in server log."
+        js_error: "Javascript error when checking for new messages. %{error} (%{location},%{debug})."
+     insert_new_comments:
+        js_error: "Javascript error when inserting new comments. %{error} (%{location},%{debug})."
+     insert_update_gifts:
+        js_error: "Javascript error when inserting new posts. %{error} (%{location},%{debug})."

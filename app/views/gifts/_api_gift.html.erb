@@ -2,7 +2,7 @@
    if gift.deleted_at -%>
     <%# include dummy row so that post ajax function insert_update_gifts will delete gift from html page.
         see util_controller.new_messages_count and JS function start_check_new_messages (my.js)
-        called from check-new-messages-link remote link in page header once every 15, 60 or 300 seconds
+        called from new_messages_count_link remote link in page header once every 15, 60 or 300 seconds
      -%>
     <tr style="display: none" id="<%= "gift-#{gift.id}-deleted" %>">
       <td></td>
