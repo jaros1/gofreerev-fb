@@ -949,6 +949,8 @@
      add hidden timestamps to errors tables - ok
      add class for error tables - ajax_errors added
      add cleanup for old error messages
+     timestamp column is not copied from tasks_errors2 to tasks_errors table (retest - maybe it was a client side JS message)
+     timestamp column ok in show-more-rows-error table
 
 180) call login required for all http requests
      do not call login required for ajax requests (action must report error)
@@ -977,3 +979,5 @@
      must be a secondary/temporary error - no error after xhr? fix for ie8
 
 203) double comment submit - should use same solution as for new gift submit
+
+204) show-more-rows - clear any old show-more-rows error message before fetching next set of rows

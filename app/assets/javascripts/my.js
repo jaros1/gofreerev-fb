@@ -15,7 +15,12 @@ $(document).ready(function () {
     leaving_page = false ;
 });
 window.onbeforeunload = function() {
-    if (!leaving_page && typeof(ajaxing) != 'undefined' && ajaxing) add_to_tasks_errors('Waiting for some finish some unfinished business to finish. Please wait.') ;
+    if (typeof(ajaxing) != 'undefined' && ajaxing) {
+        // Waiting for some finish some unfinished business to finish. Please wait.
+        // todo: second click re-flash effect not working
+        if (leaving_page) ajax_flash_new_table_rows('tasks_errors', 1) ;
+        else add_to_tasks_errors(I18n.t('js.general.ajax_leave_page')) ;
+    }
     leaving_page = true;
 }
 
@@ -142,18 +147,18 @@ function csv_empty_field (id)
 // should be identical to ruby function invalid_price? in application controller
 function csv_invalid_price (id)
 {
+    var pgm = 'csv_invalid_price: ' ;
     if (csv_empty_field(id)) return false ; // empty field - ok
     var price = document.getElementById(id).value ;
+    // add2log(pgm + 'id = ' + id + ', price = ' + price) ;
     price = $.trim(price);
-    var r = new RegExp('^[0-9]*((\.|,)[0-9]{0,2})?$');
+    var r = /^[0-9]*((\.|,)[0-9]{0,2})?$'/ ;
+    // add2log('price = ' + price + ', r = ' + r + ', r.test(price) = ' + r.test(price)) ;
     if (!r.test(price) || (price == '.') || (price == ',')) return true ;
     return false ;
 } // csv_invalid_price
 
 // Client side validation for new gift
-// These error texts are replaced with language-specific texts in gifts/index page
-var csv_gift_description_required = 'Description is required.';
-var csv_gift_price_invalid = 'Price is invalid. Only numbers, max 2 decimals, thousands separator not allowed.';
 function csv_gift() {
     // todo: ie fix. check if submit bottom has been disabled
     var submit_buttons = document.getElementsByName('commit_gift') ;
@@ -169,12 +174,12 @@ function csv_gift() {
 
     // check required description
     if (csv_empty_field('gift_description')) {
-        alert(csv_gift_description_required);
+        alert(I18n.t('js.gifts.description_required_text'));
         return false;
     }
     // check optional price. Allow decimal comma/point, max 2 decimals. Thousands separators not allowed
     if (csv_invalid_price('gift_price')) {
-        alert(csv_gift_price_invalid);
+        alert(I18n.t('js.gifts.price_invalid_text'));
         return false;
     }
     // gift is ok. ready for submit
@@ -215,19 +220,16 @@ function csv_gift() {
 
 
 // Client side validation for new comment
-// These error texts are replaced with language-specific texts in gifts/index page
-var csv_comment_comment_required = 'Comment is required.' ;
-var csv_comment_price_invalid = 'Price is invalid. Only numbers, max 2 decimals, thousands separator not allowed.' ;
 function csv_comment(giftid)
 {
     // check required comment
     if (csv_empty_field("gift-" + giftid + "-comment-new-textarea")) {
-        alert(csv_comment_comment_required);
+        alert(I18n.t('js.gifts.comment_comment_required_text'));
         return false;
     }
     // check optional price. Allow decimal comma/point, max 2 decimals. Thousands separators not allowed
     if (csv_invalid_price('gift-' + giftid + '-comment-new-price')) {
-        alert(csv_comment_price_invalid);
+        alert(I18n.t('js.gifts.comment_price_invalid_text'));
         return false;
     }
     // comment is ok - add post ajax handler and submit
@@ -244,6 +246,7 @@ function csv_comment(giftid)
 // todo: add some kind of flash when removing (display=none) rows from gifts table
 function ajax_flash (id)
 {
+    // add2log('ajax_flash: id = ' + id) ;
     $('#' + id).css({'background-color':'green'}).animate({'background-color':'white'}, 2000) ;
 } // ajax_flash
 
@@ -257,20 +260,21 @@ $(document).ready(function () {
 // ajax flash for row table rows - for example new rows in ajax_task_errors table
 function ajax_flash_new_table_rows (tablename, number_of_rows)
 {
-    add2log('ajax_flash_new_table_rows: table_name = ' + tablename + ', number_of_rows = ' + number_of_rows) ;
+    var pgm = 'ajax_flash_new_table_rows: ' ;
+    // add2log(pgm + 'table_name = ' + tablename + ', number_of_rows = ' + number_of_rows) ;
     var table = document.getElementById(tablename) ;
     if (!table) return ;
     var rows = table.rows ;
     if (rows.length < number_of_rows) number_of_rows = rows.length ;
     var now = (new Date()).getTime() ;
     var id ;
+    // add2log(pgm + 'number_of_rows = ' + number_of_rows) ;
     for (i=rows.length-number_of_rows ; i < rows.length ; i++) {
         id = 'afe-' + now + '-' + i ;
         rows[i].id = id
         ajax_flash(id) ;
     } // for
 } // ajax_flash_new_table_rows
-
 
 // long gift description is hidden inside div with max-height and overflow
 // show-more-text link under text is used to remove max-height from div (show full text)
@@ -2090,7 +2094,7 @@ $(document).ready(function () {
 // first column is error message. Second column is id for error table in page
 // tasks_errors table in page header will be used of more specific location can not be found
 function move_tasks_errors2() {
-    var pgm = 'move_tasks_errors2' ;
+    var pgm = 'move_tasks_errors2: ' ;
     add2log(pgm + 'start') ;
     var from_table = document.getElementById('tasks_errors2');
     if (!from_table) {

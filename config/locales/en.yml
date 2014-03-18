@@ -34,6 +34,8 @@ en:
         price: "Price"
         user_id_giver: "Seller/giver"
         user_id_receiver: "Buyer/receiver"
+      comment:
+        price: "Price"
     errors:
       models:
         gift:
@@ -225,6 +227,7 @@ en:
         invalid_request_invalid_gift: "Invalid request. You have no access to this post. Please refresh web page."
         deleted_user: "You account is being deleted and you cannot create comments"
         no_providers: "Comment was not created. No shared login providers. May be a system error."
+        comment_error: "Comment was not created. %{error}."
         exception: "System error. Comment was not created. %{error}. More information available in log."
      index:
         gift_id_is_missing: "Invalid request. Gift id is missing."
@@ -871,3 +874,13 @@ en:
         unknown_provider: "System error. Unknown login provider %{apiname}. Change in Post? has not been saved."
         unknown_post_on_wall: "System error. Unknown choise for login provider %{apiname}. Change in Post? has not been saved."
         exception: "System error. Could not change Post? choice. %{error}. More information in server log."
+
+  # translation keys used in javascript (error) messages
+  js:
+     general:
+        ajax_leave_page: "Waiting for some finish some unfinished business to finish. Please wait."
+     gifts:
+        description_required_text: "Text is required."
+        price_invalid_text: "Price is invalid. Only numbers, max 2 decimals, thousands separator not allowed."
+        comment_comment_required_text: "Comment is required"
+        comment_price_invalid_text: "Price is invalid. Only numbers, max 2 decimals, thousands separator not allowed."

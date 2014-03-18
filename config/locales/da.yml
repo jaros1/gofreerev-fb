@@ -34,6 +34,8 @@ da:
         price: "Pris"
         user_id_giver: "Sælger/giver"
         user_id_receiver: "Køber/modtager"
+      comment:
+        price: "Pris"
     errors:
       models:
         gift:
@@ -228,6 +230,7 @@ da:
         invalid_request_invalid_gift: "Ugyldigt kald. Du har ikke adgang til dette opslag. Opdater venligst siden."
         deleted_user: "Din konto er ved at blive slettet, og du kan ikke oprette nye kommentarer"
         no_providers: "Kunne ikke oprette kommentar. Ingen fælles loginudbydere. Kan evt. være en systemfejl."
+        comment_error: "Kunne ikke oprette kommentar. %{error}."
         exception: "Systemfejl. Kunne ikke oprette kommentar. %{error}. Se mere information i log."
      index:
         gift_id_is_missing: "Ugyldigt kald. Opslagsnr. mangler."
@@ -866,11 +869,16 @@ da:
         ok: "%{appname} vil fremover ikke bede om tilladelse til at lave opslag på din %{apiname} væg. Du kan på et senere tidspunkt give %{appname} lov til at lave opslag på din %{apiname} væg ved at sætte hak i Opslag? tjekbox på \"Log ind\" siden."
         exception: "Systemfejl. Kan ikke skjule link med %{apiname} skriveadgang. %{error}. Mere information i server log."
      post_on_wall_yn:
-        unknown_provider: "Systemfejl. Ukendt login udbyder %{apiname}. Ændring af Opslag? er ikke blevet gemt."
-        unknown_post_on_wall: "Systemfejl. Ukendt valg med ændring af Opslag? for %{apiname}. Valg er ikke blevet gemt."
-        exception: "Systemfejl. Kunne ikke ændre Opslag? valg. %{error}. Mere information i server log."
+        unknown_provider: "Systemfejl. Ukendt login udbyder %{apiname}. Ændring af \"Opslag?\" er ikke blevet gemt."
+        unknown_post_on_wall: "Systemfejl. Ukendt valg med ændring af \"Opslag?\" for %{apiname}. Valg er ikke blevet gemt."
+        exception: "Systemfejl. Kunne ikke ændre \"Opslag?\" valg. %{error}. Mere information i server log."
 
+  # translation keys used in javascript (error) messages
   js:
-     function:
-        label1: "this is a test"
-        label2: "this is a test"
+     general:
+        ajax_leave_page: "Afslutter en igangværende opgave. Vent venligst."
+     gifts:
+        description_required_text: "Tekst skal udfyldes."
+        price_invalid_text: "Pris er ugyldig. Brug kun cifre, højst et decimal-komma/-punktum og højst 2 decimaler. Tusindtalsseparator er ikke tilladt."
+        comment_comment_required_text: "Kommentar felt skal udfyldes"
+        comment_price_invalid_text: "Pris er ugyldig. Brug kun cifre, højst et decimal-komma/-punktum og højst 2 decimaler. Tusindtalsseparator er ikke tilladt."

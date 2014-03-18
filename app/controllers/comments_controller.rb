@@ -43,7 +43,7 @@ class CommentsController < ApplicationController
       # validate comment - price= accepts only float and model can not return invalid price errors
       comment.valid?
       comment.errors.add :price, :invalid if params[:comment][:new_deal_yn] == 'Y' and invalid_price?(params[:comment][:price])
-      if comment.errors.size > 1
+      if comment.errors.size > 0
         return format_response_key '.comment_error', :error => comment.errors.full_messages.join(', '), :table => table
       else
         comment.save!

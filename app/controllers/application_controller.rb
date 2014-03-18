@@ -345,10 +345,11 @@ class ApplicationController < ActionController::Base
   # should be identical to JS function csv_invalid_price (csv = client side validation)
   private
   def invalid_price? (price)
+    # logger.debug2 "price = #{price}"
     price = price.to_s.strip
     return false if price == ""
     r = Regexp.new '^[0-9]*((\.|,)[0-9]{0,2})?$'
-    return true if (!r.match(price) || (price == '.') || (price == ','))
+    return true if (!r.match(price) or (price == '.') or (price == ','))
     false
   end # invalid_price?
 
