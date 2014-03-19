@@ -264,11 +264,11 @@ da:
         delete_comment: "Slet"
         confirm_delete_comment: "Slet kommentar?"
      destroy:
-        unknown_comment: "Kunne ikke slette kommentar. Kommentar blev ikke fundet. Opdater venligst siden."
-        not_logged_in: "Sletning af kommentar er ikke mulig. Du er ikke logget ind. Opdater venligst siden."
-        invalid_comment: "Sletning af kommentar er ikke mulig. Opdater venligst siden."
-        deleted_user: "Sletning af kommentar er ikke mulig. Din konto er ved at blive slettet."
-        exception: "Systemfejl. Kunne ikke slette kommentar. %{error}. Se mere information i log."
+        unknown_comment: "Kan ikke slette kommentar. Kommentar blev ikke fundet. Opdater venligst siden."
+        not_logged_in: "Kan ikke slette kommentar. Du er ikke logget ind. Opdater venligst siden."
+        invalid_comment: "Kan ikke slette kommentar. Opdater venligst siden."
+        deleted_user: "Kan ikke slette kommentar. Din konto er ved at blive slettet."
+        exception: "Systemfejl. Kan ikke slette kommentar. %{error}. Se mere information i log."
 
   cookie:
      decline_cookies:
@@ -825,7 +825,7 @@ da:
         not_allowed: "Slet opslag er desværre ikke længere muligt. Opdater venligst siden."
         exception: "Systemfejl. Kan ikke slette opslag. %{error}. Mere information i server log."
      cancel_new_deal:
-        invalid_action: "Systemfejl. Kunne ikke fortryde forslag. Ugyldig aktion. Mere information i server log."
+        invalid_action: "Systemfejl. Kan ikke fortryde forslag. Ugyldig aktion. Mere information i server log."
         not_logged_in: "Kan ikke fortryde forslag. Du er ikke logget ind. Opdater venligst siden."
         comment_not_found: "Systemfejl. Kunne ikke fortryde forslag. Forslag ej fundet."
         gift_deleted: "Kan ikke fortryde forslag. Opslag er blevet slettet. Opdater venligst siden."
@@ -836,7 +836,7 @@ da:
         ok: "Forslag er blevet annuleret."
         exception: "Systemfejl. Kunne ikke fortryde forslag. %{error}. Mere information i server log."
      reject_new_deal:
-        invalid_action: "Systemfejl. Kunne ikke afvise forslag. Ugyldig aktion. Mere information i server log."
+        invalid_action: "Systemfejl. Kan ikke afvise forslag. Ugyldig aktion. Mere information i server log."
         not_logged_in: "Kan ikke afvise forslag. Du er ikke logget ind. Opdater venligst siden."
         comment_not_found: "Systemfejl. Kunne ikke afvise forslag. Forslag ej fundet."
         gift_deleted: "Kan ikke afvise forslag. Opslag er blevet slettet. Opdater venligst siden."
@@ -847,7 +847,7 @@ da:
         ok: "Forslag er blevet afvist."
         exception: "Systemfejl. Kunne ikke afvise forslag. %{error}. Mere information i server log."
      accept_new_deal:
-        invalid_action: "Systemfejl. Kunne ikke godkende forslag. Ugyldig aktion. Mere information i server log."
+        invalid_action: "Systemfejl. Kan ikke godkende forslag. Ugyldig aktion. Mere information i server log."
         not_logged_in: "Kan ikke godkende forslag. Du er ikke logget ind. Opdater venligst siden."
         comment_not_found: "Systemfejl. Kunne ikke godkende forslag. Forslag ej fundet."
         gift_deleted: "Kan ikke godkende forslag. Opslag er blevet slettet. Opdater venligst siden."
@@ -902,5 +902,18 @@ da:
         delete_gift_ajax_error: "Kan ikke slette opslag. %{error}. Mere information i server log."
         hide_gift_ajax_error: "Kan ikke skjule opslag. %{error}. Mere information i server log."
         comments_ajax_error: "Kan ikke hente ældre kommentarer. %{error}. Mere information i server log."
-        ajax_error: "Fejl \"%{error}\" for ukendt url %{url}. Mere information i klient og server log."
-        js_error: "Javascript fejl for opslag link. %{error} (%{location},%{debug})."
+        ajax_error: "Fejl \"%{error}\" for ugyldigt opslag link %{url}. Mere information i klient og server log."
+        js_error: "Javascript fejl for opslag link. %{error} (%{location},%{debug}). Mere information i klient og server log."
+        click_js_error: "Mindre javascript fejl for opslag link. %{error} (%{location},%{debug})."
+     new_comment:
+        ajax_error: "Fejl ved oprettelse af kommentar. %{error}. Mere information i server log."
+        ajax_error2: "Fejl ved oprettelse af kommentar. %{error} (%{location},%{debug}). Mere information i klient og server log."
+        js_error: "Mindre javascript fejl efter oprettelse af kommentar. %{error} (%{location},%{debug})."
+     comment_actions:
+        delete_comment_ajax_error: "Kan ikke slette kommentar. %{error}. Mere information i server log."
+        cancel_new_deal_ajax_error: "Kan ikke fortryde forslag. %{error}. Mere information i server log."
+        reject_new_deal_ajax_error: "Kan ikke afvise forslag. %{error}. Mere information i server log."
+        accept_new_deal_ajax_error: "Kan ikke godkende forslag. %{error}. Mere information i server log."
+        ajax_error: "Fejl \"%{error}\" for ugyldigt url %{url}. %{error}. Mere information i server log."
+        js_error: "Javascript fejl for kommentar link. %{error} (%{location},%{debug}). Mere information i klient og server log."
+        click_js_error: "Mindre javascript fejl for kommentar link. %{error} (%{location},%{debug})."

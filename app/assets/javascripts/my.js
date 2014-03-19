@@ -1748,24 +1748,10 @@ $(document).ready(function() {
             clear_flash_and_ajax_errors() ;
         }
         catch (err) {
-            var msg = pgm + 'failed with JS error: ' + err;
-            add2log(msg);
-            add_to_tasks_errors(msg);
-            return;
+            add2log(pgm + 'failed with JS error: ' + err);
+            add_to_tasks_errors(I18n.t('js.gift_actions.click_js_error', {error: err, location: 11, debug: 0})) ;
         }
     }) // click
-//    $(id).unbind("ajax:success") ;
-//    $(id).bind("ajax:success", function (evt, data, status, xhr) {
-//        // find tr for old link, first added row and last added row
-//        var pgm = link_id + '.ajax.success: ';
-//        try {}
-//        catch (err) {
-//            var msg = pgm + 'failed with JS error: ' + err;
-//            add2log(msg);
-//            add_to_tasks_errors(msg);
-//            return;
-//        }
-//    }) ; // ajax:success
     $(id).unbind("ajax:error") ;
     $(id).bind("ajax:error", function(jqxhr, textStatus, errorThrown){
         var pgm = id + '.ajax.error: ' ;
@@ -1862,6 +1848,7 @@ function post_ajax_add_new_comment_handler(giftid) {
     $(id).unbind("ajax:success");
     $(id).bind("ajax:success", function (evt, data, status, xhr) {
         var pgm = id + '.ajax.success: ' ;
+        var debug = 0 ;
         try {
             // dump xhr
             // for (var key in xhr) add2log(id + '. ajax.success. xhr[' + key + '] = ' + xhr[key]) ;
@@ -1872,32 +1859,43 @@ function post_ajax_add_new_comment_handler(giftid) {
             var tempScrollTop = $(window).scrollTop();
             add2log(pgm + 'scrollTop = ' + tempScrollTop) ;
             // $(window).scrollTop(tempScrollTop);
+            debug = 1 ;
             document.getElementById('gift-' + giftid + '-comment-new-price').value = '';
+            debug = 2 ;
             var textarea_id = 'gift-' + giftid + '-comment-new-textarea' ;
             var textarea = document.getElementById(textarea_id) ;
+            debug = 3 ;
             var textarea_old_height = textarea.offsetHeight ;
             add2log(pgm + 'textarea old height (1) = ' + textarea_old_height) ;
             if (textarea_old_height > 150) textarea_old_height = 150 ;
+            debug = 4 ;
             add2log(pgm + 'textarea old height (2) = ' + textarea_old_height) ;
             var textarea_old_offset = $('#' + textarea_id).offset().top ;
             add2log(pgm + 'textarea old offset = ' + textarea_old_offset) ;
+            debug = 5 ;
             textarea.value = '';
+            debug = 6 ;
             autoresize_text_field(textarea) ;
             var textarea_new_height = textarea.offsetHeight ;
             add2log(pgm + 'textarea new height = ' + textarea_new_height) ;
+            debug = 7 ;
             document.getElementById('gift-' + giftid + '-comment-new-price-tr').style.display = 'none';
+            debug = 8 ;
             checkbox = document.getElementById('gift-' + giftid + '-new-deal-check-box');
             if (checkbox) checkbox.checked = false;
             // find new comment table row last in gifts table
             gifts = document.getElementById("gifts_tbody");
+            debug = 9 ;
             trs = gifts.rows;
             // add2log(id + '. ajax.success: new gifts.rows = ' + trs.length) ;
             re = new RegExp("^gift-" + giftid + "-comment-[0-9]+$");
             i = trs.length - 1;
+            debug = 10 ;
             for (i = trs.length - 1; ((i >= 0) && !new_comment_tr); i--) {
                 id2 = trs[i].id;
                 if (id2 && id2.match(re)) new_comment_tr = trs[i];
             } // for
+            debug = 11 ;
             if (!new_comment_tr) {
                 add2log(pgm + "new comment row with format " + re + " was not found. There could be more information in server log.");
                 return;
@@ -1908,15 +1906,19 @@ function post_ajax_add_new_comment_handler(giftid) {
                 return;
             }
             // move new table row up before add new comment table row
+            debug = 12 ;
             new_comment_tr.parentNode.removeChild(new_comment_tr);
             // IE8 fix. removeChild + insertBefore did not work in IE8 - todo: recheck this IE8 fix
             var no_gifts = document.getElementById('gifts').rows.length ;
             add_new_comment_tr.parentNode.insertBefore(new_comment_tr, add_new_comment_tr); // error: Node was not found
             // move ok
+            debug = 13 ;
             last_user_ajax_comment_at = new Date();
             restart_check_new_messages();
+            debug = 14 ;
             // check overflow for new comment - display show-more-text link for comment with long text
             find_overflow();
+            debug = 15 ;
             // restore scroll - not working 100% correct - problems with big comments
             var textarea_new_offset = $('#' + textarea_id).offset().top ;
             add2log(pgm + 'textarea new offset = ' + textarea_new_offset) ;
@@ -1925,12 +1927,13 @@ function post_ajax_add_new_comment_handler(giftid) {
             if (tempScrollTop < 0) tempScrollTop = 0 ;
             $(window).scrollTop(tempScrollTop);
             // unbind and bind ajax for comment action links
+            debug = 16 ;
             setup_comment_action_link_ajax() ;
         }
         catch (err) {
             var msg = pgm + 'failed with JS error: ' + err;
-            add2log(msg);
-            add_to_tasks_errors(msg);
+            add2log(pgm + 'failed with JS error: ' + err);
+            add_to_tasks_errors(I18n.t('js.new_comment.js_error', {error: err, location: 12, debug: debug}));
             return;
         }
 
@@ -1940,37 +1943,23 @@ function post_ajax_add_new_comment_handler(giftid) {
         var pgm = id + '.ajax.error: ' ;
         try {
             if (leaving_page) return ;
-            add2log(pgm + 'ajax.error');
-            add2log('jqxhr = ' + jqxhr);
-            add2log('jqxhr.target = ' + jqxhr.target) ;
-            add2log('textStatus = ' + textStatus);
-            add2log('errorThrown = ' + errorThrown);
-            var error = errorThrown + '. check server log for more information.' ;
-
+            var err = add2log_ajax_error(pgm, jqxhr, textStatus, errorThrown) ;
             var table_id = 'gift-' + giftid + '-comment-new-errors' ;
-
             var table = document.getElementById(table_id) ;
             if (!table && !create_new_com_errors_table(table_id)) {
                 // inject ajax error message in page header
-                add_to_tasks_errors(pgm + error) ;
+                add_to_tasks_errors(I18n.t('js.new_comment.ajax_error', {error: err, location: 13, debug: 1})) ;
             }
             else {
                 // inject ajax error message in new comment error table in page
-                add_to_tasks_errors2(table_id, error) ;
+                add_to_tasks_errors2(table_id, I18n.t('js.new_comment.ajax_error', {error: err, location: 13, debug: 2})) ;
             }
         }
         catch (err) {
-            var msg = pgm + 'failed with JS error: ' + err;
-            add2log(msg);
-            add_to_tasks_errors(msg);
-            return;
+            add2log(pgm + 'failed with JS error: ' + err);
+            add_to_tasks_errors(I18n.t('js.new_comment.ajax_error2', {error: err, location: 13, debug: 3})) ;
         }
     }); // ajax:error
-    $(id).unbind("ajax:complete");
-    $(id).bind("ajax:complete", function(){
-        var pgm = id + '.ajax.complete: ' ;
-        add2log(pgm + 'done') ;
-    }) ;
 } // post_ajax_add_new_comment_handler
 
 function create_com_link_errors_table(table_id) {
@@ -2014,8 +2003,10 @@ function comment_action_url_table_id (url) {
     var re1a = new RegExp('/comments/[0-9]+\\?giftid=[0-9]+$') ; // format /comments/729?giftid=891
     var re2a = new RegExp('/util/[a-z]+?_new_deal\\?comment_id=[0-9]+&giftid=[0-9]+$') ; // /util/cancel_new_deal?comment_id=736&giftid=891
     var re_split = new RegExp('[\\?/=&]') ;
+    var action ;
     if (url.match(re1a)) {
         add2log(pgm + 'delete comment url') ;
+        action = 'delete_comment' ;
         var url_a = url.split(re_split) ;
         add2log(pgm + 'url_a.length = ' + url_a.length) ;
         var url_lng = url_a.length ;
@@ -2029,6 +2020,7 @@ function comment_action_url_table_id (url) {
         var url_lng = url_a.length ;
         giftid = url_a[url_lng-1] ;
         commentid = url_a[url_lng-3] ;
+        action = url_a[url_lng-5] ;
     }
     var table_id ;
     if (giftid && commentid) {
@@ -2038,7 +2030,7 @@ function comment_action_url_table_id (url) {
     else {
         add2log(pgm + 'giftid and commentid was not found in url') ;
     }
-    return table_id ;
+    return [table_id, action] ;
 } // comment_action_url_table_id
 
 // comment-action-link bind only works for existing rows in gifts table
@@ -2055,18 +2047,16 @@ function setup_comment_action_link_ajax ()
             var url = '' + xhr.target + '' ;
             add2log(pgm + 'url = "' + url + '"') ;
             // http://localhost/da/da/comments/729?giftid=891
-
             // find giftid and commentid in url
-            var table_id = comment_action_url_table_id(url) ;
+            var table_id_and_action = comment_action_url_table_id(url) ;
+            var table_id = table_id_and_action [0] ;
             add2log(pgm + 'table_id = ' + table_id) ;
             if (table_id && document.getElementById(table_id)) clear_ajax_errors(table_id) ;
             clear_flash_and_ajax_errors();
         }
         catch (err) {
-            var msg = pgm + 'failed with JS error: ' + err;
-            add2log(msg);
-            add_to_tasks_errors(msg);
-            return;
+            add2log(pgm + 'failed with JS error: ' + err);
+            add_to_tasks_errors(I18n.t('js.comment_actions.click_js_error', {error: err, location: 15, debug: 0}));
         }
     }) // click
     $(id).unbind("ajax:error");
@@ -2075,35 +2065,39 @@ function setup_comment_action_link_ajax ()
         var debug = 0 ;
         try {
             if (leaving_page) return ;
-            add2log(pgm + 'jqxhr = ' + jqxhr);
-            add2log(pgm + 'textStatus = ' + textStatus);
-            add2log(pgm + 'errorThrown = ' + errorThrown);
-            var error = errorThrown + '. check server log for more information.' ;
-
-            // add2log(pgm + 'xhr = ' + xhr + ', settings = ' + settings) ;
+            var err = add2log_ajax_error(pgm, jqxhr, textStatus, errorThrown) ;
+            var error = err + '. check server log for more information.' ;
             var url = '' + jqxhr.target + '' ;
             add2log(pgm + 'url = "' + url + '"') ;
+            // url:
+            // - /comments/1038?giftid=1478 (delete)
+            // - /util/cancel_new_deal?comment_id=1038&giftid=1478
+            // - /util/reject_new_deal?comment_id=1038&giftid=1478
+            // - /util/accept_new_deal?comment_id=1038&giftid=1478
             debug = 10 ;
-            var table_id = comment_action_url_table_id(url) ;
+            var table_id_and_action = comment_action_url_table_id(url) ;
+            var table_id = table_id_and_action[0] ;
+            var action = table_id_and_action[1] ;
+            var valid_actions = ['delete_comment', 'cancel_new_deal', 'reject_new_deal', 'accept_new_deal'] ;
+            if (valid_actions.indexOf(action) == -1) key = 'js.comment_actions.ajax_error' ;
+            else key = 'js.comment_actions.' + action + '_ajax_error' ;
             var table = document.getElementById(table_id) ;
             debug = 20 ;
-            add2log(pgm + 'table_id = ' + table_id) ;
+            add2log(pgm + 'table_id = ' + table_id + ', action = ' + action) ;
             if (!table && !create_com_link_errors_table(table_id)) {
                 // could not find table id and table for ajax error messages could not be created
                 debug = 30 ;
-                add_to_tasks_errors(pgm + error);
+                add_to_tasks_errors(I18n.t(key, {error: err, url: url, location: 14, debug: 1}));
             }
             else {
                 // could find table_id or table for ajax error messages has been created
                 debug = 40 ;
-                add_to_tasks_errors2(table_id, error) ;
+                add_to_tasks_errors2(table_id, I18n.t(key, {error: err, url: url, location: 14, debug: 2})) ;
             }
         }
         catch (err) {
-            var msg = pgm + 'failed with JS error: ' + err + ', debug = ' + debug ;
-            add2log(msg);
-            add_to_tasks_errors(msg);
-            return;
+            add2log(pgm + 'failed with JS error: ' + err + ', debug = ' + debug);
+            add_to_tasks_errors(I18n.t('js.comment_actions.js_error', {error: err, location: 14, debug: debug}));
         }
     }) // ajax:error
 }

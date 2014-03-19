@@ -121,6 +121,7 @@ class CommentsController < ApplicationController
   def destroy
     table = 'tasks_errors'
     @link_id = nil
+    raise "debug"
     begin
       id = params[:id]
       comment = Comment.find_by_id(id)

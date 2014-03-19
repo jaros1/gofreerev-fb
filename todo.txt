@@ -982,8 +982,37 @@
 
 204) show-more-rows - clear any old show-more-rows error message before fetching next set of rows
 
-205) check startup page sizes
+205) check startup page size
      http://www.version2.dk/artikel/mobilsiderne-bliver-stoerre-og-langsommere-56847
      tools for faking a slow internet connection?
      http://www.ginktage.com/2013/11/tools-for-the-developers-to-simulate-slow-internet-connection/
 
+206) fb allow post on wall dialog returned "Denne funktion er desværre ikke tilgængelig i øjeblikket ..."
+     error message in user page: gofreerev login failed (cross site forgery)
+     log:
+     I, [2014-03-19T11:26:33.327719 #2915]  INFO -- : Started GET "/facebook/?error_code=2&error_message=Denne%20funktion%20er%20desv%C3%A6rre%20ikke%20tilg%C3%A6ngelig%20i%20%C3%B8jeblikket%3A%20Der%20opstod%20en%20fejl%20under%20behandling%20af%20denne%20foresp%C3%B8rgsel.%20Pr%C3%B8v%20igen%20senere.&state=BlGyeeW7Nd5lebhCkNeUCCo26hdpQY-status_update" for 80.163.36.153 at 2014-03-19 11:26:33 +0000
+     I, [2014-03-19T11:26:33.399242 #2915]  INFO -- : Processing by FacebookController#index as HTML
+     I, [2014-03-19T11:26:33.399924 #2915]  INFO -- :   Parameters: {"error_code"=>"2", "error_message"=>"Denne funktion er desværre ikke tilgængelig i øjeblikkket: Der opstod en fejl under behandling af denne forespørgsel. Prøv igen senere.", "state"=>"BlGyeeW7Nd5lebhCkNeUCCo26hdpQY-status_update"}
+     D, [2014-03-19T11:26:33.422429 #2915] DEBUG -- :   ^[[1m^[[35mUser Load (1.3ms)^[[0m  SELECT `users`.* FROM `users` WHERE (user_id in ('100007723333584/facebook'))
+     D, [2014-03-19T11:26:33.426423 #2915] DEBUG -- : cache_friend_info: get friends. user_ids = 100007723333584/facebook
+     D, [2014-03-19T11:26:33.432549 #2915] DEBUG -- :   ^[[1m^[[36mFriend Load (1.0ms)^[[0m  ^[[1mSELECT `friends`.* FROM `friends` WHERE (user_id_giver in ('100007723333584/facebook'))^[[0m
+     D, [2014-03-19T11:26:33.441392 #2915] DEBUG -- : cache_friend_info: get friends of mutual friends
+     D, [2014-03-19T11:26:33.446733 #2915] DEBUG -- :   ^[[1m^[[35mFriend Load (1.2ms)^[[0m  SELECT `friends`.* FROM `friends` WHERE (user_id_giver in ('100007331984583/facebook','100007723333584/facebook'))
+     D, [2014-03-19T11:26:33.493238 #2915] DEBUG -- : block in fetch_users: user_id = 100007723333584/facebook, user_name = Susan Amggbccccehd Zamoreman, currency = USD
+     D, [2014-03-19T11:26:33.504086 #2915] DEBUG -- : fetch_users: @user_currency_separator = ., @user_currency_delimiter = ,
+     D, [2014-03-19T11:26:33.513043 #2915] DEBUG -- :   ^[[1m^[[36mSequence Load (1.0ms)^[[0m  ^[[1mSELECT `sequences`.* FROM `sequences` WHERE `sequences`.`name` = 'last_exchange_rate_date' LIMIT 1^[[0m
+     D, [2014-03-19T11:26:33.519454 #2915] DEBUG -- : invalid_state_cookie_store?: session[:session_id] = 80a24a491a205963befbfd82f45fcdb8, session[:state] = BlGyeeW7Nd5lebhCkNeUCCo26hdpQY, params[:state] = BlGyeeW7Nd5lebhCkNeUCCo26hdpQY-status_update
+     D, [2014-03-19T11:26:33.520151 #2915] DEBUG -- : clear_state_cookie_store: clear state
+     D, [2014-03-19T11:26:33.531100 #2915] DEBUG -- :   ^[[1m^[[35mTask Load (2.3ms)^[[0m  SELECT `tasks`.* FROM `tasks` WHERE (session_id = '80a24a491a205963befbfd82f45fcdb8' and task = 'linkedin_rw_nus' and created_at > '2014-03-19 11:16:33') ORDER BY `tasks`.`id` ASC LIMIT 1
+     D, [2014-03-19T11:26:33.532287 #2915] DEBUG -- : render_with_language: language = en
+     I, [2014-03-19T11:26:33.558406 #2915]  INFO -- :   Rendered facebook/cross_site_forgery.html.erb within layouts/application (4.1ms)
+     D, [2014-03-19T11:26:33.567190 #2915] DEBUG -- :   ^[[1m^[[36mNotification Load (1.1ms)^[[0m  ^[[1mSELECT `notifications`.* FROM `notifications` WHERE (to_user_id in ('100007723333584/facebook') and noti_read = 'N')^[[0m
+     I, [2014-03-19T11:26:33.622843 #2915]  INFO -- :   Rendered shared/_user_div.html.erb (18.7ms)
+     I, [2014-03-19T11:26:33.986938 #2915]  INFO -- :   Rendered layouts/_page_header.html.erb (387.6ms)
+     D, [2014-03-19T11:26:33.987678 #2915] DEBUG -- : flash_id =
+     I, [2014-03-19T11:26:33.989599 #2915]  INFO -- :   Rendered shared/_ajax_errors.html.erb (0.5ms)
+     D, [2014-03-19T11:26:34.002362 #2915] DEBUG -- :   ^[[1m^[[35m (1.1ms)^[[0m  SELECT COUNT(*) FROM `tasks` WHERE (session_id = '80a24a491a205963befbfd82f45fcdb8' and ajax = 'Y')
+     I, [2014-03-19T11:26:34.008804 #2915]  INFO -- : Completed 200 OK in 608ms (Views: 471.7ms | ActiveRecord: 8.9ms)
+     page should return error message params[:error_message] and return to gifts/index page
+
+207) price check not working in chrome 33
