@@ -2109,7 +2109,7 @@ $(document).ready(function () {
 })
 
 
-// try to move ajax error messages from tasks_errors2 to more specific location in page
+// move ajax error messages from tasks_errors2 to more specific location in page
 // first column is error message. Second column is id for error table in page
 // tasks_errors table in page header will be used of more specific location can not be found
 function move_tasks_errors2() {
@@ -2117,7 +2117,8 @@ function move_tasks_errors2() {
     add2log(pgm + 'start') ;
     var from_table = document.getElementById('tasks_errors2');
     if (!from_table) {
-        add_to_tasks_errors(pgm + 'tasks_errors2 was not found');
+        add2log(pgm + 'tasks_errors2 was not found') ;
+        add_to_tasks_errors(I18n.t('js.general.tasks_errors2_missing'));
         return;
     }
     var rows = from_table.rows;
@@ -2129,7 +2130,7 @@ function move_tasks_errors2() {
         row = rows[i];
         cells = row.cells;
         if (cells.length != 2) {
-            add_to_tasks_errors('Invalid number of cells in tasks_errors row ' + i + '. Expected 2 cells. Found ' + cells.length + ' cells');
+            add_to_tasks_errors(I18n.t('js.general.tasks_errors2_invalid', {row: i, expected: 2, found: cells.length}));
             continue;
         }
         msg = cells[0].innerHTML;

@@ -879,6 +879,8 @@ en:
   js:
      general:
         ajax_leave_page: "Waiting for some finish some unfinished business to finish. Please wait."
+        tasks_errors2_missing: "System error. Hidden html table tasks_errors2 is missing."
+        tasks_errors2_invalid: "System error. Invalid number of cells in html table tasks_errors2 row %{row}. Expected %{expected} cells. Found %{found} cells."
      gifts:
         description_required_text: "Text is required."
         price_invalid_text: "Price is invalid. Only numbers, max 2 decimals, thousands separator not allowed."

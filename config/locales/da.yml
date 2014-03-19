@@ -877,6 +877,8 @@ da:
   js:
      general:
         ajax_leave_page: "Afslutter en igangværende opgave. Vent venligst."
+        tasks_errors2_missing: "Systemfejl. Skjult html tabel tasks_errors2 mangler."
+        tasks_errors2_invalid: "System error. Forkert antal kolonner i html tabel tasks_errors2 række %{row}. Forventede %{expected} kolonner. Fandt %{found} kolonner."
      gifts:
         description_required_text: "Tekst skal udfyldes."
         price_invalid_text: "Pris er ugyldig. Brug kun cifre, højst et decimal-komma/-punktum og højst 2 decimaler. Tusindtalsseparator er ikke tilladt."
