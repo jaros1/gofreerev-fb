@@ -981,3 +981,9 @@
 203) double comment submit - should use same solution as for new gift submit
 
 204) show-more-rows - clear any old show-more-rows error message before fetching next set of rows
+
+205) check startup page sizes
+     http://www.version2.dk/artikel/mobilsiderne-bliver-stoerre-og-langsommere-56847
+     tools for faking a slow internet connection?
+     http://www.ginktage.com/2013/11/tools-for-the-developers-to-simulate-slow-internet-connection/
+
