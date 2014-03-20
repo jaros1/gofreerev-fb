@@ -2118,7 +2118,7 @@ function move_tasks_errors2() {
     var from_table = document.getElementById('tasks_errors2');
     if (!from_table) {
         add2log(pgm + 'tasks_errors2 was not found') ;
-        add_to_tasks_errors(I18n.t('js.general.tasks_errors2_missing'));
+        add_to_tasks_errors(I18n.t('js.general.tasks_errors2_missing', {location: 16, debug: 1}));
         return;
     }
     var rows = from_table.rows;
@@ -2130,7 +2130,7 @@ function move_tasks_errors2() {
         row = rows[i];
         cells = row.cells;
         if (cells.length != 2) {
-            add_to_tasks_errors(I18n.t('js.general.tasks_errors2_invalid', {row: i, expected: 2, found: cells.length}));
+            add_to_tasks_errors(I18n.t('js.general.tasks_errors2_invalid', {row: i, expected: 2, found: cells.length, location: 16, debug: 1}));
             continue;
         }
         msg = cells[0].innerHTML;
@@ -2186,18 +2186,15 @@ function post_on_wall_ajax(checkbox) {
         type: "POST",
         dataType: 'script',
         data: { provider: provider, post_on_wall: post_on_wall },
-        success: function (responseText, statusText, xhr, $form) {
-            var pgm = 'post_on_wall_ajax:success: ' ;
-            add2log(pgm + 'start') ;
-        }, // success
+//        success: function (responseText, statusText, xhr, $form) {
+//            var pgm = 'post_on_wall_ajax:success: ' ;
+//            add2log(pgm + 'start') ;
+//        }, // success
         error: function (jqxhr, textStatus, errorThrown) {
             var pgm = 'post_on_wall_ajax:error: ' ;
             if (leaving_page) return ;
-            add2log(pgm);
-            add2log('jqxhr = ' + jqxhr);
-            add2log('textStatus = ' + textStatus);
-            add2log('errorThrown = ' + errorThrown);
-            add_to_tasks_errors(pgm + errorThrown + '. check server log for more information.');
+            var err = add2log_ajax_error(pgm, jqxhr, textStatus, errorThrown) ;
+            add_to_tasks_errors(I18n.t('js.post_on_wall.ajax_error', {error: err, location: 17, debug: 0}));
         }
     });
 } // post_on_wall_ajax
@@ -2229,18 +2226,20 @@ $(document).ready(function() {
         pgm = id + '::ajax:error: ' ;
         try {
             if (leaving_page) return ;
-            add2log(pgm);
-            add2log('jqxhr = ' + jqxhr);
-            add2log('jqxhr.target = ' + jqxhr.target);
-            add2log('textStatus = ' + textStatus);
-            add2log('errorThrown = ' + errorThrown);
-            add_to_tasks_errors('Grant write link failed. check server log for more information.') ;
+            var err = add2log_ajax_error(pgm, jqxhr, textStatus, errorThrown);
+            var url = '' + jqxhr.target + '' ;
+            // http://localhost/util/grant_write_vkontakte
+            // http://localhost/util/grant_write_twitter
+            var url_a = url.split('_') ;
+            var provider = url_a[url_a.length-1] ;
+            var valid_providers = ['vkontakte', 'twitter'] ;
+            if (valid_providers.indexOf(provider) == -1) var key = 'js.grant_write.ajax_error' ;
+            else var key = 'js.grant_write.' + provider + '_ajax_error' ;
+            add_to_tasks_errors(I18n.t(key, {error: err, url: url, location: 18, debug: 1})) ;
         }
         catch (err) {
-            msg = pgm + 'failed with JS error: ' + err ;
-            add2log(msg) ;
-            add_to_tasks_errors(msg) ;
-            return ;
+            add2log(pgm + 'failed with JS error: ' + err) ;
+            add_to_tasks_errors(I18n.t('js.grant_write.js_error', {error: err, location: 18, debug: 2})) ;
         }
     }) // ajax:error
 })

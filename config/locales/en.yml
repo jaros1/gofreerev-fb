@@ -921,3 +921,10 @@ en:
         ajax_error: "Error \"%{error}\" for unknown url %{url}. More information in server log."
         js_error: "Javascript error for comment link. %{error} (%{location},%{debug}). More information in client and server logs."
         click_js_error: "Minor javascript error for comment link. %{error} (%{location},%{debug})."
+     post_on_wall:
+        ajax_error: "Error when changing \"Post?\" choice. %{error}. More information in server log."
+     grant_write:
+        vkontakte_ajax_error: "Cannot grant write access to vkontakte wall. %{error}. More information in server log."
+        twitter_ajax_error: "Cannot grant write access twitter wall. %{error}. More information in server log."
+        ajax_error: "Cannot grant write access wall. Fejl \"%{error}\" for ugyldig link %{url}. %{error}. More information in server log."
+        js_error: "Cannot grant write access wall. Javascript fejl %{error} (%{location},%{debug}). More information in client and server logs."

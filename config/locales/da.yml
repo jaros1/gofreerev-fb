@@ -916,6 +916,13 @@ da:
         cancel_new_deal_ajax_error: "Kan ikke fortryde forslag. %{error}. Mere information i server log."
         reject_new_deal_ajax_error: "Kan ikke afvise forslag. %{error}. Mere information i server log."
         accept_new_deal_ajax_error: "Kan ikke godkende forslag. %{error}. Mere information i server log."
-        ajax_error: "Fejl \"%{error}\" for ugyldigt url %{url}. %{error}. Mere information i server log."
+        ajax_error: "Fejl \"%{error}\" for ugyldig kommentar link %{url}. %{error}. Mere information i server log."
         js_error: "Javascript fejl for kommentar link. %{error} (%{location},%{debug}). Mere information i klient og server log."
         click_js_error: "Mindre javascript fejl for kommentar link. %{error} (%{location},%{debug})."
+     post_on_wall:
+        ajax_error: "Fejl ved ændring af \"Opslag?\" valg. %{error}. Mere information i server log."
+     grant_write:
+        vkontakte_ajax_error: "Kan ikke give skriveadgang til vkontakte væg. %{error}. Mere information i server log."
+        twitter_ajax_error: "Kan ikke give skriveadgang til twitter væg. %{error}. Mere information i server log."
+        ajax_error: "Kan ikke give skriveadgang til væg. Fejl \"%{error}\" for ugyldig link %{url}. %{error}. Mere information i server log."
+        js_error: "Kan ikke give skriveadgang til væg. Javascript fejl %{error} (%{location},%{debug}). Mere information i klient og server log."
