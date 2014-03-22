@@ -144,14 +144,6 @@
     allow all to share or allow only giver/receiver to share?
     http://jquery-plugins.net/tag/social-share-button
 
-43) my.js - split gift-action-link ajax handler in one for each gift action?
-    should use translated error messages in js error messages
-    or use url information to customize ajax:error messages
-
-44) my.js - split comment-action-link ajax handler in one for each comment action?
-    should use translated error messages in js error messages
-    or use url information to customize ajax:error messages
-
 45) deal proposal and changed friend relations
     cancel deal proposal when friends are removed
     could be remove friends in users/index page

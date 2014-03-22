@@ -643,7 +643,6 @@ en:
         friend_status_text_b: "Blocked. Friend requests are ignored"
         last_login_prompt: "Last seen"
         last_login_text: "%{days} day(s) ago"
-        api_profile_link_not_implemented: "link to %{apiname} user profile not implemented"
      friend_action_buttons:
         add_api_friend: "Add %{apiname} friend"
         remove_api_friend: "Remove %{apiname} friend"

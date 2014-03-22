@@ -78,10 +78,6 @@ Low priority todo list. Minor errors, wishlist etc.
     rails ignores the extra locale in url but is ugly
     replace resource routes with get/post spec?
 
-16) check if there exists a translate library to be used for JS error messages
-    Could be nice if rails locales could be used for javascript messages
-    https://github.com/fnando/i18n-js (many issues - not updated for 8 months)
-
 17) format price
     use currency or use language to format prices?
     we are using currency now. See application controller.fetch_user

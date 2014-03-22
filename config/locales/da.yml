@@ -660,7 +660,7 @@ da:
         edit_user: "Rediger"
      index:
         page_header_text_html: "Tilføj/fjern venner<br /><br />"
-        api_profile_link_not_implemented: "link til %{apiname} brugerprofil er endnu ikke implementeret"
+        api_profile_link_not_implemented: "link til %{apiname} brugerprofil er ikke implementeret"
      menu_friends_yes_no_links:
         friends_filter_prompt: "Venner:" # appname, appname_camelized
         friends_yes_link_text: "ja"
@@ -777,6 +777,7 @@ da:
         local_picture_not_found: "Systemfejl. Ugyldigt opslag id %{id} ved opslag på %{provider} væg (3)."
      like_gift:
         invalid_action: "Systemfejl. Kan ikke \"synes om\" opslag. Ugyldig aktion. Mere information i server log."
+        not_logged_in: "Kan ikke \"synes om\" opslag. Du er ikke logget ind. Opdater venligst siden."
         gift_deleted: "Kan ikke \"synes om\" opslag. Opslag er blevet slettet. Opdater venligst siden."
         not_authorized: "Systemfejl. Kan ikke \"synes om\" opslag. Der er ikke (længere) adgang til opslag. Opdater venligst siden."
         deleted_user: "Kan ikke \"synes om\" opslag. Din konto er ved at blive slettet."
@@ -785,6 +786,7 @@ da:
         exception: "Systemfejl. Kan ikke \"synes om\" opslag. %{error}. Mere information i server log."
      unlike_gift:
         invalid_action: "Systemfejl. Kan ikke fjerne \"synes om\" opslag. Ugyldig aktion. Mere information i server log."
+        not_logged_in: "Kan ikke fjerne \"synes om\" opslag. Du er ikke logget ind. Opdater venligst siden."
         gift_deleted: "Kan ikke fjerne \"synes om\" opslag. Opslag er blevet slettet. Opdater venligst siden."
         not_authorized: "Systemfejl. Kan ikke fjerne \"synes om\" opslag. Der er ikke (længere) adgang til opslag. Opdater venligst siden."
         deleted_user: "Kan ikke fjerne \"synes om\" opslag. Din konto er ved at blive slettet."
@@ -793,6 +795,7 @@ da:
         exception: "Systemfejl. Kan ikke fjerne \"synes om\" opslag. %{error}. Mere information i server log."
      follow_gift:
         invalid_action: "Systemfejl. Kan ikke \"følge\" opslag. Ugyldig aktion. Mere information i server log."
+        not_logged_in: "Kan ikke \"følge\" opslag. Du er ikke logget ind. Opdater venligst siden."
         gift_deleted: "Kan ikke \"følge\" opslag. Opslag er blevet slettet. Opdater venligst siden."
         not_authorized: "Systemfejl. Kan ikke \"følge\" opslag. Der er ikke (længere) adgang til opslag. Opdater venligst siden."
         deleted_user: "Kan ikke \"følge\" opslag. Din konto er ved at blive slettet."
@@ -801,6 +804,7 @@ da:
         exception: "Systemfejl. Kan ikke \"følge\" opslag. %{error}. Mere information i server log."
      unfollow_gift:
         invalid_action: "Systemfejl. Kan ikke fjerne \"følg\" opslag. Ugyldig aktion. Mere information i server log."
+        not_logged_in: "Kan ikke fjerne \"følg\" opslag. Du er ikke logget ind. Opdater venligst siden."
         gift_deleted: "Kan ikke fjerne \"følg\" opslag. Opslag er blevet slettet. Opdater venligst siden."
         not_authorized: "Systemfejl. Kan ikke fjerne \"følg\" opslag. Der er ikke (længere) adgang til opslag. Opdater venligst siden."
         deleted_user: "Kan ikke fjerne \"følg\" opslag. Din konto er ved at blive slettet."
@@ -809,6 +813,7 @@ da:
         exception: "Systemfejl. Kan ikke fjerne \"følg\" opslag. %{error}. Mere information i server log."
      hide_gift:
         invalid_action: "Systemfejl. Kan ikke skjule opslag. Ugyldig aktion. Mere information i server log."
+        not_logged_in: "Kan ikke skjule opslag. Du er ikke logget ind. Opdater venligst siden."
         gift_deleted: "Kan ikke skjule opslag. Opslag er blevet slettet. Opdater venligst siden."
         not_authorized: "Systemfejl. Kan ikke skjule opslag. Der er ikke (længere) adgang til opslag. Opdater venligst siden."
         deleted_user: "Kan ikke skjule opslag. Din konto er ved at blive slettet."
@@ -861,7 +866,7 @@ da:
      grant_write_twitter:
         ok: "%{appname} fik tilladelse til at lave opslag på din %{apiname} væg."
         exception: "Systemfejl. Kunne ikke give skriveadgang til din %{apiname} væg. %{error}. Mere information i server log."
-     grant_write_vkontanke:
+     grant_write_vkontakte:
         ok: "%{appname} fik tilladelse til at lave opslag på din %{apiname} væg."
         exception: "Systemfejl. Kunne ikke give skriveadgang til din %{apiname} væg. %{error}. Mere information i server log."
      hide_grant_write:
