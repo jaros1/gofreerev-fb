@@ -239,12 +239,13 @@ function csv_comment(giftid)
     if (table) clear_ajax_errors(table_id) ;
     clear_flash_and_ajax_errors() ;
     post_ajax_add_new_comment_handler(giftid) ;
-    comment_submit_disable(giftid);
+    // comment_submit_disable(giftid);
     return true ;
 } // csv_comment
 
 // prevent double comment submit
 function comment_submit_disable (giftid) {
+    add2log('comment_submit_disable: disabling submit for gift id. ' + giftid) ;
     var submit_id, submit ;
     for (var i=1 ; i<= 2 ; i++) {
         submit_id = "gift-" + giftid + "-comment-new-submit-" + i ;
@@ -253,6 +254,7 @@ function comment_submit_disable (giftid) {
     }
 } // comment_submit_disable
 function is_comment_submit_disabled (giftid) {
+    add2log('is_comment_submit_disabled: checking if submit is disabled') ;
     var submit_id, submit ;
     for (var i=1 ; i<= 2 ; i++) {
         submit_id = "gift-" + giftid + "-comment-new-submit-" + i ;
@@ -260,8 +262,9 @@ function is_comment_submit_disabled (giftid) {
         if (submit && submit.disabled) return true ;
     }
     return false ;
-}
+} // is_comment_submit_disabled
 function comment_submit_enable (giftid) {
+    add2log('comment_submit_enable: enabling submit for gift id. ' + giftid) ;
     var submit_id, submit ;
     for (var i=1 ; i<= 2 ; i++) {
         submit_id = "gift-" + giftid + "-comment-new-submit-" + i ;
@@ -659,12 +662,12 @@ function insert_new_comments() {
         gifts = document.getElementById("gifts") ;
         if (!gifts) {
             // no gifts table - not gifts/index page
-            add2log('no gifts table - not gifts/index page') ;
+            add2log(pgm + 'no gifts table - not gifts/index page') ;
             return ;
         }
         new_comments_tbody = document.getElementById("new_comments_tbody");
         if (!new_comments_tbody) {
-            // add2log('new_comments_tbody was not found');
+            // add2log(pgm + 'new_comments_tbody was not found');
             // ok - no new comments in new_messages_count response
             return; // ignore error silently
         }
@@ -672,14 +675,14 @@ function insert_new_comments() {
         new_comments_length = new_comments_trs.length ;
         if (new_comments_length == 0) {
             // no new comments
-            add2log('no new comments') ;
+            add2log(pgm + 'no new comments') ;
             return;
         }
         // find old gift rows (header, links, comments, footers)
         old_comments1_trs = gifts.rows ;
         if (old_comments1_trs.length == 0) {
             // no old gifts
-            add2log('no old gifts') ;
+            add2log(pgm + 'no old gifts') ;
             return
         }
         old_comments1_tbody = old_comments1_trs[0].parentNode ;
@@ -693,7 +696,7 @@ function insert_new_comments() {
             new_comment_tr = new_comments_trs[i];
             new_comment_id = new_comment_tr.id;
             if (!new_comment_id || !new_comment_id.match(re1)) {
-                add2log('invalid id format ' + new_comment_id) ;
+                add2log(pgm + 'invalid id format ' + new_comment_id) ;
                 continue ;
             }
             new_comment_id_split = new_comment_id.split("-");
@@ -701,7 +704,7 @@ function insert_new_comments() {
             new_comment_comment_id = parseInt(new_comment_id_split[3]);
             summary = summary + '. ' + i + ', id = ' + new_comment_id ;
             summary = summary + '. ' + i + ', split[3] = ' + new_comment_id_split[3] ;
-            add2log('i = ' + i + ', gift id = ' + new_comment_gift_id + ', comment id = ' + new_comment_comment_id);
+            add2log(pgm + 'i = ' + i + ', gift id = ' + new_comment_gift_id + ', comment id = ' + new_comment_comment_id);
             debug = 40 ;
             // find any old comments with format gift-218-comment-174
             re2 = new RegExp("^gift-" + new_comment_gift_id + "-comment-[0-9]+$") ;
@@ -717,23 +720,35 @@ function insert_new_comments() {
             debug = 50 ;
             if (!old_comments2_add_new_comment_tr) {
                 // gift was not found - that is ok
-                add2log('Gift ' + new_comment_gift_id + ' was not found') ;
+                add2log(pgm + 'Gift ' + new_comment_gift_id + ' was not found') ;
                 continue ;
             }
             debug = 51 ;
             old_comments2_length = old_comments2_trs.length;
             debug = 52 ;
-            // add2log('old length = ' + old_length + ', new length = ' + new_length);
+            // add2log(pgm + 'old length = ' + old_length + ', new length = ' + new_length);
             if (old_comments2_length == 0) {
                 // insert first comment for gift before add new comment row
+                add2log(pgm + 'insert first comment for gift before add new comment row') ;
                 debug = 53 ;
                 new_comments_tbody.removeChild(new_comment_tr) ;
+                // todo: opera 12 error ==>
+                //   Javascript fejl ved indsættelse af nye kommentarer.
+                //   NotFoundError: Failed to execute 'insertBefore' on 'Node':
+                //   The node before which the new node is to be inserted is not a child of this node. (5,54).
                 debug = 54 ;
-                old_comments1_tbody.insertBefore(new_comment_tr, old_comments2_add_new_comment_tr);
+                add2log(pgm + 'old_comments1_tbody = ' + old_comments1_tbody) ;
                 debug = 55 ;
-                ajax_flash(new_comment_tr.id) ;
+                add2log(pgm + 'new_comment_tr = ' + new_comment_tr) ;
                 debug = 56 ;
-                add2log('First comment ' + new_comment_comment_id + ' for gift ' + new_comment_gift_id);
+                add2log(pgm + 'old_comments2_add_new_comment_tr = ' + old_comments2_add_new_comment_tr) ;
+                debug = 57 ;
+                old_comments1_tbody.insertBefore(new_comment_tr, old_comments2_add_new_comment_tr);
+                // todo: opera 12 error <==
+                debug = 58 ;
+                ajax_flash(new_comment_tr.id) ;
+                debug = 59 ;
+                add2log(pgm + 'First comment ' + new_comment_comment_id + ' for gift ' + new_comment_gift_id);
                 continue;
             }
             debug = 60 ;
@@ -1874,14 +1889,12 @@ function post_ajax_add_new_comment_handler(giftid) {
     var id = '#gift-' + giftid + '-new-comment-form';
     // var gifts2 = document.getElementById('gifts') ;
     // add2log(id + '. old gifts.rows = ' + gifts2.rows.length) ;
-
-//    $(id).unbind("ajax:send");
-//    $(id).bind("ajax:send", function() {
-//        var pgm = id + '.ajax.send: ' ;
-//        add2log(pgm + 'start. giftid = ' + giftid) ;
-//        comment_submit_enable(giftid) ;
-//    }); // complete
-
+    $(id).unbind("ajax:send");
+    $(id).bind("ajax:send", function() {
+        var pgm = id + '.ajax.send: ' ;
+        add2log(pgm + 'start. giftid = ' + giftid) ;
+        comment_submit_disable(giftid) ;
+    }); // complete
     $(id).unbind("ajax:success");
     $(id).bind("ajax:success", function (evt, data, status, xhr) {
         var pgm = id + '.ajax.success: ' ;

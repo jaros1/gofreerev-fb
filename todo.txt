@@ -971,6 +971,9 @@
      must be a secondary/temporary error - no error after xhr? fix for ie8
 
 203) double comment submit - should use same solution as for new gift submit
+     ie8 - not working - nothing happens - maybe IE8 do not like disable before submit
+     ie9 - ok
+     opera 12 - not working - maybe same problem as for ie8
 
 205) check startup page size
      http://www.version2.dk/artikel/mobilsiderne-bliver-stoerre-og-langsommere-56847
@@ -990,3 +993,24 @@
 
 210) add hide link for "Gift was posted in here and on your facebook wall but picture cannot be displayed.
      Allow Gofreerev to read posts on my facebook wall!" url?
+
+211) ie9 - cross site forgery when starting gofreerev from apps.facebook.com/gofreerev-dev
+
+212) opera 12 errors:
+     page header:
+     Javascript fejl ved tjek for nye beskeder. NotFoundError: Failed to execute 'insertBefore' on 'Node': The node before which the new node is to be inserted is not a child of this node. (4,3).
+     Javascript fejl ved indsættelse af nye kommentarer. NotFoundError: Failed to execute 'insertBefore' on 'Node': The node before which the new node is to be inserted is not a child of this node. (5,54).
+     Fejl ved tjek for nye beskeder. error. Mere information i server log.
+     debug log:
+     find_overflow: hyphenate text (opera 12)
+     clear_ajax_errors: table_id = show-more-rows-errors
+     find_overflow: hyphenate text (opera 12)
+     stop_show_more_rows_spinner: spinner.style.display =
+     report_missing_api_picture_urls: no picture urls to check
+     clear_ajax_errors: table_id = show-more-rows-errors
+     Sleep 0 seconds. previous timestamp 40515.42, next timestamp 40605.859
+     show_more_rows_scroll: table_name = gifts. call show_more_rows in 0 milliseconds
+     start_show_more_rows_spinner: start
+     #show-more-rows-link.ajax.error: start
+     clear_ajax_errors: table_id = show-more-rows-errors
+     add_to_tasks_errors2: length = undefined
