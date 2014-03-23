@@ -186,6 +186,8 @@ da:
         user_denied_other: "Systemfejl. Ukendt facebook-anmodning blev afvist."
         auth_code_expired: "Midlertidig fejl. Autorisationskode er udløbet. Prøv en gang til."
         auth_code_error: "Uventet fejl ved login. %{error}. Prøv en gang til."
+        status_update_failed: "%{appname} fik ikke tilladelse til at lave opslag på din facebook-væg. %{error}"
+        read_stream_failed: "%{appname} fik ikke tilladelse til at læse opslag på din facebook-væg. %{error}"
         ok_login: "Facebook-login ok."
         ok_login_new_user: "Facebook login ok. Velkommen til %{appname}. Din venneliste er ved at blive hentet og vil være klar til brug lige om lidt."
         ok_status_update: "%{appname} fik tilladelse til at lave opslag på din %{apiname} væg."

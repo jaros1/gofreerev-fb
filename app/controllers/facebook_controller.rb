@@ -112,6 +112,7 @@ class FacebookController < ApplicationController
   # get /facebook - is called after authorization (create)
   # rejected: Parameters: {"error_reason"=>"user_denied", "error"=>"access_denied", "error_description"=>"The user denied your request."}
   # accepted: Parameters: {"code"=>"AQA6165EwuVn3EVKkzy2TOocej1wBb_t-9jEuhJQFFK7GH2PDkDbbSOOd9lhoqIYibusDfPpWOwaUg6XYiR2lcmP2tLgG0RPgRxL6qwFBZalg0j6wXSO8bZmjKn-yf9O_GOH9wm5ugMKLUihU7mjfLAbR58FrJ8wdgnej2aG9KLQvKNenb16Hf_ULI016u3DGHM-zGvmyb8xAgAAabOHkDQNT5C3lIO0eXTGMwo66zLrnn0jkENguAnAUuZrVym9OMiBV1f9ocg8WfgprflPq-BHOSHdhuHgYISHxO_nTs1dT7Ku5z551ZyBq1hG15aG4"}
+  # error: Parameters: {"error_code"=>"2", "error_message"=>"Denne funktion er desværre ikke tilgængelig i øjeblikkket: Der opstod en fejl under behandling af denne forespørgsel. Prøv igen senere.", "state"=>"BlGyeeW7Nd5lebhCkNeUCCo26hdpQY-status_update"}
   def index
 
     # where is request comming from?
@@ -129,16 +130,26 @@ class FacebookController < ApplicationController
     # use special "tasks" session store for login. use normal session cookie store for add. mission privs. actions
     if context == 'login' and invalid_state_tasks_store? or # state in tasks store (special IE10 workaround)
         context != 'login' and invalid_state_cookie_store? # state in normal session cookie store
-      save_flash ".invalid_state_#{context}", :appname => APP_NAME
+      save_flash_key ".invalid_state_#{context}", :appname => APP_NAME
       redirect_to :controller => (%w(login other).index(context) ? :auth : :gifts)
       logout(provider)
       return
     end # if invalid_state?
     clear_state_cookie_store
 
+    if params[:error_code] == '2' and context != 'login'
+      # Parameters: {"error_code"=>"2",
+      #              "error_message"=>"Denne funktion er desværre ikke tilgængelig i øjeblikkket: Der opstod en fejl under behandling af denne forespørgsel. Prøv igen senere.",
+      #              "state"=>"BlGyeeW7Nd5lebhCkNeUCCo26hdpQY-status_update"}
+      # grant extra privs. failed (status_update or read_stream)
+      save_flash_key ".#{context}_failed", :appname => APP_NAME, :error => params[:error_message]
+      redirect_to :controller => :gifts
+      return
+    end
+
     if params[:error_reason] == 'user_denied'
       # user cancelled or denied api request
-      save_flash ".user_denied_#{context}", :appname => APP_NAME
+      save_flash_key ".user_denied_#{context}", :appname => APP_NAME
       redirect_to :controller => (%w(login other).index(context) ? :auth : :gifts)
       logout(provider) if context == 'login'
       return
@@ -153,15 +164,15 @@ class FacebookController < ApplicationController
         access_token = oauth.get_access_token(params[:code])
       rescue Koala::Facebook::OAuthTokenRequestError => e
         if e.message =~ /authorization code has expired/
-          save_flash ".auth_code_expired", :appname => APP_NAME
+          save_flash_key ".auth_code_expired", :appname => APP_NAME
         else
-          save_flash ".auth_code_error", :appname => APP_NAME, :error => e.message
+          save_flash_key ".auth_code_error", :appname => APP_NAME, :error => e.message
         end
         redirect_to :controller => :auth
         return
       rescue Exception => e
         logger.debug2 "exception: #{e.message} (#{e.class})"
-        save_flash ".auth_code_error_", :appname => APP_NAME, :error => e.message
+        save_flash_key ".auth_code_error_", :appname => APP_NAME, :error => e.message
         redirect_to :controller => :auth
         return
       end
@@ -226,16 +237,16 @@ class FacebookController < ApplicationController
         user.permissions = api_response['permissions']['data'][0]
         user.save!
       end
-      save_flash ".ok_#{context}", user.app_and_apiname_hash
+      save_flash_key ".ok_#{context}", user.app_and_apiname_hash
       redirect_to :controller => :gifts
     else
       # login failed
       key, options = res
       begin
-        save_flash key, options
+        save_flash_key key, options
       rescue Exception => e
         logger.debug2  "invalid response from User.find_or_create_from_auth_hash. Must be nil or a valid input to translate. Response: #{user}"
-        save_flash '.find_or_create_from_auth_hash', :response => user, :exception => e.message.to_s
+        save_flash_key '.find_or_create_from_auth_hash', :response => user, :exception => e.message.to_s
       end
       redirect_to :controller => :auth
     end

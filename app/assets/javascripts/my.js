@@ -151,7 +151,7 @@ function csv_invalid_price (id)
     var price = document.getElementById(id).value ;
     // add2log(pgm + 'id = ' + id + ', price = ' + price) ;
     price = $.trim(price);
-    var r = /^[0-9]*((\.|,)[0-9]{0,2})?$'/ ;
+    var r = /^[0-9]*((\.|,)[0-9]{0,2})?$/ ;
     // add2log('price = ' + price + ', r = ' + r + ', r.test(price) = ' + r.test(price)) ;
     if (!r.test(price) || (price == '.') || (price == ',')) return true ;
     return false ;
@@ -221,6 +221,8 @@ function csv_gift() {
 // Client side validation for new comment
 function csv_comment(giftid)
 {
+    // ie fix. check if submit bottom has been disabled
+    if (is_comment_submit_disabled(giftid)) return false ;
     // check required comment
     if (csv_empty_field("gift-" + giftid + "-comment-new-textarea")) {
         alert(I18n.t('js.gifts.comment_comment_required_text'));
@@ -237,9 +239,36 @@ function csv_comment(giftid)
     if (table) clear_ajax_errors(table_id) ;
     clear_flash_and_ajax_errors() ;
     post_ajax_add_new_comment_handler(giftid) ;
+    comment_submit_disable(giftid);
     return true ;
 } // csv_comment
 
+// prevent double comment submit
+function comment_submit_disable (giftid) {
+    var submit_id, submit ;
+    for (var i=1 ; i<= 2 ; i++) {
+        submit_id = "gift-" + giftid + "-comment-new-submit-" + i ;
+        submit = document.getElementById(submit_id) ;
+        if (submit) submit.disabled = true ;
+    }
+} // comment_submit_disable
+function is_comment_submit_disabled (giftid) {
+    var submit_id, submit ;
+    for (var i=1 ; i<= 2 ; i++) {
+        submit_id = "gift-" + giftid + "-comment-new-submit-" + i ;
+        submit = document.getElementById(submit_id) ;
+        if (submit && submit.disabled) return true ;
+    }
+    return false ;
+}
+function comment_submit_enable (giftid) {
+    var submit_id, submit ;
+    for (var i=1 ; i<= 2 ; i++) {
+        submit_id = "gift-" + giftid + "-comment-new-submit-" + i ;
+        submit = document.getElementById(submit_id) ;
+        if (submit) submit.disabled = false ;
+    }
+} // comment_submit_enable
 
 // this ajax flash is used when inserting or updating gifts and comments in gifts table
 // todo: add some kind of flash when removing (display=none) rows from gifts table
@@ -1845,6 +1874,14 @@ function post_ajax_add_new_comment_handler(giftid) {
     var id = '#gift-' + giftid + '-new-comment-form';
     // var gifts2 = document.getElementById('gifts') ;
     // add2log(id + '. old gifts.rows = ' + gifts2.rows.length) ;
+
+//    $(id).unbind("ajax:send");
+//    $(id).bind("ajax:send", function() {
+//        var pgm = id + '.ajax.send: ' ;
+//        add2log(pgm + 'start. giftid = ' + giftid) ;
+//        comment_submit_enable(giftid) ;
+//    }); // complete
+
     $(id).unbind("ajax:success");
     $(id).bind("ajax:success", function (evt, data, status, xhr) {
         var pgm = id + '.ajax.success: ' ;
@@ -1960,6 +1997,14 @@ function post_ajax_add_new_comment_handler(giftid) {
             add_to_tasks_errors(I18n.t('js.new_comment.ajax_error2', {error: err, location: 13, debug: 3})) ;
         }
     }); // ajax:error
+
+    $(id).unbind("ajax:complete");
+    $(id).bind("ajax:complete", function() {
+        var pgm = id + '.ajax.complete: ' ;
+        add2log(pgm + 'start. giftid = ' + giftid) ;
+        comment_submit_enable(giftid) ;
+    }); // complete
+
 } // post_ajax_add_new_comment_handler
 
 function create_com_link_errors_table(table_id) {

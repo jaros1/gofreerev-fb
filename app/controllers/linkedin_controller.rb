@@ -16,7 +16,7 @@ class LinkedinController < ApplicationController
       # linkedin client temporary saved in task queue in util.post_on_linkedin was not found
       # maybe client was deleted by cleanup rutine (clients older than 10 minutes are deleted)
       # maybe used has reloaded this page after an exception
-      save_flash '.no_client', :apiname => provider_downcase('linkedin'), :appname => APP_NAME
+      save_flash_key '.no_client', :apiname => provider_downcase('linkedin'), :appname => APP_NAME
       redirect_to :controller => :gifts
       return
     end
@@ -24,7 +24,7 @@ class LinkedinController < ApplicationController
       token = api_client.authorize_from_request(api_client.request_token.token, api_client.request_token.secret, params[:oauth_verifier])
     rescue Exception => e
       logger.debug2 "Exception: #{e.message} (#{e.class})"
-      save_flash '.auth_failed', :apiname => provider_downcase('linkedin'), :appname => APP_NAME, :error => e.message
+      save_flash_key '.auth_failed', :apiname => provider_downcase('linkedin'), :appname => APP_NAME, :error => e.message
       raise
     end
     # logger.debug2  "x = #{token} (#{token.class})"
@@ -51,16 +51,16 @@ class LinkedinController < ApplicationController
         user = User.find_by_user_id(user_id)
         user.permissions = "r_basicprofile,r_network,rw_nus"
         user.save!
-        save_flash ".ok_rw_nus", user.app_and_apiname_hash
+        save_flash_key ".ok_rw_nus", user.app_and_apiname_hash
         redirect_to :controller => :gifts
       else
         # login failed
         key, options = res2
         begin
-          save_flash key, options
+          save_flash_key key, options
         rescue Exception => e
           logger.debug2  "invalid response from login. Must be nil or a valid input to translate. Response: #{res2}"
-          save_flash '.find_or_create_from_auth_hash', :response => res2, :exception => e.message.to_s
+          save_flash_key '.find_or_create_from_auth_hash', :response => res2, :exception => e.message.to_s
         end
         redirect_to :controller => :auth
       end

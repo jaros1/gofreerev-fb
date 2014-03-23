@@ -76,13 +76,13 @@ class ApplicationController < ActionController::Base
     return if users.size == 0
     user_ids = users.collect { |u| u.user_id}
     # get friends. split in 4 categories. Y: mutual friends, F: follows, S: Stalked by, N: not app friend
-    logger.debug2 "get friends. user_ids = #{user_ids.join(', ')}"
+    # logger.debug2 "get friends. user_ids = #{user_ids.join(', ')}"
     users_app_friends = { 'Y' => [], 'F' => [], 'S' => [], 'N' => []}
     friends = Friend.where("user_id_giver in (?)", user_ids)
     friends.each do |f|
       users_app_friends[f.app_friend || f.api_friend] << f.user_id_receiver # save userids in Y, F, S and N arrays
     end
-    logger.debug2 "get friends of mutual friends"
+    # logger.debug2 "get friends of mutual friends"
     friends_of_friends_ids = Friend.
         where('user_id_giver in (?)', users_app_friends['Y']).
         find_all { |f| (f.app_friend || f.api_friend) == 'Y' }.
@@ -426,7 +426,7 @@ class ApplicationController < ActionController::Base
   def login_required
     return true if logged_in?
     if !xhr?
-      save_flash 'shared.not_logged_in.redirect_flash'
+      save_flash_key 'shared.not_logged_in.redirect_flash'
       redirect_to :controller => :auth, :action => :index
       return
     end
@@ -449,7 +449,7 @@ class ApplicationController < ActionController::Base
       add_error_key key, :id => table
     else
       logger.error2 "not logged in ajax response not implemented for controller = #{params[:controller]}, action = #{params[:action]}"
-      save_flash key
+      save_flash_key key
       redirect_to :controller => :auth, :action => :index
       # JS error: ....: "SyntaxError: syntax error. check server log for more information"
     end
@@ -1744,7 +1744,7 @@ class ApplicationController < ActionController::Base
   # use save_flash before redirect
   # use add_error_key or add_error_text for flash messages in page header without redirect
   private
-  def save_flash (key, options = {})
+  def save_flash_key (key, options = {})
     # delete old flash
     flash_id = session[:flash_id]
     if flash_id
@@ -1759,6 +1759,24 @@ class ApplicationController < ActionController::Base
     session[:flash_id] = f.id
     logger.debug2 "flash.id = #{f.id}, session[:flash_id] = #{session[:flash_id]}, message = #{f.message}"
   end
+
+  private
+  def save_flash_text (text)
+    # delete old flash
+    flash_id = session[:flash_id]
+    if flash_id
+      f = Flash.find_by_id(flash_id)
+      f.destroy if f
+      session.delete(:flash_id)
+    end
+    # create new flash
+    f = Flash.new
+    f.message = text
+    f.save!
+    session[:flash_id] = f.id
+    logger.debug2 "flash.id = #{f.id}, session[:flash_id] = #{session[:flash_id]}, message = #{f.message}"
+  end
+
 
   private
   def get_flash

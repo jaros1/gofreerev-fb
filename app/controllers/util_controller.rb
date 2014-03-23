@@ -22,6 +22,7 @@ class UtilController < ApplicationController
       render :nothing => true
       return
     end
+
     # cleanup - destroy old delete marked gifts
     # gift was marked as deleted in util/delete_gift request
     # gift has been ajax removed from  gifts pages for other sessions in previous util/new_message_count requests
@@ -279,6 +280,7 @@ class UtilController < ApplicationController
               #    next
               #end
               if key
+                key = "util.do_tasks#{key}" if key.first == '.'
                 add_error_key key, options
                 next
               end

@@ -91,10 +91,10 @@
               </tr>
               <tr>
                 <td><%= f.text_area :comment, :size => '60x1', :placeholder => t('.enter_comment'), :onfocus => 'autoresize_text_field(this)', :id => "gift-#{gift.id}-comment-new-textarea", :class => "new_com_text" %></td>
-                <td><%= f.submit 'Gem', :onclick => "return csv_comment(#{gift.id})", :class => "submit_comment_large" %></td>
+                <td><%= f.submit 'Gem', :onclick => "return csv_comment(#{gift.id})", :id => "gift-#{gift.id}-comment-new-submit-1", :class => "submit_comment_large" %></td>
               </tr>
               <tr class="submit_comment_small">
-                <td colspan="2"><%= f.submit 'Gem', :onclick => "return csv_comment(#{gift.id})" %></td>
+                <td colspan="2"><%= f.submit 'Gem', :onclick => "return csv_comment(#{gift.id})", :id => "gift-#{gift.id}-comment-new-submit-2" %></td>
               </tr>
             </table>
         <% end -%>

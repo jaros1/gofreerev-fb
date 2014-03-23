@@ -14,7 +14,7 @@ class FlickrController < ApplicationController
       # flickr client temporary saved in task queue in util.post_on_flickr was not found
       # maybe client was deleted by cleanup rutine (clients older than 10 minutes are deleted)
       # maybe used has reloaded this page after an exception
-      save_flash '.no_client', :apiname => provider_downcase('flickr'), :appname => APP_NAME
+      save_flash_key '.no_client', :apiname => provider_downcase('flickr'), :appname => APP_NAME
       redirect_to :controller => :gifts
       return
     end
@@ -26,7 +26,7 @@ class FlickrController < ApplicationController
       res1 = api_client.test.login
     rescue Exception => e
       logger.debug2 "Exception: #{e.message} (#{e.class})"
-      save_flash '.auth_failed', :apiname => provider_downcase('flickr'), :appname => APP_NAME, :error => e.message
+      save_flash_key '.auth_failed', :apiname => provider_downcase('flickr'), :appname => APP_NAME, :error => e.message
       redirect_to :controller => :gifts
       return
     end
@@ -77,16 +77,16 @@ class FlickrController < ApplicationController
         user = User.find_by_user_id(user_id)
         user.permissions = "write"
         user.save!
-        save_flash ".ok_write", user.app_and_apiname_hash
+        save_flash_key ".ok_write", user.app_and_apiname_hash
         redirect_to :controller => :gifts
       else
         # login failed
         key, options = res3
         begin
-          save_flash key, options
+          save_flash_key key, options
         rescue Exception => e
           logger.debug2  "invalid response from login. Must be nil or a valid input to translate. Response: #{res3}"
-          save_flash '.find_or_create_from_auth_hash', :response => res3, :exception => e.message.to_s
+          save_flash_key '.find_or_create_from_auth_hash', :response => res3, :exception => e.message.to_s
         end
         redirect_to :controller => :auth
       end

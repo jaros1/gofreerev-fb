@@ -183,6 +183,8 @@ en:
         user_denied_other: "System error. Unknown facebook request was rejected."
         auth_code_expired: "Temporary error. This authorization code has expired. Please try again."
         auth_code_error: "Unexpected error at log in. %{error}. Please try again."
+        status_update_failed: "%{appname} was not granted access to write on your facebook wall. %{error}"
+        read_stream_failed: "%{appname} was not granted access to read posts on your facebook wall. %{error}"
         ok_login: "Facebook log in ok."
         ok_login_new_user: "Facebook log in ok. Welcome to %{appname}. Your friends list is being downloaded and will be ready for use in a minute."
         ok_status_update: "You have granted %{appname} permission to write on your %{apiname} wall."

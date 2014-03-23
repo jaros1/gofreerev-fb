@@ -12,7 +12,7 @@ class UsersController < ApplicationController
   def update
     if !@users.find { |user| params[:id] == user.id.to_s}
       logger.debug2  "invalid id. params[:id] = #{params[:id]}"
-      save_flash '.invalid_request'
+      save_flash_key '.invalid_request'
       if params[:return_to].to_s != ''
         redirect_to params[:return_to]
       else
@@ -47,14 +47,14 @@ class UsersController < ApplicationController
     @user2 = User.find_by_id(id)
     if !@user2
       logger.debug2  "invalid request. User with id #{id} was not found"
-      save_flash '.invalid_request'
+      save_flash_key '.invalid_request'
       redirect_to :action => :index, :friends => 'me'
       return
     end
     logger.debug2  "@user2 = #{@user2.id} #{@user2.user_name}"
     if !login_user_ids.index(@user2.user_id)
       logger.debug2  "invalid request. Not logged in with user id #{id}"
-      save_flash '.invalid_request'
+      save_flash_key '.invalid_request'
       redirect_to :action => :index, :friends => 'me'
       return
     end
@@ -237,7 +237,7 @@ class UsersController < ApplicationController
     @user2 = User.find_by_id(id)
     if !@user2
       logger.debug2  "invalid request. User with id #{id} was not found"
-      save_flash '.invalid_request'
+      save_flash_key '.invalid_request'
       redirect_to :action => :index
       return
     end
@@ -245,7 +245,7 @@ class UsersController < ApplicationController
     # check if login users are allowed to see @user2
     if !(login_user = @users.find { |u| u.provider == @user2.provider })
       logger.debug2 "invalid request. Not connected with a #{@user2.provider} account"
-      save_flash '.invalid_request'
+      save_flash_key '.invalid_request'
       redirect_to :action => :index
       return
     elsif login_user_ids.index(@user2.user_id)
@@ -260,7 +260,7 @@ class UsersController < ApplicationController
       #mutual_friends = friends1 & friends2
       #if mutual_friends.size == 0
       logger.warn2 "invalid request. Did not find any mutual friends between @user2 #{@user2.user_id} #{@user2.short_user_name} and login_user #{login_user.user_id} #{login_user.short_user_name}"
-      save_flash '.invalid_request'
+      save_flash_key '.invalid_request'
       redirect_to :action => :index
       #  return
       #end
@@ -428,7 +428,7 @@ class UsersController < ApplicationController
       today = Sequence.get_last_exchange_rate_date
       er = ExchangeRate.where('date = ? and from_currency = ? and to_currency = ?', today, BASE_CURRENCY, new_currency).first
       if !er
-        save_flash '.invalid_currency' # todo: add key - test error message
+        save_flash_key '.invalid_currency' # todo: add key - test error message
         redirect_to params[:return_to]
         return
       end
@@ -467,7 +467,7 @@ class UsersController < ApplicationController
     user2 = User.find_by_id(id2)
     if !user2
       logger.debug2  "invalid request. Friend with id #{id2} was not found"
-      save_flash '.invalid_request'
+      save_flash_key '.invalid_request'
       redirect_to return_to
       return
     end
@@ -493,7 +493,7 @@ class UsersController < ApplicationController
     # do app friend action
     # for example send_app_friend_request with ok response send_app_friend_request_ok and error response send_app_friend_request_error
     postfix = user2.send(friend_action, login_user) ? "_ok" : "_error"
-    save_flash ".#{friend_action}#{postfix}", :appname => APP_NAME, :username => user2.short_user_name
+    save_flash_key ".#{friend_action}#{postfix}", :appname => APP_NAME, :username => user2.short_user_name
     redirect_to return_to
   end # friend_actions
 

@@ -78,9 +78,9 @@ class AuthController < ApplicationController
       user = User.find_by_user_id(user_id)
       no_friends = user.friends.size-1
       if no_friends == 0
-        save_flash '.login_ok_new_user', user.app_and_apiname_hash
+        save_flash_key '.login_ok_new_user', user.app_and_apiname_hash
       else
-        save_flash '.login_ok', user.app_and_apiname_hash
+        save_flash_key '.login_ok', user.app_and_apiname_hash
       end
       redirect_to :controller => :gifts, :action => :index
     else
@@ -88,10 +88,10 @@ class AuthController < ApplicationController
       # todo: copy translate error handling from util.do_tasks
       key, options = res
       begin
-        save_flash key, options
+        save_flash_key key, options
       rescue Exception => e
         logger.debug2  "invalid response from User.find_or_create_from_auth_hash. Must be nil or a valid input to translate. Response: #{user}"
-        save_flash '.find_or_create_from_auth_hash', :response => user, :exception => e.message.to_s
+        save_flash_key '.find_or_create_from_auth_hash', :response => user, :exception => e.message.to_s
       end
       redirect_to :controller => :auth, :action => :index
     end
@@ -126,7 +126,7 @@ class AuthController < ApplicationController
         error.class == OmniAuth::Strategies::OAuth2::CallbackError and
         params[:error] == 'access_denied'
       logger.debug2  "facebook login was cancelled"
-      save_flash ".login_cancelled", :provider => 'facebook', :appname => APP_NAME
+      save_flash_key ".login_cancelled", :provider => 'facebook', :appname => APP_NAME
       redirect_to :controller => :auth
       return
     end
@@ -145,11 +145,11 @@ class AuthController < ApplicationController
       client = get_linkedin_api_client()
       if client
         logger.debug2  "request for linked rw_nus priv. was cancelled"
-        save_flash ".linkedin_rw_nus_cancelled", :appname => APP_NAME
+        save_flash_key ".linkedin_rw_nus_cancelled", :appname => APP_NAME
         redirect_to :controller => :gifts
       else
         logger.debug2  "linkedin login was cancelled"
-        save_flash ".login_cancelled", :provider => 'linkedin', :appname => APP_NAME
+        save_flash_key ".login_cancelled", :provider => 'linkedin', :appname => APP_NAME
         redirect_to :controller => :auth
       end
       return
@@ -172,7 +172,7 @@ class AuthController < ApplicationController
         error.class == OAuth::Unauthorized and
         error.message == '401 Unauthorized'
       logger.debug2  "twitter login was cancelled"
-      save_flash ".login_cancelled", :provider => 'twitter', :appname => APP_NAME
+      save_flash_key ".login_cancelled", :provider => 'twitter', :appname => APP_NAME
       redirect_to :controller => :auth
       return
     end
@@ -196,7 +196,7 @@ class AuthController < ApplicationController
     message = error.message unless message
     message = message.to_s.first(40)
     # flash[:notice] = "Authentication failure! #{type}: #{message}"
-    save_flash '.authentication_failure', :provider => provider_downcase(strategy.name), :type => type, :message => message
+    save_flash_key '.authentication_failure', :provider => provider_downcase(strategy.name), :type => type, :message => message
     redirect_to '/auth'
   end # oauth_failure
 
@@ -204,14 +204,14 @@ class AuthController < ApplicationController
   # logout. id is all or login provider
   def destroy
     if User.dummy_users?(@users)
-      save_flash '.already_logged_off'
+      save_flash_key '.already_logged_off'
       redirect_to :action => :index
       return
     end
     provider = params[:id].to_s
     if provider != "all" and !valid_provider?(provider)
       logger.debug2 "1: unknown provider #{provider}"
-      save_flash '.unknown_provider'
+      save_flash_key '.unknown_provider'
       redirect_to :action => :index
       return
     end
@@ -224,7 +224,7 @@ class AuthController < ApplicationController
     # redirect to api or redirect to auth/index page
     if !@users.first.dummy_user?
       # user logged in with other login provider(s)
-      save_flash '.logged_off', :appname => APP_NAME, :apiname => provider_downcase(provider)
+      save_flash_key '.logged_off', :appname => APP_NAME, :apiname => provider_downcase(provider)
       if params[:return_to]
         # logout from users/edit page. return to users/index?friends=me
         redirect_to params[:return_to]
