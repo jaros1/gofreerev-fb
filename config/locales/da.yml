@@ -126,7 +126,7 @@ da:
         checkbox_prompt: "Saml konti?"
         shared_accounts_prompt: "Delte konti: "
         no_shared_accounts_text: "Ingen delte konti"
-        other_users_note: " ( *=delt med ikke forbundet konto )"
+        other_users_note: " ( *=ikke forbundet konto )"
 
   # omniauth controllers (auth, facebook and linkedin):
 
@@ -893,7 +893,7 @@ da:
   # translation keys used in javascript (error) messages
   js:
      general:
-        ajax_leave_page: "Afslutter en igangværende opgave. Vent venligst."
+        ajax_leave_page: "Afslutter igangværende opgave. Vent venligst."
         tasks_errors2_missing: "Systemfejl. Skjult html tabel tasks_errors2 mangler."
         tasks_errors2_invalid: "System error. Forkert antal kolonner i html tabel tasks_errors2 række %{row}. Forventede %{expected} kolonner. Fandt %{found} kolonner."
      gifts:

@@ -1633,8 +1633,10 @@ class UtilController < ApplicationController
     end
   end # post_on_wall_yn
 
-
-  # share accounts ajax request from auth/index page
+  # share accounts ajax request from auth/index page (checkbox)
+  # used for shared balance across multiple login providers
+  # used for friends search across multiple login providers
+  # not used for single sign-on
   public
   def share_accounts_yn
     begin

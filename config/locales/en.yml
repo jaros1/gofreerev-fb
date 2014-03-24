@@ -124,7 +124,7 @@ en:
         checkbox_prompt: "Share accounts?"
         shared_accounts_prompt: "Shared accounts: "
         no_shared_accounts_text: "No shared accounts"
-        other_users_note: " ( *=shared with not connected account )"
+        other_users_note: " ( *=not connected account )"
 
   # omniauth controllers (auth, facebook and linkedin):
 
@@ -889,7 +889,7 @@ en:
   # translation keys used in javascript (error) messages
   js:
      general:
-        ajax_leave_page: "Waiting for some finish some unfinished business to finish. Please wait."
+        ajax_leave_page: "Waiting for some unfinished business to finish. Please wait."
         tasks_errors2_missing: "System error. Hidden html table tasks_errors2 is missing."
         tasks_errors2_invalid: "System error. Invalid number of cells in html table tasks_errors2 row %{row}. Expected %{expected} cells. Found %{found} cells."
      gifts:

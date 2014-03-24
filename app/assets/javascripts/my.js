@@ -2258,6 +2258,42 @@ function post_on_wall_ajax(checkbox) {
     });
 } // post_on_wall_ajax
 
+// set/reset user,user_combination
+// used in shared/share_accounts partial
+// used in auth/index and todo: pages
+function share_accounts_ajax(checkbox) {
+    var pgm = 'share_accounts_ajax: ' ;
+    var share_accounts = checkbox.checked ;
+    // alert('checkbox: share_accounts = ' + share_accounts) ;
+    clear_flash_and_ajax_errors();
+    $.ajax({
+        url: "/util/share_accounts_yn.js",
+        type: "POST",
+        dataType: 'script',
+        data: { share_accounts: share_accounts },
+        beforeSend: function() {
+            // add2log(pgm + 'beforesend') ;
+            checkbox.disabled = true ;
+            checkbox.readonly = true ;
+        },
+//        success: function (responseText, statusText, xhr, $form) {
+//            var pgm = 'share_accounts_ajax:success: ' ;
+//            add2log(pgm + 'start') ;
+//        }, // success
+        error: function (jqxhr, textStatus, errorThrown) {
+            var pgm = 'share_accounts_ajax:error: ' ;
+            if (leaving_page) return ;
+            var err = add2log_ajax_error(pgm, jqxhr, textStatus, errorThrown) ;
+            add_to_tasks_errors(I18n.t('js.share_accounts.ajax_error', {error: err, location: 19, debug: 0}));
+        },
+        complete: function() {
+            // add2log(pgm + 'complete') ;
+            checkbox.disabled = false ;
+            checkbox.readonly = false ;
+        }
+    });
+
+} // share_accounts_ajax
 
 // show/hide ajax debug log checkbox in bottom of page. Only used if debug_ajax? / DEBUG_AJAX is true
 function show_debug_log_checkbox(checkbox) {

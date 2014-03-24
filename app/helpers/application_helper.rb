@@ -362,6 +362,11 @@ module ApplicationHelper
     text += " #{t('.other_users_note')}" if text.index('*')
     text
   end
+  def shared_accounts_disabled?
+    return true if not logged_in?
+    return false if @users.size > 1
+    (shared_accounts.size == 0)
+  end
 
 
 end # ApplicationHelper

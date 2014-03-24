@@ -82,6 +82,10 @@
 </div>
 <br/>
 
+<% if @page_values[:friends] == 'me' -%>
+    <%= render :partial => 'shared/share_accounts' %>
+<% end -%>
+
 <% if User.no_app_friends(@users) == 0 -%>
     <%= hr = true ; render :partial => 'shared/no_app_friends' %>
 <% end -%>
