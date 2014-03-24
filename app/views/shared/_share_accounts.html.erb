@@ -1,0 +1,10 @@
+<% if logged_in? -%>
+    <div style="width: 100%" id="share_accounts_div" title="<%= t '.title', :appname => APP_NAME %>">
+      <br/>
+      <%= t '.checkbox_prompt' %>
+      <%= check_box_tag "share_accounts_check_box", 1, shared_accounts?, :onchange => "share_accounts_ajax(this)" %>
+      &nbsp;&nbsp;
+      <%= t '.shared_accounts_prompt' %>
+      <%= shared_accounts_list %>
+    </div>
+<% end -%>

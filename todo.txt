@@ -453,6 +453,7 @@
      number of users in http/ajax requests should match number of columns.
      2 columns: get 2 friends in first request - get 20 friends in next request
      3 columns: get 3 friends in first request - get 30 friends in next request
+     problems with show-more-rows functionality?
 
 116) post on twitter: Exception: execution expired (Twitter::Error) after 6 seconds
      added exception to post on twitter for debug
@@ -473,9 +474,9 @@
      can not se that comments also was from 109316109373670614208/google_oauth2 Gofreerev A
      Not necessarily a problem as users normally will use there real names, but can be a problem in test
 
-121) accepted deal comment. add accepted and price to comment
+121) view: accepted deal comment. add accepted and price to comment
 
-122) add timestamps to comments.
+122) view: add timestamps to comments.
 
 123) add a text truncated warning when posting on API and text is longer than allowed
      special relevant for tweets
@@ -503,7 +504,7 @@
      https://github.com/ruby-prof/ruby-prof
      http://david.paluy.org/blog/2013/04/09/profiling-rails-applications/
 
-133) collect and organize screendumps
+133) collect and organize screen dumps
 
 134) check that API_MAX_TEXT_LENGTHS constant is used for all api's
 
@@ -522,7 +523,7 @@
 
 140) css wrapword. word-break: break-all;.
      works fine on small width screens but do not look nice on wide screens.
-     there is implemented a workaround for opera 12 that does not support break-all.
+     there is implemented a workaround for opera 12 (that does not support break-all).
      it could be nice to avoid break-all on wide screens but there would still be a problems with long texts without spaces
      a possibility could be hyphenator to insert soft hyphen into text: https://code.google.com/p/hyphenator/
 
@@ -909,7 +910,7 @@
      could be a special spoon.net test problem - could be a reel problem with IE
 
 168) check if there is any virtual machines available for test
-     cannat test latest safari browsers from soon.net
+     cannot test latest safari browsers from soon.net
 
 169) ie8 layout bug in gifts/index page.
      3 column with user div for comment. width = 52px is being ignored.
@@ -924,8 +925,9 @@
      problem is that user could be entering a new comment and that this new unsaved comment will be removed
      testcase: create new gift and start adding a comment for new gift - will be deleted in next new_messages_count request
 
-175) fix scroll page scroll after new bog comment
+175) fix scroll page scroll after new comment
      see scroll store and restore in JS post_ajax_add_new_comment_handler
+     new comment should always be within actual view
 
 177) entering new comment + click on menu link - no leave page yes/no dialog box
      entering new gift + click on menu link - no leave page yes/no dialog box
@@ -943,9 +945,6 @@
      add cleanup for old error messages
      timestamp column is not copied from tasks_errors2 to tasks_errors table (retest - maybe it was a client side JS message)
      timestamp column ok in show-more-rows-error table
-
-180) call login required for all http requests
-     do not call login required for ajax requests (action must report error)
 
 183) fix sort when creating new comments in gifts/index page
      looks like character sort - must be number sort (gift id and comment id)
@@ -970,15 +969,14 @@
      problem when not logged in dev1
      must be a secondary/temporary error - no error after xhr? fix for ie8
 
-203) double comment submit - should use same solution as for new gift submit
-     ie8 - not working - nothing happens - maybe IE8 do not like disable before submit
-     ie9 - ok
-     opera 12 - not working - maybe same problem as for ie8
-
 205) check startup page size
      http://www.version2.dk/artikel/mobilsiderne-bliver-stoerre-og-langsommere-56847
      tools for faking a slow internet connection?
      http://www.ginktage.com/2013/11/tools-for-the-developers-to-simulate-slow-internet-connection/
+     gifts/index - 20 kb
+     users/index - 27 kb
+     - long almost identical mail invite friends mailto texts.
+     - http://stackoverflow.com/questions/9014470/creating-email-link-with-dynamically-generated-body-with-html5-javascript
 
 207) test javascript csv_invalid_price - check price check in all browser versions (error in chrome has been fixed)
 
@@ -991,26 +989,28 @@
 209) cross server friends invite / friends search?
      in a distributed server network different friends will use different servers and gofreerev apps
 
-210) add hide link for "Gift was posted in here and on your facebook wall but picture cannot be displayed.
-     Allow Gofreerev to read posts on my facebook wall!" url?
+210) add hide link for text/url?
+     "Gift was posted in here and on your facebook wall but picture cannot be displayed.
+      Allow Gofreerev to read posts on my facebook wall!"
+      one solution could be to set post on wall = N
+      but it is only a problem for post with pictures
 
-211) ie9 - cross site forgery when starting gofreerev from apps.facebook.com/gofreerev-dev
+211) ie8 and ie9 - cross site forgery when starting gofreerev from apps.facebook.com/gofreerev-dev
 
 212) opera 12 errors:
      page header:
      Javascript fejl ved tjek for nye beskeder. NotFoundError: Failed to execute 'insertBefore' on 'Node': The node before which the new node is to be inserted is not a child of this node. (4,3).
      Javascript fejl ved indsættelse af nye kommentarer. NotFoundError: Failed to execute 'insertBefore' on 'Node': The node before which the new node is to be inserted is not a child of this node. (5,54).
      Fejl ved tjek for nye beskeder. error. Mere information i server log.
-     debug log:
-     find_overflow: hyphenate text (opera 12)
-     clear_ajax_errors: table_id = show-more-rows-errors
-     find_overflow: hyphenate text (opera 12)
-     stop_show_more_rows_spinner: spinner.style.display =
-     report_missing_api_picture_urls: no picture urls to check
-     clear_ajax_errors: table_id = show-more-rows-errors
-     Sleep 0 seconds. previous timestamp 40515.42, next timestamp 40605.859
-     show_more_rows_scroll: table_name = gifts. call show_more_rows in 0 milliseconds
-     start_show_more_rows_spinner: start
-     #show-more-rows-link.ajax.error: start
-     clear_ajax_errors: table_id = show-more-rows-errors
-     add_to_tasks_errors2: length = undefined
+     added some output to debug log
+
+213) move "Share balance?" from users/edit page to auth/index page
+     rename to "share balance?"
+     or split in "share balance?" and "share friends?"
+     merge accounts? checkbox
+     unchecked if not shared or if
+
+214) users/index: add find friends link (only for multi provider login and share friends = yes
+
+215) auth/index and users/index?friends=me
+     show "share accounts" checkbox (text with list of all shared accounts)

@@ -1413,29 +1413,29 @@ class User < ActiveRecord::Base
   end
 
 
-  def inbox_new_notifications
-    raise "debug - maybe no longer used"
-    return @new_notifications if defined?(@new_notifications)
-    return @new_notifications = nil if User.dummy_users?(@users)
-    notifications = Notification.where("to_user_id = ? and noti_read = 'N'", self.user_id)
-    # don't count notifications for deleted or delete marked gifts
-    notifications = notifications.find_all do |noti|
-      giftid = noti.noti_options[:giftid]
-      if giftid
-        # gift/comment notification. Check if gift has been deleted or delete marked.
-        gift = Gift.find_by_id(giftid)
-        gift and !gift.deleted_at
-      else
-        # other notifications
-        true
-      end
-    end
-    if notifications.length > 0
-      @new_notifications = notifications.length
-    else
-      @new_notifications = nil
-    end
-  end # inbox_new_notifications
+  #def inbox_new_notifications
+  #  raise "debug - maybe no longer used"
+  #  return @new_notifications if defined?(@new_notifications)
+  #  return @new_notifications = nil if User.dummy_users?(@users)
+  #  notifications = Notification.where("to_user_id = ? and noti_read = 'N'", self.user_id)
+  #  # don't count notifications for deleted or delete marked gifts
+  #  notifications = notifications.find_all do |noti|
+  #    giftid = noti.noti_options[:giftid]
+  #    if giftid
+  #      # gift/comment notification. Check if gift has been deleted or delete marked.
+  #      gift = Gift.find_by_id(giftid)
+  #      gift and !gift.deleted_at
+  #    else
+  #      # other notifications
+  #      true
+  #    end
+  #  end
+  #  if notifications.length > 0
+  #    @new_notifications = notifications.length
+  #  else
+  #    @new_notifications = nil
+  #  end
+  #end # inbox_new_notifications
 
   # return nil if no notification - return number of notifications
   def self.inbox_new_notifications (login_users)

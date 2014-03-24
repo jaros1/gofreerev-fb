@@ -126,7 +126,6 @@ class CommentsController < ApplicationController
       comment = Comment.find_by_id(id)
       return format_response_key '.unknown_comment' unless comment
       table = "gift-#{comment.gift.id}-comment-#{comment.id}-errors"
-      raise "debug"
       return format_response_key '.not_logged_in', :table => table unless logged_in?
       return format_response_key '.invalid_comment', :table => table unless comment.show_delete_comment_link?(@users)
       @users.remove_deleted_users

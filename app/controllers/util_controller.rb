@@ -1634,6 +1634,40 @@ class UtilController < ApplicationController
   end # post_on_wall_yn
 
 
+  # share accounts ajax request from auth/index page
+  public
+  def share_accounts_yn
+    begin
+      logger.debug2 "params = #{params}"
+      return format_response_key('.not_logged_in') unless logged_in?
+      # check share_accounts_yn
+      share_accounts = case params[:share_accounts]
+                       when 'true' then
+                         true
+                       when 'false' then
+                         false
+                       else
+                         logger.error2 "Invalid share_accounts value received from client. params = #{params}"
+                         return format_response_key('.unknown_share_accounts')
+                       end # case
+      # set or reset user_combination for logged in users
+      if share_accounts
+        user_combination = Sequence.next_user_combination
+      else
+        user_combination = nil
+      end
+      @users.each do |user|
+        user.update_attribute(:user_combination, user_combination)
+      end
+      # return share_accounts_div to client
+      format_response
+    rescue Exception => e
+      logger.debug2 "Exception: #{e.message.to_s} (#{e.class})"
+      logger.debug2 "Backtrace: " + e.backtrace.join("\n")
+      format_response_key '.exception', :error => e.message
+    end
+  end # share_accounts_yn
+
   # grant_write_twitter is called from gifts/index page
   # ( remote link was ajax injected in post_on_twitter if missing write priv. )
   public

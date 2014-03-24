@@ -76,7 +76,6 @@ module ActiveRecordExtensions
       logger.debug2  "encrypt_remove_pre_and_postfix: attributename = #{attributename} (#{attributename.class})"
       logger.debug2  "encrypt_remove_pre_and_postfix: secret_key_no = #{secret_key_no} (#{secret_key_no.class})"
     end
-    raise "debug" if id == 540 and value =~ /^OdkKkag2CZu8/
     r = Random.new encrypt_rand_seed(attributename, secret_key_no)
     prefix_lng = encrypt_prefix(r, attributename, secret_key_no).size
     postfix_lng = encrypt_postfix(r, attributename, secret_key_no).size

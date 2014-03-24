@@ -119,6 +119,11 @@ en:
      languages:
         da: "Danish"
         en: "Engelsk"
+     share_accounts:
+        title: "Use this check box if you want to gather your accounts across login providers to a joint account. If you select X you get a total balance with the sum of the value of the gifts you give and received across all your login providers. X in the check box also allows comparing friends lists across login providers. You can get a list of the friends you are missing and your friends can get a list of the friends they are missing. That is, people who are your friends at one login provider and who is your friend's friend at an other login provider. Mark check box and select Friends / Find friends. X in the check box is NOT single sign-on for all access providers. You'll still need to log in each login provider where you want to view or create posts."
+        checkbox_prompt: "Share accounts?"
+        shared_accounts_prompt: "Shared accounts: "
+        no_shared_accounts_text: "No shared accounts"
 
   # omniauth controllers (auth, facebook and linkedin):
 
@@ -873,8 +878,12 @@ en:
         exception: "System error. Could not hide %{apiname} grant write link. %{error}. More information in server log."
      post_on_wall_yn:
         unknown_provider: "System error. Unknown login provider %{apiname}. Change in Post? has not been saved."
-        unknown_post_on_wall: "System error. Unknown choise for login provider %{apiname}. Change in Post? has not been saved."
+        unknown_post_on_wall: "System error. Unknown choice for login provider %{apiname}. Change in Post? has not been saved."
         exception: "System error. Could not change Post? choice. %{error}. More information in server log."
+     share_accounts_yn:
+        not_logged_in: "Cannot change \"Share accounts?\" choice. You are not logged in. Please refresh page."
+        unknown_post_on_wall: "System error. Unknown choice for share accounts. Change in Share accounts? has not been saved."
+        exception: "System error. Could not change Share accounts? choice. %{error}. More information in server log."
 
   # translation keys used in javascript (error) messages
   js:
@@ -929,3 +938,5 @@ en:
         twitter_ajax_error: "Cannot grant write access twitter wall. %{error}. More information in server log."
         ajax_error: "Cannot grant write access wall. Fejl \"%{error}\" for ugyldig link %{url}. %{error}. More information in server log."
         js_error: "Cannot grant write access wall. Javascript fejl %{error} (%{location},%{debug}). More information in client and server logs."
+     share_accounts:
+        ajax_error: "Error when changing \"Share accounts?\" choice. %{error}. More information in server log."

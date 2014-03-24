@@ -76,8 +76,17 @@ module ApplicationHelper
     return nil unless user.class == User and [Array, ActiveRecord::Relation::ActiveRecord_Relation_User].index(login_users.class)
     return nil if login_users.length == 0
     if user.user_combination
-      # combined user accounts - sum balance for combined user accounts
-      raise "todo: sum balance for combined user accounts not implemented"
+      # shared user account - one balance for all users with this user_combination
+      balance = {}
+      User.where('user_combination = ?', user.user_combination).each do |user2|
+        if user2.balance.class == Hash
+          # sum balance for all users with this user combination
+          user2.balance.each do |name, value|
+            balance[name] = 0 unless balance.has_key? name
+            balance[name] += value
+          end
+        end
+      end
     else
       # standalone user account
       balance = user.balance
@@ -309,6 +318,37 @@ module ApplicationHelper
   def selected_languages
     codes = Rails.application.config.i18n.available_locales.collect { |locale| locale.to_s }
     codes.collect { |code| [t("shared.languages.#{code}"), code]}.sort { |a,b| a[1] <=> b[1] }
+  end
+
+  # shared accounts check box + list shared accounts
+  # used in shared/shared_accounts partial
+  # user in auth/index and todo: xxx pages
+  def shared_accounts
+    shared = {}
+    @users.each do |user|
+      next unless user.user_combination
+      shared[user.user_combination] = [] unless shared.has_key? user.user_combination
+      shared[user.user_combination] << provider_downcase(user.provider)
+    end
+    shared.delete_if do |user_combination, providers|
+      providers.size == 1
+    end
+    shared
+  end
+  def shared_accounts?
+    (shared_accounts.size > 0)
+  end
+  def shared_accounts_list
+    shared = shared_accounts()
+    if shared.size == 0
+      t '.no_shared_accounts_text'
+    elsif shared.size == 1
+      shared[shared.keys.first].sort.join(', ')
+    else
+      shared.collect do |user_combination, providers|
+         '(' + providers.sort.join(', ') + ')'
+      end.join(', ')
+    end
   end
 
 
