@@ -124,6 +124,7 @@ en:
         checkbox_prompt: "Share accounts?"
         shared_accounts_prompt: "Shared accounts: "
         no_shared_accounts_text: "No shared accounts"
+        other_users_note: " ( *=shared with not connected account )"
 
   # omniauth controllers (auth, facebook and linkedin):
 

@@ -126,6 +126,7 @@ da:
         checkbox_prompt: "Saml konti?"
         shared_accounts_prompt: "Delte konti: "
         no_shared_accounts_text: "Ingen delte konti"
+        other_users_note: " ( *=delt med ikke forbundet konto )"
 
   # omniauth controllers (auth, facebook and linkedin):
 

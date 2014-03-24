@@ -324,11 +324,21 @@ module ApplicationHelper
   # used in shared/shared_accounts partial
   # user in auth/index and todo: xxx pages
   def shared_accounts
+    return {} unless logged_in?
+    user_combinations = @users.find_all { |u| u.user_combination }.collect { |u| u.user_combination }.uniq
+    logger.debug2 "user_combinations = #{user_combinations.join(', ')}"
+    return {} if user_combinations.size == 0
     shared = {}
     @users.each do |user|
       next unless user.user_combination
       shared[user.user_combination] = [] unless shared.has_key? user.user_combination
       shared[user.user_combination] << provider_downcase(user.provider)
+    end
+    # check for combination with not logged in users
+    # for example a logged in facebook account combined with a not logged in google+ account
+    other_users = User.where('user_combination in (?) and user_id not in (?)', user_combinations, login_user_ids)
+    other_users.each do |user|
+      shared[user.user_combination] << provider_downcase(user.provider) + '*'
     end
     shared.delete_if do |user_combination, providers|
       providers.size == 1
@@ -341,14 +351,16 @@ module ApplicationHelper
   def shared_accounts_list
     shared = shared_accounts()
     if shared.size == 0
-      t '.no_shared_accounts_text'
+      text = t '.no_shared_accounts_text'
     elsif shared.size == 1
-      shared[shared.keys.first].sort.join(', ')
+      text = shared[shared.keys.first].sort.join(', ')
     else
-      shared.collect do |user_combination, providers|
+      text = shared.collect do |user_combination, providers|
          '(' + providers.sort.join(', ') + ')'
       end.join(', ')
     end
+    text += " #{t('.other_users_note')}" if text.index('*')
+    text
   end
 
 

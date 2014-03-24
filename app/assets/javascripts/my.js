@@ -1023,6 +1023,7 @@ function report_missing_api_picture_urls() {
         dataType: 'script',
         data: { api_gifts: {ids: missing_api_picture_urls_local } },
         error: function (jqxhr, textStatus, errorThrown) {
+            if (leaving_page) return ;
             var pgm = 'missing_api_picture_urls.error: ' ;
             var err = add2log_ajax_error('missing_api_picture_urls.ajax.error: ', jqxhr, textStatus, errorThrown) ;
             add_to_tasks_errors(I18n.t('js.missing_api_picture_urls.ajax_error', {error: err, location: 7, debug: 0})) ;
