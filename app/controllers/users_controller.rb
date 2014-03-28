@@ -125,12 +125,21 @@ class UsersController < ApplicationController
 
     # friends filter: yes:show friends, no:show not friends, me:show my accounts, all:show all users (')
     # * = only show friends of friends - not all Gofreerev users
-    friends_filter_values = %w(yes no me all)
+    friends_filter_values = %w(yes no me all find)
     friends_filter = params[:friends] || friends_filter_values.first
     if !friends_filter_values.index(friends_filter)
       logger.error2 "invalid request. friends = #{friends_filter}. allowed values are #{friends_filter_values.join(', ')}"
       friends_filter = friends_filter_values.first
     end
+    if friends_filter == 'find'
+      # must be logged in with minimum 2 combined user accounts (user.user_combination)
+      user_combinations = @users.find_all { |u| u.user_combination }.collect { |u| u.user_combination }
+      if !user_combinations.group_by { |uc| uc }.find { |key, value| value.size > 1 }
+        save_flash_key '.find_friends_not_allowed', {}
+        friends_filter = friends_filter_values.first
+      end
+    end
+
     @page_values[:friends] = friends_filter
     if @page_values[:friends] == 'me'
       # show logged in users - ignore appuser and apiname filters
@@ -193,6 +202,13 @@ class UsersController < ApplicationController
     end
 
     # get users - use info from friends_hash
+    # friends categories:
+    # 1) logged in user
+    # 2) mutual friends         - show detailed info
+    # 3) follows (F)            - show few info
+    # 4) stalked by (S)         - show few info
+    # 5) deselected api friends - show few info
+    # 6) friends of friends     - show few info
     friends_categories = case @page_values[:friends]
                            when 'me'
                              [1]
@@ -202,8 +218,11 @@ class UsersController < ApplicationController
                              [3,4,5,6]
                            when 'all'
                              [1,2,3,4,5,6]
+                           when 'find'
+                             [4, 6]
                          end
     users2 = User.app_friends(users,friends_categories).sort_by_user_name.collect { |f| f.friend }
+    logger.debug2 "@page_values[:friends] = #{@page_values[:friends]}, friends_categories = #{friends_categories}, users2.size = #{users2.size}"
     if @page_values[:friends] == 'me'
       users2 = users2.sort do |a,b|
         provider_downcase(a.provider) <=> provider_downcase(b.provider)

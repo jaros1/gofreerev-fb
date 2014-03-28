@@ -4,6 +4,13 @@ class InboxController < ApplicationController
   before_filter :clear_state_cookie_store
 
   def index
+    # todo: delete ==>
+    #if login_user_ids.index('xxxxxxxxxx/google_oauth2')
+    #  token = (session[:tokens] || {})['google_oauth2']
+    #  logger.secret2 "token = #{token}"
+    #end
+    ## todo: delete <==
+
     # get messages - new messages are shown first in page - max 20 notifications - no need for paginate or ajax expanding page
     @notifications = Notification.where("to_user_id in (?) or from_user_id in (?)",
                                         login_user_ids, login_user_ids).order("noti_read, created_at desc")

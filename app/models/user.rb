@@ -867,7 +867,7 @@ class User < ActiveRecord::Base
     friends = Friend.where("user_id_giver in (?)", login_user_ids).includes(:friend)
     friends = Friend.define_sort_by_user_name(friends)
     friends
-  end # self.all_friends
+  end # self.friends
 
 
   # friends categories:

@@ -103,6 +103,7 @@ class ApplicationController < ActionController::Base
     # copy friends_hash to users array
     users.each do |user|
       user.friends_hash = friends_hash[user.provider]
+      logger.debug2 "#{user.debug_info}, friends_hash = #{user.friends_hash}"
     end
     users
   end # cache_friend_info
@@ -1743,6 +1744,7 @@ class ApplicationController < ActionController::Base
   # use flash table to prevent CookieOverflow for big flash messages when using session cookie
   # use save_flash before redirect
   # use add_error_key or add_error_text for flash messages in page header without redirect
+  # todo: add_flash_key for append multiple flash messages?
   private
   def save_flash_key (key, options = {})
     # delete old flash

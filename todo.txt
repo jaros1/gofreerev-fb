@@ -1014,3 +1014,18 @@
 
 215) auth/index and users/index?friends=me
      show "share accounts" checkbox (text with list of all shared accounts)
+
+216) users/show balance tab.
+     should should post for relevant user combination.
+     but only if logged in for provider and friend with user
+     should display ... rows for hidden posts. Not logged in as provider / not friend with user for this provider.
+     should display total row if last post is hidden (not logged in as provider / not friend with user for this provider)
+
+217) empty friends_category 6) friends of friends
+     see User.app_friends
+     can not use information in cache to find and return 6) friends of friends
+     find friends or friends base select:
+     friends_friends = Friend.where(:user_id_giver => Friend.select('user_id_receiver').where(:user_id_giver => user_ids)).includes(:friend)
+     friends_friends2 = Friend.where(:user_id_giver => Friend.select('user_id_receiver').where(:user_id_giver => user_ids)).includes(:friend).collect { |f| f.friend }.uniq
+     must remove friends for deselected friends after select
+     User.app_friends should only return user. Friend record is not used.
