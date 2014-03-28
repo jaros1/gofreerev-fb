@@ -122,11 +122,12 @@ da:
         da: "Dansk"
         en: "Engelsk"
      share_accounts:
-        title: "Brug denne tjekbox hvis du ønsker at samle dine konti på tværs af login udbydere til en fælles konto. Hvis du sættes X får du en samlet saldo med sum af beløb for de gaver du har giver og modtaget på tværs af login udbydere. X i tjekbox giver endvidere mulighed for at sammenligne vennelister på tværs af login udbydere. Du kan få en oversigt over de venner du mangler og dine venner kan få en oversigt over de venner de mangler. Dvs. personer der er dine venner hos en login udbyder og som er dine venners ven hos en anden login udbyder. Sæt kryds i tjekbox og vælg Venner / Find venner. X i tjekbox er IKKE fælles login for alle login udbydere. Du skal stadigvæk logge ind for hver login udbyder hvor du ønsker at se eller oprette opslag."
+        title: "Brug denne tjekbox hvis du ønsker at samle dine konti på tværs af login udbydere til en fælles konto. Hvis du sættes X får du en samlet saldo med sum af beløb for de gaver du har giver og modtaget på tværs af login udbydere. X i tjekbox giver endvidere mulighed for at sammenligne vennelister på tværs af login udbydere. Du kan få en oversigt over de venner du mangler og dine venner kan få en oversigt over de venner de mangler. Dvs. personer der er dine venner hos en login udbyder og som er dine venners ven hos en anden login udbyder. Sæt kryds i tjekbox og vælg Find venner. X i tjekbox er IKKE fælles login for alle login udbydere. Du skal stadigvæk logge ind for hver login udbyder hvor du ønsker at se eller oprette opslag."
         checkbox_prompt: "Saml konti?"
         shared_accounts_prompt: "Delte konti: "
         no_shared_accounts_text: "Ingen delte konti"
         other_users_note: " ( *=ikke forbundet konto )"
+        find_friends_link_text: "Find venner"
 
   # omniauth controllers (auth, facebook and linkedin):
 

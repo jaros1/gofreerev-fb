@@ -133,8 +133,7 @@ class UsersController < ApplicationController
     end
     if friends_filter == 'find'
       # must be logged in with minimum 2 combined user accounts (user.user_combination)
-      user_combinations = @users.find_all { |u| u.user_combination }.collect { |u| u.user_combination }
-      if !user_combinations.group_by { |uc| uc }.find { |key, value| value.size > 1 }
+      if !show_find_friends_link?
         save_flash_key '.find_friends_not_allowed', {}
         friends_filter = friends_filter_values.first
       end
@@ -227,6 +226,11 @@ class UsersController < ApplicationController
       users2 = users2.sort do |a,b|
         provider_downcase(a.provider) <=> provider_downcase(b.provider)
       end
+    end
+    if @page_values[:friends] == 'find'
+      # cross api friends compare names for friends and non friends
+      friend_names = User.app_friends(users,[1,2,3]).collect { |u| u.user_name }
+      users2 = users2.find_all { |u| friend_names.index(u.user_name )}
     end
 
     # apply appuser filters after user lookup

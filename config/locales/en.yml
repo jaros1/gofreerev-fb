@@ -120,11 +120,12 @@ en:
         da: "Danish"
         en: "Engelsk"
      share_accounts:
-        title: "Use this check box if you want to gather your accounts across login providers to a joint account. If you select X you get a total balance with the sum of the value of the gifts you give and received across all your login providers. X in the check box also allows comparing friends lists across login providers. You can get a list of the friends you are missing and your friends can get a list of the friends they are missing. That is, people who are your friends at one login provider and who is your friend's friend at an other login provider. Mark check box and select Friends / Find friends. X in the check box is NOT single sign-on for all access providers. You'll still need to log in each login provider where you want to view or create posts."
+        title: "Use this check box if you want to gather your accounts across login providers to a joint account. If you select X you get a total balance with the sum of the value of the gifts you give and received across all your login providers. X in the check box also allows comparing friends lists across login providers. You can get a list of the friends you are missing and your friends can get a list of the friends they are missing. That is, people who are your friends at one login provider and who is your friend's friend at an other login provider. Mark check box and select Find friends. X in the check box is NOT single sign-on for all access providers. You'll still need to log in each login provider where you want to view or create posts."
         checkbox_prompt: "Share accounts?"
         shared_accounts_prompt: "Shared accounts: "
         no_shared_accounts_text: "No shared accounts"
         other_users_note: " ( *=not connected account )"
+        find_friends_link_text: "Find friends"
 
   # omniauth controllers (auth, facebook and linkedin):
 

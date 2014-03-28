@@ -1887,4 +1887,13 @@ class ApplicationController < ActionController::Base
     @errors = []
   end
 
+  private
+  def show_find_friends_link?
+    return false unless @users.size > 1
+    user_combinations = @users.find_all { |u| u.user_combination }.collect { |u| u.user_combination }
+    return true if user_combinations.group_by { |uc| uc }.find { |key, value| value.size > 1 }
+    false
+  end
+  helper_method :show_find_friends_link?
+
 end # ApplicationController

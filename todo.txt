@@ -1029,3 +1029,9 @@
      friends_friends2 = Friend.where(:user_id_giver => Friend.select('user_id_receiver').where(:user_id_giver => user_ids)).includes(:friend).collect { |f| f.friend }.uniq
      must remove friends for deselected friends after select
      User.app_friends should only return user. Friend record is not used.
+
+218) problem with show-more-rows pages and back bottom on browsers.
+     last_row_id has been cleared. Error key shared.show_more_rows.last_row_id_invalid
+     could force page reload when using back bottom in browser.
+
+219) add find friends link to shared/share_accounts div

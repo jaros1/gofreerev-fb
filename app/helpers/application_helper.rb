@@ -360,7 +360,7 @@ module ApplicationHelper
       end.join(', ')
     end
     text += " #{t('.other_users_note')}" if text.index('*')
-    text
+    text + '.'
   end
   def shared_accounts_disabled?
     return true if not logged_in?
