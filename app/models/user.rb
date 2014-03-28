@@ -864,22 +864,24 @@ class User < ActiveRecord::Base
     return [] if login_users.size == 0
     return [] if login_users.size == 1 and login_users.first.dummy_user?
     login_user_ids = login_users.collect { |login_user| login_user.user_id }
+    logger.debug2 "find friends1"
     if user_categories.uniq == [6]
       friends1 = []
     else
       friends1 = User.where(:user_id => Friend.select('user_id_receiver').where(:user_id_giver => login_user_ids))
     end
+    logger.debug2 "find friends2"
     if user_categories.index(6)
       friends2 = friends2 = User.where(:user_id => Friend.select('user_id_receiver').where(:user_id_giver => Friend.select('user_id_receiver').where(:user_id_giver => login_user_ids)))
     else
       friends2 = []
     end
+    logger.debug2 "merge friends1 and friends2"
     friends = (friends1+friends2).uniq
-
     friends = User.define_sort_by_user_name(friends)
+    logger.debug2 "done"
     friends
   end # self.friends
-
 
   # friends categories:
   # 1) logged in user
@@ -890,12 +892,13 @@ class User < ActiveRecord::Base
   # 6) friends of friends     - show few info
   def self.app_friends (login_users, user_categories = [1,2]) # 1: logged in users + 2: mutual friends
     # login_users_text = login_users.collect { |u| "#{u.user_id} #{u.short_user_name}"}.join(', ')
-    # logger.debug2 "User.app_friends - start"
+    logger.debug2 "User.app_friends - start. user_categories = #{user_categories}"
     friends = User.friends(login_users, user_categories).find_all do |u|
       friend = user_categories.index(u.friend?(login_users))
       # logger.debug2 "#{f.friend.user_id} #{f.friend.short_user_name} is " + (friend ? '' : 'not ') + "friend with login users " + login_users_text
       friend
     end
+    logger.debug2 "User.app_friends - end"
     User.define_sort_by_user_name(friends)
   end # self.app_friends
 
@@ -1117,13 +1120,14 @@ class User < ActiveRecord::Base
   # sort_by_user_name
   def self.define_sort_by_user_name (users)
     users.define_singleton_method :sort_by_user_name do
-      self.sort do |a, b|
-        if a.user_name == b.user_name
-          a.id <=> b.id
-        else
-          a.user_name <=> b.user_name
-        end
-      end # sort
+      #self.sort do |a, b|
+      #  if a.user_name == b.user_name
+      #    a.id <=> b.id
+      #  else
+      #    a.user_name <=> b.user_name
+      #  end
+      #end # sort
+      self.sort_by { |u| [u.user_name, u.id] }
     end # sort_by_user_name
     users
   end

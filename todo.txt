@@ -492,6 +492,7 @@
 129) check all sorts
      old sort_by_user_name did had a very bad performance
      problem was detail sort by master fields
+     ruby performance problem with sort { block} - use sort_by whenever possible
 
 131) distribute option:
      find friends / see gifts on other gofreerev servers
@@ -1002,36 +1003,22 @@
      Javascript fejl ved tjek for nye beskeder. NotFoundError: Failed to execute 'insertBefore' on 'Node': The node before which the new node is to be inserted is not a child of this node. (4,3).
      Javascript fejl ved indsættelse af nye kommentarer. NotFoundError: Failed to execute 'insertBefore' on 'Node': The node before which the new node is to be inserted is not a child of this node. (5,54).
      Fejl ved tjek for nye beskeder. error. Mere information i server log.
-     added some output to debug log
-
-213) move "Share balance?" from users/edit page to auth/index page
-     rename to "share balance?"
-     or split in "share balance?" and "share friends?"
-     merge accounts? checkbox
-     unchecked if not shared or if
-
-214) users/index: add find friends link (only for multi provider login and share friends = yes
-
-215) auth/index and users/index?friends=me
-     show "share accounts" checkbox (text with list of all shared accounts)
+     added some more JS outputs to client side debug log
 
 216) users/show balance tab.
      should should post for relevant user combination.
      but only if logged in for provider and friend with user
      should display ... rows for hidden posts. Not logged in as provider / not friend with user for this provider.
-     should display total row if last post is hidden (not logged in as provider / not friend with user for this provider)
-
-217) empty friends_category 6) friends of friends
-     see User.app_friends
-     can not use information in cache to find and return 6) friends of friends
-     find friends or friends base select:
-     friends_friends = Friend.where(:user_id_giver => Friend.select('user_id_receiver').where(:user_id_giver => user_ids)).includes(:friend)
-     friends_friends2 = Friend.where(:user_id_giver => Friend.select('user_id_receiver').where(:user_id_giver => user_ids)).includes(:friend).collect { |f| f.friend }.uniq
-     must remove friends for deselected friends after select
-     User.app_friends should only return user. Friend record is not used.
+     should display "total row" if last post is hidden (not logged in as provider / not friend with user for this provider)
 
 218) problem with show-more-rows pages and back bottom on browsers.
      last_row_id has been cleared. Error key shared.show_more_rows.last_row_id_invalid
      could force page reload when using back bottom in browser.
 
-219) add find friends link to shared/share_accounts div
+219) users/show page (friend)
+     gifts tab should start with status=open
+     balance tab should start with status=closed
+
+220) http://localhost/da/da/users/920?direction=both&status=closed&tab=balance
+     is showing some old gifts without receiver and price.
+

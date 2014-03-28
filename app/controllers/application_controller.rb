@@ -103,7 +103,7 @@ class ApplicationController < ActionController::Base
     # copy friends_hash to users array
     users.each do |user|
       user.friends_hash = friends_hash[user.provider]
-      logger.debug2 "#{user.debug_info}, friends_hash = #{user.friends_hash}"
+      # logger.debug2 "#{user.debug_info}, friends_hash = #{user.friends_hash}"
     end
     users
   end # cache_friend_info
