@@ -860,12 +860,23 @@ class User < ActiveRecord::Base
   end # app_friends
 
   # return all friends for login_users - no filters on
-  def self.friends (login_users, options = {})
+  def self.friends (login_users, user_categories = [1, 2])
     return [] if login_users.size == 0
     return [] if login_users.size == 1 and login_users.first.dummy_user?
     login_user_ids = login_users.collect { |login_user| login_user.user_id }
-    friends = Friend.where("user_id_giver in (?)", login_user_ids).includes(:friend)
-    friends = Friend.define_sort_by_user_name(friends)
+    if user_categories.uniq == [6]
+      friends1 = []
+    else
+      friends1 = User.where(:user_id => Friend.select('user_id_receiver').where(:user_id_giver => login_user_ids))
+    end
+    if user_categories.index(6)
+      friends2 = friends2 = User.where(:user_id => Friend.select('user_id_receiver').where(:user_id_giver => Friend.select('user_id_receiver').where(:user_id_giver => login_user_ids)))
+    else
+      friends2 = []
+    end
+    friends = (friends1+friends2).uniq
+
+    friends = User.define_sort_by_user_name(friends)
     friends
   end # self.friends
 
@@ -880,12 +891,12 @@ class User < ActiveRecord::Base
   def self.app_friends (login_users, user_categories = [1,2]) # 1: logged in users + 2: mutual friends
     # login_users_text = login_users.collect { |u| "#{u.user_id} #{u.short_user_name}"}.join(', ')
     # logger.debug2 "User.app_friends - start"
-    friends = User.friends(login_users).find_all do |f|
-      friend = user_categories.index(f.friend.friend?(login_users))
+    friends = User.friends(login_users, user_categories).find_all do |u|
+      friend = user_categories.index(u.friend?(login_users))
       # logger.debug2 "#{f.friend.user_id} #{f.friend.short_user_name} is " + (friend ? '' : 'not ') + "friend with login users " + login_users_text
       friend
     end
-    Friend.define_sort_by_user_name(friends)
+    User.define_sort_by_user_name(friends)
   end # self.app_friends
 
   # find number of app friends. instance method for actual user and class method for logged in users
@@ -1102,6 +1113,21 @@ class User < ActiveRecord::Base
   def balance_with_2_decimals
     '%0.2f' % (balance[BALANCE_KEY] || 0)
   end
+
+  # sort_by_user_name
+  def self.define_sort_by_user_name (users)
+    users.define_singleton_method :sort_by_user_name do
+      self.sort do |a, b|
+        if a.user_name == b.user_name
+          a.id <=> b.id
+        else
+          a.user_name <=> b.user_name
+        end
+      end # sort
+    end # sort_by_user_name
+    users
+  end
+
 
   # get friend record from login users cached list of friends
   def get_friend (login_user)

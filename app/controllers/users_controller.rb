@@ -213,15 +213,15 @@ class UsersController < ApplicationController
                            when 'me'
                              [1]
                            when 'yes'
-                             [1,2]
+                             [1,2,3]
                            when 'no'
-                             [3,4,5,6]
+                             [4,5,6]
                            when 'all'
                              [1,2,3,4,5,6]
                            when 'find'
                              [4, 6]
                          end
-    users2 = User.app_friends(users,friends_categories).sort_by_user_name.collect { |f| f.friend }
+    users2 = User.app_friends(users,friends_categories).sort_by_user_name
     logger.debug2 "@page_values[:friends] = #{@page_values[:friends]}, friends_categories = #{friends_categories}, users2.size = #{users2.size}"
     if @page_values[:friends] == 'me'
       users2 = users2.sort do |a,b|

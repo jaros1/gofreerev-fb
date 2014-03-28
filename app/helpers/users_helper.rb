@@ -112,6 +112,14 @@ module UsersHelper
     end
   end # all_friends_friends_link
 
+  def app_friends_find_link (page_values)
+    if page_values[:friends] == 'find'
+      t('.friends_find_link_text')
+    else
+      link_to t('.friends_find_link_text'), users_path(page_values.merge(:friends => 'find'))
+    end
+  end # all_friends_friends_link
+
   def app_friends_me_link (page_values)
     if page_values[:friends] == 'me'
       t('.friends_me_link_text')

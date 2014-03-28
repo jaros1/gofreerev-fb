@@ -675,6 +675,7 @@ da:
         friends_yes_link_text: "ja"
         friends_no_link_text: "nej"
         friends_all_link_text: "alle"
+        friends_find_link_text: "find"
         friends_me_link_text: "mig"
      menu_app_user_yes_no_links:
         app_user_filter_prompt: "App bruger:"
