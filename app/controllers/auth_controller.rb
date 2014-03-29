@@ -37,9 +37,7 @@ class AuthController < ApplicationController
       @providers << [provider, logged_in, access, post_on_wall]
     end # each provider
 
-    @providers = @providers.sort do |a,b|
-      provider_camelize(a) <=> provider_camelize(b)
-    end
+    @providers = @providers.sort_by { |a| provider_camelize(a) }
   end # index
 
   # omniauth callback on success (login was started from rails)

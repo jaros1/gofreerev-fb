@@ -366,19 +366,24 @@ class Gift < ActiveRecord::Base
     # 1) comments from friends
     # 2) comments from friends of friends (clickable user div)
     # 3) random sort
-
     logger.debug2 "get comments for gift id #{id}. sort"
-    acs = api_comments.includes(:user,:comment).where('comments.deleted_at is null').references(:comments).sort do |a,b|
-      a_friend = (a.user.friend?(login_users) <= 2) ? 1 : 2
-      b_friend = (b.user.friend?(login_users) <= 2) ? 1 : 2
-      if a_friend != b_friend
-        a_friend <=> b_friend
-      elsif a.comment_id == b.comment_id
-        rand <=> 0.5
-      else
-        a.comment_id <=> b.comment_id
-      end
-    end
+    acs = api_comments
+    .includes(:user,:comment)
+    .where('comments.deleted_at is null')
+    .references(:comments)
+    .sort_by { |ac| [ ac.user.friend?(login_users), ac.comment.id, rand ]}
+    # todo: sort tuning. not 100% identical.
+    #.sort do |a,b|
+    #  a_friend = (a.user.friend?(login_users) <= 2) ? 1 : 2 # todo: maybe include 3 (follows) in first group
+    #  b_friend = (b.user.friend?(login_users) <= 2) ? 1 : 2 # todo: maybe include 3 (follows) in first group
+    #  if a_friend != b_friend
+    #    a_friend <=> b_friend
+    #  elsif a.comment_id == b.comment_id
+    #    rand <=> 0.5
+    #  else
+    #    a.comment_id <=> b.comment_id # todo: this must be an error. Should be a.comment.id <=> b.comment.id?!
+    #  end
+    #end
     # keep one api comment for each comment
     logger.debug2 "get comments for gift id #{id}. remove doubles"
     old_comment_id = '#' * 20
@@ -391,7 +396,8 @@ class Gift < ActiveRecord::Base
       end
     end
     # sort by created at
-    acs = acs.sort { |a,b| a.created_at <=> b.created_at }
+    # acs = acs.sort { |a,b| a.created_at <=> b.created_at }
+    acs = acs.sort_by { |ac| ac.created_at }
     # remember number of older comments. For show older comments link
     (0..(acs.length-1)).each { |i| acs[i].no_older_comments = i }
     # start be returning up to 4 comments for each gift
@@ -490,7 +496,8 @@ class Gift < ActiveRecord::Base
       next unless hash[:indices].size == 2
       indices << hash[:indices]
     end
-    indices.sort { |a,b| a[0] <=> b[0] }
+    # indices.sort { |a,b| a[0] <=> b[0] }
+    indices.sort_by { |a| a[0] }
   end # self.find_twitter_tags
 
   # truncate long tweet. preserve tags if possible.

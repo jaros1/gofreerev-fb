@@ -223,9 +223,10 @@ class UsersController < ApplicationController
     users2 = User.app_friends(users,friends_categories).sort_by_user_name
     logger.debug2 "@page_values[:friends] = #{@page_values[:friends]}, friends_categories = #{friends_categories}, users2.size = #{users2.size}"
     if @page_values[:friends] == 'me'
-      users2 = users2.sort do |a,b|
-        provider_downcase(a.provider) <=> provider_downcase(b.provider)
-      end
+      #users2 = users2.sort do |a,b|
+      #  provider_downcase(a.provider) <=> provider_downcase(b.provider)
+      #end
+      users2 = users2.sort_by { |a| provider_downcase(a.provider) }
     end
     if @page_values[:friends] == 'find'
       # cross api friends compare names for friends and non friends
@@ -385,13 +386,17 @@ class UsersController < ApplicationController
         # apply status and direction filters
         ((status == 'all' or (status == 'open' and !ag.gift.received_at) or (status == 'closed' and ag.gift.received_at)) and
             (direction == 'both' or (direction == 'giver' and ag.user_id_giver == @user2.user_id) or (direction == 'receiver' and ag.user_id_receiver == @user2.user_id)))
-      end.sort do |a, b|
-        if (a.gift.received_at || a.created_at) == (b.gift.received_at || b.created_at)
-          b.id <=> a.id
-        else
-          (b.gift.received_at || b.created_at) <=> (a.gift.received_at || a.created_at)
-        end # if
-      end # sort
+      end
+      .sort_by { |ag| [(ag.gift.received_at || ag.created_at), ag.id]}
+      .reverse
+      # sort tuning - sort_by is faster when sort { |a,b| ... }
+      #.sort do |a, b|
+      #  if (a.gift.received_at || a.created_at) == (b.gift.received_at || b.created_at)
+      #    b.id <=> a.id
+      #  else
+      #    (b.gift.received_at || b.created_at) <=> (a.gift.received_at || a.created_at)
+      #  end # if
+      #end # sort
       # return next 10 gifts - first 10 for http request - next 10 for ajax request
       @api_gifts, @last_row_id = get_next_set_of_rows(api_gifts, last_row_id)
       logger.debug2  "@gifts.size = #{@api_gifts.size}, @last_row_id = #{@last_row_id}" if debug_ajax?

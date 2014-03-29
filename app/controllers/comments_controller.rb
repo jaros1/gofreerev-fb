@@ -86,18 +86,24 @@ class CommentsController < ApplicationController
       first_comment = Comment.find_by_id(params[:first_comment_id])
       return format_response_key '.first_comment_not_found', :table => table unless first_comment
       return format_response_key '.gift_comment_mismatch', :table => table unless first_comment.gift_id == gift.gift_id
+
       # find api gift - same sort/selection as in User.api_gifts
+      # sort by gift.status_update_at and sort by api_gift.status_sort is not relevant here
+      # only sort by picture_sort
       ags = gift.api_gifts
-      ags = ags.sort do |a, b|
-        if b.gift.status_update_at != a.gift.status_update_at
-          # 1) keep sort by status_update_at desc (also order by condition in select statement)
-          b.gift.status_update_at <=> a.gift.status_update_at
-        elsif a.status_sort != b.status_sort
-          a.status_sort <=> b.status_sort # 2) closed gift before open gift
-        else
-          a.picture_sort(@users) <=> b.picture_sort(@users) # 3, 4 and 5
-        end
-      end # ags sort 1
+      #ags = ags.sort do |a, b|
+      #  if b.gift.status_update_at != a.gift.status_update_at #
+      #    # 1) keep sort by status_update_at desc (also order by condition in select statement)
+      #    b.gift.status_update_at <=> a.gift.status_update_at
+      #  elsif a.status_sort != b.status_sort # todo: status always identical for all ApiGift rows!
+      #    a.status_sort <=> b.status_sort # 2) closed gift before open gift
+      #  else
+      #    a.picture_sort(@users) <=> b.picture_sort(@users) # 3, 4 and 5
+      #  end
+      #end # ags.sort
+      # sort tuning with sort_by - only sort by picture_sort is relevant
+      ags = ags.sort_by { |ag| ag.picture_sort(@users) }
+
       api_gift = ags.first
       # ok - get next set older comments (comment.id < params[:first_comment_id])
       @first_comment_id = first_comment.id

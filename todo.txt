@@ -1022,3 +1022,7 @@
 220) http://localhost/da/da/users/920?direction=both&status=closed&tab=balance
      is showing some old gifts without receiver and price.
 
+221) users/index?friends=find
+     also use user_combination in cross api compare
+     that is, match with user_name or match with user_combination
+
