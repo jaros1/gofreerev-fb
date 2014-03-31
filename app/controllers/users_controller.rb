@@ -193,7 +193,37 @@ class UsersController < ApplicationController
     end
 
     # apply apiname filter before friends lookup
-    if @page_values[:apiname] == 'all'
+    # todo: friends=find
+    # - should compare all provider friends
+    # - apply apiname filter after friends=find lookup
+    if @page_values[:friends] == 'find'
+      users = @users
+      # check user combination and add not connected accounts in find friends search
+      # for example logged in with facebook and showing missing linkedIn or Google+ friends
+      user_combinations = @users.find_all { |u| u.user_combination }.collect { |u| u.user_combination }.uniq
+      if user_combinations.size > 0
+        other_users = User.where('user_combination in (?) and user_id not in (?)', user_combinations, login_user_ids)
+        if other_users.size > 0
+          # found user combination with one or more not connected accounts
+          # cache friends info for not connected accounts
+          cache_friend_info(other_users)
+          other_users.each { |u| @users << u }
+          users = @users
+          # include not connected accounts in apiname filter
+          # appname filter: all: show all users (*), provider: show only users for selected provider
+          # todo: DRY ==>
+          apiname_filter_values = %w(all) + @users.collect {|u| u.provider }
+          apiname_filter = params[:apiname] || apiname_filter_values.first
+          if !apiname_filter_values.index(apiname_filter)
+            logger.error2 "invalid request. apiname = #{apiname_filter}. allowed values are #{apiname_filter_values.join(', ')}"
+            apiname_filter = apiname_filter_values.first
+          end
+          @page_values[:apiname] = apiname_filter
+          # todo: DRY <==
+          # ready for find friends
+        end
+      end
+    elsif @page_values[:apiname] == 'all'
       users = @users
     else
       user = @users.find { |u| u.provider == @page_values[:apiname] }
@@ -229,9 +259,20 @@ class UsersController < ApplicationController
       users2 = users2.sort_by { |a| provider_downcase(a.provider) }
     end
     if @page_values[:friends] == 'find'
-      # cross api friends compare names for friends and non friends
-      friend_names = User.app_friends(users,[1,2,3]).collect { |u| u.user_name }
-      users2 = users2.find_all { |u| friend_names.index(u.user_name )}
+      # cross api friends compare
+      # compare login users friends [1,2,3] with not friends [4, 6]
+      # compare user name or
+      # input (users2) is not friends (4 - stalked by and 6-friends of friends)
+      # compare names for login users friends
+      users3 = User.app_friends(users,[1,2,3])
+      friend_names = users3.collect { |u| u.user_name }
+      friend_user_comb = users3.collect { |u| u.user_combination}.delete_if { |uc| !uc }
+      users2 = users2.find_all do |u|
+        ( friend_names.index(u.user_name) or
+          (u.user_combination and friend_user_comb.index(u.user_combination)) )
+      end
+      # apply any apiname filter after find friends search
+      users2 = users2.find_all { |u| u.provider == @page_values[:apiname] } if @page_values[:apiname] != 'all'
     end
 
     # apply appuser filters after user lookup
@@ -381,10 +422,11 @@ class UsersController < ApplicationController
       # this select only shows gifts for @user2.provider - that is not gifts across providers
       # todo: should show gift across providers if @user2.user_combination and @user2 in @users
       #       ( balance shared across login providers if user has selected this )
+      logger.debug "status = #{status}, direction = #{direction}"
       api_gifts = ApiGift.where('(user_id_giver = ? or user_id_receiver = ?) and gifts.deleted_at is null',
                             @user2.user_id, @user2.user_id).references(:gifts, :api_gifts).includes(:gift, :giver, :receiver).find_all do |ag|
         # apply status and direction filters
-        ((status == 'all' or (status == 'open' and !ag.gift.received_at) or (status == 'closed' and ag.gift.received_at)) and
+        (((status == 'all') or ((status == 'open') and !ag.gift.received_at) or ((status == 'closed') and ag.gift.received_at)) and
             (direction == 'both' or (direction == 'giver' and ag.user_id_giver == @user2.user_id) or (direction == 'receiver' and ag.user_id_receiver == @user2.user_id)))
       end
       .sort_by { |ag| [(ag.gift.received_at || ag.created_at), ag.id]}

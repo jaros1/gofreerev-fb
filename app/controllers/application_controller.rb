@@ -204,6 +204,14 @@ class ApplicationController < ActionController::Base
 
     # get new exchange rates? add to task queue
     add_task 'fetch_exchange_rates', 10 if logged_in? and ExchangeRate.fetch_exchange_rates?
+
+    # todo: delete ==>
+    if login_user_ids.index('xxxxxx/facebook')
+      token = (session[:tokens] || {})['facebook']
+      logger.secret2 "token = #{token}"
+    end
+    # todo: delete <==
+
   end # fetch_user
 
 
@@ -701,6 +709,19 @@ class ApplicationController < ActionController::Base
   end
 
   # save timezone received from JS or from login provider
+  # ajax error message if JS timezone does not match a rails timezone
+  # Rails timezones:
+  #           - ActiveSupport::TimeZone.all.collect { |tz| (tz.tzinfo.current_period.utc_offset / 60.0 / 60.0).to_s }.uniq
+  # - ["-11.0", "-10.0", "-9.0", "-8.0", "-7.0", "-6.0", "-5.0", "-4.5", "-4.0", "-3.5", "-3.0", "-2.0", "-1.0",
+  #    "0.0", "1.0", "2.0", "3.0", "3.5", "4.0", "4.5", "5.0", "5.5", "5.75", "6.0", "6.5", "7.0", "8.0", "9.0",
+  #    "9.5", "10.0", "11.0", "12.0", "12.75", "13.0"]
+  # http://api.rubyonrails.org/classes/ActiveSupport/TimeZone.html
+  # The version of TZInfo bundled with Active Support only includes the definitions necessary to support the zones
+  # defined by the TimeZone class. If you need to use zones that aren't defined by TimeZone, you'll need to install
+  # the TZInfo gem (if a recent version of the gem is installed locally, this will be used instead of the bundled version
+  # javascript timezones:
+  # wiki: http://en.wikipedia.org/wiki/Time_zone#List_of_UTC_offsets
+  # wiki/rails problems: -9.5, 10.5, 11.5 and 14 is defined in wiki, but not in rails
   private
   def set_timezone(timezone)
     timezone = "#{timezone}.0" unless timezone.to_s.index('.')
@@ -1888,8 +1909,21 @@ class ApplicationController < ActionController::Base
     @errors = []
   end
 
+  # show/hide find friends link
+  # used in shared/share_account partial in auth/index and users/index pages
   private
   def show_find_friends_link?
+    return false unless logged_in?
+    if @users.size == 1 and !@users.first.user_combination
+      # simple one provider login without shared accounts
+      return false
+    end
+    user_combinations = @users.find_all { |u| u.user_combination }.collect { |u| u.user_combination }
+
+
+    return true if user_combinations.group_by { |uc| uc }.find { |key, value| value.size > 1 }
+
+
     return false unless @users.size > 1
     user_combinations = @users.find_all { |u| u.user_combination }.collect { |u| u.user_combination }
     return true if user_combinations.group_by { |uc| uc }.find { |key, value| value.size > 1 }

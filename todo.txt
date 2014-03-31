@@ -1,26 +1,3 @@
- 1) how much information to se about deals between friends and friends friends?
-    facebook: Shows status from friends on wall - do not show status from friends friends on wall
-    Show gifts started by friends as giver or receiver with all pictures and comments
-    Anonymous gifts started by friends friends as giver or receiver and with friends as receiver or giver
-    - display received at and balance.
-    - hide picture and name of friends friend
-    - hide text and pictures
-
- 2) compare JS timezone with rails timezones - there could be differences
-    I have tested with copenhagen and india
-    Rails timezones:
-    - ActiveSupport::TimeZone.all.collect { |tz| (tz.tzinfo.current_period.utc_offset / 60.0 / 60.0).to_s }.uniq
-    - ["-11.0", "-10.0", "-9.0", "-8.0", "-7.0", "-6.0", "-5.0", "-4.5", "-4.0", "-3.5", "-3.0", "-2.0", "-1.0",
-       "0.0", "1.0", "2.0", "3.0", "3.5", "4.0", "4.5", "5.0", "5.5", "5.75", "6.0", "6.5", "7.0", "8.0", "9.0",
-       "9.5", "10.0", "11.0", "12.0", "12.75", "13.0"]
-    javascript timezones:
-    wiki: http://en.wikipedia.org/wiki/Time_zone#List_of_UTC_offsets
-    wiki/rails problems: -9.5, 10.5, 11.5 and 14 is defined in wiki, but not in rails
-    rails: http://api.rubyonrails.org/classes/ActiveSupport/TimeZone.html
-    The version of TZInfo bundled with Active Support only includes the definitions necessary to support the zones
-    defined by the TimeZone class. If you need to use zones that aren't defined by TimeZone, you'll need to install
-    the TZInfo gem (if a recent version of the gem is installed locally, this will be used instead of the bundled version
-
  3) add date format. see application_helper.format_date
 
  4) api notifications:
@@ -32,6 +9,19 @@
     one notification every day if user connects to app.
     don't send any more notifications if user has not been connected for 28 days
     check out facebook, linkedin & twitter notification possibilities
+    https://developers.facebook.com/docs/games/notifications/
+    https://developers.facebook.com/docs/graph-api/reference/user/notifications/
+    get application token:
+      api_server = Koala::Facebook::RealtimeUpdates.new :app_id => API_ID[:facebook], :secret => API_SECRET[:facebook]
+      api_server.app_access_token
+      res = RestClient.post "https://graph.facebook.com/1705481075/notifications", :href => 'http://localhost/da/gifts', :template => 'this is a test', :access_token => api_server.app_access_token
+      res == "{\"success\":true}"
+    Started POST "/?fb_source=notification&ref=notif&notif_t=app_notification" for 127.0.0.1 at 2014-03-30 11:28:27 +0200
+      User Load (0.8ms)  SELECT "users".* FROM "users" WHERE (user_id in ('1092213433/instagram','117657151428689087350/google_oauth2','1705481075/facebook','GPxL5ELUF9/linkedin'))
+      CACHE (0.1ms)  SELECT "users".* FROM "users" WHERE (user_id in ('1092213433/instagram','117657151428689087350/google_oauth2','1705481075/facebook','GPxL5ELUF9/linkedin'))
+    Processing by FacebookController#create as HTML
+      Parameters: {"signed_request"=>"nl17Lcb83uWQVwOk4F4Bm0xIHKcyyEff2znORquLs6Q.eyJhbGdvcml0aG0iOiJITUFDLVNIQTI1NiIsImV4cGlyZXMiOjEzOTYxNzcyMDAsImlzc3VlZF9hdCI6MTM5NjE3MTY5Mywib2F1dGhfdG9rZW4iOiJDQUFGalpCR3p6T2tjQkFFQjVUSmpNek01bllPT0YzbEdURUN6RExGbzVvTkdjOFhaQ2VsQktHd1cyNkU2dzFNa3RCM29aQzVLUE5aQnBJTG5oUHEwV3Juck9HMXB2WkJXT2VCUkZ1bTR2eTFnWkJJNTVwWkFaQXdjbGw3bmdaQ3JldzhVZkZsc1pBZ25YZGpXV1l0WVpBWkF6V0w0OEJaQUVmbzU2OFpCaVd6cnpuTDNKNE52TG9CSkgxV1k3UmVOWkNjTTdHZEZQUVpEIiwidXNlciI6eyJjb3VudHJ5IjoiZGsiLCJsb2NhbGUiOiJlbl9HQiIsImFnZSI6eyJtaW4iOjIxfX0sInVzZXJfaWQiOiIxNzA1NDgxMDc1In0",
+                   "fb_locale"=>"en_GB", "fb_source"=>"notification", "ref"=>"notif", "notif_t"=>"app_notification"}
 
  5) add accept conditions for new users?
 
@@ -981,12 +971,6 @@
 
 207) test javascript csv_invalid_price - check price check in all browser versions (error in chrome has been fixed)
 
-208) cross api friend search
-     friend friends from one api on as friends friends on other api
-     not needed for gofreerev but is a great way to sync. friends across multiple api
-     and can be an other way to get people interesting in using gofreerev
-     fb - cannot get friends friends - not in graph api - not in JS - not in FOL - only available in web page
-
 209) cross server friends invite / friends search?
      in a distributed server network different friends will use different servers and gofreerev apps
 
@@ -1006,7 +990,7 @@
      added some more JS outputs to client side debug log
 
 216) users/show balance tab.
-     should should post for relevant user combination.
+     should show post for relevant user combination.
      but only if logged in for provider and friend with user
      should display ... rows for hidden posts. Not logged in as provider / not friend with user for this provider.
      should display "total row" if last post is hidden (not logged in as provider / not friend with user for this provider)
@@ -1015,14 +999,16 @@
      last_row_id has been cleared. Error key shared.show_more_rows.last_row_id_invalid
      could force page reload when using back bottom in browser.
 
-219) users/show page (friend)
-     gifts tab should start with status=open
-     balance tab should start with status=closed
+219) shared accounts
+     notification about new friends?
 
-220) http://localhost/da/da/users/920?direction=both&status=closed&tab=balance
-     is showing some old gifts without receiver and price.
+220) linkedin app invitation:
+     https://developer.linkedin.com/documents/invitation-api
+     but requires w_messages priv.
 
-221) users/index?friends=find
-     also use user_combination in cross api compare
-     that is, match with user_name or match with user_combination
+221) allow users/index?friend=find for not logged provider
+     FB notification about new google+ friend
+     redirect from FB notification to login to users/index?friend=find page
+     must enlarge users array with not connected accounts
+     only if no inconsistence
 
