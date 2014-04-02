@@ -70,7 +70,8 @@ class ApplicationController < ActionController::Base
   # 4) stalked by (S)         - show few info
   # 5) deselected api friends - show few info
   # 6) friends of friends     - show few info
-  # 7) others                 - not clickable user div - for example comments from other login providers
+  # 7) friends proposals      - not clickable user div
+  # 8) others                 - not clickable user div - for example comments from other login providers
   private
   def cache_friend_info (users)
     User.cache_friend_info(users)
@@ -153,7 +154,8 @@ class ApplicationController < ActionController::Base
     # 4) stalked by (S)         - show few info
     # 5) deselected api friends - show few info
     # 6) friends of friends     - show few info
-    # 7) others                 - not clickable user div - for example comments from other login providers
+    # 7) friends proposals      - not clickable user div
+    # 8) others                 - not clickable user div - for example comments from other login providers
     User.cache_friend_info(@users)
 
     # add sort_by_provider method instance method to @users array.

@@ -38,9 +38,10 @@ class Friend < ActiveRecord::Base
   # N - not API friends, but can be APP friends
   # F - user_id_giver follows user_id_receiver
   # S - user_id_giver is being stalked by user_id_receiver
+  # P - friend proposal - inserted by /users/index?friends=find. See User.find_friends
   # F and S are being used by google+ and twitter
   validates_presence_of :api_friend
-  validates_inclusion_of :api_friend, :allow_blank => true, :in => %w(Y N F S)
+  validates_inclusion_of :api_friend, :allow_blank => true, :in => %w(Y N F S P)
   def api_friend
     # logger.debug2  "gift.api_friend: api_friend = #{read_attribute(:api_friend)} (#{read_attribute(:api_friend).class.name})"
     return nil unless (extended_api_friend = read_attribute(:api_friend))

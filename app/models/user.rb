@@ -440,6 +440,7 @@ class User < ActiveRecord::Base
     # facebook profile image is set in post login task / post_login_update_friends
     # ( unless new facebook user without profile picture )
     user.api_profile_picture_url = image unless provider == 'facebook' and user.api_profile_picture_url.to_s != ''
+    user.last_friends_find_at = user.last_login_at || Time.new unless user.last_friends_find_at
     user.last_login_at = Time.new
     user.deauthorized_at = nil
     user.save!
@@ -918,7 +919,7 @@ class User < ActiveRecord::Base
 
   # cross api friends search - compare friend lists across multiple api providers
   # used in users/index?friends=find and in batch notifications
-  # compare friends categories 1, 2 and 3 with friends categories 4 and 6
+  # compare friends categories 1, 2 and 3 with friends categories 4, 6 and 7
   # match non friends on user_name or on user_combination
   def self.find_friends (login_users, options = {})
     # check friend cache (user.friends_hash)
@@ -937,16 +938,53 @@ class User < ActiveRecord::Base
     friend_names = friends.collect { |u| u.user_name }
     friend_user_comb = friends.collect { |u| u.user_combination}.delete_if { |uc| !uc }
     # compare with non friends
-    users = User.app_friends(login_users,[4, 6]).find_all do |u|
+    users = User.app_friends(login_users,[4, 6, 7]).find_all do |u|
       ( friend_names.index(u.user_name) or
           (u.user_combination and friend_user_comb.index(u.user_combination)) )
     end
+    # add any old friends proposal from previous find_friends searches (friends? == 7) done by login users friends
+    # ( friends proposals have been inserted in friends table with api_friend = 'P' )
+    old_user_ids = users.collect { |u| u.user_id }
+    new_user_ids = []
+    login_users.each do |login_user|
+      next unless login_user.friends_hash
+      login_user.friends_hash.each do |friend_user_id, friend|
+        next unless friend == 7
+        new_user_ids << friend_user_id unless old_user_ids.index(friend_user_id)
+      end
+    end
+    logger.debug2 "new_user_ids = #{new_user_ids}"
+    users += User.where(:user_id => new_user_ids) if new_user_ids.size > 0
+    # update timestamp for last friends find - only notification once a week
     login_users.each do |user|
       user.last_friends_find_at = Time.now
       user.save!
     end
+    # insert reverse search result in friends table as api_friend = 'P' (proposal)
+    # allows find_friends for other users even if login users does not shared account
+    users.each do |receiver|
+      giver = login_users.find { |u| u.provider == receiver.provider }
+      f1 = Friend.where('user_id_giver = ? and user_id_receiver = ?', giver.user_id, receiver.user_id).first
+      if !f1
+        f1 = Friend.new
+        f1.user_id_giver = giver.user_id
+        f1.user_id_receiver = receiver.user_id
+      end
+      f1.api_friend = 'P' unless f1.api_friend == 'Y'
+      f2 = Friend.where('user_id_giver = ? and user_id_receiver = ?', receiver.user_id, giver.user_id).first
+      if !f2
+        f2 = Friend.new
+        f2.user_id_giver = receiver.user_id
+        f2.user_id_receiver = giver.user_id
+      end
+      f2.api_friend = 'P' unless f2.api_friend == 'Y'
+      transaction do
+        f1.save!
+        f2.save!
+      end if f1.new_record? or f2.new_record? or f1.api_friend_changed? or f2.api_friend_changed?
+    end
     users
-  end
+  end # self.find_friends
 
   # find friends once a week for all active users
   # create/update gofreerev notification
@@ -956,9 +994,6 @@ class User < ActiveRecord::Base
   # 2) use last_login_at as offset starting one week after last login
   # called from util.new_messages_count
   def self.find_friends_batch
-    # todo: delete test setup ==>
-    # User.where('user_combination is not null').update_all :last_friends_find_at => 2.weeks.ago
-    # todo: delete test setup <==
     # blank any "empty" user combinations
     user_combinations = User.where('user_combination is not null').
         group('user_combination').having('count(user_combination) = 1').
@@ -1003,7 +1038,10 @@ class User < ActiveRecord::Base
     end
     # FB notification
     return unless fb_user
-    # raise "error" unless fb_user.user_id == '1705481075/facebook'
+    # do not send FB notifications to inactive users
+    return if fb_user.last_login_at < 1.month.ago
+    # development - FB notifications is only enabled for a single user
+    raise "cannot send FB notifications to #{user.debug_info} in development environment" unless FORCE_SSL or fb_user.user_id == '1705481075/facebook'
     if API_TOKEN[:facebook]
       language = fb_user.language || BASE_LANGUAGE
       href = '/'
@@ -1019,6 +1057,9 @@ class User < ActiveRecord::Base
       # Parameters: {"signed_request"=>"6xbhSI-JNpGOf7Ye54gft7kF4Tmxdr0AQVA0Iy0hw34.eyJhbGdvcml0aG0iOiJITUFDLVNIQTI1NiIsImV4cGlyZXMiOjEzOTY0MjIwMDAsImlzc3VlZF9hdCI6MTM5NjQxNzY4Mywib2F1dGhfdG9rZW4iOiJDQUFGalpCR3p6T2tjQkFQUGoyakJtVTc2UkxkODFjcG0xSTVqMDlZcWNZNjFSOFRwYnRoa3l0QlNkb0JoalNrQWh0UFBhaTN3VmlCekZRM2dsb1pCVUtxTVhXV0tlTkVqeVk3U2pOTXJRZXUzWkI4MVRoVEhwTEtBZzMyRzlLaVpCaFpCR1pBbEdROFpBQThnN3R5aDZVREpRS0pqY3dnek52djZqaE9lR00yUlUyTEk1MkZDWkFIZUJaQWdSWVVWZXVTRHNzamdrYjVKcTNBWkRaRCIsInVzZXIiOnsiY291bnRyeSI6ImRrIiwibG9jYWxlIjoiZW5fR0IiLCJhZ2UiOnsibWluIjoyMX19LCJ1c2VyX2lkIjoiMTcwNTQ4MTA3NSJ9", "fb_locale"=>"en_GB", "fb_source"=>"notification", "fb_ref"=>"friends_find", "ref"=>"notif", "notif_t"=>"app_notification"}
     else
       logger.warn2 "facebook app token was not found"
+      logger.debug2 "Use api_server = Koala::Facebook::RealtimeUpdates.new :app_id => API_ID[:facebook], :secret => API_SECRET[:facebook] request to get a facebook application token"
+      logger.debug2 "application token must be stored in environment variable. See /config/initializers/omniauth.rb"
+      return
     end
     user
   end
@@ -1032,13 +1073,15 @@ class User < ActiveRecord::Base
   # 4) stalked by (S)         - show few info
   # 5) deselected api friends - show few info
   # 6) friends of friends     - show few info
-  # 7) others                 - not clickable user div - for example comments from other login providers
+  # 7) friend proposals       - show few info
+  # 8) others                 - not clickable user div - for example comments from other login providers
   def self.cache_friend_info (login_users)
     return if login_users.size == 0
     user_ids = login_users.collect { |u| u.user_id}
     # get friends. split in 4 categories. Y: mutual friends, F: follows, S: Stalked by, N: not app friend
+    # P: friends proposal is treated as others/non friends
     # logger.debug2 "get friends. user_ids = #{user_ids.join(', ')}"
-    users_app_friends = { 'Y' => [], 'F' => [], 'S' => [], 'N' => []}
+    users_app_friends = { 'Y' => [], 'F' => [], 'S' => [], 'N' => [], 'P' => []}
     friends = Friend.where("user_id_giver in (?)", user_ids)
     friends.each do |f|
       users_app_friends[f.app_friend || f.api_friend] << f.user_id_receiver # save userids in Y, F, S and N arrays
@@ -1048,13 +1091,16 @@ class User < ActiveRecord::Base
         where('user_id_giver in (?)', users_app_friends['Y']).
         find_all { |f| (f.app_friend || f.api_friend) == 'Y' }.
         collect { |f| f.user_id_receiver }
+    # 7) friends proposal is a special category of 6) friends og friends
+    users_app_friends['P'].delete_if { |user_id| !friends_of_friends_ids.index(user_id) }
+    friends_of_friends_ids = friends_of_friends_ids - users_app_friends['P']
     friends_hash = {}
     login_users.each do |user|
       friends_hash[user.provider] = {}
     end
     # loop for each friend category
     [ [1, user_ids], [2, users_app_friends['Y']], [3, users_app_friends['F']], [4, users_app_friends['S']],
-      [5, users_app_friends['N']], [6, friends_of_friends_ids] ].each do |x|
+      [5, users_app_friends['N']], [6, friends_of_friends_ids], [7, users_app_friends['P'] ] ].each do |x|
       friends_category, friends_user_ids = x
       friends_user_ids.each do |user_id|
         provider = user_id.split('/').last
@@ -1310,20 +1356,21 @@ class User < ActiveRecord::Base
   # 4) stalked by (S)         - show few info
   # 5) deselected api friends - show few info
   # 6) friends of friends     - show few info
-  # 7) others                 - not clickable user div - for example comments from other login providers
+  # 7) friends proposals      - not clickable user div 
+  # 8) others                 - not clickable user div - for example comments from other login providers
   def friend? (login_users)
     # logger.debug2  "login_users.class = #{login_users.class}"
-    return 7 unless [Array, ActiveRecord::Relation::ActiveRecord_Relation_User].index(login_users.class) # not logged in
+    return 8 unless [Array, ActiveRecord::Relation::ActiveRecord_Relation_User].index(login_users.class) # not logged in
     # logger.debug2  "login_users.size = #{login_users.size}"
-    return 7 if login_users.size == 0 # not logged in
-    return 7 if login_users.first.dummy_user?
+    return 8 if login_users.size == 0 # not logged in
+    return 8 if login_users.first.dummy_user?
     login_user = login_users.find { |user| user.provider == self.provider }
-    return 7 unless login_user
+    return 8 unless login_user
     if !login_user.friends_hash
       logger.warn2 "no friends cache was found for login user #{login_user.debug_info}"
-      return 7
+      return 8
     end
-    return login_user.friends_hash[user_id] || 7
+    return login_user.friends_hash[user_id] || 8
   end # friend?
 
   # friend status code. "this" is friend. login_user is login user.

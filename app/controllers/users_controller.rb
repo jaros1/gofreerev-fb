@@ -220,20 +220,21 @@ class UsersController < ApplicationController
     # 4) stalked by (S)         - show few info
     # 5) deselected api friends - show few info
     # 6) friends of friends     - show few info
+    # 7) friend proposals       - show few info
     friends_categories = case @page_values[:friends]
                            when 'me'
                              [1]
                            when 'yes'
                              [1,2,3]
                            when 'no'
-                             [4,5,6]
+                             [4,5,6, 7]
                            when 'all'
                              [1,2,3,4,5,6]
                            when 'find'
                              []
                          end
     if @page_values[:friends] == 'find'
-      # compare login users friends [1,2,3] with not friends [4, 6]
+      # compare login users friends [1,2,3] with not friends [4, 6, 7]
       # compare user name or user:combination
       users2 = User.find_friends(users).sort_by { |u| [u.user_name, u.id] }
     else
