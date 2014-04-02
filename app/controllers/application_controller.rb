@@ -73,45 +73,47 @@ class ApplicationController < ActionController::Base
   # 7) others                 - not clickable user div - for example comments from other login providers
   private
   def cache_friend_info (users)
-    return if users.size == 0
-    user_ids = users.collect { |u| u.user_id}
-    # get friends. split in 4 categories. Y: mutual friends, F: follows, S: Stalked by, N: not app friend
-    # logger.debug2 "get friends. user_ids = #{user_ids.join(', ')}"
-    users_app_friends = { 'Y' => [], 'F' => [], 'S' => [], 'N' => []}
-    friends = Friend.where("user_id_giver in (?)", user_ids)
-    friends.each do |f|
-      users_app_friends[f.app_friend || f.api_friend] << f.user_id_receiver # save userids in Y, F, S and N arrays
-    end
-    # logger.debug2 "get friends of mutual friends"
-    friends_of_friends_ids = Friend.
-        where('user_id_giver in (?)', users_app_friends['Y']).
-        find_all { |f| (f.app_friend || f.api_friend) == 'Y' }.
-        collect { |f| f.user_id_receiver }
-    friends_hash = {}
-    users.each do |user|
-      friends_hash[user.provider] = {}
-    end
-    # loop for each friend category
-    [ [1, user_ids], [2, users_app_friends['Y']], [3, users_app_friends['F']], [4, users_app_friends['S']],
-      [5, users_app_friends['N']], [6, friends_of_friends_ids] ].each do |x|
-      friends_category, friends_user_ids = x
-      friends_user_ids.each do |user_id|
-        provider = user_id.split('/').last
-        friends_hash[provider][user_id] = friends_category unless friends_hash[provider].has_key?(user_id)
-      end # friends_user_ids
-    end
-    # copy friends_hash to users array
-    users.each do |user|
-      user.friends_hash = friends_hash[user.provider]
-      # logger.debug2 "#{user.debug_info}, friends_hash = #{user.friends_hash}"
-    end
-    users
+    User.cache_friend_info(users)
+    #return if users.size == 0
+    #user_ids = users.collect { |u| u.user_id}
+    ## get friends. split in 4 categories. Y: mutual friends, F: follows, S: Stalked by, N: not app friend
+    ## logger.debug2 "get friends. user_ids = #{user_ids.join(', ')}"
+    #users_app_friends = { 'Y' => [], 'F' => [], 'S' => [], 'N' => []}
+    #friends = Friend.where("user_id_giver in (?)", user_ids)
+    #friends.each do |f|
+    #  users_app_friends[f.app_friend || f.api_friend] << f.user_id_receiver # save userids in Y, F, S and N arrays
+    #end
+    ## logger.debug2 "get friends of mutual friends"
+    #friends_of_friends_ids = Friend.
+    #    where('user_id_giver in (?)', users_app_friends['Y']).
+    #    find_all { |f| (f.app_friend || f.api_friend) == 'Y' }.
+    #    collect { |f| f.user_id_receiver }
+    #friends_hash = {}
+    #users.each do |user|
+    #  friends_hash[user.provider] = {}
+    #end
+    ## loop for each friend category
+    #[ [1, user_ids], [2, users_app_friends['Y']], [3, users_app_friends['F']], [4, users_app_friends['S']],
+    #  [5, users_app_friends['N']], [6, friends_of_friends_ids] ].each do |x|
+    #  friends_category, friends_user_ids = x
+    #  friends_user_ids.each do |user_id|
+    #    provider = user_id.split('/').last
+    #    friends_hash[provider][user_id] = friends_category unless friends_hash[provider].has_key?(user_id)
+    #  end # friends_user_ids
+    #end
+    ## copy friends_hash to users array
+    #users.each do |user|
+    #  user.friends_hash = friends_hash[user.provider]
+    #  # logger.debug2 "#{user.debug_info}, friends_hash = #{user.friends_hash}"
+    #end
+    #users
   end # cache_friend_info
 
 
   # fetch user info. Used in page heading etc
   private
   def fetch_users
+    logger.debug2 "start"
     # language support
     # logger.debug2  "start. sessionid = #{request.session_options[:id]}"
     # logger.debug2  "I18n.locale = #{I18n.locale}"
@@ -146,11 +148,13 @@ class ApplicationController < ActionController::Base
     # cache friends information once and for all in @users array (user.friends_hash)
     # friends categories:
     # 1) logged in user
-    # 2) friends                - show detailed info
-    # 3) deselected api friends - show few info
-    # 4) friends of friends     - show few info
-    # 5) others                 - not clickable user div - for example comments from other login providers
-    cache_friend_info(@users)
+    # 2) mutual friends         - show detailed info
+    # 3) follows (F)            - show few info
+    # 4) stalked by (S)         - show few info
+    # 5) deselected api friends - show few info
+    # 6) friends of friends     - show few info
+    # 7) others                 - not clickable user div - for example comments from other login providers
+    User.cache_friend_info(@users)
 
     # add sort_by_provider method instance method to @users array.
     # used in a few views (invite users, auth/index)
@@ -206,10 +210,10 @@ class ApplicationController < ActionController::Base
     add_task 'fetch_exchange_rates', 10 if logged_in? and ExchangeRate.fetch_exchange_rates?
 
     # todo: delete ==>
-    if login_user_ids.index('xxxxxx/facebook')
-      token = (session[:tokens] || {})['facebook']
-      logger.secret2 "token = #{token}"
-    end
+    #if login_user_ids.index('xxxxxx/facebook')
+    #  token = (session[:tokens] || {})['facebook']
+    #  logger.secret2 "token = #{token}"
+    #end
     # todo: delete <==
 
   end # fetch_user
@@ -219,11 +223,21 @@ class ApplicationController < ActionController::Base
   # locale is also saved in session for language support in api provider callbacks
   private
   def set_locale_from_params
+    logger.debug2 "start"
     params[:locale] = nil if params.has_key?(:locale) and xhr?
     session[:language] = valid_locale(params[:locale]) || session[:language]
     I18n.locale = valid_locale(params[:locale]) || valid_locale(session[:language]) || valid_locale(I18n.default_locale) || 'en'
     # logger.debug2  "I18n.locale = #{I18n.locale}. params[:locale] = #{params[:locale]}, session[:language] = #{session[:language]}, "
-  end
+
+    # save language for batch notifications - for example friends find with friends suggestions - only used for facebook
+    # see User.find_friends_batch
+    return if xhr?
+    return unless logged_in?
+    @users.each do |user|
+      next unless user.provider == 'facebook'
+      user.update_attribute :language, I18n.locale unless user.language == I18n.locale
+    end
+  end # set_locale_from_params
 
   private
   def default_url_options(options={})
@@ -1915,19 +1929,18 @@ class ApplicationController < ActionController::Base
   def show_find_friends_link?
     return false unless logged_in?
     if @users.size == 1 and !@users.first.user_combination
-      # simple one provider login without shared accounts
+      # simple one provider login without shared accounts - cross provider friends find is not relevant
       return false
     end
-    user_combinations = @users.find_all { |u| u.user_combination }.collect { |u| u.user_combination }
-
-
-    return true if user_combinations.group_by { |uc| uc }.find { |key, value| value.size > 1 }
-
-
-    return false unless @users.size > 1
-    user_combinations = @users.find_all { |u| u.user_combination }.collect { |u| u.user_combination }
-    return true if user_combinations.group_by { |uc| uc }.find { |key, value| value.size > 1 }
-    false
+    if @users.size == 1
+      users = User.where('user_combination = ?', @users.first.user_combination)
+      if users.size == 1
+        @users.first.user_combination = nil
+        @users.first.save!
+        return false
+      end
+    end
+    true
   end
   helper_method :show_find_friends_link?
 

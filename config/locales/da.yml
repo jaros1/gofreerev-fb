@@ -196,6 +196,7 @@ da:
         status_update_failed: "%{appname} fik ikke tilladelse til at lave opslag på din facebook-væg. %{error}"
         read_stream_failed: "%{appname} fik ikke tilladelse til at læse opslag på din facebook-væg. %{error}"
         ok_login: "Facebook-login ok."
+        ok_friends_find: "Facebook-login ok."
         ok_login_new_user: "Facebook login ok. Velkommen til %{appname}. Din venneliste er ved at blive hentet og vil være klar til brug lige om lidt."
         ok_status_update: "%{appname} fik tilladelse til at lave opslag på din %{apiname} væg."
         ok_read_stream: "%{appname} fik tilladelse til at læse opslag på din %{apiname} væg."
@@ -518,7 +519,7 @@ da:
         cancelled_proposal_giver_3_v1_to_url: "/gifts/%{giftid}"
         cancelled_proposal_giver_3_v1_to_msg: '%{username1}, %{username2} og %{username3} vil alligevel ikke bruge dit tilbud "%{gifttext} ..."'
         cancelled_proposal_giver_n_v1_to_url: "/gifts/%{giftid}"
-        cancelled_proposal_giver_n_v1_to_msg: '%{username1}, %{username2} or %{no_other_users} andre vil alligevel ikke bruge dit tilbud "%{gifttext} ..."'
+        cancelled_proposal_giver_n_v1_to_msg: '%{username1}, %{username2} og %{no_other_users} andre vil alligevel ikke bruge dit tilbud "%{gifttext} ..."'
         cancelled_proposal_receiver_1_v1_to_url: "/gifts/%{giftid}"
         cancelled_proposal_receiver_1_v1_to_msg: '%{username1} har alligevel ikke et bud på dit ønske "%{gifttext} ..."'
         cancelled_proposal_receiver_2_v1_to_url: "/gifts/%{giftid}"
@@ -559,6 +560,14 @@ da:
         accepted_proposal_receiver_1_v1_to_msg: '%{receivername} accepterede dit bud på sit ønske "%{gifttext} ..."'
         deleted_account_v1_to_url: "/users/%{userid}?tab=balance"
         deleted_account_v1_to_msg: "Din saldo er blevet opdateret, fordi %{username} har slettet sin %{apiname} konto her hos %{appname}, og en eller flere af dine aftaler med %{username} er blevet slettet."
+        friends_find_1_v1_to_url: "/users?apiname=all&appuser=all&friends=find"
+        friends_find_1_v1_to_msg: "Venneforslag: %{username1}"
+        friends_find_2_v1_to_url: "/users?apiname=all&appuser=all&friends=find"
+        friends_find_2_v1_to_msg: "Venneforslag: %{username1} og %{username2}"
+        friends_find_3_v1_to_url: "/users?apiname=all&appuser=all&friends=find"
+        friends_find_3_v1_to_msg: "Venneforslag: %{username1}, %{username2} og %{username3}"
+        friends_find_n_v1_to_url: "/users?apiname=all&appuser=all&friends=find"
+        friends_find_n_v1_to_msg: "Venneforslag: %{username1}, %{username2} og %{no_other_users} andre venneforslag"
 
   # user controller
   users:

@@ -16,12 +16,14 @@
       api_server.app_access_token
       res = RestClient.post "https://graph.facebook.com/1705481075/notifications", :href => 'http://localhost/da/gifts', :template => 'this is a test', :access_token => api_server.app_access_token
       res == "{\"success\":true}"
-    Started POST "/?fb_source=notification&ref=notif&notif_t=app_notification" for 127.0.0.1 at 2014-03-30 11:28:27 +0200
-      User Load (0.8ms)  SELECT "users".* FROM "users" WHERE (user_id in ('1092213433/instagram','117657151428689087350/google_oauth2','1705481075/facebook','GPxL5ELUF9/linkedin'))
-      CACHE (0.1ms)  SELECT "users".* FROM "users" WHERE (user_id in ('1092213433/instagram','117657151428689087350/google_oauth2','1705481075/facebook','GPxL5ELUF9/linkedin'))
-    Processing by FacebookController#create as HTML
-      Parameters: {"signed_request"=>"nl17Lcb83uWQVwOk4F4Bm0xIHKcyyEff2znORquLs6Q.eyJhbGdvcml0aG0iOiJITUFDLVNIQTI1NiIsImV4cGlyZXMiOjEzOTYxNzcyMDAsImlzc3VlZF9hdCI6MTM5NjE3MTY5Mywib2F1dGhfdG9rZW4iOiJDQUFGalpCR3p6T2tjQkFFQjVUSmpNek01bllPT0YzbEdURUN6RExGbzVvTkdjOFhaQ2VsQktHd1cyNkU2dzFNa3RCM29aQzVLUE5aQnBJTG5oUHEwV3Juck9HMXB2WkJXT2VCUkZ1bTR2eTFnWkJJNTVwWkFaQXdjbGw3bmdaQ3JldzhVZkZsc1pBZ25YZGpXV1l0WVpBWkF6V0w0OEJaQUVmbzU2OFpCaVd6cnpuTDNKNE52TG9CSkgxV1k3UmVOWkNjTTdHZEZQUVpEIiwidXNlciI6eyJjb3VudHJ5IjoiZGsiLCJsb2NhbGUiOiJlbl9HQiIsImFnZSI6eyJtaW4iOjIxfX0sInVzZXJfaWQiOiIxNzA1NDgxMDc1In0",
-                   "fb_locale"=>"en_GB", "fb_source"=>"notification", "ref"=>"notif", "notif_t"=>"app_notification"}
+      signature from FB notification:
+      Started POST "/?fb_source=notification&fb_ref=friends_find&ref=notif&notif_t=app_notification" for 127.0.0.1 at 2014-04-02 07:48:09 +0200
+      User Load (5.5ms)  SELECT "users".* FROM "users" WHERE (user_id in ('1705481075/facebook'))
+      CACHE (0.1ms)  SELECT "users".* FROM "users" WHERE (user_id in ('1705481075/facebook'))
+      Processing by FacebookController#create as HTML
+      Parameters: {"signed_request"=>"6xbhSI-JNpGOf7Ye54gft7kF4Tmxdr0AQVA0Iy0hw34.eyJhbGdvcml0aG0iOiJITUFDLVNIQTI1NiIsImV4cGlyZXMiOjEzOTY0MjIwMDAsImlzc3VlZF9hdCI6MTM5NjQxNzY4Mywib2F1dGhfdG9rZW4iOiJDQUFGalpCR3p6T2tjQkFQUGoyakJtVTc2UkxkODFjcG0xSTVqMDlZcWNZNjFSOFRwYnRoa3l0QlNkb0JoalNrQWh0UFBhaTN3VmlCekZRM2dsb1pCVUtxTVhXV0tlTkVqeVk3U2pOTXJRZXUzWkI4MVRoVEhwTEtBZzMyRzlLaVpCaFpCR1pBbEdROFpBQThnN3R5aDZVREpRS0pqY3dnek52djZqaE9lR00yUlUyTEk1MkZDWkFIZUJaQWdSWVVWZXVTRHNzamdrYjVKcTNBWkRaRCIsInVzZXIiOnsiY291bnRyeSI6ImRrIiwibG9jYWxlIjoiZW5fR0IiLCJhZ2UiOnsibWluIjoyMX19LCJ1c2VyX2lkIjoiMTcwNTQ4MTA3NSJ9",
+                   "fb_locale"=>"en_GB", "fb_source"=>"notification", "fb_ref"=>"friends_find",
+                   "ref"=>"notif", "notif_t"=>"app_notification"}
 
  5) add accept conditions for new users?
 
@@ -1012,3 +1014,16 @@
      must enlarge users array with not connected accounts
      only if no inconsistence
 
+222) allow friends find without user_combination
+     that will only work online and if other users have shared their accounts
+
+223) check if there is some problems with friends cache for instagram:
+     friend?: no friends cache was found for login user 1092213433/instagram gofreerev g
+
+224) allow friends find without combined accounts and buffer search result for other user
+     User A executes a friends find search with friends proposal B, C and D
+     Buffer A as friends proposal for B, C and D (only if B, C and D is active app users)
+     Include A in next friends find search for B, C and D
+     Could use some extra column(s) in friends table as buffer
+     There should also be a "not interested" or "seen" link in friends find post
+     Could use

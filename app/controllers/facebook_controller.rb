@@ -17,6 +17,8 @@ class FacebookController < ApplicationController
   #   action: redirect to https://www.facebook.com/dialog/oauth?client_id=<client_id>&redirect_uri=<current_url>&scope=read_stream for FB app logn / authorization
   #           must be a redirect to top frame (top.location.href)
   # Signature 2: when an authorized user starts the app from facebook
+  #   Parameters: {"signed_request"=>"8AsUxKh02db56T9oVjnCe3EfaNUXw8qqHNHmcQaDhgA.eyJhbGdvcml0aG0iOiJITUFDLVNIQTI1NiIsImV4cGlyZXMiOjEzOTY0MjU2MDAsImlzc3VlZF9hdCI6MTM5NjQyMTM1Miwib2F1dGhfdG9rZW4iOiJDQUFGalpCR3p6T2tjQkFQSkNMUXZma3BoNjBmbUl1WkJJUUVpeFpDa1ByQXQzbURJRnpiUHUxeGpxMlZlNkZqUldvM3huUWdXWW1EM3V3ekJzWkJzRGFRNzNXeFZQbDNaQkVzTVpCREFGQm9lR0VKWkJ2SHdmS2hiblZQWkJVVExNRWdXREJSUXBjTUp2Ym1UWkMyR0VNelZzMDcyVlczWkFkS3BYY0owZENuWkNsM1d1QVVXdFlLVjh0c00xOVFzbWowZzZFWkQiLCJ1c2VyIjp7ImNvdW50cnkiOiJkayIsImxvY2FsZSI6ImVuX0dCIiwiYWdlIjp7Im1pbiI6MjF9fSwidXNlcl9pZCI6IjE3MDU0ODEwNzUifQ",
+  #                "fb_locale"=>"en_GB"}
   #   input: signed_request encoded JSON hash with (user, issued_at, algorithm, expires, oauth_token and user_id)
   #   example: hash = { "algorithm"=>"HMAC-SHA256",
   #                     "expires"=>1373374800,
@@ -24,6 +26,7 @@ class FacebookController < ApplicationController
   #                     "oauth_token"=>"CAAFjZBGzzOkcBAM3vNXbvDtDm3qcV7RQ3HwSRZAC9PRUiSvA8zLAnFFUwEmuV5t6fWohIPn8ZCDUrTZCUFtlUdOK1aSPhL1nvobmEBNucZBu9KLWqb4wRcB6jZBy6K49pZCQOaXRl0C8cj4ZCAYfdZC9tZCLC8wZAFhs9GWJMGIkO91AwZDZD",
   #                     "user"=>{"country"=>"dk", "locale"=>"da_DK", "age"=>{"min"=>21}},
   #                     "user_id"=>"1705481075"}
+  #   note that signed_request signature is identical in signature 2 and signature 4. Only params signature is different.
   #   action:
   # Signature 3: when an authorized user deauthorise gofreerev in facebook (advanced settings - deauthorise dallback url)
   #   input: signed_request encoded JSON hash with (user, issued_at, algorithm, and user_id)
@@ -31,6 +34,20 @@ class FacebookController < ApplicationController
   #                    "issued_at"=>1391445050,
   #                    "user"=>{"country"=>"dk", "locale"=>"en_GB"},
   #                    "user_id"=>"1705481075"}
+  #   action:
+  # Signature 4: when app starts from a friends_find facebook notification. See User.find_friends_batch
+  #   Parameters: {"signed_request"=>"6xbhSI-JNpGOf7Ye54gft7kF4Tmxdr0AQVA0Iy0hw34.eyJhbGdvcml0aG0iOiJITUFDLVNIQTI1NiIsImV4cGlyZXMiOjEzOTY0MjIwMDAsImlzc3VlZF9hdCI6MTM5NjQxNzY4Mywib2F1dGhfdG9rZW4iOiJDQUFGalpCR3p6T2tjQkFQUGoyakJtVTc2UkxkODFjcG0xSTVqMDlZcWNZNjFSOFRwYnRoa3l0QlNkb0JoalNrQWh0UFBhaTN3VmlCekZRM2dsb1pCVUtxTVhXV0tlTkVqeVk3U2pOTXJRZXUzWkI4MVRoVEhwTEtBZzMyRzlLaVpCaFpCR1pBbEdROFpBQThnN3R5aDZVREpRS0pqY3dnek52djZqaE9lR00yUlUyTEk1MkZDWkFIZUJaQWdSWVVWZXVTRHNzamdrYjVKcTNBWkRaRCIsInVzZXIiOnsiY291bnRyeSI6ImRrIiwibG9jYWxlIjoiZW5fR0IiLCJhZ2UiOnsibWluIjoyMX19LCJ1c2VyX2lkIjoiMTcwNTQ4MTA3NSJ9",
+  #                "fb_locale"=>"en_GB", "fb_source"=>"notification", "fb_ref"=>"friends_find",
+  #                "ref"=>"notif", "notif_t"=>"app_notification"}
+  #   signed_request encoded JSON hash with (user, issued_at, algorithm, expires, oauth_token and user_id)
+  #   example: hash = {"algorithm"=>"HMAC-SHA256",
+  #                    "expires"=>1396422000,
+  #                    "issued_at"=>1396417683,
+  #                    "oauth_token"=>"CAAFjZBGzzOkcBAPPj2jBmU76RLd81cpm1I5j09YqcY61R8TpbthkytBSdoBhjSkAhtPPai3wViBzFQ3gloZBUKqMXWWKeNEjyY7SjNMrQeu3ZB81ThTHpLKAg32G9KiZBhZBGZAlGQ8ZAA8g7tyh6UDJQKJjcwgzNvv6jhOeGM2RU2LI52FCZAHeBZAgRYUVeuSDssjgkb5Jq3AZDZD",
+  #                    "user"=>{"country"=>"dk", "locale"=>"en_GB", "age"=>{"min"=>21}},
+  #                    "user_id"=>"1705481075"}
+  #   note that signed_request signature is identical in signature 2 and signature 4. Only params signature is different.
+  #   action:
 
   def create
     # logout any old facebook user before (new) login
@@ -64,7 +81,12 @@ class FacebookController < ApplicationController
     #               "user"=>{"country"=>"dk", "locale"=>"da_DK", "age"=>{"min"=>21}}, "user_id"=>"1705481075"}
     if hash.has_key?('oauth_token') && hash.has_key?('user_id')
       # signature 2 - authorization in progress - show autologin page and redirect to facebook to complete authorization
-      signature = 2
+      # signature 4 - as signature 2 - but redirect to users/index?friends=find after login
+      if params[:fb_ref].to_s == 'friends_find'
+        signature = 4 # login and redirect to users/index?friends=find page
+      else
+        signature = 2 # login and redirect to gifts/index page
+      end
       logger.debug2  'user has already authorized gofreerev'
       # logger.debug2  "oauth_token = #{hash['oauth_token']}"
       logger.debug2  "user_id #{hash['user_id']}"
@@ -98,7 +120,12 @@ class FacebookController < ApplicationController
       # note that there are problems with cookie store and IE10 when login starts from facebook (session[:state] not preserved)
       # tasks table is used for temporary store of state in facebook/index => autologin => FB => facebook/index sequence
       # @auth_url =  oauth.url_for_oauth_code(:permissions=>"read_stream")
-      @auth_url =  oauth.url_for_oauth_code :state => set_state_tasks_store('login')
+      if signature == 4
+        context = 'friends_find'
+      else
+        context = 'login'
+      end
+      @auth_url =  oauth.url_for_oauth_code :state => set_state_tasks_store(context)
       @auth_url = @auth_url.gsub('&amp;', '&') # fix invalid escape in auth url
       logger.debug2  "@auth_url = #{@auth_url}"
     end
@@ -122,14 +149,14 @@ class FacebookController < ApplicationController
     # looks like permission status_update has been replaced with publish_actions
     # publish_actions is added when requesting status_update priv.
     context = params[:state].to_s.from(31)
-    context = 'other' unless %w(login status_update read_stream).index(context)
+    context = 'other' unless %w(login friends_find status_update read_stream).index(context)
 
     # Cross-site Request Forgery check
     # note that there are problems with cookie store and IE10 when login starts from facebook (session[:state] not preserved)
     # tasks table is used for temporary store of state in facebook/index => autologin => FB => facebook/index sequence
     # use special "tasks" session store for login. use normal session cookie store for add. mission privs. actions
-    if context == 'login' and invalid_state_tasks_store? or # state in tasks store (special IE10 workaround)
-        context != 'login' and invalid_state_cookie_store? # state in normal session cookie store
+    if %w(login friends_find).index(context) and invalid_state_tasks_store? or # state in tasks store (special IE10 workaround)
+      !%w(login friends_find).index(context) and invalid_state_cookie_store? # state in normal session cookie store
       save_flash_key ".invalid_state_#{context}", :appname => APP_NAME
       redirect_to :controller => (%w(login other).index(context) ? :auth : :gifts)
       logout(provider)
@@ -238,7 +265,11 @@ class FacebookController < ApplicationController
         user.save!
       end
       save_flash_key ".ok_#{context}", user.app_and_apiname_hash
-      redirect_to :controller => :gifts
+      if context == 'friends_find'
+        redirect_to :controller => :users, :friends => 'find'
+      else
+        redirect_to :controller => :gifts
+      end
     else
       # login failed
       key, options = res

@@ -193,6 +193,7 @@ en:
         status_update_failed: "%{appname} was not granted access to write on your facebook wall. %{error}"
         read_stream_failed: "%{appname} was not granted access to read posts on your facebook wall. %{error}"
         ok_login: "Facebook log in ok."
+        ok_friends_find: "Facebook log in ok."
         ok_login_new_user: "Facebook log in ok. Welcome to %{appname}. Your friends list is being downloaded and will be ready for use in a minute."
         ok_status_update: "You have granted %{appname} permission to write on your %{apiname} wall."
         ok_read_stream: "%{appname} was granted access to read posts on your %{apiname} wall."
@@ -555,6 +556,14 @@ en:
         accepted_proposal_receiver_1_v1_to_msg: '%{receivername} accepted your bid on his/her wish "%{gifttext} ..."'
         deleted_account_v1_to_url: "/users/%{userid}?tab=balance"
         deleted_account_v1_to_msg: "Your balance has been updated because %{username} has deleted his/hers %{appname} %{apiname} account and one or more of your deals with %{username} have been deleted."
+        friends_find_1_v1_to_url: "/users?apiname=all&appuser=all&friends=find"
+        friends_find_1_v1_to_msg: "Friend suggestions: %{username1}"
+        friends_find_2_v1_to_url: "/users?apiname=all&appuser=all&friends=find"
+        friends_find_2_v1_to_msg: "Friend suggestions: %{username1} and %{username2}"
+        friends_find_3_v1_to_url: "/users?apiname=all&appuser=all&friends=find"
+        friends_find_3_v1_to_msg: "Friend suggestions: %{username1}, %{username2} and %{username3}"
+        friends_find_n_v1_to_url: "/users?apiname=all&appuser=all&friends=find"
+        friends_find_n_v1_to_msg: "Friend suggestions: %{username1}, %{username2} and %{no_other_users} friend suggestions"
 
   # user controller
   users:

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140228113549) do
+ActiveRecord::Schema.define(version: 20140401163200) do
 
   create_table "ajax_comments", force: true do |t|
     t.string   "user_id",    limit: 40, null: false
@@ -217,6 +217,8 @@ ActiveRecord::Schema.define(version: 20140228113549) do
     t.datetime "deleted_at"
     t.datetime "last_login_at"
     t.datetime "deauthorized_at"
+    t.datetime "last_friends_find_at"
+    t.string   "language",                limit: 2
   end
 
   add_index "users", ["user_combination"], name: "index_users_user_combination"

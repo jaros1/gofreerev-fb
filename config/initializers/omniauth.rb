@@ -39,6 +39,7 @@ end # OmniAuth
 # initialize A) API_ID and B) API_SECRET hashes to be used in authorization and API requests
 api_id     = {} # A)
 api_secret = {} # B)
+api_token  = {}
 %w(facebook flickr foursquare google_oauth2 instagram linkedin twitter vkontakte).each do |provider|
   rails_env = case Rails.env when "development" then "DEV" when "test" then "TEST" when "production" then "PROD" end
   # get api_id for provider
@@ -49,10 +50,20 @@ api_secret = {} # B)
   name = "gofreerev_#{rails_env}_app_secret_#{provider}".upcase
   api_secret[provider] = ENV[name]
   puts "Warning: environment variable #{name} was not found" if api_secret[provider].to_s == ""
+  # get api_token for provider - only facebook
+  if provider == 'facebook'
+    # get application token:
+    # api_server = Koala::Facebook::RealtimeUpdates.new :app_id => API_ID[:facebook], :secret => API_SECRET[:facebook]
+    # api_server.app_access_token
+    name = "gofreerev_#{rails_env}_app_token_#{provider}".upcase
+    api_token[provider] = ENV[name]
+    puts "Warning: environment variable #{name} was not found" if api_token[provider].to_s == ""
+  end
 end
 # omniauth application id and secret from login provider
 API_ID     = api_id.with_indifferent_access     # A
 API_SECRET = api_secret.with_indifferent_access # B
+API_TOKEN  = api_token.with_indifferent_access
 
 # C) - omniauth setup
 Rails.application.config.middleware.use OmniAuth::Builder do

@@ -916,6 +916,160 @@ class User < ActiveRecord::Base
     no_app_friends
   end
 
+  # cross api friends search - compare friend lists across multiple api providers
+  # used in users/index?friends=find and in batch notifications
+  # compare friends categories 1, 2 and 3 with friends categories 4 and 6
+  # match non friends on user_name or on user_combination
+  def self.find_friends (login_users, options = {})
+    # check friend cache (user.friends_hash)
+    users_without_cache = login_users.find_all { |u| !u.friends_hash }
+    if users_without_cache.size > 0
+      # cache friends info
+      User.cache_friend_info(users_without_cache)
+      login_users.each do |u1|
+        next if u1.friends_hash
+        u2 = users_without_cache.find { |u3| u3.user_id == u1.user_id}
+        u1.friends_hash = u2.friends_hash
+      end
+    end
+    # find friends
+    friends = users3 = User.app_friends(login_users,[1,2,3])
+    friend_names = friends.collect { |u| u.user_name }
+    friend_user_comb = friends.collect { |u| u.user_combination}.delete_if { |uc| !uc }
+    # compare with non friends
+    users = User.app_friends(login_users,[4, 6]).find_all do |u|
+      ( friend_names.index(u.user_name) or
+          (u.user_combination and friend_user_comb.index(u.user_combination)) )
+    end
+    login_users.each do |user|
+      user.last_friends_find_at = Time.now
+      user.save!
+    end
+    users
+  end
+
+  # find friends once a week for all active users
+  # create/update gofreerev notification
+  # send FB notification
+  # rules:
+  # 1) only friends find for active users. last_login_at >= 1.month.ago
+  # 2) use last_login_at as offset starting one week after last login
+  # called from util.new_messages_count
+  def self.find_friends_batch
+    # todo: delete test setup ==>
+    # User.where('user_combination is not null').update_all :last_friends_find_at => 2.weeks.ago
+    # todo: delete test setup <==
+    # blank any "empty" user combinations
+    user_combinations = User.where('user_combination is not null').
+        group('user_combination').having('count(user_combination) = 1').
+        collect { |u| u.user_combination }
+    User.where(:user_combination => user_combinations).update_all(:user_combination => nil) if user_combinations.size > 0
+    # check for new users - first friends find is one week after first login
+    User.where('user_combination is not null and ' +
+                   'last_login_at is not null and ' +
+                   'last_friends_find_at is null').update_all("last_friends_find_at = last_login_at")
+    # friends find for random user
+    user = User.where('user_combination is not null and last_friends_find_at < ?', 1.week.ago).shuffle.first
+    # user = User.find_by_user_id('1705481075/facebook') # todo: delete after test
+    return unless user
+    users = User.where('user_combination = ?', user.user_combination)
+    User.cache_friend_info(users)
+    users2 = User.find_friends(users)
+    return unless users2.size > 0
+    # gofreerev notifications:
+    noti_key_prefix = 'friends_find_'
+    # delete any old unread gofreerev notifications
+    to_user_ids = users.collect { |u| u.user_id }
+    Notification.where(:to_user_id => to_user_ids, :noti_read => 'N').each do |n|
+      n.destroy if n.noti_key.first(noti_key_prefix.length) == noti_key_prefix
+    end
+    noti_key = "#{noti_key_prefix}#{users2.size <= 3 ? users2.size : 'n'}_v1"
+    noti_options = {:no_users => users2.size,
+                    :no_other_users => (users2.size-2),
+                    :username1 => users2[0].user_name,
+                    :username2 => (users2.size >= 2 ? users2[1].user_name : nil),
+                    :username3 => (users2.size >= 3 ? users2[2].user_name : nil)}
+    fb_user = nil
+    users.each do |to_user|
+      n = Notification.new
+      n.to_user_id = to_user.user_id
+      n.from_user_id = nil
+      n.internal = 'Y'
+      n.noti_key = noti_key
+      n.noti_options = noti_options
+      n.noti_read = 'N'
+      n.save!
+      fb_user = to_user if to_user.provider == 'facebook'
+    end
+    # FB notification
+    return unless fb_user
+    # raise "error" unless fb_user.user_id == '1705481075/facebook'
+    if API_TOKEN[:facebook]
+      language = fb_user.language || BASE_LANGUAGE
+      href = '/'
+      template = I18n.t "inbox.index.#{noti_key}_to_msg", noti_options.merge(:locale => language)
+      res = RestClient.post "https://graph.facebook.com/#{fb_user.uid}/notifications",
+                            :href => href, :template => template, :access_token => API_TOKEN[:facebook], :ref => "friends_find"
+      logger.debug2 "res = #{res}"
+      # signature from FB notification:
+      # Started POST "/?fb_source=notification&fb_ref=friends_find&ref=notif&notif_t=app_notification" for 127.0.0.1 at 2014-04-02 07:48:09 +0200
+      # User Load (5.5ms)  SELECT "users".* FROM "users" WHERE (user_id in ('1705481075/facebook'))
+      # CACHE (0.1ms)  SELECT "users".* FROM "users" WHERE (user_id in ('1705481075/facebook'))
+      # Processing by FacebookController#create as HTML
+      # Parameters: {"signed_request"=>"6xbhSI-JNpGOf7Ye54gft7kF4Tmxdr0AQVA0Iy0hw34.eyJhbGdvcml0aG0iOiJITUFDLVNIQTI1NiIsImV4cGlyZXMiOjEzOTY0MjIwMDAsImlzc3VlZF9hdCI6MTM5NjQxNzY4Mywib2F1dGhfdG9rZW4iOiJDQUFGalpCR3p6T2tjQkFQUGoyakJtVTc2UkxkODFjcG0xSTVqMDlZcWNZNjFSOFRwYnRoa3l0QlNkb0JoalNrQWh0UFBhaTN3VmlCekZRM2dsb1pCVUtxTVhXV0tlTkVqeVk3U2pOTXJRZXUzWkI4MVRoVEhwTEtBZzMyRzlLaVpCaFpCR1pBbEdROFpBQThnN3R5aDZVREpRS0pqY3dnek52djZqaE9lR00yUlUyTEk1MkZDWkFIZUJaQWdSWVVWZXVTRHNzamdrYjVKcTNBWkRaRCIsInVzZXIiOnsiY291bnRyeSI6ImRrIiwibG9jYWxlIjoiZW5fR0IiLCJhZ2UiOnsibWluIjoyMX19LCJ1c2VyX2lkIjoiMTcwNTQ4MTA3NSJ9", "fb_locale"=>"en_GB", "fb_source"=>"notification", "fb_ref"=>"friends_find", "ref"=>"notif", "notif_t"=>"app_notification"}
+    else
+      logger.warn2 "facebook app token was not found"
+    end
+    user
+  end
+
+  # friends information is used many different places
+  # cache friends information once and for all in @users array (user.friends_hash)
+  # friends categories:
+  # 1) logged in user
+  # 2) mutual friends         - show detailed info
+  # 3) follows (F)            - show few info
+  # 4) stalked by (S)         - show few info
+  # 5) deselected api friends - show few info
+  # 6) friends of friends     - show few info
+  # 7) others                 - not clickable user div - for example comments from other login providers
+  def self.cache_friend_info (login_users)
+    return if login_users.size == 0
+    user_ids = login_users.collect { |u| u.user_id}
+    # get friends. split in 4 categories. Y: mutual friends, F: follows, S: Stalked by, N: not app friend
+    # logger.debug2 "get friends. user_ids = #{user_ids.join(', ')}"
+    users_app_friends = { 'Y' => [], 'F' => [], 'S' => [], 'N' => []}
+    friends = Friend.where("user_id_giver in (?)", user_ids)
+    friends.each do |f|
+      users_app_friends[f.app_friend || f.api_friend] << f.user_id_receiver # save userids in Y, F, S and N arrays
+    end
+    # logger.debug2 "get friends of mutual friends"
+    friends_of_friends_ids = Friend.
+        where('user_id_giver in (?)', users_app_friends['Y']).
+        find_all { |f| (f.app_friend || f.api_friend) == 'Y' }.
+        collect { |f| f.user_id_receiver }
+    friends_hash = {}
+    login_users.each do |user|
+      friends_hash[user.provider] = {}
+    end
+    # loop for each friend category
+    [ [1, user_ids], [2, users_app_friends['Y']], [3, users_app_friends['F']], [4, users_app_friends['S']],
+      [5, users_app_friends['N']], [6, friends_of_friends_ids] ].each do |x|
+      friends_category, friends_user_ids = x
+      friends_user_ids.each do |user_id|
+        provider = user_id.split('/').last
+        friends_hash[provider][user_id] = friends_category unless friends_hash[provider].has_key?(user_id)
+      end # friends_user_ids
+    end
+    # copy friends_hash to users array
+    login_users.each do |user|
+      user.friends_hash = friends_hash[user.provider]
+      # logger.debug2 "#{user.debug_info}, friends_hash = #{user.friends_hash}"
+    end
+    login_users
+  end # cache_friend_info
+
+
   # recalculate user balance
   # currency and balance is not updated if one or more exchange rates are missing
   # missing exchange rates is put in queue for bank and looked up batch
@@ -1165,6 +1319,10 @@ class User < ActiveRecord::Base
     return 7 if login_users.first.dummy_user?
     login_user = login_users.find { |user| user.provider == self.provider }
     return 7 unless login_user
+    if !login_user.friends_hash
+      logger.warn2 "no friends cache was found for login user #{login_user.debug_info}"
+      return 7
+    end
     return login_user.friends_hash[user_id] || 7
   end # friend?
 

@@ -159,13 +159,7 @@ class UsersController < ApplicationController
       @page_values[:appuser] = appuser_filter
 
       # appname filter: all: show all users (*), provider: show only users for selected provider
-      apiname_filter_values = %w(all) + @users.collect {|u| u.provider }
-      apiname_filter = params[:apiname] || apiname_filter_values.first
-      if !apiname_filter_values.index(apiname_filter)
-        logger.error2 "invalid request. apiname = #{apiname_filter}. allowed values are #{apiname_filter_values.join(', ')}"
-        apiname_filter = apiname_filter_values.first
-      end
-      @page_values[:apiname] = apiname_filter
+      check_apiname_filter
     end
 
     # http request: return first 10 friends (last_row_id = nil)
@@ -193,9 +187,7 @@ class UsersController < ApplicationController
     end
 
     # apply apiname filter before friends lookup
-    # todo: friends=find
-    # - should compare all provider friends
-    # - apply apiname filter after friends=find lookup
+    # except for friends=find where apiname filter is applied after friends lookup
     if @page_values[:friends] == 'find'
       users = @users
       # check user combination and add not connected accounts in find friends search
@@ -205,21 +197,11 @@ class UsersController < ApplicationController
         other_users = User.where('user_combination in (?) and user_id not in (?)', user_combinations, login_user_ids)
         if other_users.size > 0
           # found user combination with one or more not connected accounts
-          # cache friends info for not connected accounts
-          cache_friend_info(other_users)
           other_users.each { |u| @users << u }
           users = @users
           # include not connected accounts in apiname filter
           # appname filter: all: show all users (*), provider: show only users for selected provider
-          # todo: DRY ==>
-          apiname_filter_values = %w(all) + @users.collect {|u| u.provider }
-          apiname_filter = params[:apiname] || apiname_filter_values.first
-          if !apiname_filter_values.index(apiname_filter)
-            logger.error2 "invalid request. apiname = #{apiname_filter}. allowed values are #{apiname_filter_values.join(', ')}"
-            apiname_filter = apiname_filter_values.first
-          end
-          @page_values[:apiname] = apiname_filter
-          # todo: DRY <==
+          check_apiname_filter
           # ready for find friends
         end
       end
@@ -248,29 +230,25 @@ class UsersController < ApplicationController
                            when 'all'
                              [1,2,3,4,5,6]
                            when 'find'
-                             [4, 6]
+                             []
                          end
-    users2 = User.app_friends(users,friends_categories).sort_by_user_name
-    logger.debug2 "@page_values[:friends] = #{@page_values[:friends]}, friends_categories = #{friends_categories}, users2.size = #{users2.size}"
+    if @page_values[:friends] == 'find'
+      # compare login users friends [1,2,3] with not friends [4, 6]
+      # compare user name or user:combination
+      users2 = User.find_friends(users).sort_by { |u| [u.user_name, u.id] }
+    else
+      users2 = User.app_friends(users,friends_categories).sort_by_user_name
+      logger.debug2 "@page_values[:friends] = #{@page_values[:friends]}, friends_categories = #{friends_categories}, users2.size = #{users2.size}"
+    end
+
     if @page_values[:friends] == 'me'
       #users2 = users2.sort do |a,b|
       #  provider_downcase(a.provider) <=> provider_downcase(b.provider)
       #end
       users2 = users2.sort_by { |a| provider_downcase(a.provider) }
     end
+
     if @page_values[:friends] == 'find'
-      # cross api friends compare
-      # compare login users friends [1,2,3] with not friends [4, 6]
-      # compare user name or
-      # input (users2) is not friends (4 - stalked by and 6-friends of friends)
-      # compare names for login users friends
-      users3 = User.app_friends(users,[1,2,3])
-      friend_names = users3.collect { |u| u.user_name }
-      friend_user_comb = users3.collect { |u| u.user_combination}.delete_if { |uc| !uc }
-      users2 = users2.find_all do |u|
-        ( friend_names.index(u.user_name) or
-          (u.user_combination and friend_user_comb.index(u.user_combination)) )
-      end
       # apply any apiname filter after find friends search
       users2 = users2.find_all { |u| u.provider == @page_values[:apiname] } if @page_values[:apiname] != 'all'
     end
@@ -452,7 +430,7 @@ class UsersController < ApplicationController
       logger.debug2 "user2 = #{@user2.user_id} #{@user2.short_user_name}"
 
       # todo: google+ - should show @user2's friends and followers - should not show users stalking user2
-      users = User.app_friends(cache_friend_info([@user2]), [2,3]).sort_by_user_name.collect { |f| f.friend }
+      users = User.app_friends(User.cache_friend_info([@user2]), [2,3]).sort_by_user_name
       logger.debug2 "users = " + users.collect { |u| u.user_id}.join(', ')
 
       # users = User.all # uncomment to test ajax
@@ -480,6 +458,17 @@ class UsersController < ApplicationController
     end
 
   end # show
+
+  private
+  def check_apiname_filter
+    apiname_filter_values = %w(all) + @users.collect {|u| u.provider }
+    apiname_filter = params[:apiname] || apiname_filter_values.first
+    if !apiname_filter_values.index(apiname_filter)
+      logger.error2 "invalid request. apiname = #{apiname_filter}. allowed values are #{apiname_filter_values.join(', ')}"
+      apiname_filter = apiname_filter_values.first
+    end
+    @page_values[:apiname] = apiname_filter
+  end
 
 
   private
