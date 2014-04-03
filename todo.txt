@@ -1027,3 +1027,13 @@
      Could use some extra column(s) in friends table as buffer
      There should also be a "not interested" or "seen" link in friends find post
      Could use
+
+225) show share accounts div with disabled checkbox for not logged users and single logged in users
+
+226) User.find_friends_batch
+     also check users without user_combination but with friends proposal in friends table.
+
+227) after second login. Maybe ajax inject a find friends link in page header?
+     or execute a batch find friend request for new notifications
+
+228) users/index - show "no friends proposals" if empty friends_find search

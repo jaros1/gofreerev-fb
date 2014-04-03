@@ -1,18 +1,16 @@
-<% if logged_in? -%>
-    <div style="width: 100%" id="share_accounts_div" title="<%= t '.title', :appname => APP_NAME %>">
-      <br/>
-      <%= t '.checkbox_prompt' %>
-      <%= check_box_tag "share_accounts_check_box", 1, shared_accounts?,
-                        :readonly => shared_accounts_disabled?, :disabled => shared_accounts_disabled?,
-                        :onchange => "share_accounts_ajax(this)" %>
-      &nbsp;
-      <%= t '.shared_accounts_prompt' %>
-      <%= shared_accounts_list %>
-      &nbsp;
-      <% if show_find_friends_link? -%>
-          <%= link_to t('.find_friends_link_text'), users_path(:friends => 'find') %>
-      <% else -%>
-          <u><%= t '.find_friends_link_text' %></u>
-      <% end -%>
-    </div>
-<% end -%>
+<div style="width: 100%" id="share_accounts_div" title="<%= t '.title', :appname => APP_NAME %>">
+  <br/>
+  <%= t '.checkbox_prompt' %>
+  <%= check_box_tag "share_accounts_check_box", 1, shared_accounts?,
+                    :readonly => shared_accounts_disabled?, :disabled => shared_accounts_disabled?,
+                    :onchange => "share_accounts_ajax(this)" %>
+  &nbsp;
+  <%= t '.shared_accounts_prompt' %>
+  <%= shared_accounts_list %>
+  &nbsp;
+  <% if show_find_friends_link? -%>
+      <%= link_to t('.find_friends_link_text'), users_path(:friends => 'find') %>
+  <% else -%>
+      <u><%= t '.find_friends_link_text' %></u>
+  <% end -%>
+</div>

@@ -343,7 +343,10 @@ class Friend < ActiveRecord::Base
           new_api_friend = Friend.add_follow(old_api_friend)
         end
       else
-        if mutual_friends
+        if old_api_friend == 'P'
+          # keep friends proposals after login
+          new_api_friend = 'P'
+        elsif mutual_friends
           new_api_friend = 'N'
         elsif provider == 'instagram'
           new_api_friend = 'N'

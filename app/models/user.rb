@@ -935,8 +935,8 @@ class User < ActiveRecord::Base
     end
     # find friends
     friends = users3 = User.app_friends(login_users,[1,2,3])
-    friend_names = friends.collect { |u| u.user_name }
-    friend_user_comb = friends.collect { |u| u.user_combination}.delete_if { |uc| !uc }
+    friend_names = friends.collect { |u| u.user_name }.uniq
+    friend_user_comb = friends.collect { |u| u.user_combination}.delete_if { |uc| !uc }.uniq
     # compare with non friends
     users = User.app_friends(login_users,[4, 6, 7]).find_all do |u|
       ( friend_names.index(u.user_name) or
@@ -994,75 +994,81 @@ class User < ActiveRecord::Base
   # 2) use last_login_at as offset starting one week after last login
   # called from util.new_messages_count
   def self.find_friends_batch
-    # blank any "empty" user combinations
-    user_combinations = User.where('user_combination is not null').
-        group('user_combination').having('count(user_combination) = 1').
-        collect { |u| u.user_combination }
-    User.where(:user_combination => user_combinations).update_all(:user_combination => nil) if user_combinations.size > 0
-    # check for new users - first friends find is one week after first login
-    User.where('user_combination is not null and ' +
-                   'last_login_at is not null and ' +
-                   'last_friends_find_at is null').update_all("last_friends_find_at = last_login_at")
-    # friends find for random user
-    user = User.where('user_combination is not null and last_friends_find_at < ?', 1.week.ago).shuffle.first
-    # user = User.find_by_user_id('1705481075/facebook') # todo: delete after test
-    return unless user
-    users = User.where('user_combination = ?', user.user_combination)
-    User.cache_friend_info(users)
-    users2 = User.find_friends(users)
-    return unless users2.size > 0
-    # gofreerev notifications:
-    noti_key_prefix = 'friends_find_'
-    # delete any old unread gofreerev notifications
-    to_user_ids = users.collect { |u| u.user_id }
-    Notification.where(:to_user_id => to_user_ids, :noti_read => 'N').each do |n|
-      n.destroy if n.noti_key.first(noti_key_prefix.length) == noti_key_prefix
+    begin
+      # blank any "empty" user combinations
+      user_combinations = User.where('user_combination is not null').
+          group('user_combination').having('count(user_combination) = 1').
+          collect { |u| u.user_combination }
+      User.where(:user_combination => user_combinations).update_all(:user_combination => nil) if user_combinations.size > 0
+      # check for new users - first friends find is one week after first login
+      User.where('user_combination is not null and ' +
+                     'last_login_at is not null and ' +
+                     'last_friends_find_at is null').update_all("last_friends_find_at = last_login_at")
+      # friends find for random user
+      user = User.where('user_combination is not null and last_friends_find_at < ?', 1.week.ago).shuffle.first
+      # user = User.find_by_user_id('1705481075/facebook') # todo: delete after test
+      return unless user
+      users = User.where('user_combination = ?', user.user_combination)
+      User.cache_friend_info(users)
+      users2 = User.find_friends(users)
+      return unless users2.size > 0
+      # gofreerev notifications:
+      noti_key_prefix = 'friends_find_'
+      # delete any old unread gofreerev notifications
+      to_user_ids = users.collect { |u| u.user_id }
+      Notification.where(:to_user_id => to_user_ids, :noti_read => 'N').each do |n|
+        n.destroy if n.noti_key.first(noti_key_prefix.length) == noti_key_prefix
+      end
+      noti_key = "#{noti_key_prefix}#{users2.size <= 3 ? users2.size : 'n'}_v1"
+      noti_options = {:no_users => users2.size,
+                      :no_other_users => (users2.size-2),
+                      :username1 => users2[0].user_name,
+                      :username2 => (users2.size >= 2 ? users2[1].user_name : nil),
+                      :username3 => (users2.size >= 3 ? users2[2].user_name : nil)}
+      fb_user = nil
+      users.each do |to_user|
+        n = Notification.new
+        n.to_user_id = to_user.user_id
+        n.from_user_id = nil
+        n.internal = 'Y'
+        n.noti_key = noti_key
+        n.noti_options = noti_options
+        n.noti_read = 'N'
+        n.save!
+        fb_user = to_user if to_user.provider == 'facebook'
+      end
+      # FB notification
+      return unless fb_user
+      # do not send FB notifications to inactive users
+      return if fb_user.last_login_at < 1.month.ago
+      # development - FB notifications is only enabled for a single user
+      raise "cannot send FB notifications to #{user.debug_info} in development environment" unless FORCE_SSL or fb_user.user_id == '1705481075/facebook'
+      if API_TOKEN[:facebook]
+        language = fb_user.language || BASE_LANGUAGE
+        href = '/'
+        template = I18n.t "inbox.index.#{noti_key}_to_msg", noti_options.merge(:locale => language)
+        res = RestClient.post "https://graph.facebook.com/#{fb_user.uid}/notifications",
+                              :href => href, :template => template, :access_token => API_TOKEN[:facebook], :ref => "friends_find"
+        logger.debug2 "res = #{res}"
+        # signature from FB notification:
+        # Started POST "/?fb_source=notification&fb_ref=friends_find&ref=notif&notif_t=app_notification" for 127.0.0.1 at 2014-04-02 07:48:09 +0200
+        # User Load (5.5ms)  SELECT "users".* FROM "users" WHERE (user_id in ('1705481075/facebook'))
+        # CACHE (0.1ms)  SELECT "users".* FROM "users" WHERE (user_id in ('1705481075/facebook'))
+        # Processing by FacebookController#create as HTML
+        # Parameters: {"signed_request"=>"6xbhSI-JNpGOf7Ye54gft7kF4Tmxdr0AQVA0Iy0hw34.eyJhbGdvcml0aG0iOiJITUFDLVNIQTI1NiIsImV4cGlyZXMiOjEzOTY0MjIwMDAsImlzc3VlZF9hdCI6MTM5NjQxNzY4Mywib2F1dGhfdG9rZW4iOiJDQUFGalpCR3p6T2tjQkFQUGoyakJtVTc2UkxkODFjcG0xSTVqMDlZcWNZNjFSOFRwYnRoa3l0QlNkb0JoalNrQWh0UFBhaTN3VmlCekZRM2dsb1pCVUtxTVhXV0tlTkVqeVk3U2pOTXJRZXUzWkI4MVRoVEhwTEtBZzMyRzlLaVpCaFpCR1pBbEdROFpBQThnN3R5aDZVREpRS0pqY3dnek52djZqaE9lR00yUlUyTEk1MkZDWkFIZUJaQWdSWVVWZXVTRHNzamdrYjVKcTNBWkRaRCIsInVzZXIiOnsiY291bnRyeSI6ImRrIiwibG9jYWxlIjoiZW5fR0IiLCJhZ2UiOnsibWluIjoyMX19LCJ1c2VyX2lkIjoiMTcwNTQ4MTA3NSJ9", "fb_locale"=>"en_GB", "fb_source"=>"notification", "fb_ref"=>"friends_find", "ref"=>"notif", "notif_t"=>"app_notification"}
+      else
+        logger.warn2 "facebook app token was not found"
+        logger.debug2 "Use api_server = Koala::Facebook::RealtimeUpdates.new :app_id => API_ID[:facebook], :secret => API_SECRET[:facebook] request to get a facebook application token"
+        logger.debug2 "application token must be stored in environment variable. See /config/initializers/omniauth.rb"
+        return
+      end
+      nil
+    rescue Exception => e
+      logger.debug2 "Exception: #{e.message.to_s} (#{e.class})"
+      logger.debug2 "Backtrace: " + e.backtrace.join("\n")
+      raise
     end
-    noti_key = "#{noti_key_prefix}#{users2.size <= 3 ? users2.size : 'n'}_v1"
-    noti_options = {:no_users => users2.size,
-                    :no_other_users => (users2.size-2),
-                    :username1 => users2[0].user_name,
-                    :username2 => (users2.size >= 2 ? users2[1].user_name : nil),
-                    :username3 => (users2.size >= 3 ? users2[2].user_name : nil)}
-    fb_user = nil
-    users.each do |to_user|
-      n = Notification.new
-      n.to_user_id = to_user.user_id
-      n.from_user_id = nil
-      n.internal = 'Y'
-      n.noti_key = noti_key
-      n.noti_options = noti_options
-      n.noti_read = 'N'
-      n.save!
-      fb_user = to_user if to_user.provider == 'facebook'
-    end
-    # FB notification
-    return unless fb_user
-    # do not send FB notifications to inactive users
-    return if fb_user.last_login_at < 1.month.ago
-    # development - FB notifications is only enabled for a single user
-    raise "cannot send FB notifications to #{user.debug_info} in development environment" unless FORCE_SSL or fb_user.user_id == '1705481075/facebook'
-    if API_TOKEN[:facebook]
-      language = fb_user.language || BASE_LANGUAGE
-      href = '/'
-      template = I18n.t "inbox.index.#{noti_key}_to_msg", noti_options.merge(:locale => language)
-      res = RestClient.post "https://graph.facebook.com/#{fb_user.uid}/notifications",
-                            :href => href, :template => template, :access_token => API_TOKEN[:facebook], :ref => "friends_find"
-      logger.debug2 "res = #{res}"
-      # signature from FB notification:
-      # Started POST "/?fb_source=notification&fb_ref=friends_find&ref=notif&notif_t=app_notification" for 127.0.0.1 at 2014-04-02 07:48:09 +0200
-      # User Load (5.5ms)  SELECT "users".* FROM "users" WHERE (user_id in ('1705481075/facebook'))
-      # CACHE (0.1ms)  SELECT "users".* FROM "users" WHERE (user_id in ('1705481075/facebook'))
-      # Processing by FacebookController#create as HTML
-      # Parameters: {"signed_request"=>"6xbhSI-JNpGOf7Ye54gft7kF4Tmxdr0AQVA0Iy0hw34.eyJhbGdvcml0aG0iOiJITUFDLVNIQTI1NiIsImV4cGlyZXMiOjEzOTY0MjIwMDAsImlzc3VlZF9hdCI6MTM5NjQxNzY4Mywib2F1dGhfdG9rZW4iOiJDQUFGalpCR3p6T2tjQkFQUGoyakJtVTc2UkxkODFjcG0xSTVqMDlZcWNZNjFSOFRwYnRoa3l0QlNkb0JoalNrQWh0UFBhaTN3VmlCekZRM2dsb1pCVUtxTVhXV0tlTkVqeVk3U2pOTXJRZXUzWkI4MVRoVEhwTEtBZzMyRzlLaVpCaFpCR1pBbEdROFpBQThnN3R5aDZVREpRS0pqY3dnek52djZqaE9lR00yUlUyTEk1MkZDWkFIZUJaQWdSWVVWZXVTRHNzamdrYjVKcTNBWkRaRCIsInVzZXIiOnsiY291bnRyeSI6ImRrIiwibG9jYWxlIjoiZW5fR0IiLCJhZ2UiOnsibWluIjoyMX19LCJ1c2VyX2lkIjoiMTcwNTQ4MTA3NSJ9", "fb_locale"=>"en_GB", "fb_source"=>"notification", "fb_ref"=>"friends_find", "ref"=>"notif", "notif_t"=>"app_notification"}
-    else
-      logger.warn2 "facebook app token was not found"
-      logger.debug2 "Use api_server = Koala::Facebook::RealtimeUpdates.new :app_id => API_ID[:facebook], :secret => API_SECRET[:facebook] request to get a facebook application token"
-      logger.debug2 "application token must be stored in environment variable. See /config/initializers/omniauth.rb"
-      return
-    end
-    user
-  end
+  end # self.find_friends_batch
 
   # friends information is used many different places
   # cache friends information once and for all in @users array (user.friends_hash)
