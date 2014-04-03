@@ -680,6 +680,7 @@ da:
         page_header_text_html: "Tilføj/fjern venner<br /><br />"
         api_profile_link_not_implemented: "link til %{apiname} brugerprofil er ikke implementeret"
         find_friends_not_allowed: "Find venner kan desværre ikke benyttes. Find venner laver venneforslag ved at sammenligne dine venner fra flere login udbydere med dine venners venner for de samme login udbydere. For at bruge find venner skal du være logget ind med flere login udbydere på en gang og du skal have valgt \"Saml konti\" i login side."
+        find_friends_no_rows: "Desværre endnu ingen venneforslag. Du kan øge chancen for venneforslag ved at logge ind med flere login udbydere, ved at sætte X i \"Saml konti?\" i log ind siden og ved at opfordre dine venner til at gøre det tilsvarende."
      menu_friends_yes_no_links:
         friends_filter_prompt: "Venner:" # appname, appname_camelized
         friends_yes_link_text: "ja"

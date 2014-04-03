@@ -252,6 +252,7 @@ class UsersController < ApplicationController
     if @page_values[:friends] == 'find'
       # apply any apiname filter after find friends search
       users2 = users2.find_all { |u| u.provider == @page_values[:apiname] } if @page_values[:apiname] != 'all'
+      save_flash_key '.find_friends_no_rows' if !xhr? and @page_values[:apiname] == 'all' and users2.size == 0
     end
 
     # apply appuser filters after user lookup

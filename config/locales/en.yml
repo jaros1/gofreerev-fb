@@ -675,6 +675,8 @@ en:
      index:
         page_header_text_html: "Add/remove friends<br /><br />"
         api_profile_link_not_implemented: "link to %{apiname} user profile not implemented"
+        find_friends_not_allowed: "Find friends function is not available. Find friends make friend suggestions by comparing your friends from multiple access providers with your friends of friends of the same login providers. To use find friends you must be logged with multiple login providers at once and you should have chosen \"Share accounts?\" in the login page."
+        find_friends_no_rows: "Sorry. No friend suggestions. You can increase the chance of friend suggestions by logging in with multiple log providers, with X in \"Share accounts?\" in the login page, and by encouraging your friends to do the same."
      menu_friends_yes_no_links:
         friends_filter_prompt: "Friends:" # appname, appname_camelized
         friends_yes_link_text: "yes"

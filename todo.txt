@@ -1034,6 +1034,10 @@
      also check users without user_combination but with friends proposal in friends table.
 
 227) after second login. Maybe ajax inject a find friends link in page header?
-     or execute a batch find friend request for new notifications
+     execute a batch find friend search for new notification in page header
+     it could also be first new messages count request after login
+     for example compare last_login_at timestamp with last_friends_find_at timestamps
 
 228) users/index - show "no friends proposals" if empty friends_find search
+
+229) User.find_friends_batch - add user_id param for user specific friends search
