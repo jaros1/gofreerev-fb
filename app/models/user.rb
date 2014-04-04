@@ -921,7 +921,18 @@ class User < ActiveRecord::Base
   # used in users/index?friends=find and in batch notifications
   # compare friends categories 1, 2 and 3 with friends categories 4, 6 and 7
   # match non friends on user_name or on user_combination
+  # note that any shared accounts is added to login_users array
   def self.find_friends (login_users, options = {})
+    # add shared accounts before friends find
+    user_combinations = login_users.find_all { |u| u.user_combination }.collect { |u| u.user_combination }.uniq
+    if user_combinations.size > 0
+      login_user_ids = login_users.collect { |user| user.user_id }
+      other_users = User.where('user_combination in (?) and user_id not in (?)', user_combinations, login_user_ids)
+      if other_users.size > 0
+        # found user combination with one or more not connected accounts
+        other_users.each { |u| login_users << u }
+      end
+    end
     # check friend cache (user.friends_hash)
     users_without_cache = login_users.find_all { |u| !u.friends_hash }
     if users_without_cache.size > 0
@@ -986,30 +997,31 @@ class User < ActiveRecord::Base
     users
   end # self.find_friends
 
-  # find friends once a week for all active users
-  # create/update gofreerev notification
-  # send FB notification
+  # batch task for friends find - only relevant for multi user login or shared accountsfind friends batch task for friends find notifications
+  # without users param - started as post login task after single user login - batch notification in gofreerev and to facebook
+  # with user param - called from util.new_messages_count for multi user login - online notification in gofreerev only
   # rules:
   # 1) only friends find for active users. last_login_at >= 1.month.ago
-  # 2) use last_login_at as offset starting one week after last login
+  # 2) use last_login_at as start offset starting with first friends find search one week after last login
   # called from util.new_messages_count
-  def self.find_friends_batch
+  def self.find_friends_batch (users = [])
     begin
-      # blank any "empty" user combinations
-      user_combinations = User.where('user_combination is not null').
-          group('user_combination').having('count(user_combination) = 1').
-          collect { |u| u.user_combination }
-      User.where(:user_combination => user_combinations).update_all(:user_combination => nil) if user_combinations.size > 0
-      # check for new users - first friends find is one week after first login
-      User.where('user_combination is not null and ' +
-                     'last_login_at is not null and ' +
-                     'last_friends_find_at is null').update_all("last_friends_find_at = last_login_at")
-      # friends find for random user
-      user = User.where('user_combination is not null and last_friends_find_at < ?', 1.week.ago).shuffle.first
-      # user = User.find_by_user_id('1705481075/facebook') # todo: delete after test
-      return unless user
-      users = User.where('user_combination = ?', user.user_combination)
-      User.cache_friend_info(users)
+      if users.size == 0
+        # started as post login task after single user login - batch notification in gofreerev and to facebook
+        # blank any "empty" user combinations
+        # todo: delete this - should never happen ==>
+        user_combinations = User.where('user_combination is not null').
+            group('user_combination').having('count(user_combination) = 1').
+            collect { |u| u.user_combination }
+        User.where(:user_combination => user_combinations).update_all(:user_combination => nil) if user_combinations.size > 0
+        # todo: delete this - should never happen <==
+        # friends find for random user
+        user = User.where('user_combination is not null and last_friends_find_at < ?', 1.week.ago).shuffle.first
+        # user = User.find_by_user_id('1705481075/facebook') # todo: delete after test
+        return unless user
+        users = User.where('user_combination = ?', user.user_combination)
+        User.cache_friend_info(users)
+      end
       users2 = User.find_friends(users)
       return unless users2.size > 0
       # gofreerev notifications:
@@ -1946,7 +1958,13 @@ class User < ActiveRecord::Base
 
       # start logical delete
       affected_users = []
-      user.update_attribute(:user_combination, nil) if user.user_combination
+      if user.user_combination
+        old_user_combination = user.user_combination
+        user.update_attribute(:user_combination, nil)
+        # clear any single user user_combinations (shared accounts) after deleting user
+        users = User.where('user_combination = ?', old_user_combination)
+        users.update_all :user_combination => nil if users.size == 1
+      end
       # delete mark gifts
       ApiGift.where('? in (user_id_giver, user_id_receiver)', user.user_id).each do |ag|
         # delete gift or delete api gift

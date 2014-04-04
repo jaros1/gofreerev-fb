@@ -190,21 +190,6 @@ class UsersController < ApplicationController
     # except for friends=find where apiname filter is applied after friends lookup
     if @page_values[:friends] == 'find'
       users = @users
-      # check user combination and add not connected accounts in find friends search
-      # for example logged in with facebook and showing missing linkedIn or Google+ friends
-      user_combinations = @users.find_all { |u| u.user_combination }.collect { |u| u.user_combination }.uniq
-      if user_combinations.size > 0
-        other_users = User.where('user_combination in (?) and user_id not in (?)', user_combinations, login_user_ids)
-        if other_users.size > 0
-          # found user combination with one or more not connected accounts
-          other_users.each { |u| @users << u }
-          users = @users
-          # include not connected accounts in apiname filter
-          # appname filter: all: show all users (*), provider: show only users for selected provider
-          check_apiname_filter
-          # ready for find friends
-        end
-      end
     elsif @page_values[:apiname] == 'all'
       users = @users
     else
@@ -237,6 +222,9 @@ class UsersController < ApplicationController
       # compare login users friends [1,2,3] with not friends [4, 6, 7]
       # compare user name or user:combination
       users2 = User.find_friends(users).sort_by { |u| [u.user_name, u.id] }
+      # friends find - shared not logged accounts have been added to users array
+      login_users = users
+      check_apiname_filter
     else
       users2 = User.app_friends(users,friends_categories).sort_by_user_name
       logger.debug2 "@page_values[:friends] = #{@page_values[:friends]}, friends_categories = #{friends_categories}, users2.size = #{users2.size}"

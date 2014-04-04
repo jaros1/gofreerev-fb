@@ -554,9 +554,9 @@ class ApplicationController < ActionController::Base
     if !user.balance_at or user.balance_at != today
       add_task "recalculate_user_balance(#{user.id})", 5
     end
-    # send friends_find notifications once a week for active users. Login is just a trigger for this batch job
-    add_task "User.find_friends_batch", 5
-
+    # send friends_find notifications once a week for active users.
+    # single user login is a trigger for executing this batch job
+    add_task "User.find_friends_batch", 5 if @users.size == 1
     # ok
     nil
   end # login

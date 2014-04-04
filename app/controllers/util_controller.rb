@@ -50,6 +50,10 @@ class UtilController < ApplicationController
       key, options = User.delete_user(u)
       logger.debug2 t("users.destroy#{key}", options) if key
     end
+    # auto friends find after multi user login - once after login each login
+    if @users.size > 1 and @users.find { |u| u.last_friends_find_at < u.last_login_at }
+      User.find_friends_batch(@users)
+    end
     # get params
     old_newest_gift_id = params[:newest_gift_id].to_i
     old_newest_status_update_at = params[:newest_status_update_at].to_i
@@ -1658,8 +1662,16 @@ class UtilController < ApplicationController
       else
         user_combination = nil
       end
+      old_user_combinations = @users.find_all { |u| u.user_combination }.collect { |u| u.user_combination }
       @users.each do |user|
         user.update_attribute(:user_combination, user_combination)
+      end
+      if old_user_combinations.size > 0
+        # clear any single user user_combinations after changing user combinations
+        user_combinations = User.where(:user_combination => old_user_combinations).
+            group('user_combination').having('count(user_combination) = 1').
+            collect { |u| u.user_combination }
+        User.where(:user_combination => user_combinations).update_all(:user_combination => nil) if user_combinations.size > 0
       end
       # return share_accounts_div to client
       format_response

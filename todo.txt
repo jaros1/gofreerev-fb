@@ -1041,3 +1041,4 @@
 228) users/index - show "no friends proposals" if empty friends_find search
 
 229) User.find_friends_batch - add user_id param for user specific friends search
+     for example after user login
