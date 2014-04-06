@@ -60,57 +60,6 @@ class ApplicationController < ActionController::Base
     @users << User.find_or_create_dummy_user('gofreerev') if @users.size == 0
   end
 
-
-  # friends information is used many different places
-  # cache friends information once and for all in @users array (user.friends_hash)
-  # friends categories:
-  # 1) logged in user
-  # 2) mutual friends         - show detailed info
-  # 3) follows (F)            - show few info
-  # 4) stalked by (S)         - show few info
-  # 5) deselected api friends - show few info
-  # 6) friends of friends     - show few info
-  # 7) friends proposals      - not clickable user div
-  # 8) others                 - not clickable user div - for example comments from other login providers
-  private
-  def cache_friend_info (users)
-    User.cache_friend_info(users)
-    #return if users.size == 0
-    #user_ids = users.collect { |u| u.user_id}
-    ## get friends. split in 4 categories. Y: mutual friends, F: follows, S: Stalked by, N: not app friend
-    ## logger.debug2 "get friends. user_ids = #{user_ids.join(', ')}"
-    #users_app_friends = { 'Y' => [], 'F' => [], 'S' => [], 'N' => []}
-    #friends = Friend.where("user_id_giver in (?)", user_ids)
-    #friends.each do |f|
-    #  users_app_friends[f.app_friend || f.api_friend] << f.user_id_receiver # save userids in Y, F, S and N arrays
-    #end
-    ## logger.debug2 "get friends of mutual friends"
-    #friends_of_friends_ids = Friend.
-    #    where('user_id_giver in (?)', users_app_friends['Y']).
-    #    find_all { |f| (f.app_friend || f.api_friend) == 'Y' }.
-    #    collect { |f| f.user_id_receiver }
-    #friends_hash = {}
-    #users.each do |user|
-    #  friends_hash[user.provider] = {}
-    #end
-    ## loop for each friend category
-    #[ [1, user_ids], [2, users_app_friends['Y']], [3, users_app_friends['F']], [4, users_app_friends['S']],
-    #  [5, users_app_friends['N']], [6, friends_of_friends_ids] ].each do |x|
-    #  friends_category, friends_user_ids = x
-    #  friends_user_ids.each do |user_id|
-    #    provider = user_id.split('/').last
-    #    friends_hash[provider][user_id] = friends_category unless friends_hash[provider].has_key?(user_id)
-    #  end # friends_user_ids
-    #end
-    ## copy friends_hash to users array
-    #users.each do |user|
-    #  user.friends_hash = friends_hash[user.provider]
-    #  # logger.debug2 "#{user.debug_info}, friends_hash = #{user.friends_hash}"
-    #end
-    #users
-  end # cache_friend_info
-
-
   # fetch user info. Used in page heading etc
   private
   def fetch_users

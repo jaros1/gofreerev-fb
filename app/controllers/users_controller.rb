@@ -216,7 +216,7 @@ class UsersController < ApplicationController
                            when 'all'
                              [1,2,3,4,5,6]
                            when 'find'
-                             []
+                             [] # custom method for friends find
                          end
     if @page_values[:friends] == 'find'
       # compare login users friends [1,2,3] with not friends [4, 6, 7]

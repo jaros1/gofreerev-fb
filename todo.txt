@@ -1025,20 +1025,9 @@
      Buffer A as friends proposal for B, C and D (only if B, C and D is active app users)
      Include A in next friends find search for B, C and D
      Could use some extra column(s) in friends table as buffer
-     There should also be a "not interested" or "seen" link in friends find post
+     There should also be a "not interested" or "read" link in friends find post
      Could use
 
 225) show share accounts div with disabled checkbox for not logged users and single logged in users
 
-226) User.find_friends_batch
-     also check users without user_combination but with friends proposal in friends table.
-
-227) after second login. Maybe ajax inject a find friends link in page header?
-     execute a batch find friend search for new notification in page header
-     it could also be first new messages count request after login
-     for example compare last_login_at timestamp with last_friends_find_at timestamps
-
-228) users/index - show "no friends proposals" if empty friends_find search
-
-229) User.find_friends_batch - add user_id param for user specific friends search
-     for example after user login
+230) first util.new_messages_count 1 minute after login (for friends find search)

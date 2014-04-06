@@ -919,7 +919,7 @@ class User < ActiveRecord::Base
 
   # cross api friends search - compare friend lists across multiple api providers
   # used in users/index?friends=find and in batch notifications
-  # compare friends categories 1, 2 and 3 with friends categories 4, 6 and 7
+  # compare friends categories 2 and 3 with friends categories 4, 6 and 7
   # match non friends on user_name or on user_combination
   # note that any shared accounts is added to login_users array
   def self.find_friends (login_users, options = {})
@@ -945,7 +945,7 @@ class User < ActiveRecord::Base
       end
     end
     # find friends
-    friends = users3 = User.app_friends(login_users,[1,2,3])
+    friends = users3 = User.app_friends(login_users,[2,3])
     friend_names = friends.collect { |u| u.user_name }.uniq
     friend_user_comb = friends.collect { |u| u.user_combination}.delete_if { |uc| !uc }.uniq
     # compare with non friends
@@ -997,9 +997,9 @@ class User < ActiveRecord::Base
     users
   end # self.find_friends
 
-  # batch task for friends find - only relevant for multi user login or shared accountsfind friends batch task for friends find notifications
+  # batch task for friends find - only relevant for multi user login or shared accounts find friends batch task for friends find notifications
   # without users param - started as post login task after single user login - batch notification in gofreerev and to facebook
-  # with user param - called from util.new_messages_count for multi user login - online notification in gofreerev only
+  # with user param - called from util.new_messages_count for multi user login - online notification in Gofreerev only
   # rules:
   # 1) only friends find for active users. last_login_at >= 1.month.ago
   # 2) use last_login_at as start offset starting with first friends find search one week after last login
@@ -1007,22 +1007,49 @@ class User < ActiveRecord::Base
   def self.find_friends_batch (users = [])
     begin
       if users.size == 0
-        # started as post login task after single user login - batch notification in gofreerev and to facebook
-        # blank any "empty" user combinations
-        # todo: delete this - should never happen ==>
-        user_combinations = User.where('user_combination is not null').
-            group('user_combination').having('count(user_combination) = 1').
-            collect { |u| u.user_combination }
-        User.where(:user_combination => user_combinations).update_all(:user_combination => nil) if user_combinations.size > 0
-        # todo: delete this - should never happen <==
-        # friends find for random user
-        user = User.where('user_combination is not null and last_friends_find_at < ?', 1.week.ago).shuffle.first
-        # user = User.find_by_user_id('1705481075/facebook') # todo: delete after test
-        return unless user
-        users = User.where('user_combination = ?', user.user_combination)
-        User.cache_friend_info(users)
+        fb_notification = true
+        # started as post login task after single user login
+        # api notifications is only implemented for facebook
+        # send Gofreerev and facebook notification to one user
+        # non facebook users have to login and see any friends proposal notifications
+        # they will see friends proposals after login and first util.new_messages_count request - see else
+        # find one random user
+        # find with user combination
+        user = User.where("substr(user_id, length(user_id)-8, 9) = '/facebook' " +
+                          'and user_combination is not null ' +
+                          'and last_login_at > ? ' +
+                          'and last_friends_find_at < ?',
+                          1.month.ago, 1.week.ago).shuffle.first
+        if user
+          users = User.where('user_combination = ?', user.user_combination)
+          users2 = User.find_friends(users)
+        else
+          # find without user combination.
+          users = User.where("substr(user_id, length(user_id)-8, 9) = '/facebook' " +
+                             'and user_combination is null and last_login_at is not null ' +
+                             'and last_login_at > ? ' +
+                             'and last_friends_find_at < ?',
+                             1.month.ago, 1.week.ago).includes(:friends)
+          # check for "unread" friends proposals
+          users.delete_if do |user|
+            if user.friends.find { |f| f.api_friend == 'P' }
+              # friends proposal was found - keep user in array
+              false
+            else
+              # friends proposal was not found - next check in one week
+              user.update_attribute :last_friends_find_at, Time.now
+              true
+            end
+          end
+          user = users.shuffle.first
+          return unless user # no users with pending friends proposals
+          users2 = user.friends.find_all { |f| f.api_friend == 'P' }.collect { |f| f.friend }
+        end
+      else
+        # from called from util.new_messages_count for multi user login - online notifications in Gofreerev only
+        fb_notification = false
+        users2 = User.find_friends(users)
       end
-      users2 = User.find_friends(users)
       return unless users2.size > 0
       # gofreerev notifications:
       noti_key_prefix = 'friends_find_'
@@ -1049,9 +1076,8 @@ class User < ActiveRecord::Base
         n.save!
         fb_user = to_user if to_user.provider == 'facebook'
       end
-      # FB notification
-      return unless fb_user
-      # do not send FB notifications to inactive users
+      # FB notification - batch notifications to not logged active users
+      return unless fb_notification and fb_user
       return if fb_user.last_login_at < 1.month.ago
       # development - FB notifications is only enabled for a single user
       raise "cannot send FB notifications to #{user.debug_info} in development environment" unless FORCE_SSL or fb_user.user_id == '1705481075/facebook'
@@ -1111,6 +1137,7 @@ class User < ActiveRecord::Base
         collect { |f| f.user_id_receiver }
     # 7) friends proposal is a special category of 6) friends og friends
     users_app_friends['P'].delete_if { |user_id| !friends_of_friends_ids.index(user_id) }
+    # logger.debug2 "friends proposals = #{users_app_friends['P']}"
     friends_of_friends_ids = friends_of_friends_ids - users_app_friends['P']
     friends_hash = {}
     login_users.each do |user|
@@ -1128,7 +1155,6 @@ class User < ActiveRecord::Base
     # copy friends_hash to users array
     login_users.each do |user|
       user.friends_hash = friends_hash[user.provider]
-      # logger.debug2 "#{user.debug_info}, friends_hash = #{user.friends_hash}"
     end
     login_users
   end # cache_friend_info
