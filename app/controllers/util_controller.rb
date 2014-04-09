@@ -1301,8 +1301,8 @@ class UtilController < ApplicationController
 
       # recalculate balance for user or for user combination
       today = Date.parse(Sequence.get_last_exchange_rate_date)
-      if user.user_combination
-        users = User.where('user_combination = ? and (balance_at is null or balance_at <> ?)', user.user_combination, today)
+      if user.share_account_id
+        users = User.where('share_account_id = ? and (balance_at is null or balance_at <> ?)', user.share_account_id, today)
         if users.size > 0
           # todo. User.recalculate_balance class method is not tested
           res = User.recalculate_balance(users)
@@ -1656,22 +1656,22 @@ class UtilController < ApplicationController
                          logger.error2 "Invalid share_accounts value received from client. params = #{params}"
                          return format_response_key('.unknown_share_accounts')
                        end # case
-      # set or reset user_combination for logged in users
+      # set or reset share_account_id for logged in users
       if share_accounts
-        user_combination = Sequence.next_user_combination
+        share_account_id = Sequence.next_share_account_id
       else
-        user_combination = nil
+        share_account_id = nil
       end
-      old_user_combinations = @users.find_all { |u| u.user_combination }.collect { |u| u.user_combination }
+      old_share_accounts = @users.find_all { |u| u.share_account_id }.collect { |u| u.share_account_id }
       @users.each do |user|
-        user.update_attribute(:user_combination, user_combination)
+        user.update_attribute(:share_account_id, share_account_id)
       end
-      if old_user_combinations.size > 0
-        # clear any single user user_combinations after changing user combinations
-        user_combinations = User.where(:user_combination => old_user_combinations).
-            group('user_combination').having('count(user_combination) = 1').
-            collect { |u| u.user_combination }
-        User.where(:user_combination => user_combinations).update_all(:user_combination => nil) if user_combinations.size > 0
+      if old_share_accounts.size > 0
+        # clear any single user share_accounts after changing user combinations
+        share_accounts = User.where(:share_account_id => old_share_accounts).
+            group('share_account_id').having('count(share_account_id) = 1').
+            collect { |u| u.share_account_id }
+        User.where(:share_account_id => share_accounts).update_all(:share_account_id => nil) if share_accounts.size > 0
       end
       # return share_accounts_div to client
       format_response

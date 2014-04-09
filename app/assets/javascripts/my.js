@@ -2258,7 +2258,7 @@ function post_on_wall_ajax(checkbox) {
     });
 } // post_on_wall_ajax
 
-// set/reset user,user_combination
+// set/reset user,share_account_id
 // used in shared/share_accounts partial
 // used in auth/index and todo: pages
 function share_accounts_ajax(checkbox) {

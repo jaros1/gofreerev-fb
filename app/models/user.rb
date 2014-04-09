@@ -194,7 +194,7 @@ class User < ActiveRecord::Base
     temp_negative_interest
   end # negative_interest_was
 
-  # 11) user_combination - unencrypted integer - connect user balance across login providers
+  # 11) share_account_id - unencrypted integer - connect user balance across login providers
   
   # 12) api_profile_url - user profile url - used for some API's with special url not derived from uid - for example linkedin
   # String in model - Encrypted text in db
@@ -920,14 +920,14 @@ class User < ActiveRecord::Base
   # cross api friends search - compare friend lists across multiple api providers
   # used in users/index?friends=find and in batch notifications
   # compare friends categories 2 and 3 with friends categories 4, 6 and 7
-  # match non friends on user_name or on user_combination
+  # match non friends on user_name or on share_account_id
   # note that any shared accounts is added to login_users array
   def self.find_friends (login_users, options = {})
     # add shared accounts before friends find
-    user_combinations = login_users.find_all { |u| u.user_combination }.collect { |u| u.user_combination }.uniq
-    if user_combinations.size > 0
+    share_accounts = login_users.find_all { |u| u.share_account_id }.collect { |u| u.share_account_id }.uniq
+    if share_accounts.size > 0
       login_user_ids = login_users.collect { |user| user.user_id }
-      other_users = User.where('user_combination in (?) and user_id not in (?)', user_combinations, login_user_ids)
+      other_users = User.where('share_account_id in (?) and user_id not in (?)', share_accounts, login_user_ids)
       if other_users.size > 0
         # found user combination with one or more not connected accounts
         other_users.each { |u| login_users << u }
@@ -947,11 +947,11 @@ class User < ActiveRecord::Base
     # find friends
     friends = users3 = User.app_friends(login_users,[2,3])
     friend_names = friends.collect { |u| u.user_name }.uniq
-    friend_user_comb = friends.collect { |u| u.user_combination}.delete_if { |uc| !uc }.uniq
+    friend_user_comb = friends.collect { |u| u.share_account_id}.delete_if { |uc| !uc }.uniq
     # compare with non friends
     users = User.app_friends(login_users,[4, 6, 7]).find_all do |u|
       ( friend_names.index(u.user_name) or
-          (u.user_combination and friend_user_comb.index(u.user_combination)) )
+          (u.share_account_id and friend_user_comb.index(u.share_account_id)) )
     end
     # add any old friends proposal from previous find_friends searches (friends? == 7) done by login users friends
     # ( friends proposals have been inserted in friends table with api_friend = 'P' )
@@ -1016,17 +1016,17 @@ class User < ActiveRecord::Base
         # find one random user
         # find with user combination
         user = User.where("substr(user_id, length(user_id)-8, 9) = '/facebook' " +
-                          'and user_combination is not null ' +
+                          'and share_account_id is not null ' +
                           'and last_login_at > ? ' +
                           'and last_friends_find_at < ?',
                           1.month.ago, 1.week.ago).shuffle.first
         if user
-          users = User.where('user_combination = ?', user.user_combination)
+          users = User.where('share_account_id = ?', user.share_account_id)
           users2 = User.find_friends(users)
         else
           # find without user combination.
           users = User.where("substr(user_id, length(user_id)-8, 9) = '/facebook' " +
-                             'and user_combination is null and last_login_at is not null ' +
+                             'and share_account_id is null and last_login_at is not null ' +
                              'and last_login_at > ? ' +
                              'and last_friends_find_at < ?',
                              1.month.ago, 1.week.ago).includes(:friends)
@@ -1166,9 +1166,9 @@ class User < ActiveRecord::Base
   # batch job started at after returning actual page to user
   def recalculate_balance
     # find user(s)
-    if user_combination
+    if share_account_id
       # find all closed deals for this user combination
-      user_ids = User.where('user_combination = ?', user_combination).collect { |user| user.user_id}
+      user_ids = User.where('share_account_id = ?', share_account_id).collect { |user| user.user_id}
     else
       # find all closed deals for this user
       user_ids = [ user_id ]
@@ -1338,23 +1338,23 @@ class User < ActiveRecord::Base
 
   def self.recalculate_balance (login_users)
     #users = login_users.sort do |a,b|
-    #  (a.user_combination) || (0 <=> b.user_combination || 0)
+    #  (a.share_account_id) || (0 <=> b.share_account_id || 0)
     #end
-    users = login_users.sort_by { |u| u.user_combination || 0 }
-    # user.user_combination is used to combine accounts across multiple login providers
-    # keep one login_user for each user_combination for balance calculation
-    # keep all users without user_combination
-    old_user_combination = -1
+    users = login_users.sort_by { |u| u.share_account_id || 0 }
+    # user.share_account_id is used to combine accounts across multiple login providers
+    # keep one login_user for each share_account_id for balance calculation
+    # keep all users without share_account_id
+    old_share_account_id = -1
     users = users.find_all do |user|
-      if user.user_combination
-        if user.user_combination == old_user_combination
-          false # skip user with doublet user_combination
+      if user.share_account_id
+        if user.share_account_id == old_share_account_id
+          false # skip user with doublet share_account_id
         else
-          old_user_combination = user.user_combination
-          true # keep first user for user_combination
+          old_share_account_id = user.share_account_id
+          true # keep first user for share_account_id
         end
       else
-        true # keep all users without user_combination
+        true # keep all users without share_account_id
       end
     end
     # recalculate
@@ -1984,12 +1984,12 @@ class User < ActiveRecord::Base
 
       # start logical delete
       affected_users = []
-      if user.user_combination
-        old_user_combination = user.user_combination
-        user.update_attribute(:user_combination, nil)
-        # clear any single user user_combinations (shared accounts) after deleting user
-        users = User.where('user_combination = ?', old_user_combination)
-        users.update_all :user_combination => nil if users.size == 1
+      if user.share_account_id
+        old_share_account_id = user.share_account_id
+        user.update_attribute(:share_account_id, nil)
+        # clear any single user share_accounts (shared accounts) after deleting user
+        users = User.where('share_account_id = ?', old_share_account_id)
+        users.update_all :share_account_id => nil if users.size == 1
       end
       # delete mark gifts
       ApiGift.where('? in (user_id_giver, user_id_receiver)', user.user_id).each do |ag|

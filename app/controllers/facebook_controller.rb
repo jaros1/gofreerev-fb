@@ -139,6 +139,7 @@ class FacebookController < ApplicationController
   # get /facebook - is called after authorization (create)
   # rejected: Parameters: {"error_reason"=>"user_denied", "error"=>"access_denied", "error_description"=>"The user denied your request."}
   # accepted: Parameters: {"code"=>"AQA6165EwuVn3EVKkzy2TOocej1wBb_t-9jEuhJQFFK7GH2PDkDbbSOOd9lhoqIYibusDfPpWOwaUg6XYiR2lcmP2tLgG0RPgRxL6qwFBZalg0j6wXSO8bZmjKn-yf9O_GOH9wm5ugMKLUihU7mjfLAbR58FrJ8wdgnej2aG9KLQvKNenb16Hf_ULI016u3DGHM-zGvmyb8xAgAAabOHkDQNT5C3lIO0eXTGMwo66zLrnn0jkENguAnAUuZrVym9OMiBV1f9ocg8WfgprflPq-BHOSHdhuHgYISHxO_nTs1dT7Ku5z551ZyBq1hG15aG4"}
+  # skip: Parameters: {"code"=>"AQAtCrQaVuq5JP7MG5etjX617luFDULxxaJdn656mOE5nNT6xI6NTzC-FChcdTKlZH88ARb9ZFOKOYq4y_kS1C54fknXOUsaMjquPqfKLnaDB2ycRu30OS905EzgQKR0VEWm0xSR2NUR5GTdiet4keMgGt-CNvLlp9eKZWP94eoSr7EQyIFlw28pr5EL1FnSi6gW3gDuh64SmdBr86xDMMBdkyU-V-iZOW0cmP6YuzGFmszBwpZ5XL-PqOKEDWFSzJmOvYWDMFjrnKymoO-vyeNBQUiOp2tZFrTJJ-IRc8pr6tc1L-0qnJ5Y8HMakMRxJqI", "state"=>"UvhxJSQP6WV1JAR2k8cjENHjmolqSG-status_update"}
   # error: Parameters: {"error_code"=>"2", "error_message"=>"Denne funktion er desværre ikke tilgængelig i øjeblikkket: Der opstod en fejl under behandling af denne forespørgsel. Prøv igen senere.", "state"=>"BlGyeeW7Nd5lebhCkNeUCCo26hdpQY-status_update"}
   def index
 
@@ -263,6 +264,7 @@ class FacebookController < ApplicationController
         # permissions["publish_actions"] = 1
         user.permissions = api_response['permissions']['data'][0]
         user.save!
+        context = 'status_update_skip' unless user.post_on_wall_authorized?
       end
       save_flash_key ".ok_#{context}", user.app_and_apiname_hash
       if context == 'friends_find'

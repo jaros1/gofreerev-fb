@@ -75,12 +75,18 @@ class AuthController < ApplicationController
       user_id = login_user_ids.find { |userid2| userid2.split('/').last == provider }
       user = User.find_by_user_id(user_id)
       no_friends = user.friends.size-1
-      if no_friends == 0
+      if no_friends == 0 and !user.share_account_id
         save_flash_key '.login_ok_new_user', user.app_and_apiname_hash
       else
         save_flash_key '.login_ok', user.app_and_apiname_hash
       end
-      redirect_to :controller => :gifts, :action => :index
+      if @users.size == 1 and !user.share_account_id
+        # singleton user login
+        redirect_to :controller => :gifts, :action => :index
+      else
+        # multi user login
+        redirect_to :controller => :auth, :action => :index
+      end
     else
       # login failed
       # todo: copy translate error handling from util.do_tasks

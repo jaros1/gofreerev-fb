@@ -24,6 +24,7 @@
       Parameters: {"signed_request"=>"6xbhSI-JNpGOf7Ye54gft7kF4Tmxdr0AQVA0Iy0hw34.eyJhbGdvcml0aG0iOiJITUFDLVNIQTI1NiIsImV4cGlyZXMiOjEzOTY0MjIwMDAsImlzc3VlZF9hdCI6MTM5NjQxNzY4Mywib2F1dGhfdG9rZW4iOiJDQUFGalpCR3p6T2tjQkFQUGoyakJtVTc2UkxkODFjcG0xSTVqMDlZcWNZNjFSOFRwYnRoa3l0QlNkb0JoalNrQWh0UFBhaTN3VmlCekZRM2dsb1pCVUtxTVhXV0tlTkVqeVk3U2pOTXJRZXUzWkI4MVRoVEhwTEtBZzMyRzlLaVpCaFpCR1pBbEdROFpBQThnN3R5aDZVREpRS0pqY3dnek52djZqaE9lR00yUlUyTEk1MkZDWkFIZUJaQWdSWVVWZXVTRHNzamdrYjVKcTNBWkRaRCIsInVzZXIiOnsiY291bnRyeSI6ImRrIiwibG9jYWxlIjoiZW5fR0IiLCJhZ2UiOnsibWluIjoyMX19LCJ1c2VyX2lkIjoiMTcwNTQ4MTA3NSJ9",
                    "fb_locale"=>"en_GB", "fb_source"=>"notification", "fb_ref"=>"friends_find",
                    "ref"=>"notif", "notif_t"=>"app_notification"}
+    - added FB app notifications for friends find
 
  5) add accept conditions for new users?
 
@@ -1001,18 +1002,9 @@
      last_row_id has been cleared. Error key shared.show_more_rows.last_row_id_invalid
      could force page reload when using back bottom in browser.
 
-219) shared accounts
-     notification about new friends?
-
 220) linkedin app invitation:
      https://developer.linkedin.com/documents/invitation-api
      but requires w_messages priv.
-
-221) allow users/index?friend=find for not logged provider
-     FB notification about new google+ friend
-     redirect from FB notification to login to users/index?friend=find page
-     must enlarge users array with not connected accounts
-     only if no inconsistence
 
 222) allow friends find without user_combination
      that will only work online and if other users have shared their accounts
@@ -1028,6 +1020,39 @@
      There should also be a "not interested" or "read" link in friends find post
      Could use
 
-225) show share accounts div with disabled checkbox for not logged users and single logged in users
-
 230) first util.new_messages_count 1 minute after login (for friends find search)
+
+231) better "friends find no rows" message.
+     check last login date for shared accounts.
+     user should login to refresh friends lists for other login providers
+
+232) users/index - sort by user_name - problem with small letter user names
+
+235) facebook grant write:
+     "Your popup is too small to display this page. Please enlarge it to proceed.
+     was displaying firebox console in bottom 1/3 of page
+     must be a problem on all mobile devices!
+     maybe it is only a problem in rest api - maybe JS api can be used
+     maybe fake a bigger screen before calling facebook dialog
+     check if there is a identical error messages on a smartphone
+
+236) different share accounts title for:
+     a) not logged in users
+     b) single account logged in users
+     c) multiple accounts logged in users
+
+238) maybe a friends find version of app
+     a) save access tokens for friend list refresh - maybe
+     b) notifications for facebook and emails for the other api's
+
+239) allow save access token for friend list updates
+     only relevant for shared accounts (user_combination)
+     only use saved access tokens for batch friends list updates
+     or use saved access tokens for single sign on (full access)
+
+240) add share accounts options:
+     a) share balance
+     b) a) + share friend lists
+     c) a) + b) + save access token for offline friend list refresh
+     d) a) + b) + c) + single sign-on
+     change share accounts checkbox to a share acconts LOV

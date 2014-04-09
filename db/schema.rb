@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140404063610) do
+ActiveRecord::Schema.define(version: 20140409082943) do
 
   create_table "ajax_comments", force: true do |t|
     t.string   "user_id",    limit: 40, null: false
@@ -187,6 +187,12 @@ ActiveRecord::Schema.define(version: 20140404063610) do
 
   add_index "sessions", ["session_id"], name: "index_session_session_id", unique: true
 
+  create_table "share_accounts", force: true do |t|
+    t.integer  "share_level"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
   create_table "tasks", force: true do |t|
     t.string   "session_id", limit: 32,               null: false
     t.text     "task",                                null: false
@@ -210,7 +216,7 @@ ActiveRecord::Schema.define(version: 20140404063610) do
     t.text     "permissions"
     t.text     "no_api_friends"
     t.text     "negative_interest"
-    t.integer  "user_combination"
+    t.integer  "share_account_id"
     t.text     "api_profile_url"
     t.text     "api_profile_picture_url"
     t.string   "post_on_wall_yn",         limit: 1
@@ -221,7 +227,7 @@ ActiveRecord::Schema.define(version: 20140404063610) do
     t.string   "language",                limit: 2
   end
 
-  add_index "users", ["user_combination"], name: "index_users_user_combination"
+  add_index "users", ["share_account_id"], name: "index_users_share_account_id"
   add_index "users", ["user_id"], name: "index_users_on_user_id", unique: true
 
 end

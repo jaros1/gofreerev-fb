@@ -75,10 +75,10 @@ module ApplicationHelper
     # logger.debug2  "user = #{user.user_id}, login_users = " + login_users.collect { |user| user.user_id }.join(', ')
     return nil unless user.class == User and [Array, ActiveRecord::Relation::ActiveRecord_Relation_User].index(login_users.class)
     return nil if login_users.length == 0
-    if user.user_combination
-      # shared user account - one balance for all users with this user_combination
+    if user.share_account_id
+      # shared user account - one balance for all users with this share_account_id
       balance = {}
-      User.where('user_combination = ?', user.user_combination).each do |user2|
+      User.where('share_account_id = ?', user.share_account_id).each do |user2|
         if user2.balance.class == Hash
           # sum balance for all users with this user combination
           user2.balance.each do |name, value|
@@ -326,22 +326,22 @@ module ApplicationHelper
   # user in auth/index and todo: xxx pages
   def shared_accounts
     return {} unless logged_in?
-    user_combinations = @users.find_all { |u| u.user_combination }.collect { |u| u.user_combination }.uniq
-    logger.debug2 "user_combinations = #{user_combinations.join(', ')}"
-    return {} if user_combinations.size == 0
+    share_accounts = @users.find_all { |u| u.share_account_id }.collect { |u| u.share_account_id }.uniq
+    logger.debug2 "share_accounts = #{share_accounts.join(', ')}"
+    return {} if share_accounts.size == 0
     shared = {}
     @users.each do |user|
-      next unless user.user_combination
-      shared[user.user_combination] = [] unless shared.has_key? user.user_combination
-      shared[user.user_combination] << provider_downcase(user.provider)
+      next unless user.share_account_id
+      shared[user.share_account_id] = [] unless shared.has_key? user.share_account_id
+      shared[user.share_account_id] << provider_downcase(user.provider)
     end
     # check for combination with not logged in users
     # for example a logged in facebook account combined with a not logged in google+ account
-    other_users = User.where('user_combination in (?) and user_id not in (?)', user_combinations, login_user_ids)
+    other_users = User.where('share_account_id in (?) and user_id not in (?)', share_accounts, login_user_ids)
     other_users.each do |user|
-      shared[user.user_combination] << provider_downcase(user.provider) + '*'
+      shared[user.share_account_id] << provider_downcase(user.provider) + '*'
     end
-    shared.delete_if do |user_combination, providers|
+    shared.delete_if do |share_account_id, providers|
       providers.size == 1
     end
     shared
@@ -356,7 +356,7 @@ module ApplicationHelper
     elsif shared.size == 1
       text = shared[shared.keys.first].sort.join(', ')
     else
-      text = shared.collect do |user_combination, providers|
+      text = shared.collect do |share_account_id, providers|
          '(' + providers.sort.join(', ') + ')'
       end.join(', ')
     end

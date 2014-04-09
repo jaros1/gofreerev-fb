@@ -132,7 +132,7 @@ class UsersController < ApplicationController
       friends_filter = friends_filter_values.first
     end
     if friends_filter == 'find'
-      # must be logged in with minimum 2 combined user accounts (user.user_combination)
+      # must be logged in with minimum 2 combined user accounts (user.share_account_id)
       if !show_find_friends_link?
         save_flash_key '.find_friends_not_allowed', {}
         friends_filter = friends_filter_values.first
@@ -388,7 +388,7 @@ class UsersController < ApplicationController
 
       # find gifts with @user2 as giver or receiver
       # this select only shows gifts for @user2.provider - that is not gifts across providers
-      # todo: should show gift across providers if @user2.user_combination and @user2 in @users
+      # todo: should show gift across providers if @user2.share_account_id and @user2 in @users
       #       ( balance shared across login providers if user has selected this )
       logger.debug "status = #{status}, direction = #{direction}"
       api_gifts = ApiGift.where('(user_id_giver = ? or user_id_receiver = ?) and gifts.deleted_at is null',
@@ -485,9 +485,9 @@ class UsersController < ApplicationController
 
     # find all users to change currency for
     users = @users
-    user_combinations = users.collect { |user| user.user_combination }.find_all { |user_combination| user_combination }.uniq
-    if user_combinations.length > 0
-      users = users + User.where('user_combination in (?)', user_combinations)
+    share_accounts = users.collect { |user| user.share_account_id }.find_all { |share_account_id| share_account_id }.uniq
+    if share_accounts.length > 0
+      users = users + User.where('share_account_id in (?)', share_accounts)
       users = users.uniq
     end
 

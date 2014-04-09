@@ -54,7 +54,7 @@ end
 login_user = User.find(984) # alk
 # login_user = User.find(920) # jr
 
-user_combinations = [ login_user.user_combination ]
+share_accounts = [ login_user.user_combination ]
 
 user_ids = [ '1705481075/facebook','117657151428689087350/google_oauth2' ]
 users = User.where('user_id in (?)', user_ids)

@@ -1,6 +1,5 @@
 LAST_MONEY_BANK_REQUEST = 'last_money_bank_request'
 LAST_EXCHANGE_RATE_DATE = 'last_exchange_rate_date'
-LAST_USER_COMBINATION = 'last_user_combination'
 
 class Sequence < ActiveRecord::Base
 
@@ -71,16 +70,11 @@ class Sequence < ActiveRecord::Base
   # get sequence use to combine users from different providers to a "single" account
   # user have to login for each provider to see friends and gifts from each provider
   # but balance total can be shared across providers
-  def self.next_user_combination
-     s = Sequence.find_by_name(LAST_USER_COMBINATION)
-     if !s
-       s = Sequence.new
-       s.name = LAST_USER_COMBINATION
-       s.value = 0
-     end
-     s.value += 1
-     s.save!
-     s.value
+  def self.next_share_account_id
+     sa = ShareAccount.new
+     sa.share_level = 2
+     sa.save!
+     sa.id
   end # self.next_user_combination
 
 end

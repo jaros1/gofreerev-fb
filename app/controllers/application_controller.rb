@@ -1882,14 +1882,14 @@ class ApplicationController < ActionController::Base
   private
   def show_find_friends_link?
     return false unless logged_in?
-    if @users.size == 1 and !@users.first.user_combination
+    if @users.size == 1 and !@users.first.share_account_id
       # simple one provider login without shared accounts - cross provider friends find is not relevant
       return false
     end
     if @users.size == 1
-      users = User.where('user_combination = ?', @users.first.user_combination)
+      users = User.where('share_account_id = ?', @users.first.share_account_id)
       if users.size == 1
-        @users.first.user_combination = nil
+        @users.first.share_account_id = nil
         @users.first.save!
         return false
       end
