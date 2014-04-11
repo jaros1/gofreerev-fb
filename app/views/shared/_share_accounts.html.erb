@@ -1,16 +1,24 @@
 <div style="width: 100%" id="share_accounts_div" title="<%= t '.title', :appname => APP_NAME %>">
-  <br/>
-  <%= t '.checkbox_prompt' %>
-  <%= check_box_tag "share_accounts_check_box", 1, shared_accounts?,
-                    :readonly => shared_accounts_disabled?, :disabled => shared_accounts_disabled?,
-                    :onchange => "share_accounts_ajax(this)" %>
-  &nbsp;
+  <br>
+  <%= t '.lov_prompt' %>
+  <%= select_tag :share_level_lov, options_for_select(share_levels(share_level), share_level),
+                 :readonly => shared_accounts_disabled?, :disabled => shared_accounts_disabled?,
+                 :onchange => 'share_accounts_ajax()' %>
+  <% if [3,4].index(share_level) -%>
+      &nbsp;
+      <%= t '.offline_access_prompt' %>
+      <%= check_box_tag "offline_access_checkbox", 1, offline_access?,
+                        :readonly => shared_accounts_disabled?, :disabled => shared_accounts_disabled?,
+                        :onchange => 'share_accounts_ajax()' %>
+  <% end -%>
+  <br>
   <%= t '.shared_accounts_prompt' %>
   <%= shared_accounts_list %>
-  &nbsp;
+  <br>
   <% if show_find_friends_link? -%>
       <%= link_to t('.find_friends_link_text'), users_path(:friends => 'find') %>
   <% else -%>
       <u><%= t '.find_friends_link_text' %></u>
   <% end -%>
 </div>
+

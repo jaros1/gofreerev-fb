@@ -296,6 +296,15 @@ class UtilController < ApplicationController
               api_gift.deleted_at_api = 'Y'
               api_gift.save!
               # Continue. Maybe picture url is available from an other api provider
+            rescue AppNotAuthorized => e
+              # access token expired or user has deauthorized app
+              logger.debug2 "#{api_gift.provider} access token expired or user has deauthorized app"
+              add_error_key '.mis_api_pic_deauth', {:appname => APP_NAME, :provider => provider_downcase(api_gift.provider)}
+              # log out and skip chek any other api gifts for this provider
+              api_clients.delete(api_gift.provider)
+              logout(api_gift.provider)
+              api_gifts.delete_if { |ag| ag.provider == api_gift.provider }
+              next
             end # rescue
           end
           # end check api wall
@@ -1410,6 +1419,15 @@ class UtilController < ApplicationController
           key = api_gift.picture? ? '.fb_pic_post_missing_permission_html' : '.fb_msg_post_missing_permission_html'
           return [key, {:appname => APP_NAME, :apiname => login_user.apiname, :url => url}]
         end
+      elsif e.fb_error_type == 'OAuthException' and e.fb_error_code == 190 and e.fb_error_subcode == 460
+        # Koala::Facebook::ClientError
+        # fb_error_type    = OAuthException (String)
+        # fb_error_code    = 190 (Fixnum)
+        # fb_error_subcode = 460 (Fixnum)
+        # fb_error_message = Error validating access token: The session has been invalidated because the user has changed the password. (String)
+        # http_status      = 400 (Fixnum)
+        # response_body    = {"error":{"message":"Error validating access token: The session has been invalidated because the user has changed the password.","type":"OAuthException","code":190,"error_subcode":460}}
+        raise AppNotAuthorized ;
       else
         # unhandled koala / facebook exception
         e.logger = logger
@@ -1638,49 +1656,45 @@ class UtilController < ApplicationController
   end # post_on_wall_yn
 
   # share accounts ajax request from auth/index page (checkbox)
-  # used for shared balance across multiple login providers
-  # used for friends search across multiple login providers
-  # not used for single sign-on
+  # params = {"share_level"=>"2", "offline_access"=>"N", "controller"=>"util", "action"=>"share_accounts_yn", "format"=>"js"}
+  # share_level:
+  #   0: no sharing
+  #   1: shared balance across API providers  (offline access = 'N')
+  #   2: share balance and static friend lists across API providcers (offline access = 'N')
+  #   3: share balance and dynamic friend lists across API providers (offline access = 'Y')
+  #   4: share balance, dynamic friend lists and allow single sign-on (offline access = 'Y')
   public
-  def share_accounts_yn
+  def share_accounts
+    table = 'share_accounts_errors'
     begin
       logger.debug2 "params = #{params}"
       return format_response_key('.not_logged_in') unless logged_in?
-      # check share_accounts_yn
-      share_accounts = case params[:share_accounts]
-                       when 'true' then
-                         true
-                       when 'false' then
-                         false
-                       else
-                         logger.error2 "Invalid share_accounts value received from client. params = #{params}"
-                         return format_response_key('.unknown_share_accounts')
-                       end # case
+      # get params
+      share_level = params[:share_level]
+      return format_response_key('.unknown_share_accounts', :table => table) unless %w(0 1 2 3 4).index(share_level)
+      offline_access_yn = params[:offline_access_yn]
+      offline_access_yn = 'N' if offline_access_yn.to_s == ''
+      return format_response_key('.unknown_share_accounts', :table => table) unless %w(N Y).index(offline_access_yn)
+      add_error_key '.no_offline_access', :table => table if %w(3 4).index(share_level) and offline_access_yn == 'N'
       # set or reset share_account_id for logged in users
-      if share_accounts
-        share_account_id = Sequence.next_share_account_id
-      else
+      if share_level == '0'
         share_account_id = nil
+      else
+        share_account_id = ShareAccount.next_share_account_id(share_level, offline_access_yn) # share balance and friend lists
       end
-      old_share_accounts = @users.find_all { |u| u.share_account_id }.collect { |u| u.share_account_id }
+      old_share_accounts = @users.find_all { |u| u.share_account_id }.collect { |u| u.share_account_id }.uniq
       @users.each do |user|
         user.update_attribute(:share_account_id, share_account_id)
       end
-      if old_share_accounts.size > 0
-        # clear any single user share_accounts after changing user combinations
-        share_accounts = User.where(:share_account_id => old_share_accounts).
-            group('share_account_id').having('count(share_account_id) = 1').
-            collect { |u| u.share_account_id }
-        User.where(:share_account_id => share_accounts).update_all(:share_account_id => nil) if share_accounts.size > 0
-      end
+      ShareAccount.where(:id => old_share_accounts, :no_users => 1).destroy_all if old_share_accounts.size > 0
       # return share_accounts_div to client
       format_response
     rescue Exception => e
       logger.debug2 "Exception: #{e.message.to_s} (#{e.class})"
       logger.debug2 "Backtrace: " + e.backtrace.join("\n")
-      format_response_key '.exception', :error => e.message
+      format_response_key '.exception', :error => e.message, :table => table
     end
-  end # share_accounts_yn
+  end # share_accounts
 
   # grant_write_twitter is called from gifts/index page
   # ( remote link was ajax injected in post_on_twitter if missing write priv. )

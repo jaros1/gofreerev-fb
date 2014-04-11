@@ -79,7 +79,7 @@ class ApplicationController < ActionController::Base
 
     # fetch user(s)
     if login_user_ids.length > 0
-      @users = User.where("user_id in (?)", login_user_ids)
+      @users = User.where("user_id in (?)", login_user_ids).includes(:share_account)
     else
       @users = []
     end
@@ -435,6 +435,8 @@ class ApplicationController < ActionController::Base
     # get params
     provider = options[:provider]
     token = options[:token]
+    expires_at = options[:expires_at]
+    logger.debug2 "expires_at = #{expires_at}"
     uid = options[:uid]
     name = options[:name]
     image = options[:image]

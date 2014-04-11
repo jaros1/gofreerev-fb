@@ -67,14 +67,5 @@ class Sequence < ActiveRecord::Base
     s.save!
   end # self.set_last_exchange_rate_date
 
-  # get sequence use to combine users from different providers to a "single" account
-  # user have to login for each provider to see friends and gifts from each provider
-  # but balance total can be shared across providers
-  def self.next_share_account_id
-     sa = ShareAccount.new
-     sa.share_level = 2
-     sa.save!
-     sa.id
-  end # self.next_user_combination
 
 end

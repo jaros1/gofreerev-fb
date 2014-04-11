@@ -1,4 +1,58 @@
 <script>
+    // set/reset user,share_account_id
+    // used in shared/share_accounts partial
+    // used in auth/index and todo: pages
+    function share_accounts_ajax() {
+        var pgm = 'share_accounts_ajax: ' ;
+        var share_level_lov = document.getElementById('share_level_lov') ;
+        if (!share_level_lov) {
+            add_to_tasks_errors(I18n.t('js.share_accounts.lov_not_found')) ;
+            return ;
+        }
+        var share_level = share_level_lov.options[share_level_lov.selectedIndex].value ;
+        var offline_access_checkbox = document.getElementById('offline_access_checkbox') ;
+        var offline_access_yn ;
+        if (!offline_access_checkbox) offline_access_yn = '' ;
+        else if (offline_access_checkbox.checked) offline_access_yn = 'Y' ;
+        else offline_access_yn = 'N' ;
+        clear_ajax_errors('share_accounts_errors');
+        add2log(pgm + 'share_level = ' + share_level + ', offline_access_yn = ' + offline_access_yn) ;
+        $.ajax({
+            url: "/util/share_accounts.js",
+            type: "POST",
+            dataType: 'script',
+            data: { share_level: share_level, offline_access_yn: offline_access_yn },
+            beforeSend: function() {
+                // add2log(pgm + 'beforesend') ;
+                share_level_lov.disabled = true ;
+                share_level_lov.readonly = true ;
+                if (offline_access_checkbox) {
+                    offline_access_checkbox.disabled = true ;
+                    offline_access_checkbox.readonly = true ;
+                }
+            },
+//        success: function (responseText, statusText, xhr, $form) {
+//            var pgm = 'share_accounts_ajax:success: ' ;
+//            add2log(pgm + 'start') ;
+//        }, // success
+            error: function (jqxhr, textStatus, errorThrown) {
+                var pgm = 'share_accounts_ajax:error: ' ;
+                if (leaving_page) return ;
+                var err = add2log_ajax_error(pgm, jqxhr, textStatus, errorThrown) ;
+                add_to_tasks_errors(I18n.t('js.share_accounts.ajax_error', {error: err, location: 19, debug: 0}));
+            },
+            complete: function() {
+                // add2log(pgm + 'complete') ;
+                share_level_lov.disabled = false ;
+                share_level_lov.readonly = false ;
+                if (offline_access_checkbox) {
+                    offline_access_checkbox.disabled = false ;
+                    offline_access_checkbox.readonly = false ;
+                }
+            }
+        });
+
+    } // share_accounts_ajax
 </script>
 <div style="width: 100%"><br/></div>
 
@@ -63,6 +117,7 @@
 </div>
 
 <%= render :partial => 'shared/share_accounts' %>
+<table width="100%"><tbody id="share_accounts_errors" class="ajax_errors"></tbody></table>
 
 <div style="width: 100%"><br/></div>
 <%= link_to t('.remove_cookies_link_text'), cookie_decline_cookies_path %>

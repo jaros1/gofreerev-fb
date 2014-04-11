@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140409102220) do
+ActiveRecord::Schema.define(version: 20140410075633) do
 
   create_table "ajax_comments", force: true do |t|
     t.string   "user_id",    limit: 40, null: false
@@ -192,6 +192,7 @@ ActiveRecord::Schema.define(version: 20140409102220) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "no_users"
+    t.string   "offline_access_yn", limit: 1, default: "N"
   end
 
   create_table "tasks", force: true do |t|

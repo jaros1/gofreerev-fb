@@ -122,12 +122,20 @@ da:
         da: "Dansk"
         en: "Engelsk"
      share_accounts:
-        title: "Brug denne tjekbox hvis du ønsker at samle dine konti på tværs af login udbydere til en fælles konto. Hvis du sættes X får du en samlet saldo med sum af beløb for de gaver du har givet og modtaget på tværs af login udbydere. Sæt kryds i tjekbox for at tillade sammenligning af vennelister på tværs af login udbydere. Du får en oversigt over de venner du mangler og dine venner kan få en oversigt over de venner de mangler. Dvs. personer der er dine venner hos en login udbyder og som er dine venners ven hos en anden login udbyder. Uden X i tjekboks får dine venner færre venneforslag da dine vennelister ikke kan anvendes i venneforslag. Brug link \"Find venner\" hvis du ønsker venneforslag. X i tjekbox er IKKE fælles login for alle login udbydere. Du skal stadigvæk logge ind for hver login udbyder hvor du ønsker at se, oprette og kommenterer opslag."
+        title: "Brug valgliste hvis du ønsker at samle dine konti på tværs af login udbydere til en fælles konto. Du kan vælge imellem 4 forskellige niveauer af deling på tværs af konti. Laveste niveauer er deling af saldo og dine nuværende vennelister. Her gemmes autorisationsoplysninger i en cookie i din browser. Højeste niveauer er deling af saldo og opdaterede vennelister og evt. fælles login for login udbydere. Her gemmes autorisationsoplysninger krypteret på serveren hvis du giver tilladelse til dette. Autorisationsoplysninger er såkaldt access token / adgangsbillet til API og er altså ikke brugernavn og kodeord. Deling af saldo indebærer en fælles saldo på tværs af login udbydere for de gaver du har givet og modtaget. Deling af vennelister giver dig og dine venner mulighed for at sammenligne vennelister på tværs login udbydere og finde evt. manglede venner. Fælles login er delt login i %{appname} med begrænset adgang til API funktioner hos dine login udbydere."
         checkbox_prompt: "Saml konti?"
         shared_accounts_prompt: "Delte konti: "
         no_shared_accounts_text: "Ingen delte konti"
         other_users_note: " ( *=ikke forbundet konto )"
         find_friends_link_text: "Find venner"
+        lov_prompt: "Saml konti?"
+        lov_text_0: "Ingen deling på tværs af API'er"
+        lov_text_1: "Del saldo på tværs af API'er"
+        lov_text_2: "Del saldo og statiske vennelister"
+        lov_text_3: "Del saldo og dynamiske vennelister"
+        lov_text_4: "Fælles login på tværs af API'er"
+        lov_text_5: "Blandet deling. Se nedenstående tekst"
+        offline_access_prompt: "(*) Gem autorisation på server?"
 
   # omniauth controllers (auth, facebook and linkedin):
 
@@ -739,6 +747,7 @@ da:
         mis_api_pic_not_implemented2: "Tjek for flyttede eller slettede billeder er ikke implementeret for %{apiname}."
         mis_api_pic_file_exists: "Advarsel. Browser fandt ikke billede %{rel_path}, men billede findes på serveren."
         mis_api_pic_url_exists: "Advarsel. Browser fandt ikke billede %{url}, men billede findes på serveren."
+        mis_api_pic_deauth: "Forbindelse til %{appname} med %{provider} er udløbet. Opdater venligst siden eller log in igen."
      do_tasks:
         do_tasks_exception: "Systemfejl ved afvikling af baggrundsopgave. %{error}. Mere information i server log."
         do_task_exception: "Systemfejl for opgave \"%{task}\". %{error}. Mere information i server log." # task, exception
@@ -899,9 +908,10 @@ da:
         unknown_provider: "Systemfejl. Ukendt login udbyder %{apiname}. Ændring af \"Opslag?\" er ikke blevet gemt."
         unknown_post_on_wall: "Systemfejl. Ukendt valg ved ændring af \"Opslag?\" for %{apiname}. Valg er ikke blevet gemt."
         exception: "Systemfejl. Kunne ikke ændre \"Opslag?\" valg. %{error}. Mere information i server log."
-     share_accounts_yn:
+     share_accounts:
         not_logged_in: "Kan ikke ændre \"Saml konti?\" valg. Du er ikke logget ind. Opdater venligst siden."
-        unknown_post_on_wall: "Systemfejl. Ukendt valg ved ændring af \"Saml konti?\". Valg er ikke blevet gemt."
+        unknown_share_accounts: "Systemfejl. Ukendt valg ved ændring af \"Saml konti?\". Valg er ikke blevet gemt."
+        no_offline_access: "Du skal accepterer \"Gem autorisation på server?\" for at aktiverer dette valg. Indtil accept deles kun saldo og statiske vennelister på tværs af login udbydere."
         exception: "Systemfejl. Kunne ikke ændre \"Saml konti?\" valg. %{error}. Mere information i server log."
 
   # translation keys used in javascript (error) messages
@@ -958,4 +968,5 @@ da:
         ajax_error: "Kan ikke give skriveadgang til væg. Fejl \"%{error}\" for ugyldig link %{url}. %{error}. Mere information i server log."
         js_error: "Kan ikke give skriveadgang til væg. Javascript fejl %{error} (%{location},%{debug}). Mere information i klient og server log."
      share_accounts:
+        lov_not_found: "Systemfejl ved ændring af \"Saml konti?\" valg. Element share_level_lov bliv ikke fundet"
         ajax_error: "Fejl ved ændring af \"Saml konti?\" valg. %{error}. Mere information i server log."

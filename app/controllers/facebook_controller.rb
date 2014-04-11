@@ -189,7 +189,10 @@ class FacebookController < ApplicationController
       logger.debug2  "code = #{params[:code]}"
       oauth = Koala::Facebook::OAuth.new(API_ID[provider], API_SECRET[provider], API_CALLBACK_URL[provider])
       begin
-        access_token = oauth.get_access_token(params[:code])
+        info = oauth.get_access_token_info(params[:code])
+        logger.secret2 "info = #{info}"
+        access_token, expires_at = info["access_token"], info["expires"] if info
+        expires_at = expires_at.to_i.seconds.from_now.to_i # convert seconds to unix timestamp
       rescue Koala::Facebook::OAuthTokenRequestError => e
         if e.message =~ /authorization code has expired/
           save_flash_key ".auth_code_expired", :appname => APP_NAME
@@ -236,6 +239,7 @@ class FacebookController < ApplicationController
     # api_response["language"] = session[:language]
     res = login :provider => provider,
                 :token => access_token,
+                :expires_at => expires_at,
                 :uid => api_response["id"],
                 :name => api_response['name'],
                 :image => image, # only used for new facebook users

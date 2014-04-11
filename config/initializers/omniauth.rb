@@ -290,6 +290,14 @@ class OmniAuth::AuthHash
     token = nil if token.to_s == ""
     token
   end
+  def get_expires_at
+    provider = get_provider()
+    method = "get_expires_at_#{provider}"
+    return eval(method) if respond_to? method.to_sym
+    token = self[:credentials][:expires_at] if self[:credentials]
+    token = nil if token.to_s == ""
+    token
+  end
   def get_country
     provider = get_provider()
     method = "get_country_#{provider}"

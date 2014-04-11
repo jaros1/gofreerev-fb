@@ -84,6 +84,7 @@
 
 <% if @page_values[:friends] == 'me' -%>
     <%= render :partial => 'shared/share_accounts' %>
+    <table width="100%"><tbody id="share_accounts_errors" class="ajax_errors"></tbody></table>
 <% end -%>
 
 <% if User.no_app_friends(@users) == 0 -%>

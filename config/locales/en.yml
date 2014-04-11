@@ -126,6 +126,14 @@ en:
         no_shared_accounts_text: "No shared accounts"
         other_users_note: " ( *=not connected account )"
         find_friends_link_text: "Find friends"
+        lov_prompt: "Share accounts?"
+        lov_text_0: "No sharing across APIs"
+        lov_text_1: "Share balance across APIs"
+        lov_text_2: "Share balance and static friend lists"
+        lov_text_3: "Share balance and dynamic friend lists"
+        lov_text_4: "Single sign-on"
+        lov_text_5: "Mixed sharing. See text below"
+        offline_access_prompt: "Save authorization on server?"
 
   # omniauth controllers (auth, facebook and linkedin):
 
@@ -735,6 +743,7 @@ en:
         mis_api_pic_not_implemented2: "Check for moved or deleted images is not implemented for %{apiname}."
         mis_api_pic_file_exists: "Warning. Browser did not find picture %{rel_path}, but picture exists on the server."
         mis_api_pic_url_exists: "Warning. Browser did not find picture %{url}, but picture exists on the server."
+        mis_api_pic_deauth: "Connection to %{appname} with %{provider} has expired. Please refresh page or login in with %{provider}."
      do_tasks:
         do_tasks_exception: "System error when executing tasks. %{error}. More information in server log."
         do_task_exception: "System error for task \"%{task}\". %{error}. More information in server log."
@@ -895,9 +904,10 @@ en:
         unknown_provider: "System error. Unknown login provider %{apiname}. Change in Post? has not been saved."
         unknown_post_on_wall: "System error. Unknown choice for login provider %{apiname}. Change in Post? has not been saved."
         exception: "System error. Could not change Post? choice. %{error}. More information in server log."
-     share_accounts_yn:
+     share_accounts:
         not_logged_in: "Cannot change \"Share accounts?\" choice. You are not logged in. Please refresh page."
-        unknown_post_on_wall: "System error. Unknown choice for share accounts. Change in Share accounts? has not been saved."
+        unknown_share_accounts: "System error. Unknown choice for share accounts. Change in Share accounts? has not been saved."
+        no_offline_access: "You must accept \"Save authorization on server?\" to activate this choice. Only balance and static friend lists are shared across login providers until accepted."
         exception: "System error. Could not change Share accounts? choice. %{error}. More information in server log."
 
   # translation keys used in javascript (error) messages

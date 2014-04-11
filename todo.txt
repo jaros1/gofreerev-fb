@@ -1051,8 +1051,30 @@
      or use saved access tokens for single sign on (full access)
 
 240) add share accounts options:
-     a) share balance
-     b) a) + share friend lists
-     c) a) + b) + save access token for offline friend list refresh
-     d) a) + b) + c) + single sign-on
-     change share accounts checkbox to a share acconts LOV
+     0) not shared = blank
+     1) share balance
+     2) 1) + share friend lists
+     3) 1) + 2) + save access token for offline friend list refresh
+     4) 1) + 2) + 3) + single sign-on
+     5) mixed sharing with 0), 1), 2), 3) and 4) user accounts
+     change share accounts checkbox to a share accounts LOV
+
+241) post_login_new_user: "Your friend list is ready. Please refresh page to see any posts from your friends."
+     ok for single login users and gifts/index page.
+     not ok for multi login users and auth/index page.
+
+242) logged in with 7 shared accounts and 1 not shared account.
+     should add not shared accounts to shared_accounts_list
+
+243) auth/index: show/hide share accounts spinner while changing share accounts status
+
+244) friends find email notification for non FB accounts
+     must read email from one or more non FB API's
+     should have user accept before sending email notifications
+     should have a unsubscribe link in email
+
+245) currency LOV onclick error:
+     text "clear_ajax_errors('show-more-rows-errors') ;" is ajax injected before LOV
+     problem in page header and in users/edit page
+
+246) auth/index: share_level_lov and offline_access_checkbox are disabled after page refresh

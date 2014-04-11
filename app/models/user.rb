@@ -1987,9 +1987,7 @@ class User < ActiveRecord::Base
       if user.share_account_id
         old_share_account_id = user.share_account_id
         user.update_attribute(:share_account_id, nil)
-        # clear any single user share_accounts (shared accounts) after deleting user
-        users = User.where('share_account_id = ?', old_share_account_id)
-        users.update_all :share_account_id => nil if users.size == 1
+        ShareAccount.where(:id => old_share_account_id, :no_users => 1).destroy_all
       end
       # delete mark gifts
       ApiGift.where('? in (user_id_giver, user_id_receiver)', user.user_id).each do |ag|

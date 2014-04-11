@@ -36,7 +36,7 @@ GofreerevFb::Application.routes.draw do
   post 'util/grant_write_vkontakte'
   post 'util/hide_grant_write'
   delete 'auth/destroy'
-  post 'util/share_accounts_yn'
+  post 'util/share_accounts'
 
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".

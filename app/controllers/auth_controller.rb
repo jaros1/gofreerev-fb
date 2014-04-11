@@ -38,6 +38,16 @@ class AuthController < ApplicationController
     end # each provider
 
     @providers = @providers.sort_by { |a| provider_camelize(a) }
+
+    # check share_level and offline_access
+    @users.each do |user|
+      next unless user.share_account_id
+      if [3,4].index(user.share_account.share_level) and user.share_account.offline_access_yn == 'N'
+        user.share_account.share_level = 2
+        user.share_account.save!
+      end
+    end
+
   end # index
 
   # omniauth callback on success (login was started from rails)
@@ -64,6 +74,7 @@ class AuthController < ApplicationController
 
     res = login :provider => provider,
                 :token => auth_hash.get_token,
+                :expires_at => auth_hash.get_expires_at,
                 :uid => auth_hash.get_uid,
                 :name => auth_hash.get_user_name,
                 :image => auth_hash.get_image,

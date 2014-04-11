@@ -326,22 +326,22 @@ module ApplicationHelper
   # user in auth/index and todo: xxx pages
   def shared_accounts
     return {} unless logged_in?
-    share_accounts = @users.find_all { |u| u.share_account_id }.collect { |u| u.share_account_id }.uniq
-    logger.debug2 "share_accounts = #{share_accounts.join(', ')}"
-    return {} if share_accounts.size == 0
+    share_account_ids = @users.find_all { |u| u.share_account_id }.collect { |u| u.share_account_id }.uniq
+    logger.debug2 "share_account ids = #{share_account_ids.join(', ')}"
+    return {} if share_account_ids.size == 0 # no shared accounts
     shared = {}
     @users.each do |user|
       next unless user.share_account_id
-      shared[user.share_account_id] = [] unless shared.has_key? user.share_account_id
-      shared[user.share_account_id] << provider_downcase(user.provider)
+      shared[user.share_account] = [] unless shared.has_key? user.share_account
+      shared[user.share_account] << provider_downcase(user.provider)
     end
     # check for combination with not logged in users
     # for example a logged in facebook account combined with a not logged in google+ account
-    other_users = User.where('share_account_id in (?) and user_id not in (?)', share_accounts, login_user_ids)
+    other_users = User.where('share_account_id in (?) and user_id not in (?)', share_account_ids, login_user_ids)
     other_users.each do |user|
-      shared[user.share_account_id] << provider_downcase(user.provider) + '*'
+      shared[user.share_account] << provider_downcase(user.provider) + '*'
     end
-    shared.delete_if do |share_account_id, providers|
+    shared.delete_if do |share_account, providers|
       providers.size == 1
     end
     shared
@@ -356,8 +356,12 @@ module ApplicationHelper
     elsif shared.size == 1
       text = shared[shared.keys.first].sort.join(', ')
     else
-      text = shared.collect do |share_account_id, providers|
-         '(' + providers.sort.join(', ') + ')'
+      # mixed account sharing
+      text = shared.collect do |share_account, providers|
+         share_level = share_account.share_level
+         share_level =2 if [3,4].index(share_level) and share_account.offline_access_yn == 'N'
+         share_level_text = t "shared.share_accounts.lov_text_#{share_level}"
+         "(#{share_level_text}: #{providers.sort.join(', ')})"
       end.join(', ')
     end
     text += " #{t('.other_users_note')}" if text.index('*')
@@ -369,5 +373,23 @@ module ApplicationHelper
     (shared_accounts.size == 0)
   end
 
+  def share_level
+    return 0 unless logged_in?
+    share_levels = shared_accounts.keys.collect { |sa| [sa.share_level, sa.offline_access_yn] }.uniq
+    share_levels.delete_if { |share_level| share_level[0] == 0 }
+    return 0 if share_levels.size == 0
+    return 5 if share_levels.size > 1
+    return share_levels.first[0]
+  end
+
+  def share_levels (share_level)
+    last_level = share_level == 5 ? 5 : 4 # 5 mixed sharing - display only option
+    0.upto(last_level).collect { |i| [t("shared.share_accounts.lov_text_#{i}"), i] }
+  end
+  def offline_access?
+    offline_access = shared_accounts.keys.collect { |sa| sa.offline_access_yn }.uniq
+    return false unless offline_access.size == 1
+    (offline_access.first == 'Y')
+  end
 
 end # ApplicationHelper
