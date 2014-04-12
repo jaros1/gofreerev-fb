@@ -361,7 +361,7 @@ module ApplicationHelper
          share_level = share_account.share_level
          share_level =2 if [3,4].index(share_level) and share_account.offline_access_yn == 'N'
          share_level_text = t "shared.share_accounts.lov_text_#{share_level}"
-         "(#{share_level_text}: #{providers.sort.join(', ')})"
+         "#{share_level_text}: #{providers.sort.join(', ')}"
       end.join(', ')
     end
     text += " #{t('.other_users_note')}" if text.index('*')
