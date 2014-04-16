@@ -64,6 +64,7 @@ class FlickrController < ApplicationController
       # new login with write permission to flickr wall
       res3 = login :provider => provider,
                   :token => token,
+                  :expires_at => 1.year.from_now.to_i,
                   :uid => uid,
                   :name => name,
                   :image => picture_url,

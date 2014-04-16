@@ -13,4 +13,9 @@ class OmniAuth::AuthHash
     return nil unless token.to_s != "" and secret.to_s != ""
     [ token, secret]
   end
+  def get_expires_at_flickr
+    # it looks like flickr access token does not expire!
+    1.year.from_now.to_i
+  end
+
 end

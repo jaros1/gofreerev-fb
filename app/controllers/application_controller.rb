@@ -435,8 +435,6 @@ class ApplicationController < ActionController::Base
     # get params
     provider = options[:provider]
     token = options[:token]
-    expires_at = options[:expires_at]
-    logger.debug2 "expires_at = #{expires_at}"
     uid = options[:uid]
     name = options[:name]
     image = options[:image]
@@ -461,8 +459,12 @@ class ApplicationController < ActionController::Base
     login_user_ids << user.user_id
     tokens = session[:tokens] || {}
     tokens[provider] = token
+    expires_at = session[:expires_at] || {}
+    expires_at[provider] = options[:expires_at]
     session[:user_ids] = login_user_ids
     session[:tokens] = tokens
+    session[:expires_at] = expires_at
+    logger.secret2 "expires_at = #{expires_at}"
     # fix invalid or missing language for translate
     session[:language] = valid_locale(language) unless valid_locale(session[:language])
     set_locale_from_params
@@ -516,6 +518,7 @@ class ApplicationController < ActionController::Base
     if !provider
       session.delete(:user_ids)
       session.delete(:tokens)
+      session.delete(:expires_at)
       @users = []
       add_dummy_user
       return
@@ -524,8 +527,11 @@ class ApplicationController < ActionController::Base
     login_user_ids.delete_if { |user_id| user_id.split('/').last == provider}
     tokens = session[:tokens] || {}
     tokens.delete(provider)
+    expires_at = session[:expires_at] || {}
+    expires_at.delete(provider)
     session[:user_ids] = login_user_ids
     session[:tokens] = tokens
+    session[:expires_at] = expires_at
     @users = User.where('user_id in (?)', login_user_ids)
     add_dummy_user if @users.size == 0
     # check if file upload button should be disabled - last user with write access to api wall logs out
@@ -1165,6 +1171,18 @@ class ApplicationController < ActionController::Base
     api_client = LinkedIn::Client.new API_ID[provider], API_SECRET[provider]
     api_client.authorize_from_access token[0], token[1] # token and secret
     # add helper methods to linkedin api client
+
+    api_client.define_singleton_method :authorize_from_request do |request_token, request_secret, verifier_or_pin|
+      request_token = ::OAuth::RequestToken.new(consumer, request_token, request_secret)
+      puts "request_token.methods (2) = #{request_token.methods.sort.join(', ')}"
+      puts "request_token.instance_values (2) = #{request_token.instance_values.sort.join(', ')}"
+      access_token  = request_token.get_access_token(:oauth_verifier => verifier_or_pin)
+      puts "access_token.methods (2) = #{access_token.methods.sort.join(', ')}"
+      puts "access_token.instance_values (2) = #{access_token.instance_values.sort.join(', ')}"
+      @auth_expires_in = access_token.instance_variable_get('@params')
+      @auth_token, @auth_secret = access_token.token, access_token.secret
+    end
+
     # add gofreerev_get_friends - used on post_login_<provider>
     api_client.define_singleton_method :gofreerev_get_friends do |logger|
       # get array with linkedin connections

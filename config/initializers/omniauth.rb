@@ -294,9 +294,11 @@ class OmniAuth::AuthHash
     provider = get_provider()
     method = "get_expires_at_#{provider}"
     return eval(method) if respond_to? method.to_sym
-    token = self[:credentials][:expires_at] if self[:credentials]
-    token = nil if token.to_s == ""
-    token
+    expires_at = self[:credentials][:expires_at] if self[:credentials]
+    return expires_at unless expires_at.to_s == ''
+    expires = self[:credentials][:expires] if self[:credentials]
+    return 1.year.from_now.to_i if expires == false
+    nil
   end
   def get_country
     provider = get_provider()

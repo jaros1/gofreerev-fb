@@ -53,6 +53,7 @@ class AuthController < ApplicationController
   # omniauth callback on success (login was started from rails)
   def create
     @auth_hash = auth_hash
+    # logger.secret2 "auth_hash = #{auth_hash}"
 
     # login - return nil (ok) or array with translate key and options for error message
     # auth_hash.get_xxx methods are defined in initializers/omniauth*.rb

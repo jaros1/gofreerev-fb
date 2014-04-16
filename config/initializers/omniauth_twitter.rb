@@ -10,4 +10,9 @@ class OmniAuth::AuthHash
     profile_url = self[:info][:urls][:Twitter] if self[:info] and self[:info][:urls]
     profile_url
   end
+  def get_expires_at_twitter
+    # it looks like twitter access token does not expire!
+    1.year.from_now.to_i
+  end
+
 end
