@@ -435,6 +435,7 @@ class ApplicationController < ActionController::Base
     # get params
     provider = options[:provider]
     token = options[:token]
+    expires_at = options[:expires_at]
     uid = options[:uid]
     name = options[:name]
     image = options[:image]
@@ -453,18 +454,18 @@ class ApplicationController < ActionController::Base
                                     :profile_url => profile_url
     return user unless user.class == User # error: key + options
     # user login ok
-    # save user and access token - multiple login allows - one for each login provider
+    # save user id, access token and exipires_at - multiple logins allowed - one for each login provider
     login_user_ids = login_user_ids().clone
     login_user_ids.delete_if { |user_id2| user_id2.split('/').last == provider }
     login_user_ids << user.user_id
     tokens = session[:tokens] || {}
     tokens[provider] = token
-    expires_at = session[:expires_at] || {}
-    expires_at[provider] = options[:expires_at]
+    expires = session[:expires_at] || {}
+    expires[provider] = expires_at
     session[:user_ids] = login_user_ids
     session[:tokens] = tokens
-    session[:expires_at] = expires_at
-    logger.secret2 "expires_at = #{expires_at}"
+    session[:expires_at] = expires
+    logger.secret2 "expires_at = #{expires}"
     # fix invalid or missing language for translate
     session[:language] = valid_locale(language) unless valid_locale(session[:language])
     set_locale_from_params
@@ -537,10 +538,6 @@ class ApplicationController < ActionController::Base
     # check if file upload button should be disabled - last user with write access to api wall logs out
     add_task "disable_enable_file_upload", 5
   end # logout
-
-
-
-
 
   # protection from Cross-site Request Forgery
   # state is set before calling login provider
@@ -1909,8 +1906,7 @@ class ApplicationController < ActionController::Base
     if @users.size == 1
       users = User.where('share_account_id = ?', @users.first.share_account_id)
       if users.size == 1
-        @users.first.share_account_id = nil
-        @users.first.save!
+        @users.first.share_account_clear
         return false
       end
     end

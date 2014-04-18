@@ -2258,48 +2258,56 @@ function post_on_wall_ajax(checkbox) {
     });
 } // post_on_wall_ajax
 
-//// set/reset user,share_account_id
-//// used in shared/share_accounts partial
-//// used in auth/index and todo: pages
-//function share_accounts_ajax(checkbox) {
-//    var pgm = 'share_accounts_ajax: ' ;
-//    var share_level_lov = document.getElementById('share_level_lov') ;
-//    var offline_access_checkbox = document.getElementById('offline_access_checkbox') ;
-//
-//    add2log(pgm + 'checkbox.tagName = ' + checkbox.tagName) ;
-//    var share_accounts ;
-//    if (checkbox.tagName == 'INPUT') share_accounts = checkbox.checked ;
-//    if (checkbox.tagName == 'SELECT') share_accounts = checkbox.options[checkbox.selectedIndex].value ;
-//    // alert('checkbox: share_accounts = ' + share_accounts) ;
-//    clear_flash_and_ajax_errors();
-//    $.ajax({
-//        url: "/util/share_accounts_yn.js",
-//        type: "POST",
-//        dataType: 'script',
-//        data: { share_accounts: share_accounts },
-//        beforeSend: function() {
-//            // add2log(pgm + 'beforesend') ;
-//            checkbox.disabled = true ;
-//            checkbox.readonly = true ;
-//        },
-////        success: function (responseText, statusText, xhr, $form) {
-////            var pgm = 'share_accounts_ajax:success: ' ;
-////            add2log(pgm + 'start') ;
-////        }, // success
-//        error: function (jqxhr, textStatus, errorThrown) {
-//            var pgm = 'share_accounts_ajax:error: ' ;
-//            if (leaving_page) return ;
-//            var err = add2log_ajax_error(pgm, jqxhr, textStatus, errorThrown) ;
-//            add_to_tasks_errors(I18n.t('js.share_accounts.ajax_error', {error: err, location: 19, debug: 0}));
-//        },
-//        complete: function() {
-//            // add2log(pgm + 'complete') ;
-//            checkbox.disabled = false ;
-//            checkbox.readonly = false ;
-//        }
-//    });
-//
-//} // share_accounts_ajax
+// set/reset user,share_account_id
+// used in shared/share_accounts partial
+// used in auth/index and users/index?friends=me tab
+function share_accounts_ajax() {
+    var pgm = 'share_accounts_ajax: ' ;
+    var share_level_lov = document.getElementById('share_level_lov') ;
+    if (!share_level_lov) {
+        add_to_tasks_errors(I18n.t('js.share_accounts.lov_not_found')) ;
+        return ;
+    }
+    var share_level = share_level_lov.options[share_level_lov.selectedIndex].value ;
+    var offline_access_checkbox = document.getElementById('offline_access_checkbox') ;
+    var offline_access_yn ;
+    if (!offline_access_checkbox) offline_access_yn = '' ;
+    else if (offline_access_checkbox.checked) offline_access_yn = 'Y' ;
+    else offline_access_yn = 'N' ;
+    clear_ajax_errors('share_accounts_errors');
+    add2log(pgm + 'share_level = ' + share_level + ', offline_access_yn = ' + offline_access_yn) ;
+    $.ajax({
+        url: "/util/share_accounts.js",
+        type: "POST",
+        dataType: 'script',
+        data: { share_level: share_level, offline_access_yn: offline_access_yn },
+        beforeSend: function() {
+            // add2log(pgm + 'beforesend') ;
+            share_level_lov.disabled = true ;
+            share_level_lov.readonly = true ;
+            if (offline_access_checkbox) {
+                offline_access_checkbox.disabled = true ;
+                offline_access_checkbox.readonly = true ;
+            }
+        },
+        error: function (jqxhr, textStatus, errorThrown) {
+            var pgm = 'share_accounts_ajax:error: ' ;
+            if (leaving_page) return ;
+            var err = add2log_ajax_error(pgm, jqxhr, textStatus, errorThrown) ;
+            add_to_tasks_errors(I18n.t('js.share_accounts.ajax_error', {error: err, location: 19, debug: 0}));
+        },
+        complete: function() {
+            // add2log(pgm + 'complete') ;
+            share_level_lov.disabled = false ;
+            share_level_lov.readonly = false ;
+            if (offline_access_checkbox) {
+                offline_access_checkbox.disabled = false ;
+                offline_access_checkbox.readonly = false ;
+            }
+        }
+    });
+
+} // share_accounts_ajax
 
 // show/hide ajax debug log checkbox in bottom of page. Only used if debug_ajax? / DEBUG_AJAX is true
 function show_debug_log_checkbox(checkbox) {

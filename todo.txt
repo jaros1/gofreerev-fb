@@ -1079,6 +1079,5 @@
 
 246) auth/index: share_level_lov and offline_access_checkbox are disabled after page refresh
 
-247) check if auth_hash.credentials.expires=false can be used to identify api's without access token expiration (flickr, foursquare)
-
-248) linkeded extra privs. check if expires_at is available in api request
+247) cannot change share_level from 3 to 4 if access token was read from database
+     that is - only load access token from database if share level is 4

@@ -245,7 +245,60 @@ class User < ActiveRecord::Base
   # string in model and db
   validates_presence_of :post_on_wall_yn
   validates_inclusion_of :post_on_wall_yn, :allow_blank => true, :in => %w(Y N)
+
+
+  # 14) deleted_at
   
+  # 15) last_login_at
+  
+  # 16) deauthorized_at
+  
+  # 17) last_friends_find_at
+
+  # 18) access_token - for ShareAccount.share_level's 3 and 4 (access token saved in db)
+  # String in model - Encrypted text in db
+  def access_token
+    return nil unless (temp_access_token = read_attribute(:access_token))
+    # logger.debug2  "temp_access_token = #{temp_access_token}"
+    encrypt_remove_pre_and_postfix(temp_access_token, 'access_token', 43)
+  end # access_token
+  def access_token=(new_access_token)
+    if new_access_token
+      check_type('access_token', new_access_token, 'String')
+      write_attribute :access_token, encrypt_add_pre_and_postfix(new_access_token, 'access_token', 43)
+    else
+      write_attribute :access_token, nil
+    end
+  end # access_token=
+  alias_method :access_token_before_type_cast, :access_token
+  def access_token_was
+    return access_token unless access_token_changed?
+    return nil unless (temp_access_token = attribute_was(:access_token))
+    encrypt_remove_pre_and_postfix(temp_access_token, 'access_token', 43)
+  end # access_token_was
+
+  # 19) access_token_expires - for ShareAccount.share_level's 3 and 4 (access token saved in db)
+  # Integer (unix timestamp) in model - Encrypted text in db
+  def access_token_expires
+    return nil unless (temp_access_token_expires = read_attribute(:access_token_expires))
+    # logger.debug2  "temp_access_token_expires = #{temp_access_token_expires}"
+    encrypt_remove_pre_and_postfix(temp_access_token_expires, 'access_token_expires', 44).to_i
+  end # access_token_expires
+  def access_token_expires=(new_access_token_expires)
+    if new_access_token_expires
+      check_type('access_token_expires', new_access_token_expires, 'Bignum')
+      write_attribute :access_token_expires, encrypt_add_pre_and_postfix(new_access_token_expires.to_s, 'access_token_expires', 44)
+    else
+      write_attribute :access_token_expires, nil
+    end
+  end # access_token_expires=
+  alias_method :access_token_expires_before_type_cast, :access_token_expires
+  def access_token_expires_was
+    return access_token_expires unless access_token_expires_changed?
+    return nil unless (temp_access_token_expires = attribute_was(:access_token_expires))
+    encrypt_remove_pre_and_postfix(temp_access_token_expires, 'access_token_expires', 44).to_i
+  end # access_token_expires_was
+
   # change currency in page header.
   attr_accessor :new_currency
 
@@ -343,17 +396,17 @@ class User < ActiveRecord::Base
   def self.find_or_create_user (options)
     # missing provider, unknown provider, missing token, uid or user_name are fatal errors.
     provider = options[:provider].to_s
-    return '.callback_provider_missing' if provider == ""
-    return ['.callback_unknown_provider', { :provider => provider } ] unless User.valid_provider?(provider)
+    return '.provider_missing' if provider == ""
+    return ['.unknown_provider', { :provider => provider } ] unless User.valid_provider?(provider)
     token = options[:token].to_s
-    return ['.callback_token_missing', { :provider => provider } ] if token == ""
+    return ['.access_token_missing', { :provider => provider } ] if token == ""
     uid = options[:uid].to_s
-    return ['.callback_uid_missing', { :provider => provider }] if uid == ""
-    return ['.callback_gofreerev_uid', { :provider => provider }] if uid == 'gofreerev' # reserved uid used for dummy users
+    return ['.uid_missing', { :provider => provider }] if uid == ""
+    return ['.reserved_uid', { :provider => provider }] if uid == 'gofreerev' # reserved uid used for dummy users
     user_name = options[:name].to_s
     # todo: should escape username - ERB::Util.html_escape(user_name) does not work from activemodel
-    return '.callback_user_name_missing_google' if user_name == "" and provider.first(6) == 'google'
-    return ['.callback_user_name_missing',  { :provider => provider } ] if user_name == ""
+    return '.user_name_missing_google' if user_name == "" and provider.first(6) == 'google'
+    return ['.user_name_missing',  { :provider => provider } ] if user_name == ""
     # missing profile image is a minor problem - only check here - profile image information is normally updated in a post login task
     # facebook: profile image from omniauth login is not used (wrong dimensions) -
     #           profile image from koala request in post_login_facebook is used
@@ -1986,8 +2039,12 @@ class User < ActiveRecord::Base
       affected_users = []
       if user.share_account_id
         old_share_account_id = user.share_account_id
-        user.update_attribute(:share_account_id, nil)
-        ShareAccount.where(:id => old_share_account_id, :no_users => 1).destroy_all
+        user.share_account_clear
+        ShareAccount.where(:id => old_share_account_id, :no_users => 1).each do |sa|
+          user2 = sa.users.first
+          sa.destroy
+          user2.share_account_clear
+        end
       end
       # delete mark gifts
       ApiGift.where('? in (user_id_giver, user_id_receiver)', user.user_id).each do |ag|
@@ -2124,6 +2181,14 @@ class User < ActiveRecord::Base
       raise
     end
   end # self.delete_user
+
+
+  def share_account_clear
+    self.share_account_id = nil
+    self.access_token = nil
+    self.access_token_expires = nil
+    self.save!
+  end
 
 
   ##############

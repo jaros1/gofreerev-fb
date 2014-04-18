@@ -24,8 +24,15 @@ class LinkedinController < ApplicationController
       token = api_client.authorize_from_request(api_client.request_token.token, api_client.request_token.secret, params[:oauth_verifier])
       # note. minor change to linkedin-0.4.4 gem. expires_in is saved in a instance variable
       expires_in = api_client.instance_variable_get('@auth_expires_in') # seconds from now
-      expires_at = expires_in.to_i.seconds.from_now.to_i unless expires_in.to_s == '' # unix timestamp
-      # logger.debug2 "expires_in = #{expires_in}, expires_at = #{expires_at}"
+      if expires_in.to_s == ''
+        logger.error2 "expires_at timestamp was not received from linkedin gem authorize_from_request method."
+        logger.debug2 "add line \"@auth_expires_in = access_token.instance_variable_get('@params')[:oauth_expires_in]\" to authorize_from_request method"
+        logger.debug2 "expires_at was set to 2 months from now"
+        expires_at = 2.months.from_now.to_i
+      else
+        expires_at = expires_in.to_i.seconds.from_now.to_i # unix timestamp
+      end
+      logger.debug2 "expires_in = #{expires_in}, expires_at = #{expires_at}"
     rescue Exception => e
       logger.debug2 "Exception: #{e.message} (#{e.class})"
       save_flash_key '.auth_failed', :apiname => provider_downcase('linkedin'), :appname => APP_NAME, :error => e.message

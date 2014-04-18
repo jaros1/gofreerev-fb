@@ -359,13 +359,13 @@ module ApplicationHelper
       # mixed account sharing
       text = shared.collect do |share_account, providers|
          share_level = share_account.share_level
-         share_level =2 if [3,4].index(share_level) and share_account.offline_access_yn == 'N'
+         share_level = 2 if [3,4].index(share_level) and share_account.offline_access_yn == 'N'
          share_level_text = t "shared.share_accounts.lov_text_#{share_level}"
-         "#{providers.sort.join(', ')}: #{share_level_text}"
-      end.join('. ')
+         providers_text = providers.sort.join(', ')
+         providers_note = t('.other_users_note') if providers_text.index('*')
+         "<br>- #{providers_text}: #{share_level_text}#{providers_note}"
+      end.join.html_safe
     end
-    text += " #{t('.other_users_note')}" if text.index('*')
-    text + '.'
   end
   def shared_accounts_disabled?
     return true if not logged_in?

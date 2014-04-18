@@ -15,10 +15,5 @@
   <%= t '.shared_accounts_prompt' %>
   <%= shared_accounts_list %>
   <br>
-  <% if show_find_friends_link? -%>
-      <%= link_to t('.find_friends_link_text'), users_path(:friends => 'find') %>
-  <% else -%>
-      <u><%= t '.find_friends_link_text' %></u>
-  <% end -%>
 </div>
 

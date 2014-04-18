@@ -122,17 +122,17 @@ en:
      share_accounts:
         title: "Use this check box if you want to gather your accounts across login providers to a joint account. If you select X you get a total balance with the sum of the value of the gifts you have given and received across all your login providers. Select X to allow cross login provider friends lists compare. You can get a list of the friends you are missing and your friends can get a list of the friends they are missing. That is, people who are your friends at one login provider and who is your friend's friend at an other login provider. Your friends get fewer friends proposals without X in check box as your friend lists are not used in friends proposals. Use link \"Find friends\" to get friends proposals. X in the check box is NOT single sign-on for all access providers. You'll still need to log in each login provider where you want to view, create or comment posts."
         checkbox_prompt: "Share accounts?"
-        shared_accounts_prompt: "Shared accounts: "
+        shared_accounts_prompt: "Details: "
         no_shared_accounts_text: "No shared accounts"
         other_users_note: " ( *=not connected account )"
         find_friends_link_text: "Find friends"
         lov_prompt: "Share accounts?"
-        lov_text_0: "No sharing across APIs"
-        lov_text_1: "Share balance across APIs"
-        lov_text_2: "Share balance and static friend lists"
-        lov_text_3: "Share balance and dynamic friend lists"
-        lov_text_4: "Single sign-on"
-        lov_text_5: "Mixed sharing. See text below"
+        lov_text_0: "no sharing across APIs"
+        lov_text_1: "share balance across APIs"
+        lov_text_2: "share bal. and static friend lists"
+        lov_text_3: "share bal. and dynamic friend lists"
+        lov_text_4: "single sign-on"
+        lov_text_5: "mixed sharing. See text below"
         offline_access_prompt: "Save authorization on server?"
 
   # omniauth controllers (auth, facebook and linkedin):
@@ -144,13 +144,13 @@ en:
         login_cancelled: '%{provider} login was cancelled'
         linkedin_rw_nus_cancelled: '%{appname} was not granted permission to post on your LinkedIn wall'
      create:
-        callback_provider_missing: "Login failed. Did not receive name for login provider"
-        callback_unknown_provider: "Login failed. Received unknown login provider %{provider}"
-        callback_token_missing: "Login failed. Did not receive access token from %{provider}"
-        callback_uid_missing: "Login failed. Did not receive user id from %{provider}"
-        callback_gofreerev_uid: "Login failed. uid gofreerev cannot be used"
-        callback_user_name_missing_google: "Login failed. Did not receive username from google. Maybe scope userinfo.profile is missing for provider"
-        callback_user_name_missing: "Login failed. Did not receive username from %{provider}"
+        provider_missing: "Login failed. Did not receive name for login provider"
+        unknown_provider: "Login failed. Received unknown login provider %{provider}"
+        access_token_missing: "Login failed. Did not receive access token from %{provider}"
+        uid_missing: "Login failed. Did not receive user id from %{provider}"
+        reserved_uid: "Login failed. uid gofreerev cannot be used"
+        user_name_missing_google: "Login failed. Did not receive username from google. Maybe scope userinfo.profile is missing for provider"
+        user_name_missing: "Login failed. Did not receive username from %{provider}"
         find_or_create_from_auth_hash: "System error. Invalid response from user update after login"
         login_ok: "%{apiname} log in ok."
         login_ok_new_user: "%{apiname} log in ok. Welcome to %{appname}. Your friends list is being downloaded and will be ready for use in a few moments."
@@ -908,6 +908,8 @@ en:
         not_logged_in: "Cannot change \"Share accounts?\" choice. You are not logged in. Please refresh page."
         unknown_share_accounts: "System error. Unknown choice for share accounts. Change in Share accounts? has not been saved."
         no_offline_access: "You must accept \"Save authorization on server?\" to activate this choice. Only balance and static friend lists are shared across login providers until accepted."
+        no_access_token: "System error. Cannot change \"Share accounts?\" choice. Access token was not found."
+        no_expires_at: "System error. Cannot change \"Share accounts?\" choice. Expire timestamp for access token was not found."
         exception: "System error. Could not change Share accounts? choice. %{error}. More information in server log."
 
   # translation keys used in javascript (error) messages

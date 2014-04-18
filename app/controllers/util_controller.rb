@@ -1661,21 +1661,38 @@ class UtilController < ApplicationController
   #   0: no sharing
   #   1: shared balance across API providers  (offline access = 'N')
   #   2: share balance and static friend lists across API providcers (offline access = 'N')
-  #   3: share balance and dynamic friend lists across API providers (offline access = 'Y')
-  #   4: share balance, dynamic friend lists and allow single sign-on (offline access = 'Y')
+  #   3: share balance and dynamic friend lists across API providers (offline access = 'Y') - save access token in db
+  #   4: share balance, dynamic friend lists and allow single sign-on (offline access = 'Y') - save access token in db
   public
   def share_accounts
     table = 'share_accounts_errors'
     begin
       logger.debug2 "params = #{params}"
       return format_response_key('.not_logged_in') unless logged_in?
-      # get params
-      share_level = params[:share_level]
+      # get params & simple param validation
+      share_level = params[:share_level].to_s
       return format_response_key('.unknown_share_accounts', :table => table) unless %w(0 1 2 3 4).index(share_level)
+      share_level = share_level.to_i
       offline_access_yn = params[:offline_access_yn]
       offline_access_yn = 'N' if offline_access_yn.to_s == ''
       return format_response_key('.unknown_share_accounts', :table => table) unless %w(N Y).index(offline_access_yn)
       add_error_key '.no_offline_access', :table => table if %w(3 4).index(share_level) and offline_access_yn == 'N'
+      if [3,4].index(share_level)
+        # check session variables access token and expires_at.
+        # rules:
+        # a) access token and expires_at must be present for each login  provider
+        # b) access token and expires_at is loaded from db after 4) single sign-on login with negative expires_at
+        # c) check that access token is not expired
+        # d) share_level 3 (dynamic friend lists) is allowed with negative expires_at loaded from database - re-login not required
+        # e) share_level 4 (single sign-on) is not allowed with negative expires_at loaded from database - re-login required
+        tokens = session[:tokens] || {}
+        expires_at = session[:expires_at] || {}
+        @users.each do |user|
+          provider = user.provider
+          return format_response_key('.no_access_token', user.app_and_apiname_hash.merge(:table => table)) if tokens[provider].to_s == ''
+          return format_response_key('.no_expires_at', user.app_and_apiname_hash.merge(:table => table)) if expires_at[provider].to_s == ''
+        end
+      end
       # set or reset share_account_id for logged in users
       if share_level == '0'
         share_account_id = nil
@@ -1686,7 +1703,11 @@ class UtilController < ApplicationController
       @users.each do |user|
         user.update_attribute(:share_account_id, share_account_id)
       end
-      ShareAccount.where(:id => old_share_accounts, :no_users => 1).destroy_all if old_share_accounts.size > 0
+      ShareAccount.where(:id => old_share_accounts, :no_users => 1).each do |sa|
+        user = sa.users.first
+        sa.destroy
+        user.share_account_clear
+      end if old_share_accounts.size > 0
       # return share_accounts_div to client
       format_response
     rescue Exception => e
