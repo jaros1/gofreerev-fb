@@ -400,6 +400,10 @@ class User < ActiveRecord::Base
     return ['.unknown_provider', { :provider => provider } ] unless User.valid_provider?(provider)
     token = options[:token].to_s
     return ['.access_token_missing', { :provider => provider } ] if token == ""
+    expires_at = options[:expires_at].to_s
+    return ['.expires_at_missing', { :provider => provider } ] if expires_at == ""
+    return ['.expires_at_invalid', { :provider => provider } ] unless expires_at =~/^\d+$/
+    return ['.expires_at_invalid', { :provider => provider } ] if expires_at.to_i < Time.now.to_i
     uid = options[:uid].to_s
     return ['.uid_missing', { :provider => provider }] if uid == ""
     return ['.reserved_uid', { :provider => provider }] if uid == 'gofreerev' # reserved uid used for dummy users

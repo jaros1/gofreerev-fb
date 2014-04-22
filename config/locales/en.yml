@@ -144,15 +144,19 @@ en:
         login_cancelled: '%{provider} login was cancelled'
         linkedin_rw_nus_cancelled: '%{appname} was not granted permission to post on your LinkedIn wall'
      create:
-        provider_missing: "Login failed. Did not receive name for login provider"
-        unknown_provider: "Login failed. Received unknown login provider %{provider}"
-        access_token_missing: "Login failed. Did not receive access token from %{provider}"
-        uid_missing: "Login failed. Did not receive user id from %{provider}"
-        reserved_uid: "Login failed. uid gofreerev cannot be used"
-        user_name_missing_google: "Login failed. Did not receive username from google. Maybe scope userinfo.profile is missing for provider"
-        user_name_missing: "Login failed. Did not receive username from %{provider}"
-        find_or_create_from_auth_hash: "System error. Invalid response from user update after login"
+        provider_missing: "Login failed. Did not receive name for login provider."
+        unknown_provider: "Login failed. Received unknown login provider %{provider}."
+        access_token_missing: "Login failed. Did not receive %{provider} access token."
+        expires_at_missing: "Login failed. Did not receive expire timestamp for %{provider} access token."
+        expires_at_invalid: "Login failed. Received invalid expire timestamp for %{provider} access token."
+        uid_missing: "Login failed. Did not receive user id from %{provider}."
+        reserved_uid: "Login failed. uid gofreerev cannot be used."
+        user_name_missing_google: "Login failed. Did not receive username from google. Maybe scope userinfo.profile is missing for provider."
+        user_name_missing: "Login failed. Did not receive username from %{provider}."
+        find_or_create_from_auth_hash: "System error. Invalid response from user update after login."
         login_ok: "%{apiname} log in ok."
+        login_ok_expired3: "%{apiname} log ind ok. Note that access token is expired for %{apinames} and that one or more friend lists are not longer being updated dynamically. Please reconnect to fix this problem or update \"Share accounts?\" in this page."
+        login_ok_expired4: "%{apiname} log ind ok. Note that access token is expired for %{apinames} and that single sign-on are not working for one or more login providers. Please reconnect to fix this problem or update \"Share accounts?\" in this page."
         login_ok_new_user: "%{apiname} log in ok. Welcome to %{appname}. Your friends list is being downloaded and will be ready for use in a few moments."
      index:
         visit_th: "Visit API"
@@ -182,6 +186,7 @@ en:
         logged_off: "Connection with %{apiname} has been closed. Note that you are still connected to %{appname} with another login provider. Use links in this page to log in/out."
         already_logged_off: "Already logged out. Use links on this page to log in or to return to login API. Close browser to remove session cookie."
         unknown_provider: "System error. Unknown login provider when logging off"
+        expired_access_token: "Connection to %{appname} with %{apiname} has closed. Access token has expired. Please refresh page. Please reconnect."
 
   facebook:
      autologin:

@@ -146,15 +146,19 @@ da:
         login_cancelled: '%{provider} login blev afbrudt'
         linkedin_rw_nus_cancelled: '%{appname} fik ikke lov til at lave opslag på din linkedin væg'
      create:
-        provider_missing: "Login fejlede. Modtog ikke navn på login-udbyder"
-        unknown_provider: "Login fejlede. Modtog ukendt login-udbyder %{provider}"
-        access_token_missing: "Login fejlede. Modtog ikke adgangsbillet til %{provider}"
-        uid_missing: "Login fejlede. Modtog ikke bruger-id fra %{provider}"
+        provider_missing: "Login fejlede. Modtog ikke navn på login-udbyder."
+        unknown_provider: "Login fejlede. Modtog ukendt login-udbyder %{provider}."
+        access_token_missing: "Login fejlede. Modtog ikke %{provider} adgangsbillet."
+        expires_at_missing: "Login fejlede. Modtog ikke udløb tidsstempel for %{provider} adgangsbillet."
+        expires_at_invalid: "Login fejlede. Modtog ugyldigt udløb tidsstempel for %{provider} adgangsbillet."
+        uid_missing: "Login fejlede. Modtog ikke bruger-id fra %{provider}."
         reserved_uid: "Login fejlede. uid gofreerev kan desværre ikke benyttes"
-        user_name_missing_google: "Login fejlede. Modtog ikke brugernavn fra google. Evt. mangler scope userinfo.profile for provider opsætning"
-        user_name_missing: "Login fejlede. Modtog ikke brugernavn fra %{provider}"
+        user_name_missing_google: "Login fejlede. Modtog ikke brugernavn fra google. Evt. mangler scope userinfo.profile for provider opsætning."
+        user_name_missing: "Login fejlede. Modtog ikke brugernavn fra %{provider}."
         find_or_create_from_auth_hash: "Systemfejl. Ugyldigt svar fra brugeropdatering efter login."
         login_ok: "%{apiname} log ind ok."
+        login_ok_expired3: "%{apiname} log ind ok. Bemærk at adgangsbillet er udløbet for %{apinames} og at en eller flere vennelister derfor ikke længere opdateres dynamisk. Log ind for at løse dette problem eller opdater \"Saml konti?\" på denne side."
+        login_ok_expired4: "%{apiname} log ind ok. Bemærk at adgangsbillet er udløbet for %{apinames} og at fælles login derfor ikke længere fungerer for en eller flere login udbydere. Log ind for at løse dette problem eller opdater \"Saml konti?\" på denne side."
         login_ok_new_user: "%{apiname} log ind ok. Velkommen til %{appname}. Din venneliste er ved at blive hentet og vil være klar til brug lige om lidt."
      index:
         visit_th: "Besøg"
@@ -184,6 +188,7 @@ da:
         logged_off: "Adgang til %{appname} vha. %{apiname} er blevet afbrudt. Husk at bruge log ud funktion i %{apiname}, hvis du også ønsker at logge ud af %{apiname}. Vær opmærksom på, at du stadigvæk har adgang til %{appname} via en anden login-udbyder."
         already_logged_off: "Du var allerede logget ud. Brug nedenstående link til at logge ind igen. Luk browseren for at fjerne session cookie."
         unknown_provider: "Systemfejl. Ukendt login udbyder ved log ud"
+        expired_access_token: "Adgang til %{appname} vha. %{apiname} er blevet afbrudt. Adgangsbillet er ikke længere gældig. Opdater siden. Log venligst ind igen."
 
   # facebook controller - login started from facebook and asking for more privs.
   facebook:

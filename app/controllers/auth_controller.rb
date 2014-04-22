@@ -84,8 +84,25 @@ class AuthController < ApplicationController
       # login ok
       user_id = login_user_ids.find { |userid2| userid2.split('/').last == provider }
       user = User.find_by_user_id(user_id)
+      share_account = user.share_account
+      if share_account and [3,4].index(share_account.share_level)
+        # special login message for shared accounts with expired access tokens
+        apinames = []
+        share_account.users.each do |user2|
+          next if user2.id == user.id # just logged in user
+          if !user2.access_token or !user2.access_token_expires or user2.access_token_expires < Time.now.to_i
+            apinames << provider_downcase(user2.provider)
+          end
+        end
+        if apinames.size > 0
+          share_level = share_account.share_level
+          apinames = apinames.join(', ')
+        end
+      end
       no_friends = user.friends.size-1
-      if no_friends == 0 and !user.share_account_id
+      if share_level
+        save_flash_key ".login_ok_expired#{share_level}", user.app_and_apiname_hash.merge(:apinames => apinames)
+      elsif no_friends == 0 and !user.share_account_id
         save_flash_key '.login_ok_new_user', user.app_and_apiname_hash
       else
         save_flash_key '.login_ok', user.app_and_apiname_hash

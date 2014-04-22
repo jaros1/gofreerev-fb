@@ -2678,4 +2678,19 @@ class UtilController < ApplicationController
     end
   end # delete_local_picture
 
+  # message for expired access tokens for user share level 3 (dynamic friend lists) and 4 (single sign-on login)
+  # post login service message to user about any expired access tokens
+  private
+  def check_expired_tokens(user_id, first_login)
+    begin
+      logger.debug2 "user_id = #{user_id}, first_login = #{first_login}"
+      # user_id = 790, first_login = true
+      nil
+    rescue Exception => e
+      logger.debug2  "#{__method__}: Exception: #{e.message.to_s} (#{e.class})"
+      logger.debug2  "#{__method__}: Backtrace: " + e.backtrace.join("\n")
+      raise
+    end
+  end # check_expired_tokens
+
 end # UtilController

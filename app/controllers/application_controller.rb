@@ -77,6 +77,23 @@ class ApplicationController < ActionController::Base
       @cookie_note = cookie_note if cookie_note >= 0.5
     end
 
+    # remove logged in users with expired access token
+    login_user_ids.each do |user_id|
+      uid, provider = user_id.split('/')
+      next if uid == 'gofreerev' # dummy user for not connected session
+      expires_at = (session[:expires_at] || {})[provider]
+      if !expires_at or expires_at.abs < Time.now.to_i
+        # found login with missing or expired access token
+        # this message is also used after single sign-on with one or more expired access tokens
+        logger.debug2 "found login user with missing or expired access token. provider = #{provider}, expires_at = #{expires_at}"
+        add_error_key 'auth.destroy.expired_access_token',
+                      :provider => provider, :apiname => provider_downcase(provider), :appname => APP_NAME
+        session[:user_ids].delete(user_id)
+        session[:tokens].delete(provider)
+        session[:expires_at].delete(provider)
+      end
+    end
+
     # fetch user(s)
     if login_user_ids.length > 0
       @users = User.where("user_id in (?)", login_user_ids).includes(:share_account)
@@ -446,6 +463,7 @@ class ApplicationController < ActionController::Base
     # returns user (ok) or an array with translate key and options for error message
     user = User.find_or_create_user :provider => provider,
                                     :token => token,
+                                    :expires_at => expires_at,
                                     :uid => uid,
                                     :name => name,
                                     :image => image,
@@ -454,6 +472,7 @@ class ApplicationController < ActionController::Base
                                     :profile_url => profile_url
     return user unless user.class == User # error: key + options
     # user login ok
+    first_login = !logged_in?
     # save user id, access token and exipires_at - multiple logins allowed - one for each login provider
     login_user_ids = login_user_ids().clone
     login_user_ids.delete_if { |user_id2| user_id2.split('/').last == provider }
@@ -461,7 +480,7 @@ class ApplicationController < ActionController::Base
     tokens = session[:tokens] || {}
     tokens[provider] = token
     expires = session[:expires_at] || {}
-    expires[provider] = expires_at
+    expires[provider] = expires_at.to_i
     session[:user_ids] = login_user_ids
     session[:tokens] = tokens
     session[:expires_at] = expires
@@ -472,14 +491,65 @@ class ApplicationController < ActionController::Base
 
     return nil if user.deleted_at # no post login tasks for delete marked users
 
-    # check currency after new login - keep current currency
-    @users = User.where('user_id in (?)', login_user_ids)
-    if @users.collect { |user2| user2.currency }.uniq.length > 1
-      old_user = @users.find { |user2| user2.user_id != user.user_id }
-      user.currency = old_user.currency
-      user.save!
+    share_account = user.share_account
+    if share_account
+      if [3,4].index(share_account.share_level)
+        # save new access token and expires_at timestamp in database
+        user.access_token = token
+        user.access_token_expires = expires_at.to_i # expires_at with positive sign
+        user.save!
+      end
+      if share_account.share_level == 4
+        # user share level 4 - single sign-off
+        # disconnect old share level 4 connected providers before single sign-on with current user
+        # old single sign-on users with expired access token are also disconnected
+        # warning after single sign-on login with expired access tokens
+        single_sign_on_users = share_account.users.find_all { |user2| user2.provider != user.provider }
+        single_sign_on_users.each do |user2|
+          next if login_user_ids.index(user2.user_id) # already logged in - could be reconnect after expired access token
+          provider2 = user2.provider
+          user3 = @users.find { |u3| u3.provider == provider2 }
+          next unless user3 # not logged in with provider2
+          # disconnect old provider2 user connection before single sign-on with current user
+          logger.debug2 "single sign-off: disconnecting old #{user3.debug_info} user"
+          session[:user_ids] = login_user_ids.delete_if { |user_id3| user_id3.split('/').last == provider2 }
+          @users.delete_if { |user3| user3.provider == provider2 }
+          session[:tokens].delete(provider2)
+          session[:expires_at].delete(provider2)
+        end
+      end
     end
 
+    # check currency after new login - keep current currency
+    @users = User.where('user_id in (?)', login_user_ids)
+    currencies = @users.collect { |user2| user2.currency }.uniq
+    if currencies.length > 1
+      old_user = @users.find { |user2| user2.user_id != user.user_id }
+      user.currency = currency = old_user.currency
+      user.save!
+    else
+      currency = currencies.first
+    end
+
+    if single_sign_on_users
+      # user share level 4 - single sign-on
+      # note that expires_at is saved in session hash with a negative sign
+      # positive expires_at: real fresh login - negative expires_at: login loaded from database
+      # share level can be changed from 4 to 3 with negative expires_at loaded from database after single sign-once
+      # can only change to share level 4 with new fresh logins with positive expires_at
+      single_sign_on_users.each do |user2|
+        next unless user2.access_token and user2.access_token_expires
+        next if user2.access_token_expires < Time.now.to_i
+        user2.update_attribute :currency, currency if user2.currency != currency
+        session[:user_ids] << user2.user_id
+        session[:tokens][user2.provider] = user2.access_token
+        session[:expires_at][user2.provider] = -user2.access_token_expires # expires_at with negative sign
+        @users << user2
+      end
+    end
+
+    # schedule post login ajax tasks
+    # 1) profile image for currency user
     if image.to_s != ""
       if image =~ /^http/ and !image.index("''") and !image.index('"')
         # todo: other characters to filter? for example characters with a special os function
@@ -490,27 +560,37 @@ class ApplicationController < ActionController::Base
         logger.debug2 "invalid picture received from #{provider}. image = #{image}"
       end
     end
-    post_login_task_provider = "post_login_#{provider}" # private method in UtilController
-    if UtilController.new.private_methods.index(post_login_task_provider.to_sym)
-      add_task post_login_task_provider, 5
-    else
-      add_task "generic_post_login('#{provider}')", 5
-      logger.debug2 "no post_login_#{provider} method was found in util controller - using generic post login task"
-      ## write error message in log and ajax inject error message in gifts/index page
-      ## there must be a post_login_<provider> method to download friend list from login provider
-      #logger.error2  "No post login task was found for #{provider}. No #{provider} friend information will be downloaded"
-      #add_task "post_login_not_found('#{provider}')"
-    end
-    # enable file upload button if new user can write on api wall
+    # 2) post_login for relevant providers
+    providers = [provider]
+    providers += single_sign_on_users.collect { |user2| user2.provider } if single_sign_on_users
+    providers.each do |provider2|
+      if provider2 != provider
+        # do not schedule post login tasks for expired logins (single sign-on)
+        user2 = single_sign_on_users.find { |user3| user3.provider == provider2 }
+        next unless user2.access_token_expires
+        next if user2.access_token_expires.abs < Time.now.to_i
+      end
+      post_login_task_provider = "post_login_#{provider2}" # private method in UtilController
+      if UtilController.new.private_methods.index(post_login_task_provider.to_sym)
+        add_task post_login_task_provider, 5
+      else
+        add_task "generic_post_login('#{provider2}')", 5
+        logger.debug2 "no post_login_#{provider2} method was found in util controller - using generic post login task"
+      end
+    end # each provider2
+    # 3) enable file upload button if new user can write on api wall
     add_task "disable_enable_file_upload", 5
-    # refresh user(s) balance
+    # 4) refresh user(s) balance
     today = Date.parse(Sequence.get_last_exchange_rate_date)
     if !user.balance_at or user.balance_at != today
       add_task "recalculate_user_balance(#{user.id})", 5
     end
-    # send friends_find notifications once a week for active users.
-    # single user login is a trigger for executing this batch job
-    add_task "User.find_friends_batch", 5 if @users.size == 1
+    # 5) send friends_find notifications once a week for active users.
+    # first login is used as a trigger for this batch job
+    add_task "User.find_friends_batch", 5 if first_login
+    # 6) message for expired access tokens for user share level 3 (dynamic friend lists) and 4 (single sign-on login)
+    # post login service message to user about any expired access tokens
+    add_task "check_expired_tokens(#{user.id},#{first_login})" if share_account and [3,4].index(share_account.share_level)
     # ok
     nil
   end # login

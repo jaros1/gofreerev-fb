@@ -1081,3 +1081,18 @@
 
 247) cannot change share_level from 3 to 4 if access token was read from database
      that is - only load access token from database if share level is 4
+
+248) share level 3 and 4 login
+     warning if one or more access tokens are about to expire
+     for example within one week
+
+249) auth/index share level LOV.
+     use share level 5 mixed sharing if shared and not shared users
+     for example 5 single sign-on users and one not shared user
+
+250) add special single sign-on login message
+     a) first single sign-on login with no expired access token
+     b) first single sign-on login with one or more expired access tokens
+     c) secondary single sign-on login - renew expired access token - no other expired access tokens
+     d) secondary single sign-on login - renew expired access tokens - one or more expired access tokens
+     e) likewise for share level 3 logins
