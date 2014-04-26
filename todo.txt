@@ -1096,3 +1096,7 @@
      c) secondary single sign-on login - renew expired access token - no other expired access tokens
      d) secondary single sign-on login - renew expired access tokens - one or more expired access tokens
      e) likewise for share level 3 logins
+
+251) auth/index: single sign-on ( *=access token is expired )
+     - only * for expired access tokens
+     - not * for disconnected connections

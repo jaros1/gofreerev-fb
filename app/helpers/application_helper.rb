@@ -339,7 +339,21 @@ module ApplicationHelper
     # for example a logged in facebook account combined with a not logged in google+ account
     other_users = User.where('share_account_id in (?) and user_id not in (?)', share_account_ids, login_user_ids)
     other_users.each do |user|
-      shared[user.share_account] << provider_downcase(user.provider) + '*'
+      if [3,4].index(user.share_account.share_level) and
+          (!user.access_token or !user.access_token_expires or (user.access_token_expires < Time.now.to_i))
+        note_symbol = '#' # expired access token
+      else
+        note_symbol = '*' # not logged in
+      end
+      b1 = [3,4].index(user.share_account.share_level)
+      b2 = !user.access_token
+      b3 = !user.access_token_expires
+      b4 = (user.access_token_expires < Time.now.to_i)
+      b5 = b2 or b3 or b4
+      b6 = b1 and b5
+      logger.debug2 "provider #{user.provider}, share_level #{user.share_account.share_level}, access_token_expires #{user.access_token_expires}, now #{Time.now.to_i}, note_symbol #{note_symbol}"
+      logger.debug2 "b1 = #{b1}, b2 = #{b2}, b3 = #{b3}, b4 = #{b4}, b5 = #{b5}, b6 = #{b6}"
+      shared[user.share_account] << provider_downcase(user.provider) + note_symbol
     end
     shared.delete_if do |share_account, providers|
       providers.size == 1
@@ -352,18 +366,26 @@ module ApplicationHelper
   def shared_accounts_list
     shared = shared_accounts()
     if shared.size == 0
-      text = t '.no_shared_accounts_text'
-    elsif shared.size == 1
-      text = shared[shared.keys.first].sort.join(', ')
+      t '.no_shared_accounts_text'
+    # elsif shared.size == 1
+    #   text = shared[shared.keys.first].sort.join(', ')
     else
       # mixed account sharing
-      text = shared.collect do |share_account, providers|
+      line_seperator = shared.size == 1 ? '' : '<br>- '
+      shared.collect do |share_account, providers|
          share_level = share_account.share_level
          share_level = 2 if [3,4].index(share_level) and share_account.offline_access_yn == 'N'
          share_level_text = t "shared.share_accounts.lov_text_#{share_level}"
          providers_text = providers.sort.join(', ')
-         providers_note = t('.other_users_note') if providers_text.index('*')
-         "<br>- #{providers_text}: #{share_level_text}#{providers_note}"
+         notes = []
+         notes << t('.not_logged_in_note') if providers_text.index('*')
+         notes << t('.expired_token_note') if providers_text.index('#')
+         if notes.empty?
+           notes = ''
+         else
+           notes = "( #{notes.join(' ,')} )"
+         end
+         "#{line_seperator}#{providers_text}: #{share_level_text}#{notes}"
       end.join.html_safe
     end
   end

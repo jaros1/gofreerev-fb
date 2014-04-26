@@ -492,33 +492,42 @@ class ApplicationController < ActionController::Base
     return nil if user.deleted_at # no post login tasks for delete marked users
 
     share_account = user.share_account
-    if share_account
-      if [3,4].index(share_account.share_level)
-        # save new access token and expires_at timestamp in database
-        user.access_token = token
-        user.access_token_expires = expires_at.to_i # expires_at with positive sign
-        user.save!
-      end
+    if share_account and [3,4].index(share_account.share_level)
+      # save new access token and expires_at timestamp in database
+      user.access_token = token.to_yaml
+      user.access_token_expires = expires_at.to_i # positive sign
+      user.save!
       if share_account.share_level == 4
         # user share level 4 - single sign-off
         # disconnect old share level 4 connected providers before single sign-on with current user
         # old single sign-on users with expired access token are also disconnected
         # warning after single sign-on login with expired access tokens
-        single_sign_on_users = share_account.users.find_all { |user2| user2.provider != user.provider }
-        single_sign_on_users.each do |user2|
-          next if login_user_ids.index(user2.user_id) # already logged in - could be reconnect after expired access token
-          provider2 = user2.provider
-          user3 = @users.find { |u3| u3.provider == provider2 }
-          next unless user3 # not logged in with provider2
-          # disconnect old provider2 user connection before single sign-on with current user
-          logger.debug2 "single sign-off: disconnecting old #{user3.debug_info} user"
-          session[:user_ids] = login_user_ids.delete_if { |user_id3| user_id3.split('/').last == provider2 }
-          @users.delete_if { |user3| user3.provider == provider2 }
-          session[:tokens].delete(provider2)
-          session[:expires_at].delete(provider2)
-        end
-      end
-    end
+        single_sign_on_users = [user]
+        expired_access_tokens = []
+        logger.debug2 "login_user_ids = #{login_user_ids.join(', ')}"
+        share_account.users.each do |user2|
+          if login_user_ids.index(user2.user_id)
+            next # already logged in with this single sign-on user - skip single sign-off/on
+          elsif user3 = @users.find { |u3| u3.provider == user2.provider}
+            # disconnect user3 before single sign-on login with user2
+            logger.debug2 "single sign-off: disconnecting old #{user3.debug_info} user"
+            session[:user_ids] = login_user_ids.delete_if { |user_id3| user_id3.split('/').last == provider2 }
+            @users.delete_if { |user3| user3.provider == provider2 }
+            session[:tokens].delete(provider2)
+            session[:expires_at].delete(provider2)
+          end # if
+          # single sign-on for user2
+          if user2.access_token and user2.access_token_expires and user2.access_token_expires > Time.now.to_i
+            single_sign_on_users << user2
+          else
+            expired_access_tokens << provider_downcase(user2.provider)
+          end
+          logger.debug2 "single sign-on login providers: " +single_sign_on_users.collect { |u| u.provider }.sort.join(', ')
+          logger.debug2 "expired_access_tokens: #{expired_access_tokens.join(', ')}"
+        end # each user2
+        expired_access_tokens.sort!
+      end # if
+    end # if
 
     # check currency after new login - keep current currency
     @users = User.where('user_id in (?)', login_user_ids)
@@ -538,15 +547,60 @@ class ApplicationController < ActionController::Base
       # share level can be changed from 4 to 3 with negative expires_at loaded from database after single sign-once
       # can only change to share level 4 with new fresh logins with positive expires_at
       single_sign_on_users.each do |user2|
-        next unless user2.access_token and user2.access_token_expires
-        next if user2.access_token_expires < Time.now.to_i
+        next if user2.id == user.id
         user2.update_attribute :currency, currency if user2.currency != currency
+        user2.update_attribute :last_login_at, user.last_login_at
         session[:user_ids] << user2.user_id
-        session[:tokens][user2.provider] = user2.access_token
-        session[:expires_at][user2.provider] = -user2.access_token_expires # expires_at with negative sign
+        session[:tokens][user2.provider] = YAML::load(user2.access_token)
+        session[:expires_at][user2.provider] = -user2.access_token_expires # negative sign
         @users << user2
       end
     end
+
+    # flash with login message. Login messages:
+    # a) normal login without any special messages
+    # b) first login for new user,
+    # c) share level 3 login with one or more expired access tokens
+    # d) share level 4 login (single sign-on). single sign-on for 0 or more login providers. expired access tokens for 0 or more login providers
+    # e) facebook: special read-stream and status-update messages
+    # f) flickr: special write priv. message
+    # g) linkedin: special rw_nus priv. message
+    # a)-d) is handled here. e)-g) is handled in facebook, flickr and linkedin controllers
+    # default message - login ok
+    flash_key, flash_options = '.login_ok', user.app_and_apiname_hash # a) normal login without any special messages
+    if share_account and share_account.share_level == 3
+      # share level 3 - share balance and dynamic friend lists
+      # check for any expired access tokens
+      expired_access_tokens = []
+      share_account.users.each do |user2|
+        next if login_user_ids.index(user2.user_id) # not expired - logged in for this provider
+        next if @users.find { |u3| u3.provider == user2.provider} # ignore provider ( mixed login for this provider )
+        if !user2.access_token or !user2.access_token_expires or user2.access_token_expires < Time.now.to_i
+          expired_access_tokens << provider_downcase(user2.provider)
+        end
+      end
+      expired_access_tokens.sort!
+      logger.debug2 "share level 3. expired access token for #{expired_access_tokens.join(', ')}" unless expired_access_tokens.empty?
+      if expired_access_tokens.size > 0
+        flash_key, flash_options = '.login_ok_expired3', user.app_and_apiname_hash.merge(:expired_apinames => expired_access_tokens.join(', '))
+      end
+    elsif share_account and share_account.share_level == 4
+      # check for logged in providers and expired access token providers
+      single_sign_on_providers = single_sign_on_users.collect { |u2| provider_downcase(u2.provider) }.sort
+      logger.debug2 "share level 4. single sign-on for #{single_sign_on_providers.join(', ')}" unless single_sign_on_providers.empty?
+      logger.debug2 "share level 4. expired access token for #{expired_access_tokens.join(', ')}" unless expired_access_tokens.empty?
+      if expired_access_tokens.empty?
+        flash_key = '.login_ok4'
+      else
+        flash_key = '.login_ok_expired4'
+      end
+      flash_options = user.app_and_apiname_hash.merge( :apinames => single_sign_on_providers.join(', '),
+                                                       :expired_apinames => expired_access_tokens.join(', ') )
+    elsif !share_account and user.friends.size == 1
+      # new user login
+      flash_key, flash_options = '.login_ok_new_user', user.app_and_apiname_hash # a) normal login without any special messages
+    end
+    save_flash_key flash_key, flash_options
 
     # schedule post login ajax tasks
     # 1) profile image for currency user
