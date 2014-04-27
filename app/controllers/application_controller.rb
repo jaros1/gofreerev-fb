@@ -595,7 +595,7 @@ class ApplicationController < ActionController::Base
       end
     end
 
-    # flash with login message. Login messages:
+    # flash with login message. Login messages:   x
     # a) normal login without any special messages
     # b) first login for new user,
     # c) share level 3 login with one or more expired access tokens
