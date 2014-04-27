@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140417135533) do
+ActiveRecord::Schema.define(version: 20140427114954) do
 
   create_table "ajax_comments", force: true do |t|
     t.string   "user_id",    limit: 40, null: false
@@ -229,6 +229,7 @@ ActiveRecord::Schema.define(version: 20140417135533) do
     t.string   "language",                limit: 2
     t.text     "access_token"
     t.text     "access_token_expires"
+    t.text     "refresh_token"
   end
 
   add_index "users", ["share_account_id"], name: "index_users_share_account_id"

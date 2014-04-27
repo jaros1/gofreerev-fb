@@ -74,6 +74,7 @@ class AuthController < ApplicationController
     res = login :provider => provider,
                 :token => auth_hash.get_token,
                 :expires_at => auth_hash.get_expires_at,
+                :refresh_token => auth_hash.get_refresh_token,
                 :uid => auth_hash.get_uid,
                 :name => auth_hash.get_user_name,
                 :image => auth_hash.get_image,

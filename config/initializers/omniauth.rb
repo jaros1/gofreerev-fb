@@ -70,7 +70,7 @@ Rails.application.config.middleware.use OmniAuth::Builder do
   provider :facebook,      API_ID[:facebook],      API_SECRET[:facebook], :scope => "", :image_size => :normal, :info_fields => "name,permissions,friends,picture,timezone"
   provider :flickr,        API_ID[:flickr],        API_SECRET[:flickr], :scope => 'read'
   provider :foursquare,    API_ID[:foursquare],    API_SECRET[:foursquare]
-  provider :google_oauth2, API_ID[:google_oauth2], API_SECRET[:google_oauth2], :scope => "plus.login userinfo.profile"
+  provider :google_oauth2, API_ID[:google_oauth2], API_SECRET[:google_oauth2], :scope => 'plus.login userinfo.profile', :access_type => 'offline', :prompt => 'consent'
   provider :instagram,     API_ID[:instagram],     API_SECRET[:instagram]
   provider :linkedin,      API_ID[:linkedin],      API_SECRET[:linkedin], :scope => "r_basicprofile r_network", :fields => ['id', 'first-name', 'last-name', 'picture-url', 'public-profile-url', 'location']
   provider :twitter,       API_ID[:twitter],       API_SECRET[:twitter], { :image_size => 'bigger', :authorize_params => { :x_auth_access_type => 'write' } }
@@ -299,6 +299,12 @@ class OmniAuth::AuthHash
     expires = self[:credentials][:expires] if self[:credentials]
     return 1.year.from_now.to_i if expires == false
     nil
+  end
+  def get_refresh_token
+    provider = get_provider()
+    method = "get_refresh_token_#{provider}"
+    return eval(method) if respond_to? method.to_sym
+    nil # only implemented for google+ (access token expires in 1 hour)
   end
   def get_country
     provider = get_provider()

@@ -1100,3 +1100,12 @@
 251) auth/index: single sign-on ( *=access token is expired )
      - only * for expired access tokens
      - not * for disconnected connections
+
+252) google+ login
+     only request offline access () for share level 3 and 4
+     provider :google_oauth2, API_ID[:google_oauth2], API_SECRET[:google_oauth2], :scope => 'plus.login userinfo.profile', :access_type => 'offline', :prompt => 'consent'
+
+253) google+ : save refresh_token in db for share level 3 and 4
+
+254) google+ : error handling when refreshing access token
+

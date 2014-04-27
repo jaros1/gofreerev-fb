@@ -299,6 +299,29 @@ class User < ActiveRecord::Base
     encrypt_remove_pre_and_postfix(temp_access_token_expires, 'access_token_expires', 44).to_i
   end # access_token_expires_was
 
+  # 20) refresh_token - only google+ - google access token expires once every hour
+  # for ShareAccount.share_level's 3 and 4 (access token saved in db)
+  # String in model - Encrypted text in db
+  def refresh_token
+    return nil unless (temp_refresh_token = read_attribute(:refresh_token))
+    # logger.debug2  "temp_refresh_token = #{temp_refresh_token}"
+    encrypt_remove_pre_and_postfix(temp_refresh_token, 'refresh_token', 45)
+  end # refresh_token
+  def refresh_token=(new_refresh_token)
+    if new_refresh_token
+      check_type('refresh_token', new_refresh_token, 'String')
+      write_attribute :refresh_token, encrypt_add_pre_and_postfix(new_refresh_token, 'refresh_token', 45)
+    else
+      write_attribute :refresh_token, nil
+    end
+  end # refresh_token=
+  alias_method :refresh_token_before_type_cast, :refresh_token
+  def refresh_token_was
+    return refresh_token unless refresh_token_changed?
+    return nil unless (temp_refresh_token = attribute_was(:refresh_token))
+    encrypt_remove_pre_and_postfix(temp_refresh_token, 'refresh_token', 45)
+  end # refresh_token_was
+
   # change currency in page header.
   attr_accessor :new_currency
 

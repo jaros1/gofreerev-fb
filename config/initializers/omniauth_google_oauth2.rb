@@ -9,4 +9,10 @@ class OmniAuth::AuthHash
     return nil unless image
     image.split('?').first + '?sz=100' # # profile picture size 100 x 100
   end
+  def get_refresh_token_google_oauth2
+    # refresh token is only used for google+ where access token expires after 1 hour
+    refresh_token = self[:credentials][:refresh_token] if self[:credentials]
+    refresh_token = nil if refresh_token.to_s == ""
+    refresh_token
+  end
 end

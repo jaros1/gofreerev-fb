@@ -1,4 +1,5 @@
 # encoding: utf-8
+require 'google/api_client'
 require 'money/bank/google_currency'
 
 #noinspection RubyResolve
@@ -82,6 +83,34 @@ class ApplicationController < ActionController::Base
       uid, provider = user_id.split('/')
       next if uid == 'gofreerev' # dummy user for not connected session
       expires_at = (session[:expires_at] || {})[provider]
+      # refresh google+ access token once every hour
+      # http://stackoverflow.com/questions/12572723/rails-google-client-api-unable-to-exchange-a-refresh-token-for-access-token
+      if expires_at and expires_at.abs < Time.now.to_i and provider = 'google_oauth2'
+        refresh_tokens = session[:refresh_tokens] || {}
+        refresh_token = refresh_tokens[provider]
+        if refresh_token
+          api_client = Google::APIClient.new(
+            :application_name => 'Gofreerev',
+            :application_version => '0.1'
+          )
+          api_client.authorization.client_id = API_ID[provider]
+          api_client.authorization.client_secret = API_SECRET[provider]
+          api_client.authorization.grant_type = 'refresh_token'
+          api_client.authorization.refresh_token = refresh_token
+          res1 = api_client.authorization.fetch_access_token!
+          logger.secret2 "res1 = #{res1}"
+          res2 = api_client.authorization
+          logger.secret2 "res2 = #{res2}"
+          logger.debug2 "res2.methods = #{res2.methods.sort.join(', ')}"
+          logger.secret2 "res2.access_token = #{res2.access_token}"
+          logger.debug2 "res2.expires_at = #{res2.expires_at}"
+          session[:tokens][provider] = res2.access_token
+          session[:expires_at][provider] = res2.expires_at.to_i
+          logger.debug2 'google+ access token was refreshed'
+        else
+          logger.warn2 'no refresh token was found for google+. unable to refresh google+ access token'
+        end
+      end
       if !expires_at or expires_at.abs < Time.now.to_i
         # found login with missing or expired access token
         # this message is also used after single sign-on with one or more expired access tokens
@@ -485,6 +514,12 @@ class ApplicationController < ActionController::Base
     session[:tokens] = tokens
     session[:expires_at] = expires
     logger.secret2 "expires_at = #{expires}"
+    # refresh token is only used for google+
+    refresh_token = options[:refresh_token]
+    refresh_tokens = session[:refresh_tokens] || {} # google+
+    refresh_tokens[provider] = refresh_token if refresh_token
+    session[:refresh_tokens] = refresh_tokens # google+
+    logger.debug2 "session[:refresh_tokens] = #{session[:refresh_tokens]}"
     # fix invalid or missing language for translate
     session[:language] = valid_locale(language) unless valid_locale(session[:language])
     set_locale_from_params
@@ -494,8 +529,9 @@ class ApplicationController < ActionController::Base
     share_account = user.share_account
     if share_account and [3,4].index(share_account.share_level)
       # save new access token and expires_at timestamp in database
-      user.access_token = token.to_yaml
+      user.access_token = token.to_yaml # string or an array with two elements
       user.access_token_expires = expires_at.to_i # positive sign
+      user.refresh_token = refresh_token # google+
       user.save!
       if share_account.share_level == 4
         # user share level 4 - single sign-off
@@ -515,6 +551,7 @@ class ApplicationController < ActionController::Base
             @users.delete_if { |user3| user3.provider == provider2 }
             session[:tokens].delete(provider2)
             session[:expires_at].delete(provider2)
+            session[:refresh_tokens].delete(provider2)
           end # if
           # single sign-on for user2
           if user2.access_token and user2.access_token_expires and user2.access_token_expires > Time.now.to_i
@@ -553,6 +590,7 @@ class ApplicationController < ActionController::Base
         session[:user_ids] << user2.user_id
         session[:tokens][user2.provider] = YAML::load(user2.access_token)
         session[:expires_at][user2.provider] = -user2.access_token_expires # negative sign
+        session[:refresh_tokens][user2.provider] = user2.refresh_token
         @users << user2
       end
     end
