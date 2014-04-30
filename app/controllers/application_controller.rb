@@ -85,7 +85,8 @@ class ApplicationController < ActionController::Base
       expires_at = (session[:expires_at] || {})[provider]
       # refresh google+ access token once every hour
       # http://stackoverflow.com/questions/12572723/rails-google-client-api-unable-to-exchange-a-refresh-token-for-access-token
-      if expires_at and expires_at.abs < Time.now.to_i and provider = 'google_oauth2'
+      if expires_at and (expires_at.abs < Time.now.to_i) and (provider == 'google_oauth2' )
+        logger.debug2 "refreshing expired google+ access token"
         refresh_tokens = session[:refresh_tokens] || {}
         refresh_token = refresh_tokens[provider]
         if refresh_token
@@ -107,11 +108,17 @@ class ApplicationController < ActionController::Base
           session[:tokens][provider] = res2.access_token
           session[:expires_at][provider] = res2.expires_at.to_i
           logger.debug2 'google+ access token was refreshed'
+          # save new access token
+          user = User.find_by_user_id(user_id)
+          user.access_token = res2.access_token.to_yaml
+          user.access_token_expires = res2.expires_at.to_i
+          user.save!
+          expires_at = user.access_token_expires
         else
           logger.warn2 'no refresh token was found for google+. unable to refresh google+ access token'
         end
       end
-      if !expires_at or expires_at.abs < Time.now.to_i
+      if !expires_at or (expires_at.abs < Time.now.to_i)
         # found login with missing or expired access token
         # this message is also used after single sign-on with one or more expired access tokens
         logger.debug2 "found login user with missing or expired access token. provider = #{provider}, expires_at = #{expires_at}"
