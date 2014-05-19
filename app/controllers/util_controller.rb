@@ -1622,6 +1622,7 @@ class UtilController < ApplicationController
 
 
   # change user.post_on_wall_yn. ajax request from auth/index page
+  # written to session and db
   public
   def post_on_wall_yn
     provider = params[:provider]
@@ -1646,6 +1647,7 @@ class UtilController < ApplicationController
 
       # update user
       login_user.update_attribute('post_on_wall_yn', post_on_wall)
+      session[:post_on_wall][provider] = (post_on_wall == 'Y')
       format_response
     rescue Exception => e
       logger.debug2 "Exception: #{e.message.to_s} (#{e.class})"
@@ -1782,7 +1784,8 @@ class UtilController < ApplicationController
       login_user, token, key, options = get_login_user_and_token(provider, __method__)
       return format_response_key(key, options) if key
       # disable post on wall <=> do not ajax inject links to authorize post on wall permission
-      login_user.update_attribute :post_on_wall_yn, 'N'
+      # login_user.update_attribute :post_on_wall_yn, 'N'
+      session[:post_on_wall][provider] = false
       # hide ajax injected link to grant write permission to api provider wall
       @link = "grant_write_div_#{provider}"
       logger.debug2 "@link = #{@link}"

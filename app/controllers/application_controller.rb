@@ -78,6 +78,13 @@ class ApplicationController < ActionController::Base
       @cookie_note = cookie_note if cookie_note >= 0.5
     end
 
+    # initialize empty session variables for new session
+    session[:user_ids] = [] unless session[:user_ids] # array with user_ids
+    session[:tokens] = {} unless session[:tokens] # hash with oauth access token index by provider
+    session[:expires_at] = {} unless session[:expires_at] # hash with unix expire timestamp for oauth access token index by provider
+    session[:refresh_tokens] = {} unless session[:refresh_tokens] # hash with "refresh token" (google+ only ) index by provider
+    session[:post_on_wall] = {} unless session[:post_on_wall] # hash with post on wall selection index by provider
+
     # remove logged in users with expired access token
     login_user_ids.each do |user_id|
       uid, provider = user_id.split('/')
@@ -130,7 +137,7 @@ class ApplicationController < ActionController::Base
       end
     end
 
-    # fetch user(s)
+    # fetch user(s)                                  xxxxxxxxx
     if login_user_ids.length > 0
       @users = User.where("user_id in (?)", login_user_ids).includes(:share_account)
     else
@@ -146,6 +153,23 @@ class ApplicationController < ActionController::Base
       session[:user_ids] = login_user_ids_tmp
       session[:tokens] = new_tokens
     end
+
+    # refresh and check authorization information from db
+    # one db user can be connected in multiple sessions / browsers
+    @users.each do |user|
+      if user.share_account and [3,4].index(user.share_account.share_level)
+        provider = user.provider
+        session[:tokens][provider] = YAML::load(user.access_token)
+        session[:expires_at][provider] = user.access_token_expires
+      end
+      # post on wall. two sessions with common users can have different post on wall selection
+      # session post is loaded into session variable at login
+      # session post on wall choice is available from session variable
+      # last user post on wall choice is saved in db and is used after next login
+      user.post_on_wall_yn = session[:post_on_wall][user.provider] ? 'Y' : 'N'
+    end
+
+
 
     # friends information is used many different places
     # cache friends information once and for all in @users array (user.friends_hash)
@@ -509,7 +533,7 @@ class ApplicationController < ActionController::Base
     return user unless user.class == User # error: key + options
     # user login ok
     first_login = !logged_in?
-    # save user id, access token and exipires_at - multiple logins allowed - one for each login provider
+    # save user id, access token and expires_at - multiple logins allowed - one for each login provider
     login_user_ids = login_user_ids().clone
     login_user_ids.delete_if { |user_id2| user_id2.split('/').last == provider }
     login_user_ids << user.user_id
@@ -522,11 +546,10 @@ class ApplicationController < ActionController::Base
     session[:expires_at] = expires
     logger.secret2 "expires_at = #{expires}"
     # refresh token is only used for google+
-    refresh_token = options[:refresh_token]
-    refresh_tokens = session[:refresh_tokens] || {} # google+
-    refresh_tokens[provider] = refresh_token if refresh_token
-    session[:refresh_tokens] = refresh_tokens # google+
+    session[:refresh_tokens][provider] = options[:refresh_token] if options[:refresh_token] # only google+
     logger.debug2 "session[:refresh_tokens] = #{session[:refresh_tokens]}"
+    # session and db post on wall choice for an user can be different for multiple sessions
+    session[:post_on_wall][provider] = (user.post_on_wall_yn == 'Y')
     # fix invalid or missing language for translate
     session[:language] = valid_locale(language) unless valid_locale(session[:language])
     set_locale_from_params
@@ -538,7 +561,7 @@ class ApplicationController < ActionController::Base
       # save new access token and expires_at timestamp in database
       user.access_token = token.to_yaml # string or an array with two elements
       user.access_token_expires = expires_at.to_i # positive sign
-      user.refresh_token = refresh_token # google+
+      user.refresh_token = options[:refresh_token] # only google+
       user.save!
       if share_account.share_level == 4
         # user share level 4 - single sign-off
@@ -559,6 +582,7 @@ class ApplicationController < ActionController::Base
             session[:tokens].delete(provider2)
             session[:expires_at].delete(provider2)
             session[:refresh_tokens].delete(provider2)
+            session[:post_on_wall].delete(provider2)
           end # if
           # single sign-on for user2
           if user2.access_token and user2.access_token_expires and user2.access_token_expires > Time.now.to_i
@@ -597,7 +621,8 @@ class ApplicationController < ActionController::Base
         session[:user_ids] << user2.user_id
         session[:tokens][user2.provider] = YAML::load(user2.access_token)
         session[:expires_at][user2.provider] = -user2.access_token_expires # negative sign
-        session[:refresh_tokens][user2.provider] = user2.refresh_token
+        session[:refresh_tokens][user2.provider] = user2.refresh_token # only google+
+        session[:post_on_wall][user2.provider] = (user2.post_on_wall_yn == 'Y')
         @users << user2
       end
     end
@@ -699,20 +724,16 @@ class ApplicationController < ActionController::Base
       session.delete(:user_ids)
       session.delete(:tokens)
       session.delete(:expires_at)
+      session.delete(:post_on_wall)
       @users = []
       add_dummy_user
       return
     end
-    login_user_ids = login_user_ids().clone
-    login_user_ids.delete_if { |user_id| user_id.split('/').last == provider}
-    tokens = session[:tokens] || {}
-    tokens.delete(provider)
-    expires_at = session[:expires_at] || {}
-    expires_at.delete(provider)
-    session[:user_ids] = login_user_ids
-    session[:tokens] = tokens
-    session[:expires_at] = expires_at
-    @users = User.where('user_id in (?)', login_user_ids)
+    session[:user_ids].delete_if { |user_id| user_id.split('/').last == provider}
+    session[:tokens].delete(provider)
+    session[:expires_at].delete(provider)
+    session[:post_on_wall].delete(provider)
+    @users.delete_if { |user| user.provider == provider }
     add_dummy_user if @users.size == 0
     # check if file upload button should be disabled - last user with write access to api wall logs out
     add_task "disable_enable_file_upload", 5
@@ -837,7 +858,8 @@ class ApplicationController < ActionController::Base
 
   private
   def login_user_ids
-    session[:user_ids] || []
+    session[:user_ids] = [] unless session[:user_ids]
+    session[:user_ids]
   end
   helper_method :login_user_ids
 
@@ -1074,7 +1096,7 @@ class ApplicationController < ActionController::Base
       message_max_lng = 47950 unless message_max_lng
       description_max_lng = message_max_lng - deep_link.size
       message = gift.description.first(description_max_lng) + deep_link
-
+      logger.debug2 "message = #{message}"
       begin
         if picture
           # logger.debug2 'status post with picture'

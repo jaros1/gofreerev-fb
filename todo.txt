@@ -1097,10 +1097,6 @@
      d) secondary single sign-on login - renew expired access tokens - one or more expired access tokens
      e) likewise for share level 3 logins
 
-251) auth/index: single sign-on ( *=access token is expired )
-     - only * for expired access tokens
-     - not * for disconnected connections
-
 252) google+ login
      only request offline access () for share level 3 and 4
      provider :google_oauth2, API_ID[:google_oauth2], API_SECRET[:google_oauth2], :scope => 'plus.login userinfo.profile', :access_type => 'offline', :prompt => 'consent'
@@ -1108,4 +1104,20 @@
 253) google+ : save refresh_token in db for share level 3 and 4
 
 254) google+ : error handling when refreshing access token
+
+255) authorization saved in db and sessions? share account and share level >= 3
+     how to handle two sessions with one or more common users between the two sessions (identical share_account)
+     access token in one session could be a readonly access token and a read/write access token in the other session
+     access token could expire in one session and not in the other session
+
+256) for each provider: is read/write access saved on app level or on access token level?
+     - facebook: app level
+     - linkedin: access token
+     - flickr: app level
+
+257) two sessions and post on wall checkbox
+     it should be allowed to post on wall in one session and not post on wall in the other session
+     load post on wall into session variable at login
+     write post on wall to session variable and db when using check box
+     use session post on wall when posting in wall
 

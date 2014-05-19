@@ -17,6 +17,8 @@ gem 'omniauth'
 # register : https://developers.facebook.com/ - select Apps in menu
 # reference: https://developers.facebook.com/docs/graph-api/reference/
 gem 'omniauth-facebook' # https://github.com/mkdynamic/omniauth-facebook
+# gem 'koala', '1.10.0rc' # facebook API calls - https://github.com/arsduo/koala/wiki/Koala-on-Rails
+# gem 'koala', '1.9.0' # facebook API calls - https://github.com/arsduo/koala/wiki/Koala-on-Rails
 gem 'koala' # facebook API calls - https://github.com/arsduo/koala/wiki/Koala-on-Rails
 
 # 2) flickr

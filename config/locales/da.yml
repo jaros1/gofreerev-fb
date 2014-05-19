@@ -127,7 +127,7 @@ da:
         shared_accounts_prompt: "Delte konti: "
         no_shared_accounts_text: "Ingen delte konti"
         not_logged_in_note: "*=ikke forbundet"
-        expired_token_note: "*=adgangsbillet ikke længere gyldig"
+        expired_token_note: "#=adgangsbillet ikke længere gyldig"
         find_friends_link_text: "Find venner"
         lov_prompt: "Saml konti?"
         lov_text_0: "Ingen deling på tværs af API'er"

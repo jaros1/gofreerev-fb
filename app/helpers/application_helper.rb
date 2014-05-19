@@ -348,7 +348,7 @@ module ApplicationHelper
       b1 = [3,4].index(user.share_account.share_level)
       b2 = !user.access_token
       b3 = !user.access_token_expires
-      b4 = (user.access_token_expires < Time.now.to_i)
+      b4 = (user.access_token_expires < Time.now.to_i) if user.access_token_expires
       b5 = b2 or b3 or b4
       b6 = b1 and b5
       logger.debug2 "provider #{user.provider}, share_level #{user.share_account.share_level}, access_token_expires #{user.access_token_expires}, now #{Time.now.to_i}, note_symbol #{note_symbol}"

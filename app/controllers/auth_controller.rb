@@ -32,7 +32,7 @@ class AuthController < ApplicationController
       if logged_in == 0 or !API_POST_PERMITTED[provider]
         post_on_wall = 0
       else
-        post_on_wall = user.post_on_wall_yn == 'Y' ? 2 : 1
+        post_on_wall = session[:post_on_wall][user.provider] ? 2 : 1
       end
       @providers << [provider, logged_in, access, post_on_wall]
     end # each provider
