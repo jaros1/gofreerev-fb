@@ -1647,7 +1647,7 @@ class UtilController < ApplicationController
 
       # update user
       login_user.update_attribute('post_on_wall_yn', post_on_wall)
-      session[:post_on_wall][provider] = (post_on_wall == 'Y')
+      set_post_on_wall((post_on_wall == 'Y'), provider)
       format_response
     rescue Exception => e
       logger.debug2 "Exception: #{e.message.to_s} (#{e.class})"
@@ -1720,10 +1720,10 @@ class UtilController < ApplicationController
   end # share_accounts
 
   # grant_write_twitter is called from gifts/index page
-  # ( remote link was ajax injected in post_on_twitter if missing write priv. )
+  # also called from generic_post_on_wall if write priv. is missing (ajax inject into gifts/index page)
   public
   def grant_write_twitter
-    provider = 'twitter'
+    provider = __method__.split('_').last # twitter
     params[:action] = 'grant_write'
     @link = nil
     begin
@@ -1745,10 +1745,10 @@ class UtilController < ApplicationController
   end # grant_write_twitter
 
   # grant_write_vkontakte is called from gifts/index page
-  # ( remote link was ajax injected in post_on_vkontakte if missing write priv. )
+  # also called from generic_post_on_wall if write priv. is missing (ajax inject into gifts/index page)
   public
   def grant_write_vkontakte
-    provider = 'vkontakte'
+    provider = __method__.split('_').last # vkontakte
     params[:action] = 'grant_write'
     @link = nil
     begin
@@ -1785,7 +1785,7 @@ class UtilController < ApplicationController
       return format_response_key(key, options) if key
       # disable post on wall <=> do not ajax inject links to authorize post on wall permission
       # login_user.update_attribute :post_on_wall_yn, 'N'
-      session[:post_on_wall][provider] = false
+      set_post_on_wall(false, provider)
       # hide ajax injected link to grant write permission to api provider wall
       @link = "grant_write_div_#{provider}"
       logger.debug2 "@link = #{@link}"

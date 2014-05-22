@@ -255,7 +255,7 @@ class FacebookController < ApplicationController
         context = 'login_new_user' if no_friends == 0
       end
       if context == 'read_stream'
-        logger.debug2 "identical facebook signatur for ok and skip response when requesting read_stream priv."
+        logger.debug2 "identical facebook signatur for ok and skip responses when requesting read_stream priv."
         logger.debug2  "api_response = #{api_response.to_s}"
         user.permissions = api_response['permissions']['data'][0]
         user.save

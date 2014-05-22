@@ -1107,13 +1107,18 @@
 
 255) authorization saved in db and sessions? share account and share level >= 3
      how to handle two sessions with one or more common users between the two sessions (identical share_account)
-     access token in one session could be a readonly access token and a read/write access token in the other session
+     access could be read on one session and write in the other session
      access token could expire in one session and not in the other session
 
-256) for each provider: is read/write access saved on app level or on access token level?
-     - facebook: app level
-     - linkedin: access token
-     - flickr: app level
+256) for each provider: is read/write access an app level property or an access token property?
+     - facebook  : app level
+     - flickr    : app level
+     - foursquare: readonly api
+     - google+   : readonly api
+     - instagram : readonly api
+     - linkedin  : access token - first connect with read access - second connect with write access (user.permissions)
+     - twitter   : read/write access is handled inside Gofreerev (user.permssions)
+     - vkontakte : read/write access is handled inside Gofreerev (user.permssions)
 
 257) two sessions and post on wall checkbox
      it should be allowed to post on wall in one session and not post on wall in the other session
@@ -1121,3 +1126,20 @@
      write post on wall to session variable and db when using check box
      use session post on wall when posting in wall
 
+258) linkedin: should only store readonly access token in db. No need for storing write access token in db.
+
+259) twitter/vkontakte: single sign-on should start with read access
+
+260) save permissions in session[:permissions] after login like session[:post_on_wall]
+     in that way one session can have read permission and the other session write permission
+     permissions and access token are related and should be saved in Gofreerev the same way
+
+261) move session[:post_on_wall] to session table?
+
+262) move session[:permissions] (not implemented) to session table?
+     add get/set permissions methods. See get/set last_row_id and last_row_at methods
+
+263) check vk custom profile url
+     check auth_hash in oauth login
+     check any vk api_client.gofreerev_get_user for user profile url
+     check vk api_client.gofreerev_get_friends for friends profile url

@@ -26,13 +26,17 @@ class AuthController < ApplicationController
       else
         user = @users.find { |u| u.provider == provider }
         access = user.post_on_wall_authorized? ? 2 : 1
-        access = 3 if access == 1 and provider == 'twitter'
+        if access == 1
+          # use access 3 if read/write priv. is handled internal inside Gofreerev
+          method = "grant_write_#{provider}".to_sym
+          access = 3 if UtilController.new.public_methods.index(method)
+        end
       end
       # post_on_wall checkbox. 0 disable/hide, 1 unchecked, 2 checked
       if logged_in == 0 or !API_POST_PERMITTED[provider]
         post_on_wall = 0
       else
-        post_on_wall = session[:post_on_wall][user.provider] ? 2 : 1
+        post_on_wall = get_post_on_wall(user.provider) ? 2 : 1
       end
       @providers << [provider, logged_in, access, post_on_wall]
     end # each provider

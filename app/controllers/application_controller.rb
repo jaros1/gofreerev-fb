@@ -83,7 +83,6 @@ class ApplicationController < ActionController::Base
     session[:tokens] = {} unless session[:tokens] # hash with oauth access token index by provider
     session[:expires_at] = {} unless session[:expires_at] # hash with unix expire timestamp for oauth access token index by provider
     session[:refresh_tokens] = {} unless session[:refresh_tokens] # hash with "refresh token" (google+ only ) index by provider
-    session[:post_on_wall] = {} unless session[:post_on_wall] # hash with post on wall selection index by provider
 
     # remove logged in users with expired access token
     login_user_ids.each do |user_id|
@@ -166,7 +165,7 @@ class ApplicationController < ActionController::Base
       # session post is loaded into session variable at login
       # session post on wall choice is available from session variable
       # last user post on wall choice is saved in db and is used after next login
-      user.post_on_wall_yn = session[:post_on_wall][user.provider] ? 'Y' : 'N'
+      user.post_on_wall_yn = get_post_on_wall(user.provider) ? 'Y' : 'N'
     end
 
 
@@ -549,7 +548,7 @@ class ApplicationController < ActionController::Base
     session[:refresh_tokens][provider] = options[:refresh_token] if options[:refresh_token] # only google+
     logger.debug2 "session[:refresh_tokens] = #{session[:refresh_tokens]}"
     # session and db post on wall choice for an user can be different for multiple sessions
-    session[:post_on_wall][provider] = (user.post_on_wall_yn == 'Y')
+    set_post_on_wall((user.post_on_wall_yn == 'Y'), provider)
     # fix invalid or missing language for translate
     session[:language] = valid_locale(language) unless valid_locale(session[:language])
     set_locale_from_params
@@ -559,6 +558,9 @@ class ApplicationController < ActionController::Base
     share_account = user.share_account
     if share_account and [3,4].index(share_account.share_level)
       # save new access token and expires_at timestamp in database
+      # todo: linkedin: save linkedin rw_nus access token in db?
+      #       3: only normal readonly access token is required for share level 3
+      #       4: use only read access token for single sign-on or allow write access token in single sign-on?
       user.access_token = token.to_yaml # string or an array with two elements
       user.access_token_expires = expires_at.to_i # positive sign
       user.refresh_token = options[:refresh_token] # only google+
@@ -582,7 +584,7 @@ class ApplicationController < ActionController::Base
             session[:tokens].delete(provider2)
             session[:expires_at].delete(provider2)
             session[:refresh_tokens].delete(provider2)
-            session[:post_on_wall].delete(provider2)
+            clear_post_on_wall(provider2)
           end # if
           # single sign-on for user2
           if user2.access_token and user2.access_token_expires and user2.access_token_expires > Time.now.to_i
@@ -622,7 +624,7 @@ class ApplicationController < ActionController::Base
         session[:tokens][user2.provider] = YAML::load(user2.access_token)
         session[:expires_at][user2.provider] = -user2.access_token_expires # negative sign
         session[:refresh_tokens][user2.provider] = user2.refresh_token # only google+
-        session[:post_on_wall][user2.provider] = (user2.post_on_wall_yn == 'Y')
+        set_post_on_wall((user2.post_on_wall_yn == 'Y'), user2.provider)
         @users << user2
       end
     end
@@ -724,7 +726,7 @@ class ApplicationController < ActionController::Base
       session.delete(:user_ids)
       session.delete(:tokens)
       session.delete(:expires_at)
-      session.delete(:post_on_wall)
+      clear_post_on_wall()
       @users = []
       add_dummy_user
       return
@@ -732,7 +734,7 @@ class ApplicationController < ActionController::Base
     session[:user_ids].delete_if { |user_id| user_id.split('/').last == provider}
     session[:tokens].delete(provider)
     session[:expires_at].delete(provider)
-    session[:post_on_wall].delete(provider)
+    clear_post_on_wall(provider)
     @users.delete_if { |user| user.provider == provider }
     add_dummy_user if @users.size == 0
     # check if file upload button should be disabled - last user with write access to api wall logs out
@@ -950,6 +952,33 @@ class ApplicationController < ActionController::Base
     last_row_at = s.last_row_at if s
     logger.debug2 "last_row_at = #{last_row_at}, Time.new.seconds_since_midnight = #{Time.new.seconds_since_midnight}, session_id = #{session[:session_id]}"
     last_row_at
+  end
+
+
+  # get/set post_on_wall. now in cookie session store.
+  # post_on_wall: boolean, provider: valid oauth provider
+  # todo: move session[:post_on_wall] to session table?
+  private
+  def init_post_on_wall
+    session[:post_on_wall] = {} unless session[:post_on_wall]
+  end
+  def set_post_on_wall (post_on_wall, provider)
+    init_post_on_wall
+    session[:post_on_wall][provider] = post_on_wall
+  end
+  def get_post_on_wall (provider)
+    init_post_on_wall
+    session[:post_on_wall][provider]
+  end
+  def clear_post_on_wall (provider=nil)
+    if provider
+      # logout for provider
+      init_post_on_wall
+      session[:post_on_wall].delete(provider)
+    else
+      # logout for all providers
+      session.delete(:post_on_wall)
+    end
   end
 
   # used in api posts
