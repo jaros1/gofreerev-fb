@@ -1126,7 +1126,12 @@
      write post on wall to session variable and db when using check box
      use session post on wall when posting in wall
 
-258) linkedin: should only store readonly access token in db. No need for storing write access token in db.
+258) linkedin:
+     should only store readonly access token in db.
+     No need for storing write access token in db.
+     but access tokens are loaded from database in fetch_users!
+     potential same issue for twitter and vkontakte, but for now read/write access is handled internally inside Gofreerev
+     only load linkedin token for database if current access is read
 
 259) twitter/vkontakte: single sign-on should start with read access
 
@@ -1139,7 +1144,6 @@
 262) move session[:permissions] (not implemented) to session table?
      add get/set permissions methods. See get/set last_row_id and last_row_at methods
 
-263) check vk custom profile url
-     check auth_hash in oauth login
-     check any vk api_client.gofreerev_get_user for user profile url
-     check vk api_client.gofreerev_get_friends for friends profile url
+263) vkontakte profile url
+     https for friends - from get_friends
+     http for my account - from oauth login

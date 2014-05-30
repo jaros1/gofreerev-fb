@@ -1,6 +1,7 @@
 class OmniAuth::AuthHash
   def get_profile_url_vkontakte
     profile_url = self[:info][:urls][:Vkontakte] if self[:info] and self[:info][:urls]
+    profile_url.gsub!(/^http:/, 'https:') if profile_url # protect cookies
     profile_url
   end
   def get_image_vkontakte

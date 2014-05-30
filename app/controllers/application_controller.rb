@@ -559,7 +559,7 @@ class ApplicationController < ActionController::Base
     if share_account and [3,4].index(share_account.share_level)
       # save new access token and expires_at timestamp in database
       # todo: linkedin: save linkedin rw_nus access token in db?
-      #       3: only normal readonly access token is required for share level 3
+      #       3: only normal readonly access token is required for share level 3 (linkedin and to some extend twitter and vkontakte)
       #       4: use only read access token for single sign-on or allow write access token in single sign-on?
       user.access_token = token.to_yaml # string or an array with two elements
       user.access_token_expires = expires_at.to_i # positive sign
@@ -1699,6 +1699,7 @@ class ApplicationController < ActionController::Base
           # copy friend to friends_hash
           friend_user_id = "#{friend['uid']}/#{provider}"
           friend_name = "#{friend['first_name']} #{friend['last_name']}".force_encoding('UTF-8')
+          logger.debug2 "api_profile_url = #{API_URL[:vkontakte]}#{friend['screen_name']}"
           friends_hash[friend_user_id] = { :name => friend_name,
                                            :api_profile_url => "#{API_URL[:vkontakte]}#{friend['screen_name']}",
                                            :api_profile_picture_url => friend['photo_medium'] }

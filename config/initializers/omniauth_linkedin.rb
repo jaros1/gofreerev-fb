@@ -29,6 +29,7 @@ class OmniAuth::AuthHash
   end
   def get_profile_url_linkedin
     profile_url = self[:info][:urls][:public_profile] if self[:info] and self[:info][:urls]
+    profile_url.gsub!(/^http:/, 'https:') if profile_url # protect cookies
     profile_url
   end
 end

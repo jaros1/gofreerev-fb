@@ -4,7 +4,9 @@ class OmniAuth::AuthHash
     self.info.name
   end
   def get_profile_url_flickr
-    self.info.urls.Profile._content if self.info and self.info.urls and self.info.urls.Profile
+    profile_url = self.info.urls.Profile._content if self.info and self.info.urls and self.info.urls.Profile
+    profile_url.gsub!(/^http:/, 'https:') if profile_url # protect cookies
+    profile_url
   end
   # return array with token AND secret for flickr - token AND secret are required for flickraw gem (oauth 1)
   def get_token_flickr
