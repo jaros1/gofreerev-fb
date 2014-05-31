@@ -55,14 +55,15 @@ class LinkedinController < ApplicationController
                   :image => res1.picture_url,
                   :country => nil,
                   :language => nil,
-                  :profile_url => res1.public_profile_url
+                  :profile_url => res1.public_profile_url,
+                  :permissions => 'r_basicprofile,r_network,rw_nus'
       logger.debug2  "res2 = #{res2}"
       if !res2
         # login ok with extra rw_nus priv
         user_id = "#{res1.id}/#{provider}"
         user = User.find_by_user_id(user_id)
-        user.permissions = "r_basicprofile,r_network,rw_nus"
-        user.save!
+        # user.permissions = "r_basicprofile,r_network,rw_nus"
+        # user.save!
         save_flash_key ".ok_rw_nus", user.app_and_apiname_hash
         redirect_to :controller => :gifts
       else

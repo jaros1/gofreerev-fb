@@ -518,6 +518,7 @@ class ApplicationController < ActionController::Base
     country = options[:country]
     language = options[:language]
     profile_url = options[:profile_url]
+    permissions = options[:permissions]
     # create/update user from information received from login provider
     # returns user (ok) or an array with translate key and options for error message
     user = User.find_or_create_user :provider => provider,
@@ -528,7 +529,8 @@ class ApplicationController < ActionController::Base
                                     :image => image,
                                     :country => country,
                                     :language => language,
-                                    :profile_url => profile_url
+                                    :profile_url => profile_url,
+                                    :permissions => permissions
     return user unless user.class == User # error: key + options
     # user login ok
     first_login = !logged_in?
@@ -1069,13 +1071,11 @@ class ApplicationController < ActionController::Base
     api_client.define_singleton_method :gofreerev_get_user do |logger|
       user_hash = {}
       key, options = nil
-      # get user information - permissions and picture
-      api_request = 'me?fields=permissions,picture.width(100).height(100)'
+      # get user information - picture
+      api_request = 'me?fields=picture.width(100).height(100)'
       logger.debug2  "api_request = #{api_request}"
       api_response = api_client.get_object api_request
       logger.debug2  "api_response = #{api_response}"
-      user_hash[:permissions] = api_response['permissions']['data'][0]
-      user_hash[:permissions] = {} if user_hash[:permissions] == []
       image = api_response['picture']['data']['url'] if api_response['picture'] and api_response['picture']['data']
       user_hash[:api_profile_picture_url] = image if image
       # return user_hash to generic_post_login - see also user.update_api_user_from_hash

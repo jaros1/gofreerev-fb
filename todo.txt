@@ -1112,7 +1112,11 @@
 
 256) for each provider: is read/write access an app level property or an access token property?
      - facebook  : app level
-     - flickr    : app level
+     - flickr    : app level. identical access token for login in other session, second login with write access and log out/in with read access.
+                   it is irrelevant / ok to login access token from database
+                   expires_at should be reloaded from database
+                   permissions should be updated in database
+                   copy of permissions in session and notification to user when read/write access if changed from an other session
      - foursquare: readonly api
      - google+   : readonly api
      - instagram : readonly api
@@ -1130,8 +1134,8 @@
      should only store readonly access token in db.
      No need for storing write access token in db.
      but access tokens are loaded from database in fetch_users!
-     potential same issue for twitter and vkontakte, but for now read/write access is handled internally inside Gofreerev
-     only load linkedin token for database if current access is read
+     potential same issue for twitter and vkontakte, but read/write access is handled internally in Gofreerev
+     only load linkedin token from database if current access is read
 
 259) twitter/vkontakte: single sign-on should start with read access
 
@@ -1144,6 +1148,4 @@
 262) move session[:permissions] (not implemented) to session table?
      add get/set permissions methods. See get/set last_row_id and last_row_at methods
 
-263) vkontakte profile url
-     https for friends - from get_friends
-     http for my account - from oauth login
+263) missing "please wait" message when checking post on wall checkbox and active ajax task

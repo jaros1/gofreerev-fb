@@ -15,4 +15,12 @@ class OmniAuth::AuthHash
   def get_profile_url_facebook
     "#{API_URL[:facebook]}/#{self.uid}"
   end
+  def get_permissions_facebook
+    permissions = self.extra.raw_info.permissions.data[0] if
+        self.extra and
+            self.extra.raw_info and
+            self.extra.raw_info.permissions and
+            self.extra.raw_info.permissions.data
+    permissions
+  end
 end

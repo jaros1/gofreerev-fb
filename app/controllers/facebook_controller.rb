@@ -245,7 +245,8 @@ class FacebookController < ApplicationController
                 :image => image, # only used for new facebook users
                 :country => api_response['locale'].to_s.last(2),
                 :language => api_response['locale'].to_s.first(2),
-                :profile_url => api_response['link']
+                :profile_url => api_response['link'],
+                :permissions => api_response['permissions']['data'][0]
     if !res
       # login ok
       user_id = "#{api_response['id']}/#{provider}"
@@ -257,8 +258,8 @@ class FacebookController < ApplicationController
       if context == 'read_stream'
         logger.debug2 "identical facebook signatur for ok and skip responses when requesting read_stream priv."
         logger.debug2  "api_response = #{api_response.to_s}"
-        user.permissions = api_response['permissions']['data'][0]
-        user.save
+        # user.permissions = api_response['permissions']['data'][0]
+        # user.save
         context = 'read_stream_skip' unless user.read_gifts_allowed?
       end
       if context == 'status_update'
@@ -266,8 +267,8 @@ class FacebookController < ApplicationController
         # permissions will be updated in post_login_facebook task, but that is to late for this redirect
         # adding publish_actions enables file upload in gifts/index page now
         # permissions["publish_actions"] = 1
-        user.permissions = api_response['permissions']['data'][0]
-        user.save!
+        # user.permissions = api_response['permissions']['data'][0]
+        # user.save!
         context = 'status_update_skip' unless user.post_on_wall_authorized?
       end
       save_flash_key ".ok_#{context}", user.app_and_apiname_hash

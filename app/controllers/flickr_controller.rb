@@ -70,14 +70,15 @@ class FlickrController < ApplicationController
                   :image => picture_url,
                   :country => nil,
                   :language => nil,
-                  :profile_url => res2.profileurl
+                  :profile_url => res2.profileurl,
+                  :permissions => 'write'
       logger.debug2  "res3 = #{res3}"
       if !res3
         # login ok with write priv
         user_id = "#{uid}/#{provider}"
         user = User.find_by_user_id(user_id)
-        user.permissions = "write"
-        user.save!
+        # user.permissions = "write"
+        # user.save!
         save_flash_key ".ok_write", user.app_and_apiname_hash
         redirect_to :controller => :gifts
       else

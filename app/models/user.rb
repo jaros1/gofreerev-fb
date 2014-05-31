@@ -449,6 +449,7 @@ class User < ActiveRecord::Base
       logger.debug2 "invalid profile url '#{profile_url}' was received from login provider #{provider}"
       profile_url = nil
     end
+    permissions = options[:permissions]
     # create/update user
     user_id = "#{uid}/#{provider}"
     user = User.find_by_user_id(user_id)
@@ -466,6 +467,9 @@ class User < ActiveRecord::Base
     # setup efault permissions after login (read = read user profile and friends information)
     # API SETUP
     case
+      when permissions.to_s != ''
+        # use permissions from login request. todo: new login param. case should be removed
+        user.permissions = permissions
       when provider == 'facebook'
         # facebook permissions is returned in koala api request me?fields=permissions in util.post_login_facebook
         # facebook permissions is also updated in facebook/index when user returns with status_update or read_stream permission from facebook

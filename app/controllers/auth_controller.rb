@@ -64,16 +64,16 @@ class AuthController < ApplicationController
     provider = auth_hash.get_provider
 
     # auth hash debugging for new login providers:
-    #if provider == 'flickr' and auth_hash.get_uid.to_s == '107614965@N99'
-    #  logger.debug2 'checking structure of auth hash for flickroursquare'
-    #  t = Task.new
-    #  t.session_id = session[:session_id]
-    #  t.task = 'flickr'
-    #  t.priority = 5
-    #  t.ajax = 'N'
-    #  t.task_data = auth_hash.to_yaml
-    #  t.save!
-    #end
+    # if provider == 'facebook' and auth_hash.get_uid.to_s == '99999999'
+    # logger.debug2 'checking structure of auth hash for facebook'
+    # t = Task.new
+    # t.session_id = session[:session_id]
+    # t.task = 'facebook'
+    # t.priority = 5
+    # t.ajax = 'N'
+    # t.task_data = auth_hash.to_yaml
+    # t.save!
+    # end
 
     res = login :provider => provider,
                 :token => auth_hash.get_token,
@@ -84,7 +84,8 @@ class AuthController < ApplicationController
                 :image => auth_hash.get_image,
                 :country => auth_hash.get_country,
                 :language => auth_hash.get_language,
-                :profile_url => auth_hash.get_profile_url
+                :profile_url => auth_hash.get_profile_url,
+                :permissions => auth_hash.get_permissions
     if !res
       # login ok - flash message has been set in login method
       user_id = login_user_ids.find { |userid2| userid2.split('/').last == provider }

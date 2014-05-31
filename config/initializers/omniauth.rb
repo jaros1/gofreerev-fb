@@ -339,6 +339,12 @@ class OmniAuth::AuthHash
     profile_url = self[:extra][:raw_info][:link] if self[:extra] and self[:extra][:raw_info]
     profile_url
   end
+  def get_permissions
+    provider = get_provider()
+    method = "get_permissions_#{provider}"
+    return eval(method) if respond_to? method.to_sym # facebook
+    API_DEFAULT_PERMISSIONS[provider] || 'read'
+  end
 end # OmniAuth::AuthHash
 
 OmniAuth.config.on_failure = AuthController.action(:oauth_failure)
