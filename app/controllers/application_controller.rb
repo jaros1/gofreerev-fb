@@ -1250,9 +1250,17 @@ class ApplicationController < ActionController::Base
       begin
         api_gift_id = self.upload_photo picture, :description => "#{gift.description} - #{deep_link}"
       rescue FlickRaw::OAuthClient::FailedResponse => e
-        logger.debug2 "exception: #{e.message} (#{e.message.class})"
+        logger.debug2 "exception (1): #{e.message} (#{e.message.class})"
         # logger.debug2 "e.methods = #{e.methods.sort.join(', ')}"
         if e.message == 'token_rejected'
+          # user has deauthorized app in app settings page http://www.flickr.com/services/auth/list.gne
+          raise AppNotAuthorized
+        end
+        # other unhandled errors
+        raise
+      rescue FlickRaw::FailedResponse => e
+        logger.debug2 "exception (2): #{e.message} (#{e.message.class})"
+        if e.message =~/Invalid auth token/
           # user has deauthorized app in app settings page http://www.flickr.com/services/auth/list.gne
           raise AppNotAuthorized
         end

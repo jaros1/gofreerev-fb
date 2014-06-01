@@ -57,7 +57,7 @@ class LinkedinController < ApplicationController
                   :language => nil,
                   :profile_url => res1.public_profile_url,
                   :permissions => 'r_basicprofile,r_network,rw_nus'
-      logger.debug2  "res2 = #{res2}"
+      # logger.debug2  "res2 = #{res2}"
       if !res2
         # login ok with extra rw_nus priv
         user_id = "#{res1.id}/#{provider}"

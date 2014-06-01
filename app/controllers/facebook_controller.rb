@@ -222,11 +222,6 @@ class FacebookController < ApplicationController
     logger.debug2 "login completed. context = #{context}"
 
     # get some basic user information
-    # todo: what to do with permissions?
-    #       permissions are updated in post_login_facebook task and after that page has been written
-    #       as result file upload is disabled after ok status_update request
-    #       could refresh permissions here
-    #       or could add ajax to post_on_facebook to enable/disable file upload button?
     logger.debug2  'get user id and name'
     api_client = init_api_client(provider, access_token)
     api_request = 'me?fields=name,locale,link,picture.width(100).height(100),permissions'

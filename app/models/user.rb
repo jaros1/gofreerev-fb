@@ -464,30 +464,7 @@ class User < ActiveRecord::Base
     user = User.new unless user
     user.user_id = user_id
     user.user_name = user_name
-    # setup efault permissions after login (read = read user profile and friends information)
-    # API SETUP
-    case
-      when permissions.to_s != ''
-        # use permissions from login request. todo: new login param. case should be removed
-        user.permissions = permissions
-      when provider == 'facebook'
-        # facebook permissions is returned in koala api request me?fields=permissions in util.post_login_facebook
-        # facebook permissions is also updated in facebook/index when user returns with status_update or read_stream permission from facebook
-        nil
-      when API_DEFAULT_PERMISSIONS[provider].to_s != ''
-        # use default permission setup from /config/initializers/omniauth.rb
-        # - update_status and read_stream is requested after login if required
-        # linkedin:
-        # - starts with r_basicprofile,r_network.
-        # - is changed in linkedin controller to r_basicprofile,r_network,rw_nus when user returns with rw_nus priv from linkedin
-        # google+: always read - readonly api
-        # twitter: authorization with write, but only read is used until user allows post on twitter
-        user.permissions = API_DEFAULT_PERMISSIONS[provider]
-      else
-        user.permissions = 'read'
-        logger.warn2 "Default permission setup is missing for #{provider}."
-        logger.warn2 "plase check API_DEFAULT_PERMISSIONS in /config/initializers/omniauth.rb"
-    end # case
+    user.permissions = permissions
     user.api_profile_url = profile_url if profile_url
     active_currencies = ExchangeRate.active_currencies
     if !user.currency or !active_currencies.index(user.currency)

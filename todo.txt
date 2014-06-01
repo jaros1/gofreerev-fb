@@ -1149,3 +1149,5 @@
      add get/set permissions methods. See get/set last_row_id and last_row_at methods
 
 263) missing "please wait" message when checking post on wall checkbox and active ajax task
+    "please wait" (ajax_leave_page) is triggered by ajax event onbeforeunload and can not be used for checkboxes
+    maybe not a problem
