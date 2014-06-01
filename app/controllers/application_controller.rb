@@ -156,7 +156,7 @@ class ApplicationController < ActionController::Base
     # refresh and check authorization information from db
     # one db user can be connected in multiple sessions / browsers
     @users.each do |user|
-      if user.share_account and [3,4].index(user.share_account.share_level)
+      if user.share_account and [3,4].index(user.share_account.share_level) and user.access_token and user.access_token_expires
         provider = user.provider
         session[:tokens][provider] = YAML::load(user.access_token)
         session[:expires_at][provider] = user.access_token_expires
@@ -1424,7 +1424,12 @@ class ApplicationController < ActionController::Base
       # http://developer.linkedin.com/documents/profile-fields#profile
       # fields = %w(id,first-name,last-name,public-profile-url,picture-url,num-connections)
       fields = %w(id first-name last-name public-profile-url picture-url num-connections)
-      friends = self.connections(:fields => fields).all
+      begin
+        friends = self.connections(:fields => fields).all
+      rescue LinkedIn::Errors::UnauthorizedError => e
+        # user has removed app from app settings page https://www.linkedin.com/secure/settings?userAgree=&goback=.nas_*1_*1_*1
+        raise AppNotAuthorized
+      end
       # logger.debug2 "friends = #{friends}"
       # copy array with linkedin connections into gofreerev friends_hash
       friends_hash = {}

@@ -976,13 +976,20 @@ class UtilController < ApplicationController
       logger.debug "no gofreerev_get_user method was found for #{provider} api client"
     end
 
-    # get facebook friends
+    # get API friends
     if !api_client.respond_to? :gofreerev_get_friends
       # api client without gofreerev_get_friends method - cannot download and update friend list from api provider
       key, options = ['.api_client_gofreerev_get_friends', login_user.app_and_apiname_hash]
       return [login_user, api_client, friends_hash, new_user, key, options]
     end
-    friends_hash, key, options = api_client.gofreerev_get_friends logger
+    begin
+      friends_hash, key, options = api_client.gofreerev_get_friends logger
+    rescue AppNotAuthorized => e
+      # app has been deauthorized after login and before executing post login task for this provider
+      logout(provider)
+      key, options = ['.post_login_fl_not_authorized', login_user.app_and_apiname_hash]
+      return [login_user, api_client, friends_hash, new_user, key, options]
+    end
     return [login_user, api_client, friends_hash, new_user, key, options] if key
 
     # update facebook friends (api friend = Y/N)

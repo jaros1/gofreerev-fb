@@ -781,6 +781,7 @@ da:
         api_client_gofreerev_get_friends: "Systemfejl. Kan ikke downloade venneliste fra %{apiname} da instance metode gofreerev_get_friends mangler for %{apiname} API klient."
         post_login_fl_missing_field: "Systemfejl. Kan ikke opdaterer %{apiname} venneliste. Felt %{field} mangler for bruger id. %{userid}."
         post_login_fl_invalid_field: "Systemfejl. Kan ikke opdaterer %{apiname} venneliste. Ukendt felt %{field} for bruger id. %{userid}."
+        post_login_fl_not_authorized: "Kan ikke hente %{apiname} venneliste. Du har fjernet %{appname} fra %{apiname}, og du har derfor ikke længere adgang til %{appname} vha. din %{apiname} konto. Du bør opdatere siden, da adgangsrettigheder er blevet ændret."
         google_access_not_configured: "Fejl ved hentning af venneliste fra Google+ API. Access Not Configured. Tjek-liste ved API opsætning: 1) Tjek log for mere information. 2) Tjek at application_name og application_version sættes, når Google::APIClient initialiseres. 3) Tjek at status er ON for Google+ API i Google Cloud Console"
         google_insufficient_permission: "Fejl ved hentning af venneliste fra Google+ API. Manglende adgang. Tjek liste ved API opsætning: 1) scope plus.login mangler i provider opsætning for google"
         google_other_errors: "Fejl ved hentning af venneliste fra Google+ API. \"%{error}\""
