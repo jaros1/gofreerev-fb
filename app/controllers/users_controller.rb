@@ -63,7 +63,7 @@ class UsersController < ApplicationController
     if !API_POST_PERMITTED[@user2.provider]
       @post_on_wall = 0
     else
-      @post_on_wall = get_post_on_wall(@user2.provider) ? 2 : 1
+      @post_on_wall = get_post_on_wall_selected(@user2.provider) ? 2 : 1
     end
   end # edit
 

@@ -1027,7 +1027,9 @@ class UtilController < ApplicationController
 
       # ok
       nil
-
+    rescue AppNotAuthorized
+      logout :provider => provider
+      return add_error_key('.linkedin_access_denied', {:provider => provider})
     rescue LinkedIn::Errors::AccessDeniedError => e
       return add_error_key('.linkedin_access_denied', {:provider => provider}) if e.message.to_s =~ /Access to connections denied/
       logger.debug2  "Exception: #{e.message.to_s} (#{e.class})"
@@ -1654,7 +1656,7 @@ class UtilController < ApplicationController
 
       # update user
       login_user.update_attribute('post_on_wall_yn', post_on_wall)
-      set_post_on_wall((post_on_wall == 'Y'), provider)
+      set_post_on_wall_selected((post_on_wall == 'Y'), provider,false)
       format_response
     rescue Exception => e
       logger.debug2 "Exception: #{e.message.to_s} (#{e.class})"
@@ -1792,7 +1794,7 @@ class UtilController < ApplicationController
       return format_response_key(key, options) if key
       # disable post on wall <=> do not ajax inject links to authorize post on wall permission
       # login_user.update_attribute :post_on_wall_yn, 'N'
-      set_post_on_wall(false, provider)
+      set_post_on_wall_selected(false, provider,false)
       # hide ajax injected link to grant write permission to api provider wall
       @link = "grant_write_div_#{provider}"
       logger.debug2 "@link = #{@link}"

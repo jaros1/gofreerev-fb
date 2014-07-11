@@ -36,7 +36,7 @@ class AuthController < ApplicationController
       if logged_in == 0 or !API_POST_PERMITTED[provider]
         post_on_wall = 0
       else
-        post_on_wall = get_post_on_wall(user.provider) ? 2 : 1
+        post_on_wall = get_post_on_wall_selected(user.provider) ? 2 : 1
       end
       @providers << [provider, logged_in, access, post_on_wall]
     end # each provider
@@ -85,7 +85,7 @@ class AuthController < ApplicationController
                 :country => auth_hash.get_country,
                 :language => auth_hash.get_language,
                 :profile_url => auth_hash.get_profile_url,
-                :permissions => auth_hash.get_permissions
+                :permissions => auth_hash.get_post_on_wall_authorized
     if !res
       # login ok - flash message has been set in login method
       user_id = login_user_ids.find { |userid2| userid2.split('/').last == provider }

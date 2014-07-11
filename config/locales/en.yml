@@ -156,9 +156,9 @@ en:
         user_name_missing: "Login failed. Did not receive username from %{provider}."
         find_or_create_from_auth_hash: "System error. Invalid response from user update after login."
         login_ok: "%{apiname} log in ok."
-        login_ok_expired3: "%{apiname} log in ok. Note that access token is expired for %{expired_apinames} and that one or more friend lists are not longer being updated dynamically. Please reconnect to fix this problem or update \"Share accounts?\" in this page."
+        login_ok_expired3: "%{apiname} log in ok. Note that access token is expired for %{expired_apinames} and that one or more friend lists are not longer being updated dynamically. Please reconnect to fix this problem or update \"Share accounts?\" LOV in this page."
         login_ok4: "%{apinames} single sign-on ok."
-        login_ok_expired4: "%{apinames} log in ok. Note that access token is expired for %{expired_apinames} and that single sign-on are not working 100%. Please reconnect to fix this problem or update \"Share accounts?\" in this page."
+        login_ok_expired4: "%{apinames} log in ok. Note that access token is expired for %{expired_apinames} and that single sign-on are not working 100%. Please reconnect to fix this problem or update \"Share accounts?\" LOV in this page."
         login_ok_new_user: "%{apiname} log in ok. Welcome to %{appname}. Your friends list is being downloaded and will be ready for use in a few moments."
      index:
         visit_th: "Visit API"

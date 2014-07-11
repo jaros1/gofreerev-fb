@@ -21,6 +21,21 @@ class GiftsController < ApplicationController
       return format_response_key '.deleted_user' if users2.size == 0
       @users = users2 if @users.size != users2.size
 
+      # check for changed post on wall permission (changed in an other browser session).
+      # return error if change from read to write permission and post_on_wall is selected for api
+      # return warning for other changes in read/write permission
+      changed_privs = 0 # 0: no changes, 1: warnings, 2: errors
+      @users.each do |user|
+        next if user.post_on_wall_authorized? == get_post_on_wall_authorized(user.provider) # no change
+        if  user.post_on_wall_authorized? and !get_post_on_wall_authorized(user.provider) and get_post_on_wall_selected(user.provider)
+          # error.
+          changed_privs = 2
+        else
+          # warning
+          changed_privs = 1 if changed_privs == 0
+        end
+      end
+
       # initialize gift
       gift = Gift.new
       gift.price = params[:gift][:price].gsub(',', '.').to_f unless invalid_price?(params[:gift][:price])

@@ -1138,20 +1138,12 @@
                    can connect in two sessions without storing access token in database (share lael 0-2)
      - vkontakte : read/write access is handled inside Gofreerev (user.permssions)
 
-257) two sessions and post on wall checkbox
-     it should be allowed to post on wall in one session and not post on wall in the other session
-     load post on wall into session variable at login
-     write post on wall to session variable and db when using check box
-     use session post on wall when posting in wall
-
 258) linkedin:
      should only store readonly access token in db.
      No need for storing write access token in db.
      but access tokens are loaded from database in fetch_users!
      potential same issue for twitter and vkontakte, but read/write access is handled internally in Gofreerev
      only load linkedin token from database if current access is read
-
-259) twitter/vkontakte: single sign-on should start with read access
 
 260) save permissions in session[:permissions] after login like session[:post_on_wall]
      in that way one session can have read permission and the other session write permission
@@ -1164,9 +1156,16 @@
 
 263) missing "please wait" message when checking post on wall checkbox and active ajax task
     "please wait" (ajax_leave_page) is triggered by ajax event onbeforeunload and can not be used for checkboxes
-    maybe not a problem but current message for running task is cleared in page header when clicking on checkbox
+     maybe not a problem but current message for running task is cleared in page header when clicking on checkbox
 
 264) adding vk to login with 7 shared accounts
      login with vk and adding vk as a shared account
      access_token and access_token_expires are not saved in db
      log out+log in: access token and access token expires are saved in db
+
+265) add notification in top of gifts/index page if user.permissions changes without an active action
+     could be change of user.permissions in an other session
+     could be change of permissions by user in api settings
+     that is read/write permission to api wall
+     "Warning. Post on facebook wall has been removed in an other session"
+     "Warning. Post on facebook wall has been granted in an other session"

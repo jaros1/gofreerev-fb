@@ -167,7 +167,7 @@ class FacebookController < ApplicationController
 
     if params[:error_code] == '2' and context != 'login'
       # Parameters: {"error_code"=>"2",
-      #              "error_message"=>"Denne funktion er desværre ikke tilgængelig i øjeblikkket: Der opstod en fejl under behandling af denne forespørgsel. Prøv igen senere.",
+      #              "error_message"=>"This feature is temporarily unavailable at the moment: There was an error processing this request. Please try again later",
       #              "state"=>"BlGyeeW7Nd5lebhCkNeUCCo26hdpQY-status_update"}
       # grant extra privs. failed (status_update or read_stream)
       save_flash_key ".#{context}_failed", :appname => APP_NAME, :error => params[:error_message]

@@ -165,7 +165,7 @@ class ApplicationController < ActionController::Base
       # session post is loaded into session variable at login
       # session post on wall choice is available from session variable
       # last user post on wall choice is saved in db and is used after next login
-      user.post_on_wall_yn = get_post_on_wall(user.provider) ? 'Y' : 'N'
+      user.post_on_wall_yn = get_post_on_wall_selected(user.provider) ? 'Y' : 'N'
     end
 
 
@@ -467,6 +467,7 @@ class ApplicationController < ActionController::Base
 
   private
   def logged_in?
+    return false unless login_user_ids.class == Array
     (login_user_ids.length > 0)
   end
   helper_method "logged_in?"
@@ -549,8 +550,11 @@ class ApplicationController < ActionController::Base
     # refresh token is only used for google+
     session[:refresh_tokens][provider] = options[:refresh_token] if options[:refresh_token] # only google+
     logger.debug2 "session[:refresh_tokens] = #{session[:refresh_tokens]}"
-    # session and db post on wall choice for an user can be different for multiple sessions
-    set_post_on_wall((user.post_on_wall_yn == 'Y'), provider)
+    # copy post_on_wall status to session (cookie or table)
+    # - to allow different post_on_wall_yn selection for two browser sessions with same user
+    # - wrrite warning in top of gifts/index age if post on wall authorization is changed in an other browser session for same user
+    set_post_on_wall_selected((user.post_on_wall_yn == 'Y'), provider, true)
+    set_post_on_wall_authorized(user.post_on_wall_authorized?, provider, true)
     # fix invalid or missing language for translate
     session[:language] = valid_locale(language) unless valid_locale(session[:language])
     set_locale_from_params
@@ -586,7 +590,7 @@ class ApplicationController < ActionController::Base
             session[:tokens].delete(provider2)
             session[:expires_at].delete(provider2)
             session[:refresh_tokens].delete(provider2)
-            clear_post_on_wall(provider2)
+            clear_post_on_wall_selected(provider2)
           end # if
           # single sign-on for user2
           if user2.access_token and user2.access_token_expires and user2.access_token_expires > Time.now.to_i
@@ -626,7 +630,11 @@ class ApplicationController < ActionController::Base
         session[:tokens][user2.provider] = YAML::load(user2.access_token)
         session[:expires_at][user2.provider] = -user2.access_token_expires # negative sign
         session[:refresh_tokens][user2.provider] = user2.refresh_token # only google+
-        set_post_on_wall((user2.post_on_wall_yn == 'Y'), user2.provider)
+        # copy post_on_wall status to session (cookie or table)
+        # - to allow different post_on_wall_yn selection for two browser sessions with same user
+        # - wrrite warning in top of gifts/index age if post on wall authorization is changed in an other browser session for same user
+        set_post_on_wall_selected((user2.post_on_wall_yn == 'Y'), user2.provider,true)
+        set_post_on_wall_authorized(user2.post_on_wall_authorized?, user2.provider, true)
         @users << user2
       end
     end
@@ -728,7 +736,7 @@ class ApplicationController < ActionController::Base
       session.delete(:user_ids)
       session.delete(:tokens)
       session.delete(:expires_at)
-      clear_post_on_wall()
+      clear_post_on_wall_selected()
       @users = []
       add_dummy_user
       return
@@ -736,7 +744,7 @@ class ApplicationController < ActionController::Base
     session[:user_ids].delete_if { |user_id| user_id.split('/').last == provider}
     session[:tokens].delete(provider)
     session[:expires_at].delete(provider)
-    clear_post_on_wall(provider)
+    clear_post_on_wall_selected(provider)
     @users.delete_if { |user| user.provider == provider }
     add_dummy_user if @users.size == 0
     # check if file upload button should be disabled - last user with write access to api wall logs out
@@ -956,32 +964,65 @@ class ApplicationController < ActionController::Base
     last_row_at
   end
 
-
-  # get/set post_on_wall. now in cookie session store.
-  # post_on_wall: boolean, provider: valid oauth provider
-  # todo: move session[:post_on_wall] to session table?
+  # get/set post_on_wall_selected. check box in auth/index page. now in cookie session store.
+  # loaded from user.post_on_wall_yn into session store (cookie or table) after login
+  # makes is possible to have different post_on_wall selection in two different browser sessions with same userid
+  # todo: move session[:post_on_wall_selected] to session table?
   private
-  def init_post_on_wall
-    session[:post_on_wall] = {} unless session[:post_on_wall]
+  def init_post_on_wall_selected
+    session[:post_on_wall_selected] = {} unless session[:post_on_wall_selected]
   end
-  def set_post_on_wall (post_on_wall, provider)
-    init_post_on_wall
-    session[:post_on_wall][provider] = post_on_wall
+  def set_post_on_wall_selected (post_on_wall_selected, provider, login)
+    init_post_on_wall_selected
+    if login and post_on_wall_selected and grant_write_link_exists?(provider)
+      # login in progress for a provider where post_on_wall priv. is handled internal in app (twitter and vkontakte)
+      # always start with post_on_wall_selected = false
+      # logger.debug2 "#{provider} login. post_on_wall set to false (speciel rule for twitter and vkontakte)"
+      post_on_wall_selected = false
+    end
+    session[:post_on_wall_selected][provider] = post_on_wall_selected
   end
-  def get_post_on_wall (provider)
-    init_post_on_wall
-    session[:post_on_wall][provider]
+  def get_post_on_wall_selected (provider)
+    init_post_on_wall_selected
+    session[:post_on_wall_selected][provider]
   end
-  def clear_post_on_wall (provider=nil)
+  def clear_post_on_wall_selected (provider=nil)
     if provider
       # logout for provider
-      init_post_on_wall
-      session[:post_on_wall].delete(provider)
+      init_post_on_wall_selected
+      session[:post_on_wall_selected].delete(provider)
     else
       # logout for all providers
-      session.delete(:post_on_wall)
+      session.delete(:post_on_wall_selected)
     end
   end
+
+  # get/set :post_on_wall_autorized. (read/write access to api wll) now in cookie session store.
+  # keep a copy of user.post_on_wall_authorized? in session to detect change in user.post_on_wall_authorized?
+  # for example user permissions in an other browser session
+  # user should get a warning if authorization to post on wall is changed without an active user action
+  # todo: move session[:post_on_wall_authorized] to session table?
+  private
+  def init_post_on_wall_authorized
+    session[:post_on_wall_authorized] = {} unless session[:post_on_wall_authorized]
+  end
+  def set_post_on_wall_authorized (post_on_wall_authorized, provider, login)
+    init_post_on_wall_authorized
+    session[:post_on_wall_authorized][provider] = post_on_wall_authorized
+  end
+  def get_post_on_wall_authorized (provider)
+    init_post_on_wall_authorized
+    session[:post_on_wall_authorized][provider]
+  end
+  def clear_post_on_wall_authorized (provider=nil)
+    if provider
+      init_post_on_wall_authorized
+      session[:post_on_wall_authorized].delete(provider)
+    else
+      session.delete(:post_on_wall_authorized)
+    end
+  end # clear_post_on_wall_authorized
+
 
   # used in api posts
   private
@@ -1288,7 +1329,7 @@ class ApplicationController < ActionController::Base
       # copy friends list to hash
       friends_hash = {}
       friends["items"].each do |friend|
-        logger.debug2 "friend = #{friend}"
+        # logger.debug2 "friend = #{friend}"
         friend_user_id = "#{friend.id}/#{provider}"
         name = "#{friend.firstName} #{friend.lastName}".force_encoding('UTF-8')
         api_profile_url = "#{API_URL[provider]}/user/#{friend.id}"
@@ -1383,7 +1424,7 @@ class ApplicationController < ActionController::Base
       # initialise friends_hash for Friend.update_api_friends_from_hash request
       friends_hash = {}
       (follows + followed_by).each do |friend|
-        logger.debug2 "friend = #{friend} (#{friend.class})"
+        # logger.debug2 "friend = #{friend} (#{friend.class})"
         # copy friend to friends_hash
         friend_user_id = "#{friend.id}/#{provider}"
         friend_name = (friend.full_name.to_s == '' ? friend.username : friend.full_name).force_encoding('UTF-8')
@@ -1980,6 +2021,21 @@ class ApplicationController < ActionController::Base
   end # grant_write_link_vkontakte
 
   private
+  def grant_write_method (provider)
+    "grant_write_#{provider}".to_sym
+  end
+
+  # check if link util.grant_write_<providfer> exists
+  # post_on_wall priv. is handled internally in app for writter and vkontakte
+  private
+  def grant_write_link_exists? (provider)
+    method = grant_write_method(provider)
+    index = UtilController.new.public_methods.index(method)
+    # logger.debug2 "provider = #{provider}, index = #{index}"
+    (index ? true : false)
+  end # grant_write_link_exists?
+
+  private
   def grant_write_link (provider)
     # API_GIFT_PICTURE_STORE: nil (no picture/readonly api), :api (use api picture url) or :local (keep local copy of picture)
     return nil unless [:local, :api].index(API_GIFT_PICTURE_STORE[provider])
@@ -1990,7 +2046,6 @@ class ApplicationController < ActionController::Base
     logger.debug2 "key = #{key}, options = #{options}"
     [key, options]
   end # grant_write_link
-
 
   # use flash table to prevent CookieOverflow for big flash messages when using session cookie
   # use save_flash before redirect
