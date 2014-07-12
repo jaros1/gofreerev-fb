@@ -1820,12 +1820,12 @@ class UtilController < ApplicationController
 
       # check user privs before post on wall
       # ( permissions is also checked in gifts/create before scheduling this task )
-      case login_user.get_write_on_wall_action
-        when User::WRITE_ON_WALL_NO then
+      case get_write_on_wall_action(login_user.provider)
+        when ApplicationController::WRITE_ON_WALL_NO then
           return nil # ignore
-        when User::WRITE_ON_WALL_YES then
+        when ApplicationController::WRITE_ON_WALL_YES then
           nil # continue
-        when User::WRITE_ON_WALL_MISSING_PRIVS then
+        when ApplicationController::WRITE_ON_WALL_MISSING_PRIVS then
           key, options = grant_write_link(provider)
           return add_error_key(key, options) # inject link to grant missing priv.
       end
@@ -1922,6 +1922,7 @@ class UtilController < ApplicationController
         logout(provider)
       rescue PostNotAllowed => e
         # missing write permission to api wall or permission to write on api wall has been removed
+        set_post_on_wall_authorized(false, provider, false)
         key, options = grant_write_link(provider)
         return add_error_key(key, options)
       rescue AppNotAuthorized => e
@@ -2628,7 +2629,7 @@ class UtilController < ApplicationController
       # reload @users - permissions can have changed in post_in_<provider> tasks
       @users = @users.collect { |user| user.reload }
       # disabled = !@gift_file. See do_tasks.js.erb
-      @gift_file = User.post_on_wall_authorized?(@users)
+      @gift_file = get_post_on_wall_authorized(nil)
       logger.debug2  "@gift_file = #{@gift_file}"
       nil
     rescue Exception => e

@@ -302,6 +302,8 @@ en:
      create:
         not_logged_in: "You are not logged in and you cannot create new posts. Please refresh web page."
         deleted_user: "You account is being deleted and you cannot create new posts"
+        post_on_wall_deauthorized: "%{appname}'s write permission to your %{apiname} wall has been removed."
+        post_on_wall_authorized_html: "%{appname} was granted write permission to your %{apiname} wall in an other browser session. Permission will be active after next <a href='%{url}'>Log in</a>."
         file_upload_not_allowed: "File upload not allowed. %{appname} lack access to write on your %{apiname} wall."
         unsupported_filetype: "Unsupported filetype %{filetype} in file upload. Supported filetypes are jpg, gif, png and bmp."
         file_is_too_big: "File is too big. Max allowed picture size is %{maxsize}."

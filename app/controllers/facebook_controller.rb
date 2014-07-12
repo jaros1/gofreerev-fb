@@ -264,7 +264,7 @@ class FacebookController < ApplicationController
         # permissions["publish_actions"] = 1
         # user.permissions = api_response['permissions']['data'][0]
         # user.save!
-        context = 'status_update_skip' unless user.post_on_wall_authorized?
+        context = 'status_update_skip' unless get_post_on_wall_authorized(user.provider)
       end
       save_flash_key ".ok_#{context}", user.app_and_apiname_hash
       if context == 'friends_find'

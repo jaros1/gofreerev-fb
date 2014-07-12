@@ -21,18 +21,19 @@ class GiftsController < ApplicationController
       return format_response_key '.deleted_user' if users2.size == 0
       @users = users2 if @users.size != users2.size
 
-      # check for changed post on wall permission (changed in an other browser session).
-      # return error if change from read to write permission and post_on_wall is selected for api
-      # return warning for other changes in read/write permission
-      changed_privs = 0 # 0: no changes, 1: warnings, 2: errors
+      # todo: check for changed write permission to API wall
+      # write warning if post_on_wall is selected and write permission on wall has been removed
+      # write note if post_on_wall priv has been added in an other session and
       @users.each do |user|
-        next if user.post_on_wall_authorized? == get_post_on_wall_authorized(user.provider) # no change
-        if  user.post_on_wall_authorized? and !get_post_on_wall_authorized(user.provider) and get_post_on_wall_selected(user.provider)
-          # error.
-          changed_privs = 2
+        next unless get_post_on_wall_selected(user.provider) # ignore API's where post_on_wall has not been selected
+        next if user.post_on_wall_authorized? == get_post_on_wall_authorized(user.provider) # no change in write permission
+        if get_post_on_wall_authorized(user.provider)
+          # write permission after login - now read permission - write priv. deselected or detected in an other browser session
+          add_error_key '.post_on_wall_deauthorized', user.app_and_apiname_hash
+          set_post_on_wall_authorized(false, user.provider, true)
         else
-          # warning
-          changed_privs = 1 if changed_privs == 0
+          # read permission after login - now write permission - write priv. added in an other browser session
+          add_error_key '.post_on_wall_authorized_html', user.app_and_apiname_hash.merge(:url => url_for(:controller => :auth, :action => :index))
         end
       end
 
@@ -45,7 +46,7 @@ class GiftsController < ApplicationController
       gift.description = params[:gift][:description]
       gift_file = params[:gift_file]
       picture = (gift_file.class.name == 'ActionDispatch::Http::UploadedFile')
-      if picture and !User.post_on_wall_authorized?(@users)
+      if picture and !get_post_on_wall_authorized(nil)
         add_error_key '.file_upload_not_allowed',
                       :appname => APP_NAME,
                       :apiname => (@users.length > 1 ? 'login provider' : @users.first.apiname)
@@ -65,7 +66,7 @@ class GiftsController < ApplicationController
       if picture
         # perm or temp picture store - for example perm for linkedin and temp for facebook
         # ( configuration in hash constant API_GIFT_PICTURE_STORE - /config/initializers/omniauth.rb )
-        picture_rel_path = Picture.new_temp_or_perm_rel_path @users, filetype
+        picture_rel_path = new_temp_or_perm_rel_path filetype
         if picture_rel_path
           gift.app_picture_rel_path = picture_rel_path
           logger.debug2 "gift.app_picture_rel_path = #{gift.app_picture_rel_path}"
@@ -176,10 +177,9 @@ class GiftsController < ApplicationController
       tokens = session[:tokens] || {}
       tokens.keys.each do |provider|
         next unless API_GIFT_PICTURE_STORE[provider] # skip readonly API's
-                                                     # check permissions
-        login_user = @users.find { |u| u.provider == provider }
-        next if login_user.get_write_on_wall_action == User::WRITE_ON_WALL_NO # user has deselected post on api wall
-                                                     # schedule post_on_<provider> or generic_post_on_wall task
+        # check permissions
+        next if get_write_on_wall_action(provider) == ApplicationController::WRITE_ON_WALL_NO # user has deselected post on api wall
+        # schedule post_on_<provider> or generic_post_on_wall task
         task_name = "post_on_#{provider}"
         if UtilController.new.private_methods.index(task_name.to_sym)
           add_task "#{task_name}(#{gift.id})", 5
@@ -330,7 +330,7 @@ class GiftsController < ApplicationController
       @first_gift = true
       # check write on wall settings
       @users.each do |user|
-        if user.get_write_on_wall_action == User::WRITE_ON_WALL_MISSING_PRIVS
+        if get_write_on_wall_action(user.provider) == ApplicationController::WRITE_ON_WALL_MISSING_PRIVS
           key, options = grant_write_link(user.provider)
           logger.secret2 "grant_write_link: key = #{key}, options = #{options}"
           add_error_key key, options if key

@@ -796,6 +796,7 @@ class User < ActiveRecord::Base
   end # currency_with_text
 
   # has user granted app privs wall postings?
+  # information is copied to session after login
   def post_on_wall_authorized?
     permissions = self.permissions
     return false if API_GIFT_PICTURE_STORE[provider] == nil # readonly api: google+ and instagram
@@ -818,31 +819,40 @@ class User < ActiveRecord::Base
         false
     end # case
   end # post_on_wall_authorized?
-  def self.post_on_wall_authorized? (users)
-    return false unless [Array, ActiveRecord::Relation::ActiveRecord_Relation_User].index(users.class) and users.length > 0
-    users.each do |user|
-      next unless API_POST_PERMITTED[user.provider]
-      return true if user.post_on_wall_authorized?
-    end
-    false
-  end # self.post_on_wall_authorized?
+
+
+  # post_on_wall privs. have been moved to session.
+  # User.post_on_wall_authorized? has been moved to app controller - see get_post_on_wall_authorized(nil)
+  # def self.post_on_wall_authorized? (users)
+  #   return false unless [Array, ActiveRecord::Relation::ActiveRecord_Relation_User].index(users.class) and users.length > 0
+  #   users.each do |user|
+  #     next unless API_POST_PERMITTED[user.provider]
+  #     return true if user.post_on_wall_authorized?
+  #   end
+  #   false
+  # end # self.post_on_wall_authorized?
+
 
   # has user authorized and enabled post on wall?
-  def post_on_wall_allowed?
-    post_on_wall_yn == 'Y' and post_on_wall_authorized?
-  end
-  def self.post_on_wall_allowed? (login_users)
-    return false if login_users.size == 0 or login_users.size == 1 and login_users.first.dummy_user?
-    login_users.each do |login_user|
-      return true if login_user.post_on_wall_allowed?
-    end
-    return false
-  end
+  # used in Picture.self.find_picture_store
+  # todo: post_on_wall privs. have been moved to session. Move post_on_wall_allowed? to applicationController
+  # def post_on_wall_allowed?
+  #   post_on_wall_yn == 'Y' and post_on_wall_authorized?
+  # end
+  # def self.post_on_wall_allowed? (login_users)
+  #   return false if login_users.size == 0 or login_users.size == 1 and login_users.first.dummy_user?
+  #   login_users.each do |login_user|
+  #     return true if login_user.post_on_wall_allowed?
+  #   end
+  #   return false
+  # end
 
-
-  def self.post_image_allowed? (login_users)
-    (Picture.find_picture_store(login_users) != nil)
-  end # post_image_allowed?
+  # post_on_wall privs. have been moved to session.
+  # class method Picture.find_picture_store should be moved to application controller
+  # move class method User.post_image_allowed? to application controller
+  # def self.post_image_allowed? (login_users)
+  #   (Picture.find_picture_store(login_users) != nil)
+  # end # post_image_allowed?
 
   # "permissions"=>{"data"=>[{"installed"=>1, "basic_info"=>1, "read_stream"=>1, "status_update"=>1, "photo_upload"=>1, "video_upload"=>1, "create_note"=>1 ...
   def read_gifts_allowed?
@@ -856,33 +866,36 @@ class User < ActiveRecord::Base
     end
   end  # read_gifts_allowed?
 
-  # write on api wall helpers
-  WRITE_ON_WALL_YES = 1
-  WRITE_ON_WALL_NO = 2
-  WRITE_ON_WALL_MISSING_PRIVS = 3
+  # post_on_wall privs. have been moved to session. WRITE_ON_WALL_* ruby constants and get_write_on_wall_action have been moved to application controller
 
-  def get_write_on_wall_action
-    # check user privs before post in provider wall
-    # that is user.permissions and user.post_on_wall_yn settings
-    if post_on_wall_authorized?
-      # user has authorized post on provider wall
-      if post_on_wall_yn != 'Y'
-        logger.debug2 "User has authorized post on #{provider} but has selected not to post on #{provider} wall"
-        return User::WRITE_ON_WALL_NO
-      end
-      # write priv ok - continue with post on provider wall
-      return User::WRITE_ON_WALL_YES
-    else
-      # user has not authorized post on provider wall
-      if post_on_wall_yn == 'Y'
-        # inject link to authorize post on provider wall
-        return User::WRITE_ON_WALL_MISSING_PRIVS
-      else
-        logger.debug2 "Ignore post_on_#{provider}. User has not authorzed post on #{provider} wall and has also selected not to post on #{provider} wall"
-        return User::WRITE_ON_WALL_NO
-      end
-    end
-  end # check_write_on_wall_privs
+  # write on api wall helpers
+  # WRITE_ON_WALL_YES = 1
+  # WRITE_ON_WALL_NO = 2
+  # WRITE_ON_WALL_MISSING_PRIVS = 3
+
+  # def get_write_on_wall_action
+  #   # check user privs before post in provider wall
+  #   # that is user.permissions and user.post_on_wall_yn settings
+  #   if post_on_wall_authorized?
+  #     # user has authorized post on provider wall
+  #     if post_on_wall_yn != 'Y'
+  #       logger.debug2 "User has authorized post on #{provider} but has selected not to post on #{provider} wall"
+  #       return User::WRITE_ON_WALL_NO
+  #     end
+  #     # write priv ok - continue with post on provider wall
+  #     return User::WRITE_ON_WALL_YES
+  #   else
+  #     # user has not authorized post on provider wall
+  #     if post_on_wall_yn == 'Y'
+  #       # inject link to authorize post on provider wall
+  #       return User::WRITE_ON_WALL_MISSING_PRIVS
+  #     else
+  #       logger.debug2 "Ignore post_on_#{provider}. User has not authorzed post on #{provider} wall and has also selected not to post on #{provider} wall"
+  #       return User::WRITE_ON_WALL_NO
+  #     end
+  #   end
+  # end # check_write_on_wall_privs
+
 
   # relation helpers
   def offers

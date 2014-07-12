@@ -305,6 +305,8 @@ da:
      create:
         not_logged_in: "Du er ikke logget ind og kan ikke oprette nye opslag. Opdater venligst siden."
         deleted_user: "Din konto er ved at blive slettet, og du kan ikke oprette nye opslag"
+        post_on_wall_deauthorized: "%{appname} har ikke længere tilladelse til at lave opslag på din %{apiname} væg."
+        post_on_wall_authorized_html: "%{appname} har fået tiladelse til at lave opslag på din %{apiname} væg. Adgangen bliver aktiv efter næste log ind."
         file_upload_not_allowed: "Fil upload ej tilladt. %{appname} mangler adgang til at skrive på din %{apiname} væg."
         unsupported_filetype: "Usupporteret filtype %{filetype} i fil upload. Supporterede filtyper er jpg, gif, png og bmp."
         file_is_too_big: "Fil er for stor. Højst tilladte størrelse på billede er %{maxsize}."

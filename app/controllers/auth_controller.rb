@@ -25,7 +25,7 @@ class AuthController < ApplicationController
         access = 0
       else
         user = @users.find { |u| u.provider == provider }
-        access = user.post_on_wall_authorized? ? 2 : 1
+        access = get_post_on_wall_authorized(user.provider) ? 2 : 1
         if access == 1
           # use access 3 if read/write priv. is handled internal inside Gofreerev
           method = "grant_write_#{provider}".to_sym

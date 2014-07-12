@@ -1008,10 +1008,23 @@ class ApplicationController < ActionController::Base
   end
   def set_post_on_wall_authorized (post_on_wall_authorized, provider, login)
     init_post_on_wall_authorized
+    logger.debug2 "set_post_on_wall_authorized(#{provider}) = #{post_on_wall_authorized}"
     session[:post_on_wall_authorized][provider] = post_on_wall_authorized
   end
-  def get_post_on_wall_authorized (provider)
+  def get_post_on_wall_authorized (provider=nil)
+    if !provider
+      # generic check - check all logged in users
+      @users.each do |user|
+        if get_post_on_wall_authorized(user.provider)
+          logger.debug2 "get_post_on_wall_authorized(nil) = true"
+          return true
+        end
+      end
+      logger.debug2 "get_post_on_wall_authorized(nil) = false"
+      return false
+    end
     init_post_on_wall_authorized
+    logger.debug2 "get_post_on_wall_authorized(#{provider}) = #{session[:post_on_wall_authorized][provider]}"
     session[:post_on_wall_authorized][provider]
   end
   def clear_post_on_wall_authorized (provider=nil)
@@ -1194,11 +1207,12 @@ class ApplicationController < ActionController::Base
           raise DupPostOnWall
         elsif e.fb_error_type == 'OAuthException' && e.fb_error_code == 200
           # e.response_body = {"error":{"message":"(#200) The user hasn't authorized the application to perform this action","type":"OAuthException","code":200}}
-          # check if permission to post i api wall has been removed
+          # check if permission to post on api wall has been removed
           error = e.to_s
           login_user.get_permissions_facebook(api_client)
           if !login_user.post_on_wall_authorized?
             # permission to post on api wall has been removed.
+            # set_post_on_wall_authorized(false, provider, false)
             # show request_post_gift_priv_link link in gifts/index page
             raise PostNotAllowed
           else
@@ -2212,5 +2226,107 @@ class ApplicationController < ActionController::Base
     true
   end
   helper_method :show_find_friends_link?
+
+  # todo: post_on_wall privs. are moved to session. Remove WRITE_ON_WALL_* ruby constants and get_write_on_wall_action from User model
+
+  # write on api wall helpers
+  WRITE_ON_WALL_YES = 1
+  WRITE_ON_WALL_NO = 2
+  WRITE_ON_WALL_MISSING_PRIVS = 3
+
+  private
+  def get_write_on_wall_action (provider)
+    # check user privs before post in provider wall
+    # that is user.permissions and user.post_on_wall_yn settings
+    if get_post_on_wall_authorized(provider)
+      # user has authorized post on provider wall
+      if !get_post_on_wall_selected(provider)
+        logger.debug2 "User has authorized post on #{provider} but has selected not to post on #{provider} wall"
+        return ApplicationController::WRITE_ON_WALL_NO
+      end
+      # write priv ok - continue with post on provider wall
+      return ApplicationController::WRITE_ON_WALL_YES
+    else
+      # user has not authorized post on provider wall
+      if get_post_on_wall_selected(provider)
+        # inject link to authorize post on provider wall
+        return ApplicationController::WRITE_ON_WALL_MISSING_PRIVS
+      else
+        logger.debug2 "Ignore post_on_#{provider}. User has not authorzed post on #{provider} wall and has also selected not to post on #{provider} wall"
+        return ApplicationController::WRITE_ON_WALL_NO
+      end
+    end
+  end # check_write_on_wall_privs
+
+  # <== post_on_wall privs. are moved to session. Remove WRITE_ON_WALL_* ruby constants and get_write_on_wall_action from User model
+
+
+
+  # post_on_wall privs. have been moved to session.
+  # method post_on_wall_wallled? have been moved from User to application controller
+  # ==>
+
+  private
+  def post_on_wall_allowed? (provider=nil)
+    if !provider
+      # generic post_on_wall_allowed? request - true if allowed for one api wall
+      @users.each do |user|
+        return if post_on_wall_allowed?(user.provider)
+      end
+      return false
+    end
+    # provider specific post_on_wall_allowed? request
+    (get_post_on_wall_selected(provider) and get_post_on_wall_authorized(provider))
+  end # post_on_wall_allowed?
+
+  # <==
+
+
+  # post_on_wall privs. have been moved to session
+  # call methods Picture.find_picture_store and Picture.new_temp_or_perm_rel_path have been moved to application controller
+  # ==>
+
+  private
+  def find_picture_store
+    providers = @users.collect { |u| u.provider }
+    # :local picture store?
+    @users.each do |login_user|
+      next unless API_GIFT_PICTURE_STORE[login_user.provider] == :local
+      return :local if post_on_wall_allowed?(login_user.provider)
+    end
+    # :api picture store?
+    @users.each do |login_user|
+      next unless API_GIFT_PICTURE_STORE[login_user.provider] == :api
+      return :api if  post_on_wall_allowed?(login_user.provider)
+    end
+    # fallback option when :local or :api picture store was not available
+    return :local if API_GIFT_PICTURE_STORE[:fallback] == :local
+    # no fallback - could be a readonly API as google+ or instagram - image upload is not allowed
+    nil
+  end # find_picture_store
+
+  private
+  def new_temp_or_perm_rel_path (image_type)
+    case find_picture_store()
+      when :local then Picture.new_perm_rel_path image_type
+      when :api then Picture.new_temp_rel_path image_type
+      else nil # error - no picture store - could be google+ - image upload is not allowed
+    end
+  end # new_temp_or_perm_rel_path
+
+  # <==
+
+  # post_on_wall privs. have been moved to session.
+  # Call method User.post_image_allowed? has been moved to application controller
+  # ==>
+
+  private
+  def post_image_allowed?
+    (find_picture_store() != nil)
+  end # post_image_allowed?
+  helper_method "post_image_allowed?"
+
+  # <==
+
 
 end # ApplicationController
