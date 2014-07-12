@@ -33,7 +33,7 @@ class GiftsController < ApplicationController
           set_post_on_wall_authorized(false, user.provider, true)
         else
           # read permission after login - now write permission - write priv. added in an other browser session
-          add_error_key '.post_on_wall_authorized_html', user.app_and_apiname_hash.merge(:url => url_for(:controller => :auth, :action => :index))
+          # managed in grant_write_link method
         end
       end
 
@@ -172,7 +172,7 @@ class GiftsController < ApplicationController
       # - google+ not implemented - The Google+ API is at current time a read only API
       # - linkedin - ok
       # - twitter - todo
-      # note that post_on_<provider> is called even if post_gift_allowed? is false (inject link to grant missing permission)
+      # note that post_on_<provider> is called even if post_gift_allowed? is false (ajax inject link to grant missing permission)
       no_walls = 0
       tokens = session[:tokens] || {}
       tokens.keys.each do |provider|

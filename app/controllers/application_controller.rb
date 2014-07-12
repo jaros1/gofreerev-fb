@@ -2053,6 +2053,16 @@ class ApplicationController < ActionController::Base
   def grant_write_link (provider)
     # API_GIFT_PICTURE_STORE: nil (no picture/readonly api), :api (use api picture url) or :local (keep local copy of picture)
     return nil unless [:local, :api].index(API_GIFT_PICTURE_STORE[provider])
+    # changed authorisation in an other browser session?
+    # that is post_on_wall is not authorized in session + post_on_wall is authorized in db (user.permissions)
+    if !get_post_on_wall_authorized(provider) and (user=@users.find { |u| u.provider == provider }) and user.post_on_wall_authorized?
+      # post_on_wall permission has been authorized in an other browser session
+      # return link to Log in page - reconnect to allow post on api wall in this session
+      url = url_for(:controller=> :auth, :action => :index)
+      hide_url = "/util/hide_grant_write?provider=#{provider}"
+      return ['util.do_tasks.gift_posted_3c_html', user.app_and_apiname_hash.merge(:url => url, :provider => provider, :hide_url => hide_url)]
+    end
+    # call method for api specific link for requesting post on wall permission
     method = "grant_write_link_#{provider}".to_sym
     # logger.debug2 "private_methods = #{private_methods.join(', ')}"
     return ['.grant_write_link_missing', :provider => provider, :apiname => provider_downcase(provider)] unless private_methods.index(method)
@@ -2227,12 +2237,11 @@ class ApplicationController < ActionController::Base
   end
   helper_method :show_find_friends_link?
 
-  # todo: post_on_wall privs. are moved to session. Remove WRITE_ON_WALL_* ruby constants and get_write_on_wall_action from User model
-
   # write on api wall helpers
   WRITE_ON_WALL_YES = 1
   WRITE_ON_WALL_NO = 2
   WRITE_ON_WALL_MISSING_PRIVS = 3
+  WRITE_ON_WALL_CHANGED_PRIVS = 4
 
   private
   def get_write_on_wall_action (provider)
@@ -2246,14 +2255,23 @@ class ApplicationController < ActionController::Base
       end
       # write priv ok - continue with post on provider wall
       return ApplicationController::WRITE_ON_WALL_YES
+    elsif !get_post_on_wall_selected(provider)
+      logger.debug2 "Ignore post_on_#{provider}. User has not authorzed post on #{provider} wall and has also selected not to post on #{provider} wall"
+      return ApplicationController::WRITE_ON_WALL_NO
     else
-      # user has not authorized post on provider wall
-      if get_post_on_wall_selected(provider)
+      # user has not authorized post on provider wall, but post on wall checkbox in auth/index page is checked
+      # inject link to authorize post on provider wall
+      return ApplicationController::WRITE_ON_WALL_MISSING_PRIVS
+
+      # todo: check for changed privs.
+      user = @users.find { |u2| u2.provider == provider }
+      if user.post_on_wall_authorized?
+        # changed privs. Authorized in db. Not authorized in session. Write permission to api wall has been added in an other browser session
+        # inject link to reconnect / log in
+        return ApplicationController::WRITE_ON_WALL_CHANGED_PRIVS
+      else
         # inject link to authorize post on provider wall
         return ApplicationController::WRITE_ON_WALL_MISSING_PRIVS
-      else
-        logger.debug2 "Ignore post_on_#{provider}. User has not authorzed post on #{provider} wall and has also selected not to post on #{provider} wall"
-        return ApplicationController::WRITE_ON_WALL_NO
       end
     end
   end # check_write_on_wall_privs
