@@ -786,7 +786,7 @@ en:
         post_login_new_user: "Your friend list is ready. Please refresh page to see any posts from your friends."
         # post on wall
         grant_write_link_missing: "System error. Cannot insert link to grant permission to post on %{apiname} wall. Either private method grant_write_link_%{provider} is missing in application controller or API_GIFT_PICTURE_STORE[:%{provider}] should be set to nil if %{apiname} API does not support post on %{apiname} wall."
-        confirm_grant_write: "Allow post on your %{apiname} wall?"
+        confirm_grant_write: "Allow post on your %{apiname} wall?" #
         api_client_gofreerev_post_on_wall: "System error. Cannot post on %{apiname} wall. Instance method gofreerev_post_on_wall is missing for %{apiname} API client."
         post_on_api_unknown_gift_id: "System error. Unknown post id %{id} when posting on %{provider} wall."
         post_on_api_invalid_gift_id: "Invalid post id %{id} when posting on %{provider} wall (1)."
