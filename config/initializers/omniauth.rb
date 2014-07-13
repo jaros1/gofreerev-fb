@@ -69,7 +69,7 @@ API_TOKEN  = api_token.with_indifferent_access
 
 # C) - omniauth setup
 Rails.application.config.middleware.use OmniAuth::Builder do
-  provider :facebook,      API_ID[:facebook],      API_SECRET[:facebook], :scope => "", :image_size => :normal, :info_fields => "name,permissions,friends,picture,timezone"
+  provider :facebook,      API_ID[:facebook],      API_SECRET[:facebook], :scope => '', :image_size => :normal, :info_fields => "name,permissions,friends,picture,timezone"
   provider :flickr,        API_ID[:flickr],        API_SECRET[:flickr], :scope => 'read'
   provider :foursquare,    API_ID[:foursquare],    API_SECRET[:foursquare]
   provider :google_oauth2, API_ID[:google_oauth2], API_SECRET[:google_oauth2], :scope => 'plus.login userinfo.profile', :access_type => 'offline', :prompt => 'consent'

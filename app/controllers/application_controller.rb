@@ -1928,12 +1928,44 @@ class ApplicationController < ActionController::Base
   # normally grant write link is a link to api provider authorize dialog box
   # can also be link to a JS confirm dialog box if read/write privs. are handled within Gofreerev
 
+  # special case. permission to post on wall has been granted in an other browser session
+  # user should reconnect to update permissions and allow Gofreerev to post on wall also in this browser session
+  # return key and options for gift_posted_3c_html div
+  # alert to user to log out + log in to update permissions
+  def gift_posted_3c_key_and_options (user)
+    url = url_for(:controller=> :auth, :action => :index)
+    provider = user.provider
+    hide_url = "/util/hide_grant_write?provider=#{provider}"
+    return ['util.do_tasks.gift_posted_3c_html', user.app_and_apiname_hash.merge(:url => url, :provider => provider, :hide_url => hide_url)]
+  end # gift_posted_3c_key_and_options
+
+  # special case. permission to post on wall has been granted in an other browser session
+  # user should click on util/grant_write link to allow Gofreerev to post on wall also in this browser session
+  # return key and options for gift_posted_3c_html div
+  # alert to user to log out + log in to update permissions
+  def gift_posted_3d_key_and_options (user)
+    provider = user.provider
+    url = url_for(:controller=> :util, :action => :grant_write, :provider => provider)
+    confirm = t 'util.do_tasks.confirm_grant_write', :apiname => provider_downcase(provider)
+    hide_url = "/util/hide_grant_write?provider=#{provider}"
+    return ['util.do_tasks.gift_posted_3d_html', user.app_and_apiname_hash.merge(:url => url, :confirm => confirm, :provider => provider, :hide_url => hide_url)]
+  end # gift_posted_3d_key_and_options
+
+
   # return [key, options] with @errors ajax to grant write access to facebook wall
   # link is injected in tasks_errors table in page header
   private
   def grant_write_link_facebook
     logger.debug2 "start"
     provider = 'facebook'
+    # changed authorisation in an other browser session?
+    # that is post_on_wall is not authorized in session + post_on_wall is authorized in db (user.permissions)
+    if !get_post_on_wall_authorized(provider) and (user=@users.find { |u| u.provider == provider }) and user.post_on_wall_authorized?
+      # post_on_wall permission has been authorized in an other browser session
+      # return link to Log in page - reconnect to allow post on api wall in this session
+      key, options = gift_posted_3c_key_and_options(user)
+      return key, options
+    end
     oauth = Koala::Facebook::OAuth.new(API_ID[provider], API_SECRET[provider], API_CALLBACK_URL[provider])
     url = oauth.url_for_oauth_code(:permissions => 'status_update', :state => set_state_cookie_store('status_update'))
     hide_url = "/util/hide_grant_write?provider=#{provider}"
@@ -1949,6 +1981,13 @@ class ApplicationController < ActionController::Base
   private
   def grant_write_link_flickr
     provider = 'flickr'
+    # check if post on wall permissions has been granted in an other browser session
+    if !get_post_on_wall_authorized(provider) and (user=@users.find {|u| u.provider == provider}) and user.post_on_wall_authorized?
+      # post on wall permission has been granted in an other browser session
+      # use Gofreerev internal grant write authorization - normally only used for twitter and vkontakte
+      key, options = gift_posted_3d_key_and_options(user)
+      return key, options
+    end
     # https://github.com/hanklords/flickraw#authentication
     scope = 'write'
     # can not use init_api_client_flickr here
@@ -1996,13 +2035,11 @@ class ApplicationController < ActionController::Base
                               :hide_url => hide_url}]
   end # grant_write_link_linkedin
 
-  # return [key, options] with @errors ajax to grant write access to twitter wall
-  # link is injected in tasks_errors table in page header
-  # read/write authorization in twitter is a gofreerev concept - omniauth login is with write permission to twitter wall
-  private
-  def grant_write_link_twitter
-    provider = 'twitter'
-    url = '/util/grant_write_twitter'
+  # internal Gofreerev method for grant write permission to api
+  # used for twitter and vkontakte where read/write in handled in Gofreerev
+  # also used for some api's if post on wall permission has been granted in an other browser session and log out + log in is not possible
+  def grant_write_link_internal (provider)
+    url = "/util/grant_write?provider=#{provider}"
     confirm = t 'util.do_tasks.confirm_grant_write', :apiname => provider_downcase(provider)
     hide_url = "/util/hide_grant_write?provider=#{provider}"
 
@@ -2013,6 +2050,14 @@ class ApplicationController < ActionController::Base
               :provider => provider,
               :url => url, :confirm => confirm,
               :hide_url => hide_url}]
+  end # grant_write_link_internal
+
+  # return [key, options] with @errors ajax to grant write access to twitter wall
+  # link is injected in tasks_errors table in page header
+  # read/write authorization in twitter is a gofreerev concept - omniauth login is with write permission to twitter wall
+  private
+  def grant_write_link_twitter
+    return grant_write_link_internal('twitter')
   end # grant_write_link_twitter
 
   # return [key, options] with @errors ajax to grant write access to vkontakte wall
@@ -2020,18 +2065,7 @@ class ApplicationController < ActionController::Base
   # read/write authorization in vkontakte is a gofreerev concept - omniauth login is with write permission to vkontakte wall
   private
   def grant_write_link_vkontakte
-    provider = 'vkontakte'
-    url = '/util/grant_write_vkontakte'
-    confirm = t 'util.do_tasks.confirm_grant_write', :apiname => provider_downcase(provider)
-    hide_url = "/util/hide_grant_write?provider=#{provider}"
-
-    # ajax inject link in gifts/index page
-    return ['util.do_tasks.gift_posted_3b_html',
-            { :appname => APP_NAME,
-              :apiname => provider_downcase(provider),
-              :provider => provider,
-              :url => url, :confirm => confirm,
-              :hide_url => hide_url}]
+    return grant_write_link_internal('vkontakte')
   end # grant_write_link_vkontakte
 
   private
@@ -2053,15 +2087,6 @@ class ApplicationController < ActionController::Base
   def grant_write_link (provider)
     # API_GIFT_PICTURE_STORE: nil (no picture/readonly api), :api (use api picture url) or :local (keep local copy of picture)
     return nil unless [:local, :api].index(API_GIFT_PICTURE_STORE[provider])
-    # changed authorisation in an other browser session?
-    # that is post_on_wall is not authorized in session + post_on_wall is authorized in db (user.permissions)
-    if !get_post_on_wall_authorized(provider) and (user=@users.find { |u| u.provider == provider }) and user.post_on_wall_authorized?
-      # post_on_wall permission has been authorized in an other browser session
-      # return link to Log in page - reconnect to allow post on api wall in this session
-      url = url_for(:controller=> :auth, :action => :index)
-      hide_url = "/util/hide_grant_write?provider=#{provider}"
-      return ['util.do_tasks.gift_posted_3c_html', user.app_and_apiname_hash.merge(:url => url, :provider => provider, :hide_url => hide_url)]
-    end
     # call method for api specific link for requesting post on wall permission
     method = "grant_write_link_#{provider}".to_sym
     # logger.debug2 "private_methods = #{private_methods.join(', ')}"

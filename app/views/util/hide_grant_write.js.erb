@@ -10,13 +10,12 @@
             parent.removeChild(div) ;
         }
         else {
-            // must be an error table - remove table
+            // must be an ajax error table - remove table row
             var tr = div;
             while (tr.tagName != 'TR') tr = tr.parentNode;
             var tbody = tr.parentNode;
             tbody.removeChild(tr);
         }
-        // div.style.display = 'none'
     }
     // auth/index page - uncheck "Post?" checkbox
     var checkbox = document.getElementById('<%= @checkbox %>');

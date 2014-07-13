@@ -1665,9 +1665,7 @@ class UtilController < ApplicationController
       if get_post_on_wall_selected(provider) and !get_post_on_wall_authorized(provider) and login_user.post_on_wall_authorized?
         # special case. permission to post on wlll has been granted in an other browser session
         # user should reconnect to update permissions and allow Gofreerev to post on wall also in this browser session
-        url = url_for(:controller => :auth, :action => :index)
-        hide_url = "/util/hide_grant_write?provider=#{provider}"
-        return format_response_key('util.do_tasks.gift_posted_3c_html', login_user.app_and_apiname_hash.merge(:url => url, :provider => provider, :hide_url => hide_url))
+        return gift_posted_3c_key_and_options(login_user)
       end
       # empty response
       format_response
@@ -1741,11 +1739,39 @@ class UtilController < ApplicationController
     end
   end # share_accounts
 
+
+  # grant_write_twitter is called from gifts/index page
+  # also called from generic_post_on_wall if write priv. is missing (ajax inject into gifts/index page)
+  public
+  def grant_write
+    provider = params[:provider]
+    @link = nil
+    begin
+
+      # get user
+      login_user, token, key, options = get_login_user_and_token(provider, __method__)
+      return format_response_key(key, options) if key
+      # change twitter user permissions from read to write
+      login_user.update_attribute('permissions', 'write')
+      set_post_on_wall_authorized(true, provider, false)
+      # hide ajax injected link to grant write permission to twitter wall
+      @link = "grant_write_div_#{provider}"
+      # ok
+      format_response_key '.ok', login_user.app_and_apiname_hash
+    rescue Exception => e
+      logger.debug2 "Exception: #{e.message.to_s} (#{e.class})"
+      logger.debug2 "Backtrace: " + e.backtrace.join("\n")
+      format_response_key '.exception',
+                          :error => e.message, :provider => provider, :apiname => provider_downcase(provider)
+    end
+  end # grant_write_twitter
+
+
   # grant_write_twitter is called from gifts/index page
   # also called from generic_post_on_wall if write priv. is missing (ajax inject into gifts/index page)
   public
   def grant_write_twitter
-    provider = __method__.split('_').last # twitter
+    provider = __method__.to_s.split('_').last # twitter
     params[:action] = 'grant_write'
     @link = nil
     begin
@@ -1754,6 +1780,7 @@ class UtilController < ApplicationController
       return format_response_key(key, options) if key
       # change twitter user permissions from read to write
       login_user.update_attribute('permissions', 'write')
+      set_post_on_wall_authorized(true, provider, false)
       # hide ajax injected link to grant write permission to twitter wall
       @link = "grant_write_div_#{provider}"
       # ok
@@ -1770,7 +1797,7 @@ class UtilController < ApplicationController
   # also called from generic_post_on_wall if write priv. is missing (ajax inject into gifts/index page)
   public
   def grant_write_vkontakte
-    provider = __method__.split('_').last # vkontakte
+    provider = __method__.to_s.split('_').last # vkontakte
     params[:action] = 'grant_write'
     @link = nil
     begin
@@ -1779,6 +1806,7 @@ class UtilController < ApplicationController
       return format_response_key(key, options) if key
       # change vkontakte user permissions from read to write
       login_user.update_attribute('permissions', 'write')
+      set_post_on_wall_authorized(true, provider, false)
       # hide ajax injected link to grant write permission to vkontakte wall
       @link = "grant_write_div_#{provider}"
       logger.debug2 "@link = #{@link}"

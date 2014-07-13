@@ -29,9 +29,8 @@ class AuthController < ApplicationController
         if access == 1 and get_post_on_wall_selected(provider) and user.post_on_wall_authorized?
           # alert to user. read access to wall in this browser session but write access has been granted in an other browser session
           # user should reconnect to update permissions in this browser session
-          url = url_for(:controller=> :auth, :action => :index)
-          hide_url = "/util/hide_grant_write?provider=#{provider}"
-          add_error_key 'util.do_tasks.gift_posted_3c_html', user.app_and_apiname_hash.merge(:url => url, :provider => provider, :hide_url => hide_url)
+          key, options = gift_posted_3c_key_and_options(user)
+          add_error_key key, options
         end
         if access == 1
           # use access 3 if read/write priv. is handled internal inside Gofreerev
