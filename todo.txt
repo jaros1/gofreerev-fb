@@ -1169,3 +1169,6 @@
      that is read/write permission to api wall
      "Warning. Post on facebook wall has been removed in an other session"
      "Warning. Post on facebook wall has been granted in an other session"
+
+266) add log out/in recommendation in auth/index page if post on wall priv. has been added in an other browser session
+     and post? has been selected for api

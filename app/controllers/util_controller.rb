@@ -1657,6 +1657,12 @@ class UtilController < ApplicationController
       # update user
       login_user.update_attribute('post_on_wall_yn', post_on_wall)
       set_post_on_wall_selected((post_on_wall == 'Y'), provider,false)
+
+      # update web page
+      # never any updates to gifts/index page
+      # add/remove util.do_tasks.gift_posted_3c_html note in top of web page if post on wall permission has been granted in an other browser session
+      #
+      @provider = provider
       format_response
     rescue Exception => e
       logger.debug2 "Exception: #{e.message.to_s} (#{e.class})"
@@ -1785,7 +1791,7 @@ class UtilController < ApplicationController
   public
   def hide_grant_write
     provider = params[:provider]
-    @link = nil
+    @div = nil
     begin
       # check provider
       return format_response_key('.unknown_provider', :provider => provider) unless valid_provider?(provider)
@@ -1795,9 +1801,10 @@ class UtilController < ApplicationController
       # disable post on wall <=> do not ajax inject links to authorize post on wall permission
       # login_user.update_attribute :post_on_wall_yn, 'N'
       set_post_on_wall_selected(false, provider,false)
-      # hide ajax injected link to grant write permission to api provider wall
-      @link = "grant_write_div_#{provider}"
-      logger.debug2 "@link = #{@link}"
+      # delete ajax injected link to grant write permission to api provider wall
+      @div = "grant_write_div_#{provider}"
+      @checkbox = "post_#{provider}" # only auth/index page
+      logger.debug2 "@div = #{@div}, @checkbox = #{@checkbox}"
       # ok
       format_response_key '.ok', login_user.app_and_apiname_hash
     rescue Exception => e

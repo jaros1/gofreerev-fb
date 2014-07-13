@@ -2040,7 +2040,7 @@ class ApplicationController < ActionController::Base
   end
 
   # check if link util.grant_write_<providfer> exists
-  # post_on_wall priv. is handled internally in app for writter and vkontakte
+  # post_on_wall priv. is handled internally in app for twitter and vkontakte
   private
   def grant_write_link_exists? (provider)
     method = grant_write_method(provider)
