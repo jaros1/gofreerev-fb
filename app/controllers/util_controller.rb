@@ -1656,13 +1656,20 @@ class UtilController < ApplicationController
 
       # update user
       login_user.update_attribute('post_on_wall_yn', post_on_wall)
-      set_post_on_wall_selected((post_on_wall == 'Y'), provider,false)
+      set_post_on_wall_selected((post_on_wall == 'Y'), provider, false)
 
-      # update web page
-      # never any updates to gifts/index page
-      # add/remove util.do_tasks.gift_posted_3c_html note in top of web page if post on wall permission has been granted in an other browser session
-      #
-      @provider = provider
+      # update auth/index web page
+      # normal no feedback from post_on_wall_yn ajax request
+      # exception for post_on_wall = 'Y', read priv. in this session and write priv. in an other browser session
+      # (difference between permissions in user table and post_on_wall permission in session table)
+      if get_post_on_wall_selected(provider) and !get_post_on_wall_authorized(provider) and login_user.post_on_wall_authorized?
+        # special case. permission to post on wlll has been granted in an other browser session
+        # user should reconnect to update permissions and allow Gofreerev to post on wall also in this browser session
+        url = url_for(:controller => :auth, :action => :index)
+        hide_url = "/util/hide_grant_write?provider=#{provider}"
+        return format_response_key('util.do_tasks.gift_posted_3c_html', login_user.app_and_apiname_hash.merge(:url => url, :provider => provider, :hide_url => hide_url))
+      end
+      # empty response
       format_response
     rescue Exception => e
       logger.debug2 "Exception: #{e.message.to_s} (#{e.class})"
