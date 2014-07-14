@@ -585,6 +585,7 @@ class ApplicationController < ActionController::Base
           elsif user3 = @users.find { |u3| u3.provider == user2.provider}
             # disconnect user3 before single sign-on login with user2
             logger.debug2 "single sign-off: disconnecting old #{user3.debug_info} user"
+            provider2 = user2.provider
             session[:user_ids] = login_user_ids.delete_if { |user_id3| user_id3.split('/').last == provider2 }
             @users.delete_if { |user3| user3.provider == provider2 }
             session[:tokens].delete(provider2)
@@ -1960,12 +1961,13 @@ class ApplicationController < ActionController::Base
     provider = 'facebook'
     # changed authorisation in an other browser session?
     # that is post_on_wall is not authorized in session + post_on_wall is authorized in db (user.permissions)
-    if !get_post_on_wall_authorized(provider) and (user=@users.find { |u| u.provider == provider }) and user.post_on_wall_authorized?
-      # post_on_wall permission has been authorized in an other browser session
-      # return link to Log in page - reconnect to allow post on api wall in this session
-      key, options = gift_posted_3c_key_and_options(user)
-      return key, options
-    end
+    # todo: move test to grant_write_link method
+    # if !get_post_on_wall_authorized(provider) and (user=@users.find { |u| u.provider == provider }) and user.post_on_wall_authorized?
+    #   # post_on_wall permission has been authorized in an other browser session
+    #   # return link to Log in page - reconnect to allow post on api wall in this session
+    #   key, options = gift_posted_3c_key_and_options(user)
+    #   return key, options
+    # end
     oauth = Koala::Facebook::OAuth.new(API_ID[provider], API_SECRET[provider], API_CALLBACK_URL[provider])
     url = oauth.url_for_oauth_code(:permissions => 'status_update', :state => set_state_cookie_store('status_update'))
     hide_url = "/util/hide_grant_write?provider=#{provider}"
@@ -1982,12 +1984,13 @@ class ApplicationController < ActionController::Base
   def grant_write_link_flickr
     provider = 'flickr'
     # check if post on wall permissions has been granted in an other browser session
-    if !get_post_on_wall_authorized(provider) and (user=@users.find {|u| u.provider == provider}) and user.post_on_wall_authorized?
-      # post on wall permission has been granted in an other browser session
-      # use Gofreerev internal grant write authorization - normally only used for twitter and vkontakte
-      key, options = gift_posted_3d_key_and_options(user)
-      return key, options
-    end
+    # todo: move test to grant_write_link method
+    # if !get_post_on_wall_authorized(provider) and (user=@users.find {|u| u.provider == provider}) and user.post_on_wall_authorized?
+    #   # post on wall permission has been granted in an other browser session
+    #   # use Gofreerev internal grant write authorization - normally only used for twitter and vkontakte
+    #   key, options = gift_posted_3d_key_and_options(user)
+    #   return key, options
+    # end
     # https://github.com/hanklords/flickraw#authentication
     scope = 'write'
     # can not use init_api_client_flickr here
@@ -2087,6 +2090,29 @@ class ApplicationController < ActionController::Base
   def grant_write_link (provider)
     # API_GIFT_PICTURE_STORE: nil (no picture/readonly api), :api (use api picture url) or :local (keep local copy of picture)
     return nil unless [:local, :api].index(API_GIFT_PICTURE_STORE[provider])
+    # use internal grant write link? twitter, vkontakte and some changes when write permission has been granted in an other browser session
+    if get_post_on_wall_selected(provider) and
+        !get_post_on_wall_authorized(provider) and
+        (login_user = @users.find {|u| u.provider == provider}) and
+        login_user.post_on_wall_authorized?
+      # write permission has been granted in an other browser session
+      if API_POST_PERMITTED[provider] == API_POST_PERMISSION_IN_API
+        # permission to grant write permission on API wall is handled by API
+        # log out + log in to refresh write permission from database in this browser session
+        key, options = gift_posted_3c_key_and_options(login_user)
+      else
+        # permission to grant write permission on API wall is handled by Gofreerev
+        # use internal internal grant write link to enable post on wall permission also in this browser session
+        key, options = gift_posted_3d_key_and_options(login_user)
+      end
+      return key, options
+    end
+    if API_POST_PERMITTED[provider] == API_POST_PERMISSION_IN_APP
+      # twitter + vkontakte - use internal grant write link with normal text
+      key, options = grant_write_link_internal(provider)
+      return key, options
+    end
+    # use external grant write link
     # call method for api specific link for requesting post on wall permission
     method = "grant_write_link_#{provider}".to_sym
     # logger.debug2 "private_methods = #{private_methods.join(', ')}"

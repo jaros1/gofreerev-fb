@@ -1,6 +1,9 @@
 <% if @link %>
 (function () {
+    // gifts/index and auth/index pages - hide div with grant write link
+    // todo: should delete link. Could be a problem with unique id if grant write operation is repeated in page without refresh (ok in fiurefox 30.0)
     var link = document.getElementById('<%= @link %>') ;
     if (link) link.style.display = 'none';
+    // gifts/auth page - todo: should change "Access" to "Read+write"
 })();
 <% end %>

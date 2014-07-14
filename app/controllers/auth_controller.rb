@@ -29,15 +29,18 @@ class AuthController < ApplicationController
         if access == 1 and get_post_on_wall_selected(provider) and user.post_on_wall_authorized?
           # alert to user. read access in this browser session but write access has been granted in an other browser session
           # user should reconnect to update permissions in this browser session
-          if API_POST_PERMITTED[provider] == API_POST_PERMISSION_IN_API
-            # permission to write on API wall is handled by API
-            # log out + log in to refresh write permission from database in this browser session
-            key, options = gift_posted_3c_key_and_options(user)
-          else
-            # permission to write on API wall is handled by Gofreerev (API_POST_PERMISSION_IN_APP or API_POST_PERMISSION_MIXED)
-            # use internal internal grant write link to enable post on wall permission also in this browser session
-            key, options = gift_posted_3d_key_and_options(user)
-          end
+          # todo: move test API_POST_PERMITTED[provider] == API_POST_PERMISSION_IN_API to grant_write_link and use grant_write_link method. See gifts/index
+          # if API_POST_PERMITTED[provider] == API_POST_PERMISSION_IN_API
+          #   # permission to write on API wall is handled by API
+          #   # log out + log in to refresh write permission from database in this browser session
+          #   key, options = gift_posted_3c_key_and_options(user)
+          # else
+          #   # permission to write on API wall is handled by Gofreerev (API_POST_PERMISSION_IN_APP or API_POST_PERMISSION_MIXED)
+          #   # use internal internal grant write link to enable post on wall permission also in this browser session
+          #   key, options = gift_posted_3d_key_and_options(user)
+          # end
+          key, options = grant_write_link(provider)
+          logger.debug2 "key = #{key}, options = #{options}"
           add_error_key key, options
         end
         if access == 1

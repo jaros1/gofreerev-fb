@@ -904,12 +904,17 @@ da:
         invalid_updated_by: "Systemfejl. Fandt ingen lovlige \"opdateret af\" brugere."
         ok: "Forslag er blevet godkendt."
         exception: "Systemfejl. Kunne ikke godkende forslag. %{error}. Mere information i server log."
-     grant_write_twitter:
+     grant_write:
         ok: "%{appname} fik tilladelse til at lave opslag på din %{apiname} væg."
+        invalid_provider: "Ugyldigt kald. Kunne ikke give skriveadgang til din API væg. Ugyldig login udbyder."
+        not_allowed: "%{appname} fik ikke skriveadgang til din %{apiname} væg. Opdater venligst siden."
         exception: "Systemfejl. Kunne ikke give skriveadgang til din %{apiname} væg. %{error}. Mere information i server log."
-     grant_write_vkontakte:
-        ok: "%{appname} fik tilladelse til at lave opslag på din %{apiname} væg."
-        exception: "Systemfejl. Kunne ikke give skriveadgang til din %{apiname} væg. %{error}. Mere information i server log."
+#     grant_write_twitter:
+#        ok: "%{appname} fik tilladelse til at lave opslag på din %{apiname} væg."
+#        exception: "Systemfejl. Kunne ikke give skriveadgang til din %{apiname} væg. %{error}. Mere information i server log."
+#     grant_write_vkontakte:
+#        ok: "%{appname} fik tilladelse til at lave opslag på din %{apiname} væg."
+#        exception: "Systemfejl. Kunne ikke give skriveadgang til din %{apiname} væg. %{error}. Mere information i server log."
      hide_grant_write:
         unknown_provider: "Systemfejl. Kan ikke skjule link med %{provider} skriveadgang. Ukendt login provider %{provider}."
         ok: "%{appname} vil fremover ikke bede om tilladelse til at lave opslag på din %{apiname} væg. Du kan på et senere tidspunkt give %{appname} lov til at lave opslag på din %{apiname} væg ved at sætte hak i Opslag? tjekbox på \"Log ind\" siden."
