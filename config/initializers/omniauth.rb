@@ -98,19 +98,11 @@ API_CALLBACK_URL = {:facebook => "#{SITE_URL}facebook/",
                     :twitter => '',
                     :vkontakte => ''}.with_indifferent_access
 
-# F) post on wall implemented for API?
+# F) post on wall for API?
 # - 0: No or readonly API
 # - 1: Yes - write permission is handled within Gofreerev (internal grant write link)
 # - 2: Yes - write permission is handled within API (external grant write link or log out+log in to refresh write permission)
 # - 3: Yes - write permission is handled first time in API (external grant write link) and second time in Gofreerev (internal grant write link)
-# API_POST_PERMITTED = {:facebook => true,
-#                       :flickr => true,
-#                       :foursquare => false, # API with write operations but no wall
-#                       :google_oauth2 => false, # readonly API
-#                       :instagram => false, # readonly API
-#                       :linkedin => true,
-#                       :twitter => true,
-#                       :vkontakte => true}.with_indifferent_access
 API_POST_NOT_ALLOWED = 0
 API_POST_PERMISSION_IN_APP = 1
 API_POST_PERMISSION_IN_API = 2

@@ -2032,6 +2032,9 @@ class ApplicationController < ActionController::Base
 
   # return [key, options] with @errors ajax to grant write access to linkedin wall
   # link is injected in tasks_errors table in page header
+  # old linkedin access token expires when a new linkedin access token is given
+  # two different browser for same linked account does not work for share level 1 and 2.
+  # ok for share level 3 and 4 where access token is stored in db
   private
   def grant_write_link_linkedin
     provider = 'linkedin'
@@ -2313,18 +2316,8 @@ class ApplicationController < ActionController::Base
     else
       # user has not authorized post on provider wall, but post on wall checkbox in auth/index page is checked
       # inject link to authorize post on provider wall
+      # that is gift_posted_3*_html translate keys
       return ApplicationController::WRITE_ON_WALL_MISSING_PRIVS
-
-      # todo: check for changed privs.
-      user = @users.find { |u2| u2.provider == provider }
-      if user.post_on_wall_authorized?
-        # changed privs. Authorized in db. Not authorized in session. Write permission to api wall has been added in an other browser session
-        # inject link to reconnect / log in
-        return ApplicationController::WRITE_ON_WALL_CHANGED_PRIVS
-      else
-        # inject link to authorize post on provider wall
-        return ApplicationController::WRITE_ON_WALL_MISSING_PRIVS
-      end
     end
   end # check_write_on_wall_privs
 
