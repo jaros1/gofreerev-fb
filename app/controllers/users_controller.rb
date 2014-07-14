@@ -60,7 +60,7 @@ class UsersController < ApplicationController
     end
     # ok. login user. edit allowed
     # post_on_wall checkbox. 0 disable/hide, 1 unchecked, 2 checked
-    if !API_POST_PERMITTED[@user2.provider]
+    if API_POST_PERMITTED[@user2.provider] == API_POST_NOT_ALLOWED
       @post_on_wall = 0
     else
       @post_on_wall = get_post_on_wall_selected(@user2.provider) ? 2 : 1

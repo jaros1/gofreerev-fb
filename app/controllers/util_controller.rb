@@ -1742,18 +1742,38 @@ class UtilController < ApplicationController
 
   # grant_write_twitter is called from gifts/index page
   # also called from generic_post_on_wall if write priv. is missing (ajax inject into gifts/index page)
+  # used for twitter and vkontakte where read/write priv. is handled internal in Gofreerev (API login with write access)
+  # also used for flickr if write permission has been granted in an other browser session
   public
   def grant_write
     provider = params[:provider]
     @link = nil
     begin
-
+      # check provider
+      return format_response_key('.invalid_provider') unless valid_provider?(provider)
       # get user
       login_user, token, key, options = get_login_user_and_token(provider, __method__)
       return format_response_key(key, options) if key
-      # change twitter user permissions from read to write
-      login_user.update_attribute('permissions', 'write')
-      set_post_on_wall_authorized(true, provider, false)
+      # check if grant write is allowed
+      if API_POST_PERMITTED[provider] == API_POST_PERMISSION_IN_APP
+        # 1) allowed for API's with API_POST_PERMITTED[provider] = API_POST_PERMISSION_IN_APP
+        # that is twitter and vkontakte where write permission to API wall is handled in Gofreerev
+        # change twitter user permissions from read to write
+        # set write allowed in db and session
+        login_user.update_attribute('permissions', 'write') # todo: only twitter and vkontakte
+        set_post_on_wall_authorized(true, provider, false)
+      elsif API_POST_PERMITTED[provider] == API_POST_PERMISSION_MIXED and
+          get_post_on_wall_selected(provider) and
+          !get_post_on_wall_authorized(provider) and
+          login_user.post_on_wall_authorized?
+        # 2) allowed for API's with API_POST_PERMITTED[provider] = API_POST_PERMISSION_MIXED
+        # that is flickr and linkedin AND write permission has been authorized in an other browser session
+        # set write allowed in session
+        set_post_on_wall_authorized(true, provider, false)
+      else
+        # not 1) or 2)
+        return format_response_key('.not_allowed', login_user.app_and_apiname_hash)
+      end
       # hide ajax injected link to grant write permission to twitter wall
       @link = "grant_write_div_#{provider}"
       # ok
@@ -1764,61 +1784,61 @@ class UtilController < ApplicationController
       format_response_key '.exception',
                           :error => e.message, :provider => provider, :apiname => provider_downcase(provider)
     end
-  end # grant_write_twitter
+  end # grant_write
 
 
-  # grant_write_twitter is called from gifts/index page
-  # also called from generic_post_on_wall if write priv. is missing (ajax inject into gifts/index page)
-  public
-  def grant_write_twitter
-    provider = __method__.to_s.split('_').last # twitter
-    params[:action] = 'grant_write'
-    @link = nil
-    begin
-      # get user
-      login_user, token, key, options = get_login_user_and_token(provider, __method__)
-      return format_response_key(key, options) if key
-      # change twitter user permissions from read to write
-      login_user.update_attribute('permissions', 'write')
-      set_post_on_wall_authorized(true, provider, false)
-      # hide ajax injected link to grant write permission to twitter wall
-      @link = "grant_write_div_#{provider}"
-      # ok
-      format_response_key '.ok', login_user.app_and_apiname_hash
-    rescue Exception => e
-      logger.debug2 "Exception: #{e.message.to_s} (#{e.class})"
-      logger.debug2 "Backtrace: " + e.backtrace.join("\n")
-      format_response_key '.exception',
-                          :error => e.message, :provider => provider, :apiname => provider_downcase(provider)
-    end
-  end # grant_write_twitter
-
-  # grant_write_vkontakte is called from gifts/index page
-  # also called from generic_post_on_wall if write priv. is missing (ajax inject into gifts/index page)
-  public
-  def grant_write_vkontakte
-    provider = __method__.to_s.split('_').last # vkontakte
-    params[:action] = 'grant_write'
-    @link = nil
-    begin
-      # get user
-      login_user, token, key, options = get_login_user_and_token(provider, __method__)
-      return format_response_key(key, options) if key
-      # change vkontakte user permissions from read to write
-      login_user.update_attribute('permissions', 'write')
-      set_post_on_wall_authorized(true, provider, false)
-      # hide ajax injected link to grant write permission to vkontakte wall
-      @link = "grant_write_div_#{provider}"
-      logger.debug2 "@link = #{@link}"
-      # ok
-      format_response_key '.ok', login_user.app_and_apiname_hash
-    rescue Exception => e
-      logger.debug2 "Exception: #{e.message.to_s} (#{e.class})"
-      logger.debug2 "Backtrace: " + e.backtrace.join("\n")
-      format_response_key '.exception',
-                          :error => e.message, :provider => provider, :apiname => provider_downcase(provider)
-    end
-  end # grant_write_vkontakte
+  # # grant_write_twitter is called from gifts/index page
+  # # also called from generic_post_on_wall if write priv. is missing (ajax inject into gifts/index page)
+  # public
+  # def grant_write_twitter
+  #   provider = __method__.to_s.split('_').last # twitter
+  #   params[:action] = 'grant_write'
+  #   @link = nil
+  #   begin
+  #     # get user
+  #     login_user, token, key, options = get_login_user_and_token(provider, __method__)
+  #     return format_response_key(key, options) if key
+  #     # change twitter user permissions from read to write
+  #     login_user.update_attribute('permissions', 'write')
+  #     set_post_on_wall_authorized(true, provider, false)
+  #     # hide ajax injected link to grant write permission to twitter wall
+  #     @link = "grant_write_div_#{provider}"
+  #     # ok
+  #     format_response_key '.ok', login_user.app_and_apiname_hash
+  #   rescue Exception => e
+  #     logger.debug2 "Exception: #{e.message.to_s} (#{e.class})"
+  #     logger.debug2 "Backtrace: " + e.backtrace.join("\n")
+  #     format_response_key '.exception',
+  #                         :error => e.message, :provider => provider, :apiname => provider_downcase(provider)
+  #   end
+  # end # grant_write_twitter
+  #
+  # # grant_write_vkontakte is called from gifts/index page
+  # # also called from generic_post_on_wall if write priv. is missing (ajax inject into gifts/index page)
+  # public
+  # def grant_write_vkontakte
+  #   provider = __method__.to_s.split('_').last # vkontakte
+  #   params[:action] = 'grant_write'
+  #   @link = nil
+  #   begin
+  #     # get user
+  #     login_user, token, key, options = get_login_user_and_token(provider, __method__)
+  #     return format_response_key(key, options) if key
+  #     # change vkontakte user permissions from read to write
+  #     login_user.update_attribute('permissions', 'write')
+  #     set_post_on_wall_authorized(true, provider, false)
+  #     # hide ajax injected link to grant write permission to vkontakte wall
+  #     @link = "grant_write_div_#{provider}"
+  #     logger.debug2 "@link = #{@link}"
+  #     # ok
+  #     format_response_key '.ok', login_user.app_and_apiname_hash
+  #   rescue Exception => e
+  #     logger.debug2 "Exception: #{e.message.to_s} (#{e.class})"
+  #     logger.debug2 "Backtrace: " + e.backtrace.join("\n")
+  #     format_response_key '.exception',
+  #                         :error => e.message, :provider => provider, :apiname => provider_downcase(provider)
+  #   end
+  # end # grant_write_vkontakte
 
   
   # hide grant_write_<provider> link in gifts/index page

@@ -20,26 +20,33 @@ class AuthController < ApplicationController
                     else
                       2 # logged in with multiple login providers - log out link and stay on auth/index page
                   end # case
-      # access; 0 not connected, 1 read access, 2 read+write access, 3 special note about twitter & vkontakte access
+      # access; 0 not connected, 1 read access, 2 read+write access, 3 special note for twitter & vkontakte
       if logged_in == 0
         access = 0
       else
         user = @users.find { |u| u.provider == provider }
         access = get_post_on_wall_authorized(user.provider) ? 2 : 1
         if access == 1 and get_post_on_wall_selected(provider) and user.post_on_wall_authorized?
-          # alert to user. read access to wall in this browser session but write access has been granted in an other browser session
+          # alert to user. read access in this browser session but write access has been granted in an other browser session
           # user should reconnect to update permissions in this browser session
-          key, options = gift_posted_3c_key_and_options(user)
+          if API_POST_PERMITTED[provider] == API_POST_PERMISSION_IN_API
+            # permission to write on API wall is handled by API
+            # log out + log in to refresh write permission from database in this browser session
+            key, options = gift_posted_3c_key_and_options(user)
+          else
+            # permission to write on API wall is handled by Gofreerev (API_POST_PERMISSION_IN_APP or API_POST_PERMISSION_MIXED)
+            # use internal internal grant write link to enable post on wall permission also in this browser session
+            key, options = gift_posted_3d_key_and_options(user)
+          end
           add_error_key key, options
         end
         if access == 1
           # use access 3 if read/write priv. is handled internal inside Gofreerev
-          method = "grant_write_#{provider}".to_sym
-          access = 3 if grant_write_link_exists?(provider)
+          access = 3 if %w(twitter vkontakte).index(provider)
         end
       end
       # post_on_wall checkbox. 0 disable/hide, 1 unchecked, 2 checked
-      if logged_in == 0 or !API_POST_PERMITTED[provider]
+      if logged_in == 0 or API_POST_PERMITTED[provider] == API_POST_NOT_ALLOWED
         post_on_wall = 0
       else
         post_on_wall = get_post_on_wall_selected(user.provider) ? 2 : 1

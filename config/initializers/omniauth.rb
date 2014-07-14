@@ -62,7 +62,6 @@ api_token  = {}
     puts "Warning: environment variable #{name} was not found" if api_token[provider].to_s == ""
   end
 end
-# omniauth application id and secret from login provider
 API_ID     = api_id.with_indifferent_access     # A
 API_SECRET = api_secret.with_indifferent_access # B
 API_TOKEN  = api_token.with_indifferent_access
@@ -100,14 +99,31 @@ API_CALLBACK_URL = {:facebook => "#{SITE_URL}facebook/",
                     :vkontakte => ''}.with_indifferent_access
 
 # F) post on wall implemented for API?
-API_POST_PERMITTED = {:facebook => true,
-                      :flickr => true,
-                      :foursquare => false, # API with write operations but no wall
-                      :google_oauth2 => false, # readonly API
-                      :instagram => false, # readonly API
-                      :linkedin => true,
-                      :twitter => true,
-                      :vkontakte => true}.with_indifferent_access
+# - 0: No or readonly API
+# - 1: Yes - write permission is handled within Gofreerev (internal grant write link)
+# - 2: Yes - write permission is handled within API (external grant write link or log out+log in to refresh write permission)
+# - 3: Yes - write permission is handled first time in API (external grant write link) and second time in Gofreerev (internal grant write link)
+# API_POST_PERMITTED = {:facebook => true,
+#                       :flickr => true,
+#                       :foursquare => false, # API with write operations but no wall
+#                       :google_oauth2 => false, # readonly API
+#                       :instagram => false, # readonly API
+#                       :linkedin => true,
+#                       :twitter => true,
+#                       :vkontakte => true}.with_indifferent_access
+API_POST_NOT_ALLOWED = 0
+API_POST_PERMISSION_IN_APP = 1
+API_POST_PERMISSION_IN_API = 2
+API_POST_PERMISSION_MIXED  = 3
+API_POST_PERMITTED = {:facebook      => API_POST_PERMISSION_IN_API, # read/write handled by app
+                      :flickr        => API_POST_PERMISSION_MIXED,  # first login with read permission,
+                      :foursquare    => API_POST_NOT_ALLOWED,       # API with write operations but no wall
+                      :google_oauth2 => API_POST_NOT_ALLOWED,       # readonly API
+                      :instagram     => API_POST_NOT_ALLOWED,       # readonly API
+                      :linkedin      => API_POST_PERMISSION_MIXED,  # first login with read permission, second login with write permission, internal grant write link in other sessions
+                      :twitter       => API_POST_PERMISSION_IN_APP, # login with write permission
+                      :vkontakte     => API_POST_PERMISSION_IN_APP  # login with write permission
+                     }.with_indifferent_access
 
 # G) API friend concept. true if API friends are mutual friends. false if API is using follows and followers
 # mutual friends are also Gofreerev friends but can be deselected

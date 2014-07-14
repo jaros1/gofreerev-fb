@@ -497,7 +497,7 @@ class User < ActiveRecord::Base
     end # outer if
     user.balance = { BALANCE_KEY => 0.0 } unless user.balance
     user.balance_at = Date.parse(Sequence.get_last_exchange_rate_date) unless user.balance_at
-    user.post_on_wall_yn = API_POST_PERMITTED[provider] ? 'Y' : 'N' unless user.post_on_wall_yn
+    user.post_on_wall_yn = API_POST_PERMITTED[provider] == API_POST_NOT_ALLOWED ? 'N' : 'Y' unless user.post_on_wall_yn
     # facebook profile image is set in post login task / post_login_update_friends
     # ( unless new facebook user without profile picture )
     user.api_profile_picture_url = image unless provider == 'facebook' and user.api_profile_picture_url.to_s != ''
