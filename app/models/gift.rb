@@ -372,18 +372,6 @@ class Gift < ActiveRecord::Base
     .where('comments.deleted_at is null')
     .references(:comments)
     .sort_by { |ac| [ ac.user.friend?(login_users), ac.comment.id, rand ]}
-    # todo: sort tuning. not 100% identical.
-    #.sort do |a,b|
-    #  a_friend = (a.user.friend?(login_users) <= 2) ? 1 : 2 # todo: maybe include 3 (follows) in first group
-    #  b_friend = (b.user.friend?(login_users) <= 2) ? 1 : 2 # todo: maybe include 3 (follows) in first group
-    #  if a_friend != b_friend
-    #    a_friend <=> b_friend
-    #  elsif a.comment_id == b.comment_id
-    #    rand <=> 0.5
-    #  else
-    #    a.comment_id <=> b.comment_id # todo: this must be an error. Should be a.comment.id <=> b.comment.id?!
-    #  end
-    #end
     # keep one api comment for each comment
     logger.debug2 "get comments for gift id #{id}. remove doubles"
     old_comment_id = '#' * 20

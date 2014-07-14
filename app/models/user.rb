@@ -1260,13 +1260,6 @@ class User < ActiveRecord::Base
       (user_ids.index(api_gift.user_id_giver) and user_ids.index(api_gift.user_id_receiver))
     end
     # sort: 1 received_at, 2 id
-    #api_gifts = api_gifts.sort do |a,b|
-    #  if a.gift.received_at == b.gift.received_at
-    #    a.gift.id <=> b.gift.id
-    #  else
-    #    a.gift.received_at <=> b.gift.received_at
-    #  end
-    #end # sort
     api_gifts = api_gifts.sort_by { |ag| [ag.gift.received_at, ag.gift.id] }
     # delete gift doublets
     old_gift_id = -1
@@ -1411,9 +1404,6 @@ class User < ActiveRecord::Base
   end # recalculate_balance
 
   def self.recalculate_balance (login_users)
-    #users = login_users.sort do |a,b|
-    #  (a.share_account_id) || (0 <=> b.share_account_id || 0)
-    #end
     users = login_users.sort_by { |u| u.share_account_id || 0 }
     # user.share_account_id is used to combine accounts across multiple login providers
     # keep one login_user for each share_account_id for balance calculation
@@ -1442,18 +1432,10 @@ class User < ActiveRecord::Base
   # sort_by_user_name
   def self.define_sort_by_user_name (users)
     users.define_singleton_method :sort_by_user_name do
-      #self.sort do |a, b|
-      #  if a.user_name == b.user_name
-      #    a.id <=> b.id
-      #  else
-      #    a.user_name <=> b.user_name
-      #  end
-      #end # sort
       self.sort_by { |u| [u.user_name, u.id] }
     end # sort_by_user_name
     users
   end
-
 
   # get friend record from login users cached list of friends
   def get_friend (login_user)
@@ -1951,16 +1933,6 @@ class User < ActiveRecord::Base
       # 3) api gift with picture
       # 4) api picture url with error and creator of gift in login_users - recheck picture with login user privs.
       # 5) api gift without picture
-      #ags = ags.sort do |a, b|
-      #  if b.gift.status_update_at != a.gift.status_update_at
-      #    # 1) keep sort by status_update_at desc (also order by condition in select statement)
-      #    b.gift.status_update_at <=> a.gift.status_update_at
-      #  elsif a.status_sort != b.status_sort
-      #    a.status_sort <=> b.status_sort # 2) closed gift before open gift
-      #  else
-      #    a.picture_sort(login_users) <=> b.picture_sort(login_users) # 3, 4 and 5
-      #  end
-      #end # ags sort 1
       ags = ags.sort_by { |ag| [ag.gift.status_update_at, ag.status_sort, ag.picture_sort(login_users)] }
 
       # delete doublets if creator of gift was using multi provider login

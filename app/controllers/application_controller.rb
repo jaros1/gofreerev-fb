@@ -188,9 +188,6 @@ class ApplicationController < ActionController::Base
     # todo: should use provider_downcase method, but application controller methods are not available in Array class
     # todo: move provider_downcase to constant?
     @users.define_singleton_method :sort_by_provider do
-      #self.sort do |a, b|
-      #  (API_CAMELIZE_NAME[a.provider] || a.provider) <=> (API_CAMELIZE_NAME[b.provider] || b.provider)
-      #end
       self.sort_by { |u| API_CAMELIZE_NAME[u.provider] || u.provider }
     end
 

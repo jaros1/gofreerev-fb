@@ -317,7 +317,6 @@ module ApplicationHelper
   # used in page header and in users/edit page
   def selected_languages
     codes = Rails.application.config.i18n.available_locales.collect { |locale| locale.to_s }
-    # codes.collect { |code| [t("shared.languages.#{code}"), code]}.sort { |a,b| a[1] <=> b[1] }
     codes.collect { |code| [t("shared.languages.#{code}"), code]}.sort_by { |a| a[1] }
   end
 

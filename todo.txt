@@ -1,6 +1,6 @@
- 3) add date format. see application_helper.format_date
+ 1) add date format. see application_helper.format_date
 
- 4) api notifications:
+ 2) api notifications:
     get a app access token.
     send only notifications to api if internal notifications in app is not read.
     Short summary of unread app notifications in api notification
@@ -26,29 +26,29 @@
                    "ref"=>"notif", "notif_t"=>"app_notification"}
     - added FB app notifications for friends find
 
- 5) add accept conditions for new users?
+ 3) add accept conditions for new users?
 
- 7) recalculate user balance at request or once every day
+ 4) recalculate user balance at request or once every day
 
- 8) user.recalculate_balance recalculates balance for all closed deals with user as giver or receiver.
+ 5) user.recalculate_balance recalculates balance for all closed deals with user as giver or receiver.
     ok when few closed deals for a user, but can be a performance issue with many closed deals for a user.
     allow recalculating balance from a specific date or from a specific gift.id
     should only recalculate balance from last closed deal
 
- 9) batch processing:
+ 6) batch processing:
     accept new deal - set new_balance_at = yesterday - for both users - user is marked for recalculate balance (ok)
     batch processing - recalculate balance for all users where new_balance_at != today (todo)
 
-10) check texts in views/fb/create.html.erb and create_da_html.erb
+ 7) check texts in views/fb/create.html.erb and create_da_html.erb
 
-11) show a more informative page when not logged in
+ 8) show a more informative page when not logged in
     ensure that all not logged users is rendered to same page (auth/index)
     this page is also index by search engines and should be informative
     maybe the same texts as in /fb/create.html.erb and create_da_html.erb pages
 
-12) check todo's in source
+ 9) check todo's in source
 
-13) delete api_gifts and gifts with temp picture urls - that is picture on server
+10) delete api_gifts and gifts with temp picture urls - that is picture on server
     normally temp pictures will be removed in util.delete_local_picture, but errors can occur
     should be a job for util.new_messages_count or util.missing_api_picture_urls
     process could be:
@@ -58,19 +58,19 @@
     3/1-2014: temp folder was empty in laptop dev. environment
     19/1-2014: 3 pictures found in temp folder in laptop dev. environment
 
-14) find some way to combine or group "identical" notifications in inbox/index page
+11) find some way to combine or group "identical" notifications in inbox/index page
 
-15) stress test. make a db with really many rows and test performance.
+12) stress test. make a db with really many rows and test performance.
     There maybe are missing an index or two
     there maybe are some sql that should be rewritten
 
-18) check session variables
+13) check session variables
     session variables should only be used from accessor methods in app. controller
     gives a better overview and an easier to maintain code
 
-19) tests - needs new users.yml file - encryption now is with old userids
+14) tests - needs new users.yml file - encryption now is with old userids
 
-21) test case:
+15) test case:
     create deal [ a.provider1, a.provider2] as giver, [ b.provider1, b.provider2 ] as receiver, price > 0
     login as a.provider1 and b.provider2
     problem with user/show balance. logged users are giver and receiver at the same time
@@ -79,70 +79,70 @@
     check code with login_user_ids.index(ag.user_id_giver)
     check code with api_gift = api_gifts.find { |ag| [ ag.user_id_giver, ag.user_id_receiver].index(???)
 
-22) find optimal image format for each provider. For API_OG_DEF_IMAGE hash
+16) find optimal image format for each provider. For API_OG_DEF_IMAGE hash
     facebook: todo
     google+: todo
     linkedin: 180 x 110 (done)
     twitter: todo
     maybe a mouse over text with best picture dimensions when attaching pictures
 
-23) add mysql development environment on localhost.
-    there are some select statements that are not working in mysql
-    maybe is only was problem with "" around table names!
-    also problems with float. Less float precession in mysql than in sqlite3
+17) add mysql development environment on localhost.
+    there some are minor difference between using sqlite3 and mysql as db
+    a) problem with "" around table names in mysql
+    b) Less float precession in mysql than in sqlite3
 
-26) remove api friend:
+18) remove api friend:
     - facebook: link to profile
     - linkedin: todo
     - google+: todo
     - twitter: todo
 
-27) check notifications and change notification test cases to support multiple logins
+19) check notifications and change notification test cases to support multiple logins
 
-29) better github page
+20) better github page
 
-30) links on app setup pages to github page (wiki, report bugs etc)
+21) links on app setup pages to github page (wiki, report bugs etc)
     check app setup for facebook, google+, linkedin and twitter
 
-31) post on linkedin from localhost
+22) post on linkedin from localhost
     can not upload picture with localhost url to linkedin
     add a special error message for this case?
 
-32) invalid deep link requests
+23) invalid deep link requests
     deep link - return nice error page if deep link has been removed
     should display an error page
     must not redirect for not logged in users
 
-33) add server site cleanup for api_gifts with temp url
+24) add server site cleanup for api_gifts with temp url
     created in gifts/create - removed in util.delete_local_picture after post_on_<provider> tasks
 
-35) check if user div onclick events could be handled on a higher level - for example on document
+25) check if user div onclick events could be handled on a higher level - for example on document
     can not use user_id in id. user divs are repeated many times for each user.
     use data-id attribute for user.id
     use jquery "on" and delegated events: https://api.jquery.com/on/
 
-36) link from post on gofreerev to post on facebook but only if FB friend
+26) link from post on gofreerev to post on facebook but only if FB friend
     link from post on gofreerev to post on linkedin but only if LinkedIn connection
     should have small API icons for each post.
     multiple icons if multiple logins and post in multiple API's
 
-39) check response from FastImage.type(gift_file.path) if site is temporary unavailable
+27) check response from FastImage.type(gift_file.path) if site is temporary unavailable
     should not error mark pictures if a api picture server is temporary out of service
     FastImage.type returns nil if server is temporary unavailable
     Must combine FastImage = nil with a http get page notfound check
     http://stackoverflow.com/questions/2695020/how-can-i-use-ruby-to-check-if-a-domain-exists
 
-41) add share icons to api_gift (one icon for each api provider)
+28) add share icons to api_gift (one icon for each api provider)
     share with a deep link
     allow all to share or allow only giver/receiver to share?
     http://jquery-plugins.net/tag/social-share-button
 
-45) deal proposal and changed friend relations
+29) deal proposal and changed friend relations
     cancel deal proposal when friends are removed
     could be remove friends in users/index page
     could be changed api friend relation in post login provider task
 
-46) jquery. url from xhr object is used to find html element that triggered the ajax event
+30) jquery. url from xhr object is used to find html element that triggered the ajax event
     for example to setup tables for ajax error messages within gifts/index page
     it could be nice if jquery has information about the html element that started the ajax request
     $(classname).bind('click', function ... - find id for html element with classname with triggered this bind handler
@@ -174,15 +174,15 @@
     tasks_form_xhr[stopImmediatePropagation] = function () { this.isImmediatePropagationStopped = returnTrue; this.stopPropagation(); }
     xhr.target and xhr.currentTarget looks interesting
 
-47) new gift.status_update_at after new comments?
+31) new gift.status_update_at after new comments?
     In that way updated gifts will be at top of page and will be ajax injected to top of page
     how to keep actual user view point when ajax injecting new rows in top of page?
 
-49) edit user options
+32) edit user options
     - cross provider balance y/n checkbox
     - share balance
 
-50) a number of "invalid" inbox notification keys. Could be missing keys. Could be wrong notifications
+33) a number of "invalid" inbox notification keys. Could be missing keys. Could be wrong notifications
 
     missing translate key. key .accepted_proposal_giver_follow_2_v1_to_url, noti.id 542,
     options {:giftid=>"894", :gifttext=>"x", :no_users=>"2", :no_other_users=>"0", :username1=>"Gofreerev A", :username2=>"Jan R", :username3=>"", :givername=>"Gofreerev A", :receivername=>""},
@@ -286,79 +286,79 @@
     options {:giftid=>"253", :gifttext=>"Cykel", :no_users=>"0", :no_other_users=>"-2", :username1=>"", :username2=>"", :username3=>"", :givername=>"Charlie S", :receivername=>"Karen S"},
     error translation missing: en.inbox.index.accepted_proposal_giver_1_v1_from_msg
 
-51) add deleted_at to api_gift and api_comment for partial delete of gift and comment
+34) add deleted_at to api_gift and api_comment for partial delete of gift and comment
     gift and comment created with multi provider login and one login account has been deleted
 
-52) change User.api_gifts to include api_gifts.deleted_at information.
+35) change User.api_gifts to include api_gifts.deleted_at information.
     that is - ajax remove gift from gifts/index page in util.new_messages_count
     delete gift for only one provider when account is closed
 
-53) change util/new_messages_count to include delete marked api comments
+36) change util/new_messages_count to include delete marked api comments
     that is - ajax remove comment from gifts/index page in util.new_messages_count
     delete comment for only one provider when account is closed
 
-54) delete account notifications.
+37) delete account notifications.
     add some more information
     - number of deleted deals
     - sum prices for deleted deals
 
-56) add language LOV to page header if width > xxx
+38) add language LOV to page header if width > xxx
 
-64) gift giver pic mouse over text should have information about multiple provider givers
+39) gift giver pic mouse over text should have information about multiple provider givers
     gift receiver pic mouse over text should have information about multiple provider receivers
 
-65) google+ and twitter.
+40) google+ and twitter.
     how to prevent friend invitations from people you do not know?
     F - you are following someone on google+ and twitter, and do not want to receive friend invitations from them
     S - you are stalked by someone on google+ and twitter and do not want to receive friend invitations from them
     block all and allow selected users
     allow all and block selected users
 
-66) allow device fingerprint guest user login?
+41) allow device fingerprint guest user login?
     that is login without username/password
     no friends information!
     could use user ip location and distance to other gofreerev users instead of a friend list
     user could select between api login or ip location/device fingerprint login
 
-67) allow device fingerprint for users that reject cookies?
+42) allow device fingerprint for users that reject cookies?
     must have cookie store on server for users with device fingerprint login
     could not find anything about device fingerprint session store or a device fingerprint plugins for rails
 
-68) User.api_gifts
+43) User.api_gifts
     maybe problem with very big select if really many friends for logged in users
     on other option could be 2 sub queries combined with filter for deselected friends
     select * from api_gifts
     where user_id_giver in (select ...) and user_id_giver not in (1,2,3, ..)
     or    user_id_receiver in (select ...) and user_id_receiver not in (1,2,3, ..)
 
-70) users/index status mouse over with number of mutual friends was been dropped
+44) users/index status mouse over with number of mutual friends was been dropped
     maybe add a ajax mouse over title - that is - calculate number of mutual friends when needed and not always
     good performance at startup and nice to have for the users when selecting friends
 
-71) check out JS API's for login providers. most interesting are readonly API's (google+ and instagram)
+45) check out JS API's for login providers. most interesting are readonly API's (google+ and instagram)
     some not supported server site operations could be implemented with client side JS
 
-72) users/index - friends of friends - why in list - show name(s) of friend
+46) users/index - friends of friends - why in list - show name(s) of friend
     maybe the same issue as in previous dropped mutual friends
 
-75) find a better location for ajax tasks spinner in top of page
+47) find a better location for ajax tasks spinner in top of page
     show/hide spinner makes the page bouncing
     add mouse over title to ajax tasks title with explanation.
     maybe after ".create_gift_header_line"
     Maybe under ".description_prompt"
 
-76) add mini spinners for some time consuming tasks.
+48) add mini spinners for some time consuming tasks.
     for example deleting a closed deal (recalculate balance)
 
-79) users/index: search, friend name filter or alphabetical tabs
+49) users/index: search, friend name filter or alphabetical tabs
     it is slowly to scroll down (3 seconds delay for each 10 rows lookup)
 
-80) running ajax tasks and http links - for example link to other page
+50) running ajax tasks and http links - for example link to other page
     error. more information in server log" and ajax spinner is hidden
     should hide ajax error message and maybe not hide ajax spinner
     an other solution could be showing spinner after click on link
 
-81) opera 12.16 bug when gofreerev starts from facebook https://apps.facebook.com/gofreerev-dev/
+51) opera 12.16 bug when gofreerev starts from facebook https://apps.facebook.com/gofreerev-dev/
     Warning
     https://dev1.gofreerev.com/
     A page on the public internet requests data from your private intranet.
@@ -370,10 +370,10 @@
     Second https://apps.facebook.com/gofreerev-dev/ request => post /
     Opera console does not reveal any rejected localhost requests. But should not start with a "get /" in log
 
-82) opera. displays auth/index page within facebook iframe when gofreerev starts from facebook.
+52) opera. displays auth/index page within facebook iframe when gofreerev starts from facebook.
     no problem in opera 12
 
-85) localhost / login servers Sandra/fb and Gofreerev A/gp
+53) localhost / login servers Sandra/fb and Gofreerev A/gp
     2+2 notifications. 2 accepted and 2 accepted follow notification.
     for example 13. feb. 2014 11.58
     should only send notification to Sandra+Gofreerev as creator of proposal.
@@ -381,45 +381,45 @@
     the same pattern for "outbox" for Jan R/google+ as sender of message.
     also 13. feb. 2014 11.58
 
-86) add a API check to omniauth.rb
+54) add a API check to omniauth.rb
     check that all array constants are initialized for all login providers
 
-87) how to check for an "official" gofreerev version
+55) how to check for an "official" gofreerev version
     easy to copy gofreerev and misuse the concept (harvest user information from API's)
     maybe a list of officiel gofreerev sites
 
-88) users/index apiname=<provider> filter. Use login user = selected provider.
+56) users/index apiname=<provider> filter. Use login user = selected provider.
     in that way all user dev pictures are from the same login provider.
 
-90) check if there is a generic JS way to count number of running/pending ajax requests
+57) check if there is a generic JS way to count number of running/pending ajax requests
 
-91) find all methods with case provider ... implementations. Should be listed in todo for adding a new login provider.
+58) find all methods with case provider ... implementations. Should be listed in todo for adding a new login provider.
     maybe add a special search word that can be used to find all relevant points in source code when adding a new login provider
     add "API SETUP" comment for all case provider statements
 
-95) users/index friends filter: add follows and followed by filters?
+59) users/index friends filter: add follows and followed by filters?
 
-98) auth/index page
+60) auth/index page
     - add * note for login providers that does not support post on wall
     - add missing provider? note. add a github page with request for missing login providers
 
-99) users/edit change language
+61) users/edit change language
     - add note and link to github with instructions to how to add a new language to app
     - add github page about changing translations and adding new languages
 
-100) linkedin gem. frozen to an old version due to error. Unfreeze when error is solved
+ 62) linkedin gem. frozen to an old version due to error. Unfreeze when error is solved
      https://github.com/hexgnu/linkedin/issues/216
 
-101) check if there is a problem with missing state in omniauth login.
+ 63) check if there is a problem with missing state in omniauth login.
      normally state should be included when using omniauth and callbacks
 
-102) refactor linkedin & flickr controller translate keys into shared? Almost identical translations
+ 64) refactor linkedin & flickr controller translate keys into shared? Almost identical translations
 
-104) post in foursquare. Foursquare is different from the other api's
+ 65) post in foursquare. Foursquare is different from the other api's
      add a page for Gofreerev and ?
      maybe j has some ideas
 
-110) check out open graph meta-tags in flickr.
+ 66) check out open graph meta-tags in flickr.
      maybe some that could by used
      <meta property="fb:app_id" content="137206539707334" />    x
      <meta property="og:title" content="u6bbc6h8oy" />
@@ -435,11 +435,11 @@
      <meta property="flickr_photos:by" content="http://www.flickr.com/people/gofreerev/" />
      <meta property="twitter:description" content="localhost/da/gifts/VyGiwGM7NXQ1JzBA2XAj1VV5zeGEtb" />
 
-113) check just_posted variable in get_api_picture_url_<provider> methods
+ 67) check just_posted variable in get_api_picture_url_<provider> methods
      should raise exception if just posted and picture was not found.
      see get_api_picture_url_facebook
 
-115) two or three column friend list in users/index page.
+ 68) two or three column friend list in users/index page.
      responsive design or use javascript to organize table layout
      could use float divs in a multi column users/index page
      that is fixed width, height and fixed table column size
@@ -448,14 +448,14 @@
      3 columns: get 3 friends in first request - get 30 friends in next request
      problems with show-more-rows functionality?
 
-116) post on twitter: Exception: execution expired (Twitter::Error) after 6 seconds
+ 69) post on twitter: Exception: execution expired (Twitter::Error) after 6 seconds
      added exception to post on twitter for debug
      maybe a generic way to handle execution expired when posting on api walls
      repeat up to 3 times before giving up
      return warning to user and try once more time
      delete_local_picture task and expired post on wall exception!
 
-120) localhost - looking af gift id 909 logged in as Jan R/FB
+ 70) localhost - looking af gift id 909 logged in as Jan R/FB
      from user div ok = me
      to user div = dummy FB user gofreerev/facebook
      that is no information about google+ receiver 109316109373670614208/google_oauth2 Gofreerev A
@@ -467,66 +467,61 @@
      can not se that comments also was from 109316109373670614208/google_oauth2 Gofreerev A
      Not necessarily a problem as users normally will use there real names, but can be a problem in test
 
-121) view: accepted deal comment. add accepted and price to comment
+ 71) view: accepted deal comment. add accepted and price to comment
 
-122) view: add timestamps to comments.
+ 72) view: add timestamps to comments.
 
-123) add a text truncated warning when posting on API and text is longer than allowed
+ 73) add a text truncated warning when posting on API and text is longer than allowed
      special relevant for tweets
 
-124) add a text length counter when entering text. Twitter users would like to known how long the text is.
+ 74) add a text length counter when entering text. Twitter users would like to known how long the text is.
      special problem for twitter where 23 characters is subtracted from 140 for links and for images.
 
-126) api_profile_picture_url with small (50x50) and big (100x100) pictures.
+ 75) api_profile_picture_url with small (50x50) and big (100x100) pictures.
      100x100 (5246 bytes) is only used in users/index and users/show
      50x50   (1744/2877 bytes) is used everywhere else
      can make a difference on a slow connection / slow device
 
-129) check all sorts
-     old sort_by_user_name did had a very bad performance
-     problem was detail sort by master fields
-     ruby performance problem with sort { block} - use sort_by whenever possible
-
-131) distribute option:
+ 77) distribute option:
      find friends / see gifts on other gofreerev servers
      user-a id api friend with user-b, user-a is on server-a and user-b on server-b.
      user-a should be allowed to see user-b's gifts on server b
      user-b should be allowed to see user-a's gifts on server a
 
-132) ruby profiler. It could be nice with a good ruby profiler statistic.
+ 78) ruby profiler. It could be nice with a good ruby profiler statistic.
      http://hiltmon.com/blog/2012/02/27/quick-and-dirty-rails-performance-profiling/
      https://github.com/ruby-prof/ruby-prof
      http://david.paluy.org/blog/2013/04/09/profiling-rails-applications/
 
-133) collect and organize screen dumps
+ 79) collect and organize screen dumps
 
-134) check that API_MAX_TEXT_LENGTHS constant is used for all api's
+ 80) check that API_MAX_TEXT_LENGTHS constant is used for all api's
 
-136) check that direction (before description) is included for all wall posts
+ 81) check that direction (before description) is included for all wall posts
 
-137) tests
+ 82) tests
      long text post without picture for all API's
      long text post with picture for all API's
      maybe different limit between short and long text in gifts/api_gift (share) and in users/api_gift (balance)
      longer texts in gifts/api_gift and shorter texts in users/api_gift
      make limit responsive? shorter texts in a small screen and longer texts in a big screen? (JS)
 
-138) compare gifts/api_gift and users/api_gift partial
+ 83) compare gifts/api_gift and users/api_gift partial
      merge into one shared partial?
      also compare translate keys
 
-140) css wrapword. word-break: break-all;.
+ 84) css wrapword. word-break: break-all;.
      works fine on small width screens but do not look nice on wide screens.
      there is implemented a workaround for opera 12 (that does not support break-all).
      it could be nice to avoid break-all on wide screens but there would still be a problems with long texts without spaces
      a possibility could be hyphenator to insert soft hyphen into text: https://code.google.com/p/hyphenator/
 
-141) problem with ie10 new gift with very large text.
+ 85) problem with ie10 new gift with very large text.
      submit bottom is moved under text area on wide pc screen
 
-143) auto-remove max height if text if only a bit higher than max height
+ 86) auto-remove max height if text if only a bit higher than max height
 
-146) opera 12 - check errors - 111 errors :
+ 87) opera 12 - check errors - 111 errors :
             Invalid value for property: white-space
           white-space: -moz-pre-wrap !important;  /* Mozilla, since 1999 */
       ------------------------------------------^	Linked-in stylesheet	application.css:66
@@ -861,7 +856,7 @@
       1
       -^	DOM style property	gifts:1
 
-147) old invalid flash in ajax injected into gifts/index page
+ 88) old invalid flash in ajax injected into gifts/index page
      "Opslag opretter her og på din facebook væg. Foto blev uploaded til din facebook væg, men Gofreerev mangler rettigheder til at se billedet på din facebook væg og kan derfor ikke vise foto herinde. Måske du har ændret rettighedsindstillinger for Gofreerev."
      key fb_pic_post_unknown_problem
      problem is in get_api_picture_url_facebook
@@ -870,9 +865,9 @@
      error message could come already when posting on wall
      not after next refresh page
 
-148) check css errors in other browsers.
+ 89) check css errors in other browsers.
 
-149) firefox :
+ 90) firefox :
         19:00:50.986 Use of getUserData() or setUserData() is deprecated.  Use WeakMap or element.dataset instead. requestNotifier.js:64
         19:00:51.350 Error in parsing value for 'white-space'.  Declaration dropped. application.css:67
         19:00:51.350 Error in parsing value for 'white-space'.  Declaration dropped. application.css:68
@@ -882,57 +877,57 @@
         19:00:51.481 Unknown pseudo-class or pseudo-element '-webkit-search-cancel-button'.  Ruleset ignored due to bad selector. normalize.css:371
         19:00:52.065 Unknown property 'text-wrap'.  Declaration dropped. gifts
 
-150) opera 12: A page on the public internet requests data from your private intranet.
+ 91) opera 12: A page on the public internet requests data from your private intranet.
      For security reasons, automatic access is blocked, but you may choose to continue.
      problem is not in opera 19 on windows.
      opera:config#Network|AllowCrossNetworkNavigation
 
-159) gifts link and comments links
+ 92) gifts link and comments links
      use jquery "on" and delegated events: https://api.jquery.com/on/
      "bind" works only for existing elements in page
      are using unbind+bind after adding new rows
      could not get it to work for comment-action-link ajax
 
-163) JS error handling. It would be nice with line number for JS errors.
+ 93) JS error handling. It would be nice with line number for JS errors.
      special a problem in old browsers (IE8)
      check http://stackoverflow.com/questions/1340872/how-to-get-javascript-caller-function-line-number-how-to-get-javascript-caller
      check https://github.com/stacktracejs/stacktrace.js
 
-165) make test check list. every test should be done in every supported browser.
+ 94) make test check list. every test should be done in every supported browser.
 
-166) ie8 target=blank opens in a new window and no shared cookie.
+ 95) ie8 target=blank opens in a new window and no shared cookie.
      could be a special spoon.net test problem - could be a reel problem with IE
 
-168) check if there is any virtual machines available for test
+ 96) check if there is any virtual machines available for test
      cannot test latest safari browsers from soon.net
 
-169) ie8 layout bug in gifts/index page.
+ 97) ie8 layout bug in gifts/index page.
      3 column with user div for comment. width = 52px is being ignored.
      have added table-layout:fixed to table, but that is also being ignored
      layout is ok if compatibility view is enabled, but compatibility view destroys show-more-rows functionality
      maybe modernizr has a solution for this
 
-170) nice to have: decrease number of older comments in show older comments link if older comments has been deleted
+ 98) nice to have: decrease number of older comments in show older comments link if older comments has been deleted
      hard to implement without ajax replacing gift in gifts/index page
 
-171) there is a little problem with ajax replace new gift after new gift has been created
+ 99) there is a little problem with ajax replace new gift after new gift has been created
      problem is that user could be entering a new comment and that this new unsaved comment will be removed
      testcase: create new gift and start adding a comment for new gift - will be deleted in next new_messages_count request
 
-175) fix scroll page scroll after new comment
+100) fix scroll page scroll after new comment
      see scroll store and restore in JS post_ajax_add_new_comment_handler
      new comment should always be within actual view
 
-177) entering new comment + click on menu link - no leave page yes/no dialog box
+101) entering new comment + click on menu link - no leave page yes/no dialog box
      entering new gift + click on menu link - no leave page yes/no dialog box
      maybe a generic solution - check solution for currency LOV
 
-178) ie8 problem - new comment with very large text
+102) ie8 problem - new comment with very large text
      first click - resized to a smaller text area with scroll bars
      second click - submitted ok
      not a problem for new gift with very large text - what is the difference?
 
-179) my.js - clear_ajax_errors(table_id) and clear_flash_and_ajax_errors
+103) my.js - clear_ajax_errors(table_id) and clear_flash_and_ajax_errors
      clear all ajax error messages in web page
      add hidden timestamps to errors tables - ok
      add class for error tables - ajax_errors added
@@ -940,30 +935,30 @@
      timestamp column is not copied from tasks_errors2 to tasks_errors table (retest - maybe it was a client side JS message)
      timestamp column ok in show-more-rows-error table
 
-183) fix sort when creating new comments in gifts/index page
+104) fix sort when creating new comments in gifts/index page
      looks like character sort - must be number sort (gift id and comment id)
      fixed when creating new comments
      test ajax inject gifts and comments from other users into gifts/index page
 
-184) reject_new_deal: reject link was removed - accept link was not removed
+105) reject_new_deal: reject link was removed - accept link was not removed
 
-185) reject_new_deal: line with comment error message (proposal was rejected)
+106) reject_new_deal: line with comment error message (proposal was rejected)
      is not removed when comment is ajax replaced with new comment from util.new_messages_count
 
-186) accept new deal: old deal was not deleted from gifts/index page when new accepted deal
+107) accept new deal: old deal was not deleted from gifts/index page when new accepted deal
      was ajax injected into page. Could be same problem as in 183. char sort instead of number sort.
 
-197) controllers. add http/ajax comment to all relevant methods
+108) controllers. add http/ajax comment to all relevant methods
 
-198) controllers. check format_response in end of all ajax methods
+109) controllers. check format_response in end of all ajax methods
 
-199) ie8 - all tables must have a tbody and tbody must be used in ajax inject
+110) ie8 - all tables must have a tbody and tbody must be used in ajax inject
 
-202) ie8 - new_messages_count was submitted as a normal http request instead as a ajax request
+111) ie8 - new_messages_count was submitted as a normal http request instead as a ajax request
      problem when not logged in dev1
      must be a secondary/temporary error - no error after xhr? fix for ie8
 
-205) check startup page size
+112) check startup page size
      http://www.version2.dk/artikel/mobilsiderne-bliver-stoerre-og-langsommere-56847
      tools for faking a slow internet connection?
      http://www.ginktage.com/2013/11/tools-for-the-developers-to-simulate-slow-internet-connection/
@@ -972,47 +967,47 @@
      - long almost identical mail invite friends mailto texts.
      - http://stackoverflow.com/questions/9014470/creating-email-link-with-dynamically-generated-body-with-html5-javascript
 
-207) test javascript csv_invalid_price - check price check in all browser versions (error in chrome has been fixed)
+113) test javascript csv_invalid_price - check price check in all browser versions (error in chrome has been fixed)
 
-209) cross server friends invite / friends search?
+114) cross server friends invite / friends search?
      in a distributed server network different friends will use different servers and gofreerev apps
 
-210) add hide link for text/url?
+115) add hide link for text/url?
      "Gift was posted in here and on your facebook wall but picture cannot be displayed.
       Allow Gofreerev to read posts on my facebook wall!"
       one solution could be to set post on wall = N
       but it is only a problem for post with pictures
 
-211) ie8 and ie9 - cross site forgery when starting gofreerev from apps.facebook.com/gofreerev-dev
+116) ie8 and ie9 - cross site forgery when starting gofreerev from apps.facebook.com/gofreerev-dev
 
-212) opera 12 errors:
+117) opera 12 errors:
      page header:
      Javascript fejl ved tjek for nye beskeder. NotFoundError: Failed to execute 'insertBefore' on 'Node': The node before which the new node is to be inserted is not a child of this node. (4,3).
      Javascript fejl ved indsættelse af nye kommentarer. NotFoundError: Failed to execute 'insertBefore' on 'Node': The node before which the new node is to be inserted is not a child of this node. (5,54).
      Fejl ved tjek for nye beskeder. error. Mere information i server log.
      added some more JS outputs to client side debug log
 
-216) users/show balance tab.
+118) users/show balance tab.
      should show post for relevant user combination.
      but only if logged in for provider and friend with user
      should display ... rows for hidden posts. Not logged in as provider / not friend with user for this provider.
      should display "total row" if last post is hidden (not logged in as provider / not friend with user for this provider)
 
-218) problem with show-more-rows pages and back bottom on browsers.
+119) problem with show-more-rows pages and back bottom on browsers.
      last_row_id has been cleared. Error key shared.show_more_rows.last_row_id_invalid
      could force page reload when using back bottom in browser.
 
-220) linkedin app invitation:
+120) linkedin app invitation:
      https://developer.linkedin.com/documents/invitation-api
      but requires w_messages priv.
 
-222) allow friends find without user_combination
+121) allow friends find without user_combination
      that will only work online and if other users have shared their accounts
 
-223) check if there is some problems with friends cache for instagram:
+122) check if there is some problems with friends cache for instagram:
      friend?: no friends cache was found for login user 1092213433/instagram gofreerev g
 
-224) allow friends find without combined accounts and buffer search result for other user
+123) allow friends find without combined accounts and buffer search result for other user
      User A executes a friends find search with friends proposal B, C and D
      Buffer A as friends proposal for B, C and D (only if B, C and D is active app users)
      Include A in next friends find search for B, C and D
@@ -1020,15 +1015,15 @@
      There should also be a "not interested" or "read" link in friends find post
      Could use
 
-230) first util.new_messages_count 1 minute after login (for friends find search)
+124) first util.new_messages_count 1 minute after login (for friends find search)
 
-231) better "friends find no rows" message.
+125) better "friends find no rows" message.
      check last login date for shared accounts.
      user should login to refresh friends lists for other login providers
 
-232) users/index - sort by user_name - problem with small letter user names
+126) users/index - sort by user_name - problem with small letter user names
 
-235) facebook grant write:
+127) facebook grant write:
      "Your popup is too small to display this page. Please enlarge it to proceed.
      was displaying firebox console in bottom 1/3 of page
      must be a problem on all mobile devices!
@@ -1036,21 +1031,21 @@
      maybe fake a bigger screen before calling facebook dialog
      check if there is a identical error messages on a smartphone
 
-236) different share accounts title for:
+128) different share accounts title for:
      a) not logged in users
      b) single account logged in users
      c) multiple accounts logged in users
 
-238) maybe a friends find version of app
+129) maybe a friends find version of app
      a) save access tokens for friend list refresh - maybe
      b) notifications for facebook and emails for the other api's
 
-239) allow save access token for friend list updates
+130) allow save access token for friend list updates
      only relevant for shared accounts (user_combination)
      only use saved access tokens for batch friends list updates
      or use saved access tokens for single sign on (full access)
 
-240) add share accounts options:
+131) add share accounts options:
      0) not shared = blank
      1) share balance
      2) 1) + share friend lists
@@ -1059,62 +1054,62 @@
      5) mixed sharing with 0), 1), 2), 3) and 4) user accounts
      change share accounts checkbox to a share accounts LOV
 
-241) post_login_new_user: "Your friend list is ready. Please refresh page to see any posts from your friends."
+132) post_login_new_user: "Your friend list is ready. Please refresh page to see any posts from your friends."
      ok for single login users and gifts/index page.
      not ok for multi login users and auth/index page.
 
-242) logged in with 7 shared accounts and 1 not shared account.
+133) logged in with 7 shared accounts and 1 not shared account.
      should add not shared accounts to shared_accounts_list
 
-243) auth/index: show/hide share accounts spinner while changing share accounts status
+134) auth/index: show/hide share accounts spinner while changing share accounts status
 
-244) friends find email notification for non FB accounts
+135) friends find email notification for non FB accounts
      must read email from one or more non FB API's
      should have user accept before sending email notifications
      should have a unsubscribe link in email
 
-245) currency LOV onclick error:
+136) currency LOV onclick error:
      text "clear_ajax_errors('show-more-rows-errors') ;" is ajax injected before LOV
      problem in page header and in users/edit page
 
-246) auth/index: share_level_lov and offline_access_checkbox are disabled after page refresh
+137) auth/index: share_level_lov and offline_access_checkbox are disabled after page refresh
 
-247) cannot change share_level from 3 to 4 if access token was read from database
+138) cannot change share_level from 3 to 4 if access token was read from database
      that is - only load access token from database if share level is 4
 
-248) share level 3 and 4 login
+139) share level 3 and 4 login
      warning if one or more access tokens are about to expire
      for example within one week
 
-249) auth/index share level LOV.
+140) auth/index share level LOV.
      use share level 5 mixed sharing if shared and not shared users
      for example 5 single sign-on users and one not shared user
 
-250) add special single sign-on login message
+141) add special single sign-on login message
      a) first single sign-on login with no expired access token
      b) first single sign-on login with one or more expired access tokens
      c) secondary single sign-on login - renew expired access token - no other expired access tokens
      d) secondary single sign-on login - renew expired access tokens - one or more expired access tokens
      e) likewise for share level 3 logins
 
-252) google+ login
+142) google+ login
      only request offline access () for share level 3 and 4
      provider :google_oauth2, API_ID[:google_oauth2], API_SECRET[:google_oauth2], :scope => 'plus.login userinfo.profile', :access_type => 'offline', :prompt => 'consent'
 
-254) google+ : error handling when refreshing "access token" with "refresh token"
+143) google+ : error handling when refreshing "access token" with "refresh token"
 
-261) move session[:post_on_wall_selected] and session[:post_on_wall_authorized] to session table?
+144) move session[:post_on_wall_selected] and session[:post_on_wall_authorized] to session table?
      to prevent cookie overflow when using session cookie store
 
-263) missing "please wait" message when checking post on wall checkbox and active ajax task
+145) missing "please wait" message when checking post on wall checkbox and active ajax task
     "please wait" (ajax_leave_page) is triggered by ajax event onbeforeunload and can not be used for checkboxes
      maybe not a problem but current message for running task is cleared in page header when clicking on checkbox
 
-264) adding vk to login with 7 shared accounts
+146) adding vk to login with 7 shared accounts
      login with vk and adding vk as a shared account
      access_token and access_token_expires are not saved in db
      log out+log in: access token and access token expires are saved in db
 
-265) util.grant_write.js.erb and auth/index page
+147) util.grant_write.js.erb and auth/index page
      should ajax change "Access" text to access_link_text_2
      should ajax change mouse over text to access_title_2

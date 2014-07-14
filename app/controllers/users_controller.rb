@@ -231,9 +231,6 @@ class UsersController < ApplicationController
     end
 
     if @page_values[:friends] == 'me'
-      #users2 = users2.sort do |a,b|
-      #  provider_downcase(a.provider) <=> provider_downcase(b.provider)
-      #end
       users2 = users2.sort_by { |a| provider_downcase(a.provider) }
     end
 
@@ -399,14 +396,6 @@ class UsersController < ApplicationController
       end
       .sort_by { |ag| [(ag.gift.received_at || ag.created_at), ag.id]}
       .reverse
-      # sort tuning - sort_by is faster when sort { |a,b| ... }
-      #.sort do |a, b|
-      #  if (a.gift.received_at || a.created_at) == (b.gift.received_at || b.created_at)
-      #    b.id <=> a.id
-      #  else
-      #    (b.gift.received_at || b.created_at) <=> (a.gift.received_at || a.created_at)
-      #  end # if
-      #end # sort
       # return next 10 gifts - first 10 for http request - next 10 for ajax request
       @api_gifts, @last_row_id = get_next_set_of_rows(api_gifts, last_row_id)
       logger.debug2  "@gifts.size = #{@api_gifts.size}, @last_row_id = #{@last_row_id}" if debug_ajax?

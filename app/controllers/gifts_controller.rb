@@ -203,7 +203,6 @@ class GiftsController < ApplicationController
       add_task "delete_local_picture(#{gift.id})", 10 if picture and Picture.temp_app_url?(picture_url)
 
       # find api gift - api gift with picture is preferred
-      #api_gift = gift.api_gifts.sort { |a, b| b.picture <=> a.picture }.first
       api_gift = gift.api_gifts.sort_by { |a| a.picture }.last
       @api_gifts = ApiGift.where("id = ?", api_gift.id).includes(:gift)
       logger.debug2 "@errors.size = #{@errors.size}"
@@ -451,14 +450,6 @@ class GiftsController < ApplicationController
       @gift = gift.api_gifts.first
     else
       # same sort criteria as in user.api_gifts sort (gift.id not relevant here)
-      #api_gifts = gift.api_gifts.sort do |a, b|
-      #  if  a.status_sort != b.status_sort # todo: should always be identical
-      #    a.status_sort <=> b.status_sort # 2) closed gift before open gift
-      #  else
-      #    a.picture_sort(@users) <=> b.picture_sort(@users) # 3, 4 and 5
-      #  end
-      #end # sort
-      # sort tuning. use sort_by. only picture_sort is relevant
       api_gifts = gift.api_gifts.sort_by { |ag| ag.picture_sort(@users) }
       @gift = api_gifts.first
     end
