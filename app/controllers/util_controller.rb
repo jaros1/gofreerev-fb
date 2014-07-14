@@ -1665,7 +1665,7 @@ class UtilController < ApplicationController
       if get_post_on_wall_selected(provider) and !get_post_on_wall_authorized(provider) and login_user.post_on_wall_authorized?
         # special case. permission to post on wlll has been granted in an other browser session
         # user should reconnect to update permissions and allow Gofreerev to post on wall also in this browser session
-        return gift_posted_3c_key_and_options(login_user)
+        return gift_posted_3c(login_user)
       end
       # empty response
       format_response

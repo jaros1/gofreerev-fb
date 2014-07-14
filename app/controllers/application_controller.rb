@@ -975,7 +975,7 @@ class ApplicationController < ActionController::Base
   end
   def set_post_on_wall_selected (post_on_wall_selected, provider, login)
     init_post_on_wall_selected
-    if login and post_on_wall_selected and grant_write_link_exists?(provider)
+    if login and post_on_wall_selected and API_POST_PERMITTED[provider] == API_POST_PERMISSION_IN_APP
       # login in progress for a provider where post_on_wall priv. is handled internal in app (twitter and vkontakte)
       # always start with post_on_wall_selected = false
       # logger.debug2 "#{provider} login. post_on_wall set to false (speciel rule for twitter and vkontakte)"
@@ -1929,11 +1929,28 @@ class ApplicationController < ActionController::Base
   # normally grant write link is a link to api provider authorize dialog box
   # can also be link to a JS confirm dialog box if read/write privs. are handled within Gofreerev
 
+  # internal Gofreerev method for grant write permission to api
+  # used for twitter and vkontakte where read/write in handled in Gofreerev
+  # also used for some api's if post on wall permission has been granted in an other browser session and log out + log in is not possible
+  def gift_posted_3b (provider)
+    url = "/util/grant_write?provider=#{provider}"
+    confirm = t 'util.do_tasks.confirm_grant_write', :apiname => provider_downcase(provider)
+    hide_url = "/util/hide_grant_write?provider=#{provider}"
+
+    # ajax inject link in gifts/index page
+    return ['util.do_tasks.gift_posted_3b_html',
+            { :appname => APP_NAME,
+              :apiname => provider_downcase(provider),
+              :provider => provider,
+              :url => url, :confirm => confirm,
+              :hide_url => hide_url}]
+  end # grant_write_link_internal
+
   # special case. permission to post on wall has been granted in an other browser session
   # user should reconnect to update permissions and allow Gofreerev to post on wall also in this browser session
   # return key and options for gift_posted_3c_html div
   # alert to user to log out + log in to update permissions
-  def gift_posted_3c_key_and_options (user)
+  def gift_posted_3c (user)
     url = url_for(:controller=> :auth, :action => :index)
     provider = user.provider
     hide_url = "/util/hide_grant_write?provider=#{provider}"
@@ -1944,7 +1961,7 @@ class ApplicationController < ActionController::Base
   # user should click on util/grant_write link to allow Gofreerev to post on wall also in this browser session
   # return key and options for gift_posted_3c_html div
   # alert to user to log out + log in to update permissions
-  def gift_posted_3d_key_and_options (user)
+  def gift_posted_3d (user)
     provider = user.provider
     url = url_for(:controller=> :util, :action => :grant_write, :provider => provider)
     confirm = t 'util.do_tasks.confirm_grant_write', :apiname => provider_downcase(provider)
@@ -2038,53 +2055,37 @@ class ApplicationController < ActionController::Base
                               :hide_url => hide_url}]
   end # grant_write_link_linkedin
 
-  # internal Gofreerev method for grant write permission to api
-  # used for twitter and vkontakte where read/write in handled in Gofreerev
-  # also used for some api's if post on wall permission has been granted in an other browser session and log out + log in is not possible
-  def grant_write_link_internal (provider)
-    url = "/util/grant_write?provider=#{provider}"
-    confirm = t 'util.do_tasks.confirm_grant_write', :apiname => provider_downcase(provider)
-    hide_url = "/util/hide_grant_write?provider=#{provider}"
-
-    # ajax inject link in gifts/index page
-    return ['util.do_tasks.gift_posted_3b_html',
-            { :appname => APP_NAME,
-              :apiname => provider_downcase(provider),
-              :provider => provider,
-              :url => url, :confirm => confirm,
-              :hide_url => hide_url}]
-  end # grant_write_link_internal
 
   # return [key, options] with @errors ajax to grant write access to twitter wall
   # link is injected in tasks_errors table in page header
   # read/write authorization in twitter is a gofreerev concept - omniauth login is with write permission to twitter wall
-  private
-  def grant_write_link_twitter
-    return grant_write_link_internal('twitter')
-  end # grant_write_link_twitter
+  # private
+  # def grant_write_link_twitter
+  #   return grant_write_link_internal('twitter')
+  # end # grant_write_link_twitter
 
   # return [key, options] with @errors ajax to grant write access to vkontakte wall
   # link is injected in tasks_errors table in page header
   # read/write authorization in vkontakte is a gofreerev concept - omniauth login is with write permission to vkontakte wall
-  private
-  def grant_write_link_vkontakte
-    return grant_write_link_internal('vkontakte')
-  end # grant_write_link_vkontakte
+  # private
+  # def grant_write_link_vkontakte
+  #   return grant_write_link_internal('vkontakte')
+  # end # grant_write_link_vkontakte
 
-  private
-  def grant_write_method (provider)
-    "grant_write_#{provider}".to_sym
-  end
+  # private
+  # def grant_write_method (provider)
+  #   "grant_write_#{provider}".to_sym
+  # end
 
-  # check if link util.grant_write_<providfer> exists
-  # post_on_wall priv. is handled internally in app for twitter and vkontakte
-  private
-  def grant_write_link_exists? (provider)
-    method = grant_write_method(provider)
-    index = UtilController.new.public_methods.index(method)
-    # logger.debug2 "provider = #{provider}, index = #{index}"
-    (index ? true : false)
-  end # grant_write_link_exists?
+  # # check if link util.grant_write_<providfer> exists
+  # # post_on_wall priv. is handled internally in app for twitter and vkontakte
+  # private
+  # def grant_write_link_exists? (provider)
+  #   method = grant_write_method(provider)
+  #   index = UtilController.new.public_methods.index(method)
+  #   # logger.debug2 "provider = #{provider}, index = #{index}"
+  #   (index ? true : false)
+  # end # grant_write_link_exists?
 
   private
   def grant_write_link (provider)
@@ -2099,17 +2100,17 @@ class ApplicationController < ActionController::Base
       if API_POST_PERMITTED[provider] == API_POST_PERMISSION_IN_API
         # permission to grant write permission on API wall is handled by API
         # log out + log in to refresh write permission from database in this browser session
-        key, options = gift_posted_3c_key_and_options(login_user)
+        key, options = gift_posted_3c(login_user)
       else
         # permission to grant write permission on API wall is handled by Gofreerev
         # use internal internal grant write link to enable post on wall permission also in this browser session
-        key, options = gift_posted_3d_key_and_options(login_user)
+        key, options = gift_posted_3d(login_user)
       end
       return key, options
     end
     if API_POST_PERMITTED[provider] == API_POST_PERMISSION_IN_APP
       # twitter + vkontakte - use internal grant write link with normal text
-      key, options = grant_write_link_internal(provider)
+      key, options = gift_posted_3b(provider)
       return key, options
     end
     # use external grant write link
