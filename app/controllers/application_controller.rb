@@ -91,35 +91,58 @@ class ApplicationController < ActionController::Base
       expires_at = (session[:expires_at] || {})[provider]
       # refresh google+ access token once every hour
       # http://stackoverflow.com/questions/12572723/rails-google-client-api-unable-to-exchange-a-refresh-token-for-access-token
-      if expires_at and (expires_at.abs < Time.now.to_i) and (provider == 'google_oauth2' )
+      if expires_at and (expires_at.abs < Time.now.to_i) and (provider == 'google_oauth2')
         logger.debug2 "refreshing expired google+ access token"
         refresh_tokens = session[:refresh_tokens] || {}
         refresh_token = refresh_tokens[provider]
         if refresh_token
           api_client = Google::APIClient.new(
-            :application_name => 'Gofreerev',
-            :application_version => '0.1'
+              :application_name => 'Gofreerev',
+              :application_version => '0.1'
           )
           api_client.authorization.client_id = API_ID[provider]
           api_client.authorization.client_secret = API_SECRET[provider]
           api_client.authorization.grant_type = 'refresh_token'
           api_client.authorization.refresh_token = refresh_token
-          res1 = api_client.authorization.fetch_access_token!
-          logger.secret2 "res1 = #{res1}"
-          res2 = api_client.authorization
-          logger.secret2 "res2 = #{res2}"
-          logger.debug2 "res2.methods = #{res2.methods.sort.join(', ')}"
-          logger.secret2 "res2.access_token = #{res2.access_token}"
-          logger.debug2 "res2.expires_at = #{res2.expires_at}"
-          session[:tokens][provider] = res2.access_token
-          session[:expires_at][provider] = res2.expires_at.to_i
-          logger.debug2 'google+ access token was refreshed'
-          # save new access token
-          user = User.find_by_user_id(user_id)
-          user.access_token = res2.access_token.to_yaml
-          user.access_token_expires = res2.expires_at.to_i
-          user.save!
-          expires_at = user.access_token_expires
+          logger.secret2 "refresh_token = #{refresh_token}"
+          begin
+            res1 = api_client.authorization.fetch_access_token!
+          rescue Signet::AuthorizationError => e
+            # Signet::AuthorizationError (Authorization failed. Server message: { "error" : "invalid_grant" })
+            logger.debug2 "Google+: could not use refresh_token to get a new access_token"
+            logger.debug2 "error: #{e.message}"
+            add_error_key 'auth.destroy.refresh_token_error1'
+            res1 = nil
+            expires_at = nil
+            refresh_tokens[provider] = nil
+          rescue => e
+            # other errors.
+            logger.debug2 "Google+: could not use refresh_token to get a new access_token"
+            logger.debug2 "error: #{e.message}"
+            add_error_key 'auth.destroy.refresh_token_error2', :error => e.message
+            res1 = nil
+            expires_at = nil
+            refresh_tokens[provider] = nil
+          end
+          if res1
+            logger.secret2 "res1 = #{res1}"
+            res2 = api_client.authorization
+            logger.secret2 "res2 = #{res2}"
+            logger.debug2 "res2.methods = #{res2.methods.sort.join(', ')}"
+            logger.secret2 "res2.access_token = #{res2.access_token}"
+            logger.debug2 "res2.expires_at = #{res2.expires_at}"
+            session[:tokens][provider] = res2.access_token
+            sign = expires_at >= 0 ? 1 : -1 # keep sign for expires_at (positive=web login, negative=single sign-on)
+            session[:expires_at][provider] = expires_at = sign * res2.expires_at.to_i
+            logger.debug2 'google+ access token was refreshed'
+            # save new access token
+            user = User.find_by_user_id(user_id)
+            if user.share_account and user.share_account.share_level > 2
+              user.access_token = res2.access_token.to_yaml
+              user.access_token_expires = expires_at.abs
+              user.save!
+            end
+          end
         else
           logger.warn2 'no refresh token was found for google+. unable to refresh google+ access token'
         end
@@ -156,7 +179,7 @@ class ApplicationController < ActionController::Base
     # refresh and check authorization information from db
     # one db user can be connected in multiple sessions / browsers
     @users.each do |user|
-      if user.share_account and [3,4].index(user.share_account.share_level) and user.access_token and user.access_token_expires
+      if user.share_account and [3, 4].index(user.share_account.share_level) and user.access_token and user.access_token_expires
         # keep sign for session[:expires_at] (positive for web page login users, negative for single sign-on users)
         provider = user.provider
         sign = session[:expires_at][provider] >= 0 ? 1 : -1
@@ -199,16 +222,16 @@ class ApplicationController < ActionController::Base
 
     # debugging
     if @users.length == 0
-      logger.debug2  "found none logged in users"
+      logger.debug2 "found none logged in users"
     else
       @users.each do |user|
-        logger.debug2  "user_id = #{user.user_id}, user_name = #{user.user_name}, currency = #{user.currency}"
+        logger.debug2 "user_id = #{user.user_id}, user_name = #{user.user_name}, currency = #{user.currency}"
       end
     end
 
     # check currencies. all logged in users must use same currency
     currencies = @users.collect { |user| user.currency }.uniq
-    logger.warn2  "more when one currency found for logged in users: #{}" if currencies.length > 1
+    logger.warn2 "more when one currency found for logged in users: #{}" if currencies.length > 1
 
     # add some instance variables
     if user
@@ -225,7 +248,7 @@ class ApplicationController < ActionController::Base
       @user_currency_separator = Money::Currency.table[user.currency.downcase.to_sym][:decimal_mark]
       @user_currency_delimiter = Money::Currency.table[user.currency.downcase.to_sym][:thousands_separator]
     end
-    logger.debug2  "@user_currency_separator = #{@user_currency_separator}, @user_currency_delimiter = #{@user_currency_delimiter}"
+    logger.debug2 "@user_currency_separator = #{@user_currency_separator}, @user_currency_delimiter = #{@user_currency_delimiter}"
 
     # add dummy user for page header
     add_dummy_user if @users.size == 0

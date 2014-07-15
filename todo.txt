@@ -1094,8 +1094,6 @@
 
 142) could not get google+ login with online access to work (share level 0-2). offline access is always being used
 
-143) google+ : error handling when refreshing "access token" with "refresh token"
-
 144) move session[:post_on_wall_selected] and session[:post_on_wall_authorized] to session table?
      to prevent cookie overflow when using session cookie store
 

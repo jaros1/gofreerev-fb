@@ -190,6 +190,8 @@ da:
         logged_off: "Adgang til %{appname} vha. %{apiname} er blevet afbrudt. Husk at bruge log ud funktion i %{apiname}, hvis du også ønsker at logge ud af %{apiname}. Vær opmærksom på, at du stadigvæk har adgang til %{appname} via en eller flere andre login-udbydere. Brug \"Log ud\" i hovedmenu hvis du ønsker at afbryde forbindelse til %{appname} for alle dine login-udbydere på en gang."
         already_logged_off: "Du var allerede logget ud. Brug nedenstående link til at logge ind igen. Luk browseren for at fjerne session cookie."
         unknown_provider: "Systemfejl. Ukendt login udbyder ved log ud"
+        refresh_token_error1: "Kunne ikke forny Google+ adgangsbillet."
+        refresh_token_error2: "Kunne ikke forny Google+ adgangsbillet. %{error}."
         expired_access_token: "Adgang til %{appname} vha. %{apiname} er blevet afbrudt. Adgangsbillet er ikke længere gyldig. Opdater siden. Log venligst ind igen."
 
   # facebook controller - login started from facebook and asking for more privs.
