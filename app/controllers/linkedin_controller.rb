@@ -33,7 +33,7 @@ class LinkedinController < ApplicationController
         expires_at = expires_in.to_i.seconds.from_now.to_i # unix timestamp
       end
       logger.debug2 "expires_in = #{expires_in}, expires_at = #{expires_at}"
-    rescue Exception => e
+    rescue => e
       logger.debug2 "Exception: #{e.message} (#{e.class})"
       save_flash_key '.auth_failed', :apiname => provider_downcase('linkedin'), :appname => APP_NAME, :error => e.message
       raise
@@ -71,7 +71,7 @@ class LinkedinController < ApplicationController
         key, options = res2
         begin
           save_flash_key key, options
-        rescue Exception => e
+        rescue => e
           logger.debug2  "invalid response from login. Must be nil or a valid input to translate. Response: #{res2}"
           save_flash_key '.find_or_create_from_auth_hash', :response => res2, :exception => e.message.to_s
         end

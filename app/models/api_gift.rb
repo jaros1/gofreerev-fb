@@ -289,7 +289,7 @@ class ApiGift < ActiveRecord::Base
         request = Net::HTTP::Get.new(lpath, {"User-Agent" => "Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.2.23) Gecko/20110921 Ubuntu/10.04 (lucid) Firefox/3.6.23"})
         response = http.start {|http| http.request(request) }
 
-      rescue Exception => e
+      rescue => e
         xmessage = e.message.to_s
         raise HttpRequestTimeOut("Timeout after #{timeout} seconds") if xmessage == "execution expired"
         logger.error2 "Exception = #{xmessage} (#{e.class})"

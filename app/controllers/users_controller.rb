@@ -109,7 +109,7 @@ class UsersController < ApplicationController
       logout(user.provider)
       format_response_key '.completed_html', user.app_and_apiname_hash.merge(:url => API_APP_SETTING_URL[user.provider] || '#')
 
-    rescue Exception => e
+    rescue => e
       logger.debug2 "Exception: #{e.message.to_s}"
       logger.debug2 "Backtrace: " + e.backtrace.join("\n")
       format_response_key ".exception", :error => e.message.to_s

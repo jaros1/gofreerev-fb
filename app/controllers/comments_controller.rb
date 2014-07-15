@@ -53,7 +53,7 @@ class CommentsController < ApplicationController
       @api_comment = comment.api_comments.shuffle.first
       format_response
 
-    rescue Exception => e
+    rescue => e
       logger.error2  "Exception: #{e.message.to_s}"
       logger.error2  "Backtrace: " + e.backtrace.join("\n")
       @api_comment = nil
@@ -101,7 +101,7 @@ class CommentsController < ApplicationController
       @api_gift = api_gift
       format_response
 
-    rescue Exception => e
+    rescue => e
       logger.error2 "Exception: #{e.message.to_s}"
       logger.error2 "Backtrace: " + e.backtrace.join("\n")
       @old_first_comment_id = nil
@@ -138,7 +138,7 @@ class CommentsController < ApplicationController
       # hide row with comment
       @link_id = comment.table_row_id
       format_response
-    rescue Exception => e
+    rescue => e
       logger.error2 "Exception: #{e.message.to_s}"
       logger.error2 "Backtrace: " + e.backtrace.join("\n")
       @link_id = nil

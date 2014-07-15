@@ -1829,7 +1829,7 @@ class ApplicationController < ActionController::Base
         logger.debug2 "exception: #{e.message} (#{e.class})"
         logger.debug2 "e.message_options = #{e.message_options} (#{e.message_options.class})"
         raise VkontakteAlbumMissing.new "#{e.class}: #{e.message}"
-      rescue Exception => e
+      rescue => e
         raise VkontakteAlbumMissing.new "#{e.class}: #{e.message}"
       end
       # logger.debug2 "albums = #{albums}"
@@ -1838,7 +1838,7 @@ class ApplicationController < ActionController::Base
         # http://vk.com/developers.php?oid=-17680044&p=photos.createAlbum
         begin
           album = self.photos.createAlbum :title => APP_NAME, :description => SITE_URL
-        rescue Exception => e
+        rescue => e
           raise VkontakteCreateAlbum.new "#{e.class}: #{e.message}"
         end
         if album.class != Hash or !album.has_key?('aid')
@@ -1863,7 +1863,7 @@ class ApplicationController < ActionController::Base
           # http://vk.com/developers.php?oid=-17680044&p=photos.getUploadServer
           uploadserver = self.photos.getUploadServer :aid => aid
         end
-      rescue Exception => e
+      rescue => e
         raise VkontakteUploadserver.new "#{e.class}: #{e.message}"
       end
       if uploadserver.class != Hash or !uploadserver.has_key?('upload_url')
@@ -1877,7 +1877,7 @@ class ApplicationController < ActionController::Base
       # http://vk.com/developers.php?oid=-17680044&p=Uploading_Files_to_the_VK_Server_Procedure
       begin
         upload_res1 = RestClient.post url, :file1 => File.new(picture)
-      rescue Exception => e
+      rescue => e
         raise VkontaktePhotoPost.new "#{e.class}: #{e.message}"
       end
       if upload_res1.code.to_s != '200'
@@ -1886,7 +1886,7 @@ class ApplicationController < ActionController::Base
       # check yml upload response
       begin
         upload_res2 = YAML::load(upload_res1.body)
-      rescue Exception => e
+      rescue => e
         logger.debug2 "upload_res1.class = #{upload_res1.class}"
         logger.debug2 "upload_res1.body = #{upload_res1.body}"
         raise VkontaktePhotoPost.new "#{e.class}: #{e.message}. Excepted yaml response"

@@ -201,7 +201,7 @@ class FacebookController < ApplicationController
         end
         redirect_to :controller => :auth
         return
-      rescue Exception => e
+      rescue => e
         logger.debug2 "exception: #{e.message} (#{e.class})"
         save_flash_key ".auth_code_error_", :appname => APP_NAME, :error => e.message
         redirect_to :controller => :auth
@@ -277,7 +277,7 @@ class FacebookController < ApplicationController
       key, options = res
       begin
         save_flash_key key, options
-      rescue Exception => e
+      rescue => e
         logger.debug2  "invalid response from User.find_or_create_from_auth_hash. Must be nil or a valid input to translate. Response: #{user}"
         save_flash_key '.find_or_create_from_auth_hash', :response => user, :exception => e.message.to_s
       end

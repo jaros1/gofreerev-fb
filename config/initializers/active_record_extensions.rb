@@ -116,7 +116,7 @@ module ActiveRecordExtensions
           # Run the closure passed to the fork_with_new_connection method
           yield
 
-        rescue Exception => exception
+        rescue => exception
           logger.debug2  ('Forked operation failed with exception: ' + exception)
           # the op failed, so note it for the Process exit
           success = false

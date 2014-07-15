@@ -24,7 +24,7 @@ class FlickrController < ApplicationController
       token = api_client.get_access_token(request_token['oauth_token'], request_token['oauth_token_secret'], params[:oauth_verifier])
       logger.debug2 "after get_access_token - before test.login"
       res1 = api_client.test.login
-    rescue Exception => e
+    rescue => e
       logger.debug2 "Exception: #{e.message} (#{e.class})"
       save_flash_key '.auth_failed', :apiname => provider_downcase('flickr'), :appname => APP_NAME, :error => e.message
       redirect_to :controller => :gifts
@@ -86,7 +86,7 @@ class FlickrController < ApplicationController
         key, options = res3
         begin
           save_flash_key key, options
-        rescue Exception => e
+        rescue => e
           logger.debug2  "invalid response from login. Must be nil or a valid input to translate. Response: #{res3}"
           save_flash_key '.find_or_create_from_auth_hash', :response => res3, :exception => e.message.to_s
         end

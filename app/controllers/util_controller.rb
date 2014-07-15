@@ -125,7 +125,7 @@ class UtilController < ApplicationController
       Comment.where("deleted_at is not null and deleted_at < ?", 10.minutes.ago).each do |c|
         begin
           c.destroy!
-        rescue Exception => e
+        rescue => e
           logger.warn2 "Error when deleting comment id #{c.id}. #{e.message}"
         end # each c
       end
@@ -347,7 +347,7 @@ class UtilController < ApplicationController
 
       format_response
 
-    rescue Exception => e
+    rescue => e
       logger.debug2 "Exception: #{e.message.to_s} (#{e.class})"
       logger.debug2 "Backtrace: " + e.backtrace.join("\n")
       format_response_key '.mis_api_pic_exception', :error => e.message
@@ -437,7 +437,7 @@ class UtilController < ApplicationController
       @gift_link_href = util_unlike_gift_path(:gift_id => gift.id)
       @gift_link_text = t('gifts.api_gift.unlike_gift')
       format_response_key
-    rescue Exception => e
+    rescue => e
       format_gift_action_exception(gift, e)
     end
   end # like_gift
@@ -464,7 +464,7 @@ class UtilController < ApplicationController
       @gift_link_href = util_like_gift_path(:gift_id => gift.id)
       @gift_link_text = t('gifts.api_gift.like_gift')
       format_response_key
-    rescue Exception => e
+    rescue => e
       format_gift_action_exception(gift, e)
     end
   end # unlike_gift
@@ -498,7 +498,7 @@ class UtilController < ApplicationController
       @gift_link_href = util_unfollow_gift_path(:gift_id => gift.id)
       @gift_link_text = t('gifts.api_gift.unfollow_gift')
       format_response_key
-    rescue Exception => e
+    rescue => e
       format_gift_action_exception(gift, e)
     end
   end # follow_gift
@@ -530,7 +530,7 @@ class UtilController < ApplicationController
       @gift_link_href = util_follow_gift_path(:gift_id => gift.id)
       @gift_link_text = t('gifts.api_gift.follow_gift')
       format_response_key
-    rescue Exception => e
+    rescue => e
       format_gift_action_exception(gift, e)
     end
   end # unfollow_gift
@@ -563,7 +563,7 @@ class UtilController < ApplicationController
       # hide gift ok - remove gift from gifts/index page
       @gift_id = gift.id
       format_response_key
-    rescue Exception => e
+    rescue => e
       format_gift_action_exception(gift, e)
     end
   end # hide_gift
@@ -590,7 +590,7 @@ class UtilController < ApplicationController
       # delete gift ok - remove gift from gifts/index page
       @gift_id = gift.id
       format_response_key
-    rescue Exception => e
+    rescue => e
       format_gift_action_exception(gift, e)
     end
   end # delete_gift
@@ -665,7 +665,7 @@ class UtilController < ApplicationController
       # hide link
       @link_id = "gift-#{gift.id}-comment-#{comment.id}-cancel-link"
       format_response_key 'cancel_reject_new_deal', :table => table
-    rescue Exception => e
+    rescue => e
       logger.error2 "Exception: #{e.message.to_s}"
       logger.error2 "Backtrace: " + e.backtrace.join("\n")
       @link_id = nil
@@ -693,7 +693,7 @@ class UtilController < ApplicationController
       # todo: change gift and comment for other users after reject (new messages count ajax)?
       @link_id = "gift-#{gift.id}-comment-#{comment.id}-reject-link"
       format_response_key '.ok', :table => table
-    rescue Exception => e
+    rescue => e
       logger.error2 "Exception: #{e.message.to_s}"
       logger.error2 "Backtrace: " + e.backtrace.join("\n")
       @link_id = nil
@@ -764,7 +764,7 @@ class UtilController < ApplicationController
       api_gift.reload
       @api_gifts = [api_gift]
       format_response_key '.ok', :table => table
-    rescue Exception => e
+    rescue => e
       logger.error2 "Exception: #{e.message.to_s}"
       logger.error2 "Backtrace: " + e.backtrace.join("\n")
       format_response_key '.exception', :error => e.message.to_s, :raise => I18n::MissingTranslationData, :table => table
@@ -815,7 +815,7 @@ class UtilController < ApplicationController
         logger.debug2 "executing task #{at.task}\n"
         begin
           eval(at.task)
-        rescue Exception => e
+        rescue => e
           logger.debug2 "error when processing task #{at.task}"
           logger.debug2 "Exception: #{e.message.to_s}"
           logger.debug2 "Backtrace: " + e.backtrace.join("\n")
@@ -839,7 +839,7 @@ class UtilController < ApplicationController
         #  argument = $1 if e.message.to_s =~ /:(.+?)\s/
         #  logger.debug2  "argument = #{argument}"
         #  res = [ '.ajax_task_missing_translate_arg', { :key => key, :task => at.task, :argument => argument, :response => res, :exception => e.message.to_s } ]
-        #rescue Exception => e
+        #rescue => e
         #  logger.debug2  "invalid response from task #{at.task}. Must be nil or a valid input to translate. Response: #{res}"
         #  res = [ '.ajax_task_invalid_response', { :task => at.task, :response => res, :exception => e.message.to_s }]
         #end
@@ -851,7 +851,7 @@ class UtilController < ApplicationController
       else
         format_response
       end
-    rescue Exception => e
+    rescue => e
       logger.debug2  "Exception: #{e.message.to_s} (#{e.class})"
       logger.debug2  "Backtrace: " + e.backtrace.join("\n")
       format_response_key '.do_tasks_exception', :error => e.message.to_s
@@ -863,7 +863,7 @@ class UtilController < ApplicationController
     begin
       key, options = ExchangeRate.fetch_exchange_rates
       return add_error_key key, options if key
-    rescue Exception => e
+    rescue => e
       logger.debug2  "Exception: #{e.message.to_s} (#{e.class})"
       logger.debug2  "Backtrace: " + e.backtrace.join("\n")
       raise
@@ -943,7 +943,7 @@ class UtilController < ApplicationController
   #    logger.error2 "util.post_login_#{provider} method was not found. please create a post login task to download friend list from login provider"
   #    [ '.post_login_task_not_found', {:provider => provider}]
   #
-  #  rescue Exception => e
+  #  rescue => e
   #    logger.debug2  "Exception: #{e.message.to_s}"
   #    logger.debug2  "Backtrace: " + e.backtrace.join("\n")
   #    raise
@@ -1035,7 +1035,7 @@ class UtilController < ApplicationController
       logger.debug2  "Exception: #{e.message.to_s} (#{e.class})"
       logger.debug2  "Backtrace: " + e.backtrace.join("\n")
       raise
-    rescue Exception => e
+    rescue => e
       logger.debug2  "Exception: #{e.message.to_s} (#{e.class})"
       logger.debug2  "Backtrace: " + e.backtrace.join("\n")
       raise
@@ -1078,7 +1078,7 @@ class UtilController < ApplicationController
   #
   #    # ok
   #    nil
-  #  rescue Exception => e
+  #  rescue => e
   #    logger.debug2  "Exception: #{e.message.to_s}"
   #    logger.debug2  "Backtrace: " + e.backtrace.join("\n")
   #    raise
@@ -1111,7 +1111,7 @@ class UtilController < ApplicationController
   #    # ok
   #    nil
   #
-  #  rescue Exception => e
+  #  rescue => e
   #    logger.debug2  "Exception: #{e.message.to_s} (#{e.class})"
   #    logger.debug2  "Backtrace: " + e.backtrace.join("\n")
   #    raise
@@ -1138,7 +1138,7 @@ class UtilController < ApplicationController
   #
   #    # ok
   #    nil
-  #  rescue Exception => e
+  #  rescue => e
   #    logger.debug2  "Exception: #{e.message.to_s}"
   #    logger.debug2  "Backtrace: " + e.backtrace.join("\n")
   #    raise
@@ -1167,7 +1167,7 @@ class UtilController < ApplicationController
   #
   #    # ok
   #    nil
-  #  rescue Exception => e
+  #  rescue => e
   #    logger.error2  "Exception: #{e.message.to_s}"
   #    logger.error2  "Backtrace: " + e.backtrace.join("\n")
   #    raise
@@ -1198,7 +1198,7 @@ class UtilController < ApplicationController
   #    # ok
   #    nil
   #
-  #  rescue Exception => e
+  #  rescue => e
   #    logger.debug2  "Exception: #{e.message.to_s} (#{e.class})"
   #    logger.debug2  "Backtrace: " + e.backtrace.join("\n")
   #    raise
@@ -1236,7 +1236,7 @@ class UtilController < ApplicationController
   #    logger.debug2  "Exception: #{e.message.to_s} (#{e.class})"
   #    logger.debug2  "Backtrace: " + e.backtrace.join("\n")
   #    raise
-  #  rescue Exception => e
+  #  rescue => e
   #    logger.debug2  "Exception: #{e.message.to_s} (#{e.class})"
   #    logger.debug2  "Backtrace: " + e.backtrace.join("\n")
   #    raise
@@ -1268,7 +1268,7 @@ class UtilController < ApplicationController
   #    # ok
   #    nil
   #
-  #  rescue Exception => e
+  #  rescue => e
   #    logger.debug2  "Exception: #{e.message.to_s} (#{e.class})"
   #    logger.debug2  "Backtrace: " + e.backtrace.join("\n")
   #    raise
@@ -1300,7 +1300,7 @@ class UtilController < ApplicationController
   #    # ok
   #    nil
   #
-  #  rescue Exception => e
+  #  rescue => e
   #    logger.debug2  "Exception: #{e.message.to_s} (#{e.class})"
   #    logger.debug2  "Backtrace: " + e.backtrace.join("\n")
   #    raise
@@ -1332,7 +1332,7 @@ class UtilController < ApplicationController
 
       nil
 
-    rescue Exception => e
+    rescue => e
       logger.debug2  "Exception: #{e.message.to_s} (#{e.class})"
       logger.debug2  "Backtrace: " + e.backtrace.join("\n")
       raise
@@ -1669,7 +1669,7 @@ class UtilController < ApplicationController
       end
       # empty response
       format_response
-    rescue Exception => e
+    rescue => e
       logger.debug2 "Exception: #{e.message.to_s} (#{e.class})"
       logger.debug2 "Backtrace: " + e.backtrace.join("\n")
       format_response_key '.exception',
@@ -1752,7 +1752,7 @@ class UtilController < ApplicationController
       end if old_share_accounts.size > 0
       # return share_accounts_div to client
       format_response
-    rescue Exception => e
+    rescue => e
       logger.debug2 "Exception: #{e.message.to_s} (#{e.class})"
       logger.debug2 "Backtrace: " + e.backtrace.join("\n")
       format_response_key '.exception', :error => e.message, :table => table
@@ -1798,7 +1798,7 @@ class UtilController < ApplicationController
       @link = "grant_write_div_#{provider}"
       # ok
       format_response_key '.ok', login_user.app_and_apiname_hash
-    rescue Exception => e
+    rescue => e
       logger.debug2 "Exception: #{e.message.to_s} (#{e.class})"
       logger.debug2 "Backtrace: " + e.backtrace.join("\n")
       format_response_key '.exception',
@@ -1825,7 +1825,7 @@ class UtilController < ApplicationController
   #     @link = "grant_write_div_#{provider}"
   #     # ok
   #     format_response_key '.ok', login_user.app_and_apiname_hash
-  #   rescue Exception => e
+  #   rescue => e
   #     logger.debug2 "Exception: #{e.message.to_s} (#{e.class})"
   #     logger.debug2 "Backtrace: " + e.backtrace.join("\n")
   #     format_response_key '.exception',
@@ -1852,7 +1852,7 @@ class UtilController < ApplicationController
   #     logger.debug2 "@link = #{@link}"
   #     # ok
   #     format_response_key '.ok', login_user.app_and_apiname_hash
-  #   rescue Exception => e
+  #   rescue => e
   #     logger.debug2 "Exception: #{e.message.to_s} (#{e.class})"
   #     logger.debug2 "Backtrace: " + e.backtrace.join("\n")
   #     format_response_key '.exception',
@@ -1882,7 +1882,7 @@ class UtilController < ApplicationController
       logger.debug2 "@div = #{@div}, @checkbox = #{@checkbox}"
       # ok
       format_response_key '.ok', login_user.app_and_apiname_hash
-    rescue Exception => e
+    rescue => e
       logger.debug2 "Exception: #{e.message.to_s} (#{e.class})"
       logger.debug2 "Backtrace: " + e.backtrace.join("\n")
       format_response_key '.exception',
@@ -2017,7 +2017,7 @@ class UtilController < ApplicationController
         # Gift posted in here but not on your facebook wall. Duplicate status message on facebook wall.
         # error should not happen any longer as deep link now is included in message
         gift_posted_on_wall_api_wall = 4
-      rescue Exception => e
+      rescue => e
         logger.debug2 "Exception: #{e.message.to_s} (#{e.class})"
         logger.debug2 "Backtrace: " + e.backtrace.join("\n")
         gift_posted_on_wall_api_wall = 1
@@ -2056,7 +2056,7 @@ class UtilController < ApplicationController
         add_error_key ".gift_posted_#{gift_posted_on_wall_api_wall}_html", :apiname => login_user.apiname, :error => error
       end
 
-    rescue Exception => e
+    rescue => e
       logger.debug2  "Exception: #{e.message.to_s} (#{e.class})"
       logger.debug2  "Backtrace: " + e.backtrace.join("\n")
       raise
@@ -2207,7 +2207,7 @@ class UtilController < ApplicationController
   #      return [".gift_posted_#{gift_posted_on_wall_api_wall}_html", :apiname => login_user.apiname, :error => error]
   #    end
   #
-  #  rescue Exception => e
+  #  rescue => e
   #    logger.debug2 "Exception: #{e.message.to_s} (#{e.class})"
   #    logger.debug2 "Backtrace: " + e.backtrace.join("\n")
   #    raise
@@ -2361,7 +2361,7 @@ class UtilController < ApplicationController
   #      return [".gift_posted_#{gift_posted_on_wall_api_wall}_html", :apiname => login_user.apiname, :error => error]
   #    end
   #
-  #  rescue Exception => e
+  #  rescue => e
   #    logger.debug2 "Exception: #{e.message.to_s} (#{e.class})"
   #    logger.debug2 "Backtrace: " + e.backtrace.join("\n")
   #    raise
@@ -2505,7 +2505,7 @@ class UtilController < ApplicationController
   #    # no errors - return posted message
   #    return [".gift_posted_2_html", :apiname => provider, :error => nil]
   #
-  #  rescue Exception => e
+  #  rescue => e
   #    logger.debug2  "Exception: #{e.message.to_s} (#{e.class})"
   #    logger.debug2  "Backtrace: " + e.backtrace.join("\n")
   #    raise
@@ -2575,7 +2575,7 @@ class UtilController < ApplicationController
   #    # no errors - return posted message
   #    return [".gift_posted_2_html", :apiname => provider, :error => nil]
   #
-  #  rescue Exception => e
+  #  rescue => e
   #    logger.debug2  "Exception: #{e.message.to_s} (#{e.class})"
   #    logger.debug2  "Backtrace: " + e.backtrace.join("\n")
   #    raise
@@ -2660,7 +2660,7 @@ class UtilController < ApplicationController
   #      logger.debug2 "#{provider} access token has expired"
   #      gift_posted_on_wall_api_wall = 10
   #      logout(provider)
-  #    rescue Exception => e
+  #    rescue => e
   #      logger.debug2 "Exception: #{e.message.to_s} (#{e.class})"
   #      logger.debug2 "Backtrace: " + e.backtrace.join("\n")
   #      gift_posted_on_wall_api_wall = 1
@@ -2694,7 +2694,7 @@ class UtilController < ApplicationController
   #      return [".gift_posted_#{gift_posted_on_wall_api_wall}_html", :apiname => login_user.apiname, :error => error]
   #    end
   #
-  #  rescue Exception => e
+  #  rescue => e
   #    logger.debug2 "Exception: #{e.message.to_s} (#{e.class})"
   #    logger.debug2 "Backtrace: " + e.backtrace.join("\n")
   #    raise
@@ -2714,7 +2714,7 @@ class UtilController < ApplicationController
       @gift_file = get_post_on_wall_authorized(nil)
       logger.debug2  "@gift_file = #{@gift_file}"
       nil
-    rescue Exception => e
+    rescue => e
       logger.debug2  "Exception: #{e.message.to_s} (#{e.class})"
       logger.debug2  "Backtrace: " + e.backtrace.join("\n")
       raise
@@ -2766,7 +2766,7 @@ class UtilController < ApplicationController
 
       nil
 
-    rescue Exception => e
+    rescue => e
       logger.debug2  "#{__method__}: Exception: #{e.message.to_s} (#{e.class})"
       logger.debug2  "#{__method__}: Backtrace: " + e.backtrace.join("\n")
       raise
@@ -2781,7 +2781,7 @@ class UtilController < ApplicationController
       logger.debug2 "user_id = #{user_id}, first_login = #{first_login}"
       # user_id = 790, first_login = true
       nil
-    rescue Exception => e
+    rescue => e
       logger.debug2  "#{__method__}: Exception: #{e.message.to_s} (#{e.class})"
       logger.debug2  "#{__method__}: Backtrace: " + e.backtrace.join("\n")
       raise

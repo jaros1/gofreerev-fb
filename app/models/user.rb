@@ -663,7 +663,7 @@ class User < ActiveRecord::Base
       Picture.delete_tmp_dir :full_os_path => tmp_dir_full_os_path
       Picture.delete :url => old_api_profile_picture_url if case_no == 3
       nil
-    rescue Exception => e
+    rescue => e
       logger.error2 "Exception: #{e.message.to_s}"
       logger.error2 "Backtrace: " + e.backtrace.join("\n")
       # picture cleanup - any problems are only written to log
@@ -672,7 +672,7 @@ class User < ActiveRecord::Base
           begin
             # always remove tmp dir if tmp dir exists
             Picture.delete_tmp_dir :full_os_path => tmp_dir_full_os_path
-          rescue Exception => e
+          rescue => e
             logger.error2 "Error in tmp dir cleanup after exception. Error = #{e.message}"
           end
         end
@@ -681,11 +681,11 @@ class User < ActiveRecord::Base
             # new picture location - remove picture if picture exists
             to = Picture.full_os_path :rel_path => rel_path
             FileUtils.rm(to) if File.exists(to)
-          rescue Exception => e
+          rescue => e
             logger.error2 "Error in tmp dir cleanup after exception. Error = #{e.message}"
           end
         end
-      rescue Exception => e2
+      rescue => e2
         logger.error2 "Error in picture cleanup after exception. Error = #{e2.message}"
       end
       return ['.profile_image_exception', :error => e.message, :provider => (user ? user.provider : 'API') ]
@@ -1175,7 +1175,7 @@ class User < ActiveRecord::Base
         return
       end
       nil
-    rescue Exception => e
+    rescue => e
       logger.debug2 "Exception: #{e.message.to_s} (#{e.class})"
       logger.debug2 "Backtrace: " + e.backtrace.join("\n")
       raise
@@ -2154,7 +2154,7 @@ class User < ActiveRecord::Base
           User.where('user_id in (?)', delete_user_ids).each do |u|
             begin
               u.destroy!
-            rescue Exception => e
+            rescue => e
               # write exception and continue cleanup
               logger.debug2 "Could not delete inactive user #{u.debug_info}."
               logger.debug2 "Exception: #{e.message.to_s} (#{e.class})"
@@ -2168,7 +2168,7 @@ class User < ActiveRecord::Base
       # logical and/or physical delete ok
       nil
 
-    rescue Exception => e
+    rescue => e
       logger.debug2 "Exception: #{e.message.to_s} (#{e.class})"
       logger.debug2 "Backtrace: " + e.backtrace.join("\n")
       raise

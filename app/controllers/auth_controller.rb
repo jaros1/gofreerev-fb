@@ -119,7 +119,7 @@ class AuthController < ApplicationController
       key, options = res
       begin
         save_flash_key key, options
-      rescue Exception => e
+      rescue => e
         logger.debug2  "invalid response from User.find_or_create_from_auth_hash. Must be nil or a valid input to translate. Response: #{user}"
         save_flash_key '.find_or_create_from_auth_hash', :response => user, :exception => e.message.to_s
       end

@@ -121,7 +121,7 @@ class GiftsController < ApplicationController
           begin
             File.delete(picture_full_os_path) if File.exists?(picture_full_os_path)
             Picture.delete_empty_parent_dirs(:rel_path => picture_rel_path)
-          rescue Exception => e
+          rescue => e
             # ignore OS cleanup errors - write message on log and continue
             logger.error2 "mv: OS cleanup failed. error = #{e.message}"
           end
@@ -148,7 +148,7 @@ class GiftsController < ApplicationController
             begin
               File.delete(picture_full_os_path) if File.exists?(picture_full_os_path)
               Picture.delete_empty_parent_dirs(:rel_path => picture_rel_path)
-            rescue Exception => e
+            rescue => e
               # ignore OS cleanup errors - write message on log and continue
               logger.error2 "chmod: OS cleanup failed. error = #{e.message}"
             end
@@ -208,7 +208,7 @@ class GiftsController < ApplicationController
       logger.debug2 "@errors.size = #{@errors.size}"
       logger.debug2 " @api_gifts.size = #{@api_gifts.size}"
       format_response
-    rescue Exception => e
+    rescue => e
       logger.error2 "Exception: #{e.message.to_s}"
       logger.error2 "Backtrace: " + e.backtrace.join("\n")
       @api_gifts = []
