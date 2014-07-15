@@ -136,7 +136,7 @@ class ApplicationController < ActionController::Base
       end
     end
 
-    # fetch user(s)                                  xxxxxxxxx
+    # fetch user(s)
     if login_user_ids.length > 0
       @users = User.where("user_id in (?)", login_user_ids).includes(:share_account)
     else
@@ -157,9 +157,11 @@ class ApplicationController < ActionController::Base
     # one db user can be connected in multiple sessions / browsers
     @users.each do |user|
       if user.share_account and [3,4].index(user.share_account.share_level) and user.access_token and user.access_token_expires
+        # keep sign for session[:expires_at] (positive for web page login users, negative for single sign-on users)
         provider = user.provider
+        sign = session[:expires_at][provider] >= 0 ? 1 : -1
         session[:tokens][provider] = YAML::load(user.access_token)
-        session[:expires_at][provider] = user.access_token_expires
+        session[:expires_at][provider] = sign * user.access_token_expires
       end
       # post on wall. two sessions with common users can have different post on wall selection
       # session post is loaded into session variable at login
@@ -167,8 +169,6 @@ class ApplicationController < ActionController::Base
       # last user post on wall choice is saved in db and is used after next login
       user.post_on_wall_yn = get_post_on_wall_selected(user.provider) ? 'Y' : 'N'
     end
-
-
 
     # friends information is used many different places
     # cache friends information once and for all in @users array (user.friends_hash)
@@ -539,7 +539,7 @@ class ApplicationController < ActionController::Base
     tokens = session[:tokens] || {}
     tokens[provider] = token
     expires = session[:expires_at] || {}
-    expires[provider] = expires_at.to_i
+    expires[provider] = expires_at.to_i # positive sign for current login user
     session[:user_ids] = login_user_ids
     session[:tokens] = tokens
     session[:expires_at] = expires
@@ -601,6 +601,12 @@ class ApplicationController < ActionController::Base
         end # each user2
         expired_access_tokens.sort!
       end # if
+    else
+      # Clear any old auth information in db
+      user.access_token = nil
+      user.access_token_expires = nil
+      user.refresh_token = nil
+      user.save!
     end # if
 
     # check currency after new login - keep current currency
@@ -626,7 +632,7 @@ class ApplicationController < ActionController::Base
         user2.update_attribute :last_login_at, user.last_login_at
         session[:user_ids] << user2.user_id
         session[:tokens][user2.provider] = YAML::load(user2.access_token)
-        session[:expires_at][user2.provider] = -user2.access_token_expires # negative sign
+        session[:expires_at][user2.provider] = -user2.access_token_expires # negative sign (auth info loaded from db)
         session[:refresh_tokens][user2.provider] = user2.refresh_token # only google+
         # copy post_on_wall status to session (cookie or table)
         # - to allow different post_on_wall_yn selection for two browser sessions with same user
@@ -635,9 +641,10 @@ class ApplicationController < ActionController::Base
         set_post_on_wall_authorized(user2.post_on_wall_authorized?, user2.provider, true)
         @users << user2
       end
+      logger.debug2 "expires_at = #{session[:expires_at]}"
     end
 
-    # flash with login message. Login messages:   x
+    # flash with login message. Login messages:
     # a) normal login without any special messages
     # b) first login for new user,
     # c) share level 3 login with one or more expired access tokens

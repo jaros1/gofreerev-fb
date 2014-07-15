@@ -930,6 +930,7 @@ da:
         no_offline_access: "Du skal accepterer \"Gem autorisation på server?\" for at aktiverer dette valg. Indtil accept deles kun saldo og statiske vennelister på tværs af login udbydere."
         no_access_token: "Systemfejl. Kan ikke ændre \"Saml konti?\" valg. Adgangsbillet blev ikke fundet for %{apiname}."
         no_expires_at: "Systemfejl. Kan ikke ændre \"Saml konti?\" valg. Tidsstempel for udløb af adgangsbillet blev ikke fundet for %{apiname}."
+        reconnect_required: "Sikkerhedsproblem. Fælles login pt. ikke mulige for %{apinames}. Nyt log ind er påkrævet. Log ud og Log ind igen for %{apinames} og vælg dernæst igen fælles login."
         exception: "Systemfejl. Kunne ikke ændre \"Saml konti?\" valg. %{error}. Mere information i server log."
 
   # translation keys used in javascript (error) messages

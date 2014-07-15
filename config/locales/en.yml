@@ -926,6 +926,7 @@ en:
         no_offline_access: "You must accept \"Save authorization on server?\" to activate this choice. Only balance and static friend lists are shared across login providers until accepted."
         no_access_token: "System error. Cannot change \"Share accounts?\" choice. Access token was not found."
         no_expires_at: "System error. Cannot change \"Share accounts?\" choice. Expire timestamp for access token was not found."
+        reconnect_required: "xx"
         exception: "System error. Could not change Share accounts? choice. %{error}. More information in server log."
 
   # translation keys used in javascript (error) messages

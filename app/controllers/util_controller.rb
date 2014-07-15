@@ -1699,24 +1699,33 @@ class UtilController < ApplicationController
       offline_access_yn = 'N' if offline_access_yn.to_s == ''
       return format_response_key('.unknown_share_accounts', :table => table) unless %w(N Y).index(offline_access_yn)
       add_error_key '.no_offline_access', :table => table if %w(3 4).index(share_level) and offline_access_yn == 'N'
-      if [3,4].index(share_level)
+      if [3,4].index(share_level) and offline_access_yn == 'Y'
         # check session variables access token and expires_at.
         # rules:
-        # a) access token and expires_at must be present for each login  provider
+        # a) access token and expires_at must be present for each login provider
         # b) access token and expires_at is loaded from db after 4) single sign-on login with negative expires_at
         # c) check that access token is not expired
         # d) share_level 3 (dynamic friend lists) is allowed with negative expires_at loaded from database - re-login not required
         # e) share_level 4 (single sign-on) is not allowed with negative expires_at loaded from database - re-login required
         tokens = session[:tokens] || {}
         expires_at = session[:expires_at] || {}
+        logger.debug2 "expires_at = #{session[:expires_at]}"
+        refresh_tokens = session[:refresh_tokens] || {}
+        reconnect_required = []
         @users.each do |user|
           provider = user.provider
           return format_response_key('.no_access_token', user.app_and_apiname_hash.merge(:table => table)) if tokens[provider].to_s == ''
           return format_response_key('.no_expires_at', user.app_and_apiname_hash.merge(:table => table)) if expires_at[provider].to_s == ''
+          reconnect_required << provider_downcase(provider) if share_level == 4 and expires_at[provider] < 0
+        end
+        logger.debug2 "expires_at = #{expires_at}, share_level = #{share_level}, reconnect_required = #{reconnect_required}"
+        if reconnect_required.size > 0
+          # share level 4 - single sign-on - not allowed if auth. info has been loaded from db - reconnect is required for one or more providers
+          return format_response_key('.reconnect_required', { :table => table, :apinames => reconnect_required.sort.join(', ')})
         end
       end
       # set or reset share_account_id for logged in users
-      if share_level == '0'
+      if share_level == 0
         share_account_id = nil
       else
         share_account_id = ShareAccount.next_share_account_id(share_level, offline_access_yn) # share balance and friend lists
@@ -1724,6 +1733,17 @@ class UtilController < ApplicationController
       old_share_accounts = @users.find_all { |u| u.share_account_id }.collect { |u| u.share_account_id }.uniq
       @users.each do |user|
         user.update_attribute(:share_account_id, share_account_id)
+        if share_level < 3
+          # clear any old auth. information from db
+          user.update_attribute(:access_token, nil) if user.access_token
+          user.update_attribute(:access_token_expires, nil) if user.access_token_expires
+          user.update_attribute(:refresh_token, nil) if user.refresh_token
+        elsif offline_access_yn == 'Y' and expires_at[user.provider] > 0
+          # ok to save auth. info in db - user has selected share level 3 or 4 and checked offline access check box
+          user.update_attribute(:access_token, tokens[user.provider].to_yaml)
+          user.update_attribute(:access_token_expires, expires_at[user.provider])
+          user.update_attribute(:refresh_token, refresh_tokens[user.provider])
+        end
       end
       ShareAccount.where(:id => old_share_accounts, :no_users => 1).each do |sa|
         user = sa.users.first

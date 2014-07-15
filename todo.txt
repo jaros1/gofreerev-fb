@@ -403,9 +403,9 @@
     - add * note for login providers that does not support post on wall
     - add missing provider? note. add a github page with request for missing login providers
 
-61) users/edit change language
-    - add note and link to github with instructions to how to add a new language to app
-    - add github page about changing translations and adding new languages
+ 61) users/edit change language
+     - add note and link to github with instructions to how to add a new language to app
+     - add github page about changing translations and adding new languages
 
  62) linkedin gem. frozen to an old version due to error. Unfreeze when error is solved
      https://github.com/hexgnu/linkedin/issues/216
@@ -1092,9 +1092,7 @@
      d) secondary single sign-on login - renew expired access tokens - one or more expired access tokens
      e) likewise for share level 3 logins
 
-142) google+ login
-     only request offline access () for share level 3 and 4
-     provider :google_oauth2, API_ID[:google_oauth2], API_SECRET[:google_oauth2], :scope => 'plus.login userinfo.profile', :access_type => 'offline', :prompt => 'consent'
+142) could not get google+ login with online access to work (share level 0-2). offline access is always being used
 
 143) google+ : error handling when refreshing "access token" with "refresh token"
 
@@ -1113,3 +1111,9 @@
 147) util.grant_write.js.erb and auth/index page
      should ajax change "Access" text to access_link_text_2
      should ajax change mouse over text to access_title_2
+
+148) auth/index. drop checkbox for offline_access_yn.
+     many users will forget to check checkbox
+     but is should be very clear that auth. information is saved on server for share level 3 and 4
+
+select random issue: (rand*148).floor+1
