@@ -1206,7 +1206,8 @@ class ApplicationController < ActionController::Base
       message_max_lng = API_MAX_TEXT_LENGTHS[:facebook][:message] if API_MAX_TEXT_LENGTHS[:facebook]
       message_max_lng = 47950 unless message_max_lng
       description_max_lng = message_max_lng - deep_link.size
-      message = gift.description.first(description_max_lng) + deep_link
+      text = "#{direction} #{gift.description}"
+      message = text.first(description_max_lng) + deep_link
       logger.debug2 "message = #{message}"
       begin
         if picture
@@ -1330,8 +1331,9 @@ class ApplicationController < ActionController::Base
       # always post with picture on flickr. API_TEXT_TO_PICTURE[:flickr] == 0
       # todo: add title? For example title from OG - max 255 characters
       # todo: no max length for flickr description?
+      text = "#{direction} #{gift.description}"
       begin
-        api_gift_id = self.upload_photo picture, :description => "#{gift.description} - #{deep_link}"
+        api_gift_id = self.upload_photo picture, :description => "#{text} - #{deep_link}"
       rescue FlickRaw::OAuthClient::FailedResponse => e
         logger.debug2 "exception (1): #{e.message} (#{e.message.class})"
         # logger.debug2 "e.methods = #{e.methods.sort.join(', ')}"
@@ -1909,7 +1911,8 @@ class ApplicationController < ActionController::Base
       photos_list = upload_res2['photos_list']
       hash = upload_res2['hash']
       description_max_length = 475 - api_gift.deep_link.length - 3 # 400 Bad Request + JSON::ParserError if length > 475
-      description = "#{gift.description.first(description_max_length)} - #{api_gift.deep_link}"
+      text = "#{direction} #{gift.description}"
+      description = "#{text.first(description_max_length)} - #{api_gift.deep_link}"
       logger.debug2 "description = #{description} (#{description.length})"
       begin
         if wall

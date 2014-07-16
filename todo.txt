@@ -63,6 +63,12 @@
 12) stress test. make a db with really many rows and test performance.
     There maybe are missing an index or two
     there maybe are some sql that should be rewritten
+    performance issues are different in sqlite3 and in mysql
+    move development db to mysql before test
+    db_load fails with import errors
+    https://github.com/ludicast/yaml_db
+    https://github.com/ludicast/yaml_db/pull/45
+    second try - make an new mysql database for stress test
 
 13) check session variables
     session variables should only be used from accessor methods in app. controller
@@ -496,8 +502,6 @@
  79) collect and organize screen dumps
 
  80) check that API_MAX_TEXT_LENGTHS constant is used for all api's
-
- 81) check that direction (before description) is included for all wall posts
 
  82) tests
      long text post without picture for all API's

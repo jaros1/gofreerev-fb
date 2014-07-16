@@ -60,10 +60,10 @@ GEM
     coffee-rails (4.0.1)
       coffee-script (>= 2.2.0)
       railties (>= 4.0.0, < 5.0)
-    coffee-script (2.2.0)
+    coffee-script (2.3.0)
       coffee-script-source
       execjs
-    coffee-script-source (1.7.0)
+    coffee-script-source (1.7.1)
     colorize (0.7.3)
     columnize (0.8.9)
     countries (0.9.3)
@@ -288,7 +288,7 @@ GEM
       simple_oauth (~> 0.2.0)
     twitter-text (1.9.0)
       unf (~> 0.1.0)
-    tzinfo (0.3.39)
+    tzinfo (0.3.40)
     uglifier (2.5.1)
       execjs (>= 0.3.0)
       json (>= 1.8.0)
