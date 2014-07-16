@@ -901,12 +901,6 @@
  96) check if there is any virtual machines available for test
      cannot test latest safari browsers from soon.net
 
- 97) ie8 layout bug in gifts/index page.
-     3 column with user div for comment. width = 52px is being ignored.
-     have added table-layout:fixed to table, but that is also being ignored
-     layout is ok if compatibility view is enabled, but compatibility view destroys show-more-rows functionality
-     maybe modernizr has a solution for this
-
  98) nice to have: decrease number of older comments in show older comments link if older comments has been deleted
      hard to implement without ajax replacing gift in gifts/index page
 
@@ -1039,11 +1033,6 @@
 129) maybe a friends find version of app
      a) save access tokens for friend list refresh - maybe
      b) notifications for facebook and emails for the other api's
-
-130) allow save access token for friend list updates
-     only relevant for shared accounts (user_combination)
-     only use saved access tokens for batch friends list updates
-     or use saved access tokens for single sign on (full access)
 
 131) add share accounts options:
      0) not shared = blank
