@@ -1,9 +1,16 @@
-<% if @link %>
+<% if @provider %>
 (function () {
     // gifts/index and auth/index pages - hide div with grant write link
-    // todo: should delete link. Could be a problem with unique id if grant write operation is repeated in page without refresh (ok in fiurefox 30.0)
-    var link = document.getElementById('<%= @link %>') ;
-    if (link) link.style.display = 'none';
-    // gifts/auth page - todo: should change "Access" to "Read+write" (access_link_text_2). should change mouse over text (access_title_2).
+    // todo: should delete link. Could be a problem with unique id if grant write operation is repeated in page without refresh (not a problem in fiurefox 30.0)
+    var div_id = "grant_write_div_<%= @provider %>" ;
+    var div = document.getElementById(div_id) ;
+    if (div) div.style.display = 'none';
+    // change "Access" to "Read+write" (access_link_text_2). should change mouse over text (access_title_2).
+    var td_id = "access_td_<%= @provider %>" ;
+    var td = document.getElementById(td_id) ;
+    if (td) td.setAttribute('title', "<%= @access_title_2 %>") ;
+    var a_id = "access_a_<%= @provider %>" ;
+    var a = document.getElementById(a_id) ;
+    if (a) a.innerHTML = "<%= @access_link_text_2 %>" ;
 })();
 <% end %>

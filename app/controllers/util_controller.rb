@@ -1767,7 +1767,7 @@ class UtilController < ApplicationController
   public
   def grant_write
     provider = params[:provider]
-    @link = nil
+    @provider = nil
     begin
       # check provider
       return format_response_key('.invalid_provider') unless valid_provider?(provider)
@@ -1794,8 +1794,11 @@ class UtilController < ApplicationController
         # not 1) or 2)
         return format_response_key('.not_allowed', login_user.app_and_apiname_hash)
       end
-      # hide ajax injected link to grant write permission to twitter wall
-      @link = "grant_write_div_#{provider}"
+      # hide ajax injected link to grant write permission to twitter wall + change text and title for access field for provider
+      @provider = provider
+      @access_title_2 = t 'auth.index.access_title_2', :appname => APP_NAME, :apiname => provider_downcase(provider)
+      @access_link_text_2 = t 'auth.index.access_link_text_2'
+      # logger.debug2 "@provider = #{@provider}, @access_link_text_2 = #{@access_link_text_2}, @access_title_2 = #{@access_title_2}"
       # ok
       format_response_key '.ok', login_user.app_and_apiname_hash
     rescue => e

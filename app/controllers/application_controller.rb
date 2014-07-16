@@ -111,7 +111,7 @@ class ApplicationController < ActionController::Base
             # Signet::AuthorizationError (Authorization failed. Server message: { "error" : "invalid_grant" })
             logger.debug2 "Google+: could not use refresh_token to get a new access_token"
             logger.debug2 "error: #{e.message}"
-            add_error_key 'auth.destroy.refresh_token_error1'
+            add_error_key 'auth.destroy.refresh_token_error1', :apiname => provider_downcase(provider)
             res1 = nil
             expires_at = nil
             refresh_tokens[provider] = nil
@@ -119,7 +119,7 @@ class ApplicationController < ActionController::Base
             # other errors.
             logger.debug2 "Google+: could not use refresh_token to get a new access_token"
             logger.debug2 "error: #{e.message}"
-            add_error_key 'auth.destroy.refresh_token_error2', :error => e.message
+            add_error_key 'auth.destroy.refresh_token_error2', :apiname => provider_downcase(provider), :error => e.message
             res1 = nil
             expires_at = nil
             refresh_tokens[provider] = nil

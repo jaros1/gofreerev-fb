@@ -188,6 +188,8 @@ en:
         logged_off: "Connection with %{apiname} has been closed. Remember also to log out function at %{apiname} if you are finished using %{apiname}. Note that you are still connected to %{appname} with another login provider. Use \"Log out\" in menu if you wish to terminate connection to %{appname} for all your login providers in one step."
         already_logged_off: "Already logged out. Use links on this page to log in or to return to login API. Close browser to remove session cookie."
         unknown_provider: "System error. Unknown login provider when logging off"
+        refresh_token_error1: "Could not renew %{apiname} access token."
+        refresh_token_error2: "Could not renew %{apiname} access token. %{error}."
         expired_access_token: "Connection to %{appname} with %{apiname} has closed. Access token has expired. Please refresh page. Please reconnect."
 
   facebook:

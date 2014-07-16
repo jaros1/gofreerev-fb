@@ -36,8 +36,9 @@
                   <% end -%>
                 </td>
                 <td></td>
-                <td title="<%= t ".access_title_#{access}", :appname => APP_NAME, :apiname => provider_downcase(provider) %>">
-                  <%= link_to t(".access_link_text_#{access}"), API_APP_SETTING_URL[provider] || '#', :target => '_blank' %>
+                <%# access_id_<provider> and access_a_<provider> are being used in util.grant_write.js.erb (ajax replace text and title) -%>
+                <td id="access_td_<%= provider %>" title="<%= t ".access_title_#{access}", :appname => APP_NAME, :apiname => provider_downcase(provider) %>">
+                  <%= link_to t(".access_link_text_#{access}"), API_APP_SETTING_URL[provider] || '#', :target => '_blank', :id => "access_a_#{provider}" %>
                 </td>
                 <td></td>
                 <td style="text-align: center"><%= post_on_wall_checkbox(provider, post_on_wall) %></td>
