@@ -97,12 +97,6 @@
     a) problem with "" around table names in mysql
     b) Less float precession in mysql than in sqlite3
 
-18) remove api friend:
-    - facebook: link to profile
-    - linkedin: todo
-    - google+: todo
-    - twitter: todo
-
 19) check notifications and change notification test cases to support multiple logins
 
 20) better github page
