@@ -923,11 +923,6 @@
 110) ie8 - all tables must have a tbody and tbody must be used in ajax inject
      ( test: use windows xp on virtualbox http://10.0.2.2 )
 
-111) ie8 - new_messages_count was submitted as a normal http request instead as a ajax request
-     problem when not logged in dev1
-     must be a secondary/temporary error - no error after xhr? fix for ie8
-     ( test: use windows xp on virtualbox http://10.0.2.2 )
-
 112) check startup page size
      http://www.version2.dk/artikel/mobilsiderne-bliver-stoerre-og-langsommere-56847
      tools for faking a slow internet connection?
