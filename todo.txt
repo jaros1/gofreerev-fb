@@ -114,11 +114,6 @@
     can not upload picture with localhost url to linkedin
     add a special error message for this case?
 
-23) invalid deep link requests
-    deep link - return nice error page if deep link has been removed
-    should display an error page
-    must not redirect for not logged in users
-
 24) add server site cleanup for api_gifts with temp url
     created in gifts/create - removed in util.delete_local_picture after post_on_<provider> tasks
 
@@ -396,8 +391,6 @@
 
 56) users/index apiname=<provider> filter. Use login user = selected provider.
     in that way all user dev pictures are from the same login provider.
-
-57) check if there is a generic JS way to count number of running/pending ajax requests
 
 58) find all methods with case provider ... implementations. Should be listed in todo for adding a new login provider.
     maybe add a special search word that can be used to find all relevant points in source code when adding a new login provider
@@ -897,6 +890,8 @@
 
  95) ie8 target=blank opens in a new window and no shared cookie.
      could be a special spoon.net test problem - could be a reel problem with IE
+     ( test: use windows xp on virtualbox http://10.0.2.2 )
+
 
  96) check if there is any virtual machines available for test
      cannot test latest safari browsers from soon.net
@@ -920,6 +915,7 @@
      first click - resized to a smaller text area with scroll bars
      second click - submitted ok
      not a problem for new gift with very large text - what is the difference?
+     ( test: use windows xp on virtualbox http://10.0.2.2 )
 
 103) my.js - clear_ajax_errors(table_id) and clear_flash_and_ajax_errors
      clear all ajax error messages in web page
@@ -947,10 +943,12 @@
 109) controllers. check format_response in end of all ajax methods
 
 110) ie8 - all tables must have a tbody and tbody must be used in ajax inject
+     ( test: use windows xp on virtualbox http://10.0.2.2 )
 
 111) ie8 - new_messages_count was submitted as a normal http request instead as a ajax request
      problem when not logged in dev1
      must be a secondary/temporary error - no error after xhr? fix for ie8
+     ( test: use windows xp on virtualbox http://10.0.2.2 )
 
 112) check startup page size
      http://www.version2.dk/artikel/mobilsiderne-bliver-stoerre-og-langsommere-56847
@@ -973,6 +971,7 @@
       but it is only a problem for post with pictures
 
 116) ie8 and ie9 - cross site forgery when starting gofreerev from apps.facebook.com/gofreerev-dev
+     ( test: use windows xp on virtualbox http://10.0.2.2 - but 10.0.2.2 is not allowed in facebook app setup )
 
 117) opera 12 errors:
      page header:
@@ -1086,9 +1085,11 @@
 144) move session[:post_on_wall_selected] and session[:post_on_wall_authorized] to session table?
      to prevent cookie overflow when using session cookie store
 
-145) missing "please wait" message when checking post on wall checkbox and active ajax task
-    "please wait" (ajax_leave_page) is triggered by ajax event onbeforeunload and can not be used for checkboxes
-     maybe not a problem but current message for running task is cleared in page header when clicking on checkbox
+145) ajax: missing "please wait" message when checking post on wall checkbox and active ajax task
+     http: "please wait" (ajax_leave_page) is triggered by ajax event onbeforeunload and can not be used for checkboxes
+     maybe not a big problem but current message for running task is cleared in page header when clicking on checkbox
+     It could be nice if there is a to count number of running/pending ajax requests
+     See window.onbeforeunload (my.js) and JS error message js.general.ajax_leave_page
 
 146) adding vk to login with 7 shared accounts
      login with vk and adding vk as a shared account
@@ -1099,4 +1100,21 @@
      many users will forget to check checkbox
      but is should be very clear that auth. information is saved on server for share level 3 and 4
 
-select random issue: (rand*148).floor+1
+149) ajax insert new comment error
+     casetest: comment was inserted in ie8 on windows xp - comment should have been ajax inserted in firefox 30.0 in ubuntu
+     firefox 30.0 on ubuntu:
+     error messages in header:
+         Javascript fejl ved indsættelse af nye kommentarer. [Exception... "Node was not found" code: "8" nsresult: "0x80530008 (NotFoundError)" location: ""] (5,57).
+         Javascript fejl ved tjek for nye beskeder. [Exception... "Node was not found" code: "8" nsresult: "0x80530008 (NotFoundError)" location: ""] (4,3).
+     note that old error message in page header is not removed before inserting new error messages
+     javascript log:
+         insert_new_comments: start
+         insert_new_comments: i = 0, gift id = 1605, comment id = 1082
+         insert_new_comments: insert first comment for gift before add new comment row
+         insert_new_comments: old_comments1_tbody = [object HTMLTableSectionElement]
+         insert_new_comments: new_comment_tr = [object HTMLTableRowElement]
+         insert_new_comments: old_comments2_add_new_comment_tr = [object HTMLTableRowElement]
+         insert_new_comments: failed with JS error [Exception... "Node was not found" code: "8" nsresult: "0x80530008 (NotFoundError)" location: ""], debug = 57
+         #new_messages_count_link::ajax:success: insert_new_comments failed: [Exception... "Node was not found" code: "8" nsresult: "0x80530008 (NotFoundError)" location: ""]
+
+select random issue: (rand*149).floor+1

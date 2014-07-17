@@ -3,6 +3,7 @@
 
 // allow running ajax to complete before leaving page / executing new http request
 // http://stackoverflow.com/questions/1906023/jquery-ajaxerror-handler-fires-if-user-leaves-page-before-page-finishes-loadin
+// todo: this solution gives a nice message when user clicks on a http link (leaving page). It could be nice with a solution that also gives a nice message for ajax request (not leaving page).
 var ajaxing ;
 $(document).ajaxStart(function() {
     ajaxing = true;
