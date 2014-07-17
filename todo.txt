@@ -848,18 +848,6 @@
      error message could come already when posting on wall
      not after next refresh page
 
- 89) check css errors in other browsers.
-
- 90) firefox :
-        19:00:50.986 Use of getUserData() or setUserData() is deprecated.  Use WeakMap or element.dataset instead. requestNotifier.js:64
-        19:00:51.350 Error in parsing value for 'white-space'.  Declaration dropped. application.css:67
-        19:00:51.350 Error in parsing value for 'white-space'.  Declaration dropped. application.css:68
-        19:00:51.481 Unknown property 'box-sizing'.  Declaration dropped. normalize.css:155
-        19:00:51.481 Unknown property 'box-sizing'.  Declaration dropped. normalize.css:349
-        19:00:51.481 Unknown property 'box-sizing'.  Declaration dropped. normalize.css:363
-        19:00:51.481 Unknown pseudo-class or pseudo-element '-webkit-search-cancel-button'.  Ruleset ignored due to bad selector. normalize.css:371
-        19:00:52.065 Unknown property 'text-wrap'.  Declaration dropped. gifts
-
  91) opera 12: A page on the public internet requests data from your private intranet.
      For security reasons, automatic access is blocked, but you may choose to continue.
      problem is not in opera 19 on windows.
@@ -1110,4 +1098,4 @@
 150) change currency. Text "clear_ajax_errors('show-more-rows-errors') ;" is ajax injected into page (firefox 30 on ubuntu).
      aside from this change currency works ok in page header and in user edit page
 
-select random issue: (rand*149).floor+1
+select random issue: (rand*150).floor+1
