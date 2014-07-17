@@ -2354,6 +2354,36 @@ $(document).ready(function() {
     }) // ajax:error
 })
 
+// workaround for doublet language code in url, /en/en/<controller>/<action>
+// error must be in /config/routes.rb and/or how url_for is being used in app
+// do not add controllers with 2 letter name
+function remove_doublet_language_code (url) {
+    var url_a = url.split('/') ;
+    if (url_a.length < 5) return url ;
+    var lancode1 = url_a[3] ;
+    var lancode2 = url_a[4] ;
+    if (lancode1 != lancode2) return url ;
+    if (!lancode1.match(/^[a-z]{2}$/)) return url ;
+    url_a.splice(3,1) ;
+    url = url_a.join('/') ;
+    return url ;
+} // remove_doublet_language_code
+
+// change language. Note that unsaved post, comment and updates are discarded when changing language
+function update_language(self) {
+    var href = window.location.href ;
+    add2log('old href = ' + href + ', self.value = ' + self.value) ;
+    href = remove_doublet_language_code(href) ;
+    var href_a = href.split('/') ;
+    if (href_a[3].match(/^[a-z]{2}$/)) href_a[3] =  self.value ;
+    else href_a.splice(3,0,self.value) ;
+    href = href_a.join('/') ;
+    add2log('new href = ' + href) ;
+    window.location.href = href ;
+} // update_language
+
+
+
 // custom confirm box - for styling
 // http://lesseverything.com/blog/archives/2012/07/18/customizing-confirmation-dialog-in-rails/
 // http://www.pjmccormick.com/nicer-rails-confirm-dialogs-and-not-just-delete-methods

@@ -17,18 +17,6 @@
             add_to_tasks_errors('Error when deleting account: ' + errorThrown + '. check server log for more information.') ;
         })
     })
-
-
-    function update_language(self) {
-        add2log('location = ' + window.location.href + ', self.value = ' + self.value) ;
-        var href_a = window.location.href.split('/') ;
-        var href_lng = href_a.length ;
-        var user_id = href_a[href_lng-2] ;
-        var href = '/' + self.value + '/users/' + user_id + '/edit' ;
-        add2log('href = ' + href) ;
-        window.location.href = href ;
-    } // update_language
-
 </script>
 
 <%= t '.page_header_text_html' %>
@@ -38,11 +26,7 @@
 </table>
 <br/>
 <table>
-  <tr title="<%= t '.language_title', @user2.app_and_apiname_hash %>">
-    <td><%= t '.language_prompt', @user2.app_and_apiname_hash %></td>
-    <td>:</td>
-    <td><%= select_tag :language, options_for_select(selected_languages, [I18n.locale]), :onchange => 'update_language(this)' %></td>
-  </tr>
+  <%= render :partial => 'shared/language_tr' %>
   <tr title="<%= t '.currency_title', @user2.app_and_apiname_hash %>">
     <td><%= t '.currency_prompt', @user2.app_and_apiname_hash %></td>
     <td>:</td>

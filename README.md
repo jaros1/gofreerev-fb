@@ -21,3 +21,4 @@ Resources
 
 I could need some help with:
 - Styling and layout. Responsive layout implemented, but no other styling.
+- Translation to other major languages (french, spanish, arabic, mandarin, russian etc)

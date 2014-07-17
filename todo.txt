@@ -396,10 +396,6 @@
     - add * note for login providers that does not support post on wall
     - add missing provider? note. add a github page with request for missing login providers
 
- 61) users/edit change language
-     - add note and link to github with instructions to how to add a new language to app
-     - add github page about changing translations and adding new languages
-
  62) linkedin gem. frozen to an old version due to error. Unfreeze when error is solved
      https://github.com/hexgnu/linkedin/issues/216
 
@@ -1110,5 +1106,8 @@
          insert_new_comments: old_comments2_add_new_comment_tr = [object HTMLTableRowElement]
          insert_new_comments: failed with JS error [Exception... "Node was not found" code: "8" nsresult: "0x80530008 (NotFoundError)" location: ""], debug = 57
          #new_messages_count_link::ajax:success: insert_new_comments failed: [Exception... "Node was not found" code: "8" nsresult: "0x80530008 (NotFoundError)" location: ""]
+
+150) change currency. Text "clear_ajax_errors('show-more-rows-errors') ;" is ajax injected into page (firefox 30 on ubuntu).
+     aside from this change currency works ok in page header and in user edit page
 
 select random issue: (rand*149).floor+1

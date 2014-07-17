@@ -121,6 +121,8 @@ da:
      languages:
         da: "Dansk"
         en: "Engelsk"
+        title: "Vælg sprog. I øjeblikket kun dansk og engelsk. Modtager gerne hjælp til oversættelse til andre sprog. Se FAQ og kontakt information på GitHub."
+        prompt: "Sprog"
      share_accounts:
         title: "Brug valgliste hvis du ønsker at samle dine konti på tværs af login udbydere til en fælles konto. Du kan vælge imellem 4 forskellige niveauer af deling på tværs af konti. Laveste niveauer er deling af saldo og dine nuværende vennelister. Her gemmes autorisationsoplysninger i en cookie i din browser. Højeste niveauer er deling af saldo og opdaterede vennelister og evt. fælles login for login udbydere. Her gemmes autorisationsoplysninger krypteret på serveren hvis du giver tilladelse til dette. Autorisationsoplysninger er såkaldt access token / adgangsbillet til API og er altså ikke brugernavn og kodeord. Deling af saldo indebærer en fælles saldo på tværs af login udbydere for de gaver du har givet og modtaget. Deling af vennelister giver dig og dine venner mulighed for at sammenligne vennelister på tværs login udbydere og finde evt. manglede venner. Fælles login er delt login i %{appname} med begrænset adgang til API funktioner hos dine login udbydere."
         checkbox_prompt: "Saml konti?"
@@ -718,8 +720,6 @@ da:
      edit:
         invalid_request: "Ugyldigt kald."
         page_header_text_html: "<p>Opdater brugeroplysninger</p>"
-        language_title: "Vælg sprog"
-        language_prompt: "Sprog"
         currency_title: "Vælg, hvilken valuta du ønsker at bruge for priser og saldo  (intern gemmes alle beløb i USD)."
         currency_prompt: "Valuta"
         post_on_wall_title: "Brug denne tjekboks til at slå opslag på %{apiname} til og fra."

@@ -119,6 +119,8 @@ en:
      languages:
         da: "Danish"
         en: "Engelsk"
+        title: "Select language. Currently only English and Danish. Happy to receive help with translation into other languages. See FAQ and contact information on GitHub."
+        prompt: "Language"
      share_accounts:
         title: "Use this check box if you want to gather your accounts across login providers to a joint account. If you select X you get a total balance with the sum of the value of the gifts you have given and received across all your login providers. Select X to allow cross login provider friends lists compare. You can get a list of the friends you are missing and your friends can get a list of the friends they are missing. That is, people who are your friends at one login provider and who is your friend's friend at an other login provider. Your friends get fewer friends proposals without X in check box as your friend lists are not used in friends proposals. Use link \"Find friends\" to get friends proposals. X in the check box is NOT single sign-on for all access providers. You'll still need to log in each login provider where you want to view, create or comment posts."
         checkbox_prompt: "Share accounts?"
@@ -135,6 +137,7 @@ en:
         lov_text_4: "single sign-on"
         lov_text_5: "mixed sharing. See text below"
         offline_access_prompt: "Save authorization on server?"
+
 
   # omniauth controllers (auth, facebook and linkedin):
 
@@ -714,8 +717,6 @@ en:
      edit:
         invalid_request: "Invalid request."
         page_header_text_html: "<p>Update user information</p>"
-        language_title: "Select language"
-        language_prompt: "Language"
         currency_title: "Select the currency you want to use for prices and balance (internal all amounts are stored in USD)."
         currency_prompt: "Currency"
         post_on_wall_title: "Use this checkbox to enable or disable post on %{apiname} wall."
