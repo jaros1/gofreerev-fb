@@ -29,6 +29,7 @@ en:
   activerecord:
     attributes:
       gift:
+        direction: "Offers/Seeks"
         description: "Text"
         currency: "Currency"
         price: "Price"
@@ -36,6 +37,12 @@ en:
         user_id_receiver: "Buyer/receiver"
       comment:
         price: "Price"
+    attribute_values:
+      gift:
+        direction:
+          giver: "Offers: "
+          receiver: "Seeks: "
+          both: "Closed: "
     errors:
       models:
         gift:

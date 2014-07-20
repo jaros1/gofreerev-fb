@@ -167,6 +167,10 @@ gem 'session_off'
 # client side translations : https://github.com/PikachuEXE/i18n-js/tree/rails4
 gem "i18n-js-pika", require: "i18n-js" # 3.0.0.rc9
 
+# model attribute value translation
+# https://github.com/divineforest/human_attribute
+gem 'human_attribute'
+
 # use when moving to an other db environment. See issue 12
 # https://github.com/ludicast/yaml_db
 # https://github.com/ludicast/yaml_db/pull/45

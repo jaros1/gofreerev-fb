@@ -29,6 +29,7 @@ da:
   activerecord:
     attributes:
       gift:
+        direction: "Tilbyder/Søger"
         description: "Tekst"
         currency: "Valuta"
         price: "Pris"
@@ -36,6 +37,12 @@ da:
         user_id_receiver: "Køber/modtager"
       comment:
         price: "Pris"
+    attribute_values:
+      gift:
+        direction:
+          giver: "Tilbyder: "
+          receiver: "Søger: "
+          both: "Afsluttet: "
     errors:
       models:
         gift:

@@ -485,6 +485,12 @@
  79) collect and organize screen dumps
 
  80) check that API_MAX_TEXT_LENGTHS constant is used for all api's
+     make generic singleton method to split direction + description + deep link into 1-3 fields.
+     facebook: 1 field message (47950)
+     flckr: 2 fields title (255) and description (nil)
+     linkedin: 3 fields title (200), description (256) and comment (700)
+   ( twitter: some very special rules tweet length with link and picture - cannot be generalized )
+     vkontakte: 1 field caption (475)
 
  82) tests
      long text post without picture for all API's

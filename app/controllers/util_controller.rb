@@ -1932,7 +1932,7 @@ class UtilController < ApplicationController
       # open_graph: array where post text is splitted in title, description and remainder (if long text)
       # it is up to each api_client.gofreerev_post_on_wall instance method how to use max text and open graph lengths
       # see array constants API_MAX_TEXT_LENGTHS, API_OG_TITLE_SIZE and API_OG_DESC_SIZE
-      direction = format_direction_without_user(api_gift)
+      direction = api_gift.gift.human_value(:direction)
       open_graph = open_graph_title_and_desc(api_gift)
 
       # gift_posted_on_wall_api_wall. values:

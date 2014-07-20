@@ -489,6 +489,7 @@ class Gift < ActiveRecord::Base
   end # self.find_twitter_tags
 
   # truncate long tweet. preserve tags if possible.
+  # use to shorten tweet before post on twitter wall. See util.generec_post_on_wall and application_controller.init_api_client_twitter
   # testcase: text.size.downto(1).each do |i| puts i.to_s + ': ' + Gift.truncate_twitter_text(x,i) ; end ; nil
   def self.truncate_twitter_text (text, max_lng)
     return text if text.to_s.size <= max_lng
@@ -581,6 +582,18 @@ class Gift < ActiveRecord::Base
     end
     text
   end # self.truncate_twitter_text
+
+  # truncate text before post in api walls
+  # special text truncation for tweets where tags are preserved and removed last
+  def self.truncate_text (provider, text, max_lng)
+    return nil unless text
+    if provider == 'twitter'
+      Gift.truncate_twitter_text(text, max_lng)
+    else
+      text.first(max_lng)
+    end
+  end # self.truncate_text
+
 
 
   # psydo attributea

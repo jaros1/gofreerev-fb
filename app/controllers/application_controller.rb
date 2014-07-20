@@ -1066,18 +1066,19 @@ class ApplicationController < ActionController::Base
 
 
   # used in api posts
-  private
-  def format_direction_without_user (api_gift)
-    gift = api_gift.gift
-    case gift.direction
-      when 'giver'
-        t 'gifts.index.direction_giver_prompt' # Offers:
-      when 'receiver'
-        t 'gifts.index.direction_receiver_prompt' # Seeks:
-      else
-        ""
-    end # case
-  end # format_direction
+  # private
+  # def format_direction_without_user (api_gift)
+  #   api_gift.gift.human_value(:direction)
+  #   # gift = api_gift.gift
+  #   # case gift.direction
+  #   #   when 'giver'
+  #   #     t 'gifts.index.direction_giver_prompt' # Offers:
+  #   #   when 'receiver'
+  #   #     t 'gifts.index.direction_receiver_prompt' # Seeks:
+  #   #   else
+  #   #     ""
+  #   # end # case
+  # end # format_direction
 
   # used in gifts/index
   private
@@ -1106,7 +1107,7 @@ class ApplicationController < ActionController::Base
 
   private
   def open_graph_title_and_desc(api_gift)
-    text = "#{format_direction_without_user(api_gift)}#{api_gift.gift.description}"
+    text = "#{api_gift.gift.human_value(:direction)}#{api_gift.gift.description}"
     title_lng = API_OG_TITLE_SIZE[api_gift.provider] || 70
     desc_lng = API_OG_DESC_SIZE[api_gift.provider] || 200
     if text.length <= title_lng
@@ -1331,9 +1332,12 @@ class ApplicationController < ActionController::Base
       # always post with picture on flickr. API_TEXT_TO_PICTURE[:flickr] == 0
       # todo: add title? For example title from OG - max 255 characters
       # todo: no max length for flickr description?
-      text = "#{direction} #{gift.description}"
+      title = open_graph[0]
+      title = title.first(API_MAX_TEXT_LENGTHS[:flickr][:title]) if API_MAX_TEXT_LENGTHS[:flickr][:title]
+      description = "#{direction} #{gift.description} - #{deep_link}"
+      description = description.first(API_MAX_TEXT_LENGTHS[:flickr][:description]) if API_MAX_TEXT_LENGTHS[:flickr][:description]
       begin
-        api_gift_id = self.upload_photo picture, :description => "#{text} - #{deep_link}"
+        api_gift_id = self.upload_photo picture, :title => open_graph[0], :description => description
       rescue FlickRaw::OAuthClient::FailedResponse => e
         logger.debug2 "exception (1): #{e.message} (#{e.message.class})"
         # logger.debug2 "e.methods = #{e.methods.sort.join(', ')}"

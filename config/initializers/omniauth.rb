@@ -264,7 +264,7 @@ API_TEXT_TO_PICTURE = {:facebook => nil,
 # default values: 70 characters for title and 200 characters for description
 # P) OG title meta-tag
 API_OG_TITLE_SIZE = {:facebook => 94, # http://wptest.means.us.com/online-meta-tag-length-checker/
-                     :flickr => 60, # todo: check
+                     :flickr => 60, # Open Graph is not relevant for flickr
                      :foursquare => 60, # todo: check
                      :google_oauth2 => 63,
                      :instagram => 60, # todo: check
