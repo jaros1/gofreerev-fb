@@ -1193,7 +1193,7 @@ class ApplicationController < ActionController::Base
       picture = options[:picture]
       # format message (direction + description + deep link) - only one text field message when posting on facebook
       message_lng = API_MAX_TEXT_LENGTHS[:facebook][:message] if API_MAX_TEXT_LENGTHS[:facebook]
-      message = api_gift.get_wall_post_text_fields([message_lng]).first
+      message = api_gift.get_wall_post_text_fields(false, [message_lng]).first
       logger.debug2 "message = #{message}"
       # post on wall with or without picture
       begin
@@ -1316,7 +1316,7 @@ class ApplicationController < ActionController::Base
         title_lng = API_MAX_TEXT_LENGTHS[:flickr][:title]
         description_lng = API_MAX_TEXT_LENGTHS[:flickr][:description]
       end
-      title, description = api_gift.get_wall_post_text_fields [title_lng, description_lng]
+      title, description = api_gift.get_wall_post_text_fields false, [title_lng, description_lng]
       logger.debug2 "title = #{title}, description = #{description}"
       # post picture on flickr (always post with pictures)
       begin
@@ -1534,7 +1534,7 @@ class ApplicationController < ActionController::Base
       # - text without deep link
       # - max lengths for title and description are taken from API_OG_TITLE_SIZE and API_OG_DESC_SIZE
       # - max lengths for title and description are not taken from API_MAX_TEXT_LENGTHS
-      # comment is displayed above title and description and is only used for deep link
+      # comment is displayed above title and description in linkedin post and is only used for deep link
       title, description = open_graph
       comment = deep_link
       logger.debug2 "title = #{title}, description = #{description}, comment = #{comment}"
@@ -1660,30 +1660,14 @@ class ApplicationController < ActionController::Base
       api_gift = options[:api_gift]
       logger = options[:logger]
       picture = options[:picture]
-      direction = options[:direction] # offers / seeks
-      open_graph = options[:open_graph]
-      gift = api_gift.gift
-      deep_link = api_gift.deep_link
-
+      # format message (direction + description + deep link) - only one text field tweet when posting on twitter
       # twitter has some special restrictions on tweet length
       # max tweet length 140 characters
-      # always reserve 23+1 characters for deep link (space + link)
-      # reserve 23 characters for picture link if attached image in tweet
-      if FORCE_SSL
-        # must be a public web server - twitter shorten deep link to 23 characters
-        deep_link_lng = 24 # space + link
-      else
-        # must be an internal web server (localhost) - twitter does not shorten deep_link url
-        deep_link_lng = deep_link.size + 1
-      end
-      picture_link_lng = picture ? 23 : 0 # picture link
-      text_max_lng = 140 - deep_link_lng - picture_link_lng
-
-      # make tweet. keep tags and truncate non tag text if text is too long
-      text = "#{direction}#{gift.description}"
-      text =  Gift.truncate_twitter_text text, text_max_lng
-      tweet = "#{text} #{deep_link}"
-
+      # 23 characters is reserved for picture url if picture attachment
+      # deep_link url is shortened to 23 characters in app. server is public available
+      tweet_lng = API_MAX_TEXT_LENGTHS[:twitter] - (picture ? 23 : 0)
+      tweet = api_gift.get_wall_post_text_fields(false,[tweet_lng]).first
+      logger.debug2 "tweet = #{tweet}"
       # post tweet
       x = nil
       begin
@@ -1771,14 +1755,28 @@ class ApplicationController < ActionController::Base
     end # gofreerev_get_friends
     # add gofreerev_post_on_wall - used in post_on_<provider> / generic_post_on_wall
     api_client.define_singleton_method :gofreerev_post_on_wall do |options|
-      # false: post to Gofreerev album, true: post to VK wall.
+      # get params
       api_gift = options[:api_gift]
       logger = options[:logger]
       picture = options[:picture]
       direction = options[:direction] # offers / seeks
       open_graph = options[:open_graph]
-      wall = false # no errors but is do not looks like upload to VK wall is working. todo: check from a smartphone
-      # find/create album with gofreerev pictures
+      # wall: false: post to Gofreerev album, true: post to VK wall.
+      # no errors but is do not looks like upload to VK wall is working.
+      # todo: check from a smartphone
+      wall = false
+      # format message (direction + description + deep link) - only one text field caption when posting on vkontakte
+      caption_lng = API_MAX_TEXT_LENGTHS[:vkontakte]
+      caption = api_gift.get_wall_post_text_fields(false, [caption_lng]).first
+      logger.debug2 "caption = #{caption}"
+
+      # Upload to vkontakte is done in 4 steps:
+      # a) find/create album with gofreerev pictures
+      # b) get upload server
+      # c) upload - maybe vkontakte gem has a method for this?!
+      # d) save uploaded photo in album
+
+      # a) find/create album with gofreerev pictures
       # http://vk.com/developers.php?oid=-17680044&p=photos.getAlbums
       begin
         albums = self.photos.getAlbums
@@ -1819,7 +1817,8 @@ class ApplicationController < ActionController::Base
       logger.debug2 "aid = #{aid}"
       # get full os path for image
       gift = api_gift.gift
-      # get upload server
+
+      # b) get upload server
       begin
         if wall
           # http://vk.com/developers.php?oid=-17680044&p=photos.getWallUploadServer
@@ -1838,7 +1837,8 @@ class ApplicationController < ActionController::Base
       logger.debug2 "uploadserver.class = #{uploadserver.class}"
       url = uploadserver['upload_url']
       logger.debug2 "url = #{url}"
-      # upload - maybe vkontakte gem has a method for this?!
+
+      # c) upload - maybe vkontakte gem has a method for this?!
       # http://vk.com/developers.php?oid=-17680044&p=Uploading_Files_to_the_VK_Server_Procedure
       begin
         upload_res1 = RestClient.post url, :file1 => File.new(picture)
@@ -1856,7 +1856,6 @@ class ApplicationController < ActionController::Base
         logger.debug2 "upload_res1.body = #{upload_res1.body}"
         raise VkontaktePhotoPost.new "#{e.class}: #{e.message}. Excepted yaml response"
       end
-      # save uploaded photo in album
       if !upload_res2.has_key?('server') or !upload_res2.has_key?('hash')
         logger.debug2 "upload_res2 = #{upload_res2}"
         logger.debug2 "upload_res2.class = #{upload_res2.class}"
@@ -1867,23 +1866,21 @@ class ApplicationController < ActionController::Base
         logger.debug2 "upload_res2.class = #{upload_res2.class}"
         raise VkontaktePhotoPost.new "upload_res2 = #{upload_res2}"
       end
+
+      # d) save uploaded photo in album
       # save uploaded photo on wall or in gofreerev album
       # http://vk.com/developers.php?oid=-17680044&p=photos.save
       server = upload_res2['server']
       photo = upload_res2['photo']
       photos_list = upload_res2['photos_list']
       hash = upload_res2['hash']
-      description_max_length = 475 - api_gift.deep_link.length - 3 # 400 Bad Request + JSON::ParserError if length > 475
-      text = "#{direction} #{gift.description}"
-      description = "#{text.first(description_max_length)} - #{api_gift.deep_link}"
-      logger.debug2 "description = #{description} (#{description.length})"
       begin
         if wall
           # http://vk.com/developers.php?oid=-17680044&p=photos.saveWallPhoto
           save_res = self.photos.saveWallPhoto :server => server, :photo => photo, :hash => hash
         else
           # http://vk.com/developers.php?oid=-17680044&p=photos.save
-          save_res = self.photos.save :aid => aid, :server => server, :photos_list => photos_list, :hash => hash, :caption => description
+          save_res = self.photos.save :aid => aid, :server => server, :photos_list => photos_list, :hash => hash, :caption => caption
         end
       rescue exception => e
         raise VkontaktePhotoSave.new "#{e.class}: #{e.message}"
@@ -1897,6 +1894,7 @@ class ApplicationController < ActionController::Base
       if !save_res.has_key?('owner_id') or !save_res.has_key?('pid')
         raise VkontaktePhotoSave.new "Expected hash with owner_id and pid. save_res = #{save_res}"
       end
+
       # ok response
       api_gift_id = "#{save_res['owner_id']}_#{save_res['pid']}"
       api_gift_url = "#{API_URL[provider]}photo#{api_gift_id}"

@@ -484,15 +484,6 @@
 
  79) collect and organize screen dumps
 
- 80) check that API_MAX_TEXT_LENGTHS constant is used for all api's
-     make generic singleton method to split direction + description + deep link into 1-3 fields.
-     facebook: 1 field message (47950)
-     flckr: 2 fields title (255) and description (nil)
-     linkedin: 3 fields title (200), description (256) and comment (700)
-   ( twitter: some very special rules tweet length with link and picture - cannot be generalized )
-     vkontakte: 1 field caption (475)
-     added get_wall_post_text_fields and self.test_get_wall_post_text_fields to ApiGift
-
  82) tests
      long text post without picture for all API's
      long text post with picture for all API's
@@ -765,4 +756,11 @@
 150) change currency. Text "clear_ajax_errors('show-more-rows-errors') ;" is ajax injected into page (firefox 30 on ubuntu).
      aside from this change currency works ok in page header and in user edit page
 
-select random issue: (rand*150).floor+1
+151) post in linkedin. comment (700 characters) in now only used for deep link
+     but could also be used for generic description of Gofreerev
+     see application_controller.open_graph_title_and_desc
+     append generic description t("gifts.show.og_def_desc_#{api_gift.provider}") to comment
+
+152) post on api wall. add truncation warning for truncated posts.
+
+select random issue: (rand*152).floor+1

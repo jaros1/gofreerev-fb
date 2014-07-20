@@ -1928,11 +1928,10 @@ class UtilController < ApplicationController
       description_with_deep_link = "#{gift.description} - #{deep_link}"
 
       # helpers ( app helpers are not available in instance method api_client.gofreerev_post_on_wall)
-      # direction: offers: or :seeks
       # open_graph: array where post text is splitted in title and description
       # it is up to each api_client.gofreerev_post_on_wall instance method how to use max text and open graph lengths
       # see array constants API_MAX_TEXT_LENGTHS, API_OG_TITLE_SIZE and API_OG_DESC_SIZE
-      direction = api_gift.gift.human_value(:direction)
+      # linkedin is using open_graph array for post
       open_graph = open_graph_title_and_desc(api_gift)
 
       # gift_posted_on_wall_api_wall. values:
@@ -1967,27 +1966,25 @@ class UtilController < ApplicationController
           # case 2: post on wall with picture
           picture_url = Picture.url_from_rel_path api_gift.gift.app_picture_rel_path # used in a later check
           picture_full_os_path = Picture.full_os_path_from_rel_path api_gift.gift.app_picture_rel_path
-          api_gift.api_gift_id, api_gift.api_gift_url = api_client.gofreerev_post_on_wall :api_gift => api_gift,
-                                                                                          :direction => direction,
+          api_gift.api_gift_id, api_gift.api_gift_url = api_client.gofreerev_post_on_wall :logger => logger,
+                                                                                          :api_gift => api_gift,
                                                                                           :open_graph => open_graph,
-                                                                                          :picture => picture_full_os_path,
-                                                                                          :logger => logger
+                                                                                          :picture => picture_full_os_path
+
         elsif API_TEXT_TO_PICTURE[provider] == 0 or
             API_TEXT_TO_PICTURE[provider].class == Fixnum and description_with_deep_link.length > API_TEXT_TO_PICTURE[provider]
           # case 3 and 4. convert text to image
           picture_full_os_path = Picture.create_png_image_from_text gift.description, 800
-          api_gift.api_gift_id, api_gift.api_gift_url = api_client.gofreerev_post_on_wall :api_gift => api_gift,
-                                                                                          :direction => direction,
+          api_gift.api_gift_id, api_gift.api_gift_url = api_client.gofreerev_post_on_wall :logger => logger,
+                                                                                          :api_gift => api_gift,
                                                                                           :open_graph => open_graph,
-                                                                                          :picture => picture_full_os_path,
-                                                                                          :logger => logger
+                                                                                          :picture => picture_full_os_path
           FileUtils.rm picture_full_os_path if File.exists?(picture_full_os_path)
         else
           # case 5: post on wall without picture
-          api_gift.api_gift_id, api_gift.api_gift_url = api_client.gofreerev_post_on_wall :api_gift => api_gift,
-                                                                                          :direction => direction,
-                                                                                          :open_graph => open_graph,
-                                                                                          :logger => logger
+          api_gift.api_gift_id, api_gift.api_gift_url = api_client.gofreerev_post_on_wall :logger => logger,
+                                                                                          :api_gift => api_gift,
+                                                                                          :open_graph => open_graph
         end
         if api_gift.api_gift_id
           # post ok - post id received from API

@@ -230,16 +230,15 @@ API_GIFT_PICTURE_STORE = {:fallback => nil,
 # see also Open Graph lengths for title and description
 # open graph will in many cases have smaller lengths for title and description
 # it is up to each api_client.gofreerev_post_on_wall instance method how to use max text lengths
-# linkedin: post on wall is always open graph post and is using length title and description from open graph setup
 # see ApiGift.get_wall_post_text_fields for details about text format- and splitting text when posting on api walls
 API_MAX_TEXT_LENGTHS = {:facebook => { :message => 47950}, # guess after some tests - not 100% stable
                         :flickr => {:title => 255, :description => nil, :tags => nil },
                         :foursquare => nil, # post allowed, but users do not have a wall like the other api's
                         :google_oauth2 => nil, # google+ is a readonly API
                         :instagram => nil, # instagram is a readonly API
-                        :linkedin => { :title => 200, :description => 256, :comment => 700 },
-                        :twitter => 116, # 24 characters reserved for deep link - max text length with image is 93
-                        :vkontakte => 475}.with_indifferent_access
+                        :linkedin => { :title => 200, :description => 256, :comment => 700 }, # see API_OG_* hashes
+                        :twitter => 140, # 24 chars used for deep link - 23 chars used for picture attachment
+                        :vkontakte => 255}.with_indifferent_access
 
 # O) text to picture options - PhantomJS (http://phantomjs.org/) is required for this - use empty hash {} to disable.
 # note that PhantomJs required relative much memory and time to run and should maybe not run on a small computer

@@ -396,6 +396,7 @@ class ApiGift < ActiveRecord::Base
     # check is_open_graph (true or false). false: return deep link, true: do not return deep link)
     raise InvalidCall.new('is_open_graph must be true or false') unless [TrueClass, FalseClass].index(is_open_graph.class)
     # check max_lng - array with 1-3 text field lengths
+    # logger.debug2 "max_lng = #{max_lng}"
     invalid_call = InvalidCall.new('max_lng must be an array of 1-3 positive integers. nil elements are allowed')
     raise invalid_call unless max_lng.class == Array
     raise invalid_call unless max_lng.size >= 1 and max_lng.size <= 3
@@ -421,6 +422,7 @@ class ApiGift < ActiveRecord::Base
       link_separator = ' - '
       deep_link_lng = deep_link.size
     end
+    # logger.debug2 "deep_link_lng = #{deep_link_lng}"
     link_separator_lng = link_separator.size
     # prepare response - one return text field for each lng element (nil elements are allowed)
     res = [nil] * max_lng.size
@@ -433,18 +435,21 @@ class ApiGift < ActiveRecord::Base
     if max_lng.size == 1
       if direction_lng + direction_lng + link_separator_lng + deep_link_lng <= max_lng[0]
         # return text with direction and deep link
-        test_max_lng = max_lng[0] - direction_lng - link_separator_lng - deep_link_lng
-        description =  Gift.truncate_text provider, description, test_max_lng
+        text_max_lng = max_lng[0] - direction_lng - link_separator_lng - deep_link_lng
+        # logger.debug2 "text_max_lng (a) = #{text_max_lng}"
+        description =  Gift.truncate_text provider, description, text_max_lng
         res[0] = "#{direction}#{description}#{link_separator}#{deep_link}"
       elsif direction_lng + link_separator_lng + deep_link_lng <= max_lng[0]
         # return text with deep link
-        test_max_lng = max_lng[0] - link_separator_lng - deep_link_lng
-        description =  Gift.truncate_text provider, description, test_max_lng
+        text_max_lng = max_lng[0] - link_separator_lng - deep_link_lng
+        # logger.debug2 "text_max_lng (b) = #{text_max_lng}"
+        description =  Gift.truncate_text provider, description, text_max_lng
         res[0] = "#{description}#{link_separator}#{deep_link}"
       elsif direction_lng + direction_lng <= max_lng[0]
         # return text with direction
-        test_max_lng = max_lng[0] - direction_lng
-        description =  Gift.truncate_text provider, description, test_max_lng
+        text_max_lng = max_lng[0] - direction_lng
+        # logger.debug2 "text_max_lng (c) = #{text_max_lng}"
+        description =  Gift.truncate_text provider, description, text_max_lng
         res[0] = "#{direction}#{description}"
       else
         # return text
