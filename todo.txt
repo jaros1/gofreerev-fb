@@ -491,6 +491,7 @@
      linkedin: 3 fields title (200), description (256) and comment (700)
    ( twitter: some very special rules tweet length with link and picture - cannot be generalized )
      vkontakte: 1 field caption (475)
+     added get_wall_post_text_fields and self.test_get_wall_post_text_fields to ApiGift
 
  82) tests
      long text post without picture for all API's

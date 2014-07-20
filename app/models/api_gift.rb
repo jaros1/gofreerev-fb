@@ -391,8 +391,11 @@ class ApiGift < ActiveRecord::Base
   #   ag = ApiGift.where('deep_link_id is not null').shuffle.first
   #   no_fields = (rand*3).floor+1
   #   max_lng = [] ; 1.upto(no_fields) do |i| max_lng << (rand*150).floor+1 end ; texts = ag.get_wall_post_text_fields(max_lng) ; puts "description = #{ag.gift.description}\nmax_lng = #{max_lng}\ntexts = #{texts}"
-  def get_wall_post_text_fields (max_lng = [])
-    # check param - array with
+  def get_wall_post_text_fields (is_open_graph, max_lng = [])
+    # check param
+    # check is_open_graph (true or false). false: return deep link, true: do not return deep link)
+    raise InvalidCall.new('is_open_graph must be true or false') unless [TrueClass, FalseClass].index(is_open_graph.class)
+    # check max_lng - array with 1-3 text field lengths
     invalid_call = InvalidCall.new('max_lng must be an array of 1-3 positive integers. nil elements are allowed')
     raise invalid_call unless max_lng.class == Array
     raise invalid_call unless max_lng.size >= 1 and max_lng.size <= 3
@@ -408,8 +411,7 @@ class ApiGift < ActiveRecord::Base
     description = gift.description
     description_lng = description.size
     deep_link = self.deep_link()
-    if !deep_link
-      # there should always be a deep link when posting on api wall - probably an error - return texts without deep link
+    if is_open_graph or !deep_link
       link_separator = ''
       deep_link_lng = 0
     elsif provider == 'twitter' and FORCE_SSL

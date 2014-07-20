@@ -1107,12 +1107,15 @@ class ApplicationController < ActionController::Base
 
   private
   def open_graph_title_and_desc(api_gift)
-    text = "#{api_gift.gift.human_value(:direction)}#{api_gift.gift.description}"
+    # initialize with max lengths for title and description.
+    # comment is a special field that is only used when posting on linkedin wall (not an open graph field)
     title_lng = API_OG_TITLE_SIZE[api_gift.provider] || 70
-    desc_lng = API_OG_DESC_SIZE[api_gift.provider] || 200
-    if text.length <= title_lng
-      # short gift text - get generic description from gifts.show.og_def_desc_<provider>
-      title = text
+    description_lng = API_OG_DESC_SIZE[api_gift.provider] || 200
+    comment_lng = API_MAX_TEXT_LENGTHS[api_gift.provider][:comment] if api_gift.provider == 'linkedin' # only used for post on api wall for linkedin
+    max_lng = [title_lng, description_lng, comment_lng]
+    title, description, comment = api_gift.get_wall_post_text_fields true, max_lng
+    if description.to_s == ''
+      # get generic description from gifts.show.og_def_desc_<provider>
       on_error_desc = "Help each other and the environment. Share your resources. #{APP_NAME} is a play with some concepts (gift network, free money and negative interest) from Charles Eisensteins book Sacred Economics."
       og_desc_key = "gifts.show.og_def_desc_#{api_gift.provider}"
       begin
@@ -1126,15 +1129,8 @@ class ApplicationController < ActionController::Base
         logger.error2 "#{e.message} (#{e.class})"
         description = on_error_desc
       end
-      return [title, description, nil]
     end
-    # long gift - split gift in title and description
-    to = text.first(title_lng).rindex(' ')
-    if (to)
-      [text.first(to), text.from(to+1).first(desc_lng), text.from(to+1).from(desc_lng) ]
-    else
-      [text.first(title_lng), text.from(title_lng).first(desc_lng), text.from(title_lng).from(desc_lng)]
-    end
+    [title, description, comment]
   end # open_graph_title_and_desc
 
 
@@ -1195,21 +1191,14 @@ class ApplicationController < ActionController::Base
     login_user = @users.find { |user| user.provider == provider }
     api_client.define_singleton_method :gofreerev_post_on_wall do |options|
       # get params
-      api_gift = options[:api_gift]
       logger = options[:logger]
+      api_gift = options[:api_gift]
       picture = options[:picture]
-      direction = options[:direction] # offers / seeks
-      open_graph = options[:open_graph]
-      gift = api_gift.gift
-      deep_link = " - #{api_gift.deep_link}"
-
-      # have not found FB documentation about max message length
-      message_max_lng = API_MAX_TEXT_LENGTHS[:facebook][:message] if API_MAX_TEXT_LENGTHS[:facebook]
-      message_max_lng = 47950 unless message_max_lng
-      description_max_lng = message_max_lng - deep_link.size
-      text = "#{direction} #{gift.description}"
-      message = text.first(description_max_lng) + deep_link
+      # format message (direction + description + deep link) - only one text field message when posting on facebook
+      message_lng = API_MAX_TEXT_LENGTHS[:facebook][:message] if API_MAX_TEXT_LENGTHS[:facebook]
+      message = api_gift.get_wall_post_text_fields([message_lng]).first
       logger.debug2 "message = #{message}"
+      # post on wall with or without picture
       begin
         if picture
           # logger.debug2 'status post with picture'
@@ -1325,19 +1314,16 @@ class ApplicationController < ActionController::Base
       api_gift = options[:api_gift]
       logger = options[:logger]
       picture = options[:picture]
-      direction = options[:direction] # offers / seeks
-      open_graph = options[:open_graph]
-      gift = api_gift.gift
-      deep_link = api_gift.deep_link
-      # always post with picture on flickr. API_TEXT_TO_PICTURE[:flickr] == 0
-      # todo: add title? For example title from OG - max 255 characters
-      # todo: no max length for flickr description?
-      title = open_graph[0]
-      title = title.first(API_MAX_TEXT_LENGTHS[:flickr][:title]) if API_MAX_TEXT_LENGTHS[:flickr][:title]
-      description = "#{direction} #{gift.description} - #{deep_link}"
-      description = description.first(API_MAX_TEXT_LENGTHS[:flickr][:description]) if API_MAX_TEXT_LENGTHS[:flickr][:description]
+      # format message (direction + description + deep link) - use title and description when posting on flickr
+      if API_MAX_TEXT_LENGTHS[:flickr]
+        title_lng = API_MAX_TEXT_LENGTHS[:flickr][:title]
+        description_lng = API_MAX_TEXT_LENGTHS[:flickr][:description]
+      end
+      title, description = api_gift.get_wall_post_text_fields [title_lng, description_lng]
+      logger.debug2 "title = #{title}, description = #{description}"
+      # post picture on flickr (always post with pictures)
       begin
-        api_gift_id = self.upload_photo picture, :title => open_graph[0], :description => description
+        api_gift_id = self.upload_photo picture, :title => title, :description => description
       rescue FlickRaw::OAuthClient::FailedResponse => e
         logger.debug2 "exception (1): #{e.message} (#{e.message.class})"
         # logger.debug2 "e.methods = #{e.methods.sort.join(', ')}"
@@ -1543,10 +1529,18 @@ class ApplicationController < ActionController::Base
       api_gift = options[:api_gift]
       logger = options[:logger]
       picture = options[:picture]
-      direction = options[:direction] # offers / seeks
-      open_graph = options[:open_graph] # array - post text in title, description and remainder
+      open_graph = options[:open_graph] # array - post text in title, description and comment
       gift = api_gift.gift
       deep_link = api_gift.deep_link
+
+      # format message (direction + description + deep link) - use title, description and comment when posting on linkedin
+      # note that texts are taken from open_graph
+      # - text without deep link
+      # - max lengths for title and description are taken from API_OG_TITLE_SIZE and API_OG_DESC_SIZE
+      # - max lengths for title and description are not taken from API_MAX_TEXT_LENGTHS
+      title, description, comment = open_graph
+      logger.debug2 "title = #{title}, description = #{description}, comment = #{comment}"
+
       begin
 
         # http://stackoverflow.com/questions/15183107/rails-linked-post-message
@@ -1569,39 +1563,9 @@ class ApplicationController < ActionController::Base
         # logger.debug2 "image_url = #{image_url}"
         image_url = SITE_URL + image_url.from(1) if image_url and image_url.first == '/'
         logger.debug2 "image_url = #{image_url}"
-        text = "#{direction} #{gift.description}"
-        # logger.debug2 "picture = #{api_gift.picture?}, text.length = #{text.length}, image_url = #{image_url}"
 
-        # max
-
-        comment = nil
-        content = {"submitted-url" => deep_link}
-        content["title"], content["description"], comment = open_graph
-        comment = comment.to_s.first(700)
-        comment = nil if comment == ''
+        content = {"submitted-url" => deep_link, "title" => title, "description" => description}
         content["submitted-image-url"] = image_url if api_gift.picture?
-        #if api_gift.picture?
-        #  # title (max 200 characters) required for post with image.
-        #  content["submitted-image-url"] = image_url
-        #  # layout rules for post with image on linkedin:
-        #  case
-        #    when text.length <= 200
-        #      content["title"] = text
-        #      content["description"] = '.'
-        #    when text.length <= 456
-        #      content["title"] = text.first(200)
-        #      content["description"] = text.from(200)
-        #    else
-        #      raise "linkedin post with picture and text length > 456 is not implemented"
-        #  end
-        #else
-        #  case
-        #    when text.length <= 700
-        #      comment = text
-        #    else
-        #      raise "linkedin post without picture and text length > 700 is not implemented"
-        #  end
-        #end
         logger.debug2 "content = #{content}, comment = #{comment}"
         x = self.add_share :content => content, :comment => comment
       rescue LinkedIn::Errors::AccessDeniedError => e

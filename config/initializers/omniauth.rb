@@ -225,11 +225,13 @@ API_GIFT_PICTURE_STORE = {:fallback => nil,
 
 # N) technical max text lengths when posting on API walls.
 # Use nil for readonly API's (foursquare, google and instagram)
-# Use nil if no known max text length
+# Use nil if max text length is unknown
 # Use an hash if more than one text field is available when posting on API wall
 # see also Open Graph lengths for title and description
 # open graph will in many cases have smaller lengths for title and description
-# it is up to each api_client.gofreerev_post_on_wall instance method how to use max text and open graph lengths
+# it is up to each api_client.gofreerev_post_on_wall instance method how to use max text lengths
+# linkedin: post on wall is always open graph post and is using length title and description from open graph setup
+# see ApiGift.get_wall_post_text_fields for details about text format- and splitting text when posting on api walls
 API_MAX_TEXT_LENGTHS = {:facebook => { :message => 47950}, # guess after some tests - not 100% stable
                         :flickr => {:title => 255, :description => nil, :tags => nil },
                         :foursquare => nil, # post allowed, but users do not have a wall like the other api's
