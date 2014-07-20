@@ -1929,7 +1929,7 @@ class UtilController < ApplicationController
 
       # helpers ( app helpers are not available in instance method api_client.gofreerev_post_on_wall)
       # direction: offers: or :seeks
-      # open_graph: array where post text is splitted in title, description and remainder (if long text)
+      # open_graph: array where post text is splitted in title and description
       # it is up to each api_client.gofreerev_post_on_wall instance method how to use max text and open graph lengths
       # see array constants API_MAX_TEXT_LENGTHS, API_OG_TITLE_SIZE and API_OG_DESC_SIZE
       direction = api_gift.gift.human_value(:direction)

@@ -1108,12 +1108,10 @@ class ApplicationController < ActionController::Base
   private
   def open_graph_title_and_desc(api_gift)
     # initialize with max lengths for title and description.
-    # comment is a special field that is only used when posting on linkedin wall (not an open graph field)
     title_lng = API_OG_TITLE_SIZE[api_gift.provider] || 70
     description_lng = API_OG_DESC_SIZE[api_gift.provider] || 200
-    comment_lng = API_MAX_TEXT_LENGTHS[api_gift.provider][:comment] if api_gift.provider == 'linkedin' # only used for post on api wall for linkedin
-    max_lng = [title_lng, description_lng, comment_lng]
-    title, description, comment = api_gift.get_wall_post_text_fields true, max_lng
+    max_lng = [title_lng, description_lng]
+    title, description = api_gift.get_wall_post_text_fields true, max_lng
     if description.to_s == ''
       # get generic description from gifts.show.og_def_desc_<provider>
       on_error_desc = "Help each other and the environment. Share your resources. #{APP_NAME} is a play with some concepts (gift network, free money and negative interest) from Charles Eisensteins book Sacred Economics."
@@ -1130,9 +1128,8 @@ class ApplicationController < ActionController::Base
         description = on_error_desc
       end
     end
-    [title, description, comment]
+    [title, description]
   end # open_graph_title_and_desc
-
 
   # define api clients. There must be one init_api_client_<provider> method for each provider
   # structure: initialize api_client, add one or more gofreerev_xxx instance methods, return api_client
@@ -1526,19 +1523,20 @@ class ApplicationController < ActionController::Base
     # add gofreerev_post_on_wall - used in post_on_<provider> / generic_post_on_wall
     api_client.define_singleton_method :gofreerev_post_on_wall do |options|
       # get params
-      api_gift = options[:api_gift]
       logger = options[:logger]
+      api_gift = options[:api_gift]
       picture = options[:picture]
-      open_graph = options[:open_graph] # array - post text in title, description and comment
-      gift = api_gift.gift
+      open_graph = options[:open_graph] # array - OG title, description from app. controller
       deep_link = api_gift.deep_link
 
-      # format message (direction + description + deep link) - use title, description and comment when posting on linkedin
-      # note that texts are taken from open_graph
+      # format message (direction + description + deep link) - use open graph title, description when posting on linkedin
+      # texts are taken from open_graph:
       # - text without deep link
       # - max lengths for title and description are taken from API_OG_TITLE_SIZE and API_OG_DESC_SIZE
       # - max lengths for title and description are not taken from API_MAX_TEXT_LENGTHS
-      title, description, comment = open_graph
+      # comment is displayed above title and description and is only used for deep link
+      title, description = open_graph
+      comment = deep_link
       logger.debug2 "title = #{title}, description = #{description}, comment = #{comment}"
 
       begin
@@ -1555,9 +1553,6 @@ class ApplicationController < ActionController::Base
         # submitted-image-url share/content  URL for image of shared content  Invalid without (content/title and content/submitted-url).
         # description         share/content  Description of shared content    Max length of 256 characters.
         # note that linkedin uses meta property="og:description as default description
-        # todo: check layout with and without picture
-        # todo: check description length. <= 256 use only description. length <= 700. Use only comment. Length between 700 and 956 use comment and description
-        # my test says: title 60, description 245 and comment 600 characters
         logger.debug2 "picture = #{picture}"
         image_url = Picture.url :full_os_path => picture if picture
         # logger.debug2 "image_url = #{image_url}"

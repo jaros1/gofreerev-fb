@@ -506,11 +506,12 @@ class ApiGift < ActiveRecord::Base
       res[2] = res[1].from(max_lng[1])
       res[1] = res[1].first(max_lng[1])
     end
-    puts "3: after split:"
-    puts "3: pos = #{pos}"
-    puts "3: res[1] = #{res[1]}"
-    puts "3: res[2] = #{res[2]}"
-    if res[2].size + link_separator_lng + deep_link_lng <= max_lng[2]
+    logger.debug2 "3: after split:"
+    logger.debug2 "3: pos = #{pos}"
+    logger.debug2 "3: res[1] = #{res[1]}"
+    logger.debug2 "3: res[2] = #{res[2]}"
+    logger.debug2 "res[2].size = #{res[2].size}, link_separator_lng = #{link_separator_lng}, deep_link_lng = #{deep_link_lng}, max_lng[2] = #{max_lng[2]}"
+    if !max_lng[2] or res[2].size + link_separator_lng + deep_link_lng <= max_lng[2]
       res[2] += "#{link_separator}#{deep_link}"
       return res
     end
