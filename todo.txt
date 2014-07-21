@@ -460,9 +460,6 @@
 
  72) view: add timestamps to comments.
 
- 73) add a text truncated warning when posting on API and text is longer than allowed
-     special relevant for tweets
-
  74) add a text length counter when entering text. Twitter users would like to known how long the text is.
      special problem for twitter where 23 characters is subtracted from 140 for links and for images.
 

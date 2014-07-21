@@ -1140,13 +1140,14 @@ class ApplicationController < ActionController::Base
   end
   helper_method "deep_link?"
 
+  # returns array with title, description and truncation true/false flag
   private
   def open_graph_title_and_desc(api_gift)
     # initialize with max lengths for title and description.
     title_lng = API_OG_TITLE_SIZE[api_gift.provider] || 70
     description_lng = API_OG_DESC_SIZE[api_gift.provider] || 200
     max_lng = [title_lng, description_lng]
-    title, description = api_gift.get_wall_post_text_fields true, max_lng
+    title, description, truncated = api_gift.get_wall_post_text_fields true, max_lng
     if description.to_s == ''
       # get generic description from gifts.show.og_def_desc_<provider>
       on_error_desc = "Help each other and the environment. Share your resources. #{APP_NAME} is a play with some concepts (gift network, free money and negative interest) from Charles Eisensteins book Sacred Economics."
@@ -1163,7 +1164,7 @@ class ApplicationController < ActionController::Base
         description = on_error_desc
       end
     end
-    [title, description]
+    [title, description, truncated]
   end # open_graph_title_and_desc
 
   # define api clients. There must be one init_api_client_<provider> method for each provider
@@ -1228,7 +1229,7 @@ class ApplicationController < ActionController::Base
       picture = options[:picture]
       # format message (direction + description + deep link) - only one text field message when posting on facebook
       message_lng = API_MAX_TEXT_LENGTHS[:facebook][:message] if API_MAX_TEXT_LENGTHS[:facebook]
-      message = api_gift.get_wall_post_text_fields(false, [message_lng]).first
+      message, truncated = api_gift.get_wall_post_text_fields(false, [message_lng])
       logger.debug2 "message = #{message}"
       # post on wall with or without picture
       begin
@@ -1299,7 +1300,7 @@ class ApplicationController < ActionController::Base
         raise
       end # rescue
       # ok
-      [ api_gift_id, nil ] # api_gift_url will be looked up in generic_post_on_wall
+      [ api_gift_id, nil, truncated ] # api_gift_url will be looked up in generic_post_on_wall
     end
     # return api client
     api_client
@@ -1351,7 +1352,7 @@ class ApplicationController < ActionController::Base
         title_lng = API_MAX_TEXT_LENGTHS[:flickr][:title]
         description_lng = API_MAX_TEXT_LENGTHS[:flickr][:description]
       end
-      title, description = api_gift.get_wall_post_text_fields false, [title_lng, description_lng]
+      title, description, truncated = api_gift.get_wall_post_text_fields false, [title_lng, description_lng]
       logger.debug2 "title = #{title}, description = #{description}"
       # post picture on flickr (always post with pictures)
       begin
@@ -1375,7 +1376,7 @@ class ApplicationController < ActionController::Base
         raise
       end
       api_gift_url = "#{API_URL[provider]}photos/gofreerev/#{api_gift_id}/"
-      [api_gift_id, api_gift_url]
+      [api_gift_id, api_gift_url, truncated]
     end # gofreerev_post_on_wall
 
     # return api client
@@ -1570,7 +1571,7 @@ class ApplicationController < ActionController::Base
       # - max lengths for title and description are taken from API_OG_TITLE_SIZE and API_OG_DESC_SIZE
       # - max lengths for title and description are not taken from API_MAX_TEXT_LENGTHS
       # comment is displayed above title and description in linkedin post and is only used for deep link
-      title, description = open_graph
+      title, description, truncated = open_graph
       comment = deep_link
       logger.debug2 "title = #{title}, description = #{description}, comment = #{comment}"
 
@@ -1646,7 +1647,7 @@ class ApplicationController < ActionController::Base
       logger.debug2 "update key = #{update_key}, update_url = #{update_url}"
       api_gift_id = update_key
       api_gift_url = update_url # note that post on linkedin wall is created in a batch process. Will work in one or 2 minutes
-      [api_gift_id, api_gift_url]
+      [api_gift_id, api_gift_url, truncated]
     end
 
     # return api client
@@ -1701,7 +1702,7 @@ class ApplicationController < ActionController::Base
       # 23 characters is reserved for picture url if picture attachment
       # deep_link url is shortened to 23 characters in app. server is public available
       tweet_lng = API_MAX_TEXT_LENGTHS[:twitter] - (picture ? 23 : 0)
-      tweet = api_gift.get_wall_post_text_fields(false,[tweet_lng]).first
+      tweet, truncated = api_gift.get_wall_post_text_fields(false,[tweet_lng])
       logger.debug2 "tweet = #{tweet}"
       # post tweet
       x = nil
@@ -1744,7 +1745,7 @@ class ApplicationController < ActionController::Base
       # todo: add api_picture_url to return?
       api_gift_id  = x.id.to_s
       api_gift_url = x.url.to_s
-      [api_gift_id, api_gift_url]
+      [api_gift_id, api_gift_url, truncated]
     end
     # return api client
     api_client
@@ -1802,7 +1803,7 @@ class ApplicationController < ActionController::Base
       wall = false
       # format message (direction + description + deep link) - only one text field caption when posting on vkontakte
       caption_lng = API_MAX_TEXT_LENGTHS[:vkontakte]
-      caption = api_gift.get_wall_post_text_fields(false, [caption_lng]).first
+      caption, truncated = api_gift.get_wall_post_text_fields(false, [caption_lng])
       logger.debug2 "caption = #{caption}"
 
       # Upload to vkontakte is done in 4 steps:
@@ -1933,7 +1934,7 @@ class ApplicationController < ActionController::Base
       # ok response
       api_gift_id = "#{save_res['owner_id']}_#{save_res['pid']}"
       api_gift_url = "#{API_URL[provider]}photo#{api_gift_id}"
-      [ api_gift_id, api_gift_url ]
+      [ api_gift_id, api_gift_url, truncated ]
     end # gofreerev_post_on_wall
     # return api client
     api_client

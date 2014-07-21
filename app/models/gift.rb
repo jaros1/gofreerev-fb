@@ -490,13 +490,15 @@ class Gift < ActiveRecord::Base
 
   # truncate long tweet. preserve tags if possible.
   # use to shorten tweet before post on twitter wall. See util.generec_post_on_wall and application_controller.init_api_client_twitter
+  # returns array with truncated text and truncated flag (true/false)
   # testcase: text.size.downto(1).each do |i| puts i.to_s + ': ' + Gift.truncate_twitter_text(x,i) ; end ; nil
   def self.truncate_twitter_text (text, max_lng)
-    return text if text.to_s.size <= max_lng
+    return [text, false] if text.to_s.size <= max_lng
+    truncated = true
     text = original_text = text.to_s # keep original text for recursive call if too many tags in text
     # find tags in text
     indices = Gift.find_twitter_tags(text)
-    return text.first(max_lng) if indices.size == 0
+    return [text.first(max_lng), truncated] if indices.size == 0
     # array with temporary removed tags
     removed_tags = []
     removed_tags.define_singleton_method :lng do
@@ -568,29 +570,31 @@ class Gift < ActiveRecord::Base
       if from == 0 and to == original_text.size
         # text = one tag - can not be shorter
         text = text.from(1)
-        return text.first(max_lng)
+        return [text.first(max_lng), truncated]
       elsif to == original_text.size
         text = original_text.to(from-1)
       else
         text = original_text.to(from-1) + original_text.from(to+1)
       end
-      return Gift.truncate_twitter_text(text, max_lng)
+      return [Gift.truncate_twitter_text(text, max_lng), truncated]
     end
     if text.length != max_lng
       puts "new text = #{text}"
       raise "invalid length. Expected #{max_lng} text. Found #{text.length} text."
     end
-    text
+    [text, truncated]
   end # self.truncate_twitter_text
 
   # truncate text before post in api walls
-  # special text truncation for tweets where tags are preserved and removed last
+  # special text truncation for tweets where tags are preserved and removed
+  # returns array with truncated text and truncated flag (true/false)
   def self.truncate_text (provider, text, max_lng)
-    return nil unless text
+    return [nil, false] unless text
     if provider == 'twitter'
       Gift.truncate_twitter_text(text, max_lng)
     else
-      text.first(max_lng)
+      truncated = (text.length > max_lng)
+      [text.first(max_lng), truncated]
     end
   end # self.truncate_text
 

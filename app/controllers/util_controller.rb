@@ -1949,6 +1949,7 @@ class UtilController < ApplicationController
       # start with 1 unknown error
       gift_posted_on_wall_api_wall = 1
       error = 'unknown error'
+      truncated = false
 
       # post on wall. cases:
       #  1) post with picture but picture does not exist (error)
@@ -1966,30 +1967,30 @@ class UtilController < ApplicationController
           # case 2: post on wall with picture
           picture_url = Picture.url_from_rel_path api_gift.gift.app_picture_rel_path # used in a later check
           picture_full_os_path = Picture.full_os_path_from_rel_path api_gift.gift.app_picture_rel_path
-          api_gift.api_gift_id, api_gift.api_gift_url = api_client.gofreerev_post_on_wall :logger => logger,
-                                                                                          :api_gift => api_gift,
-                                                                                          :open_graph => open_graph,
-                                                                                          :picture => picture_full_os_path
+          api_gift.api_gift_id, api_gift.api_gift_url, truncated = api_client.gofreerev_post_on_wall :logger => logger,
+                                                                                                     :api_gift => api_gift,
+                                                                                                     :open_graph => open_graph,
+                                                                                                     :picture => picture_full_os_path
 
         elsif API_TEXT_TO_PICTURE[provider] == 0 or
             API_TEXT_TO_PICTURE[provider].class == Fixnum and description_with_deep_link.length > API_TEXT_TO_PICTURE[provider]
           # case 3 and 4. convert text to image
           picture_full_os_path = Picture.create_png_image_from_text gift.description, 800
-          api_gift.api_gift_id, api_gift.api_gift_url = api_client.gofreerev_post_on_wall :logger => logger,
-                                                                                          :api_gift => api_gift,
-                                                                                          :open_graph => open_graph,
-                                                                                          :picture => picture_full_os_path
+          api_gift.api_gift_id, api_gift.api_gift_url, truncated = api_client.gofreerev_post_on_wall :logger => logger,
+                                                                                                     :api_gift => api_gift,
+                                                                                                     :open_graph => open_graph,
+                                                                                                     :picture => picture_full_os_path
           FileUtils.rm picture_full_os_path if File.exists?(picture_full_os_path)
         else
           # case 5: post on wall without picture
-          api_gift.api_gift_id, api_gift.api_gift_url = api_client.gofreerev_post_on_wall :logger => logger,
-                                                                                          :api_gift => api_gift,
-                                                                                          :open_graph => open_graph
+          api_gift.api_gift_id, api_gift.api_gift_url, truncated = api_client.gofreerev_post_on_wall :logger => logger,
+                                                                                                     :api_gift => api_gift,
+                                                                                                     :open_graph => open_graph
         end
         if api_gift.api_gift_id
           # post ok - post id received from API
           api_gift.save!
-          gift_posted_on_wall_api_wall = 2 # Gift posted in here and on your vkontakte wall
+          gift_posted_on_wall_api_wall = 2 # Gift posted in here and on your api wall
         elsif gift_posted_on_wall_api_wall == 1
           error = 'unknown error. No post id was returned from API'
         end
@@ -2040,6 +2041,8 @@ class UtilController < ApplicationController
         # return posted message
         logger.debug2 "post ok without picture"
         # return [".gift_posted_#{gift_posted_on_wall_api_wall}_html", login_user.app_and_apiname_hash.merge(:error => error)]
+        # gift_posted_on_wall_api_wall == 2
+        gift_posted_on_wall_api_wall = '2b' if truncated
         add_error_key ".gift_posted_#{gift_posted_on_wall_api_wall}_html", login_user.app_and_apiname_hash.merge(:error => error)
       else
         logger.debug2 "post ok with picture"
@@ -2053,6 +2056,8 @@ class UtilController < ApplicationController
         # post ok and no permission problems
         # no errors - return posted message
         # return [".gift_posted_#{gift_posted_on_wall_api_wall}_html", :apiname => login_user.apiname, :error => error]
+        # gift_posted_on_wall_api_wall == 2
+        gift_posted_on_wall_api_wall = '2b' if truncated
         add_error_key ".gift_posted_#{gift_posted_on_wall_api_wall}_html", :apiname => login_user.apiname, :error => error
       end
 

@@ -424,8 +424,10 @@ class ApiGift < ActiveRecord::Base
     end
     # logger.debug2 "deep_link_lng = #{deep_link_lng}"
     link_separator_lng = link_separator.size
-    # prepare response - one return text field for each lng element (nil elements are allowed)
+    # prepare response - one return text field for each lng element (nil elements are allowed) + truncated flag
     res = [nil] * max_lng.size
+    truncated_index = max_lng.size
+    res[truncated_index] = false
     res_lng = []
 
     # case 1 - use only one text field when posting on api wall
@@ -437,23 +439,23 @@ class ApiGift < ActiveRecord::Base
         # return text with direction and deep link
         text_max_lng = max_lng[0] - direction_lng - link_separator_lng - deep_link_lng
         # logger.debug2 "text_max_lng (a) = #{text_max_lng}"
-        description =  Gift.truncate_text provider, description, text_max_lng
+        description, res[truncated_index] =  Gift.truncate_text provider, description, text_max_lng
         res[0] = "#{direction}#{description}#{link_separator}#{deep_link}"
       elsif direction_lng + link_separator_lng + deep_link_lng <= max_lng[0]
         # return text with deep link
         text_max_lng = max_lng[0] - link_separator_lng - deep_link_lng
         # logger.debug2 "text_max_lng (b) = #{text_max_lng}"
-        description =  Gift.truncate_text provider, description, text_max_lng
+        description, res[truncated_index] =  Gift.truncate_text provider, description, text_max_lng
         res[0] = "#{description}#{link_separator}#{deep_link}"
       elsif direction_lng + direction_lng <= max_lng[0]
         # return text with direction
         text_max_lng = max_lng[0] - direction_lng
         # logger.debug2 "text_max_lng (c) = #{text_max_lng}"
-        description =  Gift.truncate_text provider, description, text_max_lng
+        description, res[truncated_index] = Gift.truncate_text provider, description, text_max_lng
         res[0] = "#{direction}#{description}"
       else
         # return text
-        res[0] = Gift.truncate_text provider, description, max_lng[0]
+        res[0], res[truncated_index] = Gift.truncate_text provider, description, max_lng[0]
       end
       return res
     end
@@ -485,9 +487,10 @@ class ApiGift < ActiveRecord::Base
       # truncate res[1] and add deep link
       text_max_lng = max_lng[1] - link_separator_lng - deep_link_lng
       if text_max_lng <= 0
-        res[1] = res[1].first(max_lng[1]) # small lng[2] - skip deep link
+        res[1], res[truncated_index] =  Gift.truncate_text provider, res[1], max_lng[1]
       else
-        res[1] = "#{res[1].first(text_max_lng)}#{link_separator}#{deep_link}"
+        res[1], res[truncated_index] =  Gift.truncate_text provider, res[1], text_max_lng
+        res[1] << "#{link_separator}#{deep_link}"
       end
       return res
     end
@@ -495,7 +498,7 @@ class ApiGift < ActiveRecord::Base
     # case 3 - use field 1, 2 and 3 when posting on api wall
     if res[1].size <= max_lng[1] or max_lng[2] and max_lng[2] >= deep_link_lng and max_lng[2] < link_separator_lng + deep_link_lng
       # simple case. Split text between description and deep link
-      res[1] = res[1].first(max_lng[1]) if res[1].size > max_lng[1]
+      res[1], res[truncated_index] = res[1].first(max_lng[1]), true if res[1].size > max_lng[1]
       res[2] = deep_link if (!max_lng[2] or deep_link_lng <= max_lng[2]) # no deep link if max_lng[2] is too small
       return res
     end
@@ -511,11 +514,6 @@ class ApiGift < ActiveRecord::Base
       res[2] = res[1].from(max_lng[1])
       res[1] = res[1].first(max_lng[1])
     end
-    logger.debug2 "3: after split:"
-    logger.debug2 "3: pos = #{pos}"
-    logger.debug2 "3: res[1] = #{res[1]}"
-    logger.debug2 "3: res[2] = #{res[2]}"
-    logger.debug2 "res[2].size = #{res[2].size}, link_separator_lng = #{link_separator_lng}, deep_link_lng = #{deep_link_lng}, max_lng[2] = #{max_lng[2]}"
     if !max_lng[2] or res[2].size + link_separator_lng + deep_link_lng <= max_lng[2]
       res[2] += "#{link_separator}#{deep_link}"
       return res
@@ -525,9 +523,10 @@ class ApiGift < ActiveRecord::Base
     puts "3: text_max_lng = #{text_max_lng}"
     if text_max_lng <= 0
       # very small max_lng[2] - skip deep link
-      res[2] = res[2].first(max_lng[2])
+      res[2], res[truncated_index] = Gift.truncate_text provider, res[2], max_lng[2]
     else
-      res[2] = "#{res[2].first(text_max_lng)}#{link_separator}#{deep_link}"
+      res[2], res[truncated_index] = Gift.truncate_text provider, res[2], text_max_lng
+      res[2] << "#{link_separator}#{deep_link}"
     end
     res
   end # get_wall_post_text_fields
