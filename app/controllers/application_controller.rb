@@ -992,52 +992,82 @@ class ApplicationController < ActionController::Base
     last_row_at
   end
 
-  # get/set post_on_wall_selected. check box in auth/index page. now in cookie session store.
+  # get/set post_on_wall_selected. check box in auth/index page. now in db session store.
   # loaded from user.post_on_wall_yn into session store (cookie or table) after login
   # makes is possible to have different post_on_wall selection in two different browser sessions with same userid
-  # todo: move session[:post_on_wall_selected] to session table?
   private
   def init_post_on_wall_selected
-    session[:post_on_wall_selected] = {} unless session[:post_on_wall_selected]
-  end
+    s = Session.find_by_session_id(session[:session_id])
+    if !s
+      s = Session.new
+      s.session_id = session[:session_id]
+    end
+    if session[:post_on_wall_selected]
+      # new session store for post_on_wall_selected info
+      s.post_on_wall_selected = session[:post_on_wall_selected]
+      session.delete(:post_on_wall_selected)
+    end
+    s.post_on_wall_selected = {} unless s.post_on_wall_selected
+    s.save!
+    s
+  end # init_post_on_wall_selected
   def set_post_on_wall_selected (post_on_wall_selected, provider, login)
-    init_post_on_wall_selected
     if login and post_on_wall_selected and API_POST_PERMITTED[provider] == API_POST_PERMISSION_IN_APP
       # login in progress for a provider where post_on_wall priv. is handled internal in app (twitter and vkontakte)
       # always start with post_on_wall_selected = false
       # logger.debug2 "#{provider} login. post_on_wall set to false (speciel rule for twitter and vkontakte)"
       post_on_wall_selected = false
     end
-    session[:post_on_wall_selected][provider] = post_on_wall_selected
+    s = init_post_on_wall_selected
+    hash = s.post_on_wall_selected
+    hash[provider] = post_on_wall_selected
+    s.post_on_wall_selected = hash
+    s.save!
   end
   def get_post_on_wall_selected (provider)
-    init_post_on_wall_selected
-    session[:post_on_wall_selected][provider]
+    s = init_post_on_wall_selected
+    s.post_on_wall_selected[provider]
   end
   def clear_post_on_wall_selected (provider=nil)
+    s = init_post_on_wall_selected
     if provider
-      # logout for provider
-      init_post_on_wall_selected
-      session[:post_on_wall_selected].delete(provider)
+      # clear post_on_wall_selected for provider
+      hash = s.post_on_wall_selected
+      hash.delete(provider)
+      s.post_on_wall_selected = hash
     else
-      # logout for all providers
-      session.delete(:post_on_wall_selected)
+      # clear post_on_wall_selected for all providers
+      s.post_on_wall = {}
     end
+    s.save!
   end
 
-  # get/set :post_on_wall_autorized. (read/write access to api wll) now in cookie session store.
+  # get/set :post_on_wall_autorized. (read/write access to api wll) now in db session store.
   # keep a copy of user.post_on_wall_authorized? in session to detect change in user.post_on_wall_authorized?
   # for example user permissions in an other browser session
   # user should get a warning if authorization to post on wall is changed without an active user action
-  # todo: move session[:post_on_wall_authorized] to session table?
   private
   def init_post_on_wall_authorized
-    session[:post_on_wall_authorized] = {} unless session[:post_on_wall_authorized]
-  end
+    s = Session.find_by_session_id(session[:session_id])
+    if !s
+      s = Session.new
+      s.session_id = session[:session_id]
+    end
+    if session[:post_on_wall_authorized]
+      # new session store for post_on_wall_authorized info
+      s.post_on_wall_authorized = session[:post_on_wall_authorized]
+      session.delete(:post_on_wall_authorized)
+    end
+    s.post_on_wall_authorized = {} unless s.post_on_wall_authorized
+    s.save!
+    s
+  end # init_post_on_wall_authorized
   def set_post_on_wall_authorized (post_on_wall_authorized, provider, login)
-    init_post_on_wall_authorized
-    logger.debug2 "set_post_on_wall_authorized(#{provider}) = #{post_on_wall_authorized}"
-    session[:post_on_wall_authorized][provider] = post_on_wall_authorized
+    s = init_post_on_wall_authorized
+    hash = s.post_on_wall_authorized
+    hash[provider] = post_on_wall_authorized
+    s.post_on_wall_authorized = hash
+    s.save!
   end
   def get_post_on_wall_authorized (provider=nil)
     if !provider
@@ -1051,17 +1081,22 @@ class ApplicationController < ActionController::Base
       logger.debug2 "get_post_on_wall_authorized(nil) = false"
       return false
     end
-    init_post_on_wall_authorized
-    logger.debug2 "get_post_on_wall_authorized(#{provider}) = #{session[:post_on_wall_authorized][provider]}"
-    session[:post_on_wall_authorized][provider]
+    s = init_post_on_wall_authorized
+    logger.debug2 "get_post_on_wall_authorized(#{provider}) = #{s.post_on_wall_authorized[provider]}"
+    s.post_on_wall_authorized[provider]
   end
   def clear_post_on_wall_authorized (provider=nil)
+    s = init_post_on_wall_authorized
     if provider
-      init_post_on_wall_authorized
-      session[:post_on_wall_authorized].delete(provider)
+      # clear post_on_wall_authorized for provider
+      hash = s.post_on_wall_authorized
+      hash.delete(provider)
+      s.post_on_wall_authorized = hash
     else
-      session.delete(:post_on_wall_authorized)
+      # clear post_on_wall_authorized for all providers
+      s.post_on_wall = {}
     end
+    s.save!
   end # clear_post_on_wall_authorized
 
 
