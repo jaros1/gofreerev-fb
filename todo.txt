@@ -292,11 +292,6 @@
     that is - ajax remove comment from gifts/index page in util.new_messages_count
     delete comment for only one provider when account is closed
 
-37) delete account notifications.
-    add some more information
-    - number of deleted deals
-    - sum prices for deleted deals
-
 38) add language LOV to page header if width > xxx
 
 39) gift giver pic mouse over text should have information about multiple provider givers

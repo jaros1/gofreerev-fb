@@ -2118,6 +2118,9 @@ class User < ActiveRecord::Base
       affected_users.each do |other_user_id, hash|
         other_user = User.find_by_user_id(other_user_id)
         next if other_user.dummy_user?
+        #
+        other_user.recalculate_balance
+        no_gifts = hash.delete(:no_gifts)
         amount = hash.collect { |name, value| "#{name} #{value}"}.sort.join(', ')
         n = Notification.new
         n.to_user_id = other_user_id
@@ -2126,7 +2129,7 @@ class User < ActiveRecord::Base
         n.noti_key = 'deleted_account_v2'
         n.noti_options = user.app_and_apiname_hash.merge(:userid => other_user.id,
                                                          :username => user.user_name,
-                                                         :no_gifts => hash[:no_gifts],
+                                                         :no_gifts => no_gifts,
                                                          :amount => amount)
         n.noti_read = 'N'
         n.save!
