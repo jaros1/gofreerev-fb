@@ -588,6 +588,8 @@ da:
         accepted_proposal_receiver_1_v1_to_msg: '%{receivername} accepterede dit bud på sit ønske "%{gifttext} ..."'
         deleted_account_v1_to_url: "/users/%{userid}?tab=balance"
         deleted_account_v1_to_msg: "Din saldo er blevet opdateret, fordi %{username} har slettet sin %{apiname} konto her hos %{appname}, og en eller flere af dine aftaler med %{username} er blevet slettet."
+        deleted_account_v2_to_url: "/users/%{userid}?tab=balance"
+        deleted_account_v2_to_msg: "Din saldo er blevet opdateret, fordi %{username} har slettet sin %{apiname} konto her hos %{appname}, og %{no_gifts} aftale(r) med %{username} er blevet slettet. Din saldo er blevet ændret med %{amount} excl. negative renter."
         friends_find_1_v1_to_url: "/users?apiname=all&appuser=all&friends=find"
         friends_find_1_v1_to_msg: "Venneforslag: %{username1}"
         friends_find_2_v1_to_url: "/users?apiname=all&appuser=all&friends=find"

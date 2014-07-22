@@ -1037,7 +1037,7 @@ class ApplicationController < ActionController::Base
       s.post_on_wall_selected = hash
     else
       # clear post_on_wall_selected for all providers
-      s.post_on_wall = {}
+      s.post_on_wall_selected = {}
     end
     s.save!
   end
@@ -1094,7 +1094,7 @@ class ApplicationController < ActionController::Base
       s.post_on_wall_authorized = hash
     else
       # clear post_on_wall_authorized for all providers
-      s.post_on_wall = {}
+      s.post_on_wall_authorized = {}
     end
     s.save!
   end # clear_post_on_wall_authorized

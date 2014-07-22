@@ -593,6 +593,7 @@
      - http://stackoverflow.com/questions/9014470/creating-email-link-with-dynamically-generated-body-with-html5-javascript
 
 113) test javascript csv_invalid_price - check price check in all browser versions (error in chrome has been fixed)
+     use https://spoon.net/ on an windows machine
 
 114) cross server friends invite / friends search?
      in a distributed server network different friends will use different servers and gofreerev apps
@@ -755,6 +756,8 @@
      see application_controller.open_graph_title_and_desc
      append generic description t("gifts.show.og_def_desc_#{api_gift.provider}") to comment
 
-152) post on api wall. add truncation warning for truncated posts.
+154) problem with gifts/index. newly created gift should be displayed first in gift list. only a problem for multi provider login.
 
-select random issue: (rand*152).floor+1
+155) inbox/index - use local time. Was 22 Jul 11:47. Should have been 22 Jul 10:47.
+
+select random issue: (rand*155).floor+1

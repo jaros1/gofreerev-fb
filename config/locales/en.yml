@@ -585,6 +585,8 @@ en:
         accepted_proposal_receiver_1_v1_to_msg: '%{receivername} accepted your bid on his/her wish "%{gifttext} ..."'
         deleted_account_v1_to_url: "/users/%{userid}?tab=balance"
         deleted_account_v1_to_msg: "Your balance has been updated because %{username} has deleted his/hers %{appname} %{apiname} account and one or more of your deals with %{username} have been deleted."
+        deleted_account_v2_to_url: "/users/%{userid}?tab=balance"
+        deleted_account_v2_to_msg: "Your balance has been updated because %{username} has deleted his/hers %{appname} %{apiname} account and %{no_gifts} deal(s) with %{username} have been deleted. Your balance has been changed with %{amount} excl. negative interest."
         friends_find_1_v1_to_url: "/users?apiname=all&appuser=all&friends=find"
         friends_find_1_v1_to_msg: "Friend suggestions: %{username1}"
         friends_find_2_v1_to_url: "/users?apiname=all&appuser=all&friends=find"

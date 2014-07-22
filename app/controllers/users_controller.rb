@@ -205,14 +205,15 @@ class UsersController < ApplicationController
     # 4) stalked by (S)         - show few info
     # 5) deselected api friends - show few info
     # 6) friends of friends     - show few info
-    # 7) friend proposals       - show few info
+    # 7) friend proposals       - not clickable user div
+    # 8) others                 - not clickable user div - for example comments from other login providers
     friends_categories = case @page_values[:friends]
                            when 'me'
                              [1]
                            when 'yes'
-                             [1,2,3]
+                             [1,2,3] # including follows (F)
                            when 'no'
-                             [4,5,6, 7]
+                             [4,5,6, 7] # including stalked by (S)
                            when 'all'
                              [1,2,3,4,5,6]
                            when 'find'

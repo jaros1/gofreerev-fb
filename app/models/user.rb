@@ -965,6 +965,7 @@ class User < ActiveRecord::Base
   # 4) stalked by (S)         - show few info
   # 5) deselected api friends - show few info
   # 6) friends of friends     - show few info
+  # 7) friend proposals       - show few info
   def self.app_friends (login_users, user_categories = [1,2]) # 1: logged in users + 2: mutual friends
     # login_users_text = login_users.collect { |u| "#{u.user_id} #{u.short_user_name}"}.join(', ')
     logger.debug2 "User.app_friends - start. user_categories = #{user_categories}"
@@ -1202,7 +1203,9 @@ class User < ActiveRecord::Base
     users_app_friends = { 'Y' => [], 'F' => [], 'S' => [], 'N' => [], 'P' => []}
     friends = Friend.where("user_id_giver in (?)", user_ids)
     friends.each do |f|
-      users_app_friends[f.app_friend || f.api_friend] << f.user_id_receiver # save userids in Y, F, S and N arrays
+      friend_status_code = f.friend_status_code
+      users_app_friends[friend_status_code] = [] unless users_app_friends.has_key?(friend_status_code)
+      users_app_friends[friend_status_code] << f.user_id_receiver # save userids in Y, F, S and N arrays
     end
     # logger.debug2 "get friends of mutual friends"
     friends_of_friends_ids = Friend.
@@ -1218,6 +1221,7 @@ class User < ActiveRecord::Base
       friends_hash[user.provider] = {}
     end
     # loop for each friend category
+    # Y: mutual friends, F: follows, S: Stalked by, N: not app friend, P: friends proposal
     [ [1, user_ids], [2, users_app_friends['Y']], [3, users_app_friends['F']], [4, users_app_friends['S']],
       [5, users_app_friends['N']], [6, friends_of_friends_ids], [7, users_app_friends['P'] ] ].each do |x|
       friends_category, friends_user_ids = x
@@ -2029,7 +2033,7 @@ class User < ActiveRecord::Base
       return ['.delete_user_invalid_id', {}] unless user.deleted_at
 
       # start logical delete
-      affected_users = []
+      affected_users = {}
       if user.share_account_id
         old_share_account_id = user.share_account_id
         user.share_account_clear
@@ -2066,34 +2070,68 @@ class User < ActiveRecord::Base
           ag.destroy!
         end
         if g.received_at and g.price and g.price != 0.0
-          # send notification to affected user about changed balance
-          other_user_id = user.user_id == ag.user_id_giver ? ag.user_id_receiver : ag.user_id_giver
-          other_user = User.find_by_user_id(other_user_id)
-          if !other_user.dummy_user? and !affected_users.index(other_user_id)
-            #create_table "notifications", force: true do |t|
-            #  t.string   "noti_id",      limit: 20, null: false
-            #  t.string   "to_user_id",   limit: 40, null: false
-            #  t.string   "from_user_id", limit: 40
-            #  t.string   "internal",     limit: 1,  null: false
-            #  t.text     "noti_key",                null: false
-            #  t.text     "noti_options"
-            #  t.string   "noti_read",    limit: 1,  null: false
-            #  t.datetime "created_at"
-            #  t.datetime "updated_at"
-            #end
-            n = Notification.new
-            n.to_user_id = other_user_id
-            n.from_user_id = nil
-            n.internal = 'Y'
-            n.noti_key = 'deleted_account_v1'
-            n.noti_options = user.app_and_apiname_hash.merge(:userid => other_user.id, :username => user.user_name)
-            n.noti_read = 'N'
-            n.save!
-            affected_users << other_user_id
+          # save gift for notification to affected users (number of gifts, currencies and prices)
+          if user.user_id == ag.user_id_giver
+            other_user_id = ag.user_id_receiver
+            sign = +1
+          else
+            other_user_id = ag.user_id_giver
+            sign = -1
           end
+          other_user_id = user.user_id == ag.user_id_giver ? ag.user_id_receiver : ag.user_id_giver
+          affected_users[other_user_id] = {:no_gifts => 0 } unless affected_users.has_key?(other_user_id)
+          affected_users[other_user_id][:no_gifts] += 1
+          affected_users[other_user_id][g.currency] = 0 unless affected_users[other_user_id].has_key?(g.currency)
+          affected_users[other_user_id][g.currency] += sign * g.price
+          #
+          # other_user = User.find_by_user_id(other_user_id)
+          # if !other_user.dummy_user? and !affected_users.index(other_user_id)
+          #   #create_table "notifications", force: true do |t|
+          #   #  t.string   "noti_id",      limit: 20, null: false
+          #   #  t.string   "to_user_id",   limit: 40, null: false
+          #   #  t.string   "from_user_id", limit: 40
+          #   #  t.string   "internal",     limit: 1,  null: false
+          #   #  t.text     "noti_key",                null: false
+          #   #  t.text     "noti_options"
+          #   #  t.string   "noti_read",    limit: 1,  null: false
+          #   #  t.datetime "created_at"
+          #   #  t.datetime "updated_at"
+          #   #end
+          #   # todo: save information in an notification hash
+          #   n = Notification.new
+          #   n.to_user_id = other_user_id
+          #   n.from_user_id = nil
+          #   n.internal = 'Y'
+          #   n.noti_key = 'deleted_account_v1'
+          #   n.noti_options = user.app_and_apiname_hash.merge(:userid => other_user.id, :username => user.user_name)
+          #   n.noti_read = 'N'
+          #   n.save!
+          #   affected_users << other_user_id
+          # end
         end
 
-      end
+      end # each ag
+
+      # send notifications to affected users (name of deleted user, number of deleted gifts and change in amount)
+      logger.debug2 "send notifications to affected users (name of deleted user, number of deleted gifts and change in amount)"
+      logger.debug2 "affected_users = #{affected_users}"
+      affected_users.each do |other_user_id, hash|
+        other_user = User.find_by_user_id(other_user_id)
+        next if other_user.dummy_user?
+        amount = hash.collect { |name, value| "#{name} #{value}"}.sort.join(', ')
+        n = Notification.new
+        n.to_user_id = other_user_id
+        n.from_user_id = nil
+        n.internal = 'Y'
+        n.noti_key = 'deleted_account_v2'
+        n.noti_options = user.app_and_apiname_hash.merge(:userid => other_user.id,
+                                                         :username => user.user_name,
+                                                         :no_gifts => hash[:no_gifts],
+                                                         :amount => amount)
+        n.noti_read = 'N'
+        n.save!
+      end # each affected_user
+
       # delete mark comments
       ApiComment.where('user_id = ? and gifts.deleted_at is not null',
                        user.user_id).includes(:gift, :comment).references(:gift).each do |ac|
@@ -2164,6 +2202,8 @@ class User < ActiveRecord::Base
         end # 2 loops
         # end physical delete
       end
+
+      # raise "debug issue 37"
 
       # logical and/or physical delete ok
       nil

@@ -443,7 +443,13 @@ class Friend < ActiveRecord::Base
     [new_user, nil, nil]
   end # self.update_friends_from_hash
 
-
+  public
+  def friend_status_code
+    app_friend = self.app_friend
+    app_friend = nil if app_friend == 'R' # R (friend request) not used in friends_hash
+    app_friend = nil if app_friend == 'P' # P (pending friend request) not used in friends_hash
+    app_friend || api_friend
+  end # friend_status_code
 
 
   ##############
