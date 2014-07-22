@@ -48,16 +48,6 @@
 
  9) check todo's in source
 
-10) delete api_gifts and gifts with temp picture urls - that is picture on server
-    normally temp pictures will be removed in util.delete_local_picture, but errors can occur
-    should be a job for util.new_messages_count or util.missing_api_picture_urls
-    process could be:
-    1) delete old local picturs.
-    2) report missing picture to util.missing_api_picture_urls,
-    3) cleanup in util.missing_api_picture_urls
-    3/1-2014: temp folder was empty in laptop dev. environment
-    19/1-2014: 3 pictures found in temp folder in laptop dev. environment
-
 11) find some way to combine or group "identical" notifications in inbox/index page
 
 12) stress test. make a db with really many rows and test performance.

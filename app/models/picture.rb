@@ -48,6 +48,7 @@ class Picture < ActiveRecord::Base
   end
   public
   def self.new_temp_rel_path (image_type)
+    Picture.cleanup_old_temp_files
     loop do
       rel_path = Picture.new_unchecked_temp_rel_path(image_type)
       filename = "#{PICTURE_OS_ROOT}/#{rel_path}"
@@ -421,5 +422,22 @@ class Picture < ActiveRecord::Base
     # return full os path to png image
     png_os_path
   end # self.create_png_image_from_text
+
+  # normally temp pictures will be removed in util.delete_local_picture, but errors can occur
+  # this cleanup method is called from new_temp_rel_path
+  def self.cleanup_old_temp_files
+    return unless (rand*100).floor == 0 # run in average once every 100 file uploads with tmp files
+    count = 0
+    Dir.entries(PICTURE_TEMP_OS_ROOT).each do |file|
+      next if %w(. ..).index(file)
+      file = "#{PICTURE_TEMP_OS_ROOT}/#{file}"
+      ctime = File.stat(file).ctime
+      next if ctime > 1.day.ago
+      logger.debug2 "delete old temp file #{file}"
+      FileUtils.rm file
+      count += 1
+    end # each file
+    logger.debug2 "#{count} old temp files was deleted"
+  end # cleanup_old_temp_files
 
 end
