@@ -466,13 +466,6 @@
 
  79) collect and organize screen dumps
 
- 82) tests
-     long text post without picture for all API's
-     long text post with picture for all API's
-     maybe different limit between short and long text in gifts/api_gift (share) and in users/api_gift (balance)
-     longer texts in gifts/api_gift and shorter texts in users/api_gift
-     make limit responsive? shorter texts in a small screen and longer texts in a big screen? (JS)
-
  84) css wrapword. word-break: break-all;.
      works fine on small width screens but do not look nice on wide screens.
      there is implemented a workaround for opera 12 (that does not support break-all).
