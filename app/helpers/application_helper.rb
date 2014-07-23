@@ -189,7 +189,6 @@ module ApplicationHelper
     "(#{n}) #{APP_NAME}"
   end # title
 
-
   def format_gift_param (api_gift)
     gift = api_gift.gift
     optional_price = gift.price ? "#{t('.optional_price', :price => format_price(gift.price))} #{gift.currency}" : nil
@@ -200,6 +199,21 @@ module ApplicationHelper
     }
   end # format_gift_param
 
+  def format_comment_key (comment)
+    case
+      when comment.new_deal_yn != 'Y' then '.comment_text'
+      when comment.accepted_yn == 'Y' then '.accepted_text'
+      when comment.accepted_yn == 'N' then '.rejected_text'
+      else '.proposal_text'
+    end
+  end # format_comment_key
+
+  def format_comment_param (comment)
+    optional_price = comment.price ? "#{t('.optional_price', :price => format_price(comment.price))} #{comment.currency}" : nil
+    { :date => format_date(comment.created_at),
+      :optional_price => optional_price,
+      :text => my_sanitize(comment.comment) }
+  end # format_comment_param
   
   def invite_friend_url (friend)
     provider = friend.provider

@@ -276,6 +276,12 @@ en:
         first_comment_not_found: "Invalid request. Comment was not found."
         gift_comment_mismatch: "Invalid request. Gift and comment do not match."
         exception: "System error. Cannot get older comments. %{error}. More information in server log."
+     api_comment: # 4 types of comments: comment, deal proposal, rejected deal proposal and accepted deal proposal
+        optional_price: "/ %{price}"
+        comment_text: "%{date} %{optional_price} : %{text}" # new_deal_yn == nil
+        proposal_text: "%{date} %{optional_price} : %{text} (proposal)" # new_deal_yn == Y, accepted_yn == nil
+        rejected_text: "%{date} %{optional_price} : %{text} (rejected)" # new_deal_yn == Y, accepted_yn == N
+        accepted_text: "%{date} %{optional_price} : %{text} (accepted)" # new_deal_yn == Y, accepted_yn == Y
      api_comments2:
         show_more_text: "Show more text"
         like_gift: "Like"

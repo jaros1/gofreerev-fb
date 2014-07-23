@@ -14,7 +14,7 @@
           <tr>
             <td>
               <div style="max-height: 150px; overflow: hidden" class="overflow" id="<%= "comment-#{comment.id}-overflow-text" %>">
-                <%= my_sanitize comment.comment %>
+                <%= t format_comment_key(comment), format_comment_param(comment) %>
               </div>
             </td>
           </tr>

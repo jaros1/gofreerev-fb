@@ -278,6 +278,12 @@ da:
         first_comment_not_found: "Ugyldigt kald. Kommentar blev ikke fundet."
         gift_comment_mismatch: "Ugyldigt kald. Opslag og kommentar passer ikke sammen."
         exception: "Systemfejl. Kunne ikke hente ældre kommentarer. %{error}. Mere information i server log."
+     api_comment: # 4 types of comments: comment, deal proposal, rejected deal proposal and accepted deal proposal
+        optional_price: "/ %{price}"
+        comment_text: "%{date} %{optional_price} : %{text}" # new_deal_yn == nil
+        proposal_text: "%{date} %{optional_price} : %{text} (forslag)" # new_deal_yn == Y, accepted_yn == nil
+        rejected_text: "%{date} %{optional_price} : %{text} (afvist)" # new_deal_yn == Y, accepted_yn == N
+        accepted_text: "%{date} %{optional_price} : %{text} (accepteret)" # new_deal_yn == Y, accepted_yn == Y
      api_comments2:
         show_more_text: "Vis mere tekst"
         like_gift: "Synes om"

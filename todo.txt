@@ -441,9 +441,7 @@
      can not se that comments also was from 109316109373670614208/google_oauth2 Gofreerev A
      Not necessarily a problem as users normally will use there real names, but can be a problem in test
 
- 71) view: accepted deal comment. add accepted and price to comment
-
- 72) view: add timestamps to comments.
+ 72) view: add timestamps to comments?
 
  74) add a JS text length counter when entering text. Twitter users would like to known how long the text is.
      special problem for twitter where 23 characters is subtracted from 140 for links and for images.
