@@ -679,14 +679,21 @@ function insert_new_comments() {
             add2log(pgm + 'no new comments') ;
             return;
         }
-        // find old gift rows (header, links, comments, footers)
-        old_comments1_trs = gifts.rows ;
+        // old_comments1_tbody = old_comments1_trs[0].parentNode ;
+        old_comments1_tbody = document.getElementById("gifts_tbody");
+        if (!old_comments1_tbody) {
+            // missing tbody or tbody without correct id gifts_tbody
+            add2log(pgm + 'gifts_tbody was not foound') ;
+            return
+        }
+        // find old gift rows (gift header, gift links, comments, gift footers)
+        old_comments1_trs = old_comments1_tbody.rows ;
         if (old_comments1_trs.length == 0) {
             // no old gifts
             add2log(pgm + 'no old gifts') ;
             return
         }
-        old_comments1_tbody = old_comments1_trs[0].parentNode ;
+
         // insert new comments in gifts/index page. Loop for each new comment.
         summary = 'Summary. ' +  new_comments_length + ' messages received' ;
         re1 = new RegExp("^gift-[0-9]+-comment-[0-9]+$") ;
@@ -716,7 +723,10 @@ function insert_new_comments() {
                 old_comments1_tr = old_comments1_trs[j];
                 old_comments1_tr_id = old_comments1_tr.id;
                 if (old_comments1_tr_id.match(re2)) old_comments2_trs.push(old_comments1_tr);
-                if (old_comments1_tr_id == "gift-" + new_comment_gift_id + "-comment-new") old_comments2_add_new_comment_tr = old_comments1_tr ;
+                if (old_comments1_tr_id == "gift-" + new_comment_gift_id + "-comment-new") {
+                    // add2log(pgm + 'Found gift-1625-comment-new') ;  // issue 149 debug
+                    old_comments2_add_new_comment_tr = old_comments1_tr ;
+                }
             } // end old comments loop
             debug = 50 ;
             if (!old_comments2_add_new_comment_tr) {
@@ -744,6 +754,13 @@ function insert_new_comments() {
                 debug = 56 ;
                 add2log(pgm + 'old_comments2_add_new_comment_tr = ' + old_comments2_add_new_comment_tr) ;
                 debug = 57 ;
+                // Firefox 30.0 error when ajax insert first comment for a gift
+                // insert_new_comments: old_comments1_tbody              = [object HTMLTableSectionElement]
+                // insert_new_comments: new_comment_tr                   = [object HTMLTableRowElement]
+                // insert_new_comments: old_comments2_add_new_comment_tr = [object HTMLTableRowElement]
+                // insert_new_comments: failed with JS error [Exception... "Node was not found" code: "8" nsresult: "0x80530008 (NotFoundError)" location: ""], debug = 57
+                // #new_messages_count_link::ajax:success: insert_new_comments failed: [Exception... "Node was not found" code: "8" nsresult: "0x80530008 (NotFoundError)" location: ""]
+                // Javascript error when inserting new comments. [Exception... "Node was not found" code: "8" nsresult: "0x80530008 (NotFoundError)" location: ""] (5,57).
                 old_comments1_tbody.insertBefore(new_comment_tr, old_comments2_add_new_comment_tr);
                 // todo: opera 12 error <==
                 debug = 58 ;

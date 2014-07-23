@@ -445,8 +445,9 @@
 
  72) view: add timestamps to comments.
 
- 74) add a text length counter when entering text. Twitter users would like to known how long the text is.
+ 74) add a JS text length counter when entering text. Twitter users would like to known how long the text is.
      special problem for twitter where 23 characters is subtracted from 140 for links and for images.
+     one "<n> remaining characters" counter for each provider with post on wall selected and authorized?
 
  75) api_profile_picture_url with small (50x50) and big (100x100) pictures.
      100x100 (5246 bytes) is only used in users/index and users/show
@@ -708,23 +709,6 @@
 148) auth/index. drop checkbox for offline_access_yn.
      many users will forget to check checkbox
      but is should be very clear that auth. information is saved on server for share level 3 and 4
-
-149) ajax insert new comment error
-     casetest: comment was inserted in ie8 on windows xp - comment should have been ajax inserted in firefox 30.0 in ubuntu
-     firefox 30.0 on ubuntu:
-     error messages in header:
-         Javascript fejl ved indsættelse af nye kommentarer. [Exception... "Node was not found" code: "8" nsresult: "0x80530008 (NotFoundError)" location: ""] (5,57).
-         Javascript fejl ved tjek for nye beskeder. [Exception... "Node was not found" code: "8" nsresult: "0x80530008 (NotFoundError)" location: ""] (4,3).
-     note that old error message in page header is not removed before inserting new error messages
-     javascript log:
-         insert_new_comments: start
-         insert_new_comments: i = 0, gift id = 1605, comment id = 1082
-         insert_new_comments: insert first comment for gift before add new comment row
-         insert_new_comments: old_comments1_tbody = [object HTMLTableSectionElement]
-         insert_new_comments: new_comment_tr = [object HTMLTableRowElement]
-         insert_new_comments: old_comments2_add_new_comment_tr = [object HTMLTableRowElement]
-         insert_new_comments: failed with JS error [Exception... "Node was not found" code: "8" nsresult: "0x80530008 (NotFoundError)" location: ""], debug = 57
-         #new_messages_count_link::ajax:success: insert_new_comments failed: [Exception... "Node was not found" code: "8" nsresult: "0x80530008 (NotFoundError)" location: ""]
 
 150) change currency. Text "clear_ajax_errors('show-more-rows-errors') ;" is ajax injected into page (firefox 30 on ubuntu).
      aside from this change currency works ok in page header and in user edit page
