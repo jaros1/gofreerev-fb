@@ -23,6 +23,9 @@ class ApiGift < ActiveRecord::Base
   belongs_to :giver, :class_name => 'User', :primary_key => :user_id, :foreign_key => :user_id_giver
   belongs_to :receiver, :class_name => 'User', :primary_key => :user_id, :foreign_key => :user_id_receiver
 
+  before_update :before_update
+
+
   # https://github.com/jmazzi/crypt_keeper - text columns are encrypted in database
   # encrypt_add_pre_and_postfix/encrypt_remove_pre_and_postfix added in setters/getters for better encryption
   # this is different encrypt for each attribute and each db row
@@ -548,6 +551,17 @@ class ApiGift < ActiveRecord::Base
     puts "ApiGift id = #{ag.id}\ndescription = #{ag.gift.description}\nmax_lng = #{max_lng}\ntexts = #{texts}"
     texts
   end # self.test_get_wall_post_text_fields
+
+
+  def before_update
+    if !deleted_at_was and deleted_at
+      # api gift has been delete marked in User.delete_user (partial delete gift when deleting user account)
+      # update gift.status_update_at so that gift will be ajax updated or deleted in other browser sessions
+      gift.status_update_at = Sequence.next_status_update_at
+      gift.save!
+    end # if
+  end # before_update
+
 
   # https://github.com/jmazzi/crypt_keeper gem encrypts all attributes and all rows in db with the same key
   # this extension to use different encryption for each attribute and each row

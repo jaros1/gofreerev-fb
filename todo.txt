@@ -271,18 +271,6 @@
     options {:giftid=>"253", :gifttext=>"Cykel", :no_users=>"0", :no_other_users=>"-2", :username1=>"", :username2=>"", :username3=>"", :givername=>"Charlie S", :receivername=>"Karen S"},
     error translation missing: en.inbox.index.accepted_proposal_giver_1_v1_from_msg
 
-35) change User.api_gifts to include api_gifts.deleted_at information.
-    User.api_gifts. Sort not deleted api gifts before deleted api gifts
-    that is - ajax remove gift from gifts/index page in util.new_messages_count
-    "partial" delete gift when closing/deleting user account
-    testcase:
-      provider 1 = google+, provider 2 = facebook, user a = Gofreeerv A (google+) + Jan R (Facebook), user b = Jan R (facebook)
-      user a (provider 1+2) creates gift x
-      user b friend with a (provider 1) loads gifts/index page and sees gift x
-      user a deletes provider 1 account
-      gift x should be ajax removed from user b's gifts/index page
-      user a should still se gift x in gifts/index page
-
 36) change util/new_messages_count to include delete marked api comments
     that is - ajax remove comment from gifts/index page in util.new_messages_count
     delete comment for only one provider when account is closed
