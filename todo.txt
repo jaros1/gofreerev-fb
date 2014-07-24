@@ -271,12 +271,17 @@
     options {:giftid=>"253", :gifttext=>"Cykel", :no_users=>"0", :no_other_users=>"-2", :username1=>"", :username2=>"", :username3=>"", :givername=>"Charlie S", :receivername=>"Karen S"},
     error translation missing: en.inbox.index.accepted_proposal_giver_1_v1_from_msg
 
-34) add deleted_at to api_gift and api_comment for partial delete of gift and comment
-    gift and comment created with multi provider login and one login account has been deleted
-
 35) change User.api_gifts to include api_gifts.deleted_at information.
+    User.api_gifts. Sort not deleted api gifts before deleted api gifts
     that is - ajax remove gift from gifts/index page in util.new_messages_count
-    delete gift for only one provider when account is closed
+    "partial" delete gift when closing/deleting user account
+    testcase:
+      provider 1 = google+, provider 2 = facebook, user a = Gofreeerv A (google+) + Jan R (Facebook), user b = Jan R (facebook)
+      user a (provider 1+2) creates gift x
+      user b friend with a (provider 1) loads gifts/index page and sees gift x
+      user a deletes provider 1 account
+      gift x should be ajax removed from user b's gifts/index page
+      user a should still se gift x in gifts/index page
 
 36) change util/new_messages_count to include delete marked api comments
     that is - ajax remove comment from gifts/index page in util.new_messages_count
@@ -716,8 +721,10 @@
      see application_controller.open_graph_title_and_desc
      append generic description t("gifts.show.og_def_desc_#{api_gift.provider}") to comment
 
-154) problem with gifts/index. newly created gift should be displayed first in gift list. only a problem for multi provider login.
-
 155) inbox/index - use local time. Was 22 Jul 11:47. Should have been 22 Jul 10:47.
 
-select random issue: (rand*155).floor+1
+156) user/edit delete account.
+     ajax spinner ok at first delete account request (logical delete account)
+     ajax spinner is mising at second delete account request (physical delete account)
+
+select random issue: (rand*156).floor+1

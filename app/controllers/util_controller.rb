@@ -29,7 +29,7 @@ class UtilController < ApplicationController
     # now is the time to destroy old delete marked gifts
     Gift.check_gift_and_api_gift_rel
     userids = @users.collect { |user| user.user_id }
-    Gift.where('(api_gifts.user_id_giver in (?) or api_gifts.user_id_receiver in (?)) and deleted_at is not null and deleted_at < ?',
+    Gift.where('(api_gifts.user_id_giver in (?) or api_gifts.user_id_receiver in (?)) and gifts.deleted_at is not null and gifts.deleted_at < ?',
                userids, userids, 10.minutes.ago).includes(:api_gifts).references(:api_gifts).each do |g|
       # todo: there is a problem with api gifts without gift. - raise exception to trace problem
       Gift.check_gift_and_api_gift_rel

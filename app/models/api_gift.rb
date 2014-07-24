@@ -259,6 +259,13 @@ class ApiGift < ActiveRecord::Base
     2
   end # picture_sort
 
+  # sort not delete marked api gifts before delete marked api gifts
+  # used in User.api_gifts
+  # ( api gift is used to partial delete gift when user account is logical deleted. See User.delete_user)
+  def deleted_at_sort
+    deleted_at ? 2 : 1
+  end
+
   # for ajax show-more-rows functionality
   # api_gift can be a little random for users with multi provider login (see User.api_gift)
   # use api_gift.gift.id for last_row_id in ajax expanding pages (gifts/index and users/show balance tab)

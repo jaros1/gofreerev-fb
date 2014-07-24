@@ -1861,7 +1861,7 @@ class User < ActiveRecord::Base
     # list of gifts with @users as giver or receiver + list of gifts med @users.friends as giver or receiver
     # where clause is used for non encrypted fields. find_all is used for encrypted fields
 
-    # find friends from friends_hash (cached in util.fetch_users)
+    # find friends from friends_hash (was cached in application_controller.fetch_users / User.cache_friend_info)
     friends_ids = []
     login_users.each do |login_user|
       # logger.debug "friends_ids = #{friends_ids}"
@@ -1871,11 +1871,12 @@ class User < ActiveRecord::Base
 
     # find api gifts
     if include_delete_marked_gifts
-      # called from util.new_messages_count - include delete marked gifts in response - will be ajax replaced with invisible rows
+      # called from util.new_messages_count - include delete marked gifts in response
+      # delete marked gifts will be ajax replaced with invisible rows
       deleted = ""
     else
       # called from users or gifts controller - to not return delete mark gifts in response
-      deleted = ' and gifts.deleted_at is null'
+      deleted = ' and gifts.deleted_at is null and api_gifts.deleted_at is null'
     end
     # Use a larger limit in sql statement. correct limit for multi provider login and for hidden gifts
     sql_limit = limit
@@ -1934,18 +1935,24 @@ class User < ActiveRecord::Base
       # priority:
       # 1) sort by status_update_at desc (also order by condition in select statement)
       # 2) closed gift before open gift
-      # 3) api gift with picture
-      # 4) api picture url with error and creator of gift in login_users - recheck picture with login user privs.
-      # 5) api gift without picture
-      ags = ags.sort_by { |ag| [ag.gift.status_update_at, ag.status_sort, ag.picture_sort(login_users)] }
+      # 3) sort not delete marked api gifts before deleted marked api gifts
+      # 4) api gift with picture
+      # 5) api picture url with error and creator of gift in login_users - recheck picture with login user privs.
+      # 6) api gift without picture
+      ags = ags.sort_by { |ag| [-ag.gift.status_update_at, ag.status_sort, ag.deleted_at_sort, ag.picture_sort(login_users)] }
 
       # delete doublets if creator of gift was using multi provider login
       old_size = ags.size
       old_gift_id = -1
       ags.delete_if do |ag|
         if ag.gift.id == old_gift_id
+          # remove doublet api gift
           true
         else
+          # keep first priority api gift
+          # delete mark gift (not saved to db) if api gift has been delete marked
+          # ( delete marked api gifts is used for "partial" deleted gift when deleting user account )
+          ag.gift.deleted_at = ag.deleted_at if !ag.gift.deleted_at and ag.deleted_at
           old_gift_id = ag.gift.id
           false
         end
@@ -2066,8 +2073,9 @@ class User < ActiveRecord::Base
           g.save!
         else
           # found other providers for this gift.
-          # todo. No deleted_at timestamp for api_gift. Can not ajax remove api gift from gifts/index pages
-          ag.destroy!
+          # mark api gift as deleted. Gift be ajax removed from gifts/index page if api gift is last api gift for gift in other session.
+          ag.deleted_at = Time.new
+          ag.save!
         end
         if g.received_at and g.price and g.price != 0.0
           # save gift for notification to affected users (number of gifts, currencies and prices)
@@ -2151,7 +2159,9 @@ class User < ActiveRecord::Base
           # other login providers found for this login provider
           # todo: cancel deal proposal if deal proposal and it was made from this and only this provider
           # todo. no deleted_at timestamp for api_comment. Can not ajax remove api comment from gifts/index page
-          ac.destroy!
+          # mark api comment as deleted. Gift be ajax removed from gifts/index page if api comment is last api comment for comment in other session.
+          ac.deleted_at = Time.new
+          ac.save!
         end
       end
       # end logical delete

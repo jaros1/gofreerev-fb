@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140721055943) do
+ActiveRecord::Schema.define(version: 20140723095153) do
 
   create_table "ajax_comments", force: true do |t|
     t.string   "user_id",    limit: 40, null: false
@@ -29,6 +29,7 @@ ActiveRecord::Schema.define(version: 20140721055943) do
     t.string   "user_id",    limit: 40
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.datetime "deleted_at"
   end
 
   add_index "api_comments", ["comment_id"], name: "index_api_comments_on_comm_id"
@@ -60,6 +61,7 @@ ActiveRecord::Schema.define(version: 20140721055943) do
     t.text     "deep_link_pw"
     t.integer  "deep_link_errors"
     t.text     "api_gift_url"
+    t.datetime "deleted_at"
   end
 
   add_index "api_gifts", ["deep_link_id"], name: "index_api_gifts_deep_link_id"
