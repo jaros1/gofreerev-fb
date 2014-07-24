@@ -15,6 +15,9 @@ class ApiComment < ActiveRecord::Base
   has_and_belongs_to_many :notifications
   has_many :friends, :through => :user
 
+  before_update :before_update
+
+
 
   # 4) user_id - required - not encrypted - readonly
   validates_presence_of :user_id
@@ -94,5 +97,15 @@ class ApiComment < ActiveRecord::Base
       remove_from_notification(n)
     end # each n
   end
+
+  def before_update
+    if !deleted_at_was and deleted_at
+      # api comment has been delete marked in User.delete_user (partial delete comment when deleting user account)
+      # update comment.status_update_at so that comment will be ajax updated or deleted in other browser sessions
+      comment.status_update_at = Sequence.next_status_update_at
+      comment.updated_by = user_id
+      comment.save!
+    end # if
+  end # before_update
 
 end

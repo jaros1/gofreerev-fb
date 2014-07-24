@@ -114,7 +114,7 @@ class UtilController < ApplicationController
         # logger.debug2  "#{old_size-new_size} comments for hidden gifts was removed" if old_size != new_size
       end
       # "convert" comments to api comments
-      if comments.size
+      if comments.size > 0
         commentids = comments.collect { |c| c.comment_id }
         comments = Comment.where('comment_id in (?)', commentids).includes(:api_comments)
         @api_comments = comments.collect { |c| c.api_comments.shuffle.first }

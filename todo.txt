@@ -271,10 +271,6 @@
     options {:giftid=>"253", :gifttext=>"Cykel", :no_users=>"0", :no_other_users=>"-2", :username1=>"", :username2=>"", :username3=>"", :givername=>"Charlie S", :receivername=>"Karen S"},
     error translation missing: en.inbox.index.accepted_proposal_giver_1_v1_from_msg
 
-36) change util/new_messages_count to include delete marked api comments
-    that is - ajax remove comment from gifts/index page in util.new_messages_count
-    delete comment for only one provider when account is closed
-
 38) add language LOV to page header if width > xxx
 
 39) gift giver pic mouse over text should have information about multiple provider givers

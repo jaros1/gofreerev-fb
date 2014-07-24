@@ -852,6 +852,25 @@ class Comment < ActiveRecord::Base
   #end # before_destroy
 
 
+  # check for partial deleted comments
+  # this is api comment(s) marked as delete - test login with logged in users
+  # used when ajax replacing deleted comments with empty rows in gifts/index page
+  # see User.delete_user and UtilController.new_messages_count
+  def partial_deleted?(login_users)
+    return false unless [Array, ActiveRecord::Relation::ActiveRecord_Relation_User].index(login_users.class)
+    return false unless login_users.size > 0
+    return false if login_users.first.dummy_user?
+    providers = login_users.collect { |u| u.provider }
+    # test if comment has one or more delete marked api comments (normally none)
+    ac = api_comments.find { |ag2| providers.index(ag2.provider) and ag2.deleted_at }
+    return false unless ac
+    # test if all api comments has been delete marked
+    ac = api_comments.find { |ag2| providers.index(ag2.provider) and !ag2.deleted_at }
+    (ac ? false : true)
+  end # partial_deleted?
+
+
+
   ##############
   # encryption #
   ##############

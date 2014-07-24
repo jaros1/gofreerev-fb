@@ -1,5 +1,5 @@
 <% comment = api_comment.comment -%>
-<% if comment.deleted_at -%>
+<% if comment.deleted_at or comment.partial_deleted?(@users) -%>
     <tr id="<%= comment.table_row_id %>" style="display: none">
       <td></td>
     </tr>
