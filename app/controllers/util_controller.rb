@@ -7,7 +7,7 @@ class UtilController < ApplicationController
                 :except => [:new_messages_count,
                             :like_gift, :unlike_gift, :follow_gift, :unfollow_gift, :hide_gift, :delete_gift,
                             :cancel_new_deal, :reject_new_deal, :accept_new_deal,
-                            :do_tasks, :post_on_wall_yn]
+                            :do_tasks, :post_on_wall_yn, :share_gift]
 
   # update new message count in menu line in page header
   # called from hidden new_messages_count_link link in page header once every 15, 60 or 300 seconds
@@ -1638,7 +1638,7 @@ class UtilController < ApplicationController
     begin
       logger.debug2 "params = #{params}"
       # check provider
-      return format_response_key('.unknown_provider', :apiname => provider) unless valid_provider?(provider)
+      return format_response_key('.unknown_provider', :apiname => provider) unless valid_omniauth_provider?(provider)
       # check post_on_wall_yn
       post_on_wall = case params[:post_on_wall]
                        when 'true' then
@@ -1770,7 +1770,7 @@ class UtilController < ApplicationController
     @provider = nil
     begin
       # check provider
-      return format_response_key('.invalid_provider') unless valid_provider?(provider)
+      return format_response_key('.invalid_provider') unless valid_omniauth_provider?(provider)
       # get user
       login_user, token, key, options = get_login_user_and_token(provider, __method__)
       return format_response_key(key, options) if key
@@ -1872,7 +1872,7 @@ class UtilController < ApplicationController
     @div = nil
     begin
       # check provider
-      return format_response_key('.unknown_provider', :provider => provider) unless valid_provider?(provider)
+      return format_response_key('.unknown_provider', :provider => provider) unless valid_omniauth_provider?(provider)
       # get user
       login_user, token, key, options = get_login_user_and_token(provider, __method__)
       return format_response_key(key, options) if key
@@ -2792,5 +2792,53 @@ class UtilController < ApplicationController
       raise
     end
   end # check_expired_tokens
+
+
+  # return share post link - only allowed for giver or receiver
+  # return error message or redirect to share link page in a new tab
+  public
+  def share_gift
+    table = "tasks_errors" # ajax error table in page header
+    begin
+      # set id for ajax error table
+      gift_id = params[:gift_id]
+      return format_response_key('.no_gift_id', :table => table) if gift_id.to_s == ''
+      return format_response_key('.invalid_gift_id', :table => table) unless gift_id.to_s =~ /^[1-9]\d*$/
+      table = "gift-#{gift_id}-links-errors" # ajax error table under gifts links
+      # share gift is only allowed for giver/receiver. Login is required.
+      return format_response_key('.not_logged_in', :table => table) unless logged_in?
+      # check share provider (share providers are not the same as login providers (omniauth))
+      provider = params["provider"]
+      return format_response_key('.no_provider', :table => table) if provider.to_s == ''
+      return format_response_key('.unknown_provider', :table => table) unless valid_share_provider?(provider)
+      g = Gift.find_by_id(gift_id)
+      return format_response_key('.unknown_gift_id', :table => table) unless g
+      ag = g.api_gifts.find { |ag2| (login_user_ids.index(ag2.user_id_giver) or login_user_ids.index(ag2.user_id_receiver)) }
+      return format_response_key('.not_allowed', :table => table) unless ag
+
+      init_deep_link unless ag.deep_link
+      url = ag.deep_link
+      logger.debug2 "url (before excape) = #{url}"
+      url = CGI::escape(url)
+      logger.debug2 "url (after excape) = #{url}"
+
+      case provider
+        when 'facebook'
+          @link = "https://www.facebook.com/sharer/sharer.php?u=#{url}"
+        else
+          return format_response_key('.not_implemented', :provider => API_SHARE_NAME[provider], :table => table)
+      end
+
+      # ok - redirect to share link page in new tab
+      logger.debug2 "@link = #{@link}"
+      format_response
+
+    rescue => e
+      logger.debug2 "Exception: #{e.message.to_s} (#{e.class})"
+      logger.debug2 "Backtrace: " + e.backtrace.join("\n")
+      format_response_key '.exception', :error => e.message, :table => table
+    end
+  end # share_gift
+
 
 end # UtilController

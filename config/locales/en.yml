@@ -290,6 +290,7 @@ en:
         unfollow_gift: "Don't follow"
         hide_gift: "Hide post"
         confirm_hide_gift: "Hide post?"
+        share_gift: "Share post"
         delete_gift: "Delete post"
         confirm_delete_gift_1: "Delete post? Note that %{user_name} and your balance will change with %{price} %{currency} if this post is deleted" # currency, price and user_name. user_name is short user name for other user in closed deal
         confirm_delete_gift_2: "Delete post?"
@@ -947,6 +948,15 @@ en:
         no_expires_at: "System error. Cannot change \"Share accounts?\" choice. Expire timestamp for access token was not found."
         reconnect_required: "xx"
         exception: "System error. Could not change Share accounts? choice. %{error}. More information in server log."
+     share_gift:
+        no_gift_id: "System error. No gift id. in share gift request."
+        invalid_gift_id: "System error. Invalid gift id. in share gift request."
+        unknown_gift_id: "Cannot share gift. Unknown gift id. Please refresh page."
+        not_logged_in: "Cannot share gift. You are not logged in. Please refresh page."
+        no_provider: "System error. No share link provider in share gift request."
+        unknown_provider: "System error. Unknown share link provider."
+        not_allowed: "Sorry. You are not allowed to share this gift. Please refresh page."
+        exception: "System error. Could not share gift. %{error}. More information in server log."
 
   # translation keys used in javascript (error) messages
   js:

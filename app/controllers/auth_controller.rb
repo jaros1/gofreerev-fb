@@ -239,7 +239,7 @@ class AuthController < ApplicationController
       return
     end
     provider = params[:id].to_s
-    if provider != "all" and !valid_provider?(provider)
+    if provider != "all" and !valid_omniauth_provider?(provider)
       logger.debug2 "1: unknown provider #{provider}"
       save_flash_key '.unknown_provider'
       redirect_to :action => :index

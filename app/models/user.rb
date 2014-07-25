@@ -385,7 +385,7 @@ class User < ActiveRecord::Base
 
 
   # list of valid providers from /config/initializers/omniauth.rb
-  def self.valid_provider? (provider)
+  def self.valid_omniauth_provider? (provider)
     OmniAuth::Builder.providers.index(provider.to_s)
   end
 
@@ -420,7 +420,7 @@ class User < ActiveRecord::Base
     # missing provider, unknown provider, missing token, uid or user_name are fatal errors.
     provider = options[:provider].to_s
     return '.provider_missing' if provider == ""
-    return ['.unknown_provider', { :provider => provider } ] unless User.valid_provider?(provider)
+    return ['.unknown_provider', { :provider => provider } ] unless User.valid_omniauth_provider?(provider)
     token = options[:token].to_s
     return ['.access_token_missing', { :provider => provider } ] if token == ""
     expires_at = options[:expires_at].to_s

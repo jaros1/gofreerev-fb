@@ -35,7 +35,16 @@ module GiftHelper
             :method => :post
   end
 
-  # it could be nice with a popup dialog box with three choices. a) hide and keep balance, b) destroy and update balance, c) cancel
+
+  def lov_to_share_gift (gift)
+    # link_to t('.share_gift'), '#', :onclick => 'alert("not implemented")'
+    name = "share_gift_#{gift.id}"
+    options = [['Share post', '']] + API_SHARE_NAME.to_a.collect { |a| a.reverse }.sort_by { |a| a[0] }
+    select_tag name, options_for_select(options), :onchange => 'share_gift(this)', :id => name
+  end # link_to_share_gift
+
+
+    # it could be nice with a popup dialog box with three choices. a) hide and keep balance, b) destroy and update balance, c) cancel
   # but no build in JS function for this
   # must send a/b choice to util/delete_gift. must cancel require on c
   # some maybe useful links:

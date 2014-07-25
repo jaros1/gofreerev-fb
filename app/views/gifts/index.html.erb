@@ -10,6 +10,27 @@
 </script>
 
 <script>
+  function share_gift (self) {
+      var pgm = 'share_gift: ' ;
+      if (self.value == '') return ;
+      // alert('self.value = ' + self.value + ', self.id = ' + self.id) ;
+      var gift_id = self.id.split('_')[2] ;
+      // send share gift request to server. Returns link or an error message
+      $.ajax({
+          url: "/util/share_gift.js",
+          type: "POST",
+          dataType: 'script',
+          data: { provider: self.value, gift_id: gift_id },
+          error: function (jqxhr, textStatus, errorThrown) {
+              if (leaving_page) return ;
+              var pgm = pgm + '.error: ' ;
+              var err = add2log_ajax_error('share_gift.ajax.error: ', jqxhr, textStatus, errorThrown) ;
+              alert(err);
+              // add_to_tasks_errors(I18n.t('js.missing_api_picture_urls.ajax_error', {error: err, location: 7, debug: 0})) ;
+          }
+      });
+
+  } // share_gift
 </script>
 
 <%# create new gift form -%>

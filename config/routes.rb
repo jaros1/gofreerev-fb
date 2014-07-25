@@ -36,6 +36,7 @@ GofreerevFb::Application.routes.draw do
   post 'util/hide_grant_write'
   delete 'auth/destroy'
   post 'util/share_accounts'
+  post 'util/share_gift'
 
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".

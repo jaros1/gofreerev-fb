@@ -38,7 +38,7 @@ end # OmniAuth
 #     note that post in wall priv. is handled inside Gofreerev for som API's and in API for other API's
 #  8) search source code for "API SETUP" and check if new provider should be added to ruby statements
 
-# initialize A) API_ID and B) API_SECRET hashes to be used in authorization and API requests
+# initialize A) API_ID and B) API_SECRET hashes to be used in omni authorization and API requests
 api_id     = {} # A)
 api_secret = {} # B)
 api_token  = {}
@@ -204,6 +204,13 @@ API_CAMELIZE_NAME = {:facebook => 'Facebook',
                      :linkedin => 'LinkedIn',
                      :twitter => 'Twitter',
                      :vkontakte => 'VKontakte'}.with_indifferent_access
+
+# List of social networking with share link functionality. Not identical with omniauth providers, but hash is defined
+# here as there are some overlap between omniauth providers and API's with share link functionality
+API_SHARE_NAME = {:facebook => API_CAMELIZE_NAME[:facebook],
+                  :google_oauth2 => API_CAMELIZE_NAME[:google_oauth2],
+                  :linkedin => API_CAMELIZE_NAME[:linkedin],
+                  :twitter => API_CAMELIZE_NAME[:twitter]}.with_indifferent_access
 
 # L) API profile pictures: :api or :local. Default is :api <=> Profile pictures are not downloaded from provider
 API_PROFILE_PICTURE_STORE = {}.with_indifferent_access

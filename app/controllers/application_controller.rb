@@ -427,17 +427,25 @@ class ApplicationController < ActionController::Base
   # provider helpers
 
   # list of valid providers from /config/initializers/omniauth.rb
+  # that is social networks with API, friend list and a wall
   private
-  def valid_provider? (provider)
-    User.valid_provider?(provider)
+  def valid_omniauth_provider? (provider)
+    User.valid_omniauth_provider?(provider)
   end
-  helper_method "valid_provider?"
+  helper_method 'valid_omniauth_provider?'
+
+  # that is social networks with a share link functionality
+  private
+  def valid_share_provider?(provider)
+    API_SHARE_NAME.has_key?(provider)
+  end
+  helper_method 'valid_share_provider?'
 
   # provider name used in text (error messages, mouse over titles etc) - normal lowercase
   private
   def provider_downcase (provider)
     return t 'shared.providers.blank' if provider.to_s == '' # generic provider text
-    return provider if !valid_provider?(provider) # unknown provider or already translated
+    return provider if !valid_omniauth_provider?(provider) # unknown provider or already translated
     API_DOWNCASE_NAME[provider] || provider
   end
   helper_method :provider_downcase
@@ -446,7 +454,7 @@ class ApplicationController < ActionController::Base
   private
   def provider_camelize (provider)
     return t 'shared.providers.blank' if provider.to_s == '' # generic provider text
-    return provider if !valid_provider?(provider) # unknown provider or already translated
+    return provider if !valid_omniauth_provider?(provider) # unknown provider or already translated
     API_CAMELIZE_NAME[provider] || provider
   end
   helper_method :provider_camelize
@@ -454,7 +462,7 @@ class ApplicationController < ActionController::Base
   # redirect urls used in views and controllers
   private
   def provider_url (provider)
-    return nil if !valid_provider?(provider) # unknown provider or already translated
+    return nil if !valid_omniauth_provider?(provider) # unknown provider or already translated
     API_URL[provider]
   end
   helper_method :provider_url
