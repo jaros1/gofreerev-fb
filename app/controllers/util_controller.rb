@@ -2816,17 +2816,18 @@ class UtilController < ApplicationController
       ag = g.api_gifts.find { |ag2| (login_user_ids.index(ag2.user_id_giver) or login_user_ids.index(ag2.user_id_receiver)) }
       return format_response_key('.not_allowed', :table => table) unless ag
 
-      init_deep_link unless ag.deep_link
+      ag.init_deep_link unless ag.deep_link
       url = ag.deep_link
       logger.debug2 "url (before excape) = #{url}"
-      url = CGI::escape(url)
+      url = CGI.escape(url)
       logger.debug2 "url (after excape) = #{url}"
+      title = CGI.escape(g.description)
 
       case provider
         when 'facebook'
-          @link = "https://www.facebook.com/sharer/sharer.php?u=#{url}"
+          @link = "https://www.facebook.com/dialog/share?app_id=#{API_ID[:facebook]}&display=popup&href=#{url}&redirect_uri=#{CGI.escape(SITE_URL)}"
         else
-          return format_response_key('.not_implemented', :provider => API_SHARE_NAME[provider], :table => table)
+          return format_response_key('.not_implemented', :apiname => API_SHARE_NAME[provider], :table => table)
       end
 
       # ok - redirect to share link page in new tab

@@ -956,6 +956,7 @@ en:
         no_provider: "System error. No share link provider in share gift request."
         unknown_provider: "System error. Unknown share link provider."
         not_allowed: "Sorry. You are not allowed to share this gift. Please refresh page."
+        not_implemented: "Sorry. Cannot share gift on %{apiname}. Not implemented."
         exception: "System error. Could not share gift. %{error}. More information in server log."
 
   # translation keys used in javascript (error) messages
