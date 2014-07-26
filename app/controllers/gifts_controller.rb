@@ -425,6 +425,7 @@ class GiftsController < ApplicationController
       #    title <= 70 characters
       title, description = open_graph_title_and_desc(api_gift)
       # image = api_gift.picture? ? api_gift.api_picture_url : API_OG_DEF_IMAGE[api_gift.provider]
+      # todo: refactor this - also used in util_controller.share_gift ==>
       if !api_gift.picture?
         image = API_OG_DEF_IMAGE[api_gift.provider]
       elsif Picture.api_url?(api_gift.api_picture_url)
@@ -432,6 +433,7 @@ class GiftsController < ApplicationController
       else
         image = "#{SITE_URL[0..-2]}#{api_gift.api_picture_url}"
       end
+      # <==
       logger.debug2 "OG. provider    = #{api_gift.provider}"
       logger.debug2 "OG: title       = #{title}"
       logger.debug2 "OG: description = #{description}"

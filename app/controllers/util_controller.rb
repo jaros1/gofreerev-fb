@@ -2818,20 +2818,12 @@ class UtilController < ApplicationController
       ag = ags.first if ags.size == 1
       ag = ags.find { |ag2| ag2.provider == provider } unless ag
       if !ag
-        # multi provider post
+        # choice api gift provider for share gift link
         # sort:
         # 1) use api post with pictures before api post without pictures
         # 2) use api post with deep link before api post without deep link
         # 3) random
-        ags = ags.sort do |a,b|
-          if a.picture != b.picture
-            (a.picture == 'Y' ? 1 : 2) <=> (b.picture == 'Y' ? 1 : 2)
-          elsif (a.deep_link ? true : false) != (b.deep_link ? true : false)
-            (a.deep_link ? 1 : 2) != (b.deep_link ? 1 : 2)
-          else
-            (rand-0.5) <=> 0
-          end
-        end
+        ags = ags.sort_by { |ag| [ (ag.picture == 'Y' ? 1 : 2), (ag.deep_link ? 1 : 2), rand] }
         ag = ags.first
       end
       ag.init_deep_link unless ag.deep_link
@@ -2840,6 +2832,21 @@ class UtilController < ApplicationController
       @extra = case provider
                   when 'facebook'
                     API_ID[:facebook]
+                 when 'pinterest'
+                   # todo: refactor this - also used in gifts_controller.show for deep links ==>
+                   if !ag.picture?
+                     image = API_OG_DEF_IMAGE[ag.provider]
+                   elsif Picture.api_url?(ag.api_picture_url)
+                     image = ag.api_picture_url
+                   else
+                     image = "#{SITE_URL[0..-2]}#{ag.api_picture_url}"
+                   end
+                   # <==
+                   image
+                 when 'twitter'
+                    tweet = "#{g.human_value(:direction)}#{g.description}"
+                    tweet, truncated = Gift.truncate_twitter_text tweet, API_MAX_TEXT_LENGTHS[:twitter]-57
+                    tweet
                   else
                     ''
                 end

@@ -36,28 +36,46 @@
   } // get_share_gift_link
 
   // callback for share gift / get_share_gift_link
-  function share_gift (provider, gift_id, link, extra) {
-      var pgm = 'share_gift: ' ;
+  function share_gift(provider, gift_id, link, extra) {
+      var pgm = 'share_gift: ';
       // alert(pgm + 'provider = ' + provider + ', gift_id = ' + gift_id + ', link = ' + link + ', extra = ' + extra) ;
-      var share_gift = document.getElementById('share_gift') ;
-      if (!share_gift) return ; // share gift link was not found
-      switch(provider) {
+      var share_gift = document.getElementById('share_gift');
+      if (!share_gift) return; // share gift link was not found
+      share_gift.target = '_blank';
+      switch (provider) {
           case 'facebook':
-            // https://developers.facebook.com/docs/sharing/reference/share-dialog
-            share_gift.href = 'https://www.facebook.com/dialog/share?app_id=' + extra +
-                    '&display=popup&href=' + encodeURIComponent(link) +
-                    '&redirect_uri=' +  encodeURIComponent(window.location.href) ;
-            share_gift.target = '' ;
-            break;
+              // https://developers.facebook.com/docs/sharing/reference/share-dialog
+              share_gift.href = 'https://www.facebook.com/dialog/share?app_id=' + extra +
+                      '&display=popup&href=' + encodeURIComponent(link) +
+                      '&redirect_uri=' + encodeURIComponent(window.location.href);
+              share_gift.target = '';
+              break;
           case 'google_oauth2':
-            share_gift.href = 'https://plus.google.com/share?url=' + encodeURIComponent(link) ;
-            share_gift.target = '_blank' ;
-            break ;
+              share_gift.href = 'https://plus.google.com/share?url=' + encodeURIComponent(link);
+              break;
+          case 'linkedin':
+              // https://developer.linkedin.com/forum/url-params-sharearticle
+              share_gift.href = 'https://www.linkedin.com/shareArticle?url=' + encodeURIComponent(link);
+              break;
+          case 'pinterest':
+              // https://github.com/bradvin/social-share-urls
+              // https://pinterest.com/pin/create/bookmarklet/?media={img}&url={url}&is_video={is_video}&description={title}
+              share_gift.href = 'https://pinterest.com/pin/create/bookmarklet/?url=' + encodeURIComponent(link) +
+                      '&image_url=' + encodeURIComponent(extra);
+              break ;
+          case 'twitter':
+              // https://dev.twitter.com/docs/tweet-button
+              share_gift.href = 'https://twitter.com/share?url=' + encodeURIComponent(link) + '&text=' + encodeURIComponent(extra);
+              break;
+          case 'vkontakte':
+              // http://vk.com/pages?oid=-17680044&p=Sharing_External_Pages
+              share_gift.href = 'http://vkontakte.ru/share.php?url=' + encodeURIComponent(link) ;
+              break ;
           default:
-            share_gift.href = 'javascript: alert("Not implemented")' ;
+              share_gift.href = 'javascript: alert("Not implemented")';
+              return;
       } // switch
-      // alert('share_gift.href = ' + share_gift.href) ;
-      if (share_gift.href != '#') share_gift.click() ;
+      share_gift.click();
   } // share_gift
 </script>
 

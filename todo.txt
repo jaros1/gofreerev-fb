@@ -125,6 +125,16 @@
     a) problem with popup blocking: window.open('<%= @link %>', '_blank')
     b) problem with double url encoding. Encoded in rails. Also encoded when sending JS to client: &amp; in stead of & in url param
     add ajax spinner while fetching share url from server. Normally quick, but server is slow and small.
+    http://developer.sharethis.com/Web_Share_API
+    https://github.com/bradvin/social-share-urls
+    todo:
+    - Pinterest: https://pinterest.com/pin/create/bookmarklet/?media={img}&url={url}&is_video={is_video}&description={title}
+    - Buffer: http://bufferapp.com/add?text={title}&url={url}
+    - Digg: http://digg.com/submit?url={url}&title={title}
+    - Tumblr: http://www.tumblr.com/share/link?url={url}&name={title}&description={desc}
+    - Reddit: http://reddit.com/submit?url={url}&title={title}
+    - StumbleUpon: http://www.stumbleupon.com/submit?url={url}&title={title}
+    - Delicious: https://delicious.com/save?v=5&provider={provider}&noui&jump=close&url={url}&title={title}
 
 29) deal proposal and changed friend relations
     cancel deal proposal when friends are removed
@@ -717,4 +727,7 @@
      ajax spinner ok at first delete account request (logical delete account)
      ajax spinner is mising at second delete account request (physical delete account)
 
-select random issue: (rand*156).floor+1
+157) check http://developer.sharethis.com/Web_Share_API
+     "Sharing is Caring. Get access to web services that provide comprehensive sharing capabilities to 120 social destinations"
+
+select random issue: (rand*157).floor+1
