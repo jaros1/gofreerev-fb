@@ -9,7 +9,7 @@
     %>
 </script>
 
-<a href="#" id="share_gift" target="_blank" style="display: none">share gift</a>
+<a href="#" id="share_gift" style="display: none">share gift</a>
 
 <script>
   // get deep link for share gift from server
@@ -38,19 +38,25 @@
   // callback for share gift / get_share_gift_link
   function share_gift (provider, gift_id, link, extra) {
       var pgm = 'share_gift: ' ;
-      alert(pgm + 'provider = ' + provider + ', gift_id = ' + gift_id + ', link = ' + link + ', extra = ' + extra) ;
+      // alert(pgm + 'provider = ' + provider + ', gift_id = ' + gift_id + ', link = ' + link + ', extra = ' + extra) ;
       var share_gift = document.getElementById('share_gift') ;
       if (!share_gift) return ; // share gift link was not found
       switch(provider) {
           case 'facebook':
+            // https://developers.facebook.com/docs/sharing/reference/share-dialog
             share_gift.href = 'https://www.facebook.com/dialog/share?app_id=' + extra +
                     '&display=popup&href=' + encodeURIComponent(link) +
                     '&redirect_uri=' +  encodeURIComponent(window.location.href) ;
+            share_gift.target = '' ;
             break;
+          case 'google_oauth2':
+            share_gift.href = 'https://plus.google.com/share?url=' + encodeURIComponent(link) ;
+            share_gift.target = '_blank' ;
+            break ;
           default:
-            share_gift.href = '#' ;
+            share_gift.href = 'javascript: alert("Not implemented")' ;
       } // switch
-      alert('share_gift.href = ' + share_gift.href) ;
+      // alert('share_gift.href = ' + share_gift.href) ;
       if (share_gift.href != '#') share_gift.click() ;
   } // share_gift
 </script>

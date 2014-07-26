@@ -2813,10 +2813,29 @@ class UtilController < ApplicationController
       return format_response_key('.unknown_provider', :table => table) unless valid_share_provider?(provider)
       g = Gift.find_by_id(gift_id)
       return format_response_key('.unknown_gift_id', :table => table) unless g
-      ag = g.api_gifts.find { |ag2| (login_user_ids.index(ag2.user_id_giver) or login_user_ids.index(ag2.user_id_receiver)) }
-      return format_response_key('.not_allowed', :table => table) unless ag
-
+      ags = g.api_gifts.find_all { |ag| !ag.deleted_at and (login_user_ids.index(ag.user_id_giver) or login_user_ids.index(ag.user_id_receiver)) }
+      return format_response_key('.not_allowed', :table => table) if ags.size == 0
+      ag = ags.first if ags.size == 1
+      ag = ags.find { |ag2| ag2.provider == provider } unless ag
+      if !ag
+        # multi provider post
+        # sort:
+        # 1) use api post with pictures before api post without pictures
+        # 2) use api post with deep link before api post without deep link
+        # 3) random
+        ags = ags.sort do |a,b|
+          if a.picture != b.picture
+            (a.picture == 'Y' ? 1 : 2) <=> (b.picture == 'Y' ? 1 : 2)
+          elsif (a.deep_link ? true : false) != (b.deep_link ? true : false)
+            (a.deep_link ? 1 : 2) != (b.deep_link ? 1 : 2)
+          else
+            (rand-0.5) <=> 0
+          end
+        end
+        ag = ags.first
+      end
       ag.init_deep_link unless ag.deep_link
+      ag.provider = provider # share gift provider
       @api_gift = ag
       @extra = case provider
                   when 'facebook'
