@@ -2843,6 +2843,9 @@ class UtilController < ApplicationController
                    end
                    # <==
                    image
+                   description = "#{g.human_value(:direction)}#{g.description}"
+                   description, truncated = Gift.truncate_text 'pinterest', description, 500
+                   "#{image} #{description}"
                  when 'twitter'
                     tweet = "#{g.human_value(:direction)}#{g.description}"
                     tweet, truncated = Gift.truncate_twitter_text tweet, API_MAX_TEXT_LENGTHS[:twitter]-57

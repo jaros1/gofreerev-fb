@@ -297,6 +297,7 @@ API_OG_DEF_IMAGE = {:facebook => "#{SITE_URL}images/sacred-economics.jpg",
                     :google_oauth2 => "#{SITE_URL}images/sacred-economics.jpg",
                     :instagram => "#{SITE_URL}images/sacred-economics.jpg",
                     :linkedin => "#{SITE_URL}images/sacred-economics-linkedin.jpg", # 180 x 110 best for linkedin
+                    :pinterest => "#{SITE_URL}images/sacred-economics.jpg",
                     :twitter => "#{SITE_URL}images/sacred-economics.jpg",
                     :vkontakte => "#{SITE_URL}images/sacred-economics.jpg"}.with_indifferent_access
 

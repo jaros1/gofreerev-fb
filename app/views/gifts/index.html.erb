@@ -60,8 +60,12 @@
           case 'pinterest':
               // https://github.com/bradvin/social-share-urls
               // https://pinterest.com/pin/create/bookmarklet/?media={img}&url={url}&is_video={is_video}&description={title}
+              var pos = extra.indexOf(' ');
+              var image = extra.substr(0, pos) ;
+              var description = extra.substr(pos+1) ;
+              // alert('pos = ' + pos + ', image = "' + image + '", description = "' + description + '"') ;
               share_gift.href = 'https://pinterest.com/pin/create/bookmarklet/?url=' + encodeURIComponent(link) +
-                      '&image_url=' + encodeURIComponent(extra);
+                      '&media=' + encodeURIComponent(image) + '&description=' + encodeURIComponent(description);
               break ;
           case 'twitter':
               // https://dev.twitter.com/docs/tweet-button
