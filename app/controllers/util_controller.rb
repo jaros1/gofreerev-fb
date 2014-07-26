@@ -2845,6 +2845,11 @@ class UtilController < ApplicationController
                    image
                    description = "#{g.human_value(:direction)}#{g.description}"
                    description, truncated = Gift.truncate_text 'pinterest', description, 500
+                   description = description.gsub("'", '"')
+                   linebreak = " "
+                   description = description.gsub(/\r\n/, linebreak)
+                   description = description.gsub(/\n/, linebreak)
+                   description = description.gsub(/\r/, linebreak)
                    "#{image} #{description}"
                  when 'twitter'
                     tweet = "#{g.human_value(:direction)}#{g.description}"
@@ -2852,7 +2857,9 @@ class UtilController < ApplicationController
                     tweet
                   else
                     ''
-                end
+               end
+      logger.debug2 "link = #{ag.deep_link}"
+      logger.debug2 "extra = '#{@extra}'"
 
       # ok - redirect to share link page in new tab
       format_response
