@@ -2817,21 +2817,15 @@ class UtilController < ApplicationController
       return format_response_key('.not_allowed', :table => table) unless ag
 
       ag.init_deep_link unless ag.deep_link
-      url = ag.deep_link
-      logger.debug2 "url (before excape) = #{url}"
-      url = CGI.escape(url)
-      logger.debug2 "url (after excape) = #{url}"
-      title = CGI.escape(g.description)
-
-      case provider
-        when 'facebook'
-          @link = "https://www.facebook.com/dialog/share?app_id=#{API_ID[:facebook]}&display=popup&href=#{url}&redirect_uri=#{CGI.escape(SITE_URL)}"
-        else
-          return format_response_key('.not_implemented', :apiname => API_SHARE_NAME[provider], :table => table)
-      end
+      @api_gift = ag
+      @extra = case provider
+                  when 'facebook'
+                    API_ID[:facebook]
+                  else
+                    ''
+                end
 
       # ok - redirect to share link page in new tab
-      logger.debug2 "@link = #{@link}"
       format_response
 
     rescue => e

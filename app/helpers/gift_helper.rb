@@ -40,7 +40,7 @@ module GiftHelper
     # link_to t('.share_gift'), '#', :onclick => 'alert("not implemented")'
     name = "share_gift_#{gift.id}"
     options = [['Share post', '']] + API_SHARE_NAME.to_a.collect { |a| a.reverse }.sort_by { |a| a[0] }
-    select_tag name, options_for_select(options), :onchange => 'share_gift(this)', :id => name
+    select_tag name, options_for_select(options), :onchange => 'get_share_gift_link(this)', :id => name
   end # link_to_share_gift
 
 

@@ -1,4 +1,9 @@
-<% if @link -%>
-window.open('<%= @link %>', '_blank');
-// window.location.href = '<%= @link %>' ;
+<% if @api_gift -%>
+(function () {
+    var provider = '<%= @api_gift.provider %>' ;
+    var gift_id = '<%= @api_gift.gift.id %>' ;
+    var link = '<%= @api_gift.deep_link %>' ;
+    var extra = '<%= @extra %>' ; // provider specific parameters
+    share_gift(provider, gift_id, link, extra) ;
+})();
 <% end -%>

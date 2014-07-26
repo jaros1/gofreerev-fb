@@ -427,10 +427,10 @@ class GiftsController < ApplicationController
       # image = api_gift.picture? ? api_gift.api_picture_url : API_OG_DEF_IMAGE[api_gift.provider]
       if !api_gift.picture?
         image = API_OG_DEF_IMAGE[api_gift.provider]
-      elsif Picture.api_url?
+      elsif Picture.api_url?(api_gift.api_picture_url)
         image = api_gift.api_picture_url
       else
-        image = "#{SITE_URL}#{api_gift.api_picture_url}".gsub('//','/')
+        image = "#{SITE_URL[0..-2]}#{api_gift.api_picture_url}"
       end
       logger.debug2 "OG. provider    = #{api_gift.provider}"
       logger.debug2 "OG: title       = #{title}"

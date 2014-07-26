@@ -9,9 +9,13 @@
     %>
 </script>
 
+<a href="#" id="share_gift" target="_blank" style="display: none">share gift</a>
+
 <script>
-  function share_gift (self) {
-      var pgm = 'share_gift: ' ;
+  // get deep link for share gift from server
+  // returns ajax error message or calls share_gift
+  function get_share_gift_link (self) {
+      var pgm = 'get_share_gift_link: ' ;
       if (self.value == '') return ;
       // alert('self.value = ' + self.value + ', self.id = ' + self.id) ;
       var gift_id = self.id.split('_')[2] ;
@@ -29,7 +33,25 @@
               // add_to_tasks_errors(I18n.t('js.missing_api_picture_urls.ajax_error', {error: err, location: 7, debug: 0})) ;
           }
       });
+  } // get_share_gift_link
 
+  // callback for share gift / get_share_gift_link
+  function share_gift (provider, gift_id, link, extra) {
+      var pgm = 'share_gift: ' ;
+      alert(pgm + 'provider = ' + provider + ', gift_id = ' + gift_id + ', link = ' + link + ', extra = ' + extra) ;
+      var share_gift = document.getElementById('share_gift') ;
+      if (!share_gift) return ; // share gift link was not found
+      switch(provider) {
+          case 'facebook':
+            share_gift.href = 'https://www.facebook.com/dialog/share?app_id=' + extra +
+                    '&display=popup&href=' + encodeURIComponent(link) +
+                    '&redirect_uri=' +  encodeURIComponent(window.location.href) ;
+            break;
+          default:
+            share_gift.href = '#' ;
+      } // switch
+      alert('share_gift.href = ' + share_gift.href) ;
+      if (share_gift.href != '#') share_gift.click() ;
   } // share_gift
 </script>
 
