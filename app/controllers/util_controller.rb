@@ -2828,38 +2828,52 @@ class UtilController < ApplicationController
       end
       ag.init_deep_link unless ag.deep_link
       ag.provider = provider # share gift provider
-      @api_gift = ag
-      @extra = case provider
+      # find set max length for text/description in share gift link. -1: no text, 0: no limit
+      case
+        when provider == 'twitter'
+          # normal limit is 140 characters. But only 83 characters are allowed in twitter share link description
+          max_lng = API_MAX_TEXT_LENGTHS[provider] - 57
+        when %w(google_oauth2 linkedin).index(provider)
+          # no text in share gift link
+          max_lng = -1
+        when (API_MAX_TEXT_LENGTHS.has_key?(provider) and [NilClass, Fixnum].index(API_MAX_TEXT_LENGTHS[provider].class))
+          # facebook, pinterest, vkontakte
+          max_lng = API_MAX_TEXT_LENGTHS[provider]
+        else
+          # google+, linkedin: no text
+          nil
+      end # case
+      max_lng = 0 unless max_lng # no (known) max text length limit
+      # extra params. used for provider specific params in share gift link
+      extra = case provider
                   when 'facebook'
                     API_ID[:facebook]
-                 when 'pinterest'
-                   # todo: refactor this - also used in gifts_controller.show for deep links ==>
-                   if !ag.picture?
-                     image = API_OG_DEF_IMAGE[ag.provider]
-                   elsif Picture.api_url?(ag.api_picture_url)
-                     image = ag.api_picture_url
-                   else
-                     image = "#{SITE_URL[0..-2]}#{ag.api_picture_url}"
-                   end
-                   # <==
-                   image
-                   description = "#{g.human_value(:direction)}#{g.description}"
-                   description, truncated = Gift.truncate_text 'pinterest', description, 500
-                   description = description.gsub("'", '"')
-                   linebreak = " "
-                   description = description.gsub(/\r\n/, linebreak)
-                   description = description.gsub(/\n/, linebreak)
-                   description = description.gsub(/\r/, linebreak)
-                   "#{image} #{description}"
                  when 'twitter'
+                    # normal limit is 140 characters. But only 83 characters are allowed in twitter share link description
+                    # use server side text truncation (preserve tags in text)
                     tweet = "#{g.human_value(:direction)}#{g.description}"
-                    tweet, truncated = Gift.truncate_twitter_text tweet, API_MAX_TEXT_LENGTHS[:twitter]-57
+                    # sanitize JS string - do not use ' - do not use line breaks
+                    # todo: refactor to a string method?
+                    linebreak = " "
+                    tweet = tweet.gsub("'", '"')
+                    tweet = tweet.gsub(/\r\n/, linebreak)
+                    tweet = tweet.gsub(/\n/, linebreak)
+                    tweet = tweet.gsub(/\r/, linebreak)
+                    tweet, truncated = Gift.truncate_twitter_text tweet, max_lng
+                    max_lng = -1 # no client side text lookup
                     tweet
                   else
                     ''
-               end
-      logger.debug2 "link = #{ag.deep_link}"
-      logger.debug2 "extra = '#{@extra}'"
+              end
+      # call JS method share_gift(provider, gift_id, link, max_lng, extra)
+      @api_gift = ag
+      @max_lng = max_lng
+      @extra = extra
+      logger.debug2 "provider = #{@api_gift.provider}"
+      logger.debug2 "gift_id  = #{@api_gift.gift.id}"
+      logger.debug2 "link     = #{@api_gift.deep_link}"
+      logger.debug2 "max_lng  = #{@max_lng}"
+      logger.debug2 "extra    = '#{@extra}'"
 
       # ok - redirect to share link page in new tab
       format_response

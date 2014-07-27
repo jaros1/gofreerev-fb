@@ -35,20 +35,68 @@
       });
   } // get_share_gift_link
 
+  // get text/description for share gift link from gifts/index page
+  function get_share_gift_text (gift_id) {
+    var div_id = "gift-" + gift_id + "-overflow-text" ;
+    var div = document.getElementById(div_id) ;
+    var text ;
+    if (div) {
+        text = div.innerHTML ;
+        var pos = text.indexOf('</a>','\n') ;
+        text = text.substr(pos+4) ;
+    }
+    else text = document.title ;
+    text = text.trim().substr(2) ; // remove :
+    text = text.replace(/\s*<br>\s*/g,'\n') ; // replace <br> with newline
+    return text ;
+  } // get_gift_text
+
+  // get image for share gift link from gifts/index page
+  function get_share_gift_image_url(gift_id) {
+      var image_id = "gift-" + gift_id + "-image";
+      var image = document.getElementById(image_id);
+      var image_url;
+      if (image) image_url = image.src;
+      else image_url = '/images/sacred-economics.jpg';
+      if (image_url.substr(0,1) == '/') {
+          // add protocol and domain to image url
+          var url = window.location.href ;
+          var url_a = url.split('/') ;
+          var domain = url_a[0] + '//' + url_a[2] ;
+          image_url = domain + image_url ;
+      }
+      return image_url ;
+  } // get_share_gift_image_url
+
   // callback for share gift / get_share_gift_link
-  function share_gift(provider, gift_id, link, extra) {
+  function share_gift(provider, gift_id, link, max_lng, extra) {
       var pgm = 'share_gift: ';
       // alert(pgm + 'provider = ' + provider + ', gift_id = ' + gift_id + ', link = ' + link + ', extra = ' + extra) ;
+      var text ;
+      if (provider == 'twitter') text = extra ; // special server side text truncation (preserve tags)
+      else if (max_lng == -1) text = '' ; // text not used
+      else {
+          text = get_share_gift_text(gift_id) ;
+          if ((max_lng > 0) && (text.length > max_lng)) text = text.substr(0, max_lng) ;
+      }
+      // alert('text = "' + text + '"') ;
       var share_gift = document.getElementById('share_gift');
       if (!share_gift) return; // share gift link was not found
       share_gift.target = '_blank';
       switch (provider) {
           case 'facebook':
               // https://developers.facebook.com/docs/sharing/reference/share-dialog
-              share_gift.href = 'https://www.facebook.com/dialog/share?app_id=' + extra +
+              // redirect in current tab. add share_gift=facebook to redirect_uri for error handling
+              var api_id = extra ;
+              var redirect_uri = window.location.href ;
+              var pos = redirect_uri.indexOf('?') ;
+              if (pos != -1) redirect_uri = redirect_uri.substr(0,pos) ;
+              redirect_uri = redirect_uri + '?share_gift=facebook' ;
+              alert('redirect_uri = ' + redirect_uri) ;
+              share_gift.href = 'https://www.facebook.com/dialog/share?app_id=' + api_id +
                       '&display=popup&href=' + encodeURIComponent(link) +
-                      '&redirect_uri=' + encodeURIComponent(window.location.href);
-              share_gift.target = '';
+                      '&redirect_uri=' + encodeURIComponent(redirect_uri);
+              share_gift.target = ''; // facebook does not close windows after share link dialog
               break;
           case 'google_oauth2':
               share_gift.href = 'https://plus.google.com/share?url=' + encodeURIComponent(link);
@@ -60,16 +108,14 @@
           case 'pinterest':
               // https://github.com/bradvin/social-share-urls
               // https://pinterest.com/pin/create/bookmarklet/?media={img}&url={url}&is_video={is_video}&description={title}
-              var pos = extra.indexOf(' ');
-              var image = extra.substr(0, pos) ;
-              var description = extra.substr(pos+1) ;
+              var image = get_share_gift_image_url(gift_id) ;
               // alert('pos = ' + pos + ', image = "' + image + '", description = "' + description + '"') ;
               share_gift.href = 'https://pinterest.com/pin/create/bookmarklet/?url=' + encodeURIComponent(link) +
-                      '&media=' + encodeURIComponent(image) + '&description=' + encodeURIComponent(description);
+                      '&media=' + encodeURIComponent(image) + '&description=' + encodeURIComponent(text);
               break ;
           case 'twitter':
               // https://dev.twitter.com/docs/tweet-button
-              share_gift.href = 'https://twitter.com/share?url=' + encodeURIComponent(link) + '&text=' + encodeURIComponent(extra);
+              share_gift.href = 'https://twitter.com/share?url=' + encodeURIComponent(link) + '&text=' + encodeURIComponent(text);
               break;
           case 'vkontakte':
               // http://vk.com/pages?oid=-17680044&p=Sharing_External_Pages

@@ -1236,7 +1236,7 @@ class ApplicationController < ActionController::Base
       api_gift = options[:api_gift]
       picture = options[:picture]
       # format message (direction + description + deep link) - only one text field message when posting on facebook
-      message_lng = API_MAX_TEXT_LENGTHS[:facebook][:message] if API_MAX_TEXT_LENGTHS[:facebook]
+      message_lng = API_MAX_TEXT_LENGTHS[provider]
       message, truncated = api_gift.get_wall_post_text_fields(false, [message_lng])
       logger.debug2 "message = #{message}"
       # post on wall with or without picture

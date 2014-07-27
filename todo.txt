@@ -118,23 +118,19 @@
     http://stackoverflow.com/questions/2695020/how-can-i-use-ruby-to-check-if-a-domain-exists
 
 28) add share icons to api_gift (one icon for each api provider)
-    share with a deep link
-    allow all to share or allow only giver/receiver to share?
-    http://jquery-plugins.net/tag/social-share-button
-    add gift link "share" - onclick JS replace link with LOV or share buttons for n social networks
-    a) problem with popup blocking: window.open('<%= @link %>', '_blank')
-    b) problem with double url encoding. Encoded in rails. Also encoded when sending JS to client: &amp; in stead of & in url param
-    add ajax spinner while fetching share url from server. Normally quick, but server is slow and small.
-    http://developer.sharethis.com/Web_Share_API
-    https://github.com/bradvin/social-share-urls
+    OK for facebook, google+, linkedin, Pinterest, twitter and vkontakte.
+    todo:  add ajax spinner while fetching share url from server. Normally quick, but server is slow and small.
     todo:
-    - Pinterest: https://pinterest.com/pin/create/bookmarklet/?media={img}&url={url}&is_video={is_video}&description={title}
     - Buffer: http://bufferapp.com/add?text={title}&url={url}
     - Digg: http://digg.com/submit?url={url}&title={title}
     - Tumblr: http://www.tumblr.com/share/link?url={url}&name={title}&description={desc}
     - Reddit: http://reddit.com/submit?url={url}&title={title}
     - StumbleUpon: http://www.stumbleupon.com/submit?url={url}&title={title}
     - Delicious: https://delicious.com/save?v=5&provider={provider}&noui&jump=close&url={url}&title={title}
+    todo: change error handling in get_share_gift_link. Do not use alert. Use ajax error table under gift links
+    todo: add ajax spinner when fetching deep link from server
+    todo: gifts/show with deep link - reuse deep link in new share without refetching deep link from db
+    todo: check http://developer.sharethis.com/Web_Share_API
 
 29) deal proposal and changed friend relations
     cancel deal proposal when friends are removed
@@ -729,5 +725,7 @@
 
 157) check http://developer.sharethis.com/Web_Share_API
      "Sharing is Caring. Get access to web services that provide comprehensive sharing capabilities to 120 social destinations"
+
+158) add better html title for gifts. Special important for shared gifts with deep link where html title maybe is used on API's
 
 select random issue: (rand*157).floor+1
