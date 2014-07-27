@@ -121,9 +121,6 @@
     OK for facebook, google+, linkedin, Pinterest, twitter and vkontakte.
     todo:  add ajax spinner while fetching share url from server. Normally quick, but server is slow and small.
     todo:
-    - Buffer: http://bufferapp.com/add?text={title}&url={url}
-    - Digg: http://digg.com/submit?url={url}&title={title}
-    - Tumblr: http://www.tumblr.com/share/link?url={url}&name={title}&description={desc}
     - Reddit: http://reddit.com/submit?url={url}&title={title}
     - StumbleUpon: http://www.stumbleupon.com/submit?url={url}&title={title}
     - Delicious: https://delicious.com/save?v=5&provider={provider}&noui&jump=close&url={url}&title={title}
@@ -131,6 +128,7 @@
     todo: add ajax spinner when fetching deep link from server
     todo: gifts/show with deep link - reuse deep link in new share without refetching deep link from db
     todo: check http://developer.sharethis.com/Web_Share_API
+    todo: use JS translate for share links. One key for each share provider
 
 29) deal proposal and changed friend relations
     cancel deal proposal when friends are removed

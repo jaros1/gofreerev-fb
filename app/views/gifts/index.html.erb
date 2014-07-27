@@ -72,60 +72,47 @@
   function share_gift(provider, gift_id, link, max_lng, extra) {
       var pgm = 'share_gift: ';
       // alert(pgm + 'provider = ' + provider + ', gift_id = ' + gift_id + ', link = ' + link + ', extra = ' + extra) ;
-      var text ;
+      var share_gift = document.getElementById('share_gift');
+      if (!share_gift) return; // share gift link was not found
+      share_gift.target = '_blank';
+      // make share gift link. Use I18n.t. Setup translation
+      // todo: tumblr - split text in name and description (https://www.tumblr.com/share/link?url=%{link}&name=%{name}&description=%{description}
+      var key, text, api_id, redirect_url, image, href ;
+      key = 'js.share_gift.' + provider ;
       if (provider == 'twitter') text = extra ; // special server side text truncation (preserve tags)
       else if (max_lng == -1) text = '' ; // text not used
       else {
           text = get_share_gift_text(gift_id) ;
           if ((max_lng > 0) && (text.length > max_lng)) text = text.substr(0, max_lng) ;
       }
-      // alert('text = "' + text + '"') ;
-      var share_gift = document.getElementById('share_gift');
-      if (!share_gift) return; // share gift link was not found
+      // api_id - only facebook
+      if (['facebook'].indexOf(provider) != -1) api_id = extra ;
+      // redirect_url - only facebook
+      if (['facebook'].indexOf(provider) != -1) {
+          redirect_uri = window.location.href ;
+          var pos = redirect_uri.indexOf('?') ;
+          if (pos != -1) redirect_uri = redirect_uri.substr(0,pos) ;
+          redirect_uri = redirect_uri + '?share_gift=facebook' ;
+      }
+      // image - only pinterest
+      if (['pinterest'].indexOf(provider) != -1) image = get_share_gift_image_url(gift_id) ;
+      // translate
+      href = I18n.t(key, {link        : encodeURIComponent(link),
+                          text        : encodeURIComponent(text),
+                          api_id      : encodeURIComponent(api_id),
+                          redirect_url: encodeURIComponent(redirect_url),
+                          image       : encodeURIComponent(image)}) ;
+      // check translation
+      if (!href.match(/^https?:\/\//)) {
+          alert(href) ;
+          return ;
+      }
+      share_gift.href = href ;
       share_gift.target = '_blank';
-      switch (provider) {
-          case 'facebook':
-              // https://developers.facebook.com/docs/sharing/reference/share-dialog
-              // redirect in current tab. add share_gift=facebook to redirect_uri for error handling
-              var api_id = extra ;
-              var redirect_uri = window.location.href ;
-              var pos = redirect_uri.indexOf('?') ;
-              if (pos != -1) redirect_uri = redirect_uri.substr(0,pos) ;
-              redirect_uri = redirect_uri + '?share_gift=facebook' ;
-              alert('redirect_uri = ' + redirect_uri) ;
-              share_gift.href = 'https://www.facebook.com/dialog/share?app_id=' + api_id +
-                      '&display=popup&href=' + encodeURIComponent(link) +
-                      '&redirect_uri=' + encodeURIComponent(redirect_uri);
-              share_gift.target = ''; // facebook does not close windows after share link dialog
-              break;
-          case 'google_oauth2':
-              share_gift.href = 'https://plus.google.com/share?url=' + encodeURIComponent(link);
-              break;
-          case 'linkedin':
-              // https://developer.linkedin.com/forum/url-params-sharearticle
-              share_gift.href = 'https://www.linkedin.com/shareArticle?url=' + encodeURIComponent(link);
-              break;
-          case 'pinterest':
-              // https://github.com/bradvin/social-share-urls
-              // https://pinterest.com/pin/create/bookmarklet/?media={img}&url={url}&is_video={is_video}&description={title}
-              var image = get_share_gift_image_url(gift_id) ;
-              // alert('pos = ' + pos + ', image = "' + image + '", description = "' + description + '"') ;
-              share_gift.href = 'https://pinterest.com/pin/create/bookmarklet/?url=' + encodeURIComponent(link) +
-                      '&media=' + encodeURIComponent(image) + '&description=' + encodeURIComponent(text);
-              break ;
-          case 'twitter':
-              // https://dev.twitter.com/docs/tweet-button
-              share_gift.href = 'https://twitter.com/share?url=' + encodeURIComponent(link) + '&text=' + encodeURIComponent(text);
-              break;
-          case 'vkontakte':
-              // http://vk.com/pages?oid=-17680044&p=Sharing_External_Pages
-              share_gift.href = 'http://vkontakte.ru/share.php?url=' + encodeURIComponent(link) ;
-              break ;
-          default:
-              share_gift.href = 'javascript: alert("Not implemented")';
-              return;
-      } // switch
-      share_gift.click();
+      if (['facebook'].indexOf(provider) != -1) share_gift.target = '' ;
+      alert('key = ' + key + ', href = ' + href) ;
+      share_gift.click() ;
+      return ;
   } // share_gift
 </script>
 

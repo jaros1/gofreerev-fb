@@ -437,7 +437,7 @@ class ApplicationController < ActionController::Base
   # that is social networks with a share link functionality
   private
   def valid_share_provider?(provider)
-    API_SHARE_NAME.has_key?(provider)
+    SHARE_GIFT_API_NAME.has_key?(provider)
   end
   helper_method 'valid_share_provider?'
 
