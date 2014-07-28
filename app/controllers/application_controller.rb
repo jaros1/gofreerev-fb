@@ -1236,7 +1236,7 @@ class ApplicationController < ActionController::Base
       api_gift = options[:api_gift]
       picture = options[:picture]
       # format message (direction + description + deep link) - only one text field message when posting on facebook
-      message_lng = API_MAX_TEXT_LENGTHS[provider]
+      message_lng = API_POST_MAX_TEXT_LENGTHS[provider]
       message, truncated = api_gift.get_wall_post_text_fields(false, [message_lng])
       logger.debug2 "message = #{message}"
       # post on wall with or without picture
@@ -1356,9 +1356,9 @@ class ApplicationController < ActionController::Base
       logger = options[:logger]
       picture = options[:picture]
       # format message (direction + description + deep link) - use title and description when posting on flickr
-      if API_MAX_TEXT_LENGTHS[:flickr]
-        title_lng = API_MAX_TEXT_LENGTHS[:flickr][:title]
-        description_lng = API_MAX_TEXT_LENGTHS[:flickr][:description]
+      if API_POST_MAX_TEXT_LENGTHS[:flickr]
+        title_lng = API_POST_MAX_TEXT_LENGTHS[:flickr][:title]
+        description_lng = API_POST_MAX_TEXT_LENGTHS[:flickr][:description]
       end
       title, description, truncated = api_gift.get_wall_post_text_fields false, [title_lng, description_lng]
       logger.debug2 "title = #{title}, description = #{description}"
@@ -1709,7 +1709,7 @@ class ApplicationController < ActionController::Base
       # max tweet length 140 characters
       # 23 characters is reserved for picture url if picture attachment
       # deep_link url is shortened to 23 characters in app. server is public available
-      tweet_lng = API_MAX_TEXT_LENGTHS[:twitter] - (picture ? 23 : 0)
+      tweet_lng = API_POST_MAX_TEXT_LENGTHS[:twitter] - (picture ? 23 : 0)
       tweet, truncated = api_gift.get_wall_post_text_fields(false,[tweet_lng])
       logger.debug2 "tweet = #{tweet}"
       # post tweet
@@ -1810,7 +1810,7 @@ class ApplicationController < ActionController::Base
       # todo: check from a smartphone
       wall = false
       # format message (direction + description + deep link) - only one text field caption when posting on vkontakte
-      caption_lng = API_MAX_TEXT_LENGTHS[:vkontakte]
+      caption_lng = API_POST_MAX_TEXT_LENGTHS[:vkontakte]
       caption, truncated = api_gift.get_wall_post_text_fields(false, [caption_lng])
       logger.debug2 "caption = #{caption}"
 

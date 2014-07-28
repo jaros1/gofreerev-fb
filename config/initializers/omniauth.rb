@@ -247,7 +247,7 @@ API_GIFT_PICTURE_STORE = {:fallback => nil,
 # open graph will in many cases have smaller lengths for title and description
 # it is up to each api_client.gofreerev_post_on_wall instance method how to use max text lengths
 # see ApiGift.get_wall_post_text_fields for details about text format- and splitting text when posting on api walls
-API_MAX_TEXT_LENGTHS = {:facebook => 47950, # guess after some tests - not 100% stable
+API_POST_MAX_TEXT_LENGTHS = {:facebook => 47950, # guess after some tests - not 100% stable
                         :flickr => {:title => 255, :description => nil, :tags => nil },
                         :foursquare => nil, # post allowed, but users do not have a wall like the other api's
                         :google_oauth2 => nil, # google+ is a readonly API
@@ -257,6 +257,31 @@ API_MAX_TEXT_LENGTHS = {:facebook => 47950, # guess after some tests - not 100% 
                         :reddit => 300,
                         :twitter => 140, # 24 chars used for deep link - 23 chars used for picture attachment
                         :vkontakte => 255}.with_indifferent_access
+
+# initialize SHARE_GIFT_MAX_TEXT_LENGTHS from API_POST_MAX_TEXT_LENGTHS
+# used in util_controller.share_gift and JS method get_share_gift_link for text truncation in share gift links
+share_gift_max_text_lengths = {}.with_indifferent_access
+API_POST_MAX_TEXT_LENGTHS.keys.each do |provider|
+  max_lng = nil
+  case
+    when provider == 'twitter'
+      # normal limit is 140 characters. But only 83 characters are allowed in twitter share link description
+      max_lng = API_POST_MAX_TEXT_LENGTHS[provider] - 57
+    when %w(google_oauth2 linkedin).index(provider)
+      # no text in share gift link
+      max_lng = -1
+    when (API_POST_MAX_TEXT_LENGTHS.has_key?(provider) and [NilClass, Fixnum].index(API_POST_MAX_TEXT_LENGTHS[provider].class))
+      # facebook, pinterest, vkontakte
+      max_lng = API_POST_MAX_TEXT_LENGTHS[provider]
+    else
+      # google+, linkedin: no text
+      nil
+  end # case
+  max_lng = 0 unless max_lng # no (known) max text length limit
+  share_gift_max_text_lengths[provider] = max_lng
+end
+SHARE_GIFT_MAX_TEXT_LENGTHS = share_gift_max_text_lengths
+
 
 # O) text to picture options - PhantomJS (http://phantomjs.org/) is required for this - use empty hash {} to disable.
 # note that PhantomJs required relative much memory and time to run and should maybe not run on a small computer

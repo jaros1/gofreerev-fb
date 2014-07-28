@@ -328,22 +328,19 @@ class ApiGift < ActiveRecord::Base
 
 
   # helpers for deep link - that is deep link from api wall to gift on gofreerev without login
-  def self.new_deep_link_id
+  def self.new_deep_link_id (provider)
     deep_link_id = nil
     loop do
       deep_link_id = String.generate_random_string(20)
+      deep_link_id.downcase! if provider == 'facebook'
       break unless ApiGift.find_by_deep_link_id(deep_link_id)
     end
     deep_link_id
   end
   def init_deep_link ()
-    self.deep_link_id = ApiGift.new_deep_link_id
+    self.deep_link_id = ApiGift.new_deep_link_id(provider)
     self.deep_link_pw = String.generate_random_string(10)
-    if %w(facebook).index(self.provider)
-      # facebook converts deep link url to lowercase letters in request when checking deep link
-      self.deep_link_id.downcase!
-      self.deep_link_pw = self.deep_link_pw.downcase # encrypted text. no downcase! method
-    end
+    self.deep_link_pw.downcase! if provider == 'facebook'
     self.deep_link_errors = 0
     self.save!
     "#{SITE_URL}#{I18n.locale}/gifts/#{self.deep_link_id}#{self.deep_link_pw}"

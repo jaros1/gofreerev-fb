@@ -119,11 +119,11 @@
 
 28) add share icons to api_gift (one icon for each api provider)
     OK for facebook, google+, linkedin, Pinterest, twitter and vkontakte.
-    todo:  add ajax spinner while fetching share url from server. Normally quick, but server is slow and small.
+    todo: add ajax spinner while fetching share url from server. Normally quick, but server is slow and small.
     todo: change error handling in get_share_gift_link. Do not use alert. Use ajax error table under gift links
-    todo: add ajax spinner when fetching deep link from server
-    todo: gifts/show with deep link - reuse deep link in new share without refetching deep link from db
     todo: check http://developer.sharethis.com/Web_Share_API
+    todo: remove max_lng parameter from share_gift(provider, gift_id, link, max_lng, extra)
+    todo: add try catch blocks in share_gift* methods to handle JS exceptions
 
 29) deal proposal and changed friend relations
     cancel deal proposal when friends are removed

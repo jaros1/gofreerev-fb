@@ -1,6 +1,7 @@
 // some global JS variables - see app layout and shared/show_more_rows partial
 // var debug_ajax, get_more_rows_interval, get_more_rows_table ;
 
+
 // allow running ajax to complete before leaving page / executing new http request
 // http://stackoverflow.com/questions/1906023/jquery-ajaxerror-handler-fires-if-user-leaves-page-before-page-finishes-loadin
 // todo: this solution gives a nice message when user clicks on a http link (leaving page). It could be nice with a solution that also gives a nice message for ajax request (not leaving page).
@@ -2398,6 +2399,129 @@ function update_language(self) {
     add2log('new href = ' + href) ;
     window.location.href = href ;
 } // update_language
+
+
+//
+// methods for share gift LOV - client side share link - to omniauth providers and and other providers with share link functionality
+//
+
+// get deep link for share gift from server
+// returns ajax error message or calls share_gift
+function get_share_gift_link (self) {
+    var pgm = 'get_share_gift_link: ' ;
+    if (self.value == '') return ;
+    var provider = self.value ;
+    // alert('self.value = ' + self.value + ', self.id = ' + self.id) ;
+    var gift_id = self.id.split('_')[2] ;
+    // check if information for share gift link already is available in page
+    // (deep link in url and provider without "extra" information
+    var link = window.location.href ;
+    if (link.match(/\/gifts\/[a-zA-Z0-9]{30}$/) && (['twitter'].indexOf(provider) == -1)) {
+        // all information for share gift link is in current page - skip ajax request to server
+        var max_lng = SHARE_GIFT_MAX_TEXT_LENGTHS[provider] ;
+        if (max_lng === undefined) max_lng = 0 ;
+        var extra = '' ;
+        if (provider == 'facebook') extra = $("meta[property='fb:app_id']").attr("content");
+        share_gift(provider, gift_id, link, max_lng, extra);
+        return ;
+    }
+    // send share gift request to server. Returns link or an error message
+    $.ajax({
+        url: "/util/share_gift.js",
+        type: "POST",
+        dataType: 'script',
+        data: { provider: provider, gift_id: gift_id },
+        error: function (jqxhr, textStatus, errorThrown) {
+            if (leaving_page) return ;
+            var pgm = pgm + '.error: ' ;
+            var err = add2log_ajax_error('share_gift.ajax.error: ', jqxhr, textStatus, errorThrown) ;
+            alert(err);
+            // add_to_tasks_errors(I18n.t('js.missing_api_picture_urls.ajax_error', {error: err, location: 7, debug: 0})) ;
+        }
+    });
+} // get_share_gift_link
+
+// get text/description for share gift link from gifts/index page
+function get_share_gift_text (gift_id) {
+    var div_id = "gift-" + gift_id + "-overflow-text" ;
+    var div = document.getElementById(div_id) ;
+    var text ;
+    if (div) {
+        text = div.innerHTML ;
+        var pos = text.indexOf('</a>','\n') ;
+        text = text.substr(pos+4) ;
+    }
+    else text = document.title ;
+    text = text.trim().substr(2) ; // remove :
+    text = text.replace(/\s*<br>\s*/g,'\n') ; // replace <br> with newline
+    return text ;
+} // get_gift_text
+
+// get image for share gift link from gifts/index page
+function get_share_gift_image_url(gift_id) {
+    var image_id = "gift-" + gift_id + "-image";
+    var image = document.getElementById(image_id);
+    var image_url;
+    if (image) image_url = image.src;
+    else image_url = '/images/sacred-economics.jpg';
+    if (image_url.substr(0,1) == '/') {
+        // add protocol and domain to image url
+        var url = window.location.href ;
+        var url_a = url.split('/') ;
+        var domain = url_a[0] + '//' + url_a[2] ;
+        image_url = domain + image_url ;
+    }
+    return image_url ;
+} // get_share_gift_image_url
+
+// callback for share gift / get_share_gift_link
+function share_gift(provider, gift_id, link, max_lng, extra) {
+    var pgm = 'share_gift: ';
+    // alert(pgm + 'provider = ' + provider + ', gift_id = ' + gift_id + ', link = ' + link + ', extra = ' + extra) ;
+    var share_gift = document.getElementById('share_gift');
+    if (!share_gift) return; // share gift link was not found
+    share_gift.target = '_blank';
+    // make share gift link. Use I18n.t. Setup translation
+    // todo: tumblr - split text in name and description (https://www.tumblr.com/share/link?url=%{link}&name=%{name}&description=%{description}
+    var key, text, api_id, redirect_url, image, href ;
+    key = 'js.share_gift.' + provider ;
+    if (provider == 'twitter') text = extra ; // special server side text truncation (preserve tags)
+    else if (max_lng == -1) text = '' ; // text not used
+    else {
+        text = get_share_gift_text(gift_id) ;
+        if ((max_lng > 0) && (text.length > max_lng)) text = text.substr(0, max_lng) ;
+    }
+    // api_id - only facebook
+    if (['facebook'].indexOf(provider) != -1) api_id = extra ;
+    // redirect_url - only facebook
+    if (['facebook'].indexOf(provider) != -1) {
+        redirect_uri = window.location.href ;
+        var pos = redirect_uri.indexOf('?') ;
+        if (pos != -1) redirect_uri = redirect_uri.substr(0,pos) ;
+        redirect_uri = redirect_uri + '?share_gift=facebook' ;
+    }
+    // image - only pinterest
+    if (['pinterest'].indexOf(provider) != -1) image = get_share_gift_image_url(gift_id) ;
+    // translate
+    href = I18n.t(key, {link        : encodeURIComponent(link),
+        text        : encodeURIComponent(text),
+        api_id      : encodeURIComponent(api_id),
+        redirect_url: encodeURIComponent(redirect_url),
+        image       : encodeURIComponent(image),
+        locale      : "en"}) ;
+    // check translation
+    if (!href.match(/^https?:\/\//)) {
+        alert(href) ;
+        return ;
+    }
+    share_gift.href = href ;
+    share_gift.target = '_blank';
+    if (['facebook'].indexOf(provider) != -1) share_gift.target = '' ;
+    // alert('key = ' + key + ', href = ' + href) ;
+    share_gift.click() ;
+    return ;
+} // share_gift
+
 
 
 

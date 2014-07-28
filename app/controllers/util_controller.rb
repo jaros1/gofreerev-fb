@@ -2829,20 +2829,21 @@ class UtilController < ApplicationController
       ag.init_deep_link unless ag.deep_link
       ag.provider = provider # share gift provider
       # find set max length for text/description in share gift link. -1: no text, 0: no limit
-      case
-        when provider == 'twitter'
-          # normal limit is 140 characters. But only 83 characters are allowed in twitter share link description
-          max_lng = API_MAX_TEXT_LENGTHS[provider] - 57
-        when %w(google_oauth2 linkedin).index(provider)
-          # no text in share gift link
-          max_lng = -1
-        when (API_MAX_TEXT_LENGTHS.has_key?(provider) and [NilClass, Fixnum].index(API_MAX_TEXT_LENGTHS[provider].class))
-          # facebook, pinterest, vkontakte
-          max_lng = API_MAX_TEXT_LENGTHS[provider]
-        else
-          # google+, linkedin: no text
-          nil
-      end # case
+      # case
+      #   when provider == 'twitter'
+      #     # normal limit is 140 characters. But only 83 characters are allowed in twitter share link description
+      #     max_lng = API_POST_MAX_TEXT_LENGTHS[provider] - 57
+      #   when %w(google_oauth2 linkedin).index(provider)
+      #     # no text in share gift link
+      #     max_lng = -1
+      #   when (API_POST_MAX_TEXT_LENGTHS.has_key?(provider) and [NilClass, Fixnum].index(API_POST_MAX_TEXT_LENGTHS[provider].class))
+      #     # facebook, pinterest, vkontakte
+      #     max_lng = API_POST_MAX_TEXT_LENGTHS[provider]
+      #   else
+      #     # google+, linkedin: no text
+      #     nil
+      # end # case
+      max_lng = SHARE_GIFT_MAX_TEXT_LENGTHS[provider]
       max_lng = 0 unless max_lng # no (known) max text length limit
       # extra params. used for provider specific params in share gift link
       extra = case provider
