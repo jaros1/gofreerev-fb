@@ -2483,7 +2483,7 @@ function share_gift(provider, gift_id, link, max_lng, extra) {
     share_gift.target = '_blank';
     // make share gift link. Use I18n.t. Setup translation
     // todo: tumblr - split text in name and description (https://www.tumblr.com/share/link?url=%{link}&name=%{name}&description=%{description}
-    var key, text, api_id, redirect_url, image, href ;
+    var key, text, app_id, redirect_uri, image, href ;
     key = 'js.share_gift.' + provider ;
     if (provider == 'twitter') text = extra ; // special server side text truncation (preserve tags)
     else if (max_lng == -1) text = '' ; // text not used
@@ -2491,9 +2491,9 @@ function share_gift(provider, gift_id, link, max_lng, extra) {
         text = get_share_gift_text(gift_id) ;
         if ((max_lng > 0) && (text.length > max_lng)) text = text.substr(0, max_lng) ;
     }
-    // api_id - only facebook
-    if (['facebook'].indexOf(provider) != -1) api_id = extra ;
-    // redirect_url - only facebook
+    // app_id - only facebook
+    if (['facebook'].indexOf(provider) != -1) app_id = extra ;
+    // redirect_uri - only facebook
     if (['facebook'].indexOf(provider) != -1) {
         redirect_uri = window.location.href ;
         var pos = redirect_uri.indexOf('?') ;
@@ -2505,8 +2505,8 @@ function share_gift(provider, gift_id, link, max_lng, extra) {
     // translate
     href = I18n.t(key, {link        : encodeURIComponent(link),
         text        : encodeURIComponent(text),
-        api_id      : encodeURIComponent(api_id),
-        redirect_url: encodeURIComponent(redirect_url),
+        app_id      : encodeURIComponent(app_id),
+        redirect_uri: encodeURIComponent(redirect_uri),
         image       : encodeURIComponent(image),
         locale      : "en"}) ;
     // check translation

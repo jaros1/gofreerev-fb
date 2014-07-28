@@ -2875,6 +2875,10 @@ class UtilController < ApplicationController
       logger.debug2 "link     = #{@api_gift.deep_link}"
       logger.debug2 "max_lng  = #{@max_lng}"
       logger.debug2 "extra    = '#{@extra}'"
+      # share_gift: gift_id  = 342
+      # share_gift: link     = https://dev1.gofreerev.com/en/gifts/v5pudlxfcswd1jkmtksthvodpvwn8i
+      # share_gift: max_lng  = 47950
+      # share_gift: extra    = '193177257554775'
 
       # ok - redirect to share link page in new tab
       format_response
