@@ -1018,12 +1018,14 @@ en:
         ajax_error: "Error when changing \"Share accounts?\" choice. %{error}. More information in server log."
      share_gift:
         buffer: "https://bufferapp.com/add?text=%{text}&url=%{link}"
+        delicious: "https://delicious.com/save?v=5&noui&jump=close&url=%{link}&title=%{text}"
         digg: "https://digg.com/submit?url=%{link}&title=%{text}"
         facebook: "https://www.facebook.com/dialog/share?app_id=%{app_id}&display=popup&href=%{link}&redirect_uri=%{redirect_uri}"
         google_oauth2: "https://plus.google.com/share?url=%{link}"
         linkedin: "https://www.linkedin.com/shareArticle?url=%{link}"
         pinterest: "https://pinterest.com/pin/create/bookmarklet/?url=%{link}&media=%{image}&description=%{text}"
-        reddit: "http://reddit.com/submit?url=%{link}&title=%{text}"
+        reddit: "https://reddit.com/submit?url=%{link}&title=%{text}"
+        stumbleupon: "https://www.stumbleupon.com/submit?url=%{link}&title=%{text}"
         tumblr: "https://www.tumblr.com/share/link?url=%{link}&name=%{text}&description=%{text}" # todo: split text in name and description
         twitter: "https://twitter.com/share?url=%{link}&text=%{text}"
         vkontakte': "https://vkontakte.ru/share.php?url=%{link}"

@@ -209,12 +209,14 @@ API_CAMELIZE_NAME = {:facebook => 'Facebook',
 # here as there are some overlap between omniauth providers and API's with share link functionality
 # share gift links are inserted under js.share_gift.* in /config/locales files
 SHARE_GIFT_API_NAME = {:buffer => 'Buffer',
+                       :delicious => 'Delicious',
                        :digg => 'Digg',
                        :facebook => API_CAMELIZE_NAME[:facebook],
                        :google_oauth2 => API_CAMELIZE_NAME[:google_oauth2],
                        :linkedin => API_CAMELIZE_NAME[:linkedin],
                        :pinterest => 'Pinterest',
                        :reddit => 'Reddit',
+                       :stumbleupon => 'Stumble',
                        :tumblr => 'Tumblr',
                        :twitter => API_CAMELIZE_NAME[:twitter],
                        :vkontakte => API_CAMELIZE_NAME[:vkontakte]}.with_indifferent_access
@@ -252,6 +254,7 @@ API_MAX_TEXT_LENGTHS = {:facebook => 47950, # guess after some tests - not 100% 
                         :instagram => nil, # instagram is a readonly API
                         :linkedin => { :title => 200, :description => 256, :comment => 700 }, # see API_OG_* hashes
                         :pinterest => 500,
+                        :reddit => 300,
                         :twitter => 140, # 24 chars used for deep link - 23 chars used for picture attachment
                         :vkontakte => 255}.with_indifferent_access
 
