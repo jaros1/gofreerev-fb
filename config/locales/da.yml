@@ -1024,14 +1024,20 @@ da:
         missing_translation: "Systemfejl. Kan ikke dele opslag. Link definition mangler for %{provider}."
         js_error: "Kan ikke dele opslag. Javascript fejl. %{error} (%{location},%{debug})."
         ajax_error: "Kan ikke dele opslag på %{provider}. \"%{error}\". Mere information i server log."
-        href_buffer: # href_* keys. See /config/locales/en.yml
+        href_appnet: # href_* keys. See /config/locales/en.yml
+        href_arto:
+        href_blogger:
+        href_buffer:
         href_delicious:
         href_digg:
         href_facebook:
         href_google_oauth2:
         href_linkedin:
+        href_myspace:
+        href_odnoklassniki:
         href_pinterest:
         href_reddit:
+        href_sonico:
         href_stumbleupon:
         href_tumblr:
         href_twitter:
