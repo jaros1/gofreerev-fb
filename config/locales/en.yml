@@ -1031,6 +1031,7 @@ en:
         href_google_oauth2: "https://plus.google.com/share?url=%{link}"
         href_linkedin: "https://www.linkedin.com/shareArticle?url=%{link}"
         href_myspace: "https://myspace.com/post?u=%{link}&t=%{text}"
+        href_odnoklassniki: "http://www.odnoklassniki.ru/?st.cmd=addShare&st.s=1&st._surl=%{link}"
         href_pinterest: "https://pinterest.com/pin/create/bookmarklet/?url=%{link}&media=%{image}&description=%{text}"
         href_reddit: "https://reddit.com/submit?url=%{link}&title=%{text}"
         href_sonico: "https://www.sonico.com/share.php?url=%{link}/&title=%{text}"

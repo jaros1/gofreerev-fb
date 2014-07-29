@@ -206,9 +206,12 @@ API_CAMELIZE_NAME = {:facebook => 'Facebook',
                      :vkontakte => 'VKontakte'}.with_indifferent_access
 
 # List of social networking with share link functionality. Not identical with omniauth providers, but hash is defined
-# here as there are some overlap between omniauth providers and API's with share link functionality
+# there are some overlap between providers with omniauth and providers with share link functionality
 # share gift links are inserted under js.share_gift.* in /config/locales files
 # comment/uncomment to add/remove API from share gift LOV
+# list of web sites with share link functionality:
+# - http://en.wikipedia.org/wiki/List_of_social_bookmarking_websites
+# - http://sharethis.com/publishers/services-directory#sthash.GggjPVYk.dpbs
 SHARE_GIFT_API_NAME = {:appnet => 'App.net',
                        :arto => 'Arto',
                        :blogger => 'Blogger',
@@ -219,6 +222,7 @@ SHARE_GIFT_API_NAME = {:appnet => 'App.net',
                        :google_oauth2 => API_CAMELIZE_NAME[:google_oauth2],
                        :linkedin => API_CAMELIZE_NAME[:linkedin],
                        :myspace => 'MySpace',
+                       # :odnoklassniki => 'Odnoklassniki', # name too long for LOV
                        :pinterest => 'Pinterest',
                        :reddit => 'Reddit',
                        :sonico => 'Sonico',
