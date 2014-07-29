@@ -208,7 +208,10 @@ API_CAMELIZE_NAME = {:facebook => 'Facebook',
 # List of social networking with share link functionality. Not identical with omniauth providers, but hash is defined
 # here as there are some overlap between omniauth providers and API's with share link functionality
 # share gift links are inserted under js.share_gift.* in /config/locales files
-SHARE_GIFT_API_NAME = {:blogger => 'Blogger',
+# comment/uncomment to add/remove API from share gift LOV
+SHARE_GIFT_API_NAME = {:appnet => 'App.net',
+                       :arto => 'Arto',
+                       :blogger => 'Blogger',
                        :buffer => 'Buffer',
                        :delicious => 'Delicious',
                        :digg => 'Digg',
@@ -218,6 +221,7 @@ SHARE_GIFT_API_NAME = {:blogger => 'Blogger',
                        :myspace => 'MySpace',
                        :pinterest => 'Pinterest',
                        :reddit => 'Reddit',
+                       :sonico => 'Sonico',
                        :stumbleupon => 'Stumble',
                        :tumblr => 'Tumblr',
                        :twitter => API_CAMELIZE_NAME[:twitter],
@@ -249,16 +253,17 @@ API_GIFT_PICTURE_STORE = {:fallback => nil,
 # open graph will in many cases have smaller lengths for title and description
 # it is up to each api_client.gofreerev_post_on_wall instance method how to use max text lengths
 # see ApiGift.get_wall_post_text_fields for details about text format- and splitting text when posting on api walls
-API_POST_MAX_TEXT_LENGTHS = {:facebook => 47950, # guess after some tests - not 100% stable
-                        :flickr => {:title => 255, :description => nil, :tags => nil },
-                        :foursquare => nil, # post allowed, but users do not have a wall like the other api's
-                        :google_oauth2 => nil, # google+ is a readonly API
-                        :instagram => nil, # instagram is a readonly API
-                        :linkedin => { :title => 200, :description => 256, :comment => 700 }, # see API_OG_* hashes
-                        :pinterest => 500,
-                        :reddit => 300,
-                        :twitter => 140, # 24 chars used for deep link - 23 chars used for picture attachment
-                        :vkontakte => 255}.with_indifferent_access
+API_POST_MAX_TEXT_LENGTHS = {:appnet => 256,
+                             :facebook => 47950, # guess after some tests - not 100% stable
+                             :flickr => {:title => 255, :description => nil, :tags => nil},
+                             :foursquare => nil, # post allowed, but users do not have a wall like the other api's
+                             :google_oauth2 => nil, # google+ is a readonly API
+                             :instagram => nil, # instagram is a readonly API
+                             :linkedin => {:title => 200, :description => 256, :comment => 700}, # see API_OG_* hashes
+                             :pinterest => 500,
+                             :reddit => 300,
+                             :twitter => 140, # 24 chars used for deep link - 23 chars used for picture attachment
+                             :vkontakte => 255}.with_indifferent_access
 
 # initialize SHARE_GIFT_MAX_TEXT_LENGTHS from API_POST_MAX_TEXT_LENGTHS
 # used in util_controller.share_gift and JS method get_share_gift_link for text truncation in share gift links

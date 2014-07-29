@@ -716,4 +716,8 @@
 
 158) add better html title for gifts. Special important for shared gifts with deep link where html title maybe is used on API's
 
-select random issue: (rand*157).floor+1
+159) add app.net as login provider.
+     https://github.com/phuu/omniauth-appnet
+     https://developers.app.net/reference/resources/app-stream/lifecycle/
+
+select random issue: (rand*159).floor+1
