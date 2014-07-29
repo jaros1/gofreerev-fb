@@ -208,12 +208,14 @@ API_CAMELIZE_NAME = {:facebook => 'Facebook',
 # List of social networking with share link functionality. Not identical with omniauth providers, but hash is defined
 # here as there are some overlap between omniauth providers and API's with share link functionality
 # share gift links are inserted under js.share_gift.* in /config/locales files
-SHARE_GIFT_API_NAME = {:buffer => 'Buffer',
+SHARE_GIFT_API_NAME = {:blogger => 'Blogger',
+                       :buffer => 'Buffer',
                        :delicious => 'Delicious',
                        :digg => 'Digg',
                        :facebook => API_CAMELIZE_NAME[:facebook],
                        :google_oauth2 => API_CAMELIZE_NAME[:google_oauth2],
                        :linkedin => API_CAMELIZE_NAME[:linkedin],
+                       :myspace => 'MySpace',
                        :pinterest => 'Pinterest',
                        :reddit => 'Reddit',
                        :stumbleupon => 'Stumble',
