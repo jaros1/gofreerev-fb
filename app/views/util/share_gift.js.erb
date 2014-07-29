@@ -3,8 +3,7 @@
     var provider = '<%= @api_gift.provider %>' ;
     var gift_id = '<%= @api_gift.gift.id %>' ;
     var link = '<%= @api_gift.deep_link %>' ;
-    var max_lng = <%= @max_lng %> ;
     var extra = '<%= @extra %>' ; // provider specific parameters (facebook: app_id, twitter: truncated tweet etc)
-    share_gift(provider, gift_id, link, max_lng, extra) ;
+    share_gift(provider, gift_id, link, extra) ;
 })();
 <% end -%>

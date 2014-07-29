@@ -2401,44 +2401,76 @@ function update_language(self) {
 } // update_language
 
 
+
 //
-// methods for share gift LOV - client side share link - to omniauth providers and and other providers with share link functionality
+// methods for share gift LOV - client side share link - omniauth providers and other providers with share link functionality
+//
+// setup:
+// 1) add share link provider to ruby hash constant SHARE_GIFT_API_NAME        (config/initializers/omniauth.rb)
+// 2) add any max text length to ruby hash constant API_POST_MAX_TEXT_LENGTHS  (config/initializers/omniauth.rb)
+// 3) check API_POST_MAX_TEXT_LENGTHS => SHARE_GIFT_MAX_TEXT_LENGTHS ruby code (config/initializers/omniauth.rb)
+// 4) add share gift link to translation key en.js.share_gift.href_<provider>  (conig/locales/en.yml)
+// 5) check "extra" information in util_controller.share_gift and JS methods get_share_gift_link and share_gift
+// 6) test
 //
 
 // get deep link for share gift from server
 // returns ajax error message or calls share_gift
 function get_share_gift_link (self) {
     var pgm = 'get_share_gift_link: ' ;
-    if (self.value == '') return ;
-    var provider = self.value ;
-    // alert('self.value = ' + self.value + ', self.id = ' + self.id) ;
-    var gift_id = self.id.split('_')[2] ;
-    // check if information for share gift link already is available in page
-    // (deep link in url and provider without "extra" information
-    var link = window.location.href ;
-    if (link.match(/\/gifts\/[a-zA-Z0-9]{30}$/) && (['twitter'].indexOf(provider) == -1)) {
-        // all information for share gift link is in current page - skip ajax request to server
-        var max_lng = SHARE_GIFT_MAX_TEXT_LENGTHS[provider] ;
-        if (max_lng === undefined) max_lng = 0 ;
-        var extra = '' ;
-        if (provider == 'facebook') extra = $("meta[property='fb:app_id']").attr("content");
-        share_gift(provider, gift_id, link, max_lng, extra);
-        return ;
-    }
-    // send share gift request to server. Returns link or an error message
-    $.ajax({
-        url: "/util/share_gift.js",
-        type: "POST",
-        dataType: 'script',
-        data: { provider: provider, gift_id: gift_id },
-        error: function (jqxhr, textStatus, errorThrown) {
-            if (leaving_page) return ;
-            var pgm = pgm + '.error: ' ;
-            var err = add2log_ajax_error('share_gift.ajax.error: ', jqxhr, textStatus, errorThrown) ;
-            alert(err);
-            // add_to_tasks_errors(I18n.t('js.missing_api_picture_urls.ajax_error', {error: err, location: 7, debug: 0})) ;
+    var debug = 0 ;
+    var table_id = 'task_errors' ;
+    try {
+        debug = 1 ;
+        if (self.value == '') return;
+        var provider = self.value;
+        // alert('self.value = ' + self.value + ', self.id = ' + self.id) ;
+        debug = 2 ;
+        // id format share_gift_<gift_id>
+        if (!self.id || !self.id.match(/^share_gift_\d+$/)) {
+            // id missing or invalid. id format must be ....
+            add_to_tasks_errors(I18n.t('js.share_gift.invalid_id', {location: 21, debug: debug})) ;
+            return ;
         }
-    });
+        var gift_id = self.id.split('_')[2]; // id format share_gift_<gift_id>
+        table_id = 'gift-' + gift_id + '-links-errors' ;
+        // check if information for share gift link already is available in page
+        // (deep link in url and provider without "extra" information
+        var link = window.location.href;
+        var pos = link.indexOf('?');
+        if (pos != -1) link = link.substr(0, pos); // strip query string
+        debug = 3 ;
+        if (link.match(/\/gifts\/[a-zA-Z0-9]{30}$/) && (['twitter'].indexOf(provider) == -1)) {
+            // all information for share gift link is in current page - skip ajax request to server
+            var extra = '';
+            debug = 4 ;
+            if (provider == 'facebook') extra = $("meta[property='fb:app_id']").attr("content");
+            debug = 5 ;
+            share_gift(provider, gift_id, link, extra);
+            return;
+        }
+        // send share gift request to server. Returns link or an error message
+        debug = 6
+        clear_ajax_errors(table_id) ;
+        $.ajax({
+            url: "/util/share_gift.js",
+            type: "POST",
+            dataType: 'script',
+            data: { provider: provider, gift_id: gift_id },
+            error: function (jqxhr, textStatus, errorThrown) {
+                debug = 7 ;
+                if (leaving_page) return;
+                var pgm = pgm + '.error: ';
+                var err = add2log_ajax_error('share_gift.ajax.error: ', jqxhr, textStatus, errorThrown);
+                // inject ajax error message in page header
+                add_to_tasks_errors3(table_id, I18n.t('js.share_gift.ajax_error', {error: err, location: 21, provider: provider, debug: debug})) ;
+            }
+        });
+    }
+    catch (err) {
+        add2log(pgm + 'failed with JS error: ' + err) ;
+        add_to_tasks_errors3(table_id, I18n.t('js.share_gift.js_error', {error: err, location: 20, debug: debug})) ;
+    }
 } // get_share_gift_link
 
 // get text/description for share gift link from gifts/index page
@@ -2475,53 +2507,75 @@ function get_share_gift_image_url(gift_id) {
 } // get_share_gift_image_url
 
 // callback for share gift / get_share_gift_link
-function share_gift(provider, gift_id, link, max_lng, extra) {
+function share_gift(provider, gift_id, link, extra) {
     var pgm = 'share_gift: ';
-    // alert(pgm + 'provider = ' + provider + ', gift_id = ' + gift_id + ', link = ' + link + ', extra = ' + extra) ;
-    var share_gift = document.getElementById('share_gift');
-    if (!share_gift) return; // share gift link was not found
-    share_gift.target = '_blank';
-    // make share gift link. Use I18n.t. Setup translation
-    // todo: tumblr - split text in name and description (https://www.tumblr.com/share/link?url=%{link}&name=%{name}&description=%{description}
-    var key, text, app_id, redirect_uri, image, href ;
-    key = 'js.share_gift.' + provider ;
-    if (provider == 'twitter') text = extra ; // special server side text truncation (preserve tags)
-    else if (max_lng == -1) text = '' ; // text not used
-    else {
-        text = get_share_gift_text(gift_id) ;
-        if ((max_lng > 0) && (text.length > max_lng)) text = text.substr(0, max_lng) ;
+    var debug = 0 ;
+    var table_id = 'gift-' + gift_id + '-links-errors' ;
+    try {
+        // alert(pgm + 'provider = ' + provider + ', gift_id = ' + gift_id + ', link = ' + link + ', extra = ' + extra) ;
+        debug = 1 ;
+        var share_gift = document.getElementById('share_gift');
+        if (!share_gift) return; // share gift link was not found
+        debug = 2 ;
+        var max_lng = SHARE_GIFT_MAX_TEXT_LENGTHS[provider] ;
+        if (max_lng === undefined) max_lng = 0 ;
+        debug = 3 ;
+        if (!gift_id || !('' + gift_id).match(/^\d+$/)) {
+            add_to_tasks_errors(I18n.t('js.share_gift.invalid_id', {location: 23, debug: debug})) ;
+            return ;
+        }
+        // todo: tumblr - split text in name and description (https://www.tumblr.com/share/link?url=%{link}&name=%{name}&description=%{description}
+        // make share gift link. Setup I18n.t translation
+        debug = 4 ;
+        var key, text, app_id, redirect_uri, image, href ;
+        key = 'js.share_gift.href_' + provider ;
+        if (provider == 'twitter') text = extra ; // special server side text truncation (preserve tags)
+        else if (max_lng == -1) text = '' ; // text not used
+        else {
+            text = get_share_gift_text(gift_id) ;
+            if ((max_lng > 0) && (text.length > max_lng)) text = text.substr(0, max_lng) ;
+        }
+        // app_id - only facebook
+        debug = 5 ;
+        if (['facebook'].indexOf(provider) != -1) app_id = extra ;
+        // redirect_uri - only facebook
+        if (['facebook'].indexOf(provider) != -1) {
+            redirect_uri = window.location.href ;
+            var pos = redirect_uri.indexOf('?') ;
+            if (pos != -1) redirect_uri = redirect_uri.substr(0,pos) ;
+            redirect_uri = redirect_uri + '?share_gift=facebook' ;
+        }
+        // image - only pinterest
+        debug = 6 ;
+        if (['pinterest'].indexOf(provider) != -1) image = get_share_gift_image_url(gift_id) ;
+        // translate
+        debug = 7 ;
+        href = I18n.t(key, {link        : encodeURIComponent(link),
+            text        : encodeURIComponent(text),
+            app_id      : encodeURIComponent(app_id),
+            redirect_uri: encodeURIComponent(redirect_uri),
+            image       : encodeURIComponent(image),
+            locale      : "en"}) ; // always english when translation href_<provider> key
+        // check translation
+        debug = 8 ;
+        if (!href.match(/^https?:\/\//)) {
+            add_to_tasks_errors3(table_id, I18n.t('js.share_gift.missing_translation', {provider: provider, location: 23, debug: debug})) ;
+            return ;
+        }
+        // link ready
+        debug = 9 ;
+        share_gift.href = href ;
+        share_gift.target = '_blank';
+        if (['facebook'].indexOf(provider) != -1) share_gift.target = '' ;
+        // alert('key = ' + key + ', href = ' + href) ;
+        debug = 10 ;
+        share_gift.click() ;
     }
-    // app_id - only facebook
-    if (['facebook'].indexOf(provider) != -1) app_id = extra ;
-    // redirect_uri - only facebook
-    if (['facebook'].indexOf(provider) != -1) {
-        redirect_uri = window.location.href ;
-        var pos = redirect_uri.indexOf('?') ;
-        if (pos != -1) redirect_uri = redirect_uri.substr(0,pos) ;
-        redirect_uri = redirect_uri + '?share_gift=facebook' ;
+    catch (err) {
+        add2log(pgm + 'failed with JS error: ' + err) ;
+        add_to_tasks_errors3(table_id, I18n.t('js.share_gift.js_error', {error: err, location: 22, debug: debug})) ;
     }
-    // image - only pinterest
-    if (['pinterest'].indexOf(provider) != -1) image = get_share_gift_image_url(gift_id) ;
-    // translate
-    href = I18n.t(key, {link        : encodeURIComponent(link),
-        text        : encodeURIComponent(text),
-        app_id      : encodeURIComponent(app_id),
-        redirect_uri: encodeURIComponent(redirect_uri),
-        image       : encodeURIComponent(image),
-        locale      : "en"}) ;
-    // check translation
-    if (!href.match(/^https?:\/\//)) {
-        alert(href) ;
-        return ;
-    }
-    share_gift.href = href ;
-    share_gift.target = '_blank';
-    if (['facebook'].indexOf(provider) != -1) share_gift.target = '' ;
-    // alert('key = ' + key + ', href = ' + href) ;
-    share_gift.click() ;
-    return ;
 } // share_gift
-
 
 
 

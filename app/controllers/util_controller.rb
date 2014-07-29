@@ -2843,8 +2843,6 @@ class UtilController < ApplicationController
       #     # google+, linkedin: no text
       #     nil
       # end # case
-      max_lng = SHARE_GIFT_MAX_TEXT_LENGTHS[provider]
-      max_lng = 0 unless max_lng # no (known) max text length limit
       # extra params. used for provider specific params in share gift link
       extra = case provider
                   when 'facebook'
@@ -2868,12 +2866,10 @@ class UtilController < ApplicationController
               end
       # call JS method share_gift(provider, gift_id, link, max_lng, extra)
       @api_gift = ag
-      @max_lng = max_lng
       @extra = extra
       logger.debug2 "provider = #{@api_gift.provider}"
       logger.debug2 "gift_id  = #{@api_gift.gift.id}"
       logger.debug2 "link     = #{@api_gift.deep_link}"
-      logger.debug2 "max_lng  = #{@max_lng}"
       logger.debug2 "extra    = '#{@extra}'"
       # share_gift: gift_id  = 342
       # share_gift: link     = https://dev1.gofreerev.com/en/gifts/v5pudlxfcswd1jkmtksthvodpvwn8i

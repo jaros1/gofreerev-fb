@@ -385,6 +385,7 @@ da:
         unlike_gift: "Synes ikke længere om"
         follow_gift: "Følg opslag"
         unfollow_gift: "Følg ikke længere"
+        share_lov_text: "Del på:"
         enter_comment: "Skriv en kommentar..."
         new_deal_check_box_prompt: "Foreslå aftale"
         price_prompt: "Pris"
@@ -952,6 +953,15 @@ da:
         no_expires_at: "Systemfejl. Kan ikke ændre \"Saml konti?\" valg. Tidsstempel for udløb af adgangsbillet blev ikke fundet for %{apiname}."
         reconnect_required: "Sikkerhedsproblem. Fælles login pt. ikke mulige for %{apinames}. Nyt log ind er påkrævet. Log ud og Log ind igen for %{apinames} og vælg dernæst igen fælles login."
         exception: "Systemfejl. Kunne ikke ændre \"Saml konti?\" valg. %{error}. Mere information i server log."
+     share_gift:
+        no_gift_id: "Systemfejl. Ugyldigt kald. Opslag id mangler."
+        invalid_gift_id: "Systemfejl. Ugyldigt kald. Opslag id er ugyldig."
+        unknown_gift_id: "Kan ikke dele opslag. Ukendt eller slettet opslag. Opdater venligst siden."
+        not_logged_in: "Kan ikke dele opslag. Du er ikke logget ind. Opdater venligst siden."
+        no_provider: "Systemfejl. Ugyldigt kald. Navn på \"del link\" udbyder mangler"
+        unknown_provider: "Systemfejl. Ugyldigt kald. Ukendt \"del link\" udbyder."
+        not_allowed: "Du har desværre ikke adgang til at dele dette opslag. Opdater venligst siden."
+        exception: "Systemfejl. Kan ikke dele opslag. %{error}. Mere information i server log."
 
   # translation keys used in javascript (error) messages
   js:
@@ -1010,6 +1020,10 @@ da:
         lov_not_found: "Systemfejl ved ændring af \"Saml konti?\" valg. Element share_level_lov blev ikke fundet."
         ajax_error: "Fejl ved ændring af \"Saml konti?\" valg. %{error}. Mere information i server log."
      share_gift: # href_* keys. See /config/locales/en.yml
+        invalid_id: "Systemfejl. Kan ikke dele opslag. Ugyldig id for LOV."
+        missing_translation: "Systemfejl. Kan ikke dele opslag. Link definition mangler for %{provider}."
+        js_error: "Kan ikke dele opslag. Javascript fejl. %{error} (%{location},%{debug})."
+        ajax_error: "Kan ikke dele opslag på %{provider}. \"%{error}\". Mere information i server log."
         href_buffer:
         href_delicious:
         href_digg:

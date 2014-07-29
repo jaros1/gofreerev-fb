@@ -118,12 +118,10 @@
     http://stackoverflow.com/questions/2695020/how-can-i-use-ruby-to-check-if-a-domain-exists
 
 28) add share icons to api_gift (one icon for each api provider)
-    OK for facebook, google+, linkedin, Pinterest, twitter and vkontakte.
     todo: add ajax spinner while fetching share url from server. Normally quick, but server is slow and small.
-    todo: change error handling in get_share_gift_link. Do not use alert. Use ajax error table under gift links
     todo: check http://developer.sharethis.com/Web_Share_API
-    todo: remove max_lng parameter from share_gift(provider, gift_id, link, max_lng, extra)
-    todo: add try catch blocks in share_gift* methods to handle JS exceptions
+    todo: make LOV readonly while fetching link from server
+    todo: change LOV blank to default after fetching link from server
 
 29) deal proposal and changed friend relations
     cancel deal proposal when friends are removed

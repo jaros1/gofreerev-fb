@@ -219,7 +219,7 @@ SHARE_GIFT_API_NAME = {:buffer => 'Buffer',
                        :stumbleupon => 'Stumble',
                        :tumblr => 'Tumblr',
                        :twitter => API_CAMELIZE_NAME[:twitter],
-                       :vkontakte => API_CAMELIZE_NAME[:vkontakte]}.with_indifferent_access
+                       :vkontakte => 'VK'}.with_indifferent_access
 
 # L) API profile pictures: :api or :local. Default is :api <=> Profile pictures are not downloaded from provider
 API_PROFILE_PICTURE_STORE = {}.with_indifferent_access
@@ -265,8 +265,15 @@ API_POST_MAX_TEXT_LENGTHS.keys.each do |provider|
   max_lng = nil
   case
     when provider == 'twitter'
-      # normal limit is 140 characters. But only 83 characters are allowed in twitter share link description
-      max_lng = API_POST_MAX_TEXT_LENGTHS[provider] - 57
+      # normal limit is 140 characters, but some characters are subtracted for deep link
+      if FORCE_SSL
+        # public web server - twitter will shorten link
+        max_lng = API_POST_MAX_TEXT_LENGTHS[provider] - 24
+      else
+        # private web server - twitter will include link in tweet as text
+        deep_link_size = (SITE_URL + 'en/gifts/').size + 30
+        max_lng = API_POST_MAX_TEXT_LENGTHS[provider] - 1 - deep_link_size
+      end
     when %w(google_oauth2 linkedin).index(provider)
       # no text in share gift link
       max_lng = -1
