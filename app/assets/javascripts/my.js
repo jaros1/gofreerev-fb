@@ -2414,8 +2414,46 @@ function update_language(self) {
 // 6) test
 //
 
-// get deep link for share gift from server
-// returns ajax error message or calls share_gift
+// share gift: disable LOV and show ajax spinner
+function share_gift_lov_disable (gift_id) {
+    var lov_id = 'share_gift_' + gift_id ;
+    var lov = document.getElementById(lov_id) ;
+    if (!lov) return ;
+    lov.disabled = true ;
+    lov.readonly = true ;
+    // show ajax spinner
+    var img_id = 'share_gift_spinner_' + gift_id ;
+    var img = document.getElementById(img_id) ;
+    if (!img) {
+        // add ajax spinner
+        var parent = lov.parentNode ;
+        img = document.createElement("img");
+        img.id = img_id ;
+        img.src = '/images/ajax-loading-18.gif' ;
+        img.style.display = 'none' ;
+        var next_sib = lov.nextSibling ;
+        if (next_sib) parent.insertBefore(img, next_sib) ;
+        else parent.appendChild(img) ;
+    }
+    img.style.display = '' ;
+} // share_gift_lov_disable
+
+// share_gift: enable LOV and hide ajax spinner
+function share_gift_lov_enable (gift_id) {
+    var lov_id = 'share_gift_' + gift_id ;
+    var lov = document.getElementById(lov_id) ;
+    if (!lov) return ;
+    lov.disabled = false ;
+    lov.readonly = false ;
+    lov.options[0].selected = 'selected' ;
+    // hide ajax spinner
+    var img_id = 'share_gift_spinner_' + gift_id ;
+    var img = document.getElementById(img_id) ;
+    if (!img) return ;
+    img.style.display = 'none' ;
+} // share_gift_lov_enable
+
+// share gift: get deep link for share gift from server. returns ajax error message or calls share_gift
 function get_share_gift_link (self) {
     var pgm = 'get_share_gift_link: ' ;
     var debug = 0 ;
@@ -2452,6 +2490,7 @@ function get_share_gift_link (self) {
         // send share gift request to server. Returns link or an error message
         debug = 6
         clear_ajax_errors(table_id) ;
+        share_gift_lov_disable(gift_id) ;
         $.ajax({
             url: "/util/share_gift.js",
             type: "POST",
@@ -2464,6 +2503,10 @@ function get_share_gift_link (self) {
                 var err = add2log_ajax_error('share_gift.ajax.error: ', jqxhr, textStatus, errorThrown);
                 // inject ajax error message in page header
                 add_to_tasks_errors3(table_id, I18n.t('js.share_gift.ajax_error', {error: err, location: 21, provider: provider, debug: debug})) ;
+            },
+            complete: function() {
+                // add2log(pgm + 'complete') ;
+                share_gift_lov_enable(gift_id);
             }
         });
     }
@@ -2473,7 +2516,7 @@ function get_share_gift_link (self) {
     }
 } // get_share_gift_link
 
-// get text/description for share gift link from gifts/index page
+// share gift: get text/description for share gift link in current page
 function get_share_gift_text (gift_id) {
     var div_id = "gift-" + gift_id + "-overflow-text" ;
     var div = document.getElementById(div_id) ;
@@ -2489,7 +2532,7 @@ function get_share_gift_text (gift_id) {
     return text ;
 } // get_gift_text
 
-// get image for share gift link from gifts/index page
+// share gift: get image for share gift link in current page
 function get_share_gift_image_url(gift_id) {
     var image_id = "gift-" + gift_id + "-image";
     var image = document.getElementById(image_id);
@@ -2506,7 +2549,7 @@ function get_share_gift_image_url(gift_id) {
     return image_url ;
 } // get_share_gift_image_url
 
-// callback for share gift / get_share_gift_link
+// share gift: callback for util_controller.share gift. Also called direct from get_share_gift_link if all information for share gift link already was available
 function share_gift(provider, gift_id, link, extra) {
     var pgm = 'share_gift: ';
     var debug = 0 ;

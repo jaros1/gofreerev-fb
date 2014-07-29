@@ -2826,6 +2826,7 @@ class UtilController < ApplicationController
         ags = ags.sort_by { |ag| [ (ag.picture == 'Y' ? 1 : 2), (ag.deep_link ? 1 : 2), rand] }
         ag = ags.first
       end
+      sleep(3)
       ag.init_deep_link unless ag.deep_link
       ag.provider = provider # share gift provider
       # find set max length for text/description in share gift link. -1: no text, 0: no limit
