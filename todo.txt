@@ -369,10 +369,6 @@
 
  64) refactor linkedin & flickr controller translate keys into shared? Almost identical translations
 
- 65) post in foursquare. Foursquare is different from the other api's
-     add a page for Gofreerev and ?
-     maybe j has some ideas
-
  66) check out open graph meta-tags in flickr.
      maybe some that could by used
      <meta property="fb:app_id" content="137206539707334" />    x
@@ -728,4 +724,4 @@
 164) gifts/index create post.
      display field with providers where post on wall is selected and authorized so that user can see where gift is posted
 
-select random issue: (rand*162).floor+1
+select random issue: (rand*164).floor+1
