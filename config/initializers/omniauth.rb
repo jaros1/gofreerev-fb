@@ -220,9 +220,11 @@ SHARE_GIFT_API_NAME = {:appnet => 'App.net',
                        :digg => 'Digg',
                        :facebook => API_CAMELIZE_NAME[:facebook],
                        :google_oauth2 => API_CAMELIZE_NAME[:google_oauth2],
+                       # :kaboodle => 'Kaboodle', # not tested
                        :linkedin => API_CAMELIZE_NAME[:linkedin],
+                       # :livejournal => 'LiveJournal', # not tested
                        :myspace => 'MySpace',
-                       # :odnoklassniki => 'Odnoklassniki', # name too long for LOV
+                       :odnoklassniki => 'ok.ru',
                        :pinterest => 'Pinterest',
                        :reddit => 'Reddit',
                        :sonico => 'Sonico',
