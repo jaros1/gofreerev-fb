@@ -1420,6 +1420,7 @@ class UtilController < ApplicationController
             return nil
           end
           # just posted + read permission to call - error - this should not happen.
+          logger.debug2 "just posted + read permission to call - error - this should not happen"
           key = api_gift.picture? ? '.fb_pic_post_unknown_problem' : '.fb_msg_post_unknown_problem'
           return [key, {:appname => APP_NAME, :apiname => login_user.apiname}]
         else
@@ -1427,7 +1428,12 @@ class UtilController < ApplicationController
           logger.debug2 "user.permissions = #{login_user.permissions}"
           oauth = Koala::Facebook::OAuth.new(API_ID[provider], API_SECRET[provider], API_CALLBACK_URL[provider])
           url = oauth.url_for_oauth_code(:permissions => 'read_stream', :state => set_state_cookie_store('read_stream'))
-          key = api_gift.picture? ? '.fb_pic_post_missing_permission_html' : '.fb_msg_post_missing_permission_html'
+          # note: 4 translations:
+          # - fb_msg_post_missing_permission_html - just posted - without picture
+          # - fb_pic_post_missing_permission_html - just posted - with picture - missing read permission
+          # - fb_msg_check_missing_permission_html - not used
+          # - fb_pic_check_missing_permission_html - old post - check picture url - missing read permission
+          key =  '.fb_' + (api_gift.picture? ? 'pic' : 'msg') + '_' + (just_posted ? 'post' : 'check') + '_missing_permission_html'
           return [key, {:appname => APP_NAME, :apiname => login_user.apiname, :url => url}]
         end
       elsif e.fb_error_type == 'OAuthException' and e.fb_error_code == 190 and e.fb_error_subcode == 460
