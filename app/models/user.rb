@@ -1243,6 +1243,11 @@ class User < ActiveRecord::Base
   # missing exchange rates is put in queue for bank and looked up batch
   # batch job started at after returning actual page to user
   def recalculate_balance
+    if !last_login_at
+      # never calculate balance for non app users
+      logger.warn2 "recalculate_balance method should not be called for non app user #{debug_info}"
+      return true
+    end
     # find user(s)
     if share_account_id
       # find all closed deals for this user combination
@@ -1436,7 +1441,24 @@ class User < ActiveRecord::Base
     end
     # recalculate
     users.each { |user| user.recalculate_balance }
-  end
+  end # self.recalculate_balance
+
+  # ajax task - used when recalculation balance for friends with old balance
+  # added to task queue in /shared/user_div partial
+  def self.recalculate_balance_task (id)
+    begin
+      u = User.find(id)
+      return unless u # error
+      return unless u.last_login_at # ignore non app users
+      return if u.balance_at == Date.parse(Sequence.get_last_exchange_rate_date) # has already been calculated
+      u.recalculate_balance
+      nil # ignore problem with currency rates
+    rescue => e
+      logger.debug2 "Exception: #{e.message.to_s} (#{e.class})"
+      logger.debug2 "Backtrace: " + e.backtrace.join("\n")
+      raise
+    end
+  end # self.recalculate_balance_task
 
   def balance_with_2_decimals
     '%0.2f' % (balance[BALANCE_KEY] || 0)

@@ -3,6 +3,7 @@
    div_title = '.title' + (friend <= 2 ? '' : '_non') + '_friend'
    username = user_div.short_or_full_user_name(@users)
    balance = friend <= 2 ? format_user_balance(user_div, @users) : nil
+   check_old_balance(user_div) if friend <= 2 # schedule recalculate balance if friend with an old balance
 -%>
 <% if @page_header -%>
     <div title="<%= t div_title, :username => username, :balance => balance, :apiname => user_div.apiname %>"

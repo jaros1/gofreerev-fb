@@ -35,12 +35,6 @@
     allow recalculating balance from a specific date or from a specific gift.id
     should only recalculate balance from last closed deal
 
- 6) batch processing:
-    accept new deal - set new_balance_at = yesterday - for both users - user is marked for recalculate balance (ok)
-    batch processing - recalculate balance for all users where new_balance_at != today (todo)
-    or recalculate balance for users with old balance in an ajax task
-    page - catch all user ids with old balance in an array and schedule recalculation as an ajax task
-
  7) check texts in views/fb/create.html.erb and create_da_html.erb
 
  8) show a more informative page when not logged in
@@ -722,4 +716,16 @@
 160) share gift lov
      add scrollbar to LOV (http://www.codeproject.com/Questions/229885/how-to-make-scroll-bars-in-dropdown-list)
 
-select random issue: (rand*161).floor+1
+162) Gofreerev share link url
+     .../share/url=%{url}&text=%{text}&image_url=%{image_url}&close=#{boolean}
+     could be like gifts/index page, but with an pre-filled field with image url
+
+163) Mixed Content warning in firefox 30.0 om dev1 server
+     problem is img http requests to image farms at api providers
+     https://developer.mozilla.org/en-US/docs/Security/MixedContent
+     could replace http with https if image farm supports https and has a valid ssl certificate
+
+164) gifts/index create post.
+     display field with providers where post on wall is selected and authorized so that user can see where gift is posted
+
+select random issue: (rand*162).floor+1

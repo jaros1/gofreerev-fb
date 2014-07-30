@@ -2427,4 +2427,14 @@ class ApplicationController < ActionController::Base
   # <==
 
 
+  # called from partial /shared/user_div - check if balance for friend should be recalculated
+  private
+  def check_old_balance (user)
+    return unless user.last_login_at # ignore non app users
+    return if user.balance_at == Date.parse(Sequence.get_last_exchange_rate_date)
+    add_task "User.recalculate_balance_task(#{user.id})", 9
+  end # check_old_balance
+  helper_method :check_old_balance
+
+
 end # ApplicationController

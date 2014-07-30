@@ -35,7 +35,7 @@ class Task < ActiveRecord::Base
   def self.add_task (session_id, task, priority=5)
     at = Task.where('session_id = ? and task = ?', session_id, task).first
     if at
-      logger.error2 "Task #{task} is already in task queue"
+      logger.warn2 "Task #{task} is already in task queue"
       return
     end
     at = Task.new
