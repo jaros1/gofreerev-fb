@@ -311,6 +311,7 @@ class UsersController < ApplicationController
     # get params: tab, last_row_id and todo: filters
 
     # tab: blank = friends or balance - only friends can see balance
+    logger.debug2 "@user2.friend?(@users) = #{@user2.friend?(@users)}"
     if (@user2.friend?(@users) <= 2)
       if @users.find { |user| user.user_id == @user2.user_id }
         tabs = %w(gifts balance) # my account - friends information available in Friends menu
@@ -320,6 +321,7 @@ class UsersController < ApplicationController
     else
       tabs = [] # non friend - do not display any information (friends, balance and gifts information not allowed)
     end
+    logger.debug2 "tabs = #{tabs}"
     if tabs.size <= 1
       tab = tabs.first
     else
@@ -350,6 +352,10 @@ class UsersController < ApplicationController
       return
     end
 
+    # initialize array with user navigation links. 0-3 sections with links. Up to 9 links.
+    @user_nav_links << ["tabs", tabs] if tabs.size > 1
+    logger.debug2 "@user_nav_links = #{@user_nav_links}"
+
     if %w(gifts balance).index(tab)
       # show balance for @user2 - only friends can see balance information
       # show gifts for @user2 - only friends can see gifts for @user2
@@ -375,12 +381,12 @@ class UsersController < ApplicationController
       direction = 'both' unless %w(giver receiver both).index(direction)
       logger.debug2  "balance filters: status = #{status}, direction = #{direction}"
 
-      # initialize array with user navigation links. 0-3 sections with links. Up to 9 links.
-      @user_nav_links << ["tabs", tabs] if tabs.size > 1
       if %w(gifts balance).index(tab)
+        # add nav links with deal status and deal direction
         @user_nav_links << ["deal_status", statuses]
         @user_nav_links << ["deal_direction", directions]
       end
+      logger.debug2 "@user_nav_links = #{@user_nav_links}"
       @page_values[:status] = status
       @page_values[:direction] = direction
 

@@ -38,6 +38,8 @@
  6) batch processing:
     accept new deal - set new_balance_at = yesterday - for both users - user is marked for recalculate balance (ok)
     batch processing - recalculate balance for all users where new_balance_at != today (todo)
+    or recalculate balance for users with old balance in an ajax task
+    page - catch all user ids with old balance in an array and schedule recalculation as an ajax task
 
  7) check texts in views/fb/create.html.erb and create_da_html.erb
 
@@ -720,4 +722,4 @@
 160) share gift lov
      add scrollbar to LOV (http://www.codeproject.com/Questions/229885/how-to-make-scroll-bars-in-dropdown-list)
 
-select random issue: (rand*160).floor+1
+select random issue: (rand*161).floor+1

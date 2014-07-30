@@ -748,7 +748,7 @@ class UtilController < ApplicationController
       comment.save!
       gift.reload
       if gift.price and gift.price != 0.0
-        # create social didivend and recalculate new balance for giver and receiver
+        # recalculate new balance for giver and receiver
         gift.reload
         gift.api_gifts.each do |api_gift|
           api_gift.giver.recalculate_balance unless api_gift.giver.dummy_user?

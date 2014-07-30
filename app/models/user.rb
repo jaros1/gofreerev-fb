@@ -1402,6 +1402,15 @@ class User < ActiveRecord::Base
         logger.debug2 "api gift id = #{api_gift.id}"
         api_gift.gift.save!
       end
+      if user_ids.size > 1
+        # user with shared accounts -
+        User.where(:user_id => (user_ids - [self.user_id])).each do |other_user|
+          other_user.balance = user_balance_hash
+          other_user.balance_at = today
+          other_user.negative_interest = user_negative_interest_hash
+          other_user.save!
+        end # each other_user
+      end # if
       self.save!
     end
     true
