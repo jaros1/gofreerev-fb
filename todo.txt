@@ -724,4 +724,8 @@
 164) gifts/index create post.
      display field with providers where post on wall is selected and authorized so that user can see where gift is posted
 
+165) problem with util.missing_api_picture_urls
+     test user charlie removed read permission to facebook wall
+     login with message "Opslag oprettet herinde og på din facebook væg, men foto kan ikke vises her. Giv Gofreerev lov til at læse opslag på min væg!"
+
 select random issue: (rand*164).floor+1

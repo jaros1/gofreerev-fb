@@ -1395,6 +1395,8 @@ class UtilController < ApplicationController
         # picture not found - maybe picture has been deleted - maybe a permission problem
         # granting read_stream or changing visibility of app setting to public can solve the problem
         # read_stream permission will be requested if error is raise when posting on facebook wall
+        logger.debug2 "Handling Koala::Facebook::ClientError, GraphMethodException' with FB error code 100."
+        logger.debug2 "just_posted = #{just_posted}"
 
         # problem with upload and permissions
         # could not get full_picture url for an uploaded picture
@@ -1617,6 +1619,7 @@ class UtilController < ApplicationController
   
   
   # generic get_api_picture_url_<provider>
+  # just_posted: true if called from generic_post_on_wall, false if called from missing_api_picture_urls
   private
   def get_api_picture_url (provider, api_gift, just_posted, api_client)
     method = "get_api_picture_url_#{provider}".to_sym
@@ -2046,10 +2049,9 @@ class UtilController < ApplicationController
         add_error_key ".gift_posted_#{gift_posted_on_wall_api_wall}_html", login_user.app_and_apiname_hash.merge(:error => error)
       else
         logger.debug2 "post ok with picture"
-        # post ok - gift posted in flickr wall
-        # check read permissioin to gift and get picture url with best size > 200 x 200
-        # must have read access to post on flickr wall to display picture in gofreerev
-        # 1) use api_gift.api_gift_id to get object_id (picture size in first request is too small)
+        # post ok - gift posted in api wall
+        # check read permission to gift and get picture url with best size > 200 x 200
+        # must have read access to post on api wall to display picture in Gofreerev
         key, options = get_api_picture_url(provider, api_gift, true, api_client) # just_posted = true
         return add_error_key(key, options) if key
 

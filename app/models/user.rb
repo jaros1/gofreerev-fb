@@ -543,9 +543,17 @@ class User < ActiveRecord::Base
         return ['.profile_image_invalid_url', {:provider => user.provider, :image => url}]
       end
       # check image type
-      image_type = FastImage.type(url).to_s
+      begin
+        image_type = FastImage.type(url, :raise_on_failure  => true).to_s
+      rescue FastImage::ImageFetchFailure => e
+        logger.warn2 "Could not get image type for new profile image #{url}. "
+        logger.warn2 "Ignoring error. Must be a temporary problem"
+        logger.warn2 "Error message was #{e.message}"
+        return nil
+      end
       if image_type.to_s == ''
         logger.error2 "profile picture url #{url} with blank image type. provider #{user.provider}"
+        # todo: FastImage.type returns blank if internet connection is temporary unavailable
         return ['.profile_image_invalid_type', {:provider => user.provider, :image => url, :image_type => image_type}]
       end
       if !%w(gif jpeg png jpg bmp).index(image_type)
