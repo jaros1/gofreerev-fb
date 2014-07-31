@@ -771,7 +771,7 @@ en:
         mis_api_pic_not_implemented1: "Check for moved or deleted images is not implemented for %{apiname}."
         mis_api_pic_not_implemented2: "Check for moved or deleted images is not implemented for %{apiname}."
         mis_api_pic_file_exists: "Warning. Browser did not find picture %{rel_path}, but picture exists on the server."
-        mis_api_pic_url_exists: "Warning. Browser did not find picture %{url}, but picture exists on the server."
+        # mis_api_pic_url_exists: "Warning. Browser did not find picture %{url}, but picture exists on the server."
         mis_api_pic_deauth: "Connection to %{appname} with %{provider} has expired. Please refresh page or login in with %{provider}."
      do_tasks:
         do_tasks_exception: "System error when executing tasks. %{error}. More information in server log."

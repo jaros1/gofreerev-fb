@@ -205,13 +205,20 @@ class UtilController < ApplicationController
           # local picture file has been deleted. Continue. Maybe picture is available from an other api provider
         else
           # api url. recheck that picture has move or has been deleted
-          # todo: flickr problem with redirect to https://s.yimg.com/pw/images/photo_unavailable.gif if picture has been deleted at picture farm
           image_type = FastImage.type(api_gift.api_picture_url).to_s
+          # flickr: check for redirect to https://s.yimg.com/pw/images/photo_unavailable.gif
+          if image_type == 'gif' and api_gift.provider == 'flickr' and FastImage.size(api_gift.api_picture_url) == [500, 374]
+            # size = size for deleted flickr picture - check redirected url
+            redirected_url = ApiGift.http_get(api_gift.api_picture_url, 30, 3, true)
+            image_type = '' if redirected_url == 'https://s.yimg.com/pw/images/photo_unavailable.gif'
+          end
           if %w(jpg jpeg gif png bmp).index(image_type)
             # api url still exists. Could be a temporary problem
             # todo: write warning in log, ignore error and blank api_gift.api_picture_url_on_error_at
             logger.warn2 "api gift #{api_gift.id} url #{api_gift.api_picture_url} exists, but was not found by browser"
-            add_error_key '.mis_api_pic_url_exists', :url => api_gift.api_picture_url
+            # add_error_key '.mis_api_pic_url_exists', :url => api_gift.api_picture_url
+            api_gift.api_picture_url_on_error_at = nil
+            api_gift.save!
             next
           end
         end

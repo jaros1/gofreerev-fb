@@ -281,7 +281,7 @@ class ApiGift < ActiveRecord::Base
   end
 
   public
-  def self.http_get (url, timeout=30, max_redirects=3)
+  def self.http_get (url, timeout=30, max_redirects=3, return_url=false)
     xstarttime = Time.new
     while max_redirects > 0
       # get header
@@ -309,7 +309,7 @@ class ApiGift < ActiveRecord::Base
       # check response
       case response
         when Net::HTTPOK
-          return response
+          return (return_url ? url : response)
         when Net::HTTPRedirection
           # redirection - continue loop
           url = response['location']
@@ -317,7 +317,7 @@ class ApiGift < ActiveRecord::Base
         else
           # unexpected response
           logger.warn2 "response.class = #{response.class}, response.code = #{response.code}"
-          return response
+          return (return_url ? url : response)
       end # case
 
     end # while

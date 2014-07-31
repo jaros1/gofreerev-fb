@@ -774,7 +774,7 @@ da:
         mis_api_pic_not_implemented1: "Tjek for flyttede eller slettede billeder er ikke implementeret for %{apiname}."
         mis_api_pic_not_implemented2: "Tjek for flyttede eller slettede billeder er ikke implementeret for %{apiname}."
         mis_api_pic_file_exists: "Advarsel. Browser fandt ikke billede %{rel_path}, men billede findes på serveren."
-        mis_api_pic_url_exists: "Advarsel. Browser fandt ikke billede %{url}, men billede findes på serveren."
+        # mis_api_pic_url_exists: "Advarsel. Browser fandt ikke billede %{url}, men billede findes på serveren."
         mis_api_pic_deauth: "Forbindelse til %{appname} med %{provider} er udløbet. Opdater venligst siden eller log in igen."
      do_tasks:
         do_tasks_exception: "Systemfejl ved afvikling af baggrundsopgave. %{error}. Mere information i server log."

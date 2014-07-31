@@ -702,16 +702,8 @@
 164) gifts/index create post.
      display field with providers where post on wall is selected and authorized so that user can see where gift is posted
 
-166) flickr: invalid/deleted picture url is redirected to https://s.yimg.com/pw/images/photo_unavailable.gif (width 500, height 374)
-     javascript: img onerror event is never triggered for flickr pictures
-                could error mark flickr images with width 500 and height 374 so that image is rechecked in util.missing_api_picture_urls
-                there is no javascript solution for this problem. Most be a server request so that redirect can be traced
-     rails:  util.missing_api_picture_urls: image_type = FastImage.type(api_gift.api_picture_url).to_s returns gif for deleted picture
-             should make a special check for flickr pictures with width 500, height 374 and image type gif
-             redirect and check final url
-
 167) util.get_api_picture_url_vkontakte
-     better VK exception handling
+     better VK exception handling (now almost none)
      a) deleted picture
      b) authorization error
      c) other errors
