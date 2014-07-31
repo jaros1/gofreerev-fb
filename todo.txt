@@ -274,16 +274,6 @@
     block all and allow selected users
     allow all and block selected users
 
-41) allow device fingerprint guest user login?
-    that is login without username/password
-    no friends information!
-    could use user ip location and distance to other gofreerev users instead of a friend list
-    user could select between api login or ip location/device fingerprint login
-
-42) allow device fingerprint for users that reject cookies?
-    must have cookie store on server for users with device fingerprint login
-    could not find anything about device fingerprint session store or a device fingerprint plugins for rails
-
 43) User.api_gifts
     maybe problem with very big select if really many friends for logged in users
     on other option could be 2 sub queries combined with filter for deselected friends

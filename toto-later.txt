@@ -227,3 +227,18 @@ Low priority todo list. Minor errors, wishlist etc.
 
 62) add extra layer of encryption within html page.
     for example different public/private encryption key set for each user.
+
+63) allow device fingerprint guest user login?
+    that is login without username/password
+    no friends information!
+    could use user ip location and distance to other gofreerev users instead of a friend list
+    user could select between api login or ip location/device fingerprint login
+    check out canvas finmgerprinting
+    - http://en.wikipedia.org/wiki/Canvas_fingerprinting
+    - http://www.version2.dk/artikel/ny-sporingsmetode-er-naesten-umulig-blokere-67937
+    fingerprint gem: https://github.com/Valve/fingerprintjs
+    could be an alternative or a supplement to cookie login
+
+64) allow device/canvas fingerprint for users that reject cookies?
+    must have table session store on server for users with device fingerprint login
+
