@@ -336,8 +336,8 @@ module ApplicationHelper
 
   # shared accounts check box + list shared accounts
   # used in shared/shared_accounts partial
-  # user in auth/index and todo: xxx pages
-  def shared_accounts
+  # user in auth/index and users/index?friends=me pages
+  def accounts
     return {} unless logged_in?
     share_account_ids = @users.find_all { |u| u.share_account_id }.collect { |u| u.share_account_id }.uniq
     logger.debug2 "share_account ids = #{share_account_ids.join(', ')}"
@@ -368,10 +368,23 @@ module ApplicationHelper
       logger.debug2 "b1 = #{b1}, b2 = #{b2}, b3 = #{b3}, b4 = #{b4}, b5 = #{b5}, b6 = #{b6}"
       shared[user.share_account] << provider_downcase(user.provider) + note_symbol
     end
+    shared_providers = []
     shared.delete_if do |share_account, providers|
-      providers.size == 1
+      if providers.size == 1
+        true
+      else
+        shared_providers += providers
+        false
+      end
     end
+    not_shared_providers = @users.collect { |u| u.provider } - shared_providers
+    shared[0] = not_shared_providers if not_shared_providers.size > 0 # key with any not shared providers
     shared
+  end
+  def shared_accounts
+    accounts = accounts()
+    accounts.delete(0)
+    accounts
   end
   def shared_accounts?
     (shared_accounts.size > 0)
@@ -412,15 +425,17 @@ module ApplicationHelper
     return 0 unless logged_in?
     share_levels = shared_accounts.keys.collect { |sa| [sa.share_level, sa.offline_access_yn] }.uniq
     share_levels.delete_if { |share_level| share_level[0] == 0 }
-    return 0 if share_levels.size == 0
-    return 5 if share_levels.size > 1
-    return share_levels.first[0]
+    return 0 if share_levels.size == 0 # no sharing
+    return 5 if share_levels.size > 1 # mixed sharing
+    return 5 if accounts.has_key?(0) # mixed sharing (shared and not shared providers)
+    return share_levels.first[0] # one and only one share level
   end
 
   def share_levels (share_level)
     last_level = share_level == 5 ? 5 : 4 # 5 mixed sharing - display only option
     0.upto(last_level).collect { |i| [t("shared.share_accounts.lov_text_#{i}"), i] }
   end
+
   def offline_access?
     offline_access = shared_accounts.keys.collect { |sa| sa.offline_access_yn }.uniq
     return false unless offline_access.size == 1

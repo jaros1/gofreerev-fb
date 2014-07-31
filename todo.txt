@@ -654,10 +654,6 @@
      warning if one or more access tokens are about to expire
      for example within one week
 
-140) auth/index share level LOV.
-     use share level 5 mixed sharing if shared and not shared users
-     for example 5 single sign-on users and one not shared user
-
 141) add special single sign-on login message
      a) first single sign-on login with no expired access token
      b) first single sign-on login with one or more expired access tokens
