@@ -242,3 +242,7 @@ Low priority todo list. Minor errors, wishlist etc.
 64) allow device/canvas fingerprint for users that reject cookies?
     must have table session store on server for users with device fingerprint login
 
+65) users/index status mouse over with number of mutual friends was been dropped
+    maybe add a ajax mouse over title - that is - calculate number of mutual friends when needed and not always
+    good performance at startup and nice to have for the users when selecting friends
+
