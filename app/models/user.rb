@@ -1162,8 +1162,9 @@ class User < ActiveRecord::Base
       # FB notification - batch notifications to not logged active users
       return unless fb_notification and fb_user
       return if fb_user.last_login_at < 1.month.ago
-      # development - FB notifications is only enabled for a single user
-      raise "cannot send FB notifications to #{user.debug_info} in development environment" unless FORCE_SSL or fb_user.user_id == '1705481075/facebook'
+      # development - FB notifications is only enabled for selected users
+      allowed_dev_user_ids = %w(1705481075/facebook 100006399422155/facebook)
+      raise "cannot send FB notifications to #{user.debug_info} in development environment" unless FORCE_SSL or allowed_dev_user_ids.index(fb_user.user_id)
       if API_TOKEN[:facebook]
         language = fb_user.language || BASE_LANGUAGE
         href = '/'

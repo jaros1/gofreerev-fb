@@ -205,9 +205,11 @@ class UtilController < ApplicationController
           # local picture file has been deleted. Continue. Maybe picture is available from an other api provider
         else
           # api url. recheck that picture has move or has been deleted
+          # todo: flickr problem with redirect to https://s.yimg.com/pw/images/photo_unavailable.gif if picture has been deleted at picture farm
           image_type = FastImage.type(api_gift.api_picture_url).to_s
           if %w(jpg jpeg gif png bmp).index(image_type)
             # api url still exists. Could be a temporary problem
+            # todo: write warning in log, ignore error and blank api_gift.api_picture_url_on_error_at
             logger.warn2 "api gift #{api_gift.id} url #{api_gift.api_picture_url} exists, but was not found by browser"
             add_error_key '.mis_api_pic_url_exists', :url => api_gift.api_picture_url
             next
@@ -1501,17 +1503,7 @@ class UtilController < ApplicationController
   private
   def get_api_picture_url_flickr (api_gift, just_posted, api_client) # api is flickraw API client
 
-    return nil if api_gift.deleted_at_api == 'Y' # ignore - post/picture has been deleted from flickr wall
-
     provider = "flickr"
-    login_user, api_client, key, options = get_login_user_and_api_client(provider, __method__)
-    return [key, options] if key
-
-    #if !api_client
-    #  # get access token and initialize koala api client
-    #  api_client = init_api_client_flickr(token)
-    #end
-    #
 
     images = nil
     begin
@@ -1528,8 +1520,28 @@ class UtilController < ApplicationController
       # 114: Invalid SOAP envelope - The SOAP envelope send in the request could not be parsed.
       # 115: Invalid XML-RPC Method Call - The XML-RPC request document could not be parsed.
       # 116: Bad URL found - One or more arguments contained a URL that has been used for abuse on Flickr.
+      # exception: 'flickr.photos.getSizes' - Photo not found
+      # e.methods = !, !=, !~, <=>, ==, ===, =~, __debug_binding, __debug_context, __debug_file, __debug_line, __id__, __send__, `, acts_like?, as_json, backtrace,
+      # binding_n, blame_file!, blamed_files, blank?, breakpoint, capture, class, class_eval, clone, code, copy_blame!, debugger, deep_dup, define_singleton_method, describe_blame, display, dup,
+      # duplicable?, enable_warnings, enum_for, eql?, equal?, exception, extend, freeze, frozen?, gem, hash, html_safe?, in?, inspect, instance_eval, instance_exec, instance_of?, instance_values,
+      # instance_variable_defined?, instance_variable_get, instance_variable_names, instance_variable_set, instance_variables, is_a?, kind_of?, load, load_dependency, message, method, methods, msg,
+      # nil?, object_id, presence, present?, pretty_inspect, pretty_print, pretty_print_cycle, pretty_print_inspect, pretty_print_instance_variables, private_methods, protected_methods, psych_to_yaml,
+      # public_method, public_methods, public_send, quietly, remove_instance_variable, require, require_dependency, require_or_load, respond_to?, send, set_backtrace, silence, silence_stderr,
+      # silence_stream, silence_warnings, singleton_class, singleton_methods, suppress, suppress_warnings, taint, tainted?, tap, to_enum, to_json, to_param, to_query, to_s, to_yaml,
+      # to_yaml_properties, trust, try, try!, unloadable, untaint, untrust, untrusted?, with_options, with_warnings
+      # e.code = 1
+      if e.code == 1 and !just_posted
+        # 1: Photo not found - The photo id passed was not a valid photo id.
+        # mark api gift as deleted at api. util.missing_api_picture_urls may replace deleted flickr picture with picture from an other login provider
+        logger.debug2 "user has deleted post on api wall - ok"
+        api_gift.deleted_at_api = 'Y'
+        api_gift.save!
+        return nil
+      end
+      raise AppNotAuthorized if e.code == 100 # 100: Invalid API Key - The API key passed was not valid or has expired. Reconnect is required
+      # other flickr exceptions - display flickr exception to user
       logger.error2 "exception: #{e.message}"
-      logger.error2 = #{e.code}"
+      logger.error2 "e.code = #{e.code}"
       raise
     end
 
@@ -1553,6 +1565,10 @@ class UtilController < ApplicationController
 
   end # get_api_picture_url_flickr
 
+
+  # get_api_picture_url_linkedin is not relevant. Picture is stored in Gofreerev for Linkedin.
+
+
   # recheck post on twitter
   # mark as deleted if post has been deleted
   # get new api_picture_url if picture url has changed
@@ -1561,11 +1577,6 @@ class UtilController < ApplicationController
   def get_api_picture_url_twitter (api_gift, just_posted=true, api_client) # api is twitter API client
 
     provider = "twitter"
-    login_user, api_client, key, options = get_login_user_and_api_client(provider, __method__)
-    return [key, options] if key
-
-    ## initialize twitter api client
-    #api_client = init_api_client_twitter(token) if !api_client
 
     # check twitter post
     begin
@@ -1573,9 +1584,13 @@ class UtilController < ApplicationController
       logger.debug2 "x = #{x}"
       logger.debug2 "x.class = #{x.class}"
       api_gift.api_picture_url = x.media.first.media_url.to_s if api_gift.picture?
-    rescue Twitter::Error::NotFound => e
+    rescue Twitter::Error::NotFound => e # todo: other twitter exceptions?
       logger.debug2 "Exception: e = #{e.message} (#{e.class})"
-      api_gift.deleted_at_api = 'Y'
+      if just_posted
+        raise
+      else
+        api_gift.deleted_at_api = 'Y'
+      end
     end
     api_gift.save!
 
@@ -1592,13 +1607,6 @@ class UtilController < ApplicationController
   private
   def get_api_picture_url_vkontakte (api_gift, just_posted=true, api_client) # api is vkontakte API client
 
-    #provider = "vkontakte"
-    #login_user, api_client, key, options = get_login_user_and_api_client(provider)
-    #return [key, options] if key
-    #
-    ### initialize vkontakte api client
-    ##api_client = init_api_client_vkontakte(token) if !api_client
-
     # check vkontakte post
     begin
       x = api_client.photos.getById :photos => api_gift.api_gift_id
@@ -1613,6 +1621,7 @@ class UtilController < ApplicationController
     rescue Vkontakte::App::VkException => e
       logger.debug2 "Exception: e = #{e.message} (#{e.class})"
       logger.debug2 "e.methods = #{e.methods.sort.join(', ')}"
+      # todo: check exception. Only ok if picture has been deleted at VK and !just_posted
       api_gift.deleted_at_api = 'Y'
     end
     api_gift.save!
@@ -1628,6 +1637,9 @@ class UtilController < ApplicationController
   # just_posted: true if called from generic_post_on_wall, false if called from missing_api_picture_urls
   private
   def get_api_picture_url (provider, api_gift, just_posted, api_client)
+
+    return nil if api_gift.deleted_at_api == 'Y' # ignore - post/picture has been deleted
+
     method = "get_api_picture_url_#{provider}".to_sym
     if !private_methods.index(method)
       logger.error2 "System error. private method #{method} was not found in app. controller"

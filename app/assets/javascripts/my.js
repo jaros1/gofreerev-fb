@@ -998,6 +998,7 @@ function imgonload(img) {
     var api_gift_id ;
     if (img.dataset) api_gift_id = img.dataset.id ;
     else api_gift_id = img.getAttribute('data-id') ;
+    var flickr = img.src.match(/^https?:\/\/farm\d+\.staticflickr\.com\//) ;
 //    add2log('imgonload. api gift id = ' + api_gift_id + ', img.width = ' + img.width + ', img.height = ' + img.height +
 //        ', naturalWidth = ' + img.naturalWidth + ', naturalHeight = ' + img.naturalHeight + ', complete = ' + img.complete) ;
     if ((img.width <= 1) && (img.height <= 1)) {
@@ -1009,6 +1010,12 @@ function imgonload(img) {
         // image not found - url expired or api picture deleted
         // alert('changed picture url: gift_id = ' + giftid + ', img = ' + img + ', width = ' + img.width + ', height = ' + img.height) ;
         missing_api_picture_urls.push(api_gift_id);
+    }
+    else if (flickr && (img.width == 500) && (img.height == 374) ) {
+        // Flickr: could be https://s.yimg.com/pw/images/photo_unavailable.gif (width 500, height 374)
+        // there is no javascript method to direct redirect. Mark picture as missing and let the server check picture and redirect
+        missing_api_picture_urls.push(api_gift_id);
+        img.width = 200; // rescale
     }
     else {
         // image found. rescale

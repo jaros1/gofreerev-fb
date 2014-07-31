@@ -385,10 +385,6 @@
      <meta property="flickr_photos:by" content="http://www.flickr.com/people/gofreerev/" />
      <meta property="twitter:description" content="localhost/da/gifts/VyGiwGM7NXQ1JzBA2XAj1VV5zeGEtb" />
 
- 67) check just_posted variable in get_api_picture_url_<provider> methods
-     should raise exception if just posted and picture was not found.
-     see get_api_picture_url_facebook
-
  68) two or three column friend list in users/index page.
      responsive design or use javascript to organize table layout
      could use float divs in a multi column users/index page
@@ -724,4 +720,24 @@
 164) gifts/index create post.
      display field with providers where post on wall is selected and authorized so that user can see where gift is posted
 
-select random issue: (rand*165).floor+1
+166) flickr: invalid/deleted picture url is redirected to https://s.yimg.com/pw/images/photo_unavailable.gif (width 500, height 374)
+     javascript: img onerror event is never triggered for flickr pictures
+                could error mark flickr images with width 500 and height 374 so that image is rechecked in util.missing_api_picture_urls
+                there is no javascript solution for this problem. Most be a server request so that redirect can be traced
+     rails:  util.missing_api_picture_urls: image_type = FastImage.type(api_gift.api_picture_url).to_s returns gif for deleted picture
+             should make a special check for flickr pictures with width 500, height 374 and image type gif
+             redirect and check final url
+
+167) util.get_api_picture_url_vkontakte
+     better VK exception handling
+     a) deleted picture
+     b) authorization error
+     c) other errors
+
+168) util.get_api_picture_url_twitter
+     better twitter exception handling
+     a) deleted picture
+     b) authorization error
+     c) other errors
+
+select random issue: (rand*168).floor+1

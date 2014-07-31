@@ -73,7 +73,7 @@ class ApplicationController < ActionController::Base
     # eu cookie law - also called Directive on Privacy and Electronic Communications
     # accepted cookie is a permanent cookie set if user accepts cookies
     if SHOW_COOKIE_NOTE and SHOW_COOKIE_NOTE > 0 and cookies[:cookies] != 'accepted'
-      session[:created] = Time.new unless session[:created]
+      session[:created] = Time.new unless session[:created].class == Time
       cookie_note = SHOW_COOKIE_NOTE - (Time.new - session[:created])
       @cookie_note = cookie_note if cookie_note >= 0.5
     end
