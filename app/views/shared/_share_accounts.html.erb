@@ -1,16 +1,28 @@
+<%# from https://jqueryui.com/resources/demos/dialog/modal-form.html - Copyright 2014 jQuery Foundation and other contributors; Licensed MIT %>
+<style>
+    label, input { display:block; }
+    input.text { margin-bottom:12px; width:95%; padding: .4em; }
+    fieldset { padding:0; border:0; margin-top:25px; }
+    h1 { font-size: 1.2em; margin: .6em 0; }
+    .ui-dialog .ui-state-error { padding: .3em; }
+    .validateTips { border: 1px solid transparent; padding: 0.3em; }
+</style>
+<script>
+    <%# from https://jqueryui.com/resources/demos/dialog/modal-form.html - Copyright 2014 jQuery Foundation and other contributors; Licensed MIT %>
+</script>
+
+<script>
+
+</script>
+
+
+
 <div style="width: 100%" id="share_accounts_div" title="<%= t '.title', :appname => APP_NAME %>">
   <br>
   <%= t '.lov_prompt' %>
   <%= select_tag :share_level_lov, options_for_select(share_levels(share_level()), share_level()),
                  :readonly => shared_accounts_disabled?, :disabled => shared_accounts_disabled?,
-                 :onchange => 'share_accounts_ajax()' %>
-  <% if [3,4].index(share_level) -%>
-      &nbsp;
-      <%= t '.offline_access_prompt' %>
-      <%= check_box_tag "offline_access_checkbox", 1, offline_access?,
-                        :readonly => shared_accounts_disabled?, :disabled => shared_accounts_disabled?,
-                        :onchange => 'share_accounts_ajax()' %>
-  <% end -%>
+                 :onchange => 'share_accounts_ajax(false)' %>
   <br>
   <%= t '.shared_accounts_prompt' %>
   <%= shared_accounts_list %>

@@ -1,0 +1,17 @@
+<%# from https://jqueryui.com/resources/demos/dialog/modal-form.html - Copyright 2014 jQuery Foundation and other contributors; Licensed MIT %>
+<div id="share-accounts-dialog-form" title="Security alert!">
+  <div title="Share dynamic friend lists, single sign-on and offline friend suggestions can only used if you allow Gofreerev to store your API access tokens on server. You can enter your email if you wish to receive email with friend suggestions once a month. The API access tokens will be stored encrypted on server and will only be used for offline friend list updates, single sign-on and friend suggestions. You can change share accounts choice later and you can always revoke Gofreerev permissions at your login APIs.">
+    <p class="validateTips">Save access tokens on server?</p>
+
+    <form>
+      <fieldset>
+        <label for="email">Email</label>
+        <input type="text" name="email" id="email" value="jane@smith.com" class="text ui-widget-content ui-corner-all">
+
+        <!-- Allow form submission with keyboard without duplicating the dialog button -->
+        <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">
+      </fieldset>
+    </form>
+  </div>
+</div>
+<button id="share-accounts" style="display: none">Share accounts</button>

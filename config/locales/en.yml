@@ -143,7 +143,6 @@ en:
         lov_text_3: "share bal. and dynamic friend lists"
         lov_text_4: "single sign-on"
         lov_text_5: "mixed sharing. See text below"
-        offline_access_prompt: "Save authorization on server?"
 
 
   # omniauth controllers (auth, facebook and linkedin):
@@ -1017,7 +1016,8 @@ en:
         js_error: "Cannot grant write access wall. Javascript fejl %{error} (%{location},%{debug}). More information in client and server logs."
      share_accounts:
         lov_not_found: "System error when changing \"Share accounts?\" choice. Element share_level_lov was not found."
-        ajax_error: "Error when changing \"Share accounts?\" choice. %{error}. More information in server log."
+        ajax_error: "Cannot change \"Share accounts?\" choice. %{error}. More information in server log."
+        js_error: "Cannot change \"Share accounts?\" choice. Javascript fejl %{error} (%{location},%{debug}). More information in client and server logs."
      share_gift: # sorry, but share gift urls have to be repeated for each language
         invalid_id: "System error. Cannot share gift. Invalid id for LOV."
         missing_translation: "System error. Cannot share gift. Link definition was not found for %{provider}."

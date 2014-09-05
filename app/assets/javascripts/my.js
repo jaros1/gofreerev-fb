@@ -2284,56 +2284,148 @@ function post_on_wall_ajax(checkbox) {
     });
 } // post_on_wall_ajax
 
-// set/reset user,share_account_id
-// used in shared/share_accounts partial
-// used in auth/index and users/index?friends=me tab
-function share_accounts_ajax() {
-    var pgm = 'share_accounts_ajax: ' ;
-    var share_level_lov = document.getElementById('share_level_lov') ;
-    if (!share_level_lov) {
-        add_to_tasks_errors(I18n.t('js.share_accounts.lov_not_found')) ;
-        return ;
+
+
+// from https://jqueryui.com/resources/demos/dialog/modal-form.html - Copyright 2014 jQuery Foundation and other contributors; Licensed MIT
+$(function() {
+
+    var dialog, form,
+
+    // From http://www.whatwg.org/specs/web-apps/current-work/multipage/states-of-the-type-attribute.html#e-mail-state-%28type=email%29
+        emailRegex = /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/,
+        email = $( "#email" ),
+        allFields = $( [] ).add( email ),
+        tips = $( ".validateTips" );
+
+    function updateTips( t ) {
+        tips
+            .text( t )
+            .addClass( "ui-state-highlight" );
+        setTimeout(function() {
+            tips.removeClass( "ui-state-highlight", 1500 );
+        }, 500 );
     }
-    var share_level = share_level_lov.options[share_level_lov.selectedIndex].value ;
-    var offline_access_checkbox = document.getElementById('offline_access_checkbox') ;
-    var offline_access_yn ;
-    if (!offline_access_checkbox) offline_access_yn = '' ;
-    else if (offline_access_checkbox.checked) offline_access_yn = 'Y' ;
-    else offline_access_yn = 'N' ;
-    clear_ajax_errors('share_accounts_errors');
-    add2log(pgm + 'share_level = ' + share_level + ', offline_access_yn = ' + offline_access_yn) ;
-    $.ajax({
-        url: "/util/share_accounts.js",
-        type: "POST",
-        dataType: 'script',
-        data: { share_level: share_level, offline_access_yn: offline_access_yn },
-        beforeSend: function() {
-            // add2log(pgm + 'beforesend') ;
-            share_level_lov.disabled = true ;
-            share_level_lov.readonly = true ;
-            if (offline_access_checkbox) {
-                offline_access_checkbox.disabled = true ;
-                offline_access_checkbox.readonly = true ;
+
+    function checkLength( o, n, min, max ) {
+        if ( o.val().length > max || o.val().length < min ) {
+            o.addClass( "ui-state-error" );
+            updateTips( "Length of " + n + " must be between " +
+                min + " and " + max + "." );
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    function checkRegexp( o, regexp, n ) {
+        if ( !( regexp.test( o.val() ) ) ) {
+            o.addClass( "ui-state-error" );
+            updateTips( n );
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    function accept() {
+        var valid = true;
+        allFields.removeClass( "ui-state-error" );
+
+        valid = valid && checkLength( email, "email", 6, 200 );
+
+        valid = valid && checkRegexp( email, emailRegex, "eg. ui@jquery.com" );
+
+        if ( valid ) {
+            // send ajax request and close dialog
+            share_accounts_ajax(true);
+            dialog.dialog( "close" );
+        }
+        return valid;
+    }
+
+    dialog = $( "#share-accounts-dialog-form" ).dialog({
+        autoOpen: false,
+        height: 300,
+        width: 350,
+        modal: true,
+        buttons: {
+            "Yes": accept,
+            "No": function() {
+                dialog.dialog( "close" );
             }
         },
-        error: function (jqxhr, textStatus, errorThrown) {
-            var pgm = 'share_accounts_ajax:error: ' ;
-            if (leaving_page) return ;
-            var err = add2log_ajax_error(pgm, jqxhr, textStatus, errorThrown) ;
-            add_to_tasks_errors(I18n.t('js.share_accounts.ajax_error', {error: err, location: 19, debug: 0}));
-        },
-        complete: function() {
-            // add2log(pgm + 'complete') ;
-            share_level_lov.disabled = false ;
-            share_level_lov.readonly = false ;
-            if (offline_access_checkbox) {
-                offline_access_checkbox.disabled = false ;
-                offline_access_checkbox.readonly = false ;
-            }
+        close: function() {
+            form[ 0 ].reset();
+            allFields.removeClass( "ui-state-error" );
         }
     });
 
+    form = dialog.find( "form" ).on( "submit", function( event ) {
+        event.preventDefault();
+        accept();
+    });
+
+    $( "#share-accounts" ).button().on( "click", function() {
+        dialog.dialog( "open" );
+    });
+});
+
+
+// set/reset user,share_account_id
+// used in shared/share_accounts partial
+// used in auth/index and users/index?friends=me tab
+// accepted: false when called from LOV. True when called from accept in dialog form. Only relevant for share level 3 and 4
+function share_accounts_ajax(accepted) {
+    var pgm = 'share_accounts_ajax: ' ;
+    try {
+
+        var share_level_lov = document.getElementById('share_level_lov');
+        if (!share_level_lov) {
+            add_to_tasks_errors(I18n.t('js.share_accounts.lov_not_found'));
+            return;
+        }
+        var share_level = share_level_lov.options[share_level_lov.selectedIndex].value;
+        clear_ajax_errors('share_accounts_errors');
+        add2log(pgm + 'share_level = ' + share_level);
+        if (!accepted && ((share_level == '3') || (share_level == 4))) {
+            // share level 3 - dynamic friend lists
+            // share level 4 - single sign-on
+            // Security alert dialog. yes/no to save access tokens on server for offline access
+            var share_accounts_button = document.getElementById('share-accounts') ;
+            share_accounts_button.click() ;
+            return false ;
+        }
+        $.ajax({
+            url: "/util/share_accounts.js",
+            type: "POST",
+            dataType: 'script',
+            data: { share_level: share_level },
+            beforeSend: function () {
+                // add2log(pgm + 'beforesend') ;
+                share_level_lov.disabled = true;
+                share_level_lov.readonly = true;
+            },
+            error: function (jqxhr, textStatus, errorThrown) {
+                var pgm = 'share_accounts_ajax:error: ';
+                if (leaving_page) return;
+                var err = add2log_ajax_error(pgm, jqxhr, textStatus, errorThrown);
+                add_to_tasks_errors(I18n.t('js.share_accounts.ajax_error', {error: err, location: 19, debug: 1}));
+            },
+            complete: function () {
+                // add2log(pgm + 'complete') ;
+                share_level_lov.disabled = false;
+                share_level_lov.readonly = false;
+            }
+        });
+    }
+    catch (err) {
+        add2log(pgm + 'failed with JS error: ' + err) ;
+        add_to_tasks_errors(I18n.t('js.share_accounts.js_error', {error: err, location: 19, debug: 0})) ;
+    }
+
 } // share_accounts_ajax
+
+
 
 // show/hide ajax debug log checkbox in bottom of page. Only used if debug_ajax? / DEBUG_AJAX is true
 function show_debug_log_checkbox(checkbox) {
@@ -2665,5 +2757,9 @@ $.rails.showConfirmDialog = function(link) {
     });
 };
 */
+
+
+
+
 
 

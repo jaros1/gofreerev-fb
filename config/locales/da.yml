@@ -145,7 +145,6 @@ da:
         lov_text_3: "Del saldo og dynamiske vennelister"
         lov_text_4: "Fælles login på tværs af API'er"
         lov_text_5: "Blandet deling. Se nedenstående tekst"
-        offline_access_prompt: "(*) Gem autorisation på server?"
 
   # omniauth controllers (auth, facebook and linkedin):
 
@@ -1020,7 +1019,8 @@ da:
         js_error: "Kan ikke give skriveadgang til væg. Javascript fejl %{error} (%{location},%{debug}). Mere information i klient og server log."
      share_accounts:
         lov_not_found: "Systemfejl ved ændring af \"Saml konti?\" valg. Element share_level_lov blev ikke fundet."
-        ajax_error: "Fejl ved ændring af \"Saml konti?\" valg. %{error}. Mere information i server log."
+        ajax_error: "Kan ikke ændre \"Saml konti?\" valg. %{error}. Mere information i server log."
+        js_error: "Kan ikke ændre \"Saml konti?\" valg. Javascript fejl %{error} (%{location},%{debug}). Mere information i klient og server log."
      share_gift:
         invalid_id: "Systemfejl. Kan ikke dele opslag. Ugyldig id for LOV."
         missing_translation: "Systemfejl. Kan ikke dele opslag. Link definition mangler for %{provider}."
