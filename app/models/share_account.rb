@@ -1,6 +1,6 @@
 class ShareAccount < ActiveRecord::Base
 
-  has_many :users, :class_name => 'User', :primary_key => :id, :foreign_key => :share_account_id, :dependent => :nullify
+  has_many :users, :class_name => 'User', :primary_key => :share_account_id, :foreign_key => :share_account_id, :dependent => :nullify
 
   # https://github.com/jmazzi/crypt_keeper - text columns are encrypted in database
   # encrypt_add_pre_and_postfix/encrypt_remove_pre_and_postfix added in setters/getters for better encryption

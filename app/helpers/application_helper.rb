@@ -383,6 +383,7 @@ module ApplicationHelper
   end
   def shared_accounts
     accounts = accounts()
+    logger.debug2 "accounts = #{accounts}"
     accounts.delete(0)
     accounts
   end
