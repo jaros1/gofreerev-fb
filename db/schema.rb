@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140723095153) do
+ActiveRecord::Schema.define(version: 20140906160822) do
 
   create_table "ajax_comments", force: true do |t|
     t.string   "user_id",    limit: 40, null: false
@@ -196,8 +196,11 @@ ActiveRecord::Schema.define(version: 20140723095153) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "no_users"
-    t.string   "offline_access_yn", limit: 1, default: "N"
+    t.string   "share_account_id", limit: 20, null: false
+    t.text     "email"
   end
+
+  add_index "share_accounts", ["share_account_id"], name: "index_share_accounts_accountid", unique: true
 
   create_table "tasks", force: true do |t|
     t.string   "session_id", limit: 32,               null: false
@@ -222,7 +225,6 @@ ActiveRecord::Schema.define(version: 20140723095153) do
     t.text     "permissions"
     t.text     "no_api_friends"
     t.text     "negative_interest"
-    t.integer  "share_account_id"
     t.text     "api_profile_url"
     t.text     "api_profile_picture_url"
     t.string   "post_on_wall_yn",         limit: 1
@@ -234,6 +236,7 @@ ActiveRecord::Schema.define(version: 20140723095153) do
     t.text     "access_token"
     t.text     "access_token_expires"
     t.text     "refresh_token"
+    t.string   "share_account_id",        limit: 20
   end
 
   add_index "users", ["share_account_id"], name: "index_users_share_account_id"

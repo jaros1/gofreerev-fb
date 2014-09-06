@@ -946,7 +946,6 @@ en:
      share_accounts:
         not_logged_in: "Cannot change \"Share accounts?\" choice. You are not logged in. Please refresh page."
         unknown_share_accounts: "System error. Unknown choice for share accounts. Change in Share accounts? has not been saved."
-        no_offline_access: "You must accept \"Save authorization on server?\" to activate this choice. Only balance and static friend lists are shared across login providers until accepted."
         no_access_token: "System error. Cannot change \"Share accounts?\" choice. Access token was not found."
         no_expires_at: "System error. Cannot change \"Share accounts?\" choice. Expire timestamp for access token was not found."
         reconnect_required: "xx"

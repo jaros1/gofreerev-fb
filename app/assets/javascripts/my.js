@@ -2287,6 +2287,8 @@ function post_on_wall_ajax(checkbox) {
 
 
 // from https://jqueryui.com/resources/demos/dialog/modal-form.html - Copyright 2014 jQuery Foundation and other contributors; Licensed MIT
+// modal dialog form used in share accounts share level 3 and 4
+// used must accept that access tokens are stored on server + optional email notifications with friend suggestions
 $(function() {
 
     var dialog, form,
@@ -2337,7 +2339,7 @@ $(function() {
 
         if ( valid ) {
             // send ajax request and close dialog
-            share_accounts_ajax(true);
+            share_accounts_ajax(true, email.val());
             dialog.dialog( "close" );
         }
         return valid;
@@ -2375,7 +2377,7 @@ $(function() {
 // used in shared/share_accounts partial
 // used in auth/index and users/index?friends=me tab
 // accepted: false when called from LOV. True when called from accept in dialog form. Only relevant for share level 3 and 4
-function share_accounts_ajax(accepted) {
+function share_accounts_ajax(accepted, email) {
     var pgm = 'share_accounts_ajax: ' ;
     try {
 
@@ -2386,7 +2388,7 @@ function share_accounts_ajax(accepted) {
         }
         var share_level = share_level_lov.options[share_level_lov.selectedIndex].value;
         clear_ajax_errors('share_accounts_errors');
-        add2log(pgm + 'share_level = ' + share_level);
+        add2log(pgm + 'share_level = ' + share_level + ', email = ' + email);
         if (!accepted && ((share_level == '3') || (share_level == 4))) {
             // share level 3 - dynamic friend lists
             // share level 4 - single sign-on
@@ -2399,7 +2401,7 @@ function share_accounts_ajax(accepted) {
             url: "/util/share_accounts.js",
             type: "POST",
             dataType: 'script',
-            data: { share_level: share_level },
+            data: { share_level: share_level, email: email },
             beforeSend: function () {
                 // add2log(pgm + 'beforesend') ;
                 share_level_lov.disabled = true;

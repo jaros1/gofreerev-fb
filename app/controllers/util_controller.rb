@@ -1705,14 +1705,14 @@ class UtilController < ApplicationController
     end
   end # post_on_wall_yn
 
-  # share accounts ajax request from auth/index page (checkbox)
-  # params = {"share_level"=>"2", "offline_access"=>"N", "controller"=>"util", "action"=>"share_accounts_yn", "format"=>"js"}
+  # share accounts ajax request from auth/index and users/index?friends=me pages
+  # params = {"share_level"=>"3", "email"=>"jane@smith.com"}
   # share_level:
   #   0: no sharing
-  #   1: shared balance across API providers  (offline access = 'N')
-  #   2: share balance and static friend lists across API providcers (offline access = 'N')
-  #   3: share balance and dynamic friend lists across API providers (offline access = 'Y') - save access token in db
-  #   4: share balance, dynamic friend lists and allow single sign-on (offline access = 'Y') - save access token in db
+  #   1: shared balance across API providers (email not used)
+  #   2: share balance and static friend lists across API providers (email not used)
+  #   3: share balance and dynamic friend lists across API providers - save access token in db
+  #   4: share balance, dynamic friend lists and allow single sign-on - save access token in db
   public
   def share_accounts
     table = 'share_accounts_errors'
@@ -1723,11 +1723,7 @@ class UtilController < ApplicationController
       share_level = params[:share_level].to_s
       return format_response_key('.unknown_share_accounts', :table => table) unless %w(0 1 2 3 4).index(share_level)
       share_level = share_level.to_i
-      offline_access_yn = params[:offline_access_yn]
-      offline_access_yn = 'N' if offline_access_yn.to_s == ''
-      return format_response_key('.unknown_share_accounts', :table => table) unless %w(N Y).index(offline_access_yn)
-      add_error_key '.no_offline_access', :table => table if %w(3 4).index(share_level) and offline_access_yn == 'N'
-      if [3,4].index(share_level) and offline_access_yn == 'Y'
+      if [3,4].index(share_level)
         # check session variables access token and expires_at.
         # rules:
         # a) access token and expires_at must be present for each login provider
@@ -1752,32 +1748,45 @@ class UtilController < ApplicationController
           return format_response_key('.reconnect_required', { :table => table, :apinames => reconnect_required.sort.join(', ')})
         end
       end
+      # get email
+      old_share_account_ids = @users.find_all { |u| u.share_account_id }.collect { |u| u.share_account_id }.uniq
+      if [1,2].index(share_level)
+        # keep any old email
+        emails = ShareAccount.where(:id => old_share_account_ids).collect { |sa| sa.email }.find_all { |x| x}.uniq
+        email = emails.first if emails.size == 1
+      end
+      if [3,4].index(share_level)
+        # use email from share accounts modal dialog form
+        email = params[:email].to_s
+        email = nil if email == ''
+      end
       # set or reset share_account_id for logged in users
       if share_level == 0
         share_account_id = nil
       else
-        share_account_id = ShareAccount.next_share_account_id(share_level, offline_access_yn) # share balance and friend lists
+        share_account_id = ShareAccount.get_share_account_id(share_level, email) # share balance and friend lists
       end
-      old_share_accounts = @users.find_all { |u| u.share_account_id }.collect { |u| u.share_account_id }.uniq
+      logger.debug2 "expires_at = #{expires_at}"
       @users.each do |user|
+        logger.debug2 "provider = #{user.provider}"
         user.update_attribute(:share_account_id, share_account_id)
         if share_level < 3
           # clear any old auth. information from db
           user.update_attribute(:access_token, nil) if user.access_token
           user.update_attribute(:access_token_expires, nil) if user.access_token_expires
           user.update_attribute(:refresh_token, nil) if user.refresh_token
-        elsif offline_access_yn == 'Y' and expires_at[user.provider] > 0
-          # ok to save auth. info in db - user has selected share level 3 or 4 and checked offline access check box
+        elsif expires_at[user.provider] > 0
+          # ok to save auth. info in db - user has selected share level 3 or 4
           user.update_attribute(:access_token, tokens[user.provider].to_yaml)
           user.update_attribute(:access_token_expires, expires_at[user.provider])
           user.update_attribute(:refresh_token, refresh_tokens[user.provider])
         end
       end
-      ShareAccount.where(:id => old_share_accounts, :no_users => 1).each do |sa|
+      ShareAccount.where(:id => old_share_account_ids, :no_users => 1).each do |sa|
         user = sa.users.first
         sa.destroy
         user.share_account_clear
-      end if old_share_accounts.size > 0
+      end if old_share_account_ids.size > 0
       # return share_accounts_div to client
       format_response
     rescue => e

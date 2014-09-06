@@ -400,7 +400,6 @@ module ApplicationHelper
       line_seperator = shared.size == 1 ? '' : '<br>- '
       shared.collect do |share_account, providers|
          share_level = share_account.share_level
-         share_level = 2 if [3,4].index(share_level) and share_account.offline_access_yn == 'N'
          share_level_text = t "shared.share_accounts.lov_text_#{share_level}"
          providers_text = providers.sort.join(', ')
          notes = []
@@ -423,7 +422,7 @@ module ApplicationHelper
 
   def share_level
     return 0 unless logged_in?
-    share_levels = shared_accounts.keys.collect { |sa| [sa.share_level, sa.offline_access_yn] }.uniq
+    share_levels = shared_accounts.keys.collect { |sa| [sa.share_level, sa.email] }.uniq
     share_levels.delete_if { |share_level| share_level[0] == 0 }
     return 0 if share_levels.size == 0 # no sharing
     return 5 if share_levels.size > 1 # mixed sharing
@@ -434,12 +433,6 @@ module ApplicationHelper
   def share_levels (share_level)
     last_level = share_level == 5 ? 5 : 4 # 5 mixed sharing - display only option
     0.upto(last_level).collect { |i| [t("shared.share_accounts.lov_text_#{i}"), i] }
-  end
-
-  def offline_access?
-    offline_access = shared_accounts.keys.collect { |sa| sa.offline_access_yn }.uniq
-    return false unless offline_access.size == 1
-    (offline_access.first == 'Y')
   end
 
 end # ApplicationHelper

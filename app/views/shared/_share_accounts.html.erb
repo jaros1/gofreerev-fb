@@ -22,7 +22,7 @@
   <%= t '.lov_prompt' %>
   <%= select_tag :share_level_lov, options_for_select(share_levels(share_level()), share_level()),
                  :readonly => shared_accounts_disabled?, :disabled => shared_accounts_disabled?,
-                 :onchange => 'share_accounts_ajax(false)' %>
+                 :onchange => 'share_accounts_ajax(false,"")' %>
   <br>
   <%= t '.shared_accounts_prompt' %>
   <%= shared_accounts_list %>
