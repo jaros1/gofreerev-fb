@@ -1768,7 +1768,6 @@ class UtilController < ApplicationController
       end
       logger.debug2 "expires_at = #{expires_at}"
       @users.each do |user|
-        logger.debug2 "provider = #{user.provider}"
         user.update_attribute(:share_account_id, share_account_id)
         if share_level < 3
           # clear any old auth. information from db
@@ -1778,6 +1777,7 @@ class UtilController < ApplicationController
         elsif expires_at[user.provider] > 0
           # ok to save auth. info in db - user has selected share level 3 or 4
           user.update_attribute(:access_token, tokens[user.provider].to_yaml)
+          logger.debug2 "provider = #{user.provider}, expires_at[user.provider] = #{expires_at[user.provider]} (#{expires_at[user.provider].class})"
           user.update_attribute(:access_token_expires, expires_at[user.provider])
           user.update_attribute(:refresh_token, refresh_tokens[user.provider])
         end

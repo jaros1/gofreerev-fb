@@ -10,16 +10,18 @@ class ShareAccount < ActiveRecord::Base
 
   # 2) email. String in model. Encrypted text in db. Optional
   def email
-    # logger.debug2  "gift.email: email = #{read_attribute(:email)} (#{read_attribute(:email).class.name})"
+    logger.debug2  "email = #{read_attribute(:email)} (#{read_attribute(:email).class.name})"
+    share_account_id = new_encrypt_pk unless share_account_id
     return nil unless (extended_email = read_attribute(:email))
     encrypt_remove_pre_and_postfix(extended_email, 'email', 49)
   end # email
   def email=(new_email)
-    # logger.debug2  "gift.email=: email = #{new_email} (#{new_email.class.name})"
+    logger.debug2  "email = #{new_email} (#{new_email.class.name})"
     if new_email
       check_type('email', new_email, 'String')
       write_attribute :email, encrypt_add_pre_and_postfix(new_email, 'email', 49)
     else
+      self.share_account_id = new_encrypt_pk unless share_account_id
       write_attribute :email, nil
     end
   end # email=
@@ -39,7 +41,7 @@ class ShareAccount < ActiveRecord::Base
     sa.share_level = share_level
     sa.email = email
     sa.save!
-    sa.id
+    sa.share_account_id
   end # self.next_user_combination
 
   ##############
