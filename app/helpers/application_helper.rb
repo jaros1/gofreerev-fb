@@ -436,4 +436,12 @@ module ApplicationHelper
     0.upto(last_level).collect { |i| [t("shared.share_accounts.lov_text_#{i}"), i] }
   end
 
+  def share_accounts_email
+    accounts = accounts()
+    emails = accounts.keys.collect { |sa| sa.email }.delete_if { |email| !email}
+    logger.debug2 "emails = #{emails}"
+    return nil unless emails.size == 1
+    emails.first
+  end
+
 end # ApplicationHelper

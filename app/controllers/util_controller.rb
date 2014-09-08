@@ -1766,7 +1766,7 @@ class UtilController < ApplicationController
       else
         share_account_id = ShareAccount.get_share_account_id(share_level, email) # share balance and friend lists
       end
-      logger.debug2 "expires_at = #{expires_at}"
+      # logger.debug2 "expires_at = #{expires_at}"
       @users.each do |user|
         user.update_attribute(:share_account_id, share_account_id)
         if share_level < 3
@@ -1777,7 +1777,6 @@ class UtilController < ApplicationController
         elsif expires_at[user.provider] > 0
           # ok to save auth. info in db - user has selected share level 3 or 4
           user.update_attribute(:access_token, tokens[user.provider].to_yaml)
-          logger.debug2 "provider = #{user.provider}, expires_at[user.provider] = #{expires_at[user.provider]} (#{expires_at[user.provider].class})"
           user.update_attribute(:access_token_expires, expires_at[user.provider])
           user.update_attribute(:refresh_token, refresh_tokens[user.provider])
         end
@@ -1788,6 +1787,7 @@ class UtilController < ApplicationController
         user.share_account_clear
       end if old_share_account_ids.size > 0
       # return share_accounts_div to client
+      @email = email
       format_response
     rescue => e
       logger.debug2 "Exception: #{e.message.to_s} (#{e.class})"

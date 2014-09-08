@@ -2295,7 +2295,7 @@ $(function() {
 
     // From http://www.whatwg.org/specs/web-apps/current-work/multipage/states-of-the-type-attribute.html#e-mail-state-%28type=email%29
         emailRegex = /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/,
-        email = $( "#email" ),
+        email = $( "#share-accounts-email" ),
         allFields = $( [] ).add( email ),
         tips = $( ".validateTips" );
 
@@ -2333,9 +2333,11 @@ $(function() {
         var valid = true;
         allFields.removeClass( "ui-state-error" );
 
-        valid = valid && checkLength( email, "email", 6, 200 );
+        if (email.val() != '') {
+            valid = valid && checkLength( email, "email", 6, 200 );
 
-        valid = valid && checkRegexp( email, emailRegex, "eg. ui@jquery.com" );
+            valid = valid && checkRegexp( email, emailRegex, "eg. ui@jquery.com" );
+        }
 
         if ( valid ) {
             // send ajax request and close dialog
