@@ -2347,6 +2347,14 @@ $(function() {
         return valid;
     }
 
+    function reject() {
+        // todo: restore old LOV value without triggering new share accounts dialog form
+        var share_level_lov = document.getElementById('share_level_lov') ;
+        var old_share_level_lov = document.getElementById('old_share_level_lov') ;
+        if (share_level_lov && old_share_level_lov) share_level_lov.value = old_share_level_lov.value ;
+        dialog.dialog( "close" );
+    }
+
     dialog = $( "#share-accounts-dialog-form" ).dialog({
         autoOpen: false,
         height: 300,
@@ -2354,9 +2362,7 @@ $(function() {
         modal: true,
         buttons: {
             "Yes": accept,
-            "No": function() {
-                dialog.dialog( "close" );
-            }
+            "No": reject
         },
         close: function() {
             form[ 0 ].reset();

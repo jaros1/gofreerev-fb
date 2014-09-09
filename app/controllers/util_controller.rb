@@ -1752,7 +1752,8 @@ class UtilController < ApplicationController
       old_share_account_ids = @users.find_all { |u| u.share_account_id }.collect { |u| u.share_account_id }.uniq
       if [1,2].index(share_level)
         # keep any old email
-        emails = ShareAccount.where(:id => old_share_account_ids).collect { |sa| sa.email }.find_all { |x| x}.uniq
+        emails = ShareAccount.where(:share_account_id => old_share_account_ids).collect { |sa| sa.email }.find_all { |x| x}.uniq
+        logger.debug2 "share level 1 and 2. keep any old email. emails = #{emails}"
         email = emails.first if emails.size == 1
       end
       if [3,4].index(share_level)
