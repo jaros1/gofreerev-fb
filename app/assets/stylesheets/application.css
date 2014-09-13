@@ -76,6 +76,12 @@ form {
     display: none;
 }
 
+
+/* bigger links smartphones and tables */
+@media screen and (max-width: 799px) {
+    a {font-size: 135%}
+}
+
 /* responsive header. show/hide username/api and/or balance/currency information in page header */
 @media screen and (max-width: 440px) {
 
