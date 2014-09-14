@@ -10,8 +10,6 @@ class AuthController < ApplicationController
     logged_in_providers = @users.find_all { |user| !user.dummy_user? }.collect { |user| user.provider }
     # initialize @providers hash with true/false to logged in provider
 
-    x = 1 / 0
-
     @providers = []
     all_providers.each do |provider|
       # logged_in: 0 not connected, 1 connected with one login provider, 2 connected with multiple login providers
