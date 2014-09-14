@@ -77,7 +77,7 @@ form {
 }
 
 
-/* bigger links smartphones and tables */
+/* bigger links on smartphones and tables */
 @media screen and (max-width: 799px) {
     a {font-size: 135%}
 }

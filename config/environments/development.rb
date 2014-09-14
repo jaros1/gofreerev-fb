@@ -10,7 +10,7 @@ GofreerevFb::Application.configure do
   config.eager_load = false
 
   # Show full error reports and disable caching.
-  config.consider_all_requests_local       = true
+  config.consider_all_requests_local = true
   config.action_controller.perform_caching = false
 
   # Don't care if the mailer can't send.
@@ -26,4 +26,32 @@ GofreerevFb::Application.configure do
   # This option may cause significant delays in view rendering with a large
   # number of complex assets.
   config.assets.debug = true
+
+  # exception_notification gem
+  config.action_mailer.delivery_method = :sendmail
+  # Defaults to:
+  # config.action_mailer.sendmail_settings = {
+  #   :location => '/usr/sbin/sendmail',
+  #   :arguments => '-i -t'
+  # }
+  config.action_mailer.perform_deliveries = true
+  config.action_mailer.raise_delivery_errors = true
+  # get smtp config from environment variables <env>_EN_EMAIL_PREFIX
+  rails_env = case Rails.env when "development" then "DEV" when "test" then "TEST" when "production" then "PROD" end
+  config.middleware.use ExceptionNotification::Rack,
+                        :email => {
+                            :email_prefix => ENV["gofreerev_#{rails_env}_en_email_prefix".upcase],
+                            :sender_address => ["notifier", ENV["gofreerev_#{rails_env}_en_sender".upcase]],
+                            :exception_recipients => ENV["gofreerev_#{rails_env}_en_recipients".upcase].split(' '),
+                            :delivery_method => :smtp,
+                            :smtp_settings => {
+                                :address => ENV["gofreerev_#{rails_env}_en_address".upcase],
+                                :port => 587,
+                                :authentication => 'plain',
+                                :enable_starttls_auto => true,
+                                :domain => ENV["gofreerev_#{rails_env}_en_domain".upcase],
+                                :user_name => ENV["gofreerev_#{rails_env}_en_user_name".upcase],
+                                :password => ENV["gofreerev_#{rails_env}_en_password".upcase],
+                            }
+                        }
 end
