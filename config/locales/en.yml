@@ -156,6 +156,7 @@ en:
      create:
         provider_missing: "Login failed. Did not receive name for login provider."
         unknown_provider: "Login failed. Received unknown login provider %{provider}."
+        invalid_state_login: "Login from %{apiname} failed. Possible \"Cross-site Request Forgery\" problem."
         access_token_missing: "Login failed. Did not receive %{provider} access token."
         expires_at_missing: "Login failed. Did not receive expire timestamp for %{provider} access token."
         expires_at_invalid: "Login failed. Received invalid expire timestamp for %{provider} access token."

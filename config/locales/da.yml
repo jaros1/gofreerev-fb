@@ -157,6 +157,7 @@ da:
      create:
         provider_missing: "Login fejlede. Modtog ikke navn på login-udbyder."
         unknown_provider: "Login fejlede. Modtog ukendt login-udbyder %{provider}."
+        invalid_state_login: "Login fra %{apiname} fejlede. Muligt \"Cross-site Request Forgery\" problem."
         access_token_missing: "Login fejlede. Modtog ikke %{provider} adgangsbillet."
         expires_at_missing: "Login fejlede. Modtog ikke udløb tidsstempel for %{provider} adgangsbillet."
         expires_at_invalid: "Login fejlede. Modtog ugyldigt udløb tidsstempel for %{provider} adgangsbillet."

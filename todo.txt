@@ -350,9 +350,6 @@
  62) linkedin gem. frozen to an old version due to error. Unfreeze when error is solved
      https://github.com/hexgnu/linkedin/issues/216
 
- 63) check if there is a problem with missing state in omniauth login.
-     normally state should be included when using omniauth and callbacks
-
  64) refactor linkedin & flickr controller translate keys into shared? Almost identical translations
 
  66) check out open graph meta-tags in flickr.

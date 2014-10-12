@@ -67,9 +67,26 @@ class AuthController < ApplicationController
     @auth_hash = auth_hash
     logger.secret2 "auth_hash = #{auth_hash}"
 
+    provider = auth_hash.get_provider
+
+    # check state - only relevant for auth 2.0 - maybe already done in omniauth-oauth2?
+    # logger.secret2 "env['action_dispatch.request.unsigned_session_cookie'] = #{env['action_dispatch.request.unsigned_session_cookie']}"
+    if env['action_dispatch.request.unsigned_session_cookie']
+      omniauth_status = env['action_dispatch.request.unsigned_session_cookie']['omniauth.state']
+    end
+    # logger.debug2 "omniauth_status = #{omniauth_status}"
+    # logger.debug2 "params[:state] = #{params[:state]}"
+    # use key auth.create.invalid_state_login in case of invalid state
+    if (params.has_key?(:state) or omniauth_status) and params[:state] != omniauth_status
+      # oauth2 and invalid state
+      logger.debug2 "invalid state after omniauth login. omniauth_status = #{omniauth_status}, params[:state] = #{params[:state]}"
+      save_flash_key ".invalid_state_login", :apiname => provider_downcase(provider)
+      redirect_to :controller => :auth, :action => :index
+      return
+    end
+
     # login - return nil (ok) or array with translate key and options for error message
     # auth_hash.get_xxx methods are defined in initializers/omniauth*.rb
-    provider = auth_hash.get_provider
 
     # auth hash debugging for new login providers:
     # if provider == 'facebook' and auth_hash.get_uid.to_s == '99999999'
