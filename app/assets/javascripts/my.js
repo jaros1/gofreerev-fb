@@ -1306,6 +1306,7 @@ $(document).ready(function() {
                         add_to_tasks_errors(msg)
                     } else {
                         // Query Has values.
+                        add2log(pgm + 'msg = ' + msg) ;
                         $(id).replaceWith(msg);
                         $(id).click;
                     }

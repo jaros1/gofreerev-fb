@@ -625,10 +625,6 @@
      should have user accept before sending email notifications
      should have a unsubscribe link in email
 
-136) currency LOV onclick error:
-     text "clear_ajax_errors('show-more-rows-errors') ;" is ajax injected before LOV
-     problem in page header and in users/edit page
-
 137) auth/index: share_level_lov and offline_access_checkbox are disabled after page refresh
      testcase firefox 30.0 : 1) change LOV or checkbox, 2) refresh page, 3) LOV is disabled
      tried a JS fix - save LOV disabled/readonly state at startup - restore LOV disabled/readonly state at reload - did not work

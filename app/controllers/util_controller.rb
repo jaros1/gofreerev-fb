@@ -790,6 +790,7 @@ class UtilController < ApplicationController
       render :nothing => true
     else
       logger.debug2 "return currencies to client on onfocus event"
+      render :layout => false
     end
   end
 
