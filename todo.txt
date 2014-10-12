@@ -316,9 +316,6 @@
     Second https://apps.facebook.com/gofreerev-dev/ request => post /
     Opera console does not reveal any rejected localhost requests. But should not start with a "get /" in log
 
-52) opera. displays auth/index page within facebook iframe when gofreerev starts from facebook.
-    no problem in opera 12
-
 53) localhost / login servers Sandra/fb and Gofreerev A/gp
     2+2 notifications. 2 accepted and 2 accepted follow notification.
     for example 13. feb. 2014 11.58
@@ -711,18 +708,22 @@
      http://jsfiddle.net/xaAN3/
 
 170) check responsive design frameworks
-    Se mails fra Jacob 2/10-2014
-    1) Emne: Responsive design frameworks
-    http://www.sitepoint.com/best-web-designing-frameworks-2014/
-    http://gridgum.com/6-great-responsive-frameworks-for-2014/
-    http://www.smashingmagazine.com/2014/02/19/responsive-design-frameworks-just-because-you-can-should-you/
-    http://gumbyframework.com
-    http://foundation.zurb.com
-    http://responsive.vermilion.com/compare.php
-    http://getbootstrap.com
-    2) Emne: Flere widgets til Bootstrap
-    http://exacttarget.github.io/fuelux/index.html
-    3) Emne: VS: RATCHET
-    Bootstraps eget mobil web site optimerede framework. Hvordan det passer med at Bootstrap kalder sig et mobil first responsive design framework ved jeg ikke.
+     Se mails fra Jacob 2/10-2014
+     1) Emne: Responsive design frameworks
+     http://www.sitepoint.com/best-web-designing-frameworks-2014/
+     http://gridgum.com/6-great-responsive-frameworks-for-2014/
+     http://www.smashingmagazine.com/2014/02/19/responsive-design-frameworks-just-because-you-can-should-you/
+     http://gumbyframework.com
+     http://foundation.zurb.com
+     http://responsive.vermilion.com/compare.php
+     http://getbootstrap.com
+     2) Emne: Flere widgets til Bootstrap
+     http://exacttarget.github.io/fuelux/index.html
+     3) Emne: VS: RATCHET
+     Bootstraps eget mobil web site optimerede framework. Hvordan det passer med at Bootstrap kalder sig et mobil first responsive design framework ved jeg ikke.
 
-select random issue: (rand*170).floor+1
+171) auth/index.
+     share accounts = mixed sharring even if all accounts are shared:
+     Details: facebook, flickr, foursquare, google+, instagram, linkedin, twitter, vkontakte: single sign-on
+
+select random issue: (rand*171).floor+1

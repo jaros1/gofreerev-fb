@@ -2731,6 +2731,17 @@ function share_gift(provider, gift_id, link, extra) {
 } // share_gift
 
 
+// Fix bug. App is displayed in a iFrame for opera < 12.16
+// http://stackoverflow.com/questions/326069/how-to-identify-if-a-webpage-is-being-loaded-inside-an-iframe-or-directly-into-t
+function inIframe () {
+    try {
+        return window.self !== window.top;
+    } catch (e) {
+        return true;
+    }
+} // inIframe
+
+
 
 // custom confirm box - for styling
 // http://lesseverything.com/blog/archives/2012/07/18/customizing-confirmation-dialog-in-rails/
