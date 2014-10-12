@@ -759,7 +759,7 @@ class ApplicationController < ActionController::Base
     end
     # 5) send friends_find notifications once a week for active users.
     # first login is used as a trigger for this batch job
-    add_task "User.find_friends_batch", 5 if first_login
+    add_task 'User.find_friends_batch', 5 if first_login
     # 6) message for expired access tokens for user share level 3 (dynamic friend lists) and 4 (single sign-on login)
     # post login service message to user about any expired access tokens
     add_task "check_expired_tokens(#{user.id},#{first_login})" if share_account and [3,4].index(share_account.share_level)
@@ -927,7 +927,10 @@ class ApplicationController < ActionController::Base
   # set timezone used in views
   private
   def get_timezone
+    # logger.debug2 "before: Time.zone = #{Time.zone}, Time.now = #{Time.now}, Time.zone.now = #{Time.zone.now}"
+    # logger.debug2 "session[:timezone] = #{session[:timezone]}"
     Time.zone = session[:timezone] if session[:timezone]
+    # logger.debug2 "after: Time.zone = #{Time.zone}, Time.now = #{Time.now}, Time.zone.now = #{Time.zone.now}"
   end
 
   # save timezone received from JS or from login provider

@@ -438,6 +438,8 @@ module ApplicationHelper
 
   def share_accounts_email
     accounts = accounts()
+    accounts.delete(0)
+    # logger.debug2 "accounts = #{accounts}"
     emails = accounts.keys.collect { |sa| sa.email }.delete_if { |email| !email}
     logger.debug2 "emails = #{emails}"
     return nil unless emails.size == 1

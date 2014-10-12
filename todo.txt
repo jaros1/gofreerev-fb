@@ -672,8 +672,6 @@
      see application_controller.open_graph_title_and_desc
      append generic description t("gifts.show.og_def_desc_#{api_gift.provider}") to comment
 
-155) inbox/index - use local time. Was 22 Jul 11:47. Should have been 22 Jul 10:47.
-
 156) user/edit delete account.
      ajax spinner ok at first delete account request (logical delete account)
      ajax spinner is mising at second delete account request (physical delete account)
@@ -714,4 +712,24 @@
      b) authorization error
      c) other errors
 
-select random issue: (rand*168).floor+1
+169) how to handle mouse over texts on touch screens
+     http://www.paciellogroup.com/blog/2013/01/using-the-html-title-attribute-updated/
+     http://stackoverflow.com/questions/12539006/tooltips-for-mobile-browsers
+     http://jsfiddle.net/xaAN3/
+
+170) check responsive design frameworks
+    Se mails fra Jacob 2/10-2014
+    1) Emne: Responsive design frameworks
+    http://www.sitepoint.com/best-web-designing-frameworks-2014/
+    http://gridgum.com/6-great-responsive-frameworks-for-2014/
+    http://www.smashingmagazine.com/2014/02/19/responsive-design-frameworks-just-because-you-can-should-you/
+    http://gumbyframework.com
+    http://foundation.zurb.com
+    http://responsive.vermilion.com/compare.php
+    http://getbootstrap.com
+    2) Emne: Flere widgets til Bootstrap
+    http://exacttarget.github.io/fuelux/index.html
+    3) Emne: VS: RATCHET
+    Bootstraps eget mobil web site optimerede framework. Hvordan det passer med at Bootstrap kalder sig et mobil first responsive design framework ved jeg ikke.
+
+select random issue: (rand*170).floor+1
