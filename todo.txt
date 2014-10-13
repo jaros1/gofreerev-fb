@@ -502,9 +502,6 @@
 106) reject_new_deal: line with comment error message (proposal was rejected)
      is not removed when comment is ajax replaced with new comment from util.new_messages_count
 
-107) accept new deal: old deal was not deleted from gifts/index page when new accepted deal
-     was ajax injected into page. Could be same problem as in 183. char sort instead of number sort.
-
 108) controllers. add http/ajax comment to all relevant methods
 
 109) controllers. check format_response in end of all ajax methods
