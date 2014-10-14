@@ -2298,7 +2298,9 @@ $(function() {
         emailRegex = /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/,
         email = $( "#share-accounts-email" ),
         allFields = $( [] ).add( email ),
-        tips = $( ".validateTips" );
+        tips = $( ".validateTips"),
+        accept_text = I18n.t('js.share_accounts_dialog.accept'),
+        reject_text = I18n.t('js.share_accounts_dialog.reject') ;
 
     function updateTips( t ) {
         tips
@@ -2312,8 +2314,7 @@ $(function() {
     function checkLength( o, n, min, max ) {
         if ( o.val().length > max || o.val().length < min ) {
             o.addClass( "ui-state-error" );
-            updateTips( "Length of " + n + " must be between " +
-                min + " and " + max + "." );
+            updateTips(I18n.t('js.share_accounts_dialog.invalid_length', {field: n, min: min, max: max}));
             return false;
         } else {
             return true;
@@ -2335,9 +2336,9 @@ $(function() {
         allFields.removeClass( "ui-state-error" );
 
         if (email.val() != '') {
-            valid = valid && checkLength( email, "email", 6, 200 );
+            valid = valid && checkLength( email, I18n.t('js.share_accounts_dialog.email'), 6, 200 );
 
-            valid = valid && checkRegexp( email, emailRegex, "eg. ui@jquery.com" );
+            valid = valid && checkRegexp( email, emailRegex, I18n.t('js.share_accounts_dialog.invalid_email') );
         }
 
         if ( valid ) {
@@ -2361,10 +2362,15 @@ $(function() {
         height: 300,
         width: 350,
         modal: true,
-        buttons: {
-            "Yes": accept,
-            "No": reject
-        },
+        buttons:[
+            {
+                text: accept_text,
+                click: accept
+            },
+            {
+                text: reject_text,
+                click: reject
+            }],
         close: function() {
             form[ 0 ].reset();
             allFields.removeClass( "ui-state-error" );

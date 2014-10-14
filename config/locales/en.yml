@@ -143,7 +143,10 @@ en:
         lov_text_3: "share bal. and dynamic friend lists"
         lov_text_4: "single sign-on"
         lov_text_5: "mixed sharing. See text below"
-
+     share_accounts_dialog:
+        dialog_title: "Security alert!"
+        dialog_title_text: "To enable share dynamic friend lists, single sign-on and offline friend suggestions functionality you must allow Gofreerev to store your API access tokens on server. The API access tokens will be stored encrypted on server and will only be used for offline friend list updates, single sign-on and friend suggestions. You can change share accounts choice later and you can always revoke Gofreerev permissions at your login APIs. Optional you can enter your email if you wish to receive email with friend suggestions once every fortnight. Please use correct email address. IP-address and your API contact information will be included in email to prevent spam."
+        dialog_text: "Save access tokens on server?"
 
   # omniauth controllers (auth, facebook and linkedin):
 
@@ -1018,6 +1021,12 @@ en:
         lov_not_found: "System error when changing \"Share accounts?\" choice. Element share_level_lov was not found."
         ajax_error: "Cannot change \"Share accounts?\" choice. %{error}. More information in server log."
         js_error: "Cannot change \"Share accounts?\" choice. Javascript fejl %{error} (%{location},%{debug}). More information in client and server logs."
+     share_accounts_dialog:
+        accept: "Yes"
+        reject: "No"
+        email: "email"
+        invalid_length: "Length of %{field} must be between %{min} and %{max}."
+        invalid_email: "eg. ui@jquery.com"
      share_gift: # sorry, but share gift urls have to be repeated for each language
         invalid_id: "System error. Cannot share gift. Invalid id for LOV."
         missing_translation: "System error. Cannot share gift. Link definition was not found for %{provider}."

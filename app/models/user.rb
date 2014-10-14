@@ -1090,7 +1090,7 @@ class User < ActiveRecord::Base
   def self.find_friends_batch (users = [])
     begin
       if users.size == 0
-        fb_notification = true
+        batch_notification = true
         # started as post login task after single user login
         # api notifications is only implemented for facebook
         # send Gofreerev and facebook notification to one user
@@ -1130,7 +1130,7 @@ class User < ActiveRecord::Base
         end
       else
         # from called from util.new_messages_count for multi user login - online notifications in Gofreerev only
-        fb_notification = false
+        batch_notification = false
         users2 = User.find_friends(users)
       end
       return unless users2.size > 0
@@ -1160,7 +1160,7 @@ class User < ActiveRecord::Base
         fb_user = to_user if to_user.provider == 'facebook'
       end
       # FB notification - batch notifications to not logged active users
-      return unless fb_notification and fb_user
+      return unless batch_notification and fb_user
       return if fb_user.last_login_at < 1.month.ago
       # development - FB notifications is only enabled for selected users
       allowed_dev_user_ids = %w(1705481075/facebook 100006399422155/facebook)

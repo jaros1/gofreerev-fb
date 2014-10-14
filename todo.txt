@@ -613,8 +613,12 @@
 
 135) friends find email notification for non FB accounts
      must read email from one or more non FB API's
-     should have user accept before sending email notifications
-     should have a unsubscribe link in email
+     user accept before sending email notifications
+     must have an unsubscribe link in email
+     ip adr and account(s) info in friends suggestions mail so that receiver can se info about creator of friends suggestion
+     use fb notification is fb is one of the shared accounts
+     only use email address is fb is not one of the shared accounts
+     only display email in accept box if fb ia not one of the shared accounts
 
 137) auth/index: share_level_lov and offline_access_checkbox are disabled after page refresh
      testcase firefox 30.0 : 1) change LOV or checkbox, 2) refresh page, 3) LOV is disabled
