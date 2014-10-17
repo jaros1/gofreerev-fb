@@ -41,17 +41,23 @@ class User < ActiveRecord::Base
   # 1) user_id. required unique USER id, fx. 1234567890/facebook. Not encrypted. PK and user in encryption
   validates_presence_of :user_id
   attr_readonly :user_id
+
   def user_id=(new_user_id)
     return self['user_id'] if self['user_id']
     self['user_id'] = new_user_id
-  end # user_id=
+  end
+
+  # user_id=
 
   # 2) user_name. User name. String in model. Encrypted text in db. required. is updated when the user logs in.
   validates_presence_of :user_name
+
   def user_name
     return nil unless (extended_user_name = read_attribute(:user_name))
     encrypt_remove_pre_and_postfix(extended_user_name, 'user_name', 9)
-  end # user_name
+  end
+
+  # user_name
   def user_name=(new_user_name)
     if new_user_name
       # logger.debug2  "new_user_name = #{new_user_name} (#{new_user_name.class.name})"
@@ -60,13 +66,18 @@ class User < ActiveRecord::Base
     else
       write_attribute :user_name, nil
     end
-  end # user_name=
+  end
+
+  # user_name=
   alias_method :user_name_before_type_cast, :user_name
+
   def user_name_was
     return user_name unless user_name_changed?
     return nil unless (extended_user_name = attribute_was(:user_name))
     encrypt_remove_pre_and_postfix(extended_user_name, 'user_name', 9)
-  end # user_name_was
+  end
+
+  # user_name_was
 
   # 3) currency. Required. String in model. Encrypted text in db.
   # validates_presence_of :currency # todo: only required for gofreerev users / not required for friends not using gofreerev
@@ -74,6 +85,7 @@ class User < ActiveRecord::Base
     return nil unless (extended_currency = read_attribute(:currency))
     encrypt_remove_pre_and_postfix(extended_currency, 'currency', 10)
   end
+
   def currency=(new_currency)
     if new_currency
       check_type('currency', new_currency, 'String')
@@ -81,13 +93,18 @@ class User < ActiveRecord::Base
     else
       write_attribute :currency, nil
     end
-  end # currency
+  end
+
+  # currency
   alias_method :currency_before_type_cast, :currency
+
   def currency_was
     return currency unless currency_changed?
     return nil unless (extended_currency = attribute_was(:currency))
     encrypt_remove_pre_and_postfix(extended_currency, 'currency', 10)
-  end # currency_was
+  end
+
+  # currency_was
 
   # 4) balance. Balance. Required. Multi-currency Hash in model. Encrypted text in db
   # Keys is ISO code for currency USD, EUR, GBP etc.
@@ -99,7 +116,9 @@ class User < ActiveRecord::Base
     temp_balance = YAML::load encrypt_remove_pre_and_postfix(temp_extended_balance, 'balance', 11)
     temp_balance[BALANCE_KEY] = nil unless temp_balance.has_key?(BALANCE_KEY)
     temp_balance
-  end # balance
+  end
+
+  # balance
   def balance=(new_balance)
     if new_balance
       check_type('balance', new_balance, 'Hash')
@@ -107,15 +126,20 @@ class User < ActiveRecord::Base
     else
       write_attribute :balance, nil
     end
-  end # balance=
+  end
+
+  # balance=
   alias_method :balance_before_type_cast, :balance
+
   def balance_was
     return balance unless balance_changed?
     return nil unless (temp_extended_balance = attribute_was(:balance))
     temp_balance = YAML::load encrypt_remove_pre_and_postfix(temp_extended_balance, 'balance', 11)
     temp_balance[BALANCE_KEY] = nil unless temp_balance.has_key?(BALANCE_KEY)
     temp_balance
-  end # balance_was
+  end
+
+  # balance_was
 
   # 5) balance_at. Date. Not encrypted. Date for last balance calculation. Normally today.
   # validates_presence_of :balance_at # todo: only required for gofreerev users / not required for friends not using gofreerev
@@ -130,27 +154,36 @@ class User < ActiveRecord::Base
     return nil unless (extended_permissions = read_attribute(:permissions))
     # todo: no type check for permissions!
     YAML::load(encrypt_remove_pre_and_postfix(extended_permissions, 'permissions', 12))
-  end # permissions
+  end
+
+  # permissions
   def permissions=(new_permissions)
     if new_permissions
       write_attribute :permissions, encrypt_add_pre_and_postfix(new_permissions.to_yaml, 'permissions', 12)
     else
       write_attribute :permissions, nil
     end
-  end # permissions
+  end
+
+  # permissions
   alias_method :permissions_before_type_cast, :permissions
+
   def permissions_was
     return permissions unless permissions_changed?
     return nil unless (extended_permissions = attribute_was(:permissions))
     YAML::load(encrypt_remove_pre_and_postfix(extended_permissions, 'permissions', 12))
-  end # permissions_was
-  
+  end
+
+  # permissions_was
+
   # 7) no_api_friends. Fixnum in Model. Encrypted text in db.
   # for example number of facebook friends for a facebook user
   def no_api_friends
     return nil unless (temp_extended_no_api_friends = read_attribute(:no_api_friends))
     encrypt_remove_pre_and_postfix(temp_extended_no_api_friends, 'no_api_friends', 13).to_i
-  end # balance
+  end
+
+  # balance
   def no_api_friends=(new_no_api_friends)
     if new_no_api_friends
       check_type('no_api_friends', new_no_api_friends, 'Fixnum')
@@ -158,13 +191,18 @@ class User < ActiveRecord::Base
     else
       write_attribute :no_api_friends, nil
     end
-  end # balance=
+  end
+
+  # balance=
   alias_method :no_api_friends_before_type_cast, :no_api_friends
+
   def no_api_friends_was
     return no_api_friends unless no_api_friends_changed?
     return nil unless (temp_extended_no_api_friends = attribute_was(:no_api_friends))
     encrypt_remove_pre_and_postfix(temp_extended_no_api_friends, 'no_api_friends', 13).to_i
-  end # no_api_friends_was
+  end
+
+  # no_api_friends_was
 
   # 10) negative_interest. Required. Multi-currency Hash in model. Encrypted text in db
   # Keys is ISO code for currency USD, EUR, GBP etc.
@@ -176,7 +214,9 @@ class User < ActiveRecord::Base
     temp_negative_interest = YAML::load encrypt_remove_pre_and_postfix(temp_ext_neg_interest, 'negative_interest', 14)
     temp_negative_interest[BALANCE_KEY] = nil unless temp_negative_interest.has_key?(BALANCE_KEY)
     temp_negative_interest
-  end # negative_interest
+  end
+
+  # negative_interest
   def negative_interest=(new_neg_int)
     if new_neg_int
       check_type('negative_interest', new_neg_int, 'Hash')
@@ -184,25 +224,32 @@ class User < ActiveRecord::Base
     else
       write_attribute :negative_interest, nil
     end
-  end # negative_interest=
+  end
+
+  # negative_interest=
   alias_method :negative_interest_before_type_cast, :negative_interest
+
   def negative_interest_was
     return negative_interest unless negative_interest_changed?
     return nil unless (temp_ext_neg_interest = attribute_was(:negative_interest))
     temp_negative_interest = YAML::load encrypt_remove_pre_and_postfix(temp_ext_neg_interest, 'negative_interest', 14)
     temp_negative_interest[BALANCE_KEY] = nil unless temp_negative_interest.has_key?(BALANCE_KEY)
     temp_negative_interest
-  end # negative_interest_was
+  end
+
+  # negative_interest_was
 
   # 11) share_account_id - unencrypted integer - connect user balance across login providers
-  
+
   # 12) api_profile_url - user profile url - used for some API's with special url not derived from uid - for example linkedin
   # String in model - Encrypted text in db
   def api_profile_url
     return nil unless (temp_api_profile_url = read_attribute(:api_profile_url))
     # logger.debug2  "temp_api_profile_url = #{temp_api_profile_url}"
     encrypt_remove_pre_and_postfix(temp_api_profile_url, 'api_profile_url', 39)
-  end # api_profile_url
+  end
+
+  # api_profile_url
   def api_profile_url=(new_api_profile_url)
     if new_api_profile_url
       check_type('api_profile_url', new_api_profile_url, 'String')
@@ -210,13 +257,18 @@ class User < ActiveRecord::Base
     else
       write_attribute :api_profile_url, nil
     end
-  end # api_profile_url=
+  end
+
+  # api_profile_url=
   alias_method :api_profile_url_before_type_cast, :api_profile_url
+
   def api_profile_url_was
     return api_profile_url unless api_profile_url_changed?
     return nil unless (temp_api_profile_url = attribute_was(:api_profile_url))
     encrypt_remove_pre_and_postfix(temp_api_profile_url, 'api_profile_url', 39)
-  end # api_profile_url_was
+  end
+
+  # api_profile_url_was
 
   # 12) api_profile_picture_url - url to user profile picture
   # picture store for profile pictures is either :api or :local. See array constant API_PROFILE_PICTURE_STORE
@@ -225,7 +277,9 @@ class User < ActiveRecord::Base
     return nil unless (temp_api_profile_picture_url = read_attribute(:api_profile_picture_url))
     # logger.debug2  "temp_api_profile_picture_url = #{temp_api_profile_picture_url}"
     encrypt_remove_pre_and_postfix(temp_api_profile_picture_url, 'api_profile_picture_url', 40)
-  end # api_profile_picture_url
+  end
+
+  # api_profile_picture_url
   def api_profile_picture_url=(new_api_profile_picture_url)
     if new_api_profile_picture_url
       check_type('api_profile_picture_url', new_api_profile_picture_url, 'String')
@@ -233,14 +287,19 @@ class User < ActiveRecord::Base
     else
       write_attribute :api_profile_picture_url, nil
     end
-  end # api_profile_picture_url=
+  end
+
+  # api_profile_picture_url=
   alias_method :api_profile_picture_url_before_type_cast, :api_profile_picture_url
+
   def api_profile_picture_url_was
     return api_profile_picture_url unless api_profile_picture_url_changed?
     return nil unless (temp_api_profile_picture_url = attribute_was(:api_profile_picture_url))
     encrypt_remove_pre_and_postfix(temp_api_profile_picture_url, 'api_profile_picture_url', 40)
-  end # api_profile_picture_url_was
-  
+  end
+
+  # api_profile_picture_url_was
+
   # 13) post_on_wall_yn - allow post on api wall - default is Y unless readonly API (google+)
   # string in model and db
   validates_presence_of :post_on_wall_yn
@@ -248,11 +307,11 @@ class User < ActiveRecord::Base
 
 
   # 14) deleted_at
-  
+
   # 15) last_login_at
-  
+
   # 16) deauthorized_at
-  
+
   # 17) last_friends_find_at
 
   # 18) access_token - for ShareAccount.share_level's 3 and 4 (access token saved in db)
@@ -261,7 +320,9 @@ class User < ActiveRecord::Base
     return nil unless (temp_access_token = read_attribute(:access_token))
     # logger.debug2  "temp_access_token = #{temp_access_token}"
     encrypt_remove_pre_and_postfix(temp_access_token, 'access_token', 43)
-  end # access_token
+  end
+
+  # access_token
   def access_token=(new_access_token)
     if new_access_token
       check_type('access_token', new_access_token, 'String')
@@ -269,13 +330,18 @@ class User < ActiveRecord::Base
     else
       write_attribute :access_token, nil
     end
-  end # access_token=
+  end
+
+  # access_token=
   alias_method :access_token_before_type_cast, :access_token
+
   def access_token_was
     return access_token unless access_token_changed?
     return nil unless (temp_access_token = attribute_was(:access_token))
     encrypt_remove_pre_and_postfix(temp_access_token, 'access_token', 43)
-  end # access_token_was
+  end
+
+  # access_token_was
 
   # 19) access_token_expires - for ShareAccount.share_level's 3 and 4 (access token saved in db)
   # Integer (unix timestamp) in model - Encrypted text in db
@@ -283,7 +349,9 @@ class User < ActiveRecord::Base
     return nil unless (temp_access_token_expires = read_attribute(:access_token_expires))
     # logger.debug2  "temp_access_token_expires = #{temp_access_token_expires}"
     encrypt_remove_pre_and_postfix(temp_access_token_expires, 'access_token_expires', 44).to_i
-  end # access_token_expires
+  end
+
+  # access_token_expires
   def access_token_expires=(new_access_token_expires)
     if new_access_token_expires
       check_type('access_token_expires', new_access_token_expires, 'Bignum')
@@ -291,13 +359,18 @@ class User < ActiveRecord::Base
     else
       write_attribute :access_token_expires, nil
     end
-  end # access_token_expires=
+  end
+
+  # access_token_expires=
   alias_method :access_token_expires_before_type_cast, :access_token_expires
+
   def access_token_expires_was
     return access_token_expires unless access_token_expires_changed?
     return nil unless (temp_access_token_expires = attribute_was(:access_token_expires))
     encrypt_remove_pre_and_postfix(temp_access_token_expires, 'access_token_expires', 44).to_i
-  end # access_token_expires_was
+  end
+
+  # access_token_expires_was
 
   # 20) refresh_token - only google+ - google access token expires once every hour
   # for ShareAccount.share_level's 3 and 4 (access token saved in db)
@@ -306,7 +379,9 @@ class User < ActiveRecord::Base
     return nil unless (temp_refresh_token = read_attribute(:refresh_token))
     # logger.debug2  "temp_refresh_token = #{temp_refresh_token}"
     encrypt_remove_pre_and_postfix(temp_refresh_token, 'refresh_token', 45)
-  end # refresh_token
+  end
+
+  # refresh_token
   def refresh_token=(new_refresh_token)
     if new_refresh_token
       check_type('refresh_token', new_refresh_token, 'String')
@@ -314,13 +389,18 @@ class User < ActiveRecord::Base
     else
       write_attribute :refresh_token, nil
     end
-  end # refresh_token=
+  end
+
+  # refresh_token=
   alias_method :refresh_token_before_type_cast, :refresh_token
+
   def refresh_token_was
     return refresh_token unless refresh_token_changed?
     return nil unless (temp_refresh_token = attribute_was(:refresh_token))
     encrypt_remove_pre_and_postfix(temp_refresh_token, 'refresh_token', 45)
-  end # refresh_token_was
+  end
+
+  # refresh_token_was
 
   # change currency in page header.
   attr_accessor :new_currency
@@ -376,12 +456,14 @@ class User < ActiveRecord::Base
   public
   def self.open4 (command, dir = nil)
     pid, stdin, stdout, stderr = Open4::popen4 "sh"
-    stdin.puts  "cd #{dir}" if dir
-    stdin.puts  command
+    stdin.puts "cd #{dir}" if dir
+    stdin.puts command
     stdin.close
     ignored, status = Process::waitpid2 pid
-    return [ stdout.read, stderr.read, status.exitstatus ]
-  end # open4
+    return [stdout.read, stderr.read, status.exitstatus]
+  end
+
+  # open4
 
 
   # list of valid providers from /config/initializers/omniauth.rb
@@ -404,11 +486,13 @@ class User < ActiveRecord::Base
     user.currency = BASE_CURRENCY
     # user.profile_picture_name = "#{provider}.png"
     user.api_profile_picture_url = "#{SITE_URL}/images/#{provider}.png".gsub('//images', '/images')
-    user.balance = { BALANCE_KEY => 0.0 }
+    user.balance = {BALANCE_KEY => 0.0}
     user.post_on_wall_yn = 'N'
     user.save!
     user
-  end # self.find_or_create_dummy_user
+  end
+
+  # self.find_or_create_dummy_user
 
 
   # find and create or update user from hash
@@ -420,20 +504,20 @@ class User < ActiveRecord::Base
     # missing provider, unknown provider, missing token, uid or user_name are fatal errors.
     provider = options[:provider].to_s
     return '.provider_missing' if provider == ""
-    return ['.unknown_provider', { :provider => provider } ] unless User.valid_omniauth_provider?(provider)
+    return ['.unknown_provider', {:provider => provider}] unless User.valid_omniauth_provider?(provider)
     token = options[:token].to_s
-    return ['.access_token_missing', { :provider => provider } ] if token == ""
+    return ['.access_token_missing', {:provider => provider}] if token == ""
     expires_at = options[:expires_at].to_s
-    return ['.expires_at_missing', { :provider => provider } ] if expires_at == ""
-    return ['.expires_at_invalid', { :provider => provider } ] unless expires_at =~/^\d+$/
-    return ['.expires_at_invalid', { :provider => provider } ] if expires_at.to_i < Time.now.to_i
+    return ['.expires_at_missing', {:provider => provider}] if expires_at == ""
+    return ['.expires_at_invalid', {:provider => provider}] unless expires_at =~/^\d+$/
+    return ['.expires_at_invalid', {:provider => provider}] if expires_at.to_i < Time.now.to_i
     uid = options[:uid].to_s
-    return ['.uid_missing', { :provider => provider }] if uid == ""
-    return ['.reserved_uid', { :provider => provider }] if uid == 'gofreerev' # reserved uid used for dummy users
+    return ['.uid_missing', {:provider => provider}] if uid == ""
+    return ['.reserved_uid', {:provider => provider}] if uid == 'gofreerev' # reserved uid used for dummy users
     user_name = options[:name].to_s
     # todo: should escape username - ERB::Util.html_escape(user_name) does not work from activemodel
     return '.user_name_missing_google' if user_name == "" and provider.first(6) == 'google'
-    return ['.user_name_missing',  { :provider => provider } ] if user_name == ""
+    return ['.user_name_missing', {:provider => provider}] if user_name == ""
     # missing profile image is a minor problem - only check here - profile image information is normally updated in a post login task
     # facebook: profile image from omniauth login is not used (wrong dimensions) -
     #           profile image from koala request in post_login_facebook is used
@@ -495,7 +579,7 @@ class User < ActiveRecord::Base
       currency = BASE_CURRENCY if active_currencies.size > 0 and !active_currencies.index(currency)
       user.currency = currency
     end # outer if
-    user.balance = { BALANCE_KEY => 0.0 } unless user.balance
+    user.balance = {BALANCE_KEY => 0.0} unless user.balance
     user.balance_at = Date.parse(Sequence.get_last_exchange_rate_date) unless user.balance_at
     user.post_on_wall_yn = API_POST_PERMITTED[provider] == API_POST_NOT_ALLOWED ? 'N' : 'Y' unless user.post_on_wall_yn
     # facebook profile image is set in post login task / post_login_update_friends
@@ -519,7 +603,9 @@ class User < ActiveRecord::Base
     Flash.where("created_at < ?", 1.minute.ago).delete_all
     # user find/create ok - continue with login
     user
-  end # find_or_create_user
+  end
+
+  # find_or_create_user
 
 
   # task from task queue - download and save profile picture from provider after login
@@ -544,7 +630,7 @@ class User < ActiveRecord::Base
       end
       # check image type
       begin
-        image_type = FastImage.type(url, :raise_on_failure  => true).to_s
+        image_type = FastImage.type(url, :raise_on_failure => true).to_s
       rescue FastImage::ImageFetchFailure => e
         logger.warn2 "Could not get image type for new profile image #{url}. "
         logger.warn2 "Ignoring error. Must be a temporary problem"
@@ -696,10 +782,12 @@ class User < ActiveRecord::Base
       rescue => e2
         logger.error2 "Error in picture cleanup after exception. Error = #{e2.message}"
       end
-      return ['.profile_image_exception', :error => e.message, :provider => (user ? user.provider : 'API') ]
+      return ['.profile_image_exception', :error => e.message, :provider => (user ? user.provider : 'API')]
     end
     nil
-  end # self.download_profile_image
+  end
+
+  # self.download_profile_image
 
   # called from generic_post_login / post_login_update_friends if api_client instance method gofreerev_get_user exists
   def update_api_user_from_hash (user_hash)
@@ -708,8 +796,8 @@ class User < ActiveRecord::Base
     invalid_fields = user_hash.keys - allowed_fields
     if invalid_fields.size > 0
       return ['.post_login_user_invalid_field',
-          { :provider => provider, :apiname => (API_DOWNCASE_NAME[:provider] || provider),
-            :userid => user_id, :field => invalid_fields.first } ]
+              {:provider => provider, :apiname => (API_DOWNCASE_NAME[:provider] || provider),
+               :userid => user_id, :field => invalid_fields.first}]
 
     end
     # permissions
@@ -722,7 +810,9 @@ class User < ActiveRecord::Base
     end
     # ok
     nil
-  end # update_api_user_from_hash
+  end
+
+  # update_api_user_from_hash
 
   #def usertype
   #  return nil unless user_id
@@ -734,6 +824,7 @@ class User < ActiveRecord::Base
     return nil unless user_id
     user_id.split('/').first
   end
+
   # return provider part of user_id - facebook, google_oauth2, linkedin or twitter - see OmniAuth::Builder.providers
   def provider
     return nil unless user_id
@@ -746,6 +837,7 @@ class User < ActiveRecord::Base
   def dummy_user?
     user_id.split('/').first == 'gofreerev'
   end
+
   def self.dummy_users? (login_users)
     # logger.debug2 "login_users.class = #{login_users.class}"
     raise "invalid call" unless [Array, ActiveRecord::Relation::ActiveRecord_Relation_User].index(login_users.class)
@@ -764,12 +856,16 @@ class User < ActiveRecord::Base
     a = user_name.split(' ')
     "#{a.first} #{a.last.first(1)}"
   end
+
   def short_or_full_user_name (login_users)
     friend?(login_users) <= 2 ? short_user_name : user_name
-  end # short_or_full_user_name
+  end
+
+  # short_or_full_user_name
   def debug_info
     "#{user_id} #{short_user_name}"
   end
+
   def self.debug_info (users)
     users.collect { |u| u.debug_info }.join(', ')
   end
@@ -787,12 +883,14 @@ class User < ActiveRecord::Base
   # add login api to user name
   def user_name_with_api
     "#{user_name} #{apiname_with_brackets}"
-  end # user_name_with_api
+  end
+
+  # user_name_with_api
 
   # used in many translates
   def app_and_apiname_hash
-    { :appname => APP_NAME,
-      :apiname => apiname }
+    {:appname => APP_NAME,
+     :apiname => apiname}
   end
 
 
@@ -801,7 +899,9 @@ class User < ActiveRecord::Base
     m = Money::Currency.table.find { |a| a[0] == currency.downcase.to_sym }
     return nil unless m
     "#{m[1][:iso_code]} #{m[1][:name]}".first(CURRENCY_LOV_LENGTH)
-  end # currency_with_text
+  end
+
+  # currency_with_text
 
   # has user granted app privs wall postings?
   # information is copied to session after login
@@ -826,7 +926,9 @@ class User < ActiveRecord::Base
         logger.error2 "API_GIFT_PICTURE_STORE[provider] = #{API_GIFT_PICTURE_STORE[provider]}, permissions = #{permissions}"
         false
     end # case
-  end # post_on_wall_authorized?
+  end
+
+  # post_on_wall_authorized?
 
 
   # post_on_wall privs. have been moved to session.
@@ -869,10 +971,12 @@ class User < ActiveRecord::Base
       when 'facebook'
         permissions['read_stream'] == 1
       else
-        logger.error2  "read_wall_allowed? not implemented for #{provider} users"
+        logger.error2 "read_wall_allowed? not implemented for #{provider} users"
         false
     end
-  end  # read_gifts_allowed?
+  end
+
+  # read_gifts_allowed?
 
   # post_on_wall privs. have been moved to session. WRITE_ON_WALL_* ruby constants and get_write_on_wall_action have been moved to application controller
 
@@ -909,15 +1013,20 @@ class User < ActiveRecord::Base
   def offers
     ApiGift.where('user_id_giver = ? and provider = ?', user_id, provider).includes(:gift)
   end
+
   def wishes
     ApiGift.where('user_id_receiver = ? and provider = ?', user_id, provider).includes(:gift)
   end
+
   def gifts_given
     offers.find_all { |ag| (ag.user_id_receiver and ag.gift.price and ag.gift.price != 0.00 and !ag.gift.deleted_at) }
-  end # gifts_given
+  end
+
+  # gifts_given
   def gifts_received
     wishes.find_all { |ag| (ag.user_id_giver and ag.gift.price and ag.gift.price != 0.00 and !ag.gift.deleted_at) }
   end
+
   #def gifts_received_with_sign
   #  gifts_received.collect do |g|
   #    g.new_price = -g.new_price
@@ -940,7 +1049,9 @@ class User < ActiveRecord::Base
         false
       end
     end # find all
-  end # app_friends
+  end
+
+  # app_friends
 
   # return all friends for login_users - no filters on
   def self.friends (login_users, user_categories = [1, 2])
@@ -964,7 +1075,9 @@ class User < ActiveRecord::Base
     friends = User.define_sort_by_user_name(friends)
     logger.debug2 "done"
     friends
-  end # self.friends
+  end
+
+  # self.friends
 
   # friends categories:
   # 1) logged in user
@@ -974,7 +1087,7 @@ class User < ActiveRecord::Base
   # 5) deselected api friends - show few info
   # 6) friends of friends     - show few info
   # 7) friend proposals       - show few info
-  def self.app_friends (login_users, user_categories = [1,2]) # 1: logged in users + 2: mutual friends
+  def self.app_friends (login_users, user_categories = [1, 2]) # 1: logged in users + 2: mutual friends
     # login_users_text = login_users.collect { |u| "#{u.user_id} #{u.short_user_name}"}.join(', ')
     logger.debug2 "User.app_friends - start. user_categories = #{user_categories}"
     friends = User.friends(login_users, user_categories).find_all do |u|
@@ -984,7 +1097,9 @@ class User < ActiveRecord::Base
     end
     logger.debug2 "User.app_friends - end"
     User.define_sort_by_user_name(friends)
-  end # self.app_friends
+  end
+
+  # self.app_friends
 
   # find number of app friends. instance method for actual user and class method for logged in users
   # show special messages to user if no app friends was found
@@ -1023,18 +1138,18 @@ class User < ActiveRecord::Base
       User.cache_friend_info(users_without_cache)
       login_users.each do |u1|
         next if u1.friends_hash
-        u2 = users_without_cache.find { |u3| u3.user_id == u1.user_id}
+        u2 = users_without_cache.find { |u3| u3.user_id == u1.user_id }
         u1.friends_hash = u2.friends_hash
       end
     end
     # find friends
-    friends = users3 = User.app_friends(login_users,[2,3])
+    friends = users3 = User.app_friends(login_users, [2, 3])
     friend_names = friends.collect { |u| u.user_name }.uniq
-    friend_user_comb = friends.collect { |u| u.share_account_id}.delete_if { |uc| !uc }.uniq
+    friend_user_comb = friends.collect { |u| u.share_account_id }.delete_if { |uc| !uc }.uniq
     # compare with non friends
-    users = User.app_friends(login_users,[4, 6, 7]).find_all do |u|
-      ( friend_names.index(u.user_name) or
-          (u.share_account_id and friend_user_comb.index(u.share_account_id)) )
+    users = User.app_friends(login_users, [4, 6, 7]).find_all do |u|
+      (friend_names.index(u.user_name) or
+          (u.share_account_id and friend_user_comb.index(u.share_account_id)))
     end
     # add any old friends proposal from previous find_friends searches (friends? == 7) done by login users friends
     # ( friends proposals have been inserted in friends table with api_friend = 'P' )
@@ -1078,7 +1193,9 @@ class User < ActiveRecord::Base
       end if f1.new_record? or f2.new_record? or f1.api_friend_changed? or f2.api_friend_changed?
     end
     users
-  end # self.find_friends
+  end
+
+  # self.find_friends
 
   # batch task for friends find - only relevant for multi user login or shared accounts find friends batch task for friends find notifications
   # without users param - started as post login task after single user login - batch notification in gofreerev and to facebook
@@ -1099,9 +1216,9 @@ class User < ActiveRecord::Base
         # find one random user
         # find with user combination
         user = User.where("substr(user_id, length(user_id)-8, 9) = '/facebook' " +
-                          'and share_account_id is not null ' +
-                          'and last_login_at > ? ' +
-                          'and last_friends_find_at < ?',
+                              'and share_account_id is not null ' +
+                              'and last_login_at > ? ' +
+                              'and last_friends_find_at < ?',
                           1.month.ago, 1.week.ago).shuffle.first
         if user
           users = User.where('share_account_id = ?', user.share_account_id)
@@ -1109,9 +1226,9 @@ class User < ActiveRecord::Base
         else
           # find without user combination.
           users = User.where("substr(user_id, length(user_id)-8, 9) = '/facebook' " +
-                             'and share_account_id is null and last_login_at is not null ' +
-                             'and last_login_at > ? ' +
-                             'and last_friends_find_at < ?',
+                                 'and share_account_id is null and last_login_at is not null ' +
+                                 'and last_login_at > ? ' +
+                                 'and last_friends_find_at < ?',
                              1.month.ago, 1.week.ago).includes(:friends)
           # check for "unread" friends proposals
           users.delete_if do |user|
@@ -1169,8 +1286,14 @@ class User < ActiveRecord::Base
         language = fb_user.language || BASE_LANGUAGE
         href = '/'
         template = I18n.t "inbox.index.#{noti_key}_to_msg", noti_options.merge(:locale => language)
-        res = RestClient.post "https://graph.facebook.com/#{fb_user.uid}/notifications",
-                              :href => href, :template => template, :access_token => API_TOKEN[:facebook], :ref => "friends_find"
+        # RestClient is using SSLv3 as default and facebook has disabled SSLv3 (SSLv3 POODLE vulnerability)
+        # res = RestClient.post "https://graph.facebook.com/#{fb_user.uid}/notifications",
+        #                       :href => href, :template => template, :access_token => API_TOKEN[:facebook], :ref => "friends_find"
+        res = RestClient::Request.execute :method => :post,
+                                          :url => "https://graph.facebook.com/#{fb_user.uid}/notifications",
+                                          :payload => {:href => href, :template => template, :access_token => API_TOKEN[:facebook], :ref => "friends_find"},
+                                          :ssl_version => 'SSLv23'
+
         logger.debug2 "res = #{res}"
         # signature from FB notification:
         # Started POST "/?fb_source=notification&fb_ref=friends_find&ref=notif&notif_t=app_notification" for 127.0.0.1 at 2014-04-02 07:48:09 +0200
@@ -1190,7 +1313,9 @@ class User < ActiveRecord::Base
       logger.debug2 "Backtrace: " + e.backtrace.join("\n")
       raise
     end
-  end # self.find_friends_batch
+  end
+
+  # self.find_friends_batch
 
   # friends information is used many different places
   # cache friends information once and for all in @users array (user.friends_hash)
@@ -1205,11 +1330,11 @@ class User < ActiveRecord::Base
   # 8) others                 - not clickable user div - for example comments from other login providers
   def self.cache_friend_info (login_users)
     return if login_users.size == 0
-    user_ids = login_users.collect { |u| u.user_id}
+    user_ids = login_users.collect { |u| u.user_id }
     # get friends. split in 4 categories. Y: mutual friends, F: follows, S: Stalked by, N: not app friend
     # P: friends proposal is treated as others/non friends
     # logger.debug2 "get friends. user_ids = #{user_ids.join(', ')}"
-    users_app_friends = { 'Y' => [], 'F' => [], 'S' => [], 'N' => [], 'P' => []}
+    users_app_friends = {'Y' => [], 'F' => [], 'S' => [], 'N' => [], 'P' => []}
     friends = Friend.where("user_id_giver in (?)", user_ids)
     friends.each do |f|
       friend_status_code = f.friend_status_code
@@ -1231,8 +1356,8 @@ class User < ActiveRecord::Base
     end
     # loop for each friend category
     # Y: mutual friends, F: follows, S: Stalked by, N: not app friend, P: friends proposal
-    [ [1, user_ids], [2, users_app_friends['Y']], [3, users_app_friends['F']], [4, users_app_friends['S']],
-      [5, users_app_friends['N']], [6, friends_of_friends_ids], [7, users_app_friends['P'] ] ].each do |x|
+    [[1, user_ids], [2, users_app_friends['Y']], [3, users_app_friends['F']], [4, users_app_friends['S']],
+     [5, users_app_friends['N']], [6, friends_of_friends_ids], [7, users_app_friends['P']]].each do |x|
       friends_category, friends_user_ids = x
       friends_user_ids.each do |user_id|
         provider = user_id.split('/').last
@@ -1244,7 +1369,9 @@ class User < ActiveRecord::Base
       user.friends_hash = friends_hash[user.provider]
     end
     login_users
-  end # cache_friend_info
+  end
+
+  # cache_friend_info
 
 
   # recalculate user balance
@@ -1260,14 +1387,14 @@ class User < ActiveRecord::Base
     # find user(s)
     if share_account_id
       # find all closed deals for this user combination
-      user_ids = User.where('share_account_id = ?', share_account_id).collect { |user| user.user_id}
+      user_ids = User.where('share_account_id = ?', share_account_id).collect { |user| user.user_id }
     else
       # find all closed deals for this user
-      user_ids = [ user_id ]
+      user_ids = [user_id]
     end
     # find closed deals
     api_gifts = ApiGift.where('user_id_giver in (?) and user_id_receiver is not null or ' +
-                              'user_id_receiver in (?) and user_id_giver is not null',
+                                  'user_id_receiver in (?) and user_id_giver is not null',
                               user_ids, user_ids).includes(:gift)
     # remove closed deals without a price and remove delete marked deals
     api_gifts = api_gifts.find_all do |api_gift|
@@ -1290,10 +1417,10 @@ class User < ActiveRecord::Base
       end
     end # delete_if
 
-    user_balance_hash = { BALANCE_KEY => 0.0 } # BASE_CURRENCY
-    user_negative_interest_hash = { BALANCE_KEY => 0.0 } # BASE_CURRENCY (USD)
+    user_balance_hash = {BALANCE_KEY => 0.0} # BASE_CURRENCY
+    user_negative_interest_hash = {BALANCE_KEY => 0.0} # BASE_CURRENCY (USD)
     missing_exchange_rates = false
-    logger.debug2  "user #{self.short_user_name}. #{api_gifts.size} gifts"
+    logger.debug2 "user #{self.short_user_name}. #{api_gifts.size} gifts"
     previous_date = nil
     date = nil
     exchange_rates_hash = {} # used as help variables for exchange rate gains/losses calculation in view
@@ -1340,12 +1467,12 @@ class User < ActiveRecord::Base
       end # while
       user_balance_hash[BALANCE_KEY] = balance_sum
       # initialize negative interest hash
-      logger.debug2  "gift id #{api_gift.id}: initialize and save negative interest hash"
+      logger.debug2 "gift id #{api_gift.id}: initialize and save negative interest hash"
       gift_negative_interest_hash = {}
       user_balance_hash.keys.each do |balance_hash_currency|
         next if balance_hash_currency == BALANCE_KEY
         gift_negative_interest = (previous_balance_hash[balance_hash_currency] - user_balance_hash[balance_hash_currency]).abs
-        logger.debug2  "gift id #{api_gift.id}, currency = #{balance_hash_currency}, old = #{previous_balance_hash[balance_hash_currency]}, new = #{user_balance_hash[balance_hash_currency]}, neg.int. = #{gift_negative_interest}"
+        logger.debug2 "gift id #{api_gift.id}, currency = #{balance_hash_currency}, old = #{previous_balance_hash[balance_hash_currency]}, new = #{user_balance_hash[balance_hash_currency]}, neg.int. = #{gift_negative_interest}"
         gift_negative_interest_hash[balance_hash_currency] = gift_negative_interest
         user_negative_interest_hash[balance_hash_currency] = 0.0 unless user_negative_interest_hash.has_key?(balance_hash_currency)
         user_negative_interest_hash[balance_hash_currency] += gift_negative_interest
@@ -1379,7 +1506,7 @@ class User < ActiveRecord::Base
       # save balance and balance documentation
       api_gift.gift.set_balance(user_ids, user_balance_hash[BALANCE_KEY], balance_doc_hash)
       # g.save
-      logger.debug2  "recalculate_balance. gift.id = #{api_gift.gift.id}, gift.received_at = #{api_gift.gift.received_at}, balance_hash = #{user_balance_hash.to_s}, balance_doc_hash = #{balance_doc_hash}"
+      logger.debug2 "recalculate_balance. gift.id = #{api_gift.gift.id}, gift.received_at = #{api_gift.gift.received_at}, balance_hash = #{user_balance_hash.to_s}, balance_doc_hash = #{balance_doc_hash}"
     end # each
     return false if missing_exchange_rates # error - one or more missing currency rates
     today = Date.parse(Sequence.get_last_exchange_rate_date)
@@ -1403,8 +1530,8 @@ class User < ActiveRecord::Base
         user_negative_interest_hash[balance_hash_currency] += (previous_balance_hash[balance_hash_currency] - user_balance_hash[balance_hash_currency])
       end
     end
-    logger.debug2  "user balance = #{user_balance_hash}"
-    logger.debug2  "user negative_interest #{user_negative_interest_hash}"
+    logger.debug2 "user balance = #{user_balance_hash}"
+    logger.debug2 "user negative_interest #{user_negative_interest_hash}"
     # calculation ok - all needed exchange rates was found
     self.balance = user_balance_hash
     self.balance_at = today
@@ -1428,7 +1555,9 @@ class User < ActiveRecord::Base
       self.save!
     end
     true
-  end # recalculate_balance
+  end
+
+  # recalculate_balance
 
   def self.recalculate_balance (login_users)
     users = login_users.sort_by { |u| u.share_account_id || 0 }
@@ -1450,7 +1579,9 @@ class User < ActiveRecord::Base
     end
     # recalculate
     users.each { |user| user.recalculate_balance }
-  end # self.recalculate_balance
+  end
+
+  # self.recalculate_balance
 
   # ajax task - used when recalculation balance for friends with old balance
   # added to task queue in /shared/user_div partial
@@ -1467,7 +1598,9 @@ class User < ActiveRecord::Base
       logger.debug2 "Backtrace: " + e.backtrace.join("\n")
       raise
     end
-  end # self.recalculate_balance_task
+  end
+
+  # self.recalculate_balance_task
 
   def balance_with_2_decimals
     '%0.2f' % (balance[BALANCE_KEY] || 0)
@@ -1485,7 +1618,9 @@ class User < ActiveRecord::Base
   def get_friend (login_user)
     return nil unless login_user
     login_user.friends.find_all { |f| f.user_id_receiver == self.user_id }.first
-  end # get_friend
+  end
+
+  # get_friend
 
   # reverse friend record is identical with friend record except for app_friend = R, P and B
   def get_reverse_friend (login_user)
@@ -1515,7 +1650,9 @@ class User < ActiveRecord::Base
       return 8
     end
     return login_user.friends_hash[user_id] || 8
-  end # friend?
+  end
+
+  # friend?
 
   # friend status code. "this" is friend. login_user is login user.
   #   Y - friends
@@ -1546,30 +1683,42 @@ class User < ActiveRecord::Base
     if f.api_friend == 'Y'
       # api friend
       case f.app_friend
-        when nil then return 'Y' # api and app friends
-        when 'Y' then return 'Y' # api and app friends
-        when 'N' then return 'A' # user has been deselected as app friend by login user
+        when nil then
+          return 'Y' # api and app friends
+        when 'Y' then
+          return 'Y' # api and app friends
+        when 'N' then
+          return 'A' # user has been deselected as app friend by login user
       end # case
     elsif f.api_friend == 'F'
       # login user follows friend
       case f.app_friend
-        when nil then return 'F' # login user follows friend
-        when 'Y' then return 'H' # app friends + follower
-        when 'N' then return 'F' # user has been deselected as app friend by login user
+        when nil then
+          return 'F' # login user follows friend
+        when 'Y' then
+          return 'H' # app friends + follower
+        when 'N' then
+          return 'F' # user has been deselected as app friend by login user
       end # case
     elsif f.api_friend == 'S'
       # login user is stalked by friend
       case f.app_friend
-        when nil then return 'S' # login user is stalked by friend
-        when 'Y' then return 'I' # app friend + stalker
-        when 'N' then return 'S' # user has been deselected as app friend by login user
+        when nil then
+          return 'S' # login user is stalked by friend
+        when 'Y' then
+          return 'I' # app friend + stalker
+        when 'N' then
+          return 'S' # user has been deselected as app friend by login user
       end # case
     else
       # non api friend
       case f.app_friend
-        when nil then return 'N' # not api and not app friend
-        when 'Y' then return 'G' # not login api friends - only friends within gofreerev app
-        when 'N' then return 'N' # user has been deselected as app friend by login user
+        when nil then
+          return 'N' # not api and not app friend
+        when 'Y' then
+          return 'G' # not login api friends - only friends within gofreerev app
+        when 'N' then
+          return 'N' # user has been deselected as app friend by login user
       end # case
     end
   end
@@ -1584,13 +1733,17 @@ class User < ActiveRecord::Base
     code = friend_status_code(login_user).downcase
     logger.debug2 "code = #{code}"
     ".friend_status_text_#{code}"
-  end # friend_status_translate_code
+  end
+
+  # friend_status_translate_code
 
   def find_friend_request_noti (login_user)
     ns = Notification.where("from_user_id = ? and to_user_id = ? and noti_read = 'N'", login_user.user_id, self.user_id)
     return nil unless ns.size > 0
     n = ns.find { |n| n.noti_key == FRIEND_REQUEST_NOTI_KEY }
-  end # find_friend_request_noti
+  end
+
+  # find_friend_request_noti
 
   # returns list with allowed friendship actions: add_api_friend, remove_api_friend, send_app_friend_request, cancel_app_friend_request, accept_app_friend_request, ignore_app_friend_request, remove_app_friend, block_app_user, unblock_app_user
   # used in users/show page / users/friend_action_buttons partial
@@ -1601,7 +1754,7 @@ class User < ActiveRecord::Base
     if login_user_or_login_users.class == User
       login_user = login_user_or_login_users
     elsif [Array, ActiveRecord::Relation::ActiveRecord_Relation_User].index(login_user_or_login_users.class)
-      login_user = login_user_or_login_users.find { |u| u.provider == self.provider}
+      login_user = login_user_or_login_users.find { |u| u.provider == self.provider }
     end
     if login_user.class != User
       logger.error2 "Invalid call. expected user or array of users. login_user_or_login_users = #{login_user_or_login_users}"
@@ -1618,36 +1771,52 @@ class User < ActiveRecord::Base
       #when 'R' then return %w(aDd_api_friend send_app_friend_request cancel_app_friend_request)
       #when 'P' then return %w(aDd_api_friend accept_app_friend_request ignore_app_friend_request block_app_user)
       #when 'B' then return %w(unblock_app_user)
-      when 'Y' then return %w(Remove_app_friend)
-      when 'N' then return %w(send_app_friend_request)
-      when 'F' then return %w(send_app_friend_request)
-      when 'S' then return %w(send_app_friend_request)
-      when 'A' then return %w(send_app_friend_request)
-      when 'G' then return %w(Remove_app_friend)
-      when 'H' then return %w(Remove_app_friend)
-      when 'I' then return %w(Remove_app_friend)
-      when 'R' then return %w(send_app_friend_request cancel_app_friend_request)
-      when 'P' then return %w(accept_app_friend_request ignore_app_friend_request block_app_user)
-      when 'B' then return %w(unblock_app_user)
+      when 'Y' then
+        return %w(Remove_app_friend)
+      when 'N' then
+        return %w(send_app_friend_request)
+      when 'F' then
+        return %w(send_app_friend_request)
+      when 'S' then
+        return %w(send_app_friend_request)
+      when 'A' then
+        return %w(send_app_friend_request)
+      when 'G' then
+        return %w(Remove_app_friend)
+      when 'H' then
+        return %w(Remove_app_friend)
+      when 'I' then
+        return %w(Remove_app_friend)
+      when 'R' then
+        return %w(send_app_friend_request cancel_app_friend_request)
+      when 'P' then
+        return %w(accept_app_friend_request ignore_app_friend_request block_app_user)
+      when 'B' then
+        return %w(unblock_app_user)
       else
         logger.error2 "Unknown friend_status_code #{friend_status_code(login_user)}"
         return []
     end
-  end # friend_status_actions
+  end
+
+  # friend_status_actions
   def allowed_friend_status_action (login_user, action)
     allowed_friend_actions = friend_status_actions(login_user).collect { |fa| fa.downcase }
     allowed = allowed_friend_actions.index(action.to_s)
-    logger.debug2  "action #{action} was not allowed. Friend status code = #{friend_status_code(login_user)}, allowed actions = #{allowed_friend_actions.join(', ')}"  if  !allowed
+    logger.debug2 "action #{action} was not allowed. Friend status code = #{friend_status_code(login_user)}, allowed actions = #{allowed_friend_actions.join(', ')}" if  !allowed
     allowed
   end
+
   def add_api_friend (login_user)
     return unless allowed_friend_status_action(login_user, __method__)
     raise "not used. no facebook api dialog to add friend"
   end
+
   def remove_api_friend (login_user)
     return unless allowed_friend_status_action(login_user, __method__)
     raise "not used. no facebook api dialog to remove friend"
   end
+
   def send_app_friend_request (login_user)
     # set api_friend = R for login user, set api_friend = P for friend
     return false unless allowed_friend_status_action(login_user, __method__)
@@ -1679,9 +1848,9 @@ class User < ActiveRecord::Base
         # you may run into problems displaying old and new notification format
         # Consider creating a new version of request_for_app_friendship key if you renames or deletes noti_options hash keys
         n.noti_key = FRIEND_REQUEST_NOTI_KEY
-        n.noti_options = { :from_user => login_user.user_name, :from_id => login_user.id,
-                             :to_user => self.user_name, :to_id => self.id,
-                             :appname => APP_NAME }
+        n.noti_options = {:from_user => login_user.user_name, :from_id => login_user.id,
+                          :to_user => self.user_name, :to_id => self.id,
+                          :appname => APP_NAME}
         n.noti_read = 'N'
       end
     end
@@ -1689,7 +1858,9 @@ class User < ActiveRecord::Base
     r.save!
     n.save! if n
     true
-  end # send_app_friend_request
+  end
+
+  # send_app_friend_request
   def cancel_app_friend_request (login_user)
     return false unless allowed_friend_status_action(login_user, __method__)
     f = get_friend (login_user)
@@ -1718,7 +1889,9 @@ class User < ActiveRecord::Base
     r.save!
     n.destroy if n
     true
-  end # cancel_app_friend_request
+  end
+
+  # cancel_app_friend_request
   def accept_app_friend_request (login_user)
     # set api_friend = Y for login user and friend
     return false unless allowed_friend_status_action(login_user, __method__)
@@ -1735,15 +1908,17 @@ class User < ActiveRecord::Base
     # you may run into problems displaying old and new notification format
     # Consider creating a new version of app_friendship_accepted key if you renames or deletes noti_options hash keys
     n.noti_key = 'app_friendship_accepted_v1'
-    n.noti_options = { :from_user => login_user.short_user_name, :from_id => login_user.id,
-                         :to_user => self.short_user_name, :to_id => self.id,
-                         :appname => APP_NAME }
+    n.noti_options = {:from_user => login_user.short_user_name, :from_id => login_user.id,
+                      :to_user => self.short_user_name, :to_id => self.id,
+                      :appname => APP_NAME}
     n.noti_read = 'N'
     f.save!
     r.save!
     n.save!
     true
-  end # accept_app_friend_request
+  end
+
+  # accept_app_friend_request
   def ignore_app_friend_request (login_user)
     return false unless allowed_friend_status_action(login_user, __method__)
     f = get_friend (login_user)
@@ -1755,6 +1930,7 @@ class User < ActiveRecord::Base
     f.save!
     true
   end
+
   def remove_app_friend (login_user)
     return false unless allowed_friend_status_action(login_user, __method__)
     f = get_friend (login_user)
@@ -1776,7 +1952,9 @@ class User < ActiveRecord::Base
     f.save!
     r.save!
     true
-  end # remove_app_friend
+  end
+
+  # remove_app_friend
   def block_app_user (login_user)
     return false unless allowed_friend_status_action(login_user, __method__)
     f = get_friend (login_user)
@@ -1784,6 +1962,7 @@ class User < ActiveRecord::Base
     f.save!
     true
   end
+
   def unblock_app_user (login_user)
     return unless allowed_friend_status_action(login_user, __method__)
     f = get_friend (login_user)
@@ -1844,14 +2023,16 @@ class User < ActiveRecord::Base
     end
     n = login_users.first.cache_new_notifications = notifications.length
     (n == 0 ? nil : n)
-  end # self.inbox_new_notifications
+  end
+
+  # self.inbox_new_notifications
 
   # refresh user permisssions
   # called in error handling after picture upload with ApiPostNotFoundException error
   # see api_gifts/create
   def get_permissions_facebook(api_client)
     api_request = 'me?fields=permissions'
-    logger.debug2  "api_request = #{api_request}"
+    logger.debug2 "api_request = #{api_request}"
     begin
       api_response = api_client.get_object(api_request)
     rescue Koala::Facebook::ClientError => e
@@ -1859,12 +2040,14 @@ class User < ActiveRecord::Base
       e.puts_exception("#{__method__}: ")
       raise
     end # rescue
-    logger.debug2  "api_response = #{api_response}"
+    logger.debug2 "api_response = #{api_response}"
     self.permissions = api_response['permissions']['data'][0]
     self.permissions = {} if self.permissions == []
     save!
     self
-  end # get_api_permissions
+  end
+
+  # get_api_permissions
 
   # as instance method gifts, but extended to be used for multiple provider logins
   # last_status_update_at & limit are used from gifts/index to return first row (http request) or next 10 rows (ajax request)
@@ -1872,10 +2055,10 @@ class User < ActiveRecord::Base
   # return new gifts, changed gifts, delete marked gifts to gifts/index page in ajax request
   def self.api_gifts (login_users, options = {})
     # get param
-    last_status_update_at       = options[:last_status_update_at] || 2147483647 # status_update_at for last gift in gifts/index page
-    limit                       = options[:limit] # number of rows to return to gifts/index page (1 for http and 10 for ajax)
-    newest_gift_id              = options[:newest_gift_id] || 0 # newest gift id when gifts/index page was last updated
-    newest_status_update_at     = options[:newest_status_update_at] || 0 # newest status_update_at when gifts/index page was last updated
+    last_status_update_at = options[:last_status_update_at] || 2147483647 # status_update_at for last gift in gifts/index page
+    limit = options[:limit] # number of rows to return to gifts/index page (1 for http and 10 for ajax)
+    newest_gift_id = options[:newest_gift_id] || 0 # newest gift id when gifts/index page was last updated
+    newest_status_update_at = options[:newest_status_update_at] || 0 # newest status_update_at when gifts/index page was last updated
     include_delete_marked_gifts = options[:include_delete_marked_gifts] || false # used in util/new_message_count to remove deleted gifts from gifts/index page
     # dump params
     logger.debug2 "login_users.size            = #{login_users.size}"
@@ -1889,7 +2072,7 @@ class User < ActiveRecord::Base
         login_users.length > 0 and
         !login_users.first.dummy_user?
       logger.error2 "Invalid call. expected array of login users"
-      return [[],nil]
+      return [[], nil]
     end
     if limit and (newest_gift_id > 0 or newest_status_update_at > 0)
       logger.warn2 ":newest_gift_id and :newest_status_update_at are used in util.new_messages_count to get new, changed and deleted gifts"
@@ -1906,7 +2089,7 @@ class User < ActiveRecord::Base
     login_users.each do |login_user|
       # logger.debug "friends_ids = #{friends_ids}"
       # logger.debug "friends_hash = #{login_user.friends_hash}"
-      friends_ids += login_user.friends_hash.find_all { |key,value| value <= 2}.collect { |a| a[0] }
+      friends_ids += login_user.friends_hash.find_all { |key, value| value <= 2 }.collect { |a| a[0] }
     end
 
     # find api gifts
@@ -1937,7 +2120,7 @@ class User < ActiveRecord::Base
       # called from gifts/index page - newest_gift_id and newest_status_update_at are not relevant
       ags = ApiGift.
           where('(user_id_giver in (?) or user_id_receiver in (?)) and status_update_at < ?' + deleted,
-                          friends_ids, friends_ids, last_status_update_at).
+                friends_ids, friends_ids, last_status_update_at).
           limit(sql_limit).
           references(:gifts, :api_gifts).
           includes(:gift, :giver, :receiver).
@@ -1946,7 +2129,7 @@ class User < ActiveRecord::Base
       # called from util/new_messages_count - limit and last_status_update_at are not relevant
       ags = ApiGift.
           where('(gifts.id > ? or status_update_at > ?) and (user_id_giver in (?) or user_id_receiver in (?))' + deleted,
-                          newest_gift_id, newest_status_update_at, friends_ids, friends_ids).
+                newest_gift_id, newest_status_update_at, friends_ids, friends_ids).
           references(:gifts, :api_gifts).
           includes(:gift, :giver, :receiver).
           order('gifts.status_update_at desc')
@@ -2007,7 +2190,7 @@ class User < ActiveRecord::Base
     giftids = ags.collect { |ag| ag.gift_id }
     hide_giftids = GiftLike.
         where("user_id in (?) and gift_id in (?)", userids, giftids).
-        find_all { |gl| gl.show == 'N'}.
+        find_all { |gl| gl.show == 'N' }.
         collect { |gl| gl.gift_id }.
         uniq
     if hide_giftids.size > 0
@@ -2047,7 +2230,9 @@ class User < ActiveRecord::Base
 
     # done
     ags
-  end # self.gifts
+  end
+
+  # self.gifts
 
 
   ## cache mutual friends lookup in @mutual_friends hash index by login_user.id
@@ -2127,7 +2312,7 @@ class User < ActiveRecord::Base
             sign = -1
           end
           other_user_id = user.user_id == ag.user_id_giver ? ag.user_id_receiver : ag.user_id_giver
-          affected_users[other_user_id] = {:no_gifts => 0 } unless affected_users.has_key?(other_user_id)
+          affected_users[other_user_id] = {:no_gifts => 0} unless affected_users.has_key?(other_user_id)
           affected_users[other_user_id][:no_gifts] += 1
           affected_users[other_user_id][g.currency] = 0 unless affected_users[other_user_id].has_key?(g.currency)
           affected_users[other_user_id][g.currency] += sign * g.price
@@ -2169,7 +2354,7 @@ class User < ActiveRecord::Base
         #
         other_user.recalculate_balance
         no_gifts = hash.delete(:no_gifts)
-        amount = hash.collect { |name, value| "#{name} #{value}"}.sort.join(', ')
+        amount = hash.collect { |name, value| "#{name} #{value}" }.sort.join(', ')
         n = Notification.new
         n.to_user_id = other_user_id
         n.from_user_id = nil
@@ -2207,7 +2392,7 @@ class User < ActiveRecord::Base
       # end logical delete
 
       # check for physical delete
-      delete =  (Time.new - user.deleted_at > 6.minutes)
+      delete = (Time.new - user.deleted_at > 6.minutes)
       if (delete)
         # start physical delete
         # user account has been deleted marked more than 6 minutes ago
@@ -2266,7 +2451,9 @@ class User < ActiveRecord::Base
       logger.debug2 "Backtrace: " + e.backtrace.join("\n")
       raise
     end
-  end # self.delete_user
+  end
+
+  # self.delete_user
 
 
   def share_account_clear
@@ -2288,9 +2475,11 @@ class User < ActiveRecord::Base
   def encrypt_pk
     self.user_id
   end
+
   def encrypt_pk=(new_encrypt_pk_value)
     self.user_id = new_encrypt_pk_value
   end
+
   def new_encrypt_pk
     self.user_id
   end
