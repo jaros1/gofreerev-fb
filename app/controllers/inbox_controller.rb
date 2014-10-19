@@ -12,8 +12,8 @@ class InboxController < ApplicationController
     ## todo: delete <==
 
     # get messages - new messages are shown first in page - max 20 notifications - no need for paginate or ajax expanding page
-    @notifications = Notification.where("to_user_id in (?) or from_user_id in (?)",
-                                        login_user_ids, login_user_ids).order("noti_read, created_at desc")
+    @notifications = Notification.where("(to_user_id in (?) or from_user_id in (?)) and internal = ?",
+                                        login_user_ids, login_user_ids, 'Y').order("noti_read, created_at desc")
     for noti in @notifications do loop
       if noti.noti_read == 'N' and login_user_ids.index(noti.to_user_id)
         noti.noti_read = 'Y'

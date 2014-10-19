@@ -1,2 +1,5 @@
 $('#share_accounts_div').html('<%=j render partial: 'shared/share_accounts', locals: {  } %>');
-document.getElementById( "share-accounts-email").value = '<%= @email %>' ;
+(function () {
+    var email = document.getElementById( "share-accounts-email") ;
+    if (email) email.value = '<%= @email %>' ;
+})();

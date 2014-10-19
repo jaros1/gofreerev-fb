@@ -3,6 +3,7 @@ GofreerevFb::Application.routes.draw do
   filter :locale
 
   get "about/index"
+  get "about/unsubscribe"
   get 'cookie/decline_cookies'
   get "flickr/index"
   get "linkedin/index"

@@ -2332,25 +2332,33 @@ $(function() {
     }
 
     function accept() {
-        var valid = true;
-        allFields.removeClass( "ui-state-error" );
+        var pgm='share-accounts-dialog-form.accept: ';
+        try {
+            var valid = true;
+            allFields.removeClass("ui-state-error");
+            if ((email.length > 0) && (email.val() != '')) {
+                // email exists in dialog form and is not blank
+                valid = valid && checkLength(email, I18n.t('js.share_accounts_dialog.email'), 6, 200);
 
-        if (email.val() != '') {
-            valid = valid && checkLength( email, I18n.t('js.share_accounts_dialog.email'), 6, 200 );
+                valid = valid && checkRegexp(email, emailRegex, I18n.t('js.share_accounts_dialog.invalid_email'));
+            }
 
-            valid = valid && checkRegexp( email, emailRegex, I18n.t('js.share_accounts_dialog.invalid_email') );
+            if (valid) {
+                // send ajax request and close dialog
+                share_accounts_ajax(true, email.val());
+                dialog.dialog("close");
+            }
+            return valid
         }
-
-        if ( valid ) {
-            // send ajax request and close dialog
-            share_accounts_ajax(true, email.val());
-            dialog.dialog( "close" );
+        catch (err) {
+            add2log(pgm + 'failed with JS error: ' + err);
+            add_to_tasks_errors2('share_accounts_errors',I18n.t('js.share_accounts.js_error', {error: err, location: 19, debug: 2}));
+            return false;
         }
-        return valid;
-    }
+    } // accept
 
     function reject() {
-        // todo: restore old LOV value without triggering new share accounts dialog form
+        // restore old LOV value without triggering new share accounts dialog form
         var share_level_lov = document.getElementById('share_level_lov') ;
         var old_share_level_lov = document.getElementById('old_share_level_lov') ;
         if (share_level_lov && old_share_level_lov) share_level_lov.value = old_share_level_lov.value ;
@@ -2359,7 +2367,7 @@ $(function() {
 
     dialog = $( "#share-accounts-dialog-form" ).dialog({
         autoOpen: false,
-        height: 300,
+        height: fb_user ? 225 : 300, // only show email for logins without fb account
         width: 350,
         modal: true,
         buttons:[

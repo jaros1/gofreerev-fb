@@ -145,7 +145,8 @@ en:
         lov_text_5: "mixed sharing. See text below"
      share_accounts_dialog:
         dialog_title: "Security alert!"
-        dialog_title_text: "To enable share dynamic friend lists, single sign-on and offline friend suggestions functionality you must allow Gofreerev to store your API access tokens on server. The API access tokens will be stored encrypted on server and will only be used for offline friend list updates, single sign-on and friend suggestions. You can change share accounts choice later and you can always revoke Gofreerev permissions at your login APIs. Optional you can enter your email if you wish to receive email with friend suggestions once every fortnight. Please use correct email address. IP-address and your API contact information will be included in email to prevent spam."
+        dialog_title_text_true: "To enable share dynamic friend lists, single sign-on and offline friend suggestions functionality you must allow Gofreerev to store your API access tokens on server. The API access tokens will be stored encrypted on server and will only be used for offline friend list updates, single sign-on and friend suggestions. You can change share accounts choice later and you can always revoke Gofreerev permissions at your login APIs."
+        dialog_title_text_false: "To enable share dynamic friend lists, single sign-on and offline friend suggestions functionality you must allow Gofreerev to store your API access tokens on server. The API access tokens will be stored encrypted on server and will only be used for offline friend list updates, single sign-on and friend suggestions. You can change share accounts choice later and you can always revoke Gofreerev permissions at your login APIs. Optional you can enter your email if you wish to receive email with friend suggestions once every fortnight. Please use correct email address. IP-address and your API contact information will be included in email to prevent spam."
         dialog_text: "Save access tokens on server?"
 
   # omniauth controllers (auth, facebook and linkedin):
@@ -258,6 +259,11 @@ en:
         disclaimer_text_html: "MIT License disclaimer. The software is provided \"as is\", without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose and noninfringement. In no event shall %{appname} be liable for any claim, damages or other liability, whether in an action of contract, tort or otherwise, arising from, out of or in connection with %{appname} or the use or other dealings in %{appname}."
         privacy_header: "Privacy"
         privacy_text_html: "The following information is downloaded to %{appname}. From your login provider user profile are downloaded user ID, name, links to profile and profile picture, language, country, friends and friends list. From friends list is downloaded user ID, name, link to profiles and profile picture and number of friends for each of your friends. From the browser is uploaded current time zone. In the game %{appname} are saved posts, comments, and your current balance in free money. All information download or entered in %{appname} is stored encrypted, is not used for advertising or personalization and is not given to third parties.<br><br>In %{appname} friends lists determine who can see what. You can see posts and current balance in free money for your friends. In posts from your friends, you can see comments from friends of friends. The only thing you can see for friends of friends is their name, profile picture and link to their login provider profile. There is no such thing as public in %{appname}. Posts created across multiple login providers at the same time follow the above rules. Notice that in such a post you can see comments from your friends' friends from another login provider.<br><br>Created posts and comments can be deleted at any time, either one by one or by closing your %{appname} account. Please note that downloaded and entered data is not deleted when you remove or block %{appname} at your login provider. Therefore do first close <a href='/users?friends=me'>your account</a> in %{appname} and then remove or block %{appname} at your login provider."
+     unsubscribe:
+        email_no_id: "Sorry. Error in link. annot unsubscribe email notifications without an email id."
+        email_not_found: "Sorry. Email with this id was not found. Cannot unsubscribe email notifications. Either error in link or an old link."
+        ok1: "Email notificationer has been unsubscribed. sorry about any inconvenience."
+        ok2: "Email notificationer has been unsubscribed for selected users. sorry about any inconvenience."
 
   # comments controller
   comments:
@@ -764,6 +770,20 @@ en:
         completed_html: "Your data for your %{apiname} account here at %{appname} has been deleted. You are no longer logged in to %{appname} with your %{apiname} account. Use <a href=\"%{url}\">link</a> to remove %{appname} access at %{apiname}."
         exception: "System error when deleting your account. %{error}. More information in server log."
 
+  user_mailer:
+     friends_suggestions:
+        subject: "Gofreerev friends suggestions"
+        mail_header: "Service mail from %{appname}: %{url}"
+        friends_suggestions_header_line: "Friends suggestions:"
+        login_users_header_line: "This notification mail was requested by the following Gofreerev users:"
+        interval_text: "This service mail with friends suggestions is send once every %{days} day if any."
+        unsubscribe_header_line: "You can unsubscribe from this email in one of the following ways:"
+        unsubscribe_text_1: "a) No thanks. Unsubscribe all mails from %{appname}: %{url}"
+        unsubscribe_text_2: "b) This must be an error. Unsubscribe mails from %{users}: %{url}"
+        unsubscribe_text_3: "c) Log in to %{appname} %{url}, change \"Share accounts?\" choice and/or blank email."
+        noreply_text: "Please note that there is \"no reply\" for this email."
+        mail_footer: "Kinds regards, %{appname}, %{url}"
+
   # util controller
   util:
      missing_api_picture_urls:
@@ -952,7 +972,7 @@ en:
         unknown_share_accounts: "System error. Unknown choice for share accounts. Change in Share accounts? has not been saved."
         no_access_token: "System error. Cannot change \"Share accounts?\" choice. Access token was not found."
         no_expires_at: "System error. Cannot change \"Share accounts?\" choice. Expire timestamp for access token was not found."
-        reconnect_required: "xx"
+        reconnect_required: "Sorry. Share dynamic friend lists and single sign-on choice is currently available for flickr. New log in is required. Log out and log back in flickr and then select again \"Share accounts?\""
         exception: "System error. Could not change Share accounts? choice. %{error}. More information in server log."
      share_gift:
         no_gift_id: "System error. No gift id. in share gift request."

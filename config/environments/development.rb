@@ -29,14 +29,9 @@ GofreerevFb::Application.configure do
 
   # exception_notification gem
   config.action_mailer.delivery_method = :sendmail
-  # Defaults to:
-  # config.action_mailer.sendmail_settings = {
-  #   :location => '/usr/sbin/sendmail',
-  #   :arguments => '-i -t'
-  # }
   config.action_mailer.perform_deliveries = true
   config.action_mailer.raise_delivery_errors = true
-  # get smtp config from environment variables <env>_EN_EMAIL_PREFIX
+  # get smtp config from environment variables <env>_EN_EMAIL_PREFIX. EN = exception notification
   rails_env = case Rails.env when "development" then "DEV" when "test" then "TEST" when "production" then "PROD" end
   config.middleware.use ExceptionNotification::Rack,
                         :email => {

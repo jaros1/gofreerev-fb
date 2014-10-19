@@ -893,6 +893,24 @@ class User < ActiveRecord::Base
      :apiname => apiname}
   end
 
+  # refactored from user controller helper. Also used in user mailer
+  def api_profile_url_helper
+    return api_profile_url if api_profile_url.to_s =~ /^https?/
+    # API SETUP
+    return case provider
+             when 'facebook' then
+               "#{API_URL[provider]}/#{uid}"
+             when 'flickr' then
+               "#{API_URL[:flickr]}people/#{uid}"
+             when 'foursquare' then
+               "#{API_URL[provider]}/user/#{uid}"
+             when 'google_oauth2' then
+               "#{API_URL[provider]}#{uid}/posts"
+             else
+               nil
+           end
+  end # api_profile_url_helper
+
 
   def currency_with_text
     return nil unless currency
@@ -1198,124 +1216,181 @@ class User < ActiveRecord::Base
   # self.find_friends
 
   # batch task for friends find - only relevant for multi user login or shared accounts find friends batch task for friends find notifications
-  # without users param - started as post login task after single user login - batch notification in gofreerev and to facebook
+  # without users param - started as post login task after single user login - batch notification in gofreerev and to facebook/email
   # with user param - called from util.new_messages_count for multi user login - online notification in Gofreerev only
   # rules:
-  # 1) only friends find for active users. last_login_at >= 1.month.ago
-  # 2) use last_login_at as start offset starting with first friends find search one week after last login
+  # 1) only friends find for active users. last_login_at >= 3.month.ago
+  # 2) use last_login_at as start offset starting with first friends find search two weeks after last login
   # called from util.new_messages_count
-  def self.find_friends_batch (users = [])
+  def self.find_friends_batch (login_users = [])
     begin
-      if users.size == 0
+      if login_users.size == 0
         batch_notification = true
         # started as post login task after single user login
-        # api notifications is only implemented for facebook
-        # send Gofreerev and facebook notification to one user
-        # non facebook users have to login and see any friends proposal notifications
-        # they will see friends proposals after login and first util.new_messages_count request - see else
-        # find one random user
+        # api notifications for facebook. email notification otherwise
+        # send internal Gofreerev and facebook/email notification to one user
+        # find one random user and check for friends proposals
         # find with user combination
-        user = User.where("substr(user_id, length(user_id)-8, 9) = '/facebook' " +
-                              'and share_account_id is not null ' +
+        login_user = User.where('share_account_id is not null ' +
                               'and last_login_at > ? ' +
                               'and last_friends_find_at < ?',
-                          1.month.ago, 1.week.ago).shuffle.first
-        if user
-          users = User.where('share_account_id = ?', user.share_account_id)
-          users2 = User.find_friends(users)
+                          FIND_FRIENDS_LAST_LOGIN.ago, FIND_FRIENDS_LAST_NOTI.ago).shuffle.first
+        if login_user
+          # user with share accounts - dynamic friends proposal check - compare friends lists across APIs
+          login_users = User.where('share_account_id = ?', login_user.share_account_id)
+          friends_proposals = User.find_friends(login_users)
         else
-          # find without user combination.
-          users = User.where("substr(user_id, length(user_id)-8, 9) = '/facebook' " +
-                                 'and share_account_id is null and last_login_at is not null ' +
+          # find without user combination - pending friends proposals are already stored on friends table with api_friend == 'P'
+          login_users = User.where('share_account_id is null and last_login_at is not null ' +
                                  'and last_login_at > ? ' +
                                  'and last_friends_find_at < ?',
-                             1.month.ago, 1.week.ago).includes(:friends)
+                             FIND_FRIENDS_LAST_LOGIN.ago, FIND_FRIENDS_LAST_NOTI.ago).includes(:friends)
           # check for "unread" friends proposals
-          users.delete_if do |user|
-            if user.friends.find { |f| f.api_friend == 'P' }
+          login_users.delete_if do |login_user|
+            if login_user.friends.find { |f| f.api_friend == 'P' }
               # friends proposal was found - keep user in array
               false
             else
-              # friends proposal was not found - next check in one week
-              user.update_attribute :last_friends_find_at, Time.now
+              # friends proposal was not found - next check in two weeks - remove user from array
+              login_user.update_attribute :last_friends_find_at, Time.now
               true
             end
-          end
-          user = users.shuffle.first
-          return unless user # no users with pending friends proposals
-          users2 = user.friends.find_all { |f| f.api_friend == 'P' }.collect { |f| f.friend }
+          end # delete_if
+          login_user = login_users.shuffle.first
+          return unless login_user # no users with pending friends proposals was found
+          friends_proposals = login_user.friends.find_all { |f| f.api_friend == 'P' }.collect { |f| f.friend }
         end
       else
         # from called from util.new_messages_count for multi user login - online notifications in Gofreerev only
         batch_notification = false
-        users2 = User.find_friends(users)
+        friends_proposals = User.find_friends(login_users)
       end
-      return unless users2.size > 0
-      # gofreerev notifications:
+      return unless friends_proposals.size > 0
+
+      # "send" internal gofreerev notifications (internal = Y)
       noti_key_prefix = 'friends_find_'
       # delete any old unread gofreerev notifications
-      to_user_ids = users.collect { |u| u.user_id }
-      Notification.where(:to_user_id => to_user_ids, :noti_read => 'N').each do |n|
+      to_user_ids = login_users.collect { |u| u.user_id }
+      Notification.where(:to_user_id => to_user_ids, :noti_read => 'N', :internal => 'Y').each do |n|
         n.destroy if n.noti_key.first(noti_key_prefix.length) == noti_key_prefix
       end
-      noti_key = "#{noti_key_prefix}#{users2.size <= 3 ? users2.size : 'n'}_v1"
-      noti_options = {:no_users => users2.size,
-                      :no_other_users => (users2.size-2),
-                      :username1 => users2[0].user_name,
-                      :username2 => (users2.size >= 2 ? users2[1].user_name : nil),
-                      :username3 => (users2.size >= 3 ? users2[2].user_name : nil)}
-      fb_user = nil
-      users.each do |to_user|
+      noti_key = "#{noti_key_prefix}#{friends_proposals.size <= 3 ? friends_proposals.size : 'n'}_v1"
+      noti_options = {:no_users => friends_proposals.size,
+                      :no_other_users => (friends_proposals.size-2),
+                      :username1 => friends_proposals[0].user_name,
+                      :username2 => (friends_proposals.size >= 2 ? friends_proposals[1].user_name : nil),
+                      :username3 => (friends_proposals.size >= 3 ? friends_proposals[2].user_name : nil)}
+      notification_user = nil
+      login_users.each do |login_user|
         n = Notification.new
-        n.to_user_id = to_user.user_id
+        n.to_user_id = login_user.user_id
         n.from_user_id = nil
         n.internal = 'Y'
         n.noti_key = noti_key
         n.noti_options = noti_options
         n.noti_read = 'N'
         n.save!
-        fb_user = to_user if to_user.provider == 'facebook'
+        login_user.update_attribute :last_friends_find_at, Time.now # next friends find in two weeks
+        notification_user = login_user if login_user.provider == 'facebook'
       end
-      # FB notification - batch notifications to not logged active users
-      return unless batch_notification and fb_user
-      return if fb_user.last_login_at < 1.month.ago
-      # development - FB notifications is only enabled for selected users
-      allowed_dev_user_ids = %w(1705481075/facebook 100006399422155/facebook)
-      raise "cannot send FB notifications to #{user.debug_info} in development environment" unless FORCE_SSL or allowed_dev_user_ids.index(fb_user.user_id)
-      if API_TOKEN[:facebook]
-        language = fb_user.language || BASE_LANGUAGE
-        href = '/'
-        template = I18n.t "inbox.index.#{noti_key}_to_msg", noti_options.merge(:locale => language)
-        # RestClient is using SSLv3 as default and facebook has disabled SSLv3 (SSLv3 POODLE vulnerability)
-        # res = RestClient.post "https://graph.facebook.com/#{fb_user.uid}/notifications",
-        #                       :href => href, :template => template, :access_token => API_TOKEN[:facebook], :ref => "friends_find"
-        res = RestClient::Request.execute :method => :post,
-                                          :url => "https://graph.facebook.com/#{fb_user.uid}/notifications",
-                                          :payload => {:href => href, :template => template, :access_token => API_TOKEN[:facebook], :ref => "friends_find"},
-                                          :ssl_version => 'SSLv23'
+      return unless batch_notification
+      notification_user = login_users.shuffle.first unless notification_user
 
-        logger.debug2 "res = #{res}"
-        # signature from FB notification:
-        # Started POST "/?fb_source=notification&fb_ref=friends_find&ref=notif&notif_t=app_notification" for 127.0.0.1 at 2014-04-02 07:48:09 +0200
-        # User Load (5.5ms)  SELECT "users".* FROM "users" WHERE (user_id in ('1705481075/facebook'))
-        # CACHE (0.1ms)  SELECT "users".* FROM "users" WHERE (user_id in ('1705481075/facebook'))
-        # Processing by FacebookController#create as HTML
-        # Parameters: {"signed_request"=>"6xbhSI-JNpGOf7Ye54gft7kF4Tmxdr0AQVA0Iy0hw34.eyJhbGdvcml0aG0iOiJITUFDLVNIQTI1NiIsImV4cGlyZXMiOjEzOTY0MjIwMDAsImlzc3VlZF9hdCI6MTM5NjQxNzY4Mywib2F1dGhfdG9rZW4iOiJDQUFGalpCR3p6T2tjQkFQUGoyakJtVTc2UkxkODFjcG0xSTVqMDlZcWNZNjFSOFRwYnRoa3l0QlNkb0JoalNrQWh0UFBhaTN3VmlCekZRM2dsb1pCVUtxTVhXV0tlTkVqeVk3U2pOTXJRZXUzWkI4MVRoVEhwTEtBZzMyRzlLaVpCaFpCR1pBbEdROFpBQThnN3R5aDZVREpRS0pqY3dnek52djZqaE9lR00yUlUyTEk1MkZDWkFIZUJaQWdSWVVWZXVTRHNzamdrYjVKcTNBWkRaRCIsInVzZXIiOnsiY291bnRyeSI6ImRrIiwibG9jYWxlIjoiZW5fR0IiLCJhZ2UiOnsibWluIjoyMX19LCJ1c2VyX2lkIjoiMTcwNTQ4MTA3NSJ9", "fb_locale"=>"en_GB", "fb_source"=>"notification", "fb_ref"=>"friends_find", "ref"=>"notif", "notif_t"=>"app_notification"}
-      else
-        logger.warn2 "facebook app token was not found"
-        logger.debug2 "Use api_server = Koala::Facebook::RealtimeUpdates.new :app_id => API_ID[:facebook], :secret => API_SECRET[:facebook] request to get a facebook application token"
-        logger.debug2 "application token must be stored in environment variable. See /config/initializers/omniauth.rb"
-        return
+      # external notification.
+      # - FB notification if one of the "login" users is a FB user.
+      # - Email notification if no FB "login" user or FB notifications has not been set up.
+
+      # do not send friends suggestions to inactive Gofreerev users
+      return if notification_user.last_login_at < FIND_FRIENDS_LAST_LOGIN.ago #
+
+      # development environment - special filter - notifications is only send to selected users
+      if !FORCE_SSL and !FIND_FRIENDS_DEV_USERIDS.index(notification_user.user_id)
+        raise "cannot send friends suggestion to #{notification_user.debug_info} in development environment. check ENV('GOFREEREV_DEV_EN_USERIDS'])"
       end
+
+      if notification_user.provider == 'facebook'
+        # FB notifications
+        if API_TOKEN[:facebook]
+          language = notification_user.language || BASE_LANGUAGE
+          href = '/'
+          template = I18n.t "inbox.index.#{noti_key}_to_msg", noti_options.merge(:locale => language)
+          # RestClient is using SSLv3 as default and facebook has disabled SSLv3 (SSLv3 POODLE vulnerability)
+          # res = RestClient.post "https://graph.facebook.com/#{fb_user.uid}/notifications",
+          #                       :href => href, :template => template, :access_token => API_TOKEN[:facebook], :ref => "friends_find"
+          res = RestClient::Request.execute :method => :post,
+                                            :url => "https://graph.facebook.com/#{notification_user.uid}/notifications",
+                                            :payload => {:href => href, :template => template, :access_token => API_TOKEN[:facebook], :ref => "friends_find"},
+                                            :ssl_version => 'SSLv23'
+          logger.debug2 "res = #{res}"
+          # res = {"success":true}
+          # todo: check res!
+          # signature from FB notification:
+          # Started POST "/?fb_source=notification&fb_ref=friends_find&ref=notif&notif_t=app_notification" for 127.0.0.1 at 2014-04-02 07:48:09 +0200
+          # User Load (5.5ms)  SELECT "users".* FROM "users" WHERE (user_id in ('1705481075/facebook'))
+          # CACHE (0.1ms)  SELECT "users".* FROM "users" WHERE (user_id in ('1705481075/facebook'))
+          # Processing by FacebookController#create as HTML
+          # Parameters: {"signed_request"=>"6xbhSI-JNpGOf7Ye54gft7kF4Tmxdr0AQVA0Iy0hw34.eyJhbGdvcml0aG0iOiJITUFDLVNIQTI1NiIsImV4cGlyZXMiOjEzOTY0MjIwMDAsImlzc3VlZF9hdCI6MTM5NjQxNzY4Mywib2F1dGhfdG9rZW4iOiJDQUFGalpCR3p6T2tjQkFQUGoyakJtVTc2UkxkODFjcG0xSTVqMDlZcWNZNjFSOFRwYnRoa3l0QlNkb0JoalNrQWh0UFBhaTN3VmlCekZRM2dsb1pCVUtxTVhXV0tlTkVqeVk3U2pOTXJRZXUzWkI4MVRoVEhwTEtBZzMyRzlLaVpCaFpCR1pBbEdROFpBQThnN3R5aDZVREpRS0pqY3dnek52djZqaE9lR00yUlUyTEk1MkZDWkFIZUJaQWdSWVVWZXVTRHNzamdrYjVKcTNBWkRaRCIsInVzZXIiOnsiY291bnRyeSI6ImRrIiwibG9jYWxlIjoiZW5fR0IiLCJhZ2UiOnsibWluIjoyMX19LCJ1c2VyX2lkIjoiMTcwNTQ4MTA3NSJ9", "fb_locale"=>"en_GB", "fb_source"=>"notification", "fb_ref"=>"friends_find", "ref"=>"notif", "notif_t"=>"app_notification"}
+          return
+        else
+          logger.warn2 "facebook app token was not found"
+          logger.debug2 "Use api_server = Koala::Facebook::RealtimeUpdates.new :app_id => API_ID[:facebook], :secret => API_SECRET[:facebook] request to get a facebook application token"
+          logger.debug2 "application token must be stored in environment variable. See /config/initializers/omniauth.rb"
+          # continue with email notification
+        end
+      end # if facebook user
+
+      # email notification.
+      email = notification_user.share_account.email
+      if !email
+        logger.debug2 "no email address. Friends suggestions not send"
+        return nil
+      end
+      # check unsubscribe before sending email
+      us = Unsubscribe.where('email = ? and user_id is null', email).first
+      if us
+        logger.debug2 "email #{email} has been unsubscribed. Friends suggestions not send"
+        return nil
+      end
+      login_users.each do |login_user|
+        us = Unsubscribe.where('email = ? and user_id = ?', email, login_user.user_id).first
+        if us
+          logger.debug2 "email #{email} from user id #{login_user.user_id} has been unsubscribed. Friends suggestions not send"
+          return nil
+        end
+      end
+
+      # save email  meta information on a special friends_find external notification
+      # extra information in this speciel notification: email, password + list of "login" users
+      # email: checked in unsubscribe and inserted in unsubscribe table
+      # password: check in unsubscribe. Only allow unsubscribe if email has been send to user
+      # login users: inserted into unsubscribe table
+      # friends proposals: links inserted into email
+      noti_options[:email] = notification_user.share_account.email
+      noti_options[:password] = String.generate_random_string(20)
+      noti_options[:login_users] = login_users.collect { |login_user| login_user.user_id }.join(',')
+      noti_options[:friends_proposals] = friends_proposals.collect { |login_user| login_user.user_id }.join(',')
+      n = Notification.new
+      n.to_user_id = notification_user.user_id
+      n.from_user_id = nil
+      n.internal = 'N' # hide in inbox
+      n.noti_key = noti_key
+      n.noti_options = noti_options
+      n.noti_read = 'Y' # no new message count
+      n.save!
+      logger.debug2 "n.id = #{n.id}"
+
+      # ready to send email - language in mail is selected from noti_options[:login_users]
+      locale = I18n.locale
+      UserMailer.friends_suggestions(n).deliver
+      I18n.locale = locale
+
       nil
     rescue => e
       logger.debug2 "Exception: #{e.message.to_s} (#{e.class})"
       logger.debug2 "Backtrace: " + e.backtrace.join("\n")
       raise
     end
-  end
-
-  # self.find_friends_batch
+  end  # self.find_friends_batch
 
   # friends information is used many different places
   # cache friends information once and for all in @users array (user.friends_hash)

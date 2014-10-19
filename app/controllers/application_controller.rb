@@ -61,7 +61,7 @@ class ApplicationController < ActionController::Base
     @users << User.find_or_create_dummy_user('gofreerev') if @users.size == 0
   end
 
-  # fetch user info. Used in page heading etc
+  # fetch user info. initialize @users array. One user with each login API. Used in page heading, security etc
   private
   def fetch_users
     logger.debug2 "start"
@@ -276,12 +276,11 @@ class ApplicationController < ActionController::Base
     I18n.locale = valid_locale(params[:locale]) || valid_locale(session[:language]) || valid_locale(I18n.default_locale) || 'en'
     # logger.debug2  "I18n.locale = #{I18n.locale}. params[:locale] = #{params[:locale]}, session[:language] = #{session[:language]}, "
 
-    # save language for batch notifications - for example friends find with friends suggestions - only used for facebook
+    # save language for batch notifications - for example friends find with friends suggestions
     # see User.find_friends_batch
     return if xhr?
     return unless logged_in?
     @users.each do |user|
-      next unless user.provider == 'facebook'
       user.update_attribute :language, I18n.locale unless user.language == I18n.locale
     end
   end # set_locale_from_params
@@ -478,6 +477,15 @@ class ApplicationController < ActionController::Base
     DEBUG_AJAX
   end
   helper_method "debug_ajax?"
+
+  # is FB amount logged in users?
+  # only show email field in share accounts dialog form if no FB account
+  private
+  def fb_user?
+    return false unless logged_in?
+    login_user_ids.find { |user_id| user_id.split('/').last == 'facebook' } ? true : false
+  end
+  helper_method "fb_user?"
 
   # helper methods to return ajax (error) messages
   private
@@ -1888,6 +1896,9 @@ class ApplicationController < ActionController::Base
       # c) upload - maybe vkontakte gem has a method for this?!
       # http://vk.com/developers.php?oid=-17680044&p=Uploading_Files_to_the_VK_Server_Procedure
       begin
+        # note that RestClient 1.7.3 is using SSLv3 as default and facebook has disabled SSLv3 (SSLv3 POODLE vulnerability)
+        # check solution in User.find_friends_batch if VK also disables SSLv3 and RestClient is not upgrated
+        # error message: SSL_connect returned=1 errno=0 state=SSLv3 read server hello A: sslv3 alert handshake failure (OpenSSL::SSL::SSLError)
         upload_res1 = RestClient.post url, :file1 => File.new(picture)
       rescue => e
         raise VkontaktePhotoPost.new "#{e.class}: #{e.message}"

@@ -64,3 +64,10 @@ SHOW_COOKIE_NOTE = 30 # nil or number of seconds to display cookie note in heade
 CLEANUP_USER_DELETED      = 6.minutes
 CLEANUP_USER_DEAUTHORIZED = 14.days
 CLEANUP_USER_INACTIVE     = 1.year
+
+# offline friends suggestions. Only send friends suggestions to active users (login within the last 3 months)
+# and only find friends suggestions once every 14 days
+FIND_FRIENDS_LAST_LOGIN = 3.months
+FIND_FRIENDS_LAST_NOTI = 2.weeks
+FIND_FRIENDS_EMAIL_SENDER = ENV["#{ENV_PREFIX}en_recipients".upcase] # also used in ExceptionNotification
+FIND_FRIENDS_DEV_USERIDS = ENV["#{ENV_PREFIX}en_userids".upcase].to_s.split(' ') # notification filter in dev. environment

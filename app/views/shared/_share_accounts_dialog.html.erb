@@ -10,13 +10,15 @@
 </style>
 
 <div id="share-accounts-dialog-form" title="<%= t '.dialog_title' %>">
-  <div title="<%= t '.dialog_title_text' %>">
+  <div title="<%= t ".dialog_title_text_#{fb_user?}" %>">
     <p class="validateTips"><%= t '.dialog_text' %></p>
 
     <form>
       <fieldset>
+<% if !fb_user? -%>
         <label for="email">Email</label>
         <input type="text" name="email" id="share-accounts-email" value="<%= share_accounts_email %>" class="text ui-widget-content ui-corner-all">
+<% end -%>
         <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">
       </fieldset>
     </form>

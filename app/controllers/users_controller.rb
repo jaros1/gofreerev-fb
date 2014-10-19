@@ -544,20 +544,13 @@ class UsersController < ApplicationController
 
   private
   def api_profile_url (user)
-    return user.api_profile_url if user.api_profile_url.to_s =~ /^https?/
+    api_profile_url = user.api_profile_url_helper
+    return api_profile_url if api_profile_url
     provider = user.provider
-    # API SETUP
-    case provider
-      when 'facebook' then "#{API_URL[provider]}/#{user.uid}"
-      when 'flickr' then "#{API_URL[:flickr]}people/#{user.uid}"
-      when 'foursquare' then "#{API_URL[provider]}/user/#{user.uid}"
-      when 'google_oauth2' then "#{API_URL[provider]}#{user.uid}/posts"
-      else
-        # link to #{API_DOWNCASE_NAME[provider] || provider} user profile not implemented
-        msg = translate '.api_profile_link_not_implemented', :apiname => (API_DOWNCASE_NAME[provider] || provider)
-        logger.debug2 msg
-        "javascript: alert('#{msg}')"
-    end
+    # link to #{API_DOWNCASE_NAME[provider] || provider} user profile not implemented
+    msg = translate '.api_profile_link_not_implemented', :apiname => (API_DOWNCASE_NAME[provider] || provider)
+    logger.debug2 msg
+    "javascript: alert('#{msg}')"
   end
   helper_method :api_profile_url
 

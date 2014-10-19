@@ -119,14 +119,14 @@ class Notification < ActiveRecord::Base
 
 
 
-  # keep max 20 notifications for each user
+  # keep max 20 internal notifications for each user
   def before_create
     limit = 19
     # logger.debug2  "notification.before_create: to_user_id = #{to_user_id}"
-    count = Notification.where("to_user_id = ?", to_user_id).length
+    count = Notification.where("to_user_id = ? and internal = ?", to_user_id, 'Y').length
     return if count <= limit
     # keep newest 19 notifications (0..18).
-    ns = Notification.where("to_user_id = ?", to_user_id).order("updated_at desc")
+    ns = Notification.where("to_user_id = ? and internal = ?", to_user_id, 'Y').order("updated_at desc")
     ns = ns[limit..-1]
     ns.each { |n| n.destroy }
     # one new notification will be created just in a moment

@@ -147,7 +147,8 @@ da:
         lov_text_5: "Blandet deling. Se nedenstående tekst"
      share_accounts_dialog:
         dialog_title: "Sikkerhedsspørgsmål!"
-        dialog_title_text: "For at aktivere dynamisk vennelister, fælles login og offline venneforslag funktionalitet, skal du give Gofreerev lov til at gemme din API adgang på serveren. API adgang vil blive gemt krypteret på serveren og vil kun blive brugt til offline venneliste opdateringer, fælles login og venneforslag. Du kan altid ændre 'Saml konti?' valg senere, og du kan altid fjerne Gofreerev tilladelser hos dine login API'er. Du kan indtaste din e-mail, hvis du ønsker at modtage email med venneforslag en gang hver fjortende dag. Brug venligst korrekte e-mail-adresse. Dine kontaktoplysninger vil blive inkluderet i email for at forhindre at venneforslag bliver anvendt til spam."
+        dialog_title_text_true: "For at aktivere dynamisk vennelister, fælles login og offline venneforslag funktionalitet, skal du give Gofreerev lov til at gemme din API adgang på serveren. API adgang vil blive gemt krypteret på serveren og vil kun blive brugt til offline venneliste opdateringer, fælles login og venneforslag. Du kan altid ændre 'Saml konti?' valg senere, og du kan altid fjerne Gofreerev tilladelser hos dine login API'er."
+        dialog_title_text_false: "For at aktivere dynamisk vennelister, fælles login og offline venneforslag funktionalitet, skal du give Gofreerev lov til at gemme din API adgang på serveren. API adgang vil blive gemt krypteret på serveren og vil kun blive brugt til offline venneliste opdateringer, fælles login og venneforslag. Du kan altid ændre 'Saml konti?' valg senere, og du kan altid fjerne Gofreerev tilladelser hos dine login API'er. Du kan indtaste din e-mail, hvis du ønsker at modtage email med venneforslag en gang hver fjortende dag. Brug venligst korrekte e-mail-adresse. Dine kontaktoplysninger vil blive inkluderet i email for at forhindre at venneforslag bliver anvendt til spam."
         dialog_text: "Gem API autorisation på server?"
 
   # omniauth controllers (auth, facebook and linkedin):
@@ -261,6 +262,11 @@ da:
         disclaimer_text_html: "MIT License ansvarsfraskrivelse. Softwaren leveres \"som den er\", uden garanti af nogen art, udtrykkelige eller stiltiende, herunder, men ikke begrænset til garantier for salgbarhed, egnethed til et bestemt formål og ikke-krænkelse. Under ingen omstændigheder skal %{appname} være ansvarlig for ethvert krav, skader eller andet ansvar, enten i en aktion af kontrakten, tort eller andet, der skyldes, ud af eller i forbindelse med %{appname} eller brug eller andre transaktioner i %{appname}."
         privacy_header: "Datapolitik"
         privacy_text_html: "Følgende oplysninger downloades til brug i %{appname}. Fra bruger-profil hos din login-udbyder hentes brugerid, navn, links til profil og profilbillede, sprog, land, antal venner og venneliste. Fra venneliste hentes brugerid, navn, link til profiler og profilbillede samt antal venner for hver af dine venner. Fra browser hentes aktuel tidszone. I spillet gemmes oprettede opslag, kommentarer og din løbende saldo i frie penge. Alle oplysninger download eller indtastet i %{appname} opbevares krypteret, anvendes ikke til reklamer eller personalisering og vidergives ikke til trediepart.<br><br>I %{appname} er vennelister bestemmende for, hvem der kan se hvad. Man kan se opslag og løbende saldo i frie penge for ens venner. I opslag fra ens venner vil man kunne se kommentarer fra venners venner. Det eneste man kan se om venners venner er deres navn, profilbillede og link til deres profil hos loginudbyder. Der er ikke noget, der hedder offentligt i %{appname}. Opslag, der oprettes på tværs af flere loginudbydere på en gang, følger ovenstående regler. Det betyder dog, at man i et sådan opslag fra en ven kan se kommentarer fra ens vens venner hos en anden login udbyder.<br><br>Oprettede opslag og kommentarer kan til enhver tid slettes enten enkelvis eller ved at lukke din %{appname} konto. Vær opmærksom på, at downloadede og indtastede data ikke slettes automatisk, forbi du fjerner eller blokkerer %{appname} hos din login udbyder. Luk derfor først <a href='/users?friends=me'>din konto</a> i %{appname} og fjern eller blokkér dernæst %{appname} hos din loginudbyder."
+     unsubscribe:
+        email_no_id: "Beklager. Fejl i link. Kan ikke fravælge email notifikationer uden et email id."
+        email_not_found: "Beklager. Email med dette id findes ikke. Kan ikke fravælge email notifikationer. Enten fejl i link eller link fra en gammel mail."
+        ok1: "Email notifikationer er afmeldt. Beklager ulejligheden."
+        ok2: "Email notifikationer er afmeldt for udvalgte brugere. Beklager ulejligheden."
 
   # comments controller
   comments:
@@ -768,6 +774,20 @@ da:
         completed_html: "Dine data for din %{apiname} konto her hos %{appname} er blevet slettet. Forbindelse til %{appname} vha. din %{apiname} konto er blevet afbrudt. Brug <a href=\"%{url}\">link</a> for også at fjerne %{appname} adgang hos %{apiname}."
         exception: "Systemfejl ved sletning af konto. %{error}. Flere oplysninger i server log."
 
+  user_mailer:
+     friends_suggestions:
+        subject: "Gofreerev venneforslag"
+        mail_header: "Service mail fra %{appname}: %{url}"
+        friends_suggestions_header_line: "Venneforslag:"
+        login_users_header_line: "Denne notifikationsmail er blevet bestilt af følgende Gofreerev brugere:"
+        interval_text: "Denne service mail med venneforslag sendes en gang hver %{days} hvis der er nogle."
+        unsubscribe_header_line: "Du kan fravælge notifikation mails på en af følgende måder:"
+        unsubscribe_text_1: "a) Nej tak. Fravælg alle mails from %{appname}: %{url}"
+        unsubscribe_text_2: "b) Det er vist en fejl. Fravælg mails fra %{users}: %{url}"
+        unsubscribe_text_3: "c) Log ind i %{appname} %{url}, ret \"Saml konti?\" valg og/eller blankstil email."
+        noreply_text: "Bemærk venligst at der ikke kan svares på denne email."
+        mail_footer: "Med venlig hilsen, %{appname}, %{url}"
+
   # util controller
   util:
      missing_api_picture_urls:
@@ -956,7 +976,7 @@ da:
         unknown_share_accounts: "Systemfejl. Ukendt valg ved ændring af \"Saml konti?\". Valg er ikke blevet gemt."
         no_access_token: "Systemfejl. Kan ikke ændre \"Saml konti?\" valg. Adgangsbillet blev ikke fundet for %{apiname}."
         no_expires_at: "Systemfejl. Kan ikke ændre \"Saml konti?\" valg. Tidsstempel for udløb af adgangsbillet blev ikke fundet for %{apiname}."
-        reconnect_required: "Sikkerhedsproblem. Fælles login pt. ikke mulige for %{apinames}. Nyt log ind er påkrævet. Log ud og Log ind igen for %{apinames} og vælg dernæst igen fælles login."
+        reconnect_required: "Beklager. Del dynamiske vennelister og fælles login valg er pt. ikke mulige for %{apinames}. Nyt log ind er påkrævet. Log ud og Log ind igen for %{apinames} og vælg dernæst igen \"Saml konti?\"."
         exception: "Systemfejl. Kunne ikke ændre \"Saml konti?\" valg. %{error}. Mere information i server log."
      share_gift:
         no_gift_id: "Systemfejl. Ugyldigt kald. Opslag id mangler."

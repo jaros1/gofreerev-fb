@@ -1714,6 +1714,7 @@ class UtilController < ApplicationController
   #   2: share balance and static friend lists across API providers (email not used)
   #   3: share balance and dynamic friend lists across API providers - save access token in db
   #   4: share balance, dynamic friend lists and allow single sign-on - save access token in db
+  # email. used for friends suggestions. FB notification are used for shared accounts with a FB account. optional email is only used for shared accounts without a FB account
   public
   def share_accounts
     table = 'share_accounts_errors'
