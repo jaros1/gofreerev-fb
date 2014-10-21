@@ -1340,9 +1340,9 @@ class User < ActiveRecord::Base
       end # if facebook user
 
       # email notification.
-      email = notification_user.share_account.email
+      email = notification_user.share_account.email if notification_user.share_account
       if !email
-        logger.debug2 "no email address. Friends suggestions not send"
+        logger.debug2 "no email address for #{notification_user.debug_info}. Friends suggestions not send"
         return nil
       end
       # check unsubscribe before sending email
