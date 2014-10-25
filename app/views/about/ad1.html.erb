@@ -37,7 +37,7 @@
     </td>
   </tr>
   <tr>
-    <td><%= image_tag @image %></td>
+    <td><%= image_tag @image, :width => 250 %></td>
   </tr>
   <tr>
     <td><%= t '.footer_html', :appname =>APP_NAME, :delete_url => link_to('link', users_path(:friends => 'me')) %></td>
