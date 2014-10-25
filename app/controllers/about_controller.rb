@@ -9,7 +9,7 @@ class AboutController < ApplicationController
   #   noti_id: noti_id + password
   #   choice: 1-unsubscribe all, 2: unsubscribe for users
   def unsubscribe
-    # email_id: noti_id and "password".
+    # check param email_id: noti_id + "password", total 40 characters
     noti_id_and_password = params[:email_id].to_s
     if noti_id_and_password.to_s == ''
       save_flash_key '.email_no_id'
@@ -23,9 +23,21 @@ class AboutController < ApplicationController
     end
     noti_id = noti_id_and_password.to_s.first(20)
     password = noti_id_and_password.last(20)
+    noti_key_prefix = 'friends_find_'
+    # check Notification - noti_key friends_find_ ..., external and password
     n = Notification.find_by_noti_id(noti_id)
     noti_options = n.noti_options if n
-    if !n or noti_options[:password] != password
+    if !n or n.internal != 'N' or n.noti_key.first(noti_key_prefix.size) != noti_key_prefix or n.noti_options[:password] != password
+      # debug information
+      if !n
+        logger.debug2 "Notification was not found"
+      elsif n.internal != 'N'
+        logger.debug2 "Noti id #{n.id} : not an external notification"
+      elsif n.noti_key.first(noti_key_prefix.size) != noti_key_prefix
+        logger.debug2 "Noti id #{n.id} : not a #{noti_key_prefix} notification"
+      elsif n.noti_options[:password] != password
+        logger.debug2 "Noti id #{n.id} : invalid password"
+      end
       save_flash_key '.email_not_found'
       redirect_to :controller => :auth, :action => :index
       return
@@ -65,6 +77,12 @@ class AboutController < ApplicationController
     end
     save_flash_key '.ok2'
     redirect_to :controller => :auth, :action => :index
+  end
+
+  # ads - fairphone competition deadline 31/12-2014 (getting test data and test users for this app)
+  def ad1
+    # ok - render - all text in ads
+    @image = "ad_1_#{session[:language]}.jpg"
   end
 
 end

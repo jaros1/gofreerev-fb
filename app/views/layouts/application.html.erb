@@ -91,15 +91,20 @@
 -%>
     <div style="width: 100%">
       <table>
-        <td>
-          <table>
-            <tbody id="tasks_errors" class="ajax_errors">
-            <%= render :partial => 'shared/ajax_errors' %>
-            </tbody>
-          </table>
-        </td>
-        <td style="width: 20px;"><img src="/images/ajax-loading-18.gif" id="ajax-tasks-spinner" style="display: none"/>
-        </td>
+        <tbody>
+        <tr>
+          <td>
+            <table>
+              <tbody id="tasks_errors" class="ajax_errors">
+              <%= render :partial => 'shared/ajax_errors' %>
+              </tbody>
+            </table>
+          </td>
+          <td style="width: 20px;">
+            <img src="/images/ajax-loading-18.gif" id="ajax-tasks-spinner" style="display: none"/>
+          </td>
+        </tr>
+        </tbody>
       </table>
     </div>
     <div style="display: none">

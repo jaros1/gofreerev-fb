@@ -24,16 +24,17 @@ class ApplicationController < ActionController::Base
   private
   def render_with_language(viewname)
     language = session[:language]
-    # language = BASE_LANGUAGE # todo: remove this line
-    logger.debug2  "language = #{language}"
+    # logger.debug2  "language = #{language}"
     if !language or language == BASE_LANGUAGE
+      # logger.debug2 "Render #{viewname}"
       render :action => viewname
       return
     end
     viewname2 = "#{viewname}_#{language}"
     filename = Rails.root.join('app', 'views', controller_name, "#{viewname2}.html.erb").to_s
-    logger.debug2  "filename = #{filename}"
+    # logger.debug2  "filename = #{filename}"
     viewname2 = viewname unless File.exists?(filename)
+    # logger.debug2 "Render #{viewname2}"
     render :action => viewname2
   end # render_with_language
 

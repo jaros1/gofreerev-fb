@@ -4,6 +4,7 @@ GofreerevFb::Application.routes.draw do
 
   get "about/index"
   get "about/unsubscribe"
+  get "about/ad1"
   get 'cookie/decline_cookies'
   get "flickr/index"
   get "linkedin/index"

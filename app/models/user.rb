@@ -1299,6 +1299,7 @@ class User < ActiveRecord::Base
       # external notification.
       # - FB notification if one of the "login" users is a FB user.
       # - Email notification if no FB "login" user or FB notifications has not been set up.
+      # - sent external mail is saved in Notification with internal = 'N'
 
       # do not send friends suggestions to inactive Gofreerev users
       return if notification_user.last_login_at < FIND_FRIENDS_LAST_LOGIN.ago #
@@ -1345,7 +1346,7 @@ class User < ActiveRecord::Base
         logger.debug2 "no email address for #{notification_user.debug_info}. Friends suggestions not send"
         return nil
       end
-      # check unsubscribe before sending email
+      # check Unsubscribe before sending email
       us = Unsubscribe.where('email = ? and user_id is null', email).first
       if us
         logger.debug2 "email #{email} has been unsubscribed. Friends suggestions not send"
@@ -1354,7 +1355,7 @@ class User < ActiveRecord::Base
       login_users.each do |login_user|
         us = Unsubscribe.where('email = ? and user_id = ?', email, login_user.user_id).first
         if us
-          logger.debug2 "email #{email} from user id #{login_user.user_id} has been unsubscribed. Friends suggestions not send"
+          logger.debug2 "email to #{email} from user id #{login_user.user_id} has been unsubscribed. Friends suggestions not send"
           return nil
         end
       end
@@ -1379,7 +1380,7 @@ class User < ActiveRecord::Base
       n.save!
       logger.debug2 "n.id = #{n.id}"
 
-      # ready to send email - language in mail is selected from noti_options[:login_users]
+      # send email - language in mail is selected from noti_options[:login_users] - user.language
       locale = I18n.locale
       UserMailer.friends_suggestions(n).deliver
       I18n.locale = locale

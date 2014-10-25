@@ -267,6 +267,15 @@ da:
         email_not_found: "Beklager. Email med dette id findes ikke. Kan ikke fravælge email notifikationer. Enten fejl i link eller link fra en gammel mail."
         ok1: "Email notifikationer er afmeldt. Beklager ulejligheden."
         ok2: "Email notifikationer er afmeldt for udvalgte brugere. Beklager ulejligheden."
+     ad1:
+        header_html: "Vind en %{fairphone_url}. Konkurrence slutter 31/12-2014 :"
+        text1_html: "Læs konkurrence betingelser nedenfor (0 point)"
+        text2_html: "%{login_url} i %{appname} (3 point)"
+        text3_html: "Opret %{share_url} i %{appname} (2 point)"
+        text4_html: "Kommenter vens %{share_url} i %{appname} (5 point)"
+        log_in_link_text: "Log ind"
+        share_url_text: "opslag"
+        footer_html: "Konkurrencebetingelser. Alt det med småt som du sandsynligvis alligevel ikke gider læse.<br>Formålet med denne konkurrence er at skaffe test data og test brugere til en grønt app Gofreerev (deleøkonomi) som jeg er i færd med at lave som et fritidsprojekt. Formålet er at opsamle erfaringer, rette fejl og gøre appen bedre. Appen kører i betatest på en meget lille webserver, der må forventes dårlige svartider og der er ingen garanti for at appen kører 24/7. Der vil ikke være dag til dag support ved fejl, men alvorlige fejl vil blive forsøgt løst hurtigst muligt.<br><br>Der hentes følgende oplysninger det eller de sociale netværk som du anvender til at logge ind med:<br>Dit brugerid, navn, links til profil og profilbillede, sprog, land, antal venner og venneliste.<br>Fra venneliste hentes brugerid, navn, link til profiler og profilbillede samt antal venner for hver af dine venner.<br>Hvis du fortryder deltagelse i konkurrencen kan du bruge følgende %{delete_url} til at slette dine oplysninger. Vælg Rediger og Slet konto.<br><br>Appen skulle være selvforklarende med mouseover tekster fra en computer. Appen er endnu ikke 100% tilpasset til smartphones. På smartphone er ingen mouseover hjælpetekster og der er små problemer med layout og dialoger.<br><br>Hver bruger kan få op til 10 point per konto. I januar 2015 laves lodtrækning af 2 stk fairphones. Vindere offentliggøres på Gofreerev på denne side og forsøges kontaktet via socialt netværk, email eller lignende.<br><br>"
 
   # comments controller
   comments:
