@@ -10,8 +10,8 @@
   </tr>
   <tr>
     <td>
-      <table>
-        <tbody>
+      <table class="about-ad1-4-lines">
+        <tbody >
         <tr>
           <td>1</td>
           <td>:</td>
@@ -34,10 +34,35 @@
         </tr>
         </tbody>
       </table>
+      <table class="about-ad1-2-lines">
+        <tbody >
+        <tr>
+          <td>1</td>
+          <td>:</td>
+          <td><%= t '.text1_html', :appname =>APP_NAME %></td>
+          <td></td>
+          <td>2</td>
+          <td>:</td>
+          <td><%= t '.text2_html', :login_url => link_to(t('.log_in_link_text'), header_log_in_link_url), :appname =>APP_NAME %></td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td>:</td>
+          <td><%= t '.text3_html', :share_url => link_to(t('.share_url_text'), gifts_path), :appname => APP_NAME %></td>
+          <td></td>
+          <td>4</td>
+          <td>:</td>
+          <td><%= t '.text4_html', :share_url => link_to(t('.share_url_text'), gifts_path), :appname => APP_NAME %></td>
+        </tr>
+        </tbody>
+      </table>
     </td>
   </tr>
   <tr>
-    <td><%= image_tag @image, :width => 250 %></td>
+    <td>
+      <%= image_tag @image, :width => 250, :class => 'about-ad1-portrait' %>
+      <%= image_tag @image_landscape, :height => 250, :class => 'about-ad1-landscape' %>
+    </td>
   </tr>
   <tr>
     <td><%= t '.footer_html', :appname =>APP_NAME, :delete_url => link_to('link', users_path(:friends => 'me')) %></td>

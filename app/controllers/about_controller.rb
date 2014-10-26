@@ -81,8 +81,9 @@ class AboutController < ApplicationController
 
   # ads - fairphone competition deadline 31/12-2014 (getting test data and test users for this app)
   def ad1
-    # ok - render - all text in ads
-    @image = "ad_1_#{session[:language]}.jpg"
+    language = session[:language] || 'en'
+    @image = "ad_1_#{language}.jpg"
+    @image_landscape = "ad_1_#{language}_landscape.jpg"
   end
 
 end
