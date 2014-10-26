@@ -1,15 +1,21 @@
 <% user = @users.first
    friend = user_div.friend?(@users)
    div_title = '.title' + (friend <= 2 ? '' : '_non') + '_friend'
+   if Time.now < Time.new('2015-01-10')
+     div_title += '_ad1'
+     points = user_div.ad1_points(@users)
+   else
+     points = nil
+   end
    username = user_div.short_or_full_user_name(@users)
    balance = friend <= 2 ? format_user_balance(user_div, @users) : nil
    check_old_balance(user_div) if friend <= 2 # schedule recalculate balance if friend with an old balance
 -%>
 <% if @page_header -%>
-    <div title="<%= t div_title, :username => username, :balance => balance, :apiname => user_div.apiname %>"
+    <div title="<%= t div_title, :username => username, :balance => balance, :apiname => user_div.apiname, :points => points %>"
          onclick="top.location.href = '<%= users_path(:friends => 'me') %>'">
 <% elsif friend < 5 -%>
-    <div title="<%= t div_title, :username => username, :balance => balance, :apiname => user_div.apiname %>"
+    <div title="<%= t div_title, :username => username, :balance => balance, :apiname => user_div.apiname, :points => points %>"
          onclick="top.location.href = '<%= url_for(user_div) %>'">
 <% else -%>
     <div>

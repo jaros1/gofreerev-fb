@@ -98,6 +98,9 @@ da:
      user_div:
         title_non_friend: "%{username}/%{apiname}. Klik her for at se brugeroplysninger."
         title_friend: "%{username}/%{apiname}. Saldo %{balance}. Klik her for at se brugeroplysninger."
+        # todo: remove - competition running until 31-dec-2014 - see about/ad1
+        title_non_friend_ad1: "%{username}/%{apiname}. Klik her for at se brugeroplysninger."
+        title_friend_ad1: "%{username}/%{apiname}. %{points} point. Saldo %{balance}. Klik her for at se brugeroplysninger."
      invite_friend:
         invite_friend_prompt: "Inviter"
         invite_friend_title: "%{username} anvender endnu ikke %{appname}. Brug link til at invitere %{username} til at bruge %{appname}."
