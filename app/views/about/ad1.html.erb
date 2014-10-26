@@ -65,7 +65,12 @@
     </td>
   </tr>
   <tr>
-    <td><%= t '.footer_html', :appname =>APP_NAME, :delete_url => link_to('link', users_path(:friends => 'me')) %></td>
+    <td><%= t '.footer_html',
+              :appname =>APP_NAME,
+              :delete_url => link_to('link', users_path(:friends => 'me')),
+              :this_page_url => link_to("#{SITE_URL}#{@request_fullpath.from(1)}", @request_fullpath),
+              :github_url => link_to_cvs
+    %></td>
   </tr>
   </tbody>
 </table>
