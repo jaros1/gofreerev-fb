@@ -222,7 +222,7 @@ class UsersController < ApplicationController
     if @page_values[:friends] == 'find'
       # compare login users friends [1,2,3] with not friends [4, 6, 7]
       # compare user name or user:combination
-      users2 = User.find_friends(users).sort_by { |u| [u.user_name, u.id] }
+      users2 = User.find_friends(users).sort_by { |u| [u.camelized_user_name, u.id] }
       # friends find - shared not logged accounts have been added to users array
       login_users = users
       check_apiname_filter

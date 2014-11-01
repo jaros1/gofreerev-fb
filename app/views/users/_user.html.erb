@@ -4,7 +4,7 @@
   <td><%= t '.user_name_prompt' %></td>
   <td>:</td>
   <td title="<%= t '.user_name_title', :username => user.short_or_full_user_name(@user), :apiname => user.apiname %>">
-    <%= link_to user.user_name, api_profile_url(user), {:target => '_blank'} %>
+    <%= link_to user.camelized_user_name, api_profile_url(user), {:target => '_blank'} %>
   </td>
 </tr>
 <tr>

@@ -858,6 +858,10 @@ class User < ActiveRecord::Base
     (last_login_at and !deleted_at and !deauthorized_at)
   end
 
+  def camelized_user_name
+    user_name.split(' ').collect { |x| x.camelize}.join(' ')
+  end
+
   def short_user_name
     a = user_name.split(' ')
     "#{a.first} #{a.last.first(1)}"
@@ -1312,7 +1316,7 @@ class User < ActiveRecord::Base
 
       # development environment - special filter - notifications is only send to selected users
       if !FORCE_SSL and !FIND_FRIENDS_DEV_USERIDS.index(notification_user.user_id)
-        raise "cannot send friends suggestion to #{notification_user.debug_info} in development environment. check ENV('GOFREEREV_DEV_EN_USERIDS'])"
+        raise "cannot send friends suggestion to #{notification_user.debug_info} in development environment. check ENV['GOFREEREV_DEV_EN_USERIDS'])"
       end
 
       if notification_user.provider == 'facebook'
@@ -1691,7 +1695,7 @@ class User < ActiveRecord::Base
   # sort_by_user_name
   def self.define_sort_by_user_name (users)
     users.define_singleton_method :sort_by_user_name do
-      self.sort_by { |u| [u.user_name, u.id] }
+      self.sort_by { |u| [u.camelized_user_name, u.id] }
     end # sort_by_user_name
     users
   end

@@ -574,8 +574,6 @@
      check last login date for shared accounts.
      user should login to refresh friends lists for other login providers
 
-126) users/index - sort by user_name - problem with small letter user names
-
 127) facebook grant write:
      "Your popup is too small to display this page. Please enlarge it to proceed.
      was displaying firebox console in bottom 1/3 of page
@@ -716,4 +714,8 @@
 172) User.find_friends_batch
      check res response when sending friends suggestion FB notification
 
-select random issue: (rand*172).floor+1
+173) share level 3. Share dynamic friends list.
+     Fb login with 8 shared friends list.
+     users/index should show friends from all 8 api's
+
+select random issue: (rand*173).floor+1
