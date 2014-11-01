@@ -72,8 +72,9 @@
     check code with api_gift = api_gifts.find { |ag| [ ag.user_id_giver, ag.user_id_receiver].index(???)
 
 16) find optimal image format for each provider. For API_OG_DEF_IMAGE hash
-    facebook: todo
-    google+: todo
+    http://sproutsocial.com/insights/social-media-image-sizes-guide
+    facebook: 600 x 513 (done)
+    google+: todo - not found
     linkedin: 180 x 110 (done)
     twitter: todo
     maybe a mouse over text with best picture dimensions when attaching pictures

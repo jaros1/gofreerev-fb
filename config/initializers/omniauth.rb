@@ -344,8 +344,8 @@ API_OG_DESC_SIZE = {:facebook => 255, # http://www.joshspeters.com/how-to-optimi
                     :linkedin => 220, # max 220 in util.post_on_linkedin ( up to 245 characters allowed in og:description meta-tag )
                     :twitter => 200,
                     :vkontakte => 155}.with_indifferent_access
-# R) OG dummy image - used for post without picture
-API_OG_DEF_IMAGE = {:facebook => "#{SITE_URL}images/sacred-economics.jpg",
+# R) OG dummy image - used for post without picture. not relevant for clickr, foursqare, instagram, pintetest and vkontakte
+API_OG_DEF_IMAGE = {:facebook => "#{SITE_URL}images/sacred-economics-facebook.jpg",
                     :flickr => "#{SITE_URL}images/sacred-economics.jpg",
                     :foursquare => "#{SITE_URL}images/sacred-economics.jpg",
                     :google_oauth2 => "#{SITE_URL}images/sacred-economics.jpg",
