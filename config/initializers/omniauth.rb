@@ -359,6 +359,36 @@ API_OG_DEF_IMAGE = {:facebook => "#{SITE_URL}images/sacred-economics.jpg",
 API_OWNER = { :twitter => ENV['GOFREEREV_APP_OWNER_TWITTER'] }.with_indifferent_access
 
 
+# check API hashes for missing login providers / omniauth strategies.
+# action: 0: compare, 1: check first hash, 2. check second hash
+def compare_keys (name1, name2, action=0)
+  hash1 = eval(name1)
+  hash2 = eval(name2)
+  dif1 = (hash1.keys - hash2.keys).sort.join(', ')
+  dif2 = (hash2.keys - hash1.keys).sort.join(', ')
+  logger.warn2 "provider(s) #{dif1} missing in #{name2}" if [0,1].index(action) and !dif1.empty?
+  logger.warn2 "provider(s) #{dif2} missing in #{name1}" if [0,2].index(action) and !dif2.empty?
+end
+compare_keys 'API_ID', 'API_SECRET'
+compare_keys 'API_ID', 'API_TOKEN', 2
+compare_keys 'API_ID', 'API_URL'
+compare_keys 'API_ID', 'API_CALLBACK_URL'
+compare_keys 'API_ID', 'API_POST_PERMITTED'
+compare_keys 'API_ID', 'API_MUTUAL_FRIENDS'
+compare_keys 'API_ID', 'API_DEFAULT_PERMISSIONS'
+compare_keys 'API_ID', 'API_APP_SETTING_URL'
+compare_keys 'API_ID', 'API_DOWNCASE_NAME'
+compare_keys 'API_ID', 'API_CAMELIZE_NAME'
+compare_keys 'API_ID', 'API_GIFT_PICTURE_STORE', 1
+compare_keys 'API_ID', 'API_POST_MAX_TEXT_LENGTHS', 1
+compare_keys 'API_ID', 'SHARE_GIFT_MAX_TEXT_LENGTHS', 1
+compare_keys 'API_POST_MAX_TEXT_LENGTHS', 'SHARE_GIFT_MAX_TEXT_LENGTHS'
+compare_keys 'API_ID', 'API_TEXT_TO_PICTURE'
+compare_keys 'API_ID', 'API_OG_TITLE_SIZE'
+compare_keys 'API_ID', 'API_OG_DESC_SIZE'
+compare_keys 'API_ID', 'API_OG_DEF_IMAGE', 1
+
+
 # extract basic information from auth_hash (provider, uid, user_name, token, language)
 # provider specific versions can be implemented with get_<method>_<provider>.
 # See omniauth_linkedin.rb for an example.

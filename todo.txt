@@ -324,9 +324,6 @@
     the same pattern for "outbox" for Jan R/google+ as sender of message.
     also 13. feb. 2014 11.58
 
-54) add a API check to omniauth.rb
-    check that all array constants are initialized for all login providers
-
 55) how to check for an "official" gofreerev version
     easy to copy gofreerev and misuse the concept (harvest user information from API's)
     maybe a list of officiel gofreerev sites
