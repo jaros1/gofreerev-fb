@@ -1227,7 +1227,7 @@ class User < ActiveRecord::Base
 
   # batch task for friends find - only relevant for multi user login or shared accounts find friends batch task for friends find notifications
   # without users param - started as post login task after single user login - batch notification in gofreerev and to facebook/email
-  # with user param - called from util.new_messages_count for multi user login - online notification in Gofreerev only
+  # with user param - called from util.new_messages_count for multi user login - auto friends search for login users - online notification in Gofreerev only
   # rules:
   # 1) only friends find for active users. last_login_at >= 3.month.ago
   # 2) use last_login_at as start offset starting with first friends find search two weeks after last login
@@ -1316,7 +1316,8 @@ class User < ActiveRecord::Base
 
       # development environment - special filter - notifications is only send to selected users
       if !FORCE_SSL and !FIND_FRIENDS_DEV_USERIDS.index(notification_user.user_id)
-        raise "cannot send friends suggestion to #{notification_user.debug_info} in development environment. check ENV['GOFREEREV_DEV_EN_USERIDS'])"
+        # raise "cannot send friends suggestion to #{notification_user.debug_info} in development environment. check ENV['GOFREEREV_DEV_EN_USERIDS'])"
+        return ['.not_dev_user', {:user => notification_user.debug_info}]
       end
 
       if notification_user.provider == 'facebook'
@@ -1332,16 +1333,27 @@ class User < ActiveRecord::Base
                                             :url => "https://graph.facebook.com/#{notification_user.uid}/notifications",
                                             :payload => {:href => href, :template => template, :access_token => API_TOKEN[:facebook], :ref => "friends_find"},
                                             :ssl_version => 'SSLv23'
-          logger.debug2 "res = #{res}"
-          # res = {"success":true}
-          # todo: check res!
-          # signature from FB notification:
-          # Started POST "/?fb_source=notification&fb_ref=friends_find&ref=notif&notif_t=app_notification" for 127.0.0.1 at 2014-04-02 07:48:09 +0200
-          # User Load (5.5ms)  SELECT "users".* FROM "users" WHERE (user_id in ('1705481075/facebook'))
-          # CACHE (0.1ms)  SELECT "users".* FROM "users" WHERE (user_id in ('1705481075/facebook'))
-          # Processing by FacebookController#create as HTML
-          # Parameters: {"signed_request"=>"6xbhSI-JNpGOf7Ye54gft7kF4Tmxdr0AQVA0Iy0hw34.eyJhbGdvcml0aG0iOiJITUFDLVNIQTI1NiIsImV4cGlyZXMiOjEzOTY0MjIwMDAsImlzc3VlZF9hdCI6MTM5NjQxNzY4Mywib2F1dGhfdG9rZW4iOiJDQUFGalpCR3p6T2tjQkFQUGoyakJtVTc2UkxkODFjcG0xSTVqMDlZcWNZNjFSOFRwYnRoa3l0QlNkb0JoalNrQWh0UFBhaTN3VmlCekZRM2dsb1pCVUtxTVhXV0tlTkVqeVk3U2pOTXJRZXUzWkI4MVRoVEhwTEtBZzMyRzlLaVpCaFpCR1pBbEdROFpBQThnN3R5aDZVREpRS0pqY3dnek52djZqaE9lR00yUlUyTEk1MkZDWkFIZUJaQWdSWVVWZXVTRHNzamdrYjVKcTNBWkRaRCIsInVzZXIiOnsiY291bnRyeSI6ImRrIiwibG9jYWxlIjoiZW5fR0IiLCJhZ2UiOnsibWluIjoyMX19LCJ1c2VyX2lkIjoiMTcwNTQ4MTA3NSJ9", "fb_locale"=>"en_GB", "fb_source"=>"notification", "fb_ref"=>"friends_find", "ref"=>"notif", "notif_t"=>"app_notification"}
-          return
+          res = YAML::load(res)
+          if res.class == Hash and res.has_key?("success") and res["success"] == true
+            # success. fb notification sent
+            # signature from FB notification:
+            # Started POST "/?fb_source=notification&fb_ref=friends_find&ref=notif&notif_t=app_notification" for 127.0.0.1 at 2014-04-02 07:48:09 +0200
+            # User Load (5.5ms)  SELECT "users".* FROM "users" WHERE (user_id in ('1705481075/facebook'))
+            # CACHE (0.1ms)  SELECT "users".* FROM "users" WHERE (user_id in ('1705481075/facebook'))
+            # Processing by FacebookController#create as HTML
+            # Parameters: {"signed_request"=>"6xbhSI-JNpGOf7Ye54gft7kF4Tmxdr0AQVA0Iy0hw34.eyJhbGdvcml0aG0iOiJITUFDLVNIQTI1NiIsImV4cGlyZXMiOjEzOTY0MjIwMDAsImlzc3VlZF9hdCI6MTM5NjQxNzY4Mywib2F1dGhfdG9rZW4iOiJDQUFGalpCR3p6T2tjQkFQUGoyakJtVTc2UkxkODFjcG0xSTVqMDlZcWNZNjFSOFRwYnRoa3l0QlNkb0JoalNrQWh0UFBhaTN3VmlCekZRM2dsb1pCVUtxTVhXV0tlTkVqeVk3U2pOTXJRZXUzWkI4MVRoVEhwTEtBZzMyRzlLaVpCaFpCR1pBbEdROFpBQThnN3R5aDZVREpRS0pqY3dnek52djZqaE9lR00yUlUyTEk1MkZDWkFIZUJaQWdSWVVWZXVTRHNzamdrYjVKcTNBWkRaRCIsInVzZXIiOnsiY291bnRyeSI6ImRrIiwibG9jYWxlIjoiZW5fR0IiLCJhZ2UiOnsibWluIjoyMX19LCJ1c2VyX2lkIjoiMTcwNTQ4MTA3NSJ9", "fb_locale"=>"en_GB", "fb_source"=>"notification", "fb_ref"=>"friends_find", "ref"=>"notif", "notif_t"=>"app_notification"}
+            return
+          elsif res.class == Hash and res.has_key?("error") and options = res["error"] and options.class == Hash
+            # error fb notification not sent
+            options["code"] = nil unless options["code"]
+            options["type"] = nil unless options["type"]
+            options["message"] = nil unless options["message"]
+            return ['.fb_error', options]
+          else
+            # unexcepted (error) response from facebook
+            logger.warn2 "res = #{res}"
+            return ['fb_other', {:response => res.to_s}]
+          end
         else
           logger.warn2 "facebook app token was not found"
           logger.debug2 "Use api_server = Koala::Facebook::RealtimeUpdates.new :app_id => API_ID[:facebook], :secret => API_SECRET[:facebook] request to get a facebook application token"

@@ -50,9 +50,11 @@ class UtilController < ApplicationController
       key, options = User.delete_user(u)
       logger.debug2 t("users.destroy#{key}", options) if key
     end
-    # auto friends find after multi user login - once after login each login
+    # auto friends find after multi user login - friends search for login users - once after login each login
     if @users.size > 1 and @users.find { |u| u.last_friends_find_at < u.last_login_at }
-      User.find_friends_batch(@users)
+      # friends find for current login users - ajax inject any error messages into current page
+      key, options = User.find_friends_batch(@users)
+      add_error_key "util.find_friends_batch#{key}", options if key
     end
     # get params
     old_newest_gift_id = params[:newest_gift_id].to_i
@@ -2925,6 +2927,28 @@ class UtilController < ApplicationController
       format_response_key '.exception', :error => e.message, :table => table
     end
   end # share_gift
+
+
+  # wrapper for User.find_friends_batch
+  # run as a batch task without login user array.
+  # rror message if not relevant for current login user(s)
+  # write any error messages from User.find_friends_batch to log
+  private
+  def find_friends_batch
+    begin
+      key, options = User.find_friends_batch
+      if key
+        msg = t key, options
+        logger.error2 msg
+      end
+      # ok
+      nil
+    rescue => e
+      logger.debug2  "Exception: #{e.message.to_s} (#{e.class})"
+      logger.debug2  "Backtrace: " + e.backtrace.join("\n")
+      raise
+    end
+  end # find_friends_batch
 
 
 end # UtilController

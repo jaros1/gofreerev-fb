@@ -711,9 +711,6 @@
      share accounts = mixed sharring even if all accounts are shared:
      Details: facebook, flickr, foursquare, google+, instagram, linkedin, twitter, vkontakte: single sign-on
 
-172) User.find_friends_batch
-     check res response when sending friends suggestion FB notification
-
 173) share level 3. Share dynamic friends list.
      Fb login with 8 shared friends list.
      users/index should show friends from all 8 api's

@@ -999,6 +999,10 @@ da:
         unknown_provider: "Systemfejl. Ugyldigt kald. Ukendt \"del link\" udbyder."
         not_allowed: "Du har desværre ikke adgang til at dele dette opslag. Opdater venligst siden."
         exception: "Systemfejl. Kan ikke dele opslag. %{error}. Mere information i server log."
+     find_friends_batch:
+        not_dev_user: "Kan ikke sende venneforslag til %{user} i udviklingsmiljøet. Tjek venligst environment variable ENV['GOFREEREV_DEV_EN_USERIDS'])"
+        fb_error: "Kan ikke sende venneforslag til facebook. %{type} %{message}"
+        fb_other: "Kan ikke sende venneforslag til facebook. Ukendt fejl %{response}"
 
   # translation keys used in javascript (error) messages
   js:

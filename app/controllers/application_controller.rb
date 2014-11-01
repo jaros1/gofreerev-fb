@@ -278,7 +278,6 @@ class ApplicationController < ActionController::Base
     # logger.debug2  "I18n.locale = #{I18n.locale}. params[:locale] = #{params[:locale]}, session[:language] = #{session[:language]}, "
 
     # save language for batch notifications - for example friends find with friends suggestions
-    # see User.find_friends_batch
     return if xhr?
     return unless logged_in?
     @users.each do |user|
@@ -768,7 +767,7 @@ class ApplicationController < ActionController::Base
     end
     # 5) send friends_find notifications once a week for active users.
     # first login is used as a trigger for this batch job
-    add_task 'User.find_friends_batch', 5 if first_login
+    add_task 'find_friends_batch', 5 if first_login
     # 6) message for expired access tokens for user share level 3 (dynamic friend lists) and 4 (single sign-on login)
     # post login service message to user about any expired access tokens
     add_task "check_expired_tokens(#{user.id},#{first_login})" if share_account and [3,4].index(share_account.share_level)
