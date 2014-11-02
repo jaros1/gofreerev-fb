@@ -71,14 +71,6 @@
     check code with login_user_ids.index(ag.user_id_giver)
     check code with api_gift = api_gifts.find { |ag| [ ag.user_id_giver, ag.user_id_receiver].index(???)
 
-16) find optimal image format for each provider. For API_OG_DEF_IMAGE hash
-    http://sproutsocial.com/insights/social-media-image-sizes-guide
-    facebook: 600 x 513 (done)
-    google+: todo - not found
-    linkedin: 180 x 110 (done)
-    twitter: todo
-    maybe a mouse over text with best picture dimensions when attaching pictures
-
 17) add mysql development environment on localhost.
     there some are minor difference between using sqlite3 and mysql as db
     a) problem with "" around table names in mysql

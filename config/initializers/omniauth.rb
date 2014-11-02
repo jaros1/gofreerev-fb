@@ -344,15 +344,18 @@ API_OG_DESC_SIZE = {:facebook => 255, # http://www.joshspeters.com/how-to-optimi
                     :linkedin => 220, # max 220 in util.post_on_linkedin ( up to 245 characters allowed in og:description meta-tag )
                     :twitter => 200,
                     :vkontakte => 155}.with_indifferent_access
-# R) OG dummy image - used for post without picture. not relevant for clickr, foursqare, instagram, pintetest and vkontakte
-API_OG_DEF_IMAGE = {:facebook => "#{SITE_URL}images/sacred-economics-facebook.jpg",
+
+# R) OG dummy image - used for post without picture - see links for best image dimensions
+# http://sproutsocial.com/insights/social-media-image-sizes-guide
+# https://docs.google.com/spreadsheets/d/1IpTYTTMJLcSXcPDtW9zSbPBHQyRdrLfKERohGIIkE_Q/edit
+API_OG_DEF_IMAGE = {:facebook => "#{SITE_URL}images/sacred-economics-facebook.jpg", # 600 x 315
                     :flickr => "#{SITE_URL}images/sacred-economics.jpg",
                     :foursquare => "#{SITE_URL}images/sacred-economics.jpg",
-                    :google_oauth2 => "#{SITE_URL}images/sacred-economics.jpg",
-                    :instagram => "#{SITE_URL}images/sacred-economics.jpg",
-                    :linkedin => "#{SITE_URL}images/sacred-economics-linkedin.jpg", # 180 x 110 best for linkedin
+                    :google_oauth2 => "#{SITE_URL}images/sacred-economics-google_oauth2.jpg", # 497 x 373
+                    :instagram => "#{SITE_URL}images/sacred-economics-instagram.jpg", # 510 x 510
+                    :linkedin => "#{SITE_URL}images/sacred-economics-linkedin.jpg", # 180 x 110
                     :pinterest => "#{SITE_URL}images/sacred-economics.jpg",
-                    :twitter => "#{SITE_URL}images/sacred-economics.jpg",
+                    :twitter => "#{SITE_URL}images/sacred-economics-twitter.jpg", # 506 x 253
                     :vkontakte => "#{SITE_URL}images/sacred-economics.jpg"}.with_indifferent_access
 
 # S) for twitter:site card meta-tag - The Twitter username of the owner of this card's domain. - only twitter
