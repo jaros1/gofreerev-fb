@@ -2615,7 +2615,41 @@ class User < ActiveRecord::Base
       end
     end
     login_users.collect { |u| u.ad1_points }.sum
-  end
+  end # self.ad1_points
+
+
+  # return user array including disconnected shared accounts
+  # auth/index page - show information about share levels and accounts
+  # find friends - also show friends from not connected API's
+  def self.add_shared_accounts (login_users, filter_share_levels = [2,3,4])
+    # only relevant for logged in users
+    return login_users if !User.logged_in?(login_users)
+    # check share accounts and share levels filter
+    filter_share_levels = filter_share_levels & [1,2,3,4]
+    return login_users if filter_share_levels.size == 0
+    share_account_ids = login_users.collect { |u| u.share_account_id }.uniq.find_all { |x| x }
+    return login_users if share_account_ids.size == 0 # none shared accounts
+    share_accounts = ShareAccount.where(:share_account_id => share_account_ids)
+    share_accounts = share_accounts.find_all { |sa| filter_share_levels.index(sa.share_level) }
+    return login_users if share_accounts.size == 0 # no shared accounts with selected filter
+    share_account_ids = share_accounts.collect { |sa| sa.share_account_id }
+    # get shared but disconnected user accounts
+    login_user_ids = login_users.collect { |u| u.user_id }
+    login_providers = login_users.collect { |u| u.provider }
+    other_users = User.where('share_account_id in (?) and user_id not in (?)', share_account_ids, login_user_ids)
+    return login_users if other_users.size == 0 # already connected with all relevant share accounts
+    other_users = other_users.find_all { |u| !login_providers.index(u.provider) }
+    return login_users if other_users.size == 0 # already logged in for all relevant login providers
+    # add other disconnected accounts to login_users array
+    login_users = login_users.clone
+    other_users.each do |u|
+      if !login_providers.index(u.provider)
+        login_providers << u.provider
+        login_users << u
+      end
+    end
+    login_users
+  end # self.add_shared_accounts
 
 
   ##############

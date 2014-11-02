@@ -697,12 +697,23 @@
      3) Emne: VS: RATCHET
      Bootstraps eget mobil web site optimerede framework. Hvordan det passer med at Bootstrap kalder sig et mobil first responsive design framework ved jeg ikke.
 
-171) auth/index.
-     share accounts = mixed sharring even if all accounts are shared:
-     Details: facebook, flickr, foursquare, google+, instagram, linkedin, twitter, vkontakte: single sign-on
-
 173) share level 3. Share dynamic friends list.
      Fb login with 8 shared friends list.
      users/index should show friends from all 8 api's
+     add shared level 3 accounts to input user array before friends find
+     DRY:
+     - check code application_helper.accounts
+     - check code in User.find_friends
+     - check code in User.ad1_points
 
-select random issue: (rand*173).floor+1
+174) google refresh token and offline access
+     check if there is an issue with disconnected google+ accounts and renewal of access token
+     for logged in users google+ access token is renewed once every hour without problems
+     maybe there is a timeout issue for disconnected google+ users
+     add batch process to auth renewal of access token for disconnected google+ users with share level 3 and 4?
+     see application_controller.fetch_users
+
+175) auth/index share account lov performance problem
+     many user updates
+
+select next issue to solve: (rand*174).floor+1

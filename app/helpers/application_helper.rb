@@ -350,22 +350,16 @@ module ApplicationHelper
     end
     # check for combination with not logged in users
     # for example a logged in facebook account combined with a not logged in google+ account
-    other_users = User.where('share_account_id in (?) and user_id not in (?)', share_account_ids, login_user_ids)
-    other_users.each do |user|
+    all_shared_users = User.add_shared_accounts(@users, [1,2,3,4])
+    all_shared_users.each do |user|
+      next if shared.has_key?(user.share_account) # logged in user
+      # not logged user from a shared account
       if [3,4].index(user.share_account.share_level) and
           (!user.access_token or !user.access_token_expires or (user.access_token_expires < Time.now.to_i))
         note_symbol = '#' # expired access token
       else
         note_symbol = '*' # not logged in
       end
-      b1 = [3,4].index(user.share_account.share_level)
-      b2 = !user.access_token
-      b3 = !user.access_token_expires
-      b4 = (user.access_token_expires < Time.now.to_i) if user.access_token_expires
-      b5 = b2 or b3 or b4
-      b6 = b1 and b5
-      logger.debug2 "provider #{user.provider}, share_level #{user.share_account.share_level}, access_token_expires #{user.access_token_expires}, now #{Time.now.to_i}, note_symbol #{note_symbol}"
-      logger.debug2 "b1 = #{b1}, b2 = #{b2}, b3 = #{b3}, b4 = #{b4}, b5 = #{b5}, b6 = #{b6}"
       shared[user.share_account] << provider_downcase(user.provider) + note_symbol
     end
     shared_providers = []
@@ -377,7 +371,13 @@ module ApplicationHelper
         false
       end
     end
-    not_shared_providers = @users.collect { |u| u.provider } - shared_providers
+    not_shared_providers = @users.collect { |u| provider_downcase(u.provider) } - shared_providers
+    logger.debug2 "@users.providers = " + @users.collect { |u| provider_downcase(u.provider) }.join(', ')
+    logger.debug2 "shared_providers = " + shared_providers.join(', ')
+    logger.debug2 "not_shared_providers = #{not_shared_providers.join(', ')}"
+    # accounts: @users.providers = instagram, flickr, google_oauth2, facebook, twitter, vkontakte, foursquare, linkedin
+    # accounts: shared_providers = instagram, flickr, google+,       facebook, twitter, vkontakte, foursquare, linkedin
+    # accounts: not_shared_providers = google_oauth2
     shared[0] = not_shared_providers if not_shared_providers.size > 0 # key with any not shared providers
     shared
   end
@@ -426,6 +426,9 @@ module ApplicationHelper
     share_levels = shared_accounts.keys.collect { |sa| [sa.share_level, sa.email] }.uniq
     share_levels.delete_if { |share_level| share_level[0] == 0 }
     return 0 if share_levels.size == 0 # no sharing
+    # todo: check issue 171 - mixed sharing when not mixed sharring
+    logger.debug2 "share_levels.size    = #{share_levels.size}"
+    logger.debug2 "accounts.has_key?(0) = #{accounts.has_key?(0)}"
     return 5 if share_levels.size > 1 # mixed sharing
     return 5 if accounts.has_key?(0) # mixed sharing (shared and not shared providers)
     return share_levels.first[0] # one and only one share level
