@@ -188,10 +188,28 @@ class UsersController < ApplicationController
 
     # apply apiname filter before friends lookup
     # except for friends=find where apiname filter is applied after friends lookup
+    logger.debug2 "@page_values[:friends] = #{@page_values[:friends]}, @page_values[:apiname] = #{@page_values[:apiname]}"
+    # index: @page_values[:friends] = yes, @page_values[:apiname] = all
     if @page_values[:friends] == 'find'
       users = @users
     elsif @page_values[:apiname] == 'all'
+      logger.debug2 "@users.size = #{@users.size}"
       users = @users
+      # users = User.add_shared_accounts(@users)
+      logger.debug2 "users.size = #{users.size}"
+      # if users.size != @users.size
+      #   # check friend cache (user.friends_hash). DRY. Also used in User.friends_find
+      #   users_without_cache = users.find_all { |u| !u.friends_hash }
+      #   if users_without_cache.size > 0
+      #     # cache friends info
+      #     User.cache_friend_info(users_without_cache)
+      #     users.each do |u1|
+      #       next if u1.friends_hash
+      #       u2 = users_without_cache.find { |u3| u3.user_id == u1.user_id }
+      #       u1.friends_hash = u2.friends_hash
+      #     end
+      #   end
+      # end
     else
       user = @users.find { |u| u.provider == @page_values[:apiname] }
       users = [user]

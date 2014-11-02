@@ -700,11 +700,6 @@
 173) share level 3. Share dynamic friends list.
      Fb login with 8 shared friends list.
      users/index should show friends from all 8 api's
-     add shared level 3 accounts to input user array before friends find
-     DRY:
-     - check code application_helper.accounts
-     - check code in User.find_friends
-     - check code in User.ad1_points
 
 174) google refresh token and offline access
      check if there is an issue with disconnected google+ accounts and renewal of access token

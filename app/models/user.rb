@@ -1150,15 +1150,9 @@ class User < ActiveRecord::Base
   # note that any shared accounts is added to login_users array
   def self.find_friends (login_users, options = {})
     # add shared accounts before friends find
-    share_accounts = login_users.find_all { |u| u.share_account_id }.collect { |u| u.share_account_id }.uniq
-    if share_accounts.size > 0
-      login_user_ids = login_users.collect { |user| user.user_id }
-      other_users = User.where('share_account_id in (?) and user_id not in (?)', share_accounts, login_user_ids)
-      if other_users.size > 0
-        # found user combination with one or more not connected accounts
-        other_users.each { |u| login_users << u }
-      end
-    end
+    logger.debug2 "login_users.size = #{login_users.size}"
+    login_users = User.add_shared_accounts(login_users)
+    logger.debug2 "login_users.size = #{login_users.size}"
     # check friend cache (user.friends_hash)
     users_without_cache = login_users.find_all { |u| !u.friends_hash }
     if users_without_cache.size > 0
@@ -2603,17 +2597,8 @@ class User < ActiveRecord::Base
   # for example current login users or a friend
   def self.ad1_points (login_users = [])
     return 0 unless User.logged_in?(login_users)
-    share_account_ids = login_users.find_all { |u| u.share_account_id }.collect { |u| u.share_account_id }.uniq
-    if share_account_ids.size > 0
-      # add shared accounts before calculation points
-      login_users = login_users.clone
-      login_user_ids = login_users.collect { |u| u.user_id }
-      other_users = User.where('share_account_id in (?) and user_id not in (?)', share_account_ids, login_user_ids)
-      other_users.each do |u1|
-        # only add account for each login provider
-        login_users << u1 unless login_users.find { |u2| u2.provider == u1.provider }
-      end
-    end
+    # add shared accounts before calculation points
+    login_users = User.add_shared_accounts(login_users, ([1,2,3,4]))
     login_users.collect { |u| u.ad1_points }.sum
   end # self.ad1_points
 
