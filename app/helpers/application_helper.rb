@@ -278,12 +278,12 @@ module ApplicationHelper
   end # invite_friends_url
 
   def invite_friend (friend)
+    login_user = @users.find { |u| u.provider == friend.provider }
     if %w(facebook).index(friend.provider)
       # use API invite functionality - only facebook has implemented this
       link_to t('shared.invite_friend.invite_friend_link_text'), invite_friend_url(friend)
     else
       # use client email with dummy email address
-      login_user = @users.find { |u| u.provider == friend.provider }
       options = { :to_username => friend.user_name,
                   :from_username => login_user.user_name,
                   :url => "#{SITE_URL}#{I18n.locale}/auth"}

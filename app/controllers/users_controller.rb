@@ -194,22 +194,8 @@ class UsersController < ApplicationController
       users = @users
     elsif @page_values[:apiname] == 'all'
       logger.debug2 "@users.size = #{@users.size}"
-      users = @users
-      # users = User.add_shared_accounts(@users)
-      logger.debug2 "users.size = #{users.size}"
-      # if users.size != @users.size
-      #   # check friend cache (user.friends_hash). DRY. Also used in User.friends_find
-      #   users_without_cache = users.find_all { |u| !u.friends_hash }
-      #   if users_without_cache.size > 0
-      #     # cache friends info
-      #     User.cache_friend_info(users_without_cache)
-      #     users.each do |u1|
-      #       next if u1.friends_hash
-      #       u2 = users_without_cache.find { |u3| u3.user_id == u1.user_id }
-      #       u1.friends_hash = u2.friends_hash
-      #     end
-      #   end
-      # end
+      # users = @users
+      users = User.add_shared_accounts(@users, [2,3,4], true)
     else
       user = @users.find { |u| u.provider == @page_values[:apiname] }
       users = [user]
@@ -464,7 +450,7 @@ class UsersController < ApplicationController
   end # show
 
   private
-  def check_apiname_filter
+  def +check_apiname_filter
     apiname_filter_values = %w(all) + @users.collect {|u| u.provider }
     apiname_filter = params[:apiname] || apiname_filter_values.first
     if !apiname_filter_values.index(apiname_filter)
@@ -534,12 +520,19 @@ class UsersController < ApplicationController
       redirect_to return_to
       return
     end
-    login_user = @users.find { |user| user.provider == user2.provider }
     friend_action = params[:friend_action]
+    login_user = @users.find { |user| user.provider == user2.provider }
+    if !login_user or login_user.dummy_user?
+      logger.debug2  "invalid request. Friend action #{friend_action} not allowed. not logged in with a #{user2.provider} account"
+      save_flash_key '.invalid_request'
+      redirect_to return_to
+      return
+    end
     allowed_friend_actions = user2.friend_status_actions(login_user).collect { |fa| fa.downcase }
     if !allowed_friend_actions.index(friend_action)
       logger.debug2  "invalid request. Friend action #{friend_action} not allowed."
       logger.debug2  "allowed friend actions are " + allowed_friend_actions.join(', ')
+      save_flash_key '.invalid_request'
       redirect_to return_to
       return
     end

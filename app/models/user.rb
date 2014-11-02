@@ -415,6 +415,9 @@ class User < ActiveRecord::Base
   # 3) friends of friends - show few info (including deselected api friends)
   attr_accessor :friends_hash
 
+  # normally nil - true if user has been added to users array as a disconnected shared account (show friends for shared accounts)
+  attr_accessor :disconnected_shared_account
+
 
   ##################
   # helper methods #
@@ -835,7 +838,8 @@ class User < ActiveRecord::Base
   # gofreerev/gofreerev or gofreerev/<provider>
   # dummy user is used for dummy page header, deep links and unmatched providers when closing deal between two users
   def dummy_user?
-    user_id.split('/').first == 'gofreerev'
+    return true if disconnected_shared_account
+    (user_id.split('/').first == 'gofreerev')
   end
 
   def self.dummy_users? (login_users)
@@ -1151,7 +1155,7 @@ class User < ActiveRecord::Base
   def self.find_friends (login_users, options = {})
     # add shared accounts before friends find
     logger.debug2 "login_users.size = #{login_users.size}"
-    login_users = User.add_shared_accounts(login_users)
+    login_users = User.add_shared_accounts(login_users, [2,3,4])
     logger.debug2 "login_users.size = #{login_users.size}"
     # check friend cache (user.friends_hash)
     users_without_cache = login_users.find_all { |u| !u.friends_hash }
@@ -1849,10 +1853,12 @@ class User < ActiveRecord::Base
       login_user = login_user_or_login_users.find { |u| u.provider == self.provider }
     end
     if login_user.class != User
-      logger.error2 "Invalid call. expected user or array of users. login_user_or_login_users = #{login_user_or_login_users}"
+      logger.error2 "Invalid call. expected user or array of users. login_user_or_login_users = #{login_user_or_login_users} (#{login_user_or_login_users.class})"
+      raise "debug - stackdump"
       return []
     end
     return [] if login_user.deleted_at
+    return [] if login_user.disconnected_shared_account
     return [] unless last_login_at # never logged in - do not show any friend action
     case friend_status_code(login_user)
       # dropped add/remove api friend bottoms
@@ -2598,7 +2604,7 @@ class User < ActiveRecord::Base
   def self.ad1_points (login_users = [])
     return 0 unless User.logged_in?(login_users)
     # add shared accounts before calculation points
-    login_users = User.add_shared_accounts(login_users, ([1,2,3,4]))
+    login_users = User.add_shared_accounts(login_users, [1,2,3,4])
     login_users.collect { |u| u.ad1_points }.sum
   end # self.ad1_points
 
@@ -2606,7 +2612,11 @@ class User < ActiveRecord::Base
   # return user array including disconnected shared accounts
   # auth/index page - show information about share levels and accounts
   # find friends - also show friends from not connected API's
-  def self.add_shared_accounts (login_users, filter_share_levels = [2,3,4])
+  # params:
+  #   login_users: @users - array with current login users
+  #   filter_share_levels: array with selected share levels 1..4
+  #   cache_friends: true/false - cache friend info for added users?
+  def self.add_shared_accounts (login_users, filter_share_levels = [2,3,4], cache_friends=false)
     # only relevant for logged in users
     return login_users if !User.logged_in?(login_users)
     # check share accounts and share levels filter
@@ -2626,11 +2636,32 @@ class User < ActiveRecord::Base
     other_users = other_users.find_all { |u| !login_providers.index(u.provider) }
     return login_users if other_users.size == 0 # already logged in for all relevant login providers
     # add other disconnected accounts to login_users array
-    login_users = login_users.clone
+    # logger.debug2 "before clone: users without friends hash: " + login_users.find_all { |u| !u.friends_hash}.collect { |u| u.user_id }.join(', ')
+    # # clone login_users array including custom accessor variables
+    # login_users_clone = login_users.clone
+    # 0.upto(login_users.size-1).each do |i|
+    #   login_users_clone[i].new_currency = login_users[i].new_currency
+    #   login_users_clone[i].cache_new_notifications = login_users[i].cache_new_notifications
+    #   login_users_clone[i].friends_hash = login_users[i].friends_hash
+    # end
+    # login_users = login_users_clone
+    # logger.debug2 "after clone: users without friends hash: " + login_users.find_all { |u| !u.friends_hash}.collect { |u| u.user_id }.join(', ')
+    users_without_cache = []
     other_users.each do |u|
       if !login_providers.index(u.provider)
+        u.disconnected_shared_account = true
         login_providers << u.provider
         login_users << u
+        users_without_cache << u if cache_friends
+      end
+    end
+    if cache_friends
+      # cache friends info for added disconnected shared accounts
+      User.cache_friend_info(users_without_cache)
+      login_users.each do |u1|
+        next if u1.friends_hash
+        u2 = users_without_cache.find { |u3| u3.user_id == u1.user_id }
+        u1.friends_hash = u2.friends_hash
       end
     end
     login_users
