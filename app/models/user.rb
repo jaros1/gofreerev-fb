@@ -838,7 +838,6 @@ class User < ActiveRecord::Base
   # gofreerev/gofreerev or gofreerev/<provider>
   # dummy user is used for dummy page header, deep links and unmatched providers when closing deal between two users
   def dummy_user?
-    return true if disconnected_shared_account
     (user_id.split('/').first == 'gofreerev')
   end
 

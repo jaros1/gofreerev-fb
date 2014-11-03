@@ -1,8 +1,8 @@
 <% user = @users.first
    friend = user_div.friend?(@users)
-   div_title = '.title' + (friend <= 2 ? '' : '_non') + '_friend'
+   div_title_key = '.title' + (friend <= 2 ? '' : '_non') + '_friend'
    if Time.now < Time.new('2015-01-10')
-     div_title += '_ad1'
+     div_title_key += '_ad1'
      points = user_div.ad1_points(@users)
    else
      points = nil
@@ -10,16 +10,16 @@
    username = user_div.short_or_full_user_name(@users)
    balance = friend <= 2 ? format_user_balance(user_div, @users) : nil
    check_old_balance(user_div) if friend <= 2 # schedule recalculate balance if friend with an old balance
+   div_title = t div_title_key, :username => username, :balance => balance, :apiname => user_div.apiname, :points => points
+   if @page_header
+     div_onclick = "top.location.href = '#{users_path(:friends => 'me')}'"
+   elsif friend < 5 and !disconnected_shared_provider?(user_div.provider)
+     div_onclick = "top.location.href = '#{url_for(user_div)}'"
+   else
+     div_onclick = nil
+   end
 -%>
-<% if @page_header -%>
-    <div title="<%= t div_title, :username => username, :balance => balance, :apiname => user_div.apiname, :points => points %>"
-         onclick="top.location.href = '<%= users_path(:friends => 'me') %>'">
-<% elsif friend < 5 -%>
-    <div title="<%= t div_title, :username => username, :balance => balance, :apiname => user_div.apiname, :points => points %>"
-         onclick="top.location.href = '<%= url_for(user_div) %>'">
-<% else -%>
-    <div>
-<% end -%>
+<div title="<%= div_title %>" onclick="<%= div_onclick %>">
 <div><%= image_tag((user_div.api_profile_picture_url || 'no-picture.jpg'), :class => "#{@size ? @size : 'small'}_pro_pic", :alt => nil) %></div>
 <% if @page_header -%>
     <div class="user_div_name_and_api">

@@ -700,6 +700,8 @@
 173) share level 3. Share dynamic friends list.
      Fb login with 8 shared friends list.
      users/index should show friends from all 8 api's
+     - add disconnected shared accounts in start of user/index action
+     - check views and partials for disconnected shared accounts
 
 174) google refresh token and offline access
      check if there is an issue with disconnected google+ accounts and renewal of access token

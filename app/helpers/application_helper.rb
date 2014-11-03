@@ -439,4 +439,11 @@ module ApplicationHelper
     emails.first
   end
 
+  # check for disconnected shared account. Added in User.add_shared_accounts
+  # for example used in users/index page when showing friend lists for disconnected shared accounts
+  def disconnected_shared_provider? (provider)
+    login_user = @users.find { |u| u.provider == provider}
+    (login_user and (login_user.disconnected_shared_account == true))
+  end
+
 end # ApplicationHelper

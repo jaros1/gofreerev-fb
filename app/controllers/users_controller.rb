@@ -117,6 +117,11 @@ class UsersController < ApplicationController
   end # destroy
 
   def index
+    # add disconnected shared accounts so that user can see friends from disconnected accounts
+    # no actions are allowed for disconnected accounts
+    # added disconnected users are marked with user.disconnected_shared_account = true
+    @users = User.add_shared_accounts(@users, [2,3,4], true)
+
     # page filters:
     # - friends: yes no me all
     # - appuser: yes no all
@@ -194,10 +199,10 @@ class UsersController < ApplicationController
       users = @users
     elsif @page_values[:apiname] == 'all'
       logger.debug2 "@users.size = #{@users.size}"
-      # users = @users
-      users = User.add_shared_accounts(@users, [2,3,4], true)
+      users = @users
     else
       user = @users.find { |u| u.provider == @page_values[:apiname] }
+      logger.debug2 "apiname filter: user.debug_info = #{user.debug_info}"
       users = [user]
     end
 
@@ -450,7 +455,7 @@ class UsersController < ApplicationController
   end # show
 
   private
-  def +check_apiname_filter
+  def check_apiname_filter
     apiname_filter_values = %w(all) + @users.collect {|u| u.provider }
     apiname_filter = params[:apiname] || apiname_filter_values.first
     if !apiname_filter_values.index(apiname_filter)
