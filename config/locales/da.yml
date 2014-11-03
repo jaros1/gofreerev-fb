@@ -96,11 +96,15 @@ da:
         ajax_get: "Forespørgsel blev afvist. Du er ikke logget på. Opdater venligst siden."
         ajax_post: "Opdatering blev afvist. Du er ikke logget på. Opdater venligst siden."
      user_div:
-        title_non_friend: "%{username}/%{apiname}. Klik her for at se brugeroplysninger."
-        title_friend: "%{username}/%{apiname}. Saldo %{balance}. Klik her for at se brugeroplysninger."
+        title_non_friend: "%{username}/%{apiname}."
+        title_friend: "%{username}/%{apiname}. Saldo %{balance}."
+        title_non_friend_click: "%{username}/%{apiname}. Klik her for at se brugeroplysninger."
+        title_friend_click: "%{username}/%{apiname}. Saldo %{balance}. Klik her for at se brugeroplysninger."
         # todo: remove - competition running until 31-dec-2014 - see about/ad1
-        title_non_friend_ad1: "%{username}/%{apiname}. Klik her for at se brugeroplysninger."
-        title_friend_ad1: "%{username}/%{apiname}. %{points} point. Saldo %{balance}. Klik her for at se brugeroplysninger."
+        title_non_friend_ad1: "%{username}/%{apiname}."
+        title_friend_ad1: "%{username}/%{apiname}. %{points} point. Saldo %{balance}."
+        title_non_friend_click_ad1: "%{username}/%{apiname}. Klik her for at se brugeroplysninger."
+        title_friend_click_ad1: "%{username}/%{apiname}. %{points} point. Saldo %{balance}. Klik her for at se brugeroplysninger."
      invite_friend:
         invite_friend_prompt: "Inviter"
         invite_friend_title: "%{username} anvender endnu ikke %{appname}. Brug link til at invitere %{username} til at bruge %{appname}."

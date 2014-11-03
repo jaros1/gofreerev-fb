@@ -95,11 +95,15 @@ en:
         ajax_get: "Sorry. Request was rejected. Not logged in. Please refresh page."
         ajax_post: "Sorry. Action was rejected. Not logged in. Please refresh page."
      user_div:
-        title_non_friend: "%{username}/%{apiname}. Click here to see user info."
-        title_friend: "%{username}/%{apiname}. Balance %{balance}. Click here to see user info."
+        title_non_friend: "%{username}/%{apiname}."
+        title_friend: "%{username}/%{apiname}. Balance %{balance}."
+        title_non_friend_click: "%{username}/%{apiname}. Click here to see user info."
+        title_friend_click: "%{username}/%{apiname}. Balance %{balance}. Click here to see user info."
         # todo: remove - competition running until 31-dec-2014 - see about/ad1
-        title_non_friend_ad1: "%{username}/%{apiname}. Click here to see user info."
-        title_friend_ad1: "%{username}/%{apiname}. %{points} points. Balance %{balance}. Click here to see user info."
+        title_non_friend_ad1: "%{username}/%{apiname}."
+        title_friend_ad1: "%{username}/%{apiname}. %{points} points. Balance %{balance}."
+        title_non_friend_click_ad1: "%{username}/%{apiname}. Click here to see user info."
+        title_friend_click_ad1: "%{username}/%{apiname}. %{points} points. Balance %{balance}. Click here to see user info."
      invite_friend:
         invite_friend_prompt: "Invite"
         invite_friend_title: "%{username} is not using %{appname}. Use link to send a %{appname} invitation to %{username}."
