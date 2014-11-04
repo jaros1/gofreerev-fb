@@ -285,7 +285,30 @@ class Gift < ActiveRecord::Base
     return nil unless (extended_app_picture_rel_path = attribute_was(:app_picture_rel_path))
     encrypt_remove_pre_and_postfix(extended_app_picture_rel_path, 'app_picture_rel_path', 41)
   end # app_picture_rel_path_was
-  
+
+  # 31) external_link - http link to page on other website - alternative to picture attachment
+  # String en model - encrypted text in db
+  def external_link
+    # logger.debug50  "gift.external_link: external_link = #{read_attribute(:external_link)} (#{read_attribute(:external_link).class.name})"
+    return nil unless (extended_external_link = read_attribute(:external_link))
+    encrypt_remove_pre_and_postfix(extended_external_link, 'external_link', 50)
+  end
+  def external_link=(new_external_link)
+    # logger.debug50  "gift.external_link=: external_link = #{new_external_link} (#{new_external_link.class.name})"
+    if new_external_link
+      check_type('external_link', new_external_link, 'String')
+      write_attribute :external_link, encrypt_add_pre_and_postfix(new_external_link, 'external_link', 50)
+    else
+      write_attribute :external_link, nil
+    end
+  end
+  alias_method :external_link_before_type_cast, :external_link
+  def external_link_was
+    return external_link unless external_link_changed?
+    return nil unless (extended_external_link = attribute_was(:external_link))
+    encrypt_remove_pre_and_postfix(extended_external_link, 'external_link', 50)
+  end # external_link_was
+
 
   #
   # helper methods
@@ -603,8 +626,6 @@ class Gift < ActiveRecord::Base
   # psydo attributea
   attr_accessor :file
 
-  # todo: new attribute
-  attr_accessor :external_link
 
 
 

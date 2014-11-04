@@ -13,7 +13,7 @@
 # number of keys and key length
 APPNAME = 'GOFREEREV'
 RAILS_ENVS = %w(DEV TEST PROD)
-NO_KEYS = 50
+NO_KEYS = 60
 KEY_LNG = 140
 
 # change if you wish other character set og other random generator.
@@ -50,7 +50,7 @@ puts  "insert this ruby constant in /config/initializers/constraints.rb"
 puts ""
 puts "railsenv = case Rails.env when 'development' then 'DEV' when 'test' then 'TEST' when 'production' then 'PROD' end"
 puts "encrypt_keys = []"
-puts "1.upto(50).each do |keyno|"
+puts "1.upto(#{NO_KEYS}).each do |keyno|"
 puts '  encrypt_keys << ENV["GOFREEREV_#{railsenv}_KEY_#{keyno}"]'
 puts "end"
 puts "ENCRYPT_KEYS = encrypt_keys"

@@ -24,7 +24,7 @@ CVS_URL = 'https://github.com/jaros1/gofreerev-fb'
 # You can use ruby script /lib/generate_keys to generate keys and this ruby array constant
 # note that ENCRYPT_KEYS[1] == ENV["GOFREEREV_DEV_KEY_2"] etc. sorry about that.
 encrypt_keys = []
-1.upto(50).each do |keyno|
+1.upto(60).each do |keyno|
   encrypt_keys << ENV["#{ENV_PREFIX}KEY_#{keyno}"]
 end
 ENCRYPT_KEYS = encrypt_keys
