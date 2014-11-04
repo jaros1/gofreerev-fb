@@ -1067,11 +1067,12 @@ en:
         email: "email"
         invalid_length: "Length of %{field} must be between %{min} and %{max}."
         invalid_email: "eg. ui@jquery.com"
-     share_gift: # sorry, but share gift urls have to be repeated for each language
+     share_gift:
         invalid_id: "System error. Cannot share gift. Invalid id for LOV."
         missing_translation: "System error. Cannot share gift. Link definition was not found for %{provider}."
         js_error: "Javascript error for share gift link. %{error} (%{location},%{debug})."
         ajax_error: "Cannot share gift on %{provider}. \"%{error}\". More information in server log."
+        # href_urls used for all languages
         href_appnet: "https://account.app.net/intent/post/?url=%{link}&text=%{text}"
         href_arto: "http://www.arto.com/section/linkshare/default.aspx?lu=%{link}&ln=%{text}"
         href_blogger: "https://www.blogger.com/blog_this.pyra?u=%{link}&n=%{text}" # google

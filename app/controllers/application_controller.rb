@@ -708,7 +708,7 @@ class ApplicationController < ActionController::Base
       expired_access_tokens.sort!
       logger.debug2 "share level 3. expired access token for #{expired_access_tokens.join(', ')}" unless expired_access_tokens.empty?
       if expired_access_tokens.size > 0
-        flash_key, flash_options = '.login_ok_expired3', user.app_and_apiname_hash.merge(:expired_apinames => expired_access_tokens.join(', '))
+        flash_key, flash_options = 'auth.create.login_ok_expired3', user.app_and_apiname_hash.merge(:expired_apinames => expired_access_tokens.join(', '))
       end
     elsif share_account and share_account.share_level == 4
       # check for logged in providers and expired access token providers
@@ -1061,7 +1061,7 @@ class ApplicationController < ActionController::Base
     s.save!
   end
 
-  # get/set :post_on_wall_autorized. (read/write access to api wll) now in db session store.
+  # get/set :post_on_wall_autorized. (read/write access to api wall) now in db session store.
   # keep a copy of user.post_on_wall_authorized? in session to detect change in user.post_on_wall_authorized?
   # for example user permissions in an other browser session
   # user should get a warning if authorization to post on wall is changed without an active user action
@@ -1079,6 +1079,8 @@ class ApplicationController < ActionController::Base
     end
     s.post_on_wall_authorized = {} unless s.post_on_wall_authorized
     s.save!
+    # logger.debug2 "session[:post_on_wall_authorized] = #{session[:post_on_wall_authorized]}"
+    # logger.debug2 "s.post_on_wall_authorized = #{s.post_on_wall_authorized}"
     s
   end # init_post_on_wall_authorized
   def set_post_on_wall_authorized (post_on_wall_authorized, provider, login)
@@ -1086,22 +1088,24 @@ class ApplicationController < ActionController::Base
     hash = s.post_on_wall_authorized
     hash[provider] = post_on_wall_authorized
     s.post_on_wall_authorized = hash
+    # logger.debug2 "s.post_on_wall_authorized = #{s.post_on_wall_authorized}"
     s.save!
   end
   def get_post_on_wall_authorized (provider=nil)
     if !provider
       # generic check - check all logged in users
+      logger.debug2 "generic check - check all logged in users"
       @users.each do |user|
         if get_post_on_wall_authorized(user.provider)
-          logger.debug2 "get_post_on_wall_authorized(nil) = true"
+          # logger.debug2 "get_post_on_wall_authorized(nil) = true"
           return true
         end
       end
-      logger.debug2 "get_post_on_wall_authorized(nil) = false"
+      # logger.debug2 "get_post_on_wall_authorized(nil) = false"
       return false
     end
     s = init_post_on_wall_authorized
-    logger.debug2 "get_post_on_wall_authorized(#{provider}) = #{s.post_on_wall_authorized[provider]}"
+    # logger.debug2 "get_post_on_wall_authorized(#{provider}) = #{s.post_on_wall_authorized[provider]}"
     s.post_on_wall_authorized[provider]
   end
   def clear_post_on_wall_authorized (provider=nil)
@@ -1115,6 +1119,7 @@ class ApplicationController < ActionController::Base
       # clear post_on_wall_authorized for all providers
       s.post_on_wall_authorized = {}
     end
+    # logger.debug2 "clear_post_on_wall_authorized: done"
     s.save!
   end # clear_post_on_wall_authorized
 
@@ -1256,7 +1261,7 @@ class ApplicationController < ActionController::Base
           # logger.debug2 'status post with picture'
           filetype = picture.split('.').last
           content_type = "image/#{filetype}"
-          api_response = api_client.put_picture(picture, content_type, {:message => message})
+          api_response = api_client.put_picture(picture, content_type, {:message => message}, login_user.uid)
           # api_response = {"id"=>"1396226023933952", "post_id"=>"100006397022113_1396195803936974"} (Hash)
           api_gift_id = api_response['post_id']
         else

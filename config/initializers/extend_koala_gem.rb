@@ -1,5 +1,9 @@
-# dump unexpected facebook/koala exceptions to log for easier debugging
+# config default oauth version when communicating with facebook API
+Koala.config.api_version = 'v2.2'
+Koala::Utils.logger.level = Logger::DEBUG
 
+
+# dump unexpected facebook/koala exceptions to log for easier debugging
 class Koala::Facebook::APIError
   # inject rails logger into Koala exceptions
   def logger=(new_logger)

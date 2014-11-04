@@ -1440,6 +1440,7 @@ class UtilController < ApplicationController
           logger.debug2 "user.permissions = #{login_user.permissions}"
           oauth = Koala::Facebook::OAuth.new(API_ID[provider], API_SECRET[provider], API_CALLBACK_URL[provider])
           url = oauth.url_for_oauth_code(:permissions => 'read_stream', :state => set_state_cookie_store('read_stream'))
+          logger.debug2 "url = #{url}"
           # note: 4 translations:
           # - fb_msg_post_missing_permission_html - just posted - without picture
           # - fb_pic_post_missing_permission_html - just posted - with picture - missing read permission
