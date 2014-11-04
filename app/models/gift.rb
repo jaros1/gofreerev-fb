@@ -603,6 +603,9 @@ class Gift < ActiveRecord::Base
   # psydo attributea
   attr_accessor :file
 
+  # todo: new attribute
+  attr_accessor :external_link
+
 
 
 

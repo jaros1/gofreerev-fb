@@ -648,14 +648,6 @@
 160) share gift lov
      add scrollbar to LOV (http://www.codeproject.com/Questions/229885/how-to-make-scroll-bars-in-dropdown-list)
 
-162) Gofreerev share link url
-     .../share/url=%{url}&text=%{text}&image_url=%{image_url}&close=#{boolean}
-     could be like gifts/index page, but with an pre-filled field with image url
-     normal params in share link urls (see js.share_gift.href_<provider>) are link and text. Normally not an image url
-     should preview link and text before submit
-     http://embedly.github.io/jquery-preview/demo/
-     http://blog.embed.ly/post/45149972337/jquery-preview
-
 163) Mixed Content warning in firefox 30.0 om dev1 server
      problem is img http requests to image farms at api providers
      https://developer.mozilla.org/en-US/docs/Security/MixedContent
@@ -711,6 +703,16 @@
      rescue in share_gift: Backtrace: /mnt/plugdisk/railsapps/gofreerev-fb/releases/20141103080657/app/controllers/util_controller.rb:2903:in `share_gift'
      max_lng er undefined
 
+group with issue 162, 177 and 178 ==>
+
+162) Gofreerev share link url
+     .../share/url=%{url}&text=%{text}&image_url=%{image_url}&close=#{boolean}
+     could be like gifts/index page, but with an pre-filled field with image url
+     normal params in share link urls (see js.share_gift.href_<provider>) are link and text. Normally not an image url
+     should preview link and text before submit
+     http://embedly.github.io/jquery-preview/demo/
+     http://blog.embed.ly/post/45149972337/jquery-preview
+
 177) allow link posts in Gofreerev.
      That is link + text in gift create and maybe also in comment create
 
@@ -719,11 +721,7 @@
      To be used in issue 162) gofreerev share url functionality
      Also to be used in issue 177) url in gift and comment
 
-179) check https://developers.facebook.com/docs/apps/upgrading
-     warning when asking for read_stream permissions in util_controller.get_api_picture_url_facebook
-     koala oauth.url_for_oauth_code returns https://www.facebook.com/dialog/oauth?
-     must be changed to https://www.facebook.com/v2.0/dialog/oauth? - ok
-     maybe asking for read_stream permission also is a problem - submit for review
+group with issue 162, 177 and 178 <==
 
 180) no exception mailer mail from ajax errors
      for example exception in post login

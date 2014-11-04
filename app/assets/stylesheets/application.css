@@ -207,7 +207,7 @@ form {
     opacity: 0;
 }
 
-/* gifts/index: responsive new gift */
+/* gifts/index: responsive create new gift */
 @media screen and (max-width: 320px) {
     .new_gift_text {
         width: 75%;
@@ -238,33 +238,63 @@ form {
     }
 }
 
-.submit_gift_small {
+.new_gift_submit_small {
     display: none;
 }
 
-.submit_gift_large {
+.new_gift_submit_large {
     display: inline;
 }
 
-@media screen and (max-width: 639px) {
-    .submit_gift_small {
+@media screen and (max-width: 799px) {
+    .new_gift_submit_small {
         display: table-row;
     }
 
-    .submit_gift_large {
+    .new_gift_submit_large {
         display: none
     }
 }
 
-@media screen and (min-width: 640px) {
-    .submit_gift_small {
+@media screen and (min-width: 800px) {
+    .new_gift_submit_small {
         display: none;
     }
 
-    .submit_gift_large {
+    .new_gift_submit_large {
         display: inline;
     }
 }
+
+.new_gift_link_small {
+    display: none;
+}
+
+.new_gift_link_large {
+    display: inline;
+}
+
+@media screen and (max-width: 599px) {
+    .new_gift_link_small {
+        display: table-row;
+    }
+
+    .new_gift_link_large {
+        display: none
+    }
+}
+
+@media screen and (min-width: 600px) {
+    .new_gift_link_small {
+        display: none;
+    }
+
+    .new_gift_link_large {
+        display: inline;
+    }
+}
+
+
 
 /* gifts/index: responsive comments */
 .submit_comment_small {
