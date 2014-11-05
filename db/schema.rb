@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20141104115716) do
+ActiveRecord::Schema.define(version: 20141105091813) do
 
   create_table "ajax_comments", force: true do |t|
     t.string   "user_id",    limit: 40, null: false
@@ -170,6 +170,15 @@ ActiveRecord::Schema.define(version: 20141104115716) do
 
   add_index "notifications", ["noti_id"], name: "index_noti_on_noti_id", unique: true
   add_index "notifications", ["to_user_id"], name: "index_noti_on_to_user_id"
+
+  create_table "open_graphs", force: true do |t|
+    t.text     "url"
+    t.string   "title"
+    t.string   "description"
+    t.text     "image"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "sequences", force: true do |t|
     t.string   "name",       null: false

@@ -1006,6 +1006,8 @@ en:
         not_dev_user: "Cannot send friends suggestion to %{user} in development environment. Please check environment variable ENV['GOFREEREV_DEV_EN_USERIDS'])"
         fb_error: "Cannot send friends suggestions to facebook. %{type} %{message}"
         fb_other: "Cannot send friends suggestions to facebook. Unexpected error %{response}"
+     open_graph:
+        exception: "System error. Could not check link. %{error}. More information in server log."
 
   # translation keys used in javascript (error) messages
   js:
@@ -1096,3 +1098,5 @@ en:
         href_tumblr: "https://www.tumblr.com/share/link?url=%{link}&name=%{text}&description=%{text}" # todo: split text in name and description
         href_twitter: "https://twitter.com/share?url=%{link}&text=%{text}"
         href_vkontakte: "https://vkontakte.ru/share.php?url=%{link}"
+     open_graph:
+        ajax_error: "Cannot check url. %{error}. More information in server log."

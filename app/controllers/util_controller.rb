@@ -2952,4 +2952,24 @@ class UtilController < ApplicationController
   end # find_friends_batch
 
 
+  # check external url from gifts/index page (create new gift)
+  # get open graph tags from html page and return link preview in a div
+  public
+  def open_graph
+    table = "tasks_errors" # ajax error table in page header
+    begin
+      url = params[:url]
+      logger.debug2 "url = #{url}"
+      og = OpenGraph.find_or_create_link(url)
+      return unless og
+      @og = og
+      format_response
+    rescue => e
+      logger.debug2 "Exception: #{e.message.to_s} (#{e.class})"
+      logger.debug2 "Backtrace: " + e.backtrace.join("\n")
+      format_response_key '.exception', :error => e.message, :table => table
+    end
+  end
+
+
 end # UtilController

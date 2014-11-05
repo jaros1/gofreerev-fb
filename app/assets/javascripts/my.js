@@ -2757,6 +2757,46 @@ function inIframe () {
 
 
 
+// setup new gift external link preview in gifts/index page
+// fetch open graph metatags in an ajax request and display preview information under external link
+var gift_external_link_timer;                //timer identifier
+
+//user is "finished typing," do something
+function gift_external_link_done_typing () {
+    var url = document.getElementById('gift_external_link1').value ;
+    if (url == '') return ;
+    // setup ajax request
+    $.ajax({
+        url: "/util/open_graph.js",
+        type: "POST",
+        dataType: 'script',
+        data: { url: url },
+        error: function (jqxhr, textStatus, errorThrown) {
+            var pgm = 'gift_external_link_done_typing: ajax: error: ' ;
+            if (leaving_page) return ;
+            var err = add2log_ajax_error(pgm, jqxhr, textStatus, errorThrown) ;
+            add_to_tasks_errors(I18n.t('js.open_graph.ajax_error', {error: err, location: 24, debug: 0}));
+        }
+    });
+} // gift_external_link_done_typing
+
+// index/gift page: sync content of gift_external_link1 and gift_external_link2 fields (create new gift)
+function gift_external_link_sync (field1) {
+    // alert('oninput. id = ' + field1.id + ', value = ' + field1.value) ;
+    var id2 ;
+    if (field1.id == 'gift_external_link1') id2 = 'gift_external_link2' ;
+    else id2 = 'gift_external_link1' ;
+    var field2 = document.getElementById(id2) ;
+    if (!field2) return ;
+    field2.value = field1.value ;
+    // setup timer. fire ajax request in 2 seconds
+    clearTimeout(gift_external_link_timer);
+    if (field1.value != '') {
+        gift_external_link_timer = setTimeout(gift_external_link_done_typing, 2000);
+    }
+} // gift_external_link_sync
+
+
 // custom confirm box - for styling
 // http://lesseverything.com/blog/archives/2012/07/18/customizing-confirmation-dialog-in-rails/
 // http://www.pjmccormick.com/nicer-rails-confirm-dialogs-and-not-just-delete-methods

@@ -1010,6 +1010,8 @@ da:
         not_dev_user: "Kan ikke sende venneforslag til %{user} i udviklingsmiljøet. Tjek venligst environment variable ENV['GOFREEREV_DEV_EN_USERIDS'])"
         fb_error: "Kan ikke sende venneforslag til facebook. %{type} %{message}"
         fb_other: "Kan ikke sende venneforslag til facebook. Ukendt fejl %{response}"
+     open_graph:
+        exception: "Systemfejl. Kunne ikke tjekke link. %{error}. Mere information i server log."
 
   # translation keys used in javascript (error) messages
   js:
@@ -1098,3 +1100,5 @@ da:
         href_tumblr:
         href_twitter:
         href_vkontakte:
+     open_graph:
+        ajax_error: "Kan ikke tjekke link. %{error}. Mere information i server log."

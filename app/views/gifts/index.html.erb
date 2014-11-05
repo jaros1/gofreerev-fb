@@ -8,22 +8,16 @@
       @missing_api_picture_urls
     %>
 
-     // sync content of gift_external_link1 and gift_external_link2 fields (create gift)
-     function sync_external_link (field1) {
-         // alert('oninput. id = ' + field1.id + ', value = ' + field1.value) ;
-         var id2 ;
-         if (field1.id == 'gift_external_link1') id2 = 'gift_external_link2' ;
-         else id2 = 'gift_external_link1' ;
-         var field2 = document.getElementById(id2) ;
-         if (!field2) return ;
-         field2.value = field1.value ;
-     } // sync_external_link
 </script>
 
-<a href="#" id="share_gift" style="display: none">share gift</a>
 
 <script>
 </script>
+
+
+
+<a href="#" id="share_gift" style="display: none">share gift</a>
+
 
 <%# create new gift form -%>
 <div style="width: 100%"><%= t '.create_gift_header_line' %></div>
@@ -66,7 +60,7 @@
                     <tbody>
                     <tr>
                       <td><%= t '.link_prompt' %></td>
-                      <td><%= f.text_field(:external_link, :size => 28, :maxlength => 200, :placeholder => t('.link_placeholder'), :id => "gift_external_link1", :oninput=>"sync_external_link(this)") %></td>
+                      <td><%= f.text_field(:external_link, :size => 28, :maxlength => 200, :placeholder => t('.link_placeholder'), :id => "gift_external_link1", :class => 'gift_external_link', :oninput=>"gift_external_link_sync(this)") %></td>
                     </tr>
                     </tbody>
                   </table>
@@ -78,7 +72,7 @@
         </tr>
         <tr class="new_gift_link_small">
           <td><%= t '.link_prompt' %></td>
-          <td><%= f.text_field(:external_link, :size => 28, :maxlength => 200, :placeholder => t('.link_placeholder'), :id => "gift_external_link2", :oninput=>"sync_external_link(this)") %></td>
+          <td><%= f.text_field(:external_link, :size => 28, :maxlength => 200, :placeholder => t('.link_placeholder'), :id => "gift_external_link2", :class => 'gift_external_link', :oninput=>"gift_external_link_sync(this)") %></td>
         </tr>
         <tr class="new_gift_submit_small">
           <td></td>
@@ -155,3 +149,7 @@
     pending_gift_msg = '<%= t '.pending_gift_popup_msg' %>';
     pre_update_currency = gifts_pre_update_currency;
 </script>
+
+
+
+

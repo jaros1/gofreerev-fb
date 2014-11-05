@@ -78,6 +78,10 @@ GEM
       debugger-ruby_core_source (~> 1.3.5)
     debugger-linecache (1.2.0)
     debugger-ruby_core_source (1.3.5)
+    embedly (1.9.1)
+      json
+      oauth
+      querystring
     equalizer (0.0.9)
     erubis (2.7.0)
     exception_notification (4.0.1)
@@ -89,7 +93,7 @@ GEM
       multipart-post (>= 1.2, < 3)
     faraday_middleware (0.9.1)
       faraday (>= 0.7.4, < 0.10)
-    fastimage (1.6.3)
+    fastimage (1.6.4)
       addressable (~> 2.3, >= 2.3.5)
     flickraw (0.9.8)
     foursquare2 (2.0.1)
@@ -114,7 +118,7 @@ GEM
     http (0.6.2)
       http_parser.rb (~> 0.6.0)
     http_parser.rb (0.6.0)
-    httparty (0.13.1)
+    httparty (0.13.2)
       json (~> 1.8)
       multi_xml (>= 0.5.2)
     human_attribute (0.2.0)
@@ -143,7 +147,7 @@ GEM
       addressable
       faraday
       multi_json
-    launchy (2.4.2)
+    launchy (2.4.3)
       addressable (~> 2.3)
     mail (2.5.4)
       mime-types (~> 1.16)
@@ -185,7 +189,7 @@ GEM
     omniauth-foursquare (1.0.1)
       omniauth (~> 1.0)
       omniauth-oauth2 (~> 1.0)
-    omniauth-google-oauth2 (0.2.5)
+    omniauth-google-oauth2 (0.2.6)
       omniauth (> 1.0)
       omniauth-oauth2 (~> 1.1)
     omniauth-instagram (1.0.1)
@@ -213,6 +217,7 @@ GEM
     powerbar (1.0.11)
       ansi (~> 1.4.0)
       hashie (>= 1.1.0)
+    querystring (0.1.0)
     rack (1.5.2)
     rack-test (0.6.2)
       rack (>= 1.0)
@@ -235,16 +240,16 @@ GEM
     rake (10.3.2)
     rdoc (4.1.2)
       json (~> 1.4)
-    rest_client (1.7.3)
+    rest_client (1.8.1)
       netrc (~> 0.7.7)
     retriable (1.4.1)
     routing-filter (0.4.0.pre)
       actionpack
     sass (3.2.19)
-    sass-rails (4.0.3)
+    sass-rails (4.0.4)
       railties (>= 4.0.0, < 5.0)
-      sass (~> 3.2.0)
-      sprockets (~> 2.8, <= 2.11.0)
+      sass (~> 3.2.2)
+      sprockets (~> 2.8, < 2.12)
       sprockets-rails (~> 2.0)
     sdoc (0.4.1)
       json (~> 1.7, >= 1.7.7)
@@ -256,8 +261,8 @@ GEM
       faraday (>= 0.9.0.rc5)
       jwt (>= 0.1.5)
       multi_json (>= 1.0.0)
-    simple_oauth (0.2.0)
-    sprockets (2.11.0)
+    simple_oauth (0.3.0)
+    sprockets (2.11.3)
       hike (~> 1.2)
       multi_json (~> 1.0)
       rack (~> 1.0)
@@ -266,7 +271,7 @@ GEM
       actionpack (>= 3.0)
       activesupport (>= 3.0)
       sprockets (~> 2.8)
-    sqlite3 (1.3.9)
+    sqlite3 (1.3.10)
     sshkit (1.5.1)
       colorize
       net-scp (>= 1.1.2)
@@ -277,9 +282,9 @@ GEM
     treetop (1.4.15)
       polyglot
       polyglot (>= 0.3.1)
-    turbolinks (2.4.0)
+    turbolinks (2.5.1)
       coffee-rails
-    twitter (5.11.0)
+    twitter (5.12.0)
       addressable (~> 2.3)
       buftok (~> 0.2.0)
       equalizer (~> 0.0.9)
@@ -289,10 +294,10 @@ GEM
       json (~> 1.8)
       memoizable (~> 0.4.0)
       naught (~> 1.0)
-      simple_oauth (~> 0.2.0)
-    twitter-text (1.9.2)
+      simple_oauth (~> 0.3.0)
+    twitter-text (1.10.0)
       unf (~> 0.1.0)
-    tzinfo (0.3.41)
+    tzinfo (0.3.42)
     uglifier (2.5.3)
       execjs (>= 0.3.0)
       json (>= 1.8.0)
@@ -311,6 +316,7 @@ DEPENDENCIES
   crypt_keeper (~> 0.14.0.pre)
   currencies
   debugger
+  embedly
   exception_notification
   fastimage
   flickraw

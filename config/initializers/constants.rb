@@ -71,3 +71,12 @@ FIND_FRIENDS_LAST_LOGIN = 3.months
 FIND_FRIENDS_LAST_NOTI = 2.weeks
 FIND_FRIENDS_EMAIL_SENDER = ENV["#{ENV_PREFIX}en_recipients".upcase] # also used in ExceptionNotification
 FIND_FRIENDS_DEV_USERIDS = ENV["#{ENV_PREFIX}en_userids".upcase].to_s.split(' ') # notification filter in dev. environment
+
+# Use embedly API? Free for < 5000 urls per month
+# https://github.com/embedly/embedly-ruby
+# http://embedly.github.io/jquery-preview/demo/
+# http://embed.ly/
+# false: find OG metatags with string search and regular expressions
+EMBEDLY = true
+EMBEDLY_KEY = ENV["#{ENV_PREFIX}EMBEDLY_KEY"]
+raise "Cannot use embed.ly API without an API key. Please change EMBEDLY to false or supply an embed.ly API get" if EMBEDLY and EMBEDLY_KEY.to_s == ""
