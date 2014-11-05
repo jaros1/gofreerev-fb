@@ -72,11 +72,9 @@ gem 'rest_client' # for post multipart in vkontakte_api uploads
 
 # Use sqlite3 as the database for Active Record
 group :development do
-  if RUBY_PLATFORM == "armv5tel-linux-eabi"
-    # dev1 server - use mysql
-    gem 'mysql2' # dev1 server
-  else
-    gem 'sqlite3' # development
+  gem 'mysql2' #
+  if RUBY_PLATFORM != "armv5tel-linux-eabi"
+    gem 'sqlite3' # sqlite3 not used and broken on dev1 server
   end
 end
 
