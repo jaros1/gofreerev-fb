@@ -182,7 +182,7 @@ gem 'embedly'
 
 # https://github.com/huyha85/opengraph_parser
 # EMBEDLY = false: use opengraph_parser to parse open graph metatags
-gem "opengraph_parser"
+# gem "opengraph_parser"
 
 # use when moving to an other db environment. See issue 12
 # https://github.com/ludicast/yaml_db
