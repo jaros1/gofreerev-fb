@@ -2796,9 +2796,45 @@ function gift_external_link_sync (field1) {
     }
 } // gift_external_link_sync
 
-
+// preview external link before create new gift
+// response from /util/open_graph.js ajax request in gift_external_link_done_typing
 function gift_external_link_preview(url, title, description, image) {
-    alert('gift_external_link_preview: url = ' + url + ', title = ' + title + ', description = ' + description + ', image = ' + image);
+    // alert('gift_external_link_preview: url = ' + url + ', title = ' + title + ', description = ' + description + ', image = ' + image);
+    var external_link_preview = document.getElementById('external_link_preview') ;
+    if (!external_link_preview) return ;
+    // create table with image, title (bold) and description
+    var table, tbody, tr, td, img, b, t ;
+    table = document.createElement('TABLE');
+    tbody = document.createElement('TBODY');
+    table.appendChild(tbody);
+    // add image
+    if (image != '') {
+        tr = document.createElement('TR') ;
+        tbody.appendChild(tr) ;
+        td = document.createElement('TD') ;
+        tr.appendChild(td) ;
+        img = document.createElement('IMG') ;
+        img.src = image ;
+        td.appendChild(img) ;
+    }
+    // add bold title
+    tr = document.createElement('TR') ;
+    tbody.appendChild(tr) ;
+    td = document.createElement('TD') ;
+    tr.appendChild(td) ;
+    b = document.createElement('B') ;
+    td.appendChild(b) ;
+    t = document.createTextNode(title) ;
+    b.appendChild(t) ;
+    // add description
+    tr = document.createElement('TR') ;
+    tbody.appendChild(tr) ;
+    td = document.createElement('TD') ;
+    tr.appendChild(td) ;
+    t = document.createTextNode(description) ;
+    td.appendChild(t) ;
+    // insert preview
+    external_link_preview.appendChild(table) ;
 } // gift_external_link_preview
 
 

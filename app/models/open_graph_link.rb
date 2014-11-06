@@ -47,6 +47,10 @@ class OpenGraphLink < ActiveRecord::Base
     # replace ' with "
     og.title = og.title.gsub("'", '"') if og.title
     og.description = og.description.gsub("'", '"') if og.description
+    if og.image.to_s != ''
+      filetype = FastImage.type(og.image).to_s
+      og.image = nil unless %w(jpg jpeg gif png bmp).index(filetype)
+    end
     # save and return record
     og.save!
     og

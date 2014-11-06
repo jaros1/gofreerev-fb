@@ -74,6 +74,9 @@
           <td><%= t '.link_prompt' %></td>
           <td><%= f.text_field(:external_link, :size => 28, :maxlength => 200, :placeholder => t('.link_placeholder'), :id => "gift_external_link2", :class => 'gift_external_link', :oninput=>"gift_external_link_sync(this)") %></td>
         </tr>
+        <tr>
+          <td id="external_link_preview" colspan="2"></td>
+        </tr>
         <tr class="new_gift_submit_small">
           <td></td>
           <td><%= f.submit t('.gift_submit_button_text'), :onclick => '{return csv_gift()}', :name => 'commit_gift' %></td>
