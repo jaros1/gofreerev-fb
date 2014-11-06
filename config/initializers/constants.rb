@@ -76,7 +76,6 @@ FIND_FRIENDS_DEV_USERIDS = ENV["#{ENV_PREFIX}en_userids".upcase].to_s.split(' ')
 # https://github.com/embedly/embedly-ruby
 # http://embedly.github.io/jquery-preview/demo/
 # http://embed.ly/
-# false: find OG metatags with string search and regular expressions
-EMBEDLY = true
+# true: use embed.ly API. false: find opengraph gem
 EMBEDLY_KEY = ENV["#{ENV_PREFIX}EMBEDLY_KEY"]
-raise "Cannot use embed.ly API without an API key. Please change EMBEDLY to false or supply an embed.ly API get" if EMBEDLY and EMBEDLY_KEY.to_s == ""
+EMBEDLY = (EMBEDLY_KEY.to_s != '')
