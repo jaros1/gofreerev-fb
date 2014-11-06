@@ -4,7 +4,9 @@
     <data-source source="LOCAL" name="Rails gofreerev-fb: development" uuid="467d1c4c-c1b7-4c8e-a694-d499ec6c9c72">
       <driver-ref>sqlite.xerial</driver-ref>
       <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
-      <jdbc-url>jdbc:sqlite:$PROJECT_DIR$/db/development.sqlite3</jdbc-url>
+      <jdbc-url>jdbc:mysql://127.0.0.1/&lt;%= ENV[&quot;#{ENV_PREFIX}MYSQL_DATABASE&quot;] %&gt;</jdbc-url>
+      <user-name>root</user-name>
+      <user-password>dfd9dfdddfc3dfdedfc9dfc2dfc8dfcbdfc9dfc1df9fdf9c</user-password>
       <libraries>
         <library>
           <url>file://$USER_HOME$/.RubyMine50/config/jdbc-drivers/xerial-sqlite-license.txt</url>

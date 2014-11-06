@@ -70,9 +70,7 @@ gem 'httparty' # used in vkontakte
 gem 'vkontakte', '0.0.3' , :path => 'vendor/gems/vkontakte-0.0.3' # http://rubygems.org/gems/vkontakte (*)
 gem 'rest_client' # for post multipart in vkontakte_api uploads
 
-# Use sqlite3 as the database for Active Record
-# gem 'sqlite3' # development
-gem 'mysql2' # dev1 server
+gem 'mysql2' # laptop and dev1 server
 
 # Use SCSS for stylesheets
 gem 'sass-rails', '~> 4.0.0'
@@ -189,4 +187,4 @@ gem 'embedly'
 # use when moving to an other db environment. See issue 12
 # https://github.com/ludicast/yaml_db
 # https://github.com/ludicast/yaml_db/pull/45
-# gem 'yaml_db', github: 'jetthoughts/yaml_db', ref: 'fb4b6bd7e12de3cffa93e0a298a1e5253d7e92ba'
+# gem 'yaml_db'
