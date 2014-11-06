@@ -71,7 +71,7 @@ gem 'vkontakte', '0.0.3' , :path => 'vendor/gems/vkontakte-0.0.3' # http://rubyg
 gem 'rest_client' # for post multipart in vkontakte_api uploads
 
 # Use sqlite3 as the database for Active Record
-gem 'sqlite3' # development
+# gem 'sqlite3' # development
 gem 'mysql2' # dev1 server
 
 # Use SCSS for stylesheets
