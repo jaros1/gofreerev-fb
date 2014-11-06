@@ -1,4 +1,4 @@
-class OpenGraph < ActiveRecord::Base
+class OpenGraphLink < ActiveRecord::Base
 
   # create_table "open_graphs", force: true do |t|
   #   t.text     "url"
@@ -18,12 +18,12 @@ class OpenGraph < ActiveRecord::Base
     url = url.to_s
     return nil if url == ""
     return nil unless url =~ /^https?:\/\//
-    og = OpenGraph.find_by_url(url)
+    og = OpenGraphLink.find_by_url(url)
     return og if og and og.updated_at > 1.week.ago
     # todo: check if url exists
     # get open graph meta tags. Embed,ly API or parse html response
     if !og
-      og = OpenGraph.new
+      og = OpenGraphLink.new
       og.url = url
     end
     if EMBEDLY
@@ -36,7 +36,7 @@ class OpenGraph < ActiveRecord::Base
       og.updated_at  = Time.now
     else
       # use opengraph gem
-      response = OpenGraph.fetch(url)
+      response = OpenGraphLink.fetch(url)
       og.title = response.title
       og.description = response.description
       og.image = response.image

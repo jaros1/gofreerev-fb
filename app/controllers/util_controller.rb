@@ -2960,7 +2960,7 @@ class UtilController < ApplicationController
     begin
       url = params[:url]
       logger.debug2 "url = #{url}"
-      og = OpenGraph.find_or_create_link(url)
+      og = OpenGraphLink.find_or_create_link(url)
       return unless og
       @og = og
       format_response

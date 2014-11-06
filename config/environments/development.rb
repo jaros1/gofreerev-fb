@@ -37,7 +37,7 @@ GofreerevFb::Application.configure do
                         :email => {
                             :email_prefix => ENV["gofreerev_#{rails_env}_en_email_prefix".upcase],
                             :sender_address => ["notifier", ENV["gofreerev_#{rails_env}_en_sender".upcase]],
-                            :exception_recipients => ENV["gofreerev_#{rails_env}_en_recipients".upcase].split(' '),
+                            :exception_recipients => ENV["gofreerev_#{rails_env}_en_recipients".upcase].to_s.split(' '),
                             :delivery_method => :smtp,
                             :smtp_settings => {
                                 :address => ENV["gofreerev_#{rails_env}_en_address".upcase],
