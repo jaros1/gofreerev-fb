@@ -173,16 +173,16 @@ gem 'human_attribute'
 gem 'exception_notification'
 
 # parse open graph metatags in html pages.
-# use either embedly API (free for <5000 requests per month) or opengraph (free)
+# use either embedly API (free for <5000 requests per month) or opengraph_parser (free)
 # EMBEDLY = true : use embed.ly API to parse open graph metatags
 # https://github.com/embedly/embedly-ruby
 # http://embedly.github.io/jquery-preview/demo/
 # http://embed.ly/
 gem 'embedly'
 
-# https://github.com/intridea/opengraph
-# EMBEDLY = false: use opengraph to parse open graph metatags
-# gem 'opengraph'
+# https://github.com/huyha85/opengraph_parser
+# EMBEDLY = false: use opengraph_parser to parse open graph metatags
+gem "opengraph_parser"
 
 # use when moving to an other db environment. See issue 12
 # https://github.com/ludicast/yaml_db

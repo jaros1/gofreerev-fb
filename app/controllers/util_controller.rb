@@ -7,7 +7,7 @@ class UtilController < ApplicationController
                 :except => [:new_messages_count,
                             :like_gift, :unlike_gift, :follow_gift, :unfollow_gift, :hide_gift, :delete_gift,
                             :cancel_new_deal, :reject_new_deal, :accept_new_deal,
-                            :do_tasks, :post_on_wall_yn, :share_gift]
+                            :do_tasks, :post_on_wall_yn, :share_gift, :open_graph]
 
   # update new message count in menu line in page header
   # called from hidden new_messages_count_link link in page header once every 15, 60 or 300 seconds
@@ -2958,11 +2958,10 @@ class UtilController < ApplicationController
   def open_graph
     table = "tasks_errors" # ajax error table in page header
     begin
+      return format_response_key('.not_logged_in', {}) unless logged_in?
       url = params[:url]
       logger.debug2 "url = #{url}"
-      og = OpenGraphLink.find_or_create_link(url)
-      return unless og
-      @og = og
+      @og = OpenGraphLink.find_or_create_link(url)
       format_response
     rescue => e
       logger.debug2 "Exception: #{e.message.to_s} (#{e.class})"

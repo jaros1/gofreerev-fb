@@ -1011,6 +1011,7 @@ da:
         fb_error: "Kan ikke sende venneforslag til facebook. %{type} %{message}"
         fb_other: "Kan ikke sende venneforslag til facebook. Ukendt fejl %{response}"
      open_graph:
+        not_logged_in: "Kan ikke tjekke link. Du er ikke logget ind. Opdater venligst siden."
         exception: "Systemfejl. Kunne ikke tjekke link. %{error}. Mere information i server log."
 
   # translation keys used in javascript (error) messages

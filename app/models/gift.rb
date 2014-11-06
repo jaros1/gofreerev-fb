@@ -661,7 +661,8 @@ class Gift < ActiveRecord::Base
     end
     return if giftids.size == 0
     logger.fatal2 "ApiGift without Gift. gift id's #{giftids.join(', ')}"
-    Process.kill('INT', Process.pid) # stop rails server
+    raise "ApiGift without Gift. gift id's #{giftids.join(', ')}" # email from exception notifier
+    # Process.kill('INT', Process.pid) # stop rails server
   end
 
 

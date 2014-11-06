@@ -11,7 +11,7 @@ class OpenGraphLink < ActiveRecord::Base
   # end
 
   # cache Open Graph tags (http://ogp.me/) for gifts.external_url
-  # use embed.ly API (EMBEDLY=true) or regular expressions to get open grapg meta-tags from html pages (EMBEDLY=false).
+  # use embed.ly API (EMBEDLY=true) or opengraph_parser gem get open graph meta-tags from html pages (EMBEDLY=false).
 
   # returns nil if url does not exists or if there are issues with html page
   def self.find_or_create_link (url)
@@ -26,8 +26,9 @@ class OpenGraphLink < ActiveRecord::Base
       og = OpenGraphLink.new
       og.url = url
     end
-    if EMBEDLY
-      # use embed.ly API to parse html page for open graph metatags. free
+    if false # EMBEDLY
+      # use embed.ly API to parse html page for open graph metatags. free for <5000 API requests per month
+      # todo: add error handling
       api_client = Embedly::API.new :key => EMBEDLY_KEY
       response = api_client.oembed :url => url
       og.title       = response[0].title
@@ -35,14 +36,18 @@ class OpenGraphLink < ActiveRecord::Base
       og.image       = response[0].thumbnail_url
       og.updated_at  = Time.now
     else
-      # use opengraph gem
-      response = OpenGraphLink.fetch(url)
+      # use opengraph_parser gem
+      # todo: add error handling
+      response = OpenGraph.new(url)
       og.title = response.title
       og.description = response.description
-      og.image = response.image
+      og.image = response.images.first
       og.updated_at  = Time.now
     end
-    # save and return og record
+    # replace ' with "
+    og.title = og.title.gsub("'", '"') if og.title
+    og.description = og.description.gsub("'", '"') if og.description
+    # save and return record
     og.save!
     og
   end # self.find_or_create_link

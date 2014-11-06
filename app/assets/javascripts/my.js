@@ -2797,6 +2797,12 @@ function gift_external_link_sync (field1) {
 } // gift_external_link_sync
 
 
+function gift_external_link_preview(url, title, description, image) {
+    alert('gift_external_link_preview: url = ' + url + ', title = ' + title + ', description = ' + description + ', image = ' + image);
+} // gift_external_link_preview
+
+
+
 // custom confirm box - for styling
 // http://lesseverything.com/blog/archives/2012/07/18/customizing-confirmation-dialog-in-rails/
 // http://www.pjmccormick.com/nicer-rails-confirm-dialogs-and-not-just-delete-methods

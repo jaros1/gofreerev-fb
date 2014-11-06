@@ -1007,6 +1007,7 @@ en:
         fb_error: "Cannot send friends suggestions to facebook. %{type} %{message}"
         fb_other: "Cannot send friends suggestions to facebook. Unexpected error %{response}"
      open_graph:
+        not_logged_in: "Could not check link. You are not logged in. Please refresh page."
         exception: "System error. Could not check link. %{error}. More information in server log."
 
   # translation keys used in javascript (error) messages
