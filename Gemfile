@@ -139,7 +139,7 @@ gem 'money'
 gem 'google_currency', '~> 3.0.0'
 
 # https://github.com/svenfuchs/rails-i18n
-# rails-i18n (4.0.0.pre) - example yml files for many languages
+# rails-i18n (4.0.0.pre) - example yml files for many  languages
 gem 'rails-i18n', '~> 4.0.0.pre'
 
 gem 'debugger'
