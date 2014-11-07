@@ -949,10 +949,7 @@ class User < ActiveRecord::Base
         end
         # looks like permission status_update has been replaced with publish_actions
         # publish_actions is added when requesting status_update priv.
-        if permissions.class == Hash
-          # old oauth 1.0 permission hash
-          permissions['status_update'] == 1 or permissions["publish_actions"] == 1
-        elsif permissions.class == Array
+        if permissions.class == Array
           # new oauth 2.2 permission array
           return true if permissions.find { |p| %w(status_update publish_actions).index(p['permission']) and p['status'] == 'granted' }
         else
@@ -1010,7 +1007,8 @@ class User < ActiveRecord::Base
     permissions = self.permissions
     case provider
       when 'facebook'
-        permissions['read_stream'] == 1
+        return true if permissions.find { |p| p['permission'] == 'read_stream' and p['status'] == 'granted'}
+        false
       else
         logger.error2 "read_wall_allowed? not implemented for #{provider} users"
         false
