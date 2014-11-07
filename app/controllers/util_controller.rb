@@ -1075,7 +1075,7 @@ class UtilController < ApplicationController
   #    # logger.debug2  "api_response = #{api_response.to_s}"
   #
   #    # update permissions
-  #    login_user.permissions = api_response['permissions']['data'][0]
+  #    login_user.permissions = api_response['permissions']['data']
   #    login_user.permissions = {} if login_user.permissions == []
   #    login_user.save!
   #

@@ -27,7 +27,7 @@
         <tr title="<%= t '.price_title', :min_interest => NEG_INT_POS_BALANCE_PER_YEAR, :max_interest => NEG_INT_NEG_BALANCE_PER_YEAR %>">
           <td><%= t '.price_prompt' %></td>
           <td>
-            <%= f.text_field(:price, :size => 10, :maxlength => 10) %>
+            <%= f.text_field(:price, :size => 10, :maxlength => 10, :placeholder => t('.price_placeholder')) %>
             <%= t '.price_free' %>
             <%= @users.first.currency %>
             &nbsp;&nbsp;&nbsp;
@@ -39,7 +39,7 @@
         </tr>
         <tr title="<%= t '.description_title' %>">
           <td style="vertical-align: top"><%= t '.description_prompt' %></td>
-          <td><%= f.text_area :description, :size => '60x2', :placeholder => 'Enter Comments', :onfocus => 'autoresize_text_field(this)', :class => 'new_gift_text' %>
+          <td><%= f.text_area :description, :size => '60x2', :placeholder => t('.description_placeholder'), :onfocus => 'autoresize_text_field(this)', :class => 'new_gift_text' %>
             <%= f.submit t('.gift_submit_button_text'), :onclick => '{return csv_gift()}', :name => 'commit_gift', :class => 'new_gift_submit_large' %></td>
         </tr>
         <tr title="<%= t ".file_title_#{post_image_allowed?()}", :appname => APP_NAME %>">

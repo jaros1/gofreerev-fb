@@ -21,6 +21,6 @@ class OmniAuth::AuthHash
             self.extra.raw_info and
             self.extra.raw_info.permissions and
             self.extra.raw_info.permissions.data
-    permissions
+    permissions.to_hash if permissions.class == OmniAuth::AuthHash
   end
 end

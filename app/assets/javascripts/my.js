@@ -2833,6 +2833,10 @@ function gift_external_link_preview(url, title, description, image) {
     tr.appendChild(td) ;
     t = document.createTextNode(description) ;
     td.appendChild(t) ;
+    // remove any old preview
+    while (external_link_preview.firstChild) {
+        external_link_preview.removeChild(external_link_preview.firstChild);
+    }
     // insert preview
     external_link_preview.appendChild(table) ;
 } // gift_external_link_preview

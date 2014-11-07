@@ -726,4 +726,8 @@ group with issue 162, 177 and 178 <==
 180) no exception mailer mail from ajax errors
      for example exception in post login
 
-select next issue to solve: (rand*175).floor+1
+181) cleanup/convert user.permissions field
+     convert OmniAuth::AuthHash to Hash
+     convert old facebook permissions hash to new facebook permissions array of hash
+
+select next issue to solve: (rand*181).floor+1

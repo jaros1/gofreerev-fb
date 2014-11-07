@@ -241,7 +241,7 @@ class FacebookController < ApplicationController
                 :country => api_response['locale'].to_s.last(2),
                 :language => api_response['locale'].to_s.first(2),
                 :profile_url => api_response['link'],
-                :permissions => api_response['permissions']['data'][0]
+                :permissions => api_response['permissions']['data']
     if !res
       # login ok
       user_id = "#{api_response['id']}/#{provider}"
@@ -251,18 +251,27 @@ class FacebookController < ApplicationController
         context = 'login_new_user' if no_friends == 0
       end
       if context == 'read_stream'
-        logger.debug2 "identical facebook signatur for ok and skip responses when requesting read_stream priv."
-        logger.debug2  "api_response = #{api_response.to_s}"
-        # user.permissions = api_response['permissions']['data'][0]
+        # logger.debug2  "api_response = #{api_response.to_s}"
+        # api_response = {"name"=>"Jan Roslind", "locale"=>"en_GB", "link"=>"http://www.facebook.com/1705481075",
+        #                 "picture"=>{"data"=>{"height"=>100, "is_silhouette"=>false, "url"=>"https://fbcdn-profile-a.akamaihd.net/hprofile-ak-xpf1/v/t1.0-1/p100x100/996138_4574555377673_8850863452088448507_n.jpg?oh=ad61040224149a3f56f2c0b4e1bf9519&oe=54DB6127&__gda__=1424339048_6c52fc9e2b892549f0c907b075124494", "width"=>100}},
+        #                 "permissions"=>{"data"=>[{"permission"=>"public_profile", "status"=>"granted"}, {"permission"=>"read_stream", "status"=>"granted"}, {"permission"=>"publish_actions", "status"=>"granted"}, {"permission"=>"user_friends", "status"=>"granted"}]},
+        #                 "id"=>"1705481075"}
+        permissions = api_response["permissions"]["data"] if api_response["permissions"]
+        # logger.debug2 "permissions = #{permissions}"
+        permission = permissions.find { |h| h["permission"] == 'read_stream'}
+        logger.debug2 "permission = #{permission}"
+        status = permission["status"] if permission.class == Hash
+        # logger.debug2 "status = #{status}"
+        # user.permissions = api_response['permissions']['data']
         # user.save
-        context = 'read_stream_skip' unless user.read_gifts_allowed?
+        context = 'read_stream_skip' unless status == 'granted'
       end
       if context == 'status_update'
         # add publish_actions to facebook user before redirecting to gifts/index page
         # permissions will be updated in post_login_facebook task, but that is to late for this redirect
         # adding publish_actions enables file upload in gifts/index page now
         # permissions["publish_actions"] = 1
-        # user.permissions = api_response['permissions']['data'][0]
+        # user.permissions = api_response['permissions']['data']
         # user.save!
         context = 'status_update_skip' unless get_post_on_wall_authorized(user.provider)
       end

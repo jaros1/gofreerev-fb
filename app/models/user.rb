@@ -949,7 +949,17 @@ class User < ActiveRecord::Base
         end
         # looks like permission status_update has been replaced with publish_actions
         # publish_actions is added when requesting status_update priv.
-        permissions['status_update'] == 1 or permissions["publish_actions"] == 1
+        if permissions.class == Hash
+          # old oauth 1.0 permission hash
+          permissions['status_update'] == 1 or permissions["publish_actions"] == 1
+        elsif permissions.class == Array
+          # new oauth 2.2 permission array
+          return true if permissions.find { |p| %w(status_update publish_actions).index(p['permission']) and p['status'] == 'granted' }
+        else
+          # unknown permissions
+          logger.debug2 "unknown facebook permissions object #{permissions}"
+          false
+        end
       when "linkedin"
         permissions.to_s.split(',').index('rw_nus') != nil
       else
@@ -2138,8 +2148,7 @@ class User < ActiveRecord::Base
       raise
     end # rescue
     logger.debug2 "api_response = #{api_response}"
-    self.permissions = api_response['permissions']['data'][0]
-    self.permissions = {} if self.permissions == []
+    self.permissions = api_response['permissions']['data']
     save!
     self
   end
