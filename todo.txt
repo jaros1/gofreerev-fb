@@ -726,10 +726,6 @@ group with issue 162, 177 and 178 <==
 180) no exception mailer mail from ajax errors
      for example exception in post login
 
-181) cleanup/convert user.permissions field
-     convert OmniAuth::AuthHash to Hash
-     convert old facebook permissions hash to new facebook permissions array of hash
-
 183) facebook is from oauth 2.0 a login only provider without friend list
      add other login providers without friend lists
 
