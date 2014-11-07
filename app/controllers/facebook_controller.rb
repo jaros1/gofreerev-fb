@@ -260,6 +260,7 @@ class FacebookController < ApplicationController
         # logger.debug2 "permissions = #{permissions}"
         permission = permissions.find { |h| h["permission"] == 'read_stream'}
         logger.debug2 "permission = #{permission}"
+        # permission = {"permission"=>"read_stream", "status"=>"declined"}
         status = permission["status"] if permission.class == Hash
         # logger.debug2 "status = #{status}"
         # user.permissions = api_response['permissions']['data']

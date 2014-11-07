@@ -1438,6 +1438,13 @@ class UtilController < ApplicationController
         else
           # message with link to grant missing read stream priv.
           logger.debug2 "user.permissions = #{login_user.permissions}"
+          # check if user has declined read_stream permission
+          if api_gift.picture? and login_user.permissions.find { |p| p['permission'] == 'read_stream' and p['status'] == 'declined'}
+            # used has declined read_stream permissions and fb dialog can not be used to get read_stream permission.
+            key =  '.fb_pic_' + (just_posted ? 'post' : 'check') + '_declined_permission_html'
+            return [key, {:appname => APP_NAME, :apiname => login_user.apiname }]
+          end
+
           oauth = Koala::Facebook::OAuth.new(API_ID[provider], API_SECRET[provider], API_CALLBACK_URL[provider])
           url = oauth.url_for_oauth_code(:permissions => 'read_stream', :state => set_state_cookie_store('read_stream'))
           logger.debug2 "url = #{url}"
