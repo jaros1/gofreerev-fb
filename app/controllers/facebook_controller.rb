@@ -94,6 +94,8 @@ class FacebookController < ApplicationController
       # user_id  = 1705481075
       # autologin redirect to https://www.facebook.com/dialog/oauth? to get code without showing create.html erb page
       viewname = 'autologin'
+      # wait with post login tasks to gifts/index page
+      @disable_ajax_tasks = true
     elsif hash.has_key?('user_id')
       # signature 3 - used has deauthorization gofreerev in facebook
       signature = 3

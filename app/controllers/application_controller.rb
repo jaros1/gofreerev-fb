@@ -503,8 +503,11 @@ class ApplicationController < ActionController::Base
 
   private
   def logged_in?
+    logger.debug2 "login_user_ids.class = #{login_user_ids.class}"
     return false unless login_user_ids.class == Array
-    (login_user_ids.length > 0)
+    return false if login_user_ids.size == 0
+    return false if login_user_ids.first.split('/').first == 'gofreerev' # login with dummy user
+    true
   end
   helper_method "logged_in?"
 

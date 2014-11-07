@@ -308,6 +308,7 @@ module ApplicationHelper
   end
 
   def ajax_tasks?
+    return false if @disable_ajax_tasks # facebook autologin page - wait with ajax tasks to gifts/index page
     ajax_tasks = (Task.where("session_id = ? and ajax = ?", session[:session_id], 'Y').count > 0)
     # logger.debug2 "session_id = #{session[:session_id]}, ajax_tasks = #{ajax_tasks}"
     ajax_tasks
