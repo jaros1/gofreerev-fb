@@ -730,12 +730,6 @@ group with issue 162, 177 and 178 <==
      convert OmniAuth::AuthHash to Hash
      convert old facebook permissions hash to new facebook permissions array of hash
 
-182) fb friends list are useless from oauth v.2.0
-     only friends that are using the app are returned in  app - that is none
-     Remove fb login from app or find a workaround
-     - add no fb friends post login messages if friends list is empty
-     - only use fb login in connection with share accounts and other login providers with friend lists
-
 183) facebook is from oauth 2.0 a login only provider without friend list
      add other login providers without friend lists
 
