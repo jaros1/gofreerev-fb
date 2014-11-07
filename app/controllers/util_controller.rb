@@ -1004,7 +1004,7 @@ class UtilController < ApplicationController
     end
     return [login_user, api_client, friends_hash, new_user, key, options] if key
 
-    # update facebook friends (api friend = Y/N)
+    # update friends list in db (api friend = Y/N)
     new_user, key, options = Friend.update_api_friends_from_hash :login_user_id => login_user_id, :friends_hash => friends_hash
     [login_user, api_client, friends_hash, new_user, key, options]
   end # post_login_update_friends
@@ -1033,6 +1033,9 @@ class UtilController < ApplicationController
       # update balance
       today = Date.parse(Sequence.get_last_exchange_rate_date)
       login_user.recalculate_balance if today and login_user.balance_at != today
+
+      # login api's without friends list - for example oauth 2.x for facebook
+      return add_error_key('.post_login_no_friends', login_user.app_and_apiname_hash) if friends_hash.size == 0 or %w(facebook).index(provider)
 
       # special post login message to new users (refresh page when friend list has been downloaded)
       return add_error_key('.post_login_new_user', login_user.app_and_apiname_hash) if new_user
