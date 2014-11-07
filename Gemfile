@@ -139,7 +139,7 @@ gem 'money'
 gem 'google_currency', '~> 3.0.0'
 
 # https://github.com/svenfuchs/rails-i18n
-# rails-i18n (4.0.0.pre) - example yml files for many  languages
+# rails-i18n (4.0.0.pre) - example yml files for many languages
 gem 'rails-i18n', '~> 4.0.0.pre'
 
 gem 'debugger'
@@ -173,14 +173,14 @@ gem 'human_attribute'
 gem 'exception_notification'
 
 # parse open graph metatags in html pages.
-# use either embedly API (free for <5000 requests per month) or opengraph_parser (free)
+# use either embedly API (free for <5000 requests per month) or opengraph (free)
 # EMBEDLY = true : use embed.ly API to parse open graph metatags
 # https://github.com/embedly/embedly-ruby
 # http://embedly.github.io/jquery-preview/demo/
 # http://embed.ly/
 gem 'embedly'
 
-# https://github.com/huyha85/opengraph_parser
+# https://github.com/intridea/opengraph
 # EMBEDLY = false: use opengraph_parser to parse open graph metatags
 # gem "opengraph_parser"
 

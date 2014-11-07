@@ -99,15 +99,20 @@ end # GOOGLE_OAUTH2_SETUP
 
 # C) - omniauth setup
 Rails.application.config.middleware.use OmniAuth::Builder do
-  provider :facebook,      API_ID[:facebook],      API_SECRET[:facebook], :scope => '', :image_size => :normal, :info_fields => "name,permissions,friends,picture,timezone"
-  provider :flickr,        API_ID[:flickr],        API_SECRET[:flickr], :scope => 'read'
-  provider :foursquare,    API_ID[:foursquare],    API_SECRET[:foursquare]
+  provider :facebook, API_ID[:facebook], API_SECRET[:facebook], :scope => '', :image_size => :normal, :info_fields => "name,permissions,friends,picture,timezone",
+           :client_options => {
+               :site => 'https://graph.facebook.com',
+               :authorize_url => "https://www.facebook.com/v2.2/dialog/oauth",
+               :token_url => '/oauth/access_token'
+           }
+  provider :flickr, API_ID[:flickr], API_SECRET[:flickr], :scope => 'read'
+  provider :foursquare, API_ID[:foursquare], API_SECRET[:foursquare]
   # provider :google_oauth2, API_ID[:google_oauth2], API_SECRET[:google_oauth2], :scope => 'plus.login userinfo.profile', :access_type => 'offline', :prompt => 'consent'
   provider :google_oauth2, :setup => GOOGLE_OAUTH2_SETUP
-  provider :instagram,     API_ID[:instagram],     API_SECRET[:instagram]
-  provider :linkedin,      API_ID[:linkedin],      API_SECRET[:linkedin], :scope => "r_basicprofile r_network", :fields => ['id', 'first-name', 'last-name', 'picture-url', 'public-profile-url', 'location']
-  provider :twitter,       API_ID[:twitter],       API_SECRET[:twitter], { :image_size => 'bigger', :authorize_params => { :x_auth_access_type => 'write' } }
-  provider :vkontakte,     API_ID[:vkontakte],     API_SECRET[:vkontakte], { :scope => 'friends,photos' }
+  provider :instagram, API_ID[:instagram], API_SECRET[:instagram]
+  provider :linkedin, API_ID[:linkedin], API_SECRET[:linkedin], :scope => "r_basicprofile r_network", :fields => ['id', 'first-name', 'last-name', 'picture-url', 'public-profile-url', 'location']
+  provider :twitter, API_ID[:twitter], API_SECRET[:twitter], {:image_size => 'bigger', :authorize_params => {:x_auth_access_type => 'write'}}
+  provider :vkontakte, API_ID[:vkontakte], API_SECRET[:vkontakte], {:scope => 'friends,photos'}
 end
 
 # D) visit or redirect to API
