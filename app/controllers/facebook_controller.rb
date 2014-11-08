@@ -141,16 +141,14 @@ class FacebookController < ApplicationController
   # get /facebook - is called after authorization (create)
   # rejected: Parameters: {"error_reason"=>"user_denied", "error"=>"access_denied", "error_description"=>"The user denied your request."}
   # accepted: Parameters: {"code"=>"AQA6165EwuVn3EVKkzy2TOocej1wBb_t-9jEuhJQFFK7GH2PDkDbbSOOd9lhoqIYibusDfPpWOwaUg6XYiR2lcmP2tLgG0RPgRxL6qwFBZalg0j6wXSO8bZmjKn-yf9O_GOH9wm5ugMKLUihU7mjfLAbR58FrJ8wdgnej2aG9KLQvKNenb16Hf_ULI016u3DGHM-zGvmyb8xAgAAabOHkDQNT5C3lIO0eXTGMwo66zLrnn0jkENguAnAUuZrVym9OMiBV1f9ocg8WfgprflPq-BHOSHdhuHgYISHxO_nTs1dT7Ku5z551ZyBq1hG15aG4"}
-  # skip: Parameters: {"code"=>"AQAtCrQaVuq5JP7MG5etjX617luFDULxxaJdn656mOE5nNT6xI6NTzC-FChcdTKlZH88ARb9ZFOKOYq4y_kS1C54fknXOUsaMjquPqfKLnaDB2ycRu30OS905EzgQKR0VEWm0xSR2NUR5GTdiet4keMgGt-CNvLlp9eKZWP94eoSr7EQyIFlw28pr5EL1FnSi6gW3gDuh64SmdBr86xDMMBdkyU-V-iZOW0cmP6YuzGFmszBwpZ5XL-PqOKEDWFSzJmOvYWDMFjrnKymoO-vyeNBQUiOp2tZFrTJJ-IRc8pr6tc1L-0qnJ5Y8HMakMRxJqI", "state"=>"UvhxJSQP6WV1JAR2k8cjENHjmolqSG-status_update"}
-  # error: Parameters: {"error_code"=>"2", "error_message"=>"Denne funktion er desværre ikke tilgængelig i øjeblikkket: Der opstod en fejl under behandling af denne forespørgsel. Prøv igen senere.", "state"=>"BlGyeeW7Nd5lebhCkNeUCCo26hdpQY-status_update"}
+  # skip: Parameters: {"code"=>"AQAtCrQaVuq5JP7MG5etjX617luFDULxxaJdn656mOE5nNT6xI6NTzC-FChcdTKlZH88ARb9ZFOKOYq4y_kS1C54fknXOUsaMjquPqfKLnaDB2ycRu30OS905EzgQKR0VEWm0xSR2NUR5GTdiet4keMgGt-CNvLlp9eKZWP94eoSr7EQyIFlw28pr5EL1FnSi6gW3gDuh64SmdBr86xDMMBdkyU-V-iZOW0cmP6YuzGFmszBwpZ5XL-PqOKEDWFSzJmOvYWDMFjrnKymoO-vyeNBQUiOp2tZFrTJJ-IRc8pr6tc1L-0qnJ5Y8HMakMRxJqI", "state"=>"UvhxJSQP6WV1JAR2k8cjENHjmolqSG-publish_actions"}
+  # error: Parameters: {"error_code"=>"2", "error_message"=>"Denne funktion er desværre ikke tilgængelig i øjeblikkket: Der opstod en fejl under behandling af denne forespørgsel. Prøv igen senere.", "state"=>"BlGyeeW7Nd5lebhCkNeUCCo26hdpQY-publish_actions"}
   def index
 
     # where is request comming from?
     # login - login starter from facebook - previous request was post facebook/create
-    # status_update - return from status_update priv. request (link in gifts/index page - inserted from util.post_on_facebook)
+    # publish_actions - return from publish_actions priv. request (link in gifts/index page - inserted from util.post_on_facebook)
     # read_stream - return from read_stream priv. request (link in gifts/index page - inserted from util.post_on_facebook)
-    # looks like permission status_update has been replaced with publish_actions
-    # publish_actions is added when requesting status_update priv.
     context = params[:state].to_s.from(31)
     context = 'other' unless %w(login friends_find publish_actions read_stream).index(context)
 
@@ -170,7 +168,7 @@ class FacebookController < ApplicationController
     if params[:error_code] == '2' and context != 'login'
       # Parameters: {"error_code"=>"2",
       #              "error_message"=>"This feature is temporarily unavailable at the moment: There was an error processing this request. Please try again later",
-      #              "state"=>"BlGyeeW7Nd5lebhCkNeUCCo26hdpQY-status_update"}
+      #              "state"=>"BlGyeeW7Nd5lebhCkNeUCCo26hdpQY-publish_actions"}
       # grant extra privs. failed (publish_actions or read_stream)
       save_flash_key ".#{context}_failed", :appname => APP_NAME, :error => params[:error_message]
       redirect_to :controller => :gifts

@@ -88,7 +88,7 @@ Low priority todo list. Minor errors, wishlist etc.
     receive table with new user div title with balance information in new currency
     use javascript to change title for user divs in page
 
-19) make request for priv links (status_update and read_stream) dynamic.
+19) make request for priv links (publish_actions and read_stream) dynamic.
     set state (random string) with js and ajax before calling api
     In that way the request priv. links will work even if user has used back bottom in browser
     there is a special problem with linkedin where "client" is temporary saved in task table

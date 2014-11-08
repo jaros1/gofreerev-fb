@@ -947,11 +947,9 @@ class User < ActiveRecord::Base
           logger.debug2 "Found #{provider} user without permissions. post_login_#{provider} method must have failed"
           return false
         end
-        # looks like permission status_update has been replaced with publish_actions
-        # publish_actions is added when requesting status_update priv.
         if permissions.class == Array
           # new oauth 2.2 permission array
-          return true if permissions.find { |p| %w(status_update publish_actions).index(p['permission']) and p['status'] == 'granted' }
+          return true if permissions.find { |p| p['permission'] == 'publish_actions' and p['status'] == 'granted' }
         else
           # unknown permissions
           logger.debug2 "unknown facebook permissions object #{permissions}"
