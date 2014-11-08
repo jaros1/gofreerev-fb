@@ -99,7 +99,8 @@ end # GOOGLE_OAUTH2_SETUP
 
 # C) - omniauth setup
 Rails.application.config.middleware.use OmniAuth::Builder do
-  provider :facebook, API_ID[:facebook], API_SECRET[:facebook], :scope => 'public_profile,user_friends', :image_size => :normal, :info_fields => "name,permissions,friends,picture,timezone",
+  # facebook oauth 2.2 - note that facebook friends list is empty in oauth 2.x - friend list only include friends that also are app users
+  provider :facebook, API_ID[:facebook], API_SECRET[:facebook], :scope => 'public_profile', :image_size => :normal, :info_fields => "name,permissions,friends,picture,timezone",
            :client_options => {
                :site => 'https://graph.facebook.com',
                :authorize_url => "https://www.facebook.com/v2.2/dialog/oauth",

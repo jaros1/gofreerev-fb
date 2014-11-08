@@ -276,9 +276,6 @@ class FacebookController < ApplicationController
         # permissions["publish_actions"] = 1
         # user.permissions = api_response['permissions']['data']
         # user.save!
-        # todo: check if post on wall priv has been granted to user
-        permissions = api_response["permissions"]["data"] if api_response["permissions"]
-        logger.debug2 "permissions = #{permissions}"
         # permissions = [{"permission"=>"public_profile", "status"=>"granted"}, {"permission"=>"user_friends", "status"=>"granted"}]
         context = 'publish_actions_skip' unless get_post_on_wall_authorized(user.provider)
       end
