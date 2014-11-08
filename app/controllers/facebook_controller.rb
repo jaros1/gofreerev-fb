@@ -152,7 +152,7 @@ class FacebookController < ApplicationController
     # looks like permission status_update has been replaced with publish_actions
     # publish_actions is added when requesting status_update priv.
     context = params[:state].to_s.from(31)
-    context = 'other' unless %w(login friends_find status_update read_stream).index(context)
+    context = 'other' unless %w(login friends_find publish_actions read_stream).index(context)
 
     # Cross-site Request Forgery check
     # note that there are problems with cookie store and IE10 when login starts from facebook (session[:state] not preserved)
@@ -171,7 +171,7 @@ class FacebookController < ApplicationController
       # Parameters: {"error_code"=>"2",
       #              "error_message"=>"This feature is temporarily unavailable at the moment: There was an error processing this request. Please try again later",
       #              "state"=>"BlGyeeW7Nd5lebhCkNeUCCo26hdpQY-status_update"}
-      # grant extra privs. failed (status_update or read_stream)
+      # grant extra privs. failed (publish_actions or read_stream)
       save_flash_key ".#{context}_failed", :appname => APP_NAME, :error => params[:error_message]
       redirect_to :controller => :gifts
       return
@@ -269,14 +269,18 @@ class FacebookController < ApplicationController
         # user.save
         context = 'read_stream_skip' unless status == 'granted'
       end
-      if context == 'status_update'
+      if context == 'publish_actions'
         # add publish_actions to facebook user before redirecting to gifts/index page
         # permissions will be updated in post_login_facebook task, but that is to late for this redirect
         # adding publish_actions enables file upload in gifts/index page now
         # permissions["publish_actions"] = 1
         # user.permissions = api_response['permissions']['data']
         # user.save!
-        context = 'status_update_skip' unless get_post_on_wall_authorized(user.provider)
+        # todo: check if post on wall priv has been granted to user
+        permissions = api_response["permissions"]["data"] if api_response["permissions"]
+        logger.debug2 "permissions = #{permissions}"
+        # permissions = [{"permission"=>"public_profile", "status"=>"granted"}, {"permission"=>"user_friends", "status"=>"granted"}]
+        context = 'publish_actions_skip' unless get_post_on_wall_authorized(user.provider)
       end
       save_flash_key ".ok_#{context}", user.app_and_apiname_hash
       if context == 'friends_find'

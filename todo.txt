@@ -727,7 +727,7 @@ group with issue 162, 177 and 178 <==
      for example exception in post login
 
 183) facebook is from oauth 2.0 a login only provider without friend list
-     add other login providers without friend lists
-     can be used in single sign-on with other accounts with working friend lists
+     add other "no friend list" login providers
+     can be used in single sign-on with providers with friend lists
 
 select next issue to solve: (rand*183).floor+1

@@ -1,7 +1,10 @@
 # config default oauth version when communicating with facebook API
+# note that friends list only include app users in oauth 2.x versions
+# that is empty for most users
 Koala.config.api_version = 'v2.2'
-Koala::Utils.logger.level = Logger::DEBUG
 
+# output debug info in development environments
+Koala::Utils.logger.level = Logger::DEBUG unless FORCE_SSL
 
 # dump unexpected facebook/koala exceptions to log for easier debugging
 class Koala::Facebook::APIError

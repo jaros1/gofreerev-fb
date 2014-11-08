@@ -802,7 +802,7 @@ class ApplicationController < ActionController::Base
   # state is set before calling login provider
   # state is checked when returning from login provider
   # used in LinkedInController
-  # todo: ajax set state in links (request status_update and read_stream) so
+  # todo: ajax set state in links (request publish_actions and read_stream) so
   #       that old pages (used has used back bottom in browser) still is working
   # three methods that saves state in session cookie store
   private
@@ -2043,7 +2043,7 @@ class ApplicationController < ActionController::Base
     #   return key, options
     # end
     oauth = Koala::Facebook::OAuth.new(API_ID[provider], API_SECRET[provider], API_CALLBACK_URL[provider])
-    url = oauth.url_for_oauth_code(:permissions => 'status_update', :state => set_state_cookie_store('status_update'))
+    url = oauth.url_for_oauth_code(:permissions => 'publish_actions', :state => set_state_cookie_store('publish_actions'))
     hide_url = "/util/hide_grant_write?provider=#{provider}"
     ['util.do_tasks.gift_posted_3_html', {:apiname => provider_downcase(provider),
                              :url => url,
