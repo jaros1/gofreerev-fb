@@ -1098,8 +1098,23 @@ $(document).ready(function () {
                 var disp_gift_file = document.getElementById('disp_gift_file');
                 debug = 9 ;
                 if (disp_gift_file) disp_gift_file.value = '';
-                debug = 10 ;
+                // clear open graph url and remove preview for open graph url
+                debug = 9.1 ;
+                var gift_open_graph_url = document.getElementById('gift_open_graph_url1') ;
+                if (gift_open_graph_url) gift_open_graph_url.value = '' ;
+                debug = 9.2 ;
+                var gift_open_graph_url = document.getElementById('gift_open_graph_url2') ;
+                if (gift_open_graph_url) gift_open_graph_url.value = '' ;
+                debug = 9.3 ;
+                var open_graph_url_preview = document.getElementById('open_graph_url_preview') ;
+                if (open_graph_url_preview) {
+                    debug = 9.4 ;
+                    while (open_graph_url_preview.firstChild) {
+                        open_graph_url_preview.removeChild(open_graph_url_preview.firstChild);
+                    }
+                }
                 // first gift for a new gofreerev user - show gifts table - hide no api gift found message
+                debug = 10 ;
                 var gifts = document.getElementById('gifts');
                 debug = 11 ;
                 if (gifts) gifts.style.display = 'inline';
@@ -2757,13 +2772,15 @@ function inIframe () {
 
 
 
-// setup new gift external link preview in gifts/index page
-// fetch open graph metatags in an ajax request and display preview information under external link
-var gift_external_link_timer;                //timer identifier
+// setup new gift link preview in gifts/index page
+// fetch open graph meta tags with ajax and display preview information under link
+// typing delay 2 seconds.
 
-//user is "finished typing," do something
-function gift_external_link_done_typing () {
-    var url = document.getElementById('gift_external_link1').value ;
+var gift_open_graph_url_timer;                //timer identifier
+
+// user is done typing - get open graph meta tags in an ajax request - gift_open_graph_url_preview is called in ajax response
+function gift_open_graph_url_done () {
+    var url = document.getElementById('gift_open_graph_url1').value ;
     if (url == '') return ;
     // setup ajax request
     $.ajax({
@@ -2772,36 +2789,36 @@ function gift_external_link_done_typing () {
         dataType: 'script',
         data: { url: url },
         error: function (jqxhr, textStatus, errorThrown) {
-            var pgm = 'gift_external_link_done_typing: ajax: error: ' ;
+            var pgm = 'gift_open_graph_url_done: ajax: error: ' ;
             if (leaving_page) return ;
             var err = add2log_ajax_error(pgm, jqxhr, textStatus, errorThrown) ;
             add_to_tasks_errors(I18n.t('js.open_graph.ajax_error', {error: err, location: 24, debug: 0}));
         }
     });
-} // gift_external_link_done_typing
+} // gift_open_graph_url_done
 
-// index/gift page: sync content of gift_external_link1 and gift_external_link2 fields (create new gift)
-function gift_external_link_sync (field1) {
+// index/gift page: sync content of gift_open_graph_url1 and gift_open_graph_url2 fields (create new gift)
+function gift_open_graph_url_sync (field1) {
     // alert('oninput. id = ' + field1.id + ', value = ' + field1.value) ;
     var id2 ;
-    if (field1.id == 'gift_external_link1') id2 = 'gift_external_link2' ;
-    else id2 = 'gift_external_link1' ;
+    if (field1.id == 'gift_open_graph_url1') id2 = 'gift_open_graph_url2' ;
+    else id2 = 'gift_open_graph_url1' ;
     var field2 = document.getElementById(id2) ;
     if (!field2) return ;
     field2.value = field1.value ;
     // setup timer. fire ajax request in 2 seconds
-    clearTimeout(gift_external_link_timer);
+    clearTimeout(gift_open_graph_url_timer);
     if (field1.value != '') {
-        gift_external_link_timer = setTimeout(gift_external_link_done_typing, 2000);
+        gift_open_graph_url_timer = setTimeout(gift_open_graph_url_done, 2000);
     }
-} // gift_external_link_sync
+} // gift_open_graph_url_sync
 
-// preview external link before create new gift
-// response from /util/open_graph.js ajax request in gift_external_link_done_typing
-function gift_external_link_preview(url, title, description, image) {
-    // alert('gift_external_link_preview: url = ' + url + ', title = ' + title + ', description = ' + description + ', image = ' + image);
-    var external_link_preview = document.getElementById('external_link_preview') ;
-    if (!external_link_preview) return ;
+// preview link before create new gift
+// response from /util/open_graph.js ajax request in gift_open_graph_url_done
+function gift_open_graph_url_preview(url, title, description, image) {
+    // alert('gift_open_graph_url_preview: url = ' + url + ', title = ' + title + ', description = ' + description + ', image = ' + image);
+    var open_graph_url_preview = document.getElementById('open_graph_url_preview') ;
+    if (!open_graph_url_preview) return ;
     // create table with image, title (bold) and description
     var table, tbody, tr, td, img, b, t ;
     table = document.createElement('TABLE');
@@ -2834,12 +2851,12 @@ function gift_external_link_preview(url, title, description, image) {
     t = document.createTextNode(description) ;
     td.appendChild(t) ;
     // remove any old preview
-    while (external_link_preview.firstChild) {
-        external_link_preview.removeChild(external_link_preview.firstChild);
+    while (open_graph_url_preview.firstChild) {
+        open_graph_url_preview.removeChild(open_graph_url_preview.firstChild);
     }
     // insert preview
-    external_link_preview.appendChild(table) ;
-} // gift_external_link_preview
+    open_graph_url_preview.appendChild(table) ;
+} // gift_open_graph_url_preview
 
 
 

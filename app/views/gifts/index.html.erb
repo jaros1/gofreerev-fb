@@ -60,7 +60,7 @@
                     <tbody>
                     <tr>
                       <td><%= t '.link_prompt' %></td>
-                      <td><%= f.text_field(:external_link, :size => 28, :maxlength => 200, :placeholder => t('.link_placeholder'), :id => "gift_external_link1", :class => 'gift_external_link', :oninput=>"gift_external_link_sync(this)") %></td>
+                      <td><%= f.text_field(:open_graph_url, :size => 28, :maxlength => 200, :placeholder => t('.link_placeholder'), :id => "gift_open_graph_url1", :class => 'gift_open_graph_url', :oninput=>"gift_open_graph_url_sync(this)") %></td>
                     </tr>
                     </tbody>
                   </table>
@@ -72,10 +72,10 @@
         </tr>
         <tr class="new_gift_link_small">
           <td><%= t '.link_prompt' %></td>
-          <td><%= f.text_field(:external_link, :size => 28, :maxlength => 200, :placeholder => t('.link_placeholder'), :id => "gift_external_link2", :class => 'gift_external_link', :oninput=>"gift_external_link_sync(this)") %></td>
+          <td><%= f.text_field(:open_graph_url, :size => 28, :maxlength => 200, :placeholder => t('.link_placeholder'), :id => "gift_open_graph_url2", :class => 'gift_open_graph_url', :oninput=>"gift_open_graph_url_sync(this)") %></td>
         </tr>
         <tr>
-          <td id="external_link_preview" colspan="2"></td>
+          <td id="open_graph_url_preview" colspan="2"></td>
         </tr>
         <tr class="new_gift_submit_small">
           <td></td>

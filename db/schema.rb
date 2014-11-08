@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20141108061056) do
+ActiveRecord::Schema.define(version: 20141108083008) do
 
   create_table "ajax_comments", force: true do |t|
     t.string   "user_id",    limit: 40, null: false
@@ -134,23 +134,26 @@ ActiveRecord::Schema.define(version: 20141108061056) do
   add_index "gift_likes", ["user_id"], name: "index_gift_lines_on_user_id", using: :btree
 
   create_table "gifts", force: true do |t|
-    t.string   "gift_id",              limit: 20
-    t.text     "description",                     null: false
-    t.text     "currency",                        null: false
+    t.string   "gift_id",                limit: 20
+    t.text     "description",                       null: false
+    t.text     "currency",                          null: false
     t.text     "price"
     t.text     "received_at"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "status_update_at",                null: false
+    t.integer  "status_update_at",                  null: false
     t.datetime "deleted_at"
-    t.string   "direction",            limit: 10
-    t.string   "created_by",           limit: 10
+    t.string   "direction",              limit: 10
+    t.string   "created_by",             limit: 10
     t.text     "balance_giver"
     t.text     "balance_receiver"
     t.text     "balance_doc_giver"
     t.text     "balance_doc_receiver"
     t.text     "app_picture_rel_path"
-    t.text     "external_link"
+    t.text     "open_graph_url"
+    t.string   "open_graph_title"
+    t.text     "open_graph_description"
+    t.text     "open_graph_image"
   end
 
   add_index "gifts", ["gift_id"], name: "index_gifts_on_gift_id", unique: true, using: :btree

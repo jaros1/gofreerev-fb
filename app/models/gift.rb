@@ -286,28 +286,99 @@ class Gift < ActiveRecord::Base
     encrypt_remove_pre_and_postfix(extended_app_picture_rel_path, 'app_picture_rel_path', 41)
   end # app_picture_rel_path_was
 
-  # 31) external_link - http link to page on other website - alternative to picture attachment
+  # 31-34 open description attributes. used as an alternative to picture attachment in gifts/index page
+
+  # 31) open_graph_url - http link to page on other website - alternative to picture attachment
   # String en model - encrypted text in db
-  def external_link
-    # logger.debug50  "gift.external_link: external_link = #{read_attribute(:external_link)} (#{read_attribute(:external_link).class.name})"
-    return nil unless (extended_external_link = read_attribute(:external_link))
-    encrypt_remove_pre_and_postfix(extended_external_link, 'external_link', 50)
+  def open_graph_url
+    # logger.debug50  "gift.open_graph_url: open_graph_url = #{read_attribute(:open_graph_url)} (#{read_attribute(:open_graph_url).class.name})"
+    return nil unless (extended_open_graph_url = read_attribute(:open_graph_url))
+    encrypt_remove_pre_and_postfix(extended_open_graph_url, 'open_graph_url', 50)
   end
-  def external_link=(new_external_link)
-    # logger.debug50  "gift.external_link=: external_link = #{new_external_link} (#{new_external_link.class.name})"
-    if new_external_link
-      check_type('external_link', new_external_link, 'String')
-      write_attribute :external_link, encrypt_add_pre_and_postfix(new_external_link, 'external_link', 50)
+  def open_graph_url=(new_open_graph_url)
+    # logger.debug50  "gift.open_graph_url=: open_graph_url = #{new_open_graph_url} (#{new_open_graph_url.class.name})"
+    if new_open_graph_url
+      check_type('open_graph_url', new_open_graph_url, 'String')
+      write_attribute :open_graph_url, encrypt_add_pre_and_postfix(new_open_graph_url, 'open_graph_url', 50)
     else
-      write_attribute :external_link, nil
+      write_attribute :open_graph_url, nil
     end
   end
-  alias_method :external_link_before_type_cast, :external_link
-  def external_link_was
-    return external_link unless external_link_changed?
-    return nil unless (extended_external_link = attribute_was(:external_link))
-    encrypt_remove_pre_and_postfix(extended_external_link, 'external_link', 50)
-  end # external_link_was
+  alias_method :open_graph_url_before_type_cast, :open_graph_url
+  def open_graph_url_was
+    return open_graph_url unless open_graph_url_changed?
+    return nil unless (extended_open_graph_url = attribute_was(:open_graph_url))
+    encrypt_remove_pre_and_postfix(extended_open_graph_url, 'open_graph_url', 50)
+  end # open_graph_url_was
+
+  # 32) open_graph_title - http link to page on other website - alternative to picture attachment
+  # String en model - encrypted text in db
+  def open_graph_title
+    # logger.debug51  "gift.open_graph_title: open_graph_title = #{read_attribute(:open_graph_title)} (#{read_attribute(:open_graph_title).class.name})"
+    return nil unless (extended_open_graph_title = read_attribute(:open_graph_title))
+    encrypt_remove_pre_and_postfix(extended_open_graph_title, 'open_graph_title', 51)
+  end
+  def open_graph_title=(new_open_graph_title)
+    # logger.debug51  "gift.open_graph_title=: open_graph_title = #{new_open_graph_title} (#{new_open_graph_title.class.name})"
+    if new_open_graph_title
+      check_type('open_graph_title', new_open_graph_title, 'String')
+      write_attribute :open_graph_title, encrypt_add_pre_and_postfix(new_open_graph_title, 'open_graph_title', 51)
+    else
+      write_attribute :open_graph_title, nil
+    end
+  end
+  alias_method :open_graph_title_before_type_cast, :open_graph_title
+  def open_graph_title_was
+    return open_graph_title unless open_graph_title_changed?
+    return nil unless (extended_open_graph_title = attribute_was(:open_graph_title))
+    encrypt_remove_pre_and_postfix(extended_open_graph_title, 'open_graph_title', 51)
+  end # open_graph_title_was
+
+  # 33) open_graph_description - http link to page on other website - alternative to picture attachment
+  # String en model - encrypted text in db
+  def open_graph_description
+    # logger.debug52  "gift.open_graph_description: open_graph_description = #{read_attribute(:open_graph_description)} (#{read_attribute(:open_graph_description).class.name})"
+    return nil unless (extended_open_graph_description = read_attribute(:open_graph_description))
+    encrypt_remove_pre_and_postfix(extended_open_graph_description, 'open_graph_description', 52)
+  end
+  def open_graph_description=(new_open_graph_description)
+    # logger.debug52  "gift.open_graph_description=: open_graph_description = #{new_open_graph_description} (#{new_open_graph_description.class.name})"
+    if new_open_graph_description
+      check_type('open_graph_description', new_open_graph_description, 'String')
+      write_attribute :open_graph_description, encrypt_add_pre_and_postfix(new_open_graph_description, 'open_graph_description', 52)
+    else
+      write_attribute :open_graph_description, nil
+    end
+  end
+  alias_method :open_graph_description_before_type_cast, :open_graph_description
+  def open_graph_description_was
+    return open_graph_description unless open_graph_description_changed?
+    return nil unless (extended_open_graph_description = attribute_was(:open_graph_description))
+    encrypt_remove_pre_and_postfix(extended_open_graph_description, 'open_graph_description', 52)
+  end # open_graph_description_was
+
+  # 34) open_graph_image - http link to page on other website - alternative to picture attachment
+  # String en model - encrypted text in db
+  def open_graph_image
+    # logger.debug53  "gift.open_graph_image: open_graph_image = #{read_attribute(:open_graph_image)} (#{read_attribute(:open_graph_image).class.name})"
+    return nil unless (extended_open_graph_image = read_attribute(:open_graph_image))
+    encrypt_remove_pre_and_postfix(extended_open_graph_image, 'open_graph_image', 53)
+  end
+  def open_graph_image=(new_open_graph_image)
+    # logger.debug53  "gift.open_graph_image=: open_graph_image = #{new_open_graph_image} (#{new_open_graph_image.class.name})"
+    if new_open_graph_image
+      check_type('open_graph_image', new_open_graph_image, 'String')
+      write_attribute :open_graph_image, encrypt_add_pre_and_postfix(new_open_graph_image, 'open_graph_image', 53)
+    else
+      write_attribute :open_graph_image, nil
+    end
+  end
+  alias_method :open_graph_image_before_type_cast, :open_graph_image
+  def open_graph_image_was
+    return open_graph_image unless open_graph_image_changed?
+    return nil unless (extended_open_graph_image = attribute_was(:open_graph_image))
+    encrypt_remove_pre_and_postfix(extended_open_graph_image, 'open_graph_image', 53)
+  end # open_graph_image_was
 
 
   #

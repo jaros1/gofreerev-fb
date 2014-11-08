@@ -22,7 +22,6 @@ class GiftsController < ApplicationController
       return format_response_key '.deleted_user' if users2.size == 0
       @users = users2 if @users.size != users2.size
 
-      # todo: check for changed write permission to API wall
       # write warning if post_on_wall is selected and write permission on wall has been removed
       # write note if post_on_wall priv has been added in an other session and
       @users.each do |user|
@@ -45,6 +44,16 @@ class GiftsController < ApplicationController
       gift.created_by = gift.direction
       gift.currency = @users.first.currency
       gift.description = params[:gift][:description]
+      if params[:gift][:open_graph_url].to_s != ''
+        og = OpenGraphLink.find_or_create_link(params[:gift][:open_graph_url])
+        if og
+          # open graph url ok and open graph meta tags was found
+          gift.open_graph_url = og.url
+          gift.open_graph_title = og.title
+          gift.open_graph_description = og.description
+          gift.open_graph_image = og.image
+        end
+      end
       gift_file = params[:gift_file]
       picture = (gift_file.class.name == 'ActionDispatch::Http::UploadedFile')
       if picture and !get_post_on_wall_authorized(nil)
