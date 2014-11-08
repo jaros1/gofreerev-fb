@@ -26,7 +26,7 @@ class OpenGraphLink < ActiveRecord::Base
       og = OpenGraphLink.new
       og.url = url
     end
-    if false # EMBEDLY
+    if EMBEDLY
       # use embed.ly API to parse html page for open graph metatags. free for <5000 API requests per month
       # used on dev1 server where there is an issue with nokogiri dependencies
       # todo: add error handling
