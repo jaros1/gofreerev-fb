@@ -61,14 +61,14 @@
           <% if gift.open_graph_title.to_s != '' -%>
               <tr>
                 <td>
-                  <b><%= gift.open_graph_title %></b>
+                  <b><%= sanitize gift.open_graph_title %></b>
                 </td>
               </tr>
           <% end -%>
           <% if gift.open_graph_description.to_s != '' -%>
               <tr>
                 <td>
-                  <%= gift.open_graph_description %>
+                  <%= sanitize gift.open_graph_description %>
                 </td>
               </tr>
           <% end -%>
