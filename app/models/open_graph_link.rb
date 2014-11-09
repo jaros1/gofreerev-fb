@@ -38,7 +38,7 @@ class OpenGraphLink < ActiveRecord::Base
       og.image       = response[0].thumbnail_url
       og.updated_at  = Time.now
     else
-      # use opengraph_parser gem - used in development environment
+      # use opengraph_parser gem - used in development  environment
       response = OpenGraph.new(url)
       return nil unless response.title
       if !response.description
