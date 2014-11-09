@@ -730,4 +730,8 @@ group with issue 162, 177 and 178 <==
      add other "no friend list" login providers
      can be used in single sign-on with providers with friend lists
 
-select next issue to solve: (rand*185).floor+1
+186) user/index (friends) header
+     - remove facebook from apiname filter
+     - keep facebook in invite friends links
+
+select next issue to solve: (rand*187).floor+1
