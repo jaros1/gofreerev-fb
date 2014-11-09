@@ -2832,6 +2832,7 @@ function gift_open_graph_url_preview(url, title, description, image) {
         tr.appendChild(td) ;
         img = document.createElement('IMG') ;
         img.src = image ;
+        img.width = 200 ;
         td.appendChild(img) ;
     }
     // add bold title

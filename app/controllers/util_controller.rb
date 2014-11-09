@@ -2007,7 +2007,7 @@ class UtilController < ApplicationController
       # post on wall. cases:
       #  1) post with picture but picture does not exist (error)
       #  2) post with picture
-      #  3) post without picture and text2picture = 0 (always - flickr)
+      #  3) post without picture and text2picture = 0 (always - flickr & vkontakte)
       #  4) post without picture and text2picture = i and text length > i (i=140 twitter)
       #  5) post without picture
       begin
@@ -2027,13 +2027,31 @@ class UtilController < ApplicationController
 
         elsif API_TEXT_TO_PICTURE[provider] == 0 or
             API_TEXT_TO_PICTURE[provider].class == Fixnum and description_with_deep_link.length > API_TEXT_TO_PICTURE[provider]
-          # case 3 and 4. convert text to image
-          picture_full_os_path = Picture.create_png_image_from_text gift.description, 800
-          api_gift.api_gift_id, api_gift.api_gift_url, truncated = api_client.gofreerev_post_on_wall :logger => logger,
-                                                                                                     :api_gift => api_gift,
-                                                                                                     :open_graph => open_graph,
-                                                                                                     :picture => picture_full_os_path
-          FileUtils.rm picture_full_os_path if File.exists?(picture_full_os_path)
+          # case 3 and 4.
+          filetype = FastImage.type(gift.open_graph_image).to_s if gift.open_graph_image
+          if filetype != ''
+            # open graph url - use image from open graph meta tags
+            picture_rel_path = Picture.new_temp_rel_path(filetype)
+            picture_full_os_path = Picture.full_os_path :rel_path => picture_rel_path
+            # download
+            File.open(picture_full_os_path, 'wb') do |fo|
+              fo.write open(gift.open_graph_image).read
+            end
+            # upload
+            api_gift.api_gift_id, api_gift.api_gift_url, truncated = api_client.gofreerev_post_on_wall :logger => logger,
+                                                                                                       :api_gift => api_gift,
+                                                                                                       :open_graph => open_graph,
+                                                                                                       :picture => picture_full_os_path
+            FileUtils.rm picture_full_os_path if File.exists?(picture_full_os_path)
+          else
+            # convert text to image
+            picture_full_os_path = Picture.create_png_image_from_text gift.description, 800
+            api_gift.api_gift_id, api_gift.api_gift_url, truncated = api_client.gofreerev_post_on_wall :logger => logger,
+                                                                                                       :api_gift => api_gift,
+                                                                                                       :open_graph => open_graph,
+                                                                                                       :picture => picture_full_os_path
+            FileUtils.rm picture_full_os_path if File.exists?(picture_full_os_path)
+          end
         else
           # case 5: post on wall without picture
           api_gift.api_gift_id, api_gift.api_gift_url, truncated = api_client.gofreerev_post_on_wall :logger => logger,
