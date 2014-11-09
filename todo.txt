@@ -730,4 +730,4 @@ group with issue 162, 177 and 178 <==
      add other "no friend list" login providers
      can be used in single sign-on with providers with friend lists
 
-select next issue to solve: (rand*183).floor+1
+select next issue to solve: (rand*184).floor+1

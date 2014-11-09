@@ -1374,6 +1374,7 @@ class ApplicationController < ActionController::Base
       api_gift = options[:api_gift]
       logger = options[:logger]
       picture = options[:picture]
+      raise ImageNotFound unless picture # picture required for flickr
       # format message (direction + description + deep link) - use title and description when posting on flickr
       if API_POST_MAX_TEXT_LENGTHS[:flickr]
         title_lng = API_POST_MAX_TEXT_LENGTHS[:flickr][:title]
@@ -1822,6 +1823,7 @@ class ApplicationController < ActionController::Base
       api_gift = options[:api_gift]
       logger = options[:logger]
       picture = options[:picture]
+      raise ImageNotFound unless picture # picture required for flickr
       direction = options[:direction] # offers / seeks
       open_graph = options[:open_graph]
       # wall: false: post to Gofreerev album, true: post to VK wall.

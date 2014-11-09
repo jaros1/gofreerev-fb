@@ -2071,6 +2071,17 @@ class UtilController < ApplicationController
         # Gift posted in here but not on your facebook wall. Duplicate status message on facebook wall.
         # error should not happen any longer as deep link now is included in message
         gift_posted_on_wall_api_wall = 4
+      rescue ImageNotFound => e
+        # required image was not found (flickr and vkontakte)
+        # possible reasons:
+        #   a) missing picture attachment (should have been validated in browser before post)
+        #   b) picture to text convert disabled API_TEXT_TO_PICTURE[provider] == nil
+        gift_posted_on_wall_api_wall = 9
+      rescue PhantomjsNotFound => e
+        # text to image convert failed (case 3 and 4) in Picture.create_png_image_from_text
+        # phantomjs was not found on server. Please disable text to image convert or install phantomjs on server
+        # used for flickr and vkontakte where picture attachment is required
+        gift_posted_on_wall_api_wall = 11
       rescue => e
         logger.debug2 "Exception: #{e.message.to_s} (#{e.class})"
         logger.debug2 "Backtrace: " + e.backtrace.join("\n")

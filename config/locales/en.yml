@@ -872,6 +872,7 @@ en:
         gift_posted_8_html: "Gift posted here but not on your %{apiname}. You have removed %{appname} from %{apiname} and you no longer have access to %{appname} using your %{apiname} account. You should refresh the page as access rights have changed."
         gift_posted_9_html: "Gift posted here but not on your %{apiname} wall. Post on %{apiname} requires a photo attachment or that text to image convert is enabled (API_TEXT_TO_PICTURE)."
         gift_posted_10_html: "Gift posted here but not in your %{apiname} wall. Authorization expired. Please log in again to renew your authorization."
+        gift_posted_11_html: "Gift posted here but not on your %{apiname} wall. Post on %{apiname} requires a photo attachment or that text to image software is working on server. Text to picture convert program phantomjs was not found on server. Please install phantomjs or disable text to picture convert (API_TEXT_TO_PICTURE)."
         get_api_picture_url_missing: "System error. Posted on %{apiname} wall but did not found method get_api_picture_%{provider}. Photo cannot be displayed in %{appname}."
         no_api_picture_url: "Picture uploaded, but did not get a picture url from #{apiname}"
         fb_pic_post_declined_permission_html: "Gift was posted on your %{apiname} wall but picture cannot be displayed on your %{appname} wall. %{appname} do not have permission to read posts on your %{apiname} wall."

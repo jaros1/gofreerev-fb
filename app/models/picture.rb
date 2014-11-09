@@ -407,8 +407,14 @@ class Picture < ActiveRecord::Base
       logger.error2 "phantomjs: stdout = #{stdout}, stderr = #{stderr}, status = #{status} (#{status.class})"
       FileUtils.rm html_os_path
       FileUtils.rm js_os_path
-      FileUtils.rm png_os_path_os_path if File.exist?(png_os_path)
-      raise TextToImage.new "phantomjs failed with #{status}: #{stderr}"
+      FileUtils.rm png_os_path if File.exist?(png_os_path)
+      if status == 127
+        # phantomjs not found on server
+        raise PhantomjsNotFound.new "phantomjs failed with #{status}: #{stderr}."
+      else
+        # other phantomjs errors
+        raise TextToImage.new "phantomjs failed with #{status}: #{stderr}"
+      end
     end
     # cleanup files
     FileUtils.rm html_os_path
