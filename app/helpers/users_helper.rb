@@ -206,9 +206,9 @@ module UsersHelper
     end
   end # user_nav_link
 
-  # check if Gofreerev is using facebook friend list and if user has authorized user friend list to Gofreerev
-  # must return true or false
-  # users/index page - used in users.index.fb_friend_list_<boolean> translation key
+  # check if Gofreerev is using facebook friend list (FACEBOOK_FRIEND_LIST)
+  # and if user has authorized user friend list to Gofreerev ({"permission"=>"user_friends", "status"=>"granted"})
+  # must return true or false. used in users.index.fb_friend_list_<boolean> translation
   # display reason why facebook friend list is (almost) empty
   def facebook_friend_list
     return false unless FACEBOOK_FRIEND_LIST

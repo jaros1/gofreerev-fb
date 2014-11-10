@@ -730,8 +730,17 @@ group with issue 162, 177 and 178 <==
      add other "no friend list" login providers
      can be used in single sign-on with providers with friend lists
 
-186) user/index (friends) header
-     - remove facebook from apiname filter
-     - keep facebook in invite friends links
+187) Your app may break after 30 April 2015
+     Some of the permissions below have not been approved for use by Facebook.
+     was asking for read_stream priv. on localhost/laptop environment
 
-select next issue to solve: (rand*187).floor+1
+188) support open graph post to facebook.
+     https://developers.facebook.com/docs/graph-api/reference/v2.2/user/feed
+     extra information for link: picture, name, caption, description
+     without picture attachment - something like this
+     api_response = api_client.put_connections('me', 'feed',
+                                               :message => message, :picture => g.open_graph_image, :name => g.open_graph_title, :description => g.open_graph_description,
+                                               :link => 'http://localhost/da/gifts/p6m3e3xrypfpmfrkaytm2yEocUbBYU', :caption => SITE_URL)
+     use description from gift?
+
+select next issue to solve: (rand*188).floor+1

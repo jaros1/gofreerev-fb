@@ -97,8 +97,8 @@ GOOGLE_OAUTH2_SETUP = lambda do |env|
   end
 end # GOOGLE_OAUTH2_SETUP
 
-# facebook oauth 2.2 - note that facebook friends list is empty in oauth 2.x - friend list only include friends that also are app users
-# - false : don't ask for user_friends permission.
+# facebook oauth 2.2 - facebook friends list is empty in oauth 2.x - friend list only includes friends that also are app users
+# - false : don't ask for user_friends permission
 # - true  : ask for user_friends permission
 FACEBOOK_FRIEND_LIST = true
 
