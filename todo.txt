@@ -743,4 +743,4 @@ group with issue 162, 177 and 178 <==
                                                :link => 'http://localhost/da/gifts/p6m3e3xrypfpmfrkaytm2yEocUbBYU', :caption => SITE_URL)
      use description from gift?
 
-select next issue to solve: (rand*188).floor+1
+select next issue to solve: (rand*189).floor+1
