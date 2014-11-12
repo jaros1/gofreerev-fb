@@ -1266,6 +1266,7 @@ class ApplicationController < ActionController::Base
       begin
         if is_open_graph
           # post open graph link
+          # https://developers.facebook.com/docs/graph-api/reference/v2.2/user/feed
           api_response = api_client.put_connections('me', 'feed',
                                                     :message => message, :picture => gift.open_graph_image, :name => gift.open_graph_title, :description => gift.open_graph_description,
                                                     :link => api_gift.deep_link, :caption => SITE_URL)
@@ -1391,7 +1392,24 @@ class ApplicationController < ActionController::Base
         title_lng = API_POST_MAX_TEXT_LENGTHS[:flickr][:title]
         description_lng = API_POST_MAX_TEXT_LENGTHS[:flickr][:description]
       end
-      title, description, truncated = api_gift.get_wall_post_text_fields false, [title_lng, description_lng]
+      gift = api_gift.gift
+      if gift.open_graph_title
+        # post with open graph link:
+        # flickr title       = gofreerev direction + gofreerev description
+        # flickr description = link (a href) with gift open graph title + open graph description
+        title, truncated = api_gift.get_wall_post_text_fields true, [title_lng]
+        description = "<a href='#{api_gift.deep_link}' target='_blank'>#{gift.open_graph_title}</a> #{gift.open_graph_description}"
+      else
+        # post without open graph link - use flickr description part for gofreerev deep link
+        title, description, truncated = api_gift.get_wall_post_text_fields true, [title_lng, description_lng]
+        if description
+          description += ' '
+        else
+          description = ''
+        end
+        description += "<a href='#{api_gift.deep_link}' target='api_gift.deep_link'></a>"
+      end
+
       logger.debug2 "title = #{title}, description = #{description}"
       # post picture on flickr (always post with pictures)
       begin
