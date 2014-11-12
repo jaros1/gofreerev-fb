@@ -1191,6 +1191,8 @@ class ApplicationController < ActionController::Base
         description = on_error_desc
       end
     end
+    logger.debug2 "title       = #{title}"
+    logger.debug2 "description = #{description}"
     [title, description, truncated]
   end # open_graph_title_and_desc
 
@@ -1223,8 +1225,8 @@ class ApplicationController < ActionController::Base
     # add gofreerev_get_friends - used on post_login_<provider>
     api_client.define_singleton_method :gofreerev_get_friends do |logger|
       # get facebook friends list (name and url for profile picture for each facebook friend)
-      # note that some friends may have privacy settings that prevent client from pulling friends information from API
-      # ( not all friends are returned )
+      # note that friends list has been changed in facebook oauth 2.2 api. Only friends that also area app friends are returned.
+      # ( that is empty in must cases )
       api_request = 'me/friends?fields=name,id,picture.width(100).height(100)'
       # logger.debug2  "api_request = #{api_request}"
       friends = self.get_object api_request
@@ -1253,21 +1255,30 @@ class ApplicationController < ActionController::Base
       # get params
       logger = options[:logger]
       api_gift = options[:api_gift]
+      gift = api_gift.gift
       picture = options[:picture]
       # format message (direction + description + deep link) - only one text field message when posting on facebook
       message_lng = API_POST_MAX_TEXT_LENGTHS[provider]
-      message, truncated = api_gift.get_wall_post_text_fields(false, [message_lng])
+      is_open_graph = gift.open_graph_title ? true : false
+      message, truncated = api_gift.get_wall_post_text_fields(is_open_graph, [message_lng])
       logger.debug2 "message = #{message}"
       # post on wall with or without picture
       begin
-        if picture
-          # logger.debug2 'status post with picture'
+        if is_open_graph
+          # post open graph link
+          api_response = api_client.put_connections('me', 'feed',
+                                                    :message => message, :picture => gift.open_graph_image, :name => gift.open_graph_title, :description => gift.open_graph_description,
+                                                    :link => api_gift.deep_link, :caption => SITE_URL)
+          api_gift_id = api_response['id']
+        elsif picture
+          # post with picture attachment
           filetype = picture.split('.').last
           content_type = "image/#{filetype}"
           api_response = api_client.put_picture(picture, content_type, {:message => message}, login_user.uid)
           # api_response = {"id"=>"1396226023933952", "post_id"=>"100006397022113_1396195803936974"} (Hash)
           api_gift_id = api_response['post_id']
         else
+          # simple post message
           # logger.debug2 'status post without picture'
           # gift.description = "#{gift.description} - #{link}" # link only as text
           # gift.description = "<a href='#{link}'>#{gift.description}</a>" # html code as text

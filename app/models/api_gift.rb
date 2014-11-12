@@ -418,9 +418,10 @@ class ApiGift < ActiveRecord::Base
     direction_lng = direction.size
     description = gift.description
     description_lng = description.size
-    deep_link = self.deep_link()
+    deep_link = self.deep_link.clone
     if is_open_graph or !deep_link
       link_separator = ''
+      deep_link = nil
       deep_link_lng = 0
     elsif provider == 'twitter' and FORCE_SSL
       link_separator = ' '

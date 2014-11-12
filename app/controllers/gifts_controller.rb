@@ -423,7 +423,7 @@ class GiftsController < ApplicationController
     end
 
     # ok - show gift
-    if deep_link
+    if deep_link or gift.open_graph_title
       @gift = api_gift
       # http://ogp.me/
       # 1) http://wptest.means.us.com/online-meta-tag-length-checker/
@@ -433,17 +433,25 @@ class GiftsController < ApplicationController
       #    og:description max lengths: Facebook 300, linkedIn 225, Google+ 200 (LinkedIn have a 256 character limit in content.description field when posting)
       # 3) http://moz.com/blog/title-tags-is-70-characters-the-best-practice-whiteboard-friday
       #    title <= 70 characters
-      title, description = open_graph_title_and_desc(api_gift)
+      if gift.open_graph_title
+        # gift was created with open graph url. Use og meta tags as they were
+        title       = gift.open_graph_title
+        description = gift.open_graph_description
+      else
+        # get open graph meta tags from gift direction and description
+        title, description = open_graph_title_and_desc(api_gift)
+      end
       # image = api_gift.picture? ? api_gift.api_picture_url : API_OG_DEF_IMAGE[api_gift.provider]
-      # todo: refactor this - also used in util_controller.share_gift ==>
-      if !api_gift.picture?
+      if gift.open_graph_image
+        # gift was created with an open graph url
+        image = gift.open_graph_image
+      elsif !api_gift.picture?
         image = API_OG_DEF_IMAGE[api_gift.provider]
       elsif Picture.api_url?(api_gift.api_picture_url)
         image = api_gift.api_picture_url
       else
         image = "#{SITE_URL[0..-2]}#{api_gift.api_picture_url}"
       end
-      # <==
       logger.debug2 "OG. provider    = #{api_gift.provider}"
       logger.debug2 "OG: title       = #{title}"
       logger.debug2 "OG: description = #{description}"
