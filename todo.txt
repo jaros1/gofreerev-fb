@@ -703,8 +703,6 @@
      rescue in share_gift: Backtrace: /mnt/plugdisk/railsapps/gofreerev-fb/releases/20141103080657/app/controllers/util_controller.rb:2903:in `share_gift'
      max_lng er undefined
 
-group with issue 162, 177 and 178 ==>
-
 162) Gofreerev share link url
      .../share/url=%{url}&text=%{text}&image_url=%{image_url}&close=#{boolean}
      could be like gifts/index page, but with an pre-filled field with image url
@@ -712,16 +710,6 @@ group with issue 162, 177 and 178 ==>
      should preview link and text before submit
      http://embedly.github.io/jquery-preview/demo/
      http://blog.embed.ly/post/45149972337/jquery-preview
-
-177) allow link posts in Gofreerev.
-     That is link + text in gift create and maybe also in comment create
-
-178) allow url in create gift and create comment and add jquery preview functionality
-     That is like link preview in facebook posts.
-     To be used in issue 162) gofreerev share url functionality
-     Also to be used in issue 177) url in gift and comment
-
-group with issue 162, 177 and 178 <==
 
 180) no exception mailer mail from ajax errors
      for example exception in post login
@@ -734,4 +722,4 @@ group with issue 162, 177 and 178 <==
      Some of the permissions below have not been approved for use by Facebook.
      was asking for read_stream priv. on localhost/laptop environment
 
-select next issue to solve: (rand*190).floor+1
+select next issue to solve: (rand*191).floor+1
