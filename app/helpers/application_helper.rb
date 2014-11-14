@@ -133,13 +133,11 @@ module ApplicationHelper
     t '.last_login_text', :months => months, :weeks => weeks, :days => days, :hours => hours
   end
 
-  # todo: add date format
   def format_date (date)
     return nil unless date
     l date.to_date, :format => :short
   end
 
-  # todo: add time format.
   def format_time (time)
     l time, :format => :short
   end

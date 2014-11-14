@@ -1,5 +1,3 @@
- 1) add date format. see application_helper.format_date
-
  2) api notifications:
     get a app access token.
     send only notifications to api if internal notifications in app is not read.
@@ -702,14 +700,6 @@
      rescue in share_gift: Exception: undefined local variable or method `max_lng' for #<UtilController:0xb4ea7998> (NameError)
      rescue in share_gift: Backtrace: /mnt/plugdisk/railsapps/gofreerev-fb/releases/20141103080657/app/controllers/util_controller.rb:2903:in `share_gift'
      max_lng er undefined
-
-162) Gofreerev share link url
-     .../share/url=%{url}&text=%{text}&image_url=%{image_url}&close=#{boolean}
-     could be like gifts/index page, but with an pre-filled field with image url
-     normal params in share link urls (see js.share_gift.href_<provider>) are link and text. Normally not an image url
-     should preview link and text before submit
-     http://embedly.github.io/jquery-preview/demo/
-     http://blog.embed.ly/post/45149972337/jquery-preview
 
 180) no exception mailer mail from ajax errors
      for example exception in post login

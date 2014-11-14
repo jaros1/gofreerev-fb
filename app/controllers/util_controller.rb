@@ -1419,18 +1419,19 @@ class UtilController < ApplicationController
         # could not get full_picture url for an uploaded picture
         # the problem appeared after changing app visibility from friends to only me
         # that is - app is not allowed to get info about the uploaded picture!!
-        # just display a warning and continue. Request read_stream permission from user if read_stream priv. is missing
 
-        # drop read_stream priv. request in facebook oauth 2.x - long list of conditions before app can be approved.
-        api_gift.deleted_at_api = 'Y'
-        api_gift.save!
-        if just_posted
-          return ['.fb_pic_post_declined_permission_html', {:appname => APP_NAME, :apiname => login_user.apiname} ]
-        else
-          return nil
+        if !FACEBOOK_READ_STREAM
+          # facebook oauth 2.2 - read_stream priv. requires special approval process - skip request.
+          api_gift.deleted_at_api = 'Y'
+          api_gift.save!
+          if just_posted
+            return ['.fb_pic_post_declined_permission_html', {:appname => APP_NAME, :apiname => login_user.apiname} ]
+          else
+            return nil
+          end
         end
 
-        # not used code ==>
+        # just display a warning and continue. Request read_stream permission from user if read_stream priv. is missing
         api_gift.deleted_at_api = 'Y' if just_posted
         api_gift.save!
         # (re)check permissions
@@ -1469,7 +1470,6 @@ class UtilController < ApplicationController
           key =  '.fb_' + (api_gift.picture? ? 'pic' : 'msg') + '_' + (just_posted ? 'post' : 'check') + '_missing_permission_html'
           return [key, {:appname => APP_NAME, :apiname => login_user.apiname, :url => url}]
         end
-        # not used code <==
 
       elsif e.fb_error_type == 'OAuthException' and e.fb_error_code == 190 and [460, 458].index(e.fb_error_subcode)
         # Koala::Facebook::ClientError

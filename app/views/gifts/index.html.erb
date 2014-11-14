@@ -153,6 +153,16 @@
     pre_update_currency = gifts_pre_update_currency;
 </script>
 
+<script>
+  // new gift. check for /gifts?url=..&text==.. share link
+  // ajax get open graph meta tags in 2 seconds and display open graph preview under link
+  (function () {
+      var url = document.getElementById('gift_open_graph_url1') ;
+      if (url.value) gift_open_graph_url_sync(url) ;
+  })();
+</script>
+
+
 
 
 

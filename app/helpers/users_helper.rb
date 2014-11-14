@@ -211,7 +211,7 @@ module UsersHelper
   # must return true or false. used in users.index.fb_friend_list_<boolean> translation
   # display reason why facebook friend list is (almost) empty
   def facebook_friend_list
-    return false unless FACEBOOK_FRIEND_LIST
+    return false unless FACEBOOK_USER_FRIENDS
     login_user = @users.find { |u| u.provider == 'facebook' }
     permission = login_user.permissions.find { |h| h['permission'] == 'user_friends' }
     return false unless permission

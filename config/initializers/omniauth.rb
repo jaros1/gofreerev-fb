@@ -100,13 +100,15 @@ end # GOOGLE_OAUTH2_SETUP
 # facebook oauth 2.2 - facebook friends list is empty in oauth 2.x - friend list only includes friends that also are app users
 # - false : don't ask for user_friends permission
 # - true  : ask for user_friends permission
-FACEBOOK_FRIEND_LIST = true
+FACEBOOK_USER_FRIENDS = true
+# facebook oauth 2.2 - read_stream priv. requires special approval process - false - don't ask for read stream priv.
+FACEBOOK_READ_STREAM = false
 
 # C) - omniauth setup
 Rails.application.config.middleware.use OmniAuth::Builder do
   # facebook oauth 2.2 - note that facebook friends list is empty in oauth 2.x - friend list only include friends that also are app users
   provider :facebook, API_ID[:facebook], API_SECRET[:facebook],
-           :scope => ('public_profile' + case when FACEBOOK_FRIEND_LIST then ',user_friends' else '' end),
+           :scope => ('public_profile' + case when FACEBOOK_USER_FRIENDS then ',user_friends' else '' end),
            :image_size => :normal, :info_fields => "name,permissions,friends,picture,timezone",
            :client_options => {
                :site => 'https://graph.facebook.com',

@@ -293,6 +293,8 @@ class GiftsController < ApplicationController
     # initialize gift form in top of gifts/index page
     @gift = Gift.new
     @gift.direction = 'giver'
+    @gift.open_graph_url = params[:url] if params[:url].to_s != ''
+    @gift.description = params[:text] if params[:text].to_s != ''
     if User.dummy_users?(@users)
       # todo: this looks like an error (not logged in user)
       # http: should redirect to auth/index page
