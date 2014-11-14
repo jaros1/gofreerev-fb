@@ -1417,12 +1417,20 @@ class UtilController < ApplicationController
 
         # problem with upload and permissions
         # could not get full_picture url for an uploaded picture
-        # or could not get mesaage for an post
-        # the problem appeared after changing app visibility from public to friends
+        # the problem appeared after changing app visibility from friends to only me
         # that is - app is not allowed to get info about the uploaded picture!!
-        # there must be more to it - changed visibility to only me and did get picture url
-        # changed visibility to friends and did get the picture url
         # just display a warning and continue. Request read_stream permission from user if read_stream priv. is missing
+
+        # drop read_stream priv. request in facebook oauth 2.x - long list of conditions before app can be approved.
+        api_gift.deleted_at_api = 'Y'
+        api_gift.save!
+        if just_posted
+          return ['.fb_pic_post_declined_permission_html', {:appname => APP_NAME, :apiname => login_user.apiname} ]
+        else
+          return nil
+        end
+
+        # not used code ==>
         api_gift.deleted_at_api = 'Y' if just_posted
         api_gift.save!
         # (re)check permissions
@@ -1461,6 +1469,8 @@ class UtilController < ApplicationController
           key =  '.fb_' + (api_gift.picture? ? 'pic' : 'msg') + '_' + (just_posted ? 'post' : 'check') + '_missing_permission_html'
           return [key, {:appname => APP_NAME, :apiname => login_user.apiname, :url => url}]
         end
+        # not used code <==
+
       elsif e.fb_error_type == 'OAuthException' and e.fb_error_code == 190 and [460, 458].index(e.fb_error_subcode)
         # Koala::Facebook::ClientError
         # 1) fb_error_type    = OAuthException (String)
