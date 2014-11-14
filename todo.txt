@@ -721,5 +721,6 @@
 187) Your app may break after 30 April 2015
      Some of the permissions below have not been approved for use by Facebook.
      was asking for read_stream priv. on localhost/laptop environment
+     too many facebook conditions - drop read stream priv. as a workaround. - user must ajust privacy settings in fb
 
 select next issue to solve: (rand*191).floor+1

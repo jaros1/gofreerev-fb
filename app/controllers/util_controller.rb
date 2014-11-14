@@ -1461,14 +1461,21 @@ class UtilController < ApplicationController
           key =  '.fb_' + (api_gift.picture? ? 'pic' : 'msg') + '_' + (just_posted ? 'post' : 'check') + '_missing_permission_html'
           return [key, {:appname => APP_NAME, :apiname => login_user.apiname, :url => url}]
         end
-      elsif e.fb_error_type == 'OAuthException' and e.fb_error_code == 190 and e.fb_error_subcode == 460
+      elsif e.fb_error_type == 'OAuthException' and e.fb_error_code == 190 and [460, 458].index(e.fb_error_subcode)
         # Koala::Facebook::ClientError
-        # fb_error_type    = OAuthException (String)
-        # fb_error_code    = 190 (Fixnum)
-        # fb_error_subcode = 460 (Fixnum)
-        # fb_error_message = Error validating access token: The session has been invalidated because the user has changed the password. (String)
-        # http_status      = 400 (Fixnum)
-        # response_body    = {"error":{"message":"Error validating access token: The session has been invalidated because the user has changed the password.","type":"OAuthException","code":190,"error_subcode":460}}
+        # 1) fb_error_type    = OAuthException (String)
+        #    fb_error_code    = 190 (Fixnum)
+        #    fb_error_subcode = 460 (Fixnum)
+        #    fb_error_message = Error validating access token: The session has been invalidated because the user has changed the password. (String)
+        #    http_status      = 400 (Fixnum)
+        #    response_body    = {"error":{"message":"Error validating access token: The session has been invalidated because the user has changed the password.","type":"OAuthException","code":190,"error_subcode":460}}
+        # 2) fb_error_type    = OAuthException (String)
+        #    Koala::Facebook::ClientError
+        #    fb_error_code    = 190 (Fixnum)
+        #    fb_error_subcode = 458 (Fixnum)
+        #    fb_error_message = Error validating access token: The user has not authorized application 391393607629383. (String)
+        #    http_status      = 400 (Fixnum)
+        #    response_body    = {"error":{"message":"Error validating access token: The user has not authorized application 391393607629383.","type":"OAuthException","code":190,"error_subcode":458}}
         raise AppNotAuthorized ;
       else
         # unhandled koala / facebook exception
