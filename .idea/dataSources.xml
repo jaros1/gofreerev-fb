@@ -5,8 +5,6 @@
       <driver-ref>sqlite.xerial</driver-ref>
       <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
       <jdbc-url>jdbc:mysql://127.0.0.1/&lt;%= ENV[&quot;#{ENV_PREFIX}MYSQL_DATABASE&quot;] %&gt;</jdbc-url>
-      <user-name>root</user-name>
-      <user-password>dfd9dfdddfc3dfdedfc9dfc2dfc8dfcbdfc9dfc1df9fdf9c</user-password>
       <libraries>
         <library>
           <url>file://$USER_HOME$/.RubyMine50/config/jdbc-drivers/xerial-sqlite-license.txt</url>
@@ -31,4 +29,3 @@
     </data-source>
   </component>
 </project>
-

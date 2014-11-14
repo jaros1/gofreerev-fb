@@ -1646,14 +1646,25 @@ class ApplicationController < ActionController::Base
         # submitted-image-url share/content  URL for image of shared content  Invalid without (content/title and content/submitted-url).
         # description         share/content  Description of shared content    Max length of 256 characters.
         # note that linkedin uses meta property="og:description as default description
-        logger.debug2 "picture = #{picture}"
-        image_url = Picture.url :full_os_path => picture if picture
-        # logger.debug2 "image_url = #{image_url}"
-        image_url = SITE_URL + image_url.from(1) if image_url and image_url.first == '/'
-        logger.debug2 "image_url = #{image_url}"
+        # the 4 share/content fields must be open graph fields
+        gift = api_gift.gift
+        if gift.open_graph_title
+          # open graph link - use gofreerev deep link instead of original open graph url
+          comment = "#{gift.human_value(:direction)}#{gift.description}"
+          content = { "title" => gift.open_graph_title,
+                      "description" => gift.open_graph_description,
+                      "submitted-url" => deep_link,
+                      "submitted-image-url" => gift.open_graph_image }
+        else
+          logger.debug2 "picture = #{picture}"
+          image_url = Picture.url :full_os_path => picture if picture
+          # logger.debug2 "image_url = #{image_url}"
+          image_url = SITE_URL + image_url.from(1) if image_url and image_url.first == '/'
+          logger.debug2 "image_url = #{image_url}"
 
-        content = {"submitted-url" => deep_link, "title" => title, "description" => description}
-        content["submitted-image-url"] = image_url if api_gift.picture?
+          content = {"submitted-url" => deep_link, "title" => title, "description" => description}
+          content["submitted-image-url"] = image_url if api_gift.picture?
+        end
         logger.debug2 "content = #{content}, comment = #{comment}"
         x = self.add_share :content => content, :comment => comment
       rescue LinkedIn::Errors::AccessDeniedError => e

@@ -734,13 +734,4 @@ group with issue 162, 177 and 178 <==
      Some of the permissions below have not been approved for use by Facebook.
      was asking for read_stream priv. on localhost/laptop environment
 
-188) support open graph post to facebook.
-     https://developers.facebook.com/docs/graph-api/reference/v2.2/user/feed
-     extra information for link: picture, name, caption, description
-     without picture attachment - something like this
-     api_response = api_client.put_connections('me', 'feed',
-                                               :message => message, :picture => g.open_graph_image, :name => g.open_graph_title, :description => g.open_graph_description,
-                                               :link => 'http://localhost/da/gifts/p6m3e3xrypfpmfrkaytm2yEocUbBYU', :caption => SITE_URL)
-     use description from gift?
-
-select next issue to solve: (rand*189).floor+1
+select next issue to solve: (rand*190).floor+1
