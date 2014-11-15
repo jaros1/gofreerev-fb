@@ -387,12 +387,6 @@
      50x50   (1744/2877 bytes) is used everywhere else
      can make a difference on a slow connection / slow device
 
- 52) distribute option:
-     find friends / see gifts on other gofreerev servers
-     user-a id api friend with user-b, user-a is on server-a and user-b on server-b.
-     user-a should be allowed to see user-b's gifts on server b
-     user-b should be allowed to see user-a's gifts on server a
-
  53) ruby profiler. It could be nice with a good ruby profiler statistic.
      http://hiltmon.com/blog/2012/02/27/quick-and-dirty-rails-performance-profiling/
      https://github.com/ruby-prof/ruby-prof
@@ -453,7 +447,7 @@
      problem is that user could be entering a new comment and that this new unsaved comment will be removed
      testcase: create new gift and start adding a comment for new gift - will be deleted in next new_messages_count request
 
- 67) fix scroll page scroll after new comment
+ 67) fix scroll page scroll after new comment (big comments or smartphones)
      see scroll store and restore in JS post_ajax_add_new_comment_handler
      new comment should always be within actual view
 
@@ -603,13 +597,6 @@
      warning if one or more access tokens are about to expire
      for example within one week
 
-101) add special single sign-on login message
-     a) first single sign-on login with no expired access token
-     b) first single sign-on login with one or more expired access tokens
-     c) secondary single sign-on login - renew expired access token - no other expired access tokens
-     d) secondary single sign-on login - renew expired access tokens - one or more expired access tokens
-     e) likewise for share level 3 logins
-
 102) could not get google+ login with online access to work (share level 0-2). offline access is always being used
 
 103) ajax: missing "please wait" message when checking post on wall checkbox and active ajax task
@@ -684,7 +671,8 @@
      2) Emne: Flere widgets til Bootstrap
      http://exacttarget.github.io/fuelux/index.html
      3) Emne: VS: RATCHET
-     Bootstraps eget mobil web site optimerede framework. Hvordan det passer med at Bootstrap kalder sig et mobil first responsive design framework ved jeg ikke.
+     Bootstraps eget mobil web site optimerede framework.
+     Hvordan det passer med at Bootstrap kalder sig et mobil first responsive design framework ved jeg ikke.
 
 118) google refresh token and offline access
      check if there is an issue with disconnected google+ accounts and renewal of access token
@@ -707,5 +695,10 @@
 122) facebook is from oauth 2.0 a login only provider without friend list
      add other "no friend list" login providers
      can be used in single sign-on with providers with friend lists
+
+123) add dc meta tags to pages?
+     http://www.metatags.org/dublin_core_metadata_element_set
+     relevant for deep link and public pages
+     not relevant for login pages
 
 select next issue to solve: (rand*122).floor+1
