@@ -336,7 +336,7 @@ DEPENDENCIES
   minitest
   minitest-reporters (>= 0.5.0)
   money
-  mysql2
+  mysql2 (~> 0.3.16)
   omniauth
   omniauth-facebook
   omniauth-flickr
