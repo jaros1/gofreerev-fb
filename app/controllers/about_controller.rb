@@ -1,6 +1,6 @@
 class AboutController < ApplicationController
 
-  def index
+  def index #
     @sections = %w(about betatest cookies privacy disclaimer )
   end
 
